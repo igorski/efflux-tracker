@@ -20,20 +20,49 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 /* imports */
 
-var Menu      = require( "./view/Menu" );
-var SongModel = require( "./model/SongModel" );
+var eventHandler = require( "zjslib" ).EventHandler;
+var DOM          = require( "zjslib" ).DOM;
 
-/* initialize */
+/* variables */
 
-var Slocum = window.slocum = (function()
+var header, menu, toggle;
+
+var handler        = new eventHandler(),
+    menuOpened     = false; // whether menu is opened (mobile hamburger menu)
+
+module.exports =
 {
-    Menu.init();
+    init : function()
+    {
+        menu   = document.getElementById( "menu" );
+        header = document.getElementById( "header" );
 
-    this._models = {
-        "SongModel" : new SongModel()
+        if ( menu && header )
+            toggle = menu.querySelector( ".toggle" );
+
+        if ( toggle )
+            handler.addEventListener( toggle, "click", handleToggle );
     }
+};
 
-})();
+/* event handlers */
+
+function handleToggle( e )
+{
+    menuOpened = !menuOpened;
+
+    if ( menuOpened )
+    {
+        DOM.addClass( menu,   "opened" );
+        DOM.addClass( header, "expanded" );
+
+        document.body.style.overflow = "hidden"; // prevent scrolling main body when scrolling menu list
+    }
+    else {
+        DOM.removeClass( menu,   "opened" );
+        DOM.removeClass( header, "expanded" );
+        document.body.style.overflow = "auto";
+    }
+}

@@ -9,7 +9,7 @@ var config = module.exports =
 
         // where the app development takes place
         project: {
-            root      : 'src',
+            root      : 'src/',
             js        : 'src/js',
             assets    : 'src/assets/',
             templates : 'src/templates/',

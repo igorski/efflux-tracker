@@ -22,7 +22,8 @@
     "zjslib" : "^0.1.2",
     "atomify-css" : "^3.2.2",
     "chai": "^1.9.2",
-    "mocha": "^2.2.5"
+    "mocha": "^2.2.5",
+    "mock-browser": "^0.91.34"
   },
   "scripts": {
     "test": "mocha test"

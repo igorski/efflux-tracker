@@ -34,5 +34,7 @@ Unit tests are run via mocha, which is installed as a dependency. You can run th
 
     npm test
     
-Unit tests go in the _./tests_-folder. The file name for a unit test must be equal to the file it is testing, but contain
+Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
+
+NOTE : Node v4.0 or higher must be installed for running the tests (depends on jsdom)

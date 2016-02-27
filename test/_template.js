@@ -13,25 +13,29 @@ describe( "namespace.Function", function()
 
     // executed before the tests start running
 
-    before(function(){
+    before( function()
+    {
 
     });
 
     // executed when all tests have finished running
 
-    after(function(){
+    after( function()
+    {
 
     });
 
     // executed before each individual test
 
-    beforeEach(function(){
+    beforeEach( function()
+    {
 
     });
 
     // executed after each individual test
 
-    afterEach(function(){
+    afterEach( function()
+    {
 
     });
 
