@@ -48,6 +48,8 @@ function SongModel()
 /* public methods */
 
 /**
+ * get all songs stored in the model
+ *
  * @public
  * @return {Array.<Object>}
  */
@@ -57,6 +59,39 @@ SongModel.prototype.getSongs = function()
 };
 
 /**
+ * create the outline of a new song with default
+ * parameters
+ *
+ * @public
+ * @return {Object}
+ */
+SongModel.prototype.createSong = function()
+{
+    return {
+
+        // unique identifier
+
+        id   : Date.now() + Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 ),
+
+        // outline of meta data
+
+        meta : {
+            title   : "",
+            created : Date.now(),
+            tempo   : 150
+        },
+
+        // data lists
+
+        patterns : [
+
+        ]
+    };
+};
+
+/**
+ * save given song into the model
+ *
  * @public
  * @param {Object} aSong
  */
@@ -70,6 +105,8 @@ SongModel.prototype.addSong = function( aSong )
 };
 
 /**
+ * delete given song from the model
+ *
  * @public
  * @param {Object} aSong
  *
@@ -100,6 +137,8 @@ SongModel.prototype.deleteSong = function( aSong )
 /* private methods */
 
 /**
+ * save the state of the model in local storage
+ *
  * @private
  */
 SongModel.prototype.persist = function(  )

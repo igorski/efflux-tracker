@@ -28,12 +28,19 @@ var SongModel = require( "./model/SongModel" );
 
 /* initialize */
 
-var Slocum = window.slocum = (function()
+(function( ref )
 {
+    var slocum = ref.slocum =
+    {
+        _models : {
+            SongModel : new SongModel()
+        }
+    };
+
+    // create new empty song
+    slocum.activeSong = slocum._models.SongModel.createSong();
+
+    // initialize application
     Menu.init();
 
-    this._models = {
-        "SongModel" : new SongModel()
-    }
-
-})();
+})( self );

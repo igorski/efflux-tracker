@@ -46,11 +46,35 @@ describe( "SongModel", function()
 
     /* actual unit tests */
 
+    it( "should be able to create songs", function()
+    {
+        var song = model.createSong();
+
+        assert.ok( typeof song.id === "string",
+            "expected created Object to have an identifier property" );
+
+        assert.ok( typeof song.meta === "object",
+            "expected created Object to have a meta properties Object" );
+
+        assert.ok( typeof song.meta.tempo === "number",
+            "expected created Object to have a numerical tempo property" );
+
+        assert.ok( song.patterns instanceof Array,
+            "expected created Object to have a patterns Array" );
+
+        var compare;
+
+        for ( var i = 0; i < 1024; ++i ) {
+            compare = model.createSong();
+
+            assert.notStrictEqual( song.id, compare.id,
+                "expected songs to have unique identifiers" );
+        }
+    });
+
     it( "should be able to save songs in storage", function()
     {
-        var song = {
-            id: "foo"
-        };
+        var song = model.createSong();
 
         assert.strictEqual( 0, model.getSongs().length,
             "expected no songs in model prior to saving" );
@@ -60,10 +84,7 @@ describe( "SongModel", function()
         assert.strictEqual( 1, model.getSongs().length,
             "expected 1 song in model after saving" );
 
-        var song2 = {
-            id: "bar"
-        };
-
+        var song2 = model.createSong();
         model.addSong( song2 );
 
         assert.strictEqual( 2, model.getSongs().length,
@@ -77,13 +98,8 @@ describe( "SongModel", function()
 
     it( "should be able to delete songs from storage", function()
     {
-        var song = {
-            id: "foo"
-        };
-
-        var song2 = {
-            id: "bar"
-        };
+        var song  = model.createSong();
+        var song2 = model.createSong();
 
         model.addSong( song );
         model.addSong( song2 );
