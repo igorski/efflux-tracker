@@ -1,0 +1,67 @@
+// CSS3 2D Transforms
+// reference: http://www.w3.org/TR/css3-2d-transforms/
+// jQuery fallback: https://github.com/heygrady/transform/wiki
+
+.transform(@a, @b, @c, @d, @e, @f, @g, @h, @i, @j) {
+    -webkit-transform: @arguments;
+       -moz-transform: @arguments;
+        -ms-transform: @arguments;
+         -o-transform: @arguments; // Note: Opera has no 3D transforms support. 2D is supported in 11.60
+            transform: @arguments;
+}
+
+.transform-origin(@a:center center) {
+    -webkit-transform-origin: @arguments;
+       -moz-transform-origin: @arguments;
+        -ms-transform-origin: @arguments;
+         -o-transform-origin: @arguments;
+            transform-origin: @arguments;
+}
+
+// todo: finalize shorthand for indiviual 2D transforms.
+.scale(@a:1) {
+    .transform(scale(@a));
+}
+
+.rotate(@a:0) {
+    .transform(rotate(@a));
+}
+
+.skew(@a:0) {
+    .transform(skew(@a));
+}
+
+.translate(@a) {
+    .transform(translate(@a));
+}
+
+// CSS3 3D Transforms
+// reference: http://www.w3.org/TR/css3-3d-transforms/
+
+.backface-visibility() {
+    -webkit-backface-visibility: @arguments; // Chrome 12
+       -moz-backface-visibility: @arguments; // Firefox 10
+        -ms-backface-visibility: @arguments; // IE10
+            backface-visibility: @arguments;
+}
+
+.transform-style() {
+    -webkit-transform-style: @arguments;
+       -moz-transform-style: @arguments;
+        -ms-transform-style: @arguments;
+            transform-style: @arguments;
+}
+
+.perspective() {
+    -webkit-perspective: @arguments;
+       -moz-perspective: @arguments;
+        -ms-perspective: @arguments;
+            perspective: @arguments;
+}
+
+.perspective-origin() {
+    -webkit-perspective-origin: @arguments;
+       -moz-perspective-origin: @arguments;
+        -ms-perspective-origin: @arguments;
+            perspective-origin: @arguments;
+}

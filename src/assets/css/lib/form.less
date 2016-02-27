@@ -1,0 +1,102 @@
+.formSetup(@_, @formWidth:auto, @fieldWidth:100%, @labelWidth:100%, @fieldPadding: 0) {
+    form {
+        width: @formWidth;
+
+        .wrapper {
+            padding: 1ex 0;
+            position: relative;
+
+            &.text,
+            &.password,
+            &.email {
+
+                input {
+                    .border-radius(0.66ex);
+                    border: 1px solid #ccc;
+                    padding: 0.5ex 10px;
+                }
+            }
+        }
+
+        .box-shadow( 0 0 12px #888);
+        padding: 1em;
+        background-color: rgba(255,255,255,0.3);
+        margin: 1em 0;
+
+        p {
+            font-size: 80%;
+            line-height: 1.75;
+            padding: 1em 0;
+        }
+    }
+
+    legend {
+        font-weight: bold;
+    }
+}
+
+.formSetup(list, @formWidth:100%, @fieldWidth:100%, @labelWidth:100%, @fieldPadding:2.5% ) {
+
+    form {
+
+        .wrapper {
+
+            margin-bottom: 1.5em;
+
+            label {
+                display: block;
+                line-height: 2em;
+                font-weight: bold;
+                font-size: 90%;
+            }
+
+            &.text,
+            &.password,
+            &.email {
+
+                input {
+                    padding: 0.5ex @fieldPadding;
+                    width: @fieldWidth - @fieldPadding*2;
+                }
+            }
+        }
+    }
+}
+
+.formSetup(tabular, @formWidth:100%, @fieldWidth:220px, @labelWidth:160px, @fieldPadding:10px ) {
+
+    form {
+
+        .wrapper {
+
+            .label {
+                float: left;
+                width: @labelWidth;
+            }
+
+            &.text,
+            &.password,
+            &.email {
+
+                label {
+                    .label;
+                }
+
+                input {
+                    min-width: @fieldWidth;
+                }
+            }
+
+            &.radiogroup,
+            &.checkboxgroup {
+                padding-left: @labelWidth;
+
+                .label {
+                    position: absolute;
+                    top: 1ex;
+                    left: 0;
+                }
+            }
+        }
+    }
+}

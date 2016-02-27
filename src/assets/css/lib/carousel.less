@@ -1,0 +1,81 @@
+/* Carousel setup
+ * --------------
+ * author: @nuey
+ **/
+
+.carouselSetup( @width: 480px, @height: 270px ) {
+
+    .carousel {
+         width: @width;
+         position: relative;
+         margin-bottom: (@width/8) + 1.5em;
+
+
+        .carousel-wrapper {
+            width: @width;
+            height: @height;
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
+        }
+
+        .carousel-list {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            position: relative;
+            top: 0;
+            left: 0;
+
+            .carousel-item {
+                float: left;
+                margin: 0;
+                padding: 0;
+                width: @width;
+                height: @height;
+                overflow: hidden; // Clip excess
+            }
+        }
+
+        .carousel-controls {
+            a {
+                position: absolute;
+                width: @width/4;
+                height: @width/16;
+                line-height: @width/16;
+                background: #d8d8d8;
+                position: absolute;
+                bottom: -@width/16;
+                display: block;
+                text-align: center;
+                text-decoration: none;
+                color: inherit;
+
+                &.prev {
+                    left: 0;
+                }
+
+                &.next {
+                    right: 0;
+                }
+            }
+        }
+
+        .carousel-pager {
+
+            text-align: center;
+            height: @width/16;
+            line-height: @width/16;
+
+            span {
+                margin: 0 0.5ex 0 0;
+                cursor: pointer;
+
+                &.active {
+                    color: #933;
+                }
+
+            }
+        }
+    }
+}

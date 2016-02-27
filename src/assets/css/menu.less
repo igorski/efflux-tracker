@@ -1,0 +1,183 @@
+@menu-height: 56px;
+@submenu-height: 73px;
+@toggle-width: 50px;
+
+#header {
+  box-shadow: 0 0 5px rgba(0,0,0,.5);
+  padding: 0;
+  width: 100%;
+  position: fixed;
+  top: 0;
+  z-index: 200;
+
+  ul {
+    display: inline;
+    list-style-type: none;
+    padding: 0 0 0 1em;
+    margin: 0;
+
+    li {
+      display: inline;
+      padding: 0 1em 0 0;
+      margin: 0;
+    }
+  }
+}
+
+#menu
+{
+  background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
+  background-repeat: repeat-x;
+  width: 100%;
+  height: @menu-height;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 1em 0;
+
+  .toggle {
+    position: absolute;
+    display: none;
+    top: 0;
+    left: 0;
+    cursor: pointer;
+    width: @toggle-width;
+    height: @menu-height;
+  }
+
+  ul {
+    width: @app-width;
+    margin: 0 auto;
+    padding: 0;
+    display: block;
+
+    h1 {
+      display: inline;
+
+      a {
+        color: @color-main;
+        text-decoration: none;
+      }
+    }
+  }
+
+  li {
+    a {
+      color: #000;
+      text-decoration: none;
+      padding-bottom: 1em;
+
+      &:hover {
+        color: @color-main;
+        border-bottom: none;
+        text-decoration: none;
+      }
+    }
+
+    &.active {
+      a {
+        border-bottom: 3px solid #555;
+      }
+    }
+  }
+}
+
+/* everything between minimum desktop width and mobile view */
+
+@media screen and ( max-width: @app-width ) and ( min-width: @mobile-width )
+{
+  #menu ul {
+    padding: 0 1em;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* mobile view */
+
+@media screen and ( max-width: @mobile-width )
+{
+  #header
+  {
+    height: 56px; // makes box shadow visible
+
+    &.expanded {
+      height: 100%;
+    }
+
+    ul {
+      display: block;
+      width: 100%;
+      background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
+      background-repeat: repeat-x;
+
+      padding: 0;
+
+      li {
+        display: block;
+        width: 100%;
+
+        a {
+          width: 100%;
+        }
+
+        &:hover {
+          background-color: @color-main;
+        }
+      }
+    }
+  }
+  #menu {
+    position: fixed;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    width: 100%;
+    height: inherit;
+    top: 0;
+    left: 0;
+
+    .toggle {
+      display: block; // because we have toggle!
+    }
+
+    ul
+    {
+      position: absolute;
+      top: @menu-height;
+      display: none;
+
+      h1 {
+        display: none;
+      }
+
+      li
+      {
+        a {
+          display: block;
+          width: 100%;
+          padding: .5em 1em;
+          color: #000;
+
+          &:hover {
+            color: #000;
+          }
+        }
+        &.active a {
+          border-bottom: none;
+          color: #FFF;
+          font-weight: bold;
+          font-style: italic;
+          background-color: @color-main;
+        }
+      }
+    }
+
+    &.opened {
+      //height: 100%;
+      position: absolute;
+      ul {
+        display: block;
+        height: 100%;
+      }
+    }
+  }
+}

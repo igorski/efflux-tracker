@@ -1,0 +1,28 @@
+// warning: comma separated groups of transition arguments will break this. Literal fix?
+
+.transition( @a ) {
+    -webkit-transition: @arguments;
+       -moz-transition: @arguments;
+         -o-transition: @arguments;
+            transition: @arguments;
+}
+
+.transition-property( @a ) {
+    -webkit-transition-property: @arguments;
+       -moz-transition-property: @arguments;
+         -o-transition-property: @arguments;
+            transition-property: @arguments;
+}
+
+.transition-delay( @a ) {
+    -webkit-transition-delay: @arguments;
+       -moz-transition-delay: @arguments;
+            transition-delay: @arguments;
+}
+
+.transition-duration( @a ) {
+    -webkit-transition-duration: @arguments;
+       -moz-transition-duration: @arguments;
+         -o-transition-duration: @arguments;
+            transition-duration: @arguments;
+}

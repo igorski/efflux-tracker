@@ -1,0 +1,101 @@
+@import url( "lib/work.less" );
+@import url( "lib/helpers.less" );
+
+@app-width: 960px;
+@mobile-width: 640px; // the threshold where we start to use the mobile view
+
+@color-main: #0db0bc;
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #EEE;
+  //background-color: #212224;
+}
+
+.main {
+  width: 100%;
+  min-height: 100%;
+  margin: 0 auto;
+  padding: .5em;
+  box-sizing: border-box;
+
+  margin-bottom: -@footer-height; /* minus the footer height to make it sticky */
+
+  /* sticky footer-specific */
+
+  &:before, &:after {
+    content: "";
+    display: block;
+    height: @menu-height;
+  }
+
+  /* E.O. sticky footer magic */
+}
+
+/* standard width : desktop / large tablet */
+
+@media screen and ( min-width: @app-width )
+{
+  .main
+  {
+    width: @app-width;
+    padding: 0;
+
+    /* text flowing into multiple columns */
+
+    .text-content {
+      -webkit-column-count: 2;
+         -moz-column-count: 2;
+              column-count: 2;
+
+      -webkit-column-gap: 20px;
+         -moz-column-gap: 20px;
+              column-gap: 20px;
+
+      p {
+        display: inline-block;
+        vertical-align: top;
+      }
+    }
+  }
+}
+
+/* everything larger than a phone */
+
+@media screen and ( min-width: @mobile-width )
+{
+  .main
+  {
+    padding: 0 1.5em;
+
+    /* menu contains submenu */
+
+    &.padded {
+      padding-left: 1em;
+      padding-right: 1em;
+
+      &:before, &:after {
+        height: 128px;
+      }
+    }
+  }
+}
+
+/* mobile view */
+
+@media screen and ( max-width: @mobile-width )
+{
+  .main {
+    padding: 0 1.5em;
+  }
+}
+
+@import url( "typography.less" );
+@import url( "index.less" );
+@import url( "menu.less" );
+@import url( "footer.less" );

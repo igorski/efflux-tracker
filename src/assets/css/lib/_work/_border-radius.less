@@ -1,0 +1,52 @@
+// Border radius (http://www.w3.org/TR/css3-background/#corners)
+// ----------
+// Note: shorthand border-radius notation for curve radii requires you input your arguments in a literal:
+//
+//      .border-radius( ~'10px/5px');
+//
+// The non-shorthand versions can be inserted in an orderly fashion:
+//
+//      .border-top-left-radius(10px 5px);
+//
+// ----------
+//
+
+.border-radius ( @a: 10px ) {
+    -webkit-border-radius: @a;
+     -khtml-border-radius: @a;
+       -moz-border-radius: @a;
+         -o-border-radius: @a;
+            border-radius: @a;
+}
+
+.border-top-left-radius ( @a: 10px ) {
+    -webkit-border-top-left-radius: @a;
+     -khtml-border-top-left-radius: @a;
+       -moz-border-top-left-radius: @a;
+         -o-border-top-left-radius: @a;
+            border-top-left-radius: @a;
+}
+
+.border-top-right-radius ( @a: 10px ) {
+    -webkit-border-top-right-radius: @a;
+     -khtml-border-top-right-radius: @a;
+       -moz-border-top-right-radius: @a;
+         -o-border-top-right-radius: @a;
+            border-top-right-radius: @a;
+}
+
+.border-bottom-left-radius ( @a: 10px ) {
+    -webkit-border-bottom-left-radius: @a;
+     -khtml-border-bottom-left-radius: @a;
+       -moz-border-bottom-left-radius: @a;
+         -o-border-bottom-left-radius: @a;
+            border-bottom-left-radius: @a;
+}
+
+.border-bottom-right-radius ( @a: 10px ) {
+    -webkit-border-bottom-right-radius: @a;
+     -khtml-border-bottom-right-radius: @a;
+       -moz-border-bottom-right-radius: @a;
+         -o-border-bottom-right-radius: @a;
+            border-bottom-right-radius: @a;
+}

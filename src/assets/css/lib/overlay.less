@@ -1,0 +1,42 @@
+/*
+ - use box properties for cool browsers
+ - fall back on table-cell display for shit browsers
+ - positioning absolutely as another option. Requires width/height though.
+*/
+
+#overlay-container {
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    .rgba-background(black, 0.5);
+    position: fixed;
+    z-index: 1000;
+
+    &.normal {
+        .boxSetup(horizontal, center, 0, center);
+    }
+
+    &.small {
+        #overlay-window {
+            margin: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+
+            &.video {
+                margin-left: 60px;
+
+                #close-btn {
+                    right: 140px;
+                }
+            }
+        }
+    }
+}
+
+#overlay-window {
+    position: absolute;
+    background: white;
+}
+

@@ -1,0 +1,30 @@
+{
+  "name": "slocum-tracker",
+  "version": "1.0.0",
+  "description": "graphical tracker interface that exports composition into assembly",
+  "private": true,
+  "author": "Igor Zinken",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-browser-sync": "^1.5.2",
+    "grunt-browserify": "^3.0.1",
+    "grunt-contrib-clean": "^0.6.0",
+    "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-copy": "^0.6.0",
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "grunt-text-replace": "^0.4.0",
+    "grunt-contrib-uglify": "^0.8.0",
+    "grunt-contrib-handlebars": "^0.10.2",
+    "handlebars": "^3.0.3",
+    "zjslib" : "^0.1.2",
+    "atomify-css" : "^3.2.2",
+    "chai": "^1.9.2",
+    "mocha": "^2.2.5"
+  },
+  "scripts": {
+    "test": "mocha test"
+  }
+}

@@ -1,0 +1,8 @@
+// CSS Border Image
+// reference:
+.border-image-source ( @img ) {
+    -webkit-border-image-source: url("@{img}"); // Chrome 7+, Safari 4+
+       -moz-border-image-source: url("@{img}"); // Firefox 3.5+
+         -o-border-image-source: url("@{img}"); // Opera 11.0
+            border-image-source: url("@{img}"); // Opera 10.5 (?!)
+}

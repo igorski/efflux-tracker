@@ -1,0 +1,84 @@
+/* work.LESS - Doing more CSS3 with less worries about vendor prefixes.
+ * --------------------------------------------------------------------
+ * twitter: @nuey
+ * https://github.com/nswaldman/work.less/
+ **/
+
+.opacity( @opacity: 1 ) {
+    // note: this appeared to be a scope bug. Instead, alpha() is both a LESS transform *and* a value for IE filters. / @nuey
+    @IEopacity: percentage(@opacity);
+    opacity: @opacity;
+    filter: ~'alpha(opacity=@{IEopacity});' // see?
+}
+
+// Text shdadow
+.text-shadow( @a ) {
+  -webkit-text-shadow: @arguments;
+     -moz-text-shadow: @arguments;
+          text-shadow: @arguments;
+}
+
+// Text  overflow ellipsis
+.ellipsis(@a:"ellipsis") {
+             overflow: hidden;
+        text-overflow: @arguments; // IE6-7, Safari 3+, Chrome 1+, Firefox 7+
+    -ms-text-overflow: @arguments; // IE8+
+     -o-text-overflow: @arguments; // Opera
+    // Major hack for Firefox 6 and lower. *Not* recommended.
+    // -moz-binding: url(<q>assets/xml/ellipsis.xml#ellipsis</q>);
+    // http://mattsnider.com/css-string-truncation-with-ellipsis/
+}
+
+.box-shadow( @a ) {
+    -webkit-box-shadow: @arguments;
+       -moz-box-shadow: @arguments;
+            box-shadow: @arguments;
+}
+
+.hasLayout( ) {
+    // apply in .legacy { }
+    zoom: 1;
+    // todo: create more styles to trigger different hasLayout bugfixes.
+}
+
+.boxSetup(@orient, @align, @flex:0, @pack:start) {
+
+    display: -webkit-box;
+    display:    -moz-box;
+    display:         box;
+
+    -webkit-box-align: @align;
+       -moz-box-align: @align;
+            box-align: @align;
+
+    -webkit-box-orient: @orient;
+       -moz-box-orient: @orient;
+            box-orient: @orient;
+
+    -webkit-box-pack: @pack;
+       -moz-box-pack: @pack;
+            box-pack: @pack;
+
+    -webkit-box-flex: @flex;
+       -moz-box-flex: @flex;
+            box-flex: @flex;
+
+}
+
+// Backgrounds & Borders
+// ----------
+@import "_work/_background.less";
+@import "_work/_border-image.less";
+@import "_work/_border-radius.less";
+
+// 2D & 3D transformations
+// ----------
+@import "_work/_transformations.less";
+
+// Transitions
+// ----------
+@import "_work/_transitions.less";
+
+// Animations
+// ----------
+@import "_work/_animations.less";

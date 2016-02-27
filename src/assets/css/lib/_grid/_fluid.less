@@ -1,0 +1,16 @@
+.fluid(@fluid-val:1) {
+    
+    @fluid-gutter: 1.66666666666666%;
+    @fluid-column: 6.6666666666667%;
+    @fluid-count:  12;
+    @fluid-width: ( @fluid-gutter + @fluid-column ) * @fluid-val - @fluid-gutter;
+
+    .grid();
+    width: @fluid-width;
+    margin: 0 @fluid-gutter/2;
+}
+
+.fluidRow() {
+    margin: 0;
+    width: 98.333333333333%;
+}

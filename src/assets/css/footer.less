@@ -1,0 +1,40 @@
+@footer-height: 56px;
+
+#footer {
+  //background: #333;
+  background-image: linear-gradient(to bottom,#474747 0,#303030 100%);
+  display: inline-block;
+  width: 100%;
+  height: @footer-height;
+  color: #EEE;
+
+  span {
+    width: auto;
+    text-align: center;
+    margin: 0 auto;
+    display: block;
+    padding: 1em 0;
+  }
+}
+
+// ideal app width and up
+
+@media screen and ( min-width: @app-width )
+{
+  #footer {
+    span {
+      width: @app-width;
+      text-align: left;
+    }
+  }
+}
+
+// phones
+
+@media screen and ( max-width: @mobile-width )
+{
+  #footer {
+    padding: 0 1em;
+    box-sizing: border-box;
+  }
+}
