@@ -1,0 +1,20 @@
+<h3>Pattern editor</h3>
+{{#each channels}}
+<ul class="pattern">
+    {{#each this}}
+    <li>
+        {{#if this.sound}}
+            <span class="sound">
+                {{this.sound}}
+            </span>
+            <span class="note">
+                {{this.note}}
+                {{this.octave}}
+            </span>
+        {{else}}
+            ----
+        {{/if}}
+    </li>
+    {{/each}}
+</ul>
+{{/each}}

@@ -20,36 +20,26 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongModel          = require( "./model/SongModel" );
-var KeyboardController = require( "./controller/KeyboardController" );
-var MenuController     = require( "./controller/MenuController" );
-var MetaController     = require( "./controller/MetaController" );
-var PatternController  = require( "./controller/PatternController" );
-
-/* initialize */
-
-(function( ref )
+module.exports =
 {
-    // prepare application model
-
-    var slocum = ref.slocum =
+    /**
+     * convert a given timestamp into a formatted date string
+     *
+     * @public
+     * @param {number} aTimestamp
+     * @return {string}
+     */
+    timestampToDate : function( aTimestamp )
     {
-        _models : {
-            SongModel : new SongModel()
-        }
-    };
+        var a = new Date( aTimestamp * 1000 );
+        var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var year = a.getFullYear();
+        var month = months[a.getMonth()];
+        var date = a.getDate();
+        var hour = a.getHours();
+        var min = a.getMinutes();
+        var sec = a.getSeconds();
 
-    // create new empty song
-
-    slocum.activeSong = slocum._models.SongModel.createSong();
-
-    // initialize application controllers
-
-    var container = document.querySelector( "#application" );
-
-    MenuController.init();
-    KeyboardController.init( slocum );
-    MetaController.init( container, slocum, KeyboardController );
-    PatternController.init( container, slocum, KeyboardController );
-
-})( self );
+        return date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec;
+    }
+};

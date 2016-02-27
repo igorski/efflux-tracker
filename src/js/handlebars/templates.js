@@ -30,6 +30,37 @@ this["slocum"]["noteEntry"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.
     return "<div id=\"noteEntry\">\n\n</div>";
 },"useData":true});
 
+this["slocum"]["patternEditor"] = Handlebars.template({"1":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<ul class=\"pattern\">\n"
+    + ((stack1 = helpers.each.call(depth0,depth0,{"name":"each","hash":{},"fn":this.program(2, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "")
+    + "</ul>\n";
+},"2":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "    <li>\n"
+    + ((stack1 = helpers['if'].call(depth0,(depth0 != null ? depth0.sound : depth0),{"name":"if","hash":{},"fn":this.program(3, data, 0),"inverse":this.program(5, data, 0),"data":data})) != null ? stack1 : "")
+    + "    </li>\n";
+},"3":function(depth0,helpers,partials,data) {
+    var alias1=this.lambda, alias2=this.escapeExpression;
+
+  return "            <span class=\"sound\">\n                "
+    + alias2(alias1((depth0 != null ? depth0.sound : depth0), depth0))
+    + "\n            </span>\n            <span class=\"note\">\n                "
+    + alias2(alias1((depth0 != null ? depth0.note : depth0), depth0))
+    + "\n                "
+    + alias2(alias1((depth0 != null ? depth0.octave : depth0), depth0))
+    + "\n            </span>\n";
+},"5":function(depth0,helpers,partials,data) {
+    return "            ----\n";
+},"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var stack1;
+
+  return "<h3>Pattern editor</h3>\n"
+    + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.channels : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "");
+},"useData":true});
+
 return this["slocum"];
 
 };

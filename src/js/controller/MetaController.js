@@ -24,25 +24,33 @@ var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
 
+/* private properties */
+
+var container, slocum, keyboardController;
+var title, author, tempo;
+
 var MetaController = module.exports =
 {
     /**
      * initialize MetaController, attach MetaView tempate into give container
      *
-     * @param container
-     * @param slocum
+     * @param containerRef
+     * @param slocumRef
+     * @param keyboardControllerRef
      */
-    init : function( container, slocum )
+    init : function( containerRef, slocumRef, keyboardControllerRef )
     {
-        MetaController.slocum = slocum;
-        container.innerHTML   = templates.metaView();
+        container          = containerRef;
+        slocum             = slocumRef;
+        keyboardController = keyboardControllerRef;
+
+        container.innerHTML += templates.metaView();
 
         // cache view elements
 
-        MetaController.container = container;
-        MetaController.title     = container.querySelector( "#songTitle" );
-        MetaController.author    = container.querySelector( "#songAuthor" );
-        MetaController.tempo     = container.querySelector( "#songTempo" );
+        title  = container.querySelector( "#songTitle" );
+        author = container.querySelector( "#songAuthor" );
+        tempo  = container.querySelector( "#songTempo" );
 
         // synchronize with model
 
@@ -50,11 +58,12 @@ var MetaController = module.exports =
 
         // add listeners
 
-        var metaChange = handleChange.bind( MetaController );
-
-        MetaController.title.onchange  = metaChange;
-        MetaController.author.onchange = metaChange;
-        MetaController.tempo.onchange  = metaChange;
+        [ title, author, tempo ].forEach( function( element )
+        {
+            element.addEventListener( "change", handleChange );
+            element.addEventListener( "focus",  handleFocusIn );
+            element.addEventListener( "blur",   handleFocusOut );
+        });
     },
 
     /**
@@ -63,12 +72,12 @@ var MetaController = module.exports =
      */
     update : function()
     {
-        var meta = MetaController.slocum.activeSong.meta;
+        var meta = slocum.activeSong.meta;
 
-        MetaController.title.value  = meta.title;
-        MetaController.author.value = meta.author;
+        title.value  = meta.title;
+        author.value = meta.author;
 
-        Form.setSelectedOption( MetaController.tempo, meta.tempo );
+        Form.setSelectedOption( tempo, meta.tempo );
     }
 };
 
@@ -80,12 +89,30 @@ var MetaController = module.exports =
  */
 function handleChange( aEvent )
 {
-    var MetaController = this; // handler is bound to controller scope
-    var meta = MetaController.slocum.activeSong.meta;
+    var meta = slocum.activeSong.meta;
 
-    meta.title  = MetaController.title.value;
-    meta.author = MetaController.author.value;
-    meta.tempo  = parseInt( Form.getSelectedOption( MetaController.tempo ), 10 );
+    meta.title  = title.value;
+    meta.author = author.value;
+    meta.tempo  = parseInt( Form.getSelectedOption( tempo ), 10 );
+}
 
-    console.log(meta);
+/**
+ * when typing, we want to suspend the KeyboardController
+ * so it doesn't broadcast the typing to its listeners
+ *
+ * @param aEvent
+ */
+function handleFocusIn( aEvent )
+{
+    keyboardController.setSuspended( true );
+}
+
+/**
+ * on focus out, restore the KeyboardControllers broadcasting
+ *
+ * @param aEvent
+ */
+function handleFocusOut( aEvent )
+{
+    keyboardController.setSuspended( false );
 }

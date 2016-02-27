@@ -20,36 +20,30 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongModel          = require( "./model/SongModel" );
-var KeyboardController = require( "./controller/KeyboardController" );
-var MenuController     = require( "./controller/MenuController" );
-var MetaController     = require( "./controller/MetaController" );
-var PatternController  = require( "./controller/PatternController" );
-
-/* initialize */
-
-(function( ref )
+module.exports =
 {
-    // prepare application model
-
-    var slocum = ref.slocum =
+    /**
+     * create a new, empty pattern
+     *
+     * @public
+     * @return {Array.<{
+     *             sound: number,
+     *             note: string,
+     *             octave: number
+     *         }>}
+     */
+    createPattern : function()
     {
-        _models : {
-            SongModel : new SongModel()
+        var steps = 16;
+        var out   = [];
+
+        for ( var i = 0; i < steps; ++i )
+        {
+            out.push({
+               // sound
+            });
         }
-    };
 
-    // create new empty song
-
-    slocum.activeSong = slocum._models.SongModel.createSong();
-
-    // initialize application controllers
-
-    var container = document.querySelector( "#application" );
-
-    MenuController.init();
-    KeyboardController.init( slocum );
-    MetaController.init( container, slocum, KeyboardController );
-    PatternController.init( container, slocum, KeyboardController );
-
-})( self );
+        return out;
+    }
+};

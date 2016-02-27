@@ -71,7 +71,7 @@ SongModel.prototype.createSong = function()
 
         // unique identifier
 
-        id   : Date.now() + Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 ),
+        id : Date.now() + Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 ),
 
         // outline of meta data
 
@@ -85,8 +85,26 @@ SongModel.prototype.createSong = function()
 
         // data lists
 
+        /**
+         * this type definition states what a pattern Object looks like
+         *
+         * @typedef {Array.<{
+         *                      steps: number,
+         *                      channels: Array.<{
+         *                          sound: number,
+         *                          note: string,
+         *                          octave: number
+         *                      }>
+         *                 }>}
+         */
         patterns : [
-
+            {
+                steps    : 16,
+                channels : [
+                    new Array( 16 ),
+                    new Array( 16 )
+                ]
+            }
         ],
 
         hats : {

@@ -1,0 +1,29 @@
+#patternEditor
+{
+  .pattern {
+    float: left;
+    width: 300px;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    border-right: 1px solid #000;
+
+    li {
+      display: block;
+      //width: 100%;
+      padding: 1em;
+      box-sizing: border-box;
+      cursor: pointer;
+      border: 2px solid #fff;
+
+      &:nth-child(odd) {
+        background-color: red;
+        border-color: red;
+      }
+
+      &.active {
+        border: 2px solid blueviolet;
+      }
+    }
+  }
+}

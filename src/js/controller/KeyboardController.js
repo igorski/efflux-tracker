@@ -20,26 +20,49 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var KeyboardController = module.exports =
+var slocum, listener, suspended = false;
+
+module.exports =
 {
     /**
      * initialize KeyboardController
      *
-     * @param slocum
+     * @param slocumRef
      */
-    init : function( slocum )
+    init : function( slocumRef )
     {
-        KeyboardController.slocum = slocum;
+        slocum = slocumRef;
+        window.addEventListener( "keydown", handleKeyDown );
+    },
 
-        window.addEventListener( "keyup", handleKeyUp.bind( KeyboardController ));
+    /**
+     * attach a listener to receive updates whenever a key
+     * has been released. listenerRef requires a "handleKey"
+     * function
+     *
+     * @param {Object|Function} listenerRef
+     */
+    setListener : function( listenerRef )
+    {
+        listener = listenerRef;
+    },
+
+    /**
+     * the KeyboardController can be suspended so it
+     * will not fire its callback to the listeners
+     *
+     * @param {boolean} value
+     */
+    setSuspended : function( value )
+    {
+        suspended = value;
     }
 };
 
 /* private handlers */
 
-function handleKeyUp( aEvent )
+function handleKeyDown( aEvent )
 {
-    var KeyboardController = this; // handler is bound to controller scope
-
-    console.log(aEvent.keyCode);
+    if ( !suspended && listener && listener.handleKey )
+        listener.handleKey( aEvent.keyCode, aEvent );
 }
