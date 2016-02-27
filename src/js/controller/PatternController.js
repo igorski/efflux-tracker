@@ -25,7 +25,7 @@ var templates  = require( "../handlebars/templates" )( Handlebars );
 
 /* private properties */
 
-var container, slocum, keyboardController;
+var container, slocum, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, activeStep = 0;
 
 var PatternController = module.exports =
@@ -36,14 +36,17 @@ var PatternController = module.exports =
      * @param containerRef
      * @param slocumRef
      * @param keyboardControllerRef
+     * @param noteEntryControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init : function( containerRef, slocumRef, keyboardControllerRef, noteEntryControllerRef )
     {
-        slocum             = slocumRef;
-        keyboardController = keyboardControllerRef;
+        slocum              = slocumRef;
+        keyboardController  = keyboardControllerRef;
+        noteEntryController = noteEntryControllerRef;
 
         container = document.createElement( "div" );
         container.setAttribute( "id", "patternEditor" );
+        container.addEventListener( "click", handleClick );
         containerRef.appendChild( container );
 
         PatternController.update();
@@ -96,7 +99,7 @@ var PatternController = module.exports =
 
             case 32: // spacebar
 
-                console.log("yeah.");
+                editStep();
                 break;
         }
         highlightActiveStep();
@@ -127,4 +130,58 @@ function highlightActiveStep()
             }
         }
     }
+}
+
+function handleClick( aEvent )
+{
+    if ( aEvent.target.nodeName === "LI" )
+    {
+        var pContainers = container.querySelectorAll( ".pattern" ),
+        pContainer, items;
+
+        for ( var i = 0, l = pContainers.length; i < l; ++i ) {
+            pContainer = pContainers[ i ];
+            items = pContainer.querySelectorAll( "li" );
+
+            var j = items.length;
+            while ( j-- )
+            {
+                if ( items[ j ] === aEvent.target ) {
+                    activeChannel = i;
+                    activeStep    = j;
+                    highlightActiveStep();
+                    editStep();
+                    break;
+                }
+            }
+        }
+    }
+}
+
+function editStep()
+{
+    var pattern = slocum.activeSong.patterns[ activePattern ];
+    var channel = pattern.channels[ activeChannel ];
+    var step    = channel[ activeStep ];
+
+    var options = ( typeof step !== "undefined" ) ?
+    {
+        sound : step.sound,
+        note  : step.note,
+        octave: step.octave
+
+    } : null;
+
+    noteEntryController.open( options, function( data )
+    {
+        // restore interest in keyboard controller events
+        keyboardController.setListener( PatternController );
+
+        // update model and view
+
+        var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
+        channel[ activeStep ] = ( valid ) ? data : null;
+
+        PatternController.update();
+    });
 }

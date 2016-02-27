@@ -27,7 +27,7 @@ this["slocum"]["metaView"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1
 },"useData":true});
 
 this["slocum"]["noteEntry"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<div id=\"noteEntry\">\n\n</div>";
+    return "<h4>Note entry editor</h4>\n<input type=\"text\" id=\"sound\" placeholder=\"Sound\" />\n<input type=\"text\" id=\"note\" placeholder=\"Note\" />\n<input type=\"text\" id=\"octave\" placeholder=\"Octave\" />\n<div class=\"close-button\">x</div>\n";
 },"useData":true});
 
 this["slocum"]["patternEditor"] = Handlebars.template({"1":function(depth0,helpers,partials,data) {

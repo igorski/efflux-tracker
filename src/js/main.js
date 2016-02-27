@@ -20,11 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongModel          = require( "./model/SongModel" );
-var KeyboardController = require( "./controller/KeyboardController" );
-var MenuController     = require( "./controller/MenuController" );
-var MetaController     = require( "./controller/MetaController" );
-var PatternController  = require( "./controller/PatternController" );
+var SongModel           = require( "./model/SongModel" );
+var KeyboardController  = require( "./controller/KeyboardController" );
+var MenuController      = require( "./controller/MenuController" );
+var MetaController      = require( "./controller/MetaController" );
+var NoteEntryController = require( "./controller/NoteEntryController" );
+var PatternController   = require( "./controller/PatternController" );
 
 /* initialize */
 
@@ -39,7 +40,7 @@ var PatternController  = require( "./controller/PatternController" );
         }
     };
 
-    // create new empty song
+    // create new empty song or load last available song
 
     slocum.activeSong = slocum._models.SongModel.createSong();
 
@@ -50,6 +51,7 @@ var PatternController  = require( "./controller/PatternController" );
     MenuController.init();
     KeyboardController.init( slocum );
     MetaController.init( container, slocum, KeyboardController );
-    PatternController.init( container, slocum, KeyboardController );
+    NoteEntryController.init( container, slocum, KeyboardController );
+    PatternController.init( container, slocum, KeyboardController, NoteEntryController );
 
 })( self );
