@@ -1,6 +1,6 @@
 ; TITLE
 ;-------------------------------------------------------------
-; @author {{meta.author}} {{meta.date}}
+; @author {{meta.author}} {{meta.created}}
 
 
 ;-------------------------------------------------------------
@@ -9,7 +9,7 @@
 ; tempo range 1 (fast) - 10 (slow)
 ; no exact BPM (apparently peaks at 150 bpm)
 
-TEMPODELAY equ 4
+TEMPODELAY equ {{meta.tempo}}
 
 ; global normalization of sounds
 
@@ -46,6 +46,18 @@ soundTypeArray
 ; 0 = silence, 1 = playing. This pattern is repeated for each
 ; measure, Slocums hi-hat render is short enough to disregard it
 ; when writing patterns for other channels.
+;
+; You can also specify the measure that the high hat
+; starts playing with HATSTART.  You may want to have
+; and intro part without the high hat then have it
+; come in later.  Or if you don't want to use it at all,
+; then set HATSTART to 255.
+;
+; Finally, you can specify the high hat volume (0-15), the
+; pitch (0-31), and the high hat sound type.  Refer to the
+; table above for sound type values.  I typically use
+; sound type 8 (Noise) and pitch 0 which sounds like a pretty
+; good high hat.  But you may find other interesting settings.
 
 hatPattern
 	byte %10001000
@@ -54,11 +66,11 @@ hatPattern
 	byte %10001010
 
 
-HATSTART equ 6
+HATSTART equ {{hats.start}}
 
-HATVOLUME equ 5
-HATPITCH equ 1
-HATSOUND equ 8
+HATVOLUME equ {{hats.volume}}
+HATPITCH equ {{hats.pitch}}
+HATSOUND equ {{hats.sound}}
 
 
 ;-------------------------------------------------------------
@@ -146,7 +158,7 @@ patternArrayL
 ; silence
 
 mute
-	byte 255,255,255,255
-	byte 255,255,255,255
+    byte 255,255,255,255
+    byte 255,255,255,255
 
-	byte 255
+    byte 255

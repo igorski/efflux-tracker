@@ -20,31 +20,26 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Menu               = require( "./view/Menu" );
-var SongModel          = require( "./model/SongModel" );
-var MetaController     = require( "./controller/MetaController" );
-var KeyboardController = require( "./controller/KeyboardController" );
-
-/* initialize */
-
-(function( ref )
+var KeyboardController = module.exports =
 {
-    var slocum = ref.slocum =
+    /**
+     * initialize KeyboardController
+     *
+     * @param slocum
+     */
+    init : function( slocum )
     {
-        _models : {
-            SongModel : new SongModel()
-        }
-    };
+        KeyboardController.slocum = slocum;
 
-    // create new empty song
+        window.addEventListener( "keyup", handleKeyUp.bind( KeyboardController ));
+    }
+};
 
-    slocum.activeSong = slocum._models.SongModel.createSong();
+/* private handlers */
 
-    // initialize application controllers
+function handleKeyUp( aEvent )
+{
+    var KeyboardController = this; // handler is bound to controller scope
 
-    Menu.init();
-
-    KeyboardController.init( slocum );
-    MetaController.init( document.querySelector( "#application" ), slocum );
-
-})( self );
+    console.log(aEvent.keyCode);
+}

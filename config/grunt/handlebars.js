@@ -11,7 +11,7 @@ module.exports =
       }
     },
     files: {
-      "src/handlebars/templates.js": "templates/**/*.hbs"
+      "src/js/handlebars/templates.js": "src/templates/**/*.hbs"
     }
   }
 };

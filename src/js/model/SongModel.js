@@ -76,16 +76,31 @@ SongModel.prototype.createSong = function()
         // outline of meta data
 
         meta : {
-            title   : "",
-            created : Date.now(),
-            tempo   : 150
+            title    : "",
+            author   : "",
+            created  : Date.now(),
+            modified : Date.now(),
+            tempo    : 4
         },
 
         // data lists
 
         patterns : [
 
-        ]
+        ],
+
+        hats : {
+            start   : 255, // is measure num, 255 == never use auto hi-hat
+            volume  : 5,   // 0 - 15
+            pitch   : 0,   // 0 - 31
+            sound   : 8,
+            pattern : [
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0,
+                0, 0, 0, 0, 0, 0, 0, 0
+            ]
+        }
     };
 };
 
@@ -95,10 +110,11 @@ SongModel.prototype.createSong = function()
  * @public
  * @param {Object} aSong
  */
-SongModel.prototype.addSong = function( aSong )
+SongModel.prototype.saveSong = function( aSong )
 {
-    // remove duplicate song if existed
-    this.deleteSong( aSong );
+    this.deleteSong( aSong );         // remove duplicate song if existed
+    aSong.meta.modified = Date.now(); // update timestamp
+
     this._songs.push( aSong );
 
     this.persist();

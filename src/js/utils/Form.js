@@ -20,31 +20,44 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Menu               = require( "./view/Menu" );
-var SongModel          = require( "./model/SongModel" );
-var MetaController     = require( "./controller/MetaController" );
-var KeyboardController = require( "./controller/KeyboardController" );
-
-/* initialize */
-
-(function( ref )
+module.exports =
 {
-    var slocum = ref.slocum =
+    /**
+     * convenience method to get the value of the currently
+     * selected option for given select input element
+     *
+     * @param {Element} aSelect
+     * @return {string}
+     */
+    getSelectedOption : function( aSelect )
     {
-        _models : {
-            SongModel : new SongModel()
+        return aSelect.options[ aSelect.selectedIndex ].value;
+    },
+
+    /**
+     * sets the currently selected index of a given select input
+     * element to the option that matches given aValue
+     *
+     * @param {Element} aSelect
+     * @param {string|number} aValue
+     */
+    setSelectedOption : function( aSelect, aValue )
+    {
+        var options = aSelect.options;
+        var i = options.length, option;
+
+        aValue = aValue.toString();
+
+        while ( i-- )
+        {
+            option = options[ i ];
+
+            if ( option.value === aValue ) {
+                option.setAttribute( "selected", "selected" );
+            }
+            else {
+                option.removeAttribute( "selected" );
+            }
         }
-    };
-
-    // create new empty song
-
-    slocum.activeSong = slocum._models.SongModel.createSong();
-
-    // initialize application controllers
-
-    Menu.init();
-
-    KeyboardController.init( slocum );
-    MetaController.init( document.querySelector( "#application" ), slocum );
-
-})( self );
+    }
+};
