@@ -20,8 +20,8 @@ Feature list
 - Generate assembly instructions when ready
 - Duplicate patterns are declared only once to minimize program size
 
-Sound cool, but I don't want to build it from source, I just want to tinker with this!!
----------------------------------------------------------------------------------------
+Sounds cool, but I don't want to build it from source, I just want to tinker with this!!
+----------------------------------------------------------------------------------------
 
 Of course, it was made to allow for easy composition, so let's cut the chatter!
 You can use the application right now from  your web browser by visiting: - link to follow -

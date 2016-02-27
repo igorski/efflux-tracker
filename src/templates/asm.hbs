@@ -1,4 +1,4 @@
-; TITLE
+; {{meta.title}}
 ;-------------------------------------------------------------
 ; @author {{meta.author}} {{meta.created}}
 
@@ -60,10 +60,7 @@ soundTypeArray
 ; good high hat.  But you may find other interesting settings.
 
 hatPattern
-	byte %10001000
-	byte %10101010
-	byte %10001000
-	byte %10001010
+{{hats.pattern}}
 
 
 HATSTART equ {{hats.start}}

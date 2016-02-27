@@ -5,13 +5,17 @@ this["slocum"] = this["slocum"] || {};
 this["slocum"]["asm"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
     var stack1, alias1=this.lambda, alias2=this.escapeExpression;
 
-  return "; TITLE\n;-------------------------------------------------------------\n; @author "
+  return "; "
+    + alias2(alias1(((stack1 = (depth0 != null ? depth0.meta : depth0)) != null ? stack1.title : stack1), depth0))
+    + "\n;-------------------------------------------------------------\n; @author "
     + alias2(alias1(((stack1 = (depth0 != null ? depth0.meta : depth0)) != null ? stack1.author : stack1), depth0))
     + " "
     + alias2(alias1(((stack1 = (depth0 != null ? depth0.meta : depth0)) != null ? stack1.created : stack1), depth0))
     + "\n\n\n;-------------------------------------------------------------\n; CONFIGURATION\n;-------------------------------------------------------------\n; tempo range 1 (fast) - 10 (slow)\n; no exact BPM (apparently peaks at 150 bpm)\n\nTEMPODELAY equ "
     + alias2(alias1(((stack1 = (depth0 != null ? depth0.meta : depth0)) != null ? stack1.tempo : stack1), depth0))
-    + "\n\n; global normalization of sounds\n\nsoundTurnArray\n	byte 8, 0, 5, 9\n	byte 0, 6, 4, 0\n\n;-------------------------------------------------------------\n; Sound Type Array\n;\n; Required by Slocums renderer, this reserves\n; eight of ten possible sounds for the track.\n;\n; Default Sound Type Setup:\n; 000 0 Square  = 4\n; 001 1 Bass    = 6\n; 010 2 Pitfall = 7\n; 011 3 Noise   = 8\n;\n; 100 4 Buzz    = 15\n; 101 5 Lead    = 12\n; 110 6 Saw     = 1\n; 111 7 Engine  = 3\n;\n\nsoundTypeArray\n    byte 4,6,7,8\n    byte 15,12,1,14\n\n;-------------------------------------------------------------\n; HATS\n;\n; Fucking convenient. Specify the pattern in 32nd notes below.\n; 0 = silence, 1 = playing. This pattern is repeated for each\n; measure, Slocums hi-hat render is short enough to disregard it\n; when writing patterns for other channels.\n;\n; You can also specify the measure that the high hat\n; starts playing with HATSTART.  You may want to have\n; and intro part without the high hat then have it\n; come in later.  Or if you don't want to use it at all,\n; then set HATSTART to 255.\n;\n; Finally, you can specify the high hat volume (0-15), the\n; pitch (0-31), and the high hat sound type.  Refer to the\n; table above for sound type values.  I typically use\n; sound type 8 (Noise) and pitch 0 which sounds like a pretty\n; good high hat.  But you may find other interesting settings.\n\nhatPattern\n	byte %10001000\n	byte %10101010\n	byte %10001000\n	byte %10001010\n\n\nHATSTART equ "
+    + "\n\n; global normalization of sounds\n\nsoundTurnArray\n	byte 8, 0, 5, 9\n	byte 0, 6, 4, 0\n\n;-------------------------------------------------------------\n; Sound Type Array\n;\n; Required by Slocums renderer, this reserves\n; eight of ten possible sounds for the track.\n;\n; Default Sound Type Setup:\n; 000 0 Square  = 4\n; 001 1 Bass    = 6\n; 010 2 Pitfall = 7\n; 011 3 Noise   = 8\n;\n; 100 4 Buzz    = 15\n; 101 5 Lead    = 12\n; 110 6 Saw     = 1\n; 111 7 Engine  = 3\n;\n\nsoundTypeArray\n    byte 4,6,7,8\n    byte 15,12,1,14\n\n;-------------------------------------------------------------\n; HATS\n;\n; Fucking convenient. Specify the pattern in 32nd notes below.\n; 0 = silence, 1 = playing. This pattern is repeated for each\n; measure, Slocums hi-hat render is short enough to disregard it\n; when writing patterns for other channels.\n;\n; You can also specify the measure that the high hat\n; starts playing with HATSTART.  You may want to have\n; and intro part without the high hat then have it\n; come in later.  Or if you don't want to use it at all,\n; then set HATSTART to 255.\n;\n; Finally, you can specify the high hat volume (0-15), the\n; pitch (0-31), and the high hat sound type.  Refer to the\n; table above for sound type values.  I typically use\n; sound type 8 (Noise) and pitch 0 which sounds like a pretty\n; good high hat.  But you may find other interesting settings.\n\nhatPattern\n"
+    + alias2(alias1(((stack1 = (depth0 != null ? depth0.hats : depth0)) != null ? stack1.pattern : stack1), depth0))
+    + "\n\n\nHATSTART equ "
     + alias2(alias1(((stack1 = (depth0 != null ? depth0.hats : depth0)) != null ? stack1.start : stack1), depth0))
     + "\n\nHATVOLUME equ "
     + alias2(alias1(((stack1 = (depth0 != null ? depth0.hats : depth0)) != null ? stack1.volume : stack1), depth0))
@@ -62,7 +66,7 @@ this["slocum"]["patternEditor"] = Handlebars.template({"1":function(depth0,helpe
 },"useData":true});
 
 this["slocum"]["songView"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<ul id=\"songButtons\">\n    <li id=\"songLoad\">Load song</li>\n    <li id=\"songSave\">Save song</li>\n</ul>\n<ul id=\"songList\">\n\n</ul>\n";
+    return "<ul id=\"songButtons\">\n    <li id=\"songLoad\">Load song</li>\n    <li id=\"songSave\">Save song</li>\n    <li id=\"songExport\">Export song</li>\n</ul>\n<ul id=\"songList\">\n\n</ul>\n";
 },"useData":true});
 
 return this["slocum"];

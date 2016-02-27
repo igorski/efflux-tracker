@@ -20,10 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Time       = require( "../utils/Time" );
-var Pubsub     = require( "pubsub-js" );
+var Handlebars   = require( "handlebars/dist/handlebars.runtime.min.js" );
+var templates    = require( "../handlebars/templates" )( Handlebars );
+var Assemblifier = require( "../plugins/Assemblifier" );
+var Time         = require( "../utils/Time" );
+var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
@@ -46,6 +47,7 @@ var SongController = module.exports =
 
         container.querySelector( "#songLoad" ).addEventListener( "click", handleLoad );
         container.querySelector( "#songSave" ).addEventListener( "click", handleSave );
+        container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
 
         list = container.querySelector( "#songList" );
 
@@ -84,7 +86,7 @@ function handleSave( aEvent )
         {
             channel.forEach( function( pattern )
             {
-                if ( pattern.sound ) {
+                if ( pattern && pattern.sound ) {
                     hasContent = true;
                 }
             });
@@ -108,4 +110,17 @@ function handleSongClick( aEvent )
         Pubsub.publish( "LOAD_SONG", id );
         list.classList.remove( "active" );
     }
+}
+
+function handleExport( aEvent )
+{
+    var song = slocum.activeSong;
+    var asm  = Assemblifier.assemblify( song );
+
+    // download file to disk
+
+    var pom = document.createElement( "a" );
+    pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
+    pom.setAttribute( "download", "song.h" );
+    pom.click();
 }

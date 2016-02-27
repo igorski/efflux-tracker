@@ -116,6 +116,11 @@ function handleBroadcast( type, payload )
     switch( type )
     {
         case "SONG_LOADED":
+
+            activePattern = 0;
+            activeChannel = 0;
+            activeStep    = 0;
+
             PatternController.update();
             break;
     }
