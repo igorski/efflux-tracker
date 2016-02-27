@@ -59,6 +59,26 @@ SongModel.prototype.getSongs = function()
 };
 
 /**
+ * get a song from the model by its unique identifier
+ *
+ * @param {string} id
+ * @return {Object}
+ */
+SongModel.prototype.getSongById = function( id )
+{
+    var i = this._songs.length, song;
+
+    while ( i-- )
+    {
+        song = this._songs[ i ];
+
+        if ( song.id === id )
+            return song;
+    }
+    return null;
+};
+
+/**
  * create the outline of a new song with default
  * parameters
  *

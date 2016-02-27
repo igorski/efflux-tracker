@@ -29,8 +29,8 @@ var DOM          = require( "zjslib" ).DOM;
 
 var header, menu, toggle;
 
-var handler        = new eventHandler(),
-    menuOpened     = false; // whether menu is opened (mobile hamburger menu)
+var handler    = new eventHandler(),
+    menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
 module.exports =
 {

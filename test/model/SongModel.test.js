@@ -145,4 +145,21 @@ describe( "SongModel", function()
         assert.strictEqual( 0, model.getSongs().length,
             "expected no songs to remain in model after deletion of all songs" );
     });
+
+    it( "should be able to retrieve individual songs by their id", function()
+    {
+        var song  = model.createSong();
+        var song2 = model.createSong();
+
+        model.saveSong( song );
+        model.saveSong( song2 );
+
+        var retrieved = model.getSongById( song.id );
+        assert.strictEqual( song, retrieved,
+            "expected to have retrieved song by its id" );
+
+        retrieved = model.getSongById( song2.id );
+        assert.strictEqual( song2, retrieved,
+            "expected to have retrieved song by its id" );
+    });
 });

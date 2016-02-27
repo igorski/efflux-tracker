@@ -26,32 +26,56 @@ var MenuController      = require( "./controller/MenuController" );
 var MetaController      = require( "./controller/MetaController" );
 var NoteEntryController = require( "./controller/NoteEntryController" );
 var PatternController   = require( "./controller/PatternController" );
+var SongController      = require( "./controller/SongController" );
+var Pubsub              = require( "pubsub-js" );
 
 /* initialize */
+
+var slocum;
 
 (function( ref )
 {
     // prepare application model
 
-    var slocum = ref.slocum =
+    slocum = ref.slocum =
     {
-        _models : {
-            SongModel : new SongModel()
-        }
+        SongModel : new SongModel()
     };
 
     // create new empty song or load last available song
 
-    slocum.activeSong = slocum._models.SongModel.createSong();
+    slocum.activeSong = slocum.SongModel.createSong();
 
     // initialize application controllers
 
     var container = document.querySelector( "#application" );
 
-    MenuController.init();
     KeyboardController.init( slocum );
-    MetaController.init( container, slocum, KeyboardController );
+    MenuController.init();
+    SongController.init( container.querySelector( "#songSection" ), slocum );
+    MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
     NoteEntryController.init( container, slocum, KeyboardController );
     PatternController.init( container, slocum, KeyboardController, NoteEntryController );
 
+    // subscribe to pubsub system to receive and broadcast messages across the application
+
+    Pubsub.subscribe( "LOAD_SONG", handleBroadcast );
+
 })( self );
+
+/* private handlers */
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case "LOAD_SONG":
+            var song = slocum.SongModel.getSongById( payload );
+
+            if ( song ) {
+                slocum.activeSong = song;
+                Pubsub.publish( "SONG_LOADED", song );
+            }
+            break;
+    }
+}

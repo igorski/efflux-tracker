@@ -61,6 +61,10 @@ this["slocum"]["patternEditor"] = Handlebars.template({"1":function(depth0,helpe
     + ((stack1 = helpers.each.call(depth0,(depth0 != null ? depth0.channels : depth0),{"name":"each","hash":{},"fn":this.program(1, data, 0),"inverse":this.noop,"data":data})) != null ? stack1 : "");
 },"useData":true});
 
+this["slocum"]["songView"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    return "<ul id=\"songButtons\">\n    <li id=\"songLoad\">Load song</li>\n    <li id=\"songSave\">Save song</li>\n</ul>\n<ul id=\"songList\">\n\n</ul>\n";
+},"useData":true});
+
 return this["slocum"];
 
 };

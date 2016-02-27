@@ -22,6 +22,7 @@
  */
 var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
+var Pubsub     = require( "pubsub-js" );
 
 /* private properties */
 
@@ -51,6 +52,8 @@ var PatternController = module.exports =
 
         PatternController.update();
         keyboardController.setListener( PatternController );
+
+        Pubsub.subscribe( "SONG_LOADED", handleBroadcast );
     },
 
     update : function()
@@ -108,6 +111,16 @@ var PatternController = module.exports =
 
 /* private methods */
 
+function handleBroadcast( type, payload )
+{
+    switch( type )
+    {
+        case "SONG_LOADED":
+            PatternController.update();
+            break;
+    }
+}
+
 function highlightActiveStep()
 {
     var pContainers = container.querySelectorAll( ".pattern" ),
@@ -164,7 +177,7 @@ function editStep()
     var channel = pattern.channels[ activeChannel ];
     var step    = channel[ activeStep ];
 
-    var options = ( typeof step !== "undefined" ) ?
+    var options = ( step ) ?
     {
         sound : step.sound,
         note  : step.note,
@@ -180,7 +193,7 @@ function editStep()
         // update model and view
 
         var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
-        channel[ activeStep ] = ( valid ) ? data : null;
+        channel[ activeStep ] = ( valid ) ? data : undefined;
 
         PatternController.update();
     });

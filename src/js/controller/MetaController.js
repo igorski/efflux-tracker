@@ -23,6 +23,7 @@
 var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
+var Pubsub     = require( "pubsub-js" );
 
 /* private properties */
 
@@ -32,7 +33,7 @@ var title, author, tempo;
 var MetaController = module.exports =
 {
     /**
-     * initialize MetaController, attach MetaView tempate into give container
+     * initialize MetaController, attach MetaView template into give container
      *
      * @param containerRef
      * @param slocumRef
@@ -64,6 +65,8 @@ var MetaController = module.exports =
             element.addEventListener( "focus",  handleFocusIn );
             element.addEventListener( "blur",   handleFocusOut );
         });
+
+        Pubsub.subscribe( "SONG_LOADED", handleBroadcast );
     },
 
     /**
@@ -80,6 +83,18 @@ var MetaController = module.exports =
         Form.setSelectedOption( tempo, meta.tempo );
     }
 };
+
+/* private methods */
+
+function handleBroadcast( type, payload )
+{
+    switch( type )
+    {
+        case "SONG_LOADED":
+            MetaController.update();
+            break;
+    }
+}
 
 /**
  * private handler that synchronizes the state
