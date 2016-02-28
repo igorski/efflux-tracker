@@ -41,10 +41,10 @@ var TIA = module.exports =
             { note: "SNARE2", code: "%10000110" }
         ],
 
-        // "a tuning that allows for the most bass notes. It is mostly from the C scale tuned up about 50 cents."
-
         tunings :
         [
+            // "a tuning that allows for the most bass notes. It is mostly from the C scale tuned up about 50 cents."
+
             {
                 BASS : [
                     { note: "b", octave: 5, code: "%00100000" }, // +45  +32

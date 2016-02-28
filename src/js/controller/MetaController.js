@@ -28,7 +28,7 @@ var Pubsub     = require( "pubsub-js" );
 /* private properties */
 
 var container, slocum, keyboardController;
-var title, author, tempo;
+var title, author, tempo, tuning;
 
 var MetaController = module.exports =
 {
@@ -52,6 +52,7 @@ var MetaController = module.exports =
         title  = container.querySelector( "#songTitle" );
         author = container.querySelector( "#songAuthor" );
         tempo  = container.querySelector( "#songTempo" );
+        tuning = container.querySelector( "#songTuning" );
 
         // synchronize with model
 
@@ -59,7 +60,7 @@ var MetaController = module.exports =
 
         // add listeners
 
-        [ title, author, tempo ].forEach( function( element )
+        [ title, author, tempo, tuning ].forEach( function( element )
         {
             element.addEventListener( "change", handleChange );
             element.addEventListener( "focus",  handleFocusIn );
@@ -80,7 +81,8 @@ var MetaController = module.exports =
         title.value  = meta.title;
         author.value = meta.author;
 
-        Form.setSelectedOption( tempo, meta.tempo );
+        Form.setSelectedOption( tempo,  meta.tempo );
+        Form.setSelectedOption( tuning, meta.tuning );
     }
 };
 
@@ -109,6 +111,7 @@ function handleChange( aEvent )
     meta.title  = title.value;
     meta.author = author.value;
     meta.tempo  = parseInt( Form.getSelectedOption( tempo ), 10 );
+    meta.tuning = parseInt( Form.getSelectedOption( tuning ), 10 );
 }
 
 /**
