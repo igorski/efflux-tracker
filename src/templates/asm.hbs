@@ -20,8 +20,7 @@ soundTurnArray
 ;-------------------------------------------------------------
 ; Sound Type Array
 ;
-; Required by Slocums renderer, this reserves
-; eight of ten possible sounds for the track.
+; This reserves eight of ten possible sounds for the track.
 ;
 ; Default Sound Type Setup:
 ; 000 0 Square  = 4
@@ -36,13 +35,13 @@ soundTurnArray
 ;
 
 soundTypeArray
-    byte 4,6,7,8
-    byte 15,12,1,14
+    byte 4, 6, 7, 8
+    byte 15, 12, 1, 14
 
 ;-------------------------------------------------------------
 ; HATS
 ;
-; Fucking convenient. Specify the pattern in 32nd notes below.
+; F##king convenient. Specify the pattern in 32nd notes below.
 ; 0 = silence, 1 = playing. This pattern is repeated for each
 ; measure, Slocums hi-hat render is short enough to disregard it
 ; when writing patterns for other channels.
@@ -73,7 +72,7 @@ HATSOUND equ {{hats.sound}}
 ;-------------------------------------------------------------
 ; SONG SEQUENCE
 ;
-; "song1" and "song2" are constants for Slocums sequencer indicating
+; "song1" and "song2" are constants for Slocums Sequencer Kit indicating
 ; each of the two oscillators we can use to work with two channels audio
 ; each sequence refers to a pattern defined below
 ;
@@ -92,7 +91,7 @@ song2
 ;-------------------------------------------------------------
 ; SONG MEASURES
 ;
-; Slocums sequencer defines "patternArrayH" for non-attenuated
+; Slocums Sequencer Kit defines "patternArrayH" for non-attenuated
 ; audio and "patternArrayL" for a reduced output
 ;
 ; each word contains a set of four patterns, effectively creating
@@ -114,11 +113,9 @@ patternArrayL
 
 ;-------------------------------------------------------------
 ; PATTERNS:
-
-; NICE TO KNOW:
 ;
 ; - each pattern lasts a quarter note and is divided into 8 steps
-;   for 32nd notes
+;   for 32nd note-precison playback
 ; - each step specifies pitch and soundtype
 ; - the pattern arrays defined above assemble the patterns in fours
 ;   to complete a full measure
