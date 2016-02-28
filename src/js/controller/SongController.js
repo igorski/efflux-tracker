@@ -20,11 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars   = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates    = require( "../handlebars/templates" )( Handlebars );
-var Assemblifier = require( "../plugins/Assemblifier" );
-var Time         = require( "../utils/Time" );
-var Pubsub       = require( "pubsub-js" );
+var Handlebars     = require( "handlebars/dist/handlebars.runtime.min.js" );
+var templates      = require( "../handlebars/templates" )( Handlebars );
+var AssemblyPlugin = require( "../plugins/AssemblyPlugin" );
+var Time           = require( "../utils/Time" );
+var Pubsub         = require( "pubsub-js" );
 
 /* private properties */
 
@@ -115,7 +115,7 @@ function handleSongClick( aEvent )
 function handleExport( aEvent )
 {
     var song = slocum.activeSong;
-    var asm  = Assemblifier.assemblify( song );
+    var asm  = AssemblyPlugin.assemblify( song );
 
     // download file to disk
 

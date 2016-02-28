@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var PatternPlugin = require( "../plugins/PatternPlugin" );
+
 module.exports = SongModel;
 
 function SongModel()
@@ -108,23 +110,10 @@ SongModel.prototype.createSong = function()
         /**
          * this type definition states what a pattern Object looks like
          *
-         * @typedef {Array.<{
-         *                      steps: number,
-         *                      channels: Array.<{
-         *                          sound: number,
-         *                          note: string,
-         *                          octave: number
-         *                      }>
-         *                 }>}
+         * @typedef {Array.<Object>}
          */
         patterns : [
-            {
-                steps    : 16,
-                channels : [
-                    new Array( 16 ),
-                    new Array( 16 )
-                ]
-            }
+            PatternPlugin.createEmptyPattern( 16 )
         ],
 
         hats : {

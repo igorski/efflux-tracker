@@ -43,7 +43,7 @@ Execute the following command:
     
 And behold, a file "_song.bin_" has been generated containing your awesome track. You can use an emulator
 such as the excellent [Stella](http://stella.sourceforge.net/downloads.php) to play your song. If you want to run it on
-an actually Atari 2600, you might want to shop around [AtariAge](https://www.atariage.com/) to find out how to get your
+an actual Atari 2600, you might want to shop around [AtariAge](https://www.atariage.com/) to find out how to get your
 code on a cartridge! 
 
 Build instructions

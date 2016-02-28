@@ -14,8 +14,8 @@ TEMPODELAY equ {{meta.tempo}}
 ; global normalization of sounds
 
 soundTurnArray
-	byte 8, 0, 5, 9
-	byte 0, 6, 4, 0
+    byte 8, 0, 5, 9
+    byte 0, 6, 4, 0
 
 ;-------------------------------------------------------------
 ; Sound Type Array
@@ -81,15 +81,13 @@ HATSOUND equ {{hats.sound}}
 ; NOTE: 255 is required at the end of the list to indicate the end has been reached
 
 song1
-	byte 0,0	; silence
-
-	byte 255	; end / loop
+    byte 0,0    ; silence
+    byte 255    ; end / loop
 
 
 song2
-	byte 0,0	; silence
-
-	byte 255	; end / loop
+    byte 0,0    ; silence
+    byte 255    ; end / loop
 
 ;-------------------------------------------------------------
 ; SONG MEASURES
@@ -104,16 +102,14 @@ song2
 ;
 ; index for patternArrayH starts at 0, patternArrayL at 128 (go figure)
 
-
-; Higher volume patterns
+; 1. Higher volume patterns
 
 patternArrayH
 
-	word mute,mute,mute,mute				; 0
+    word mute,mute,mute,mute    ; // a full measure of silence
 
-; Lower volume patterns
+; 2. Lower volume patterns
 
-	
 patternArrayL
 
 ;-------------------------------------------------------------

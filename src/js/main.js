@@ -70,6 +70,7 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case "LOAD_SONG":
+
             var song = slocum.SongModel.getSongById( payload );
 
             if ( song ) {
