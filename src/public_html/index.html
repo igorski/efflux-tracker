@@ -2,28 +2,26 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="format-detection" content="telephone=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Slocum Tracker</title>
     <link rel="stylesheet" href="./assets/css/layout.min.css" />
 </head>
-<body>
+<body id="application">
+    <!-- most application templates are appended here through HandleBars templates in JavaScript -->
     <header id="header">
         <nav id="menu">
             <div class="toggle">
                 <span>&#9776;</span>
             </div>
-            <ul>
-                <li>
-                    <h1>
-                        <a href="#">home</a>
-                    </h1>
-                </li>
-            </ul>
+            <section id="songSection"></section>
         </nav>
     </header>
 
-    <section id="application">
-        <!-- most application templates are appended here through HandleBars templates in JavaScript -->
-        <section id="songSection"></section>
+    <div id="main">
         <section id="metaSection"></section>
         <section id="patternSection">
             <h3>Pattern editor</h3>
@@ -57,7 +55,7 @@
             </ul>
             <!-- channel editor added through HandleBars -->
         </section>
-    </section>
+    </div>
 
     <div id="footer">
         <span>

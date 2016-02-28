@@ -20,17 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-/* imports */
-
-var eventHandler = require( "zjslib" ).EventHandler;
-var DOM          = require( "zjslib" ).DOM;
-
 /* variables */
 
 var header, menu, toggle;
-
-var handler    = new eventHandler(),
-    menuOpened = false; // whether menu is opened (mobile hamburger menu)
+var menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
 module.exports =
 {
@@ -43,7 +36,7 @@ module.exports =
             toggle = menu.querySelector( ".toggle" );
 
         if ( toggle )
-            handler.addEventListener( toggle, "click", handleToggle );
+            toggle.addEventListener( "click", handleToggle );
     }
 };
 
@@ -55,14 +48,14 @@ function handleToggle( e )
 
     if ( menuOpened )
     {
-        DOM.addClass( menu,   "opened" );
-        DOM.addClass( header, "expanded" );
+        menu.classList.add( "opened" );
+        header.classList.add( "expanded" );
 
         document.body.style.overflow = "hidden"; // prevent scrolling main body when scrolling menu list
     }
     else {
-        DOM.removeClass( menu,   "opened" );
-        DOM.removeClass( header, "expanded" );
+        menu.classList.remove( "opened" );
+        header.classList.remove( "expanded" );
         document.body.style.overflow = "auto";
     }
 }

@@ -20,7 +20,6 @@
     "grunt-contrib-handlebars": "^0.10.2",
     "pubsub-js": "^1.5.0",
     "handlebars": "^3.0.3",
-    "zjslib" : "^0.1.2",
     "atomify-css" : "^3.2.2",
     "chai": "^1.9.2",
     "mocha": "^2.2.5",

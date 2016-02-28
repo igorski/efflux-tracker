@@ -1,0 +1,24 @@
+#notifications
+{
+  position: fixed;
+  z-index: 1000;
+  top: 1em;
+  right: 0;
+
+  .notificationWindow
+  {
+    display: block;
+    position: relative;
+    padding: .5em 1em;
+    margin-bottom: .5em;
+    right: -500px;
+    border-radius: 7px;
+    background-color: #000;
+    color: #FFF;
+    transition: 1.0s ease-in-out;
+
+    &.visible {
+      right: 1em;
+    }
+  }
+}

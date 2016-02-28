@@ -45,11 +45,17 @@ var SongController = module.exports =
 
         container.innerHTML += templates.songView();
 
-        container.querySelector( "#songLoad" ).addEventListener( "click", handleLoad );
-        container.querySelector( "#songSave" ).addEventListener( "click", handleSave );
+        // grab references to elements in the template
+
+        container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
+        container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
         container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
 
-        list = container.querySelector( "#songList" );
+        // create a list container to show the songs when loading
+
+        list = document.createElement( "div" );
+        list.setAttribute( "id", "songList" );
+        document.body.appendChild( list ); // see CSS for visiblity toggles
 
         list.addEventListener( "click", handleSongClick );
     }
@@ -93,13 +99,21 @@ function handleSave( aEvent )
         })
     });
 
+    if ( !hasContent ) {
+        Pubsub.publish( "SHOW_ERROR", "Song has no pattern content!" );
+        return;
+    }
+
     if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
         hasContent = false;
 
-    if ( hasContent )
+    if ( hasContent ) {
         slocum.SongModel.saveSong( song );
-    else
-        alert("fudge.");
+        Pubsub.publish( "SHOW_FEEDBACK", "Song '" + song.meta.title + "' saved" );
+    }
+    else {
+        Pubsub.publish( "SHOW_ERROR", "Song author and title are required when saving" );
+    }
 }
 
 function handleSongClick( aEvent )

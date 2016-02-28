@@ -34,6 +34,16 @@ this["slocum"]["noteEntry"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.
     return "<h4>Note entry editor</h4>\n<input type=\"text\" id=\"sound\" placeholder=\"Sound\" />\n<input type=\"text\" id=\"note\" placeholder=\"Note\" />\n<input type=\"text\" id=\"octave\" placeholder=\"Octave\" />\n<div class=\"close-button\">x</div>\n";
 },"useData":true});
 
+this["slocum"]["notificationView"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
+    var helper, alias1=helpers.helperMissing, alias2="function", alias3=this.escapeExpression;
+
+  return "<h3>"
+    + alias3(((helper = (helper = helpers.title || (depth0 != null ? depth0.title : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"title","hash":{},"data":data}) : helper)))
+    + "</h3>\n<p>\n    "
+    + alias3(((helper = (helper = helpers.content || (depth0 != null ? depth0.content : depth0)) != null ? helper : alias1),(typeof helper === alias2 ? helper.call(depth0,{"name":"content","hash":{},"data":data}) : helper)))
+    + "\n</p>\n";
+},"useData":true});
+
 this["slocum"]["patternEditor"] = Handlebars.template({"1":function(depth0,helpers,partials,data) {
     var stack1;
 
@@ -65,7 +75,7 @@ this["slocum"]["patternEditor"] = Handlebars.template({"1":function(depth0,helpe
 },"useData":true});
 
 this["slocum"]["songView"] = Handlebars.template({"compiler":[6,">= 2.0.0-beta.1"],"main":function(depth0,helpers,partials,data) {
-    return "<ul id=\"songButtons\">\n    <li id=\"songLoad\">Load song</li>\n    <li id=\"songSave\">Save song</li>\n    <li id=\"songExport\">Export song</li>\n</ul>\n<ul id=\"songList\">\n\n</ul>\n";
+    return "<ul id=\"songButtons\">\n    <li id=\"songLoad\">Load song</li>\n    <li id=\"songSave\">Save song</li>\n    <li id=\"songExport\">Export song</li>\n</ul>\n";
 },"useData":true});
 
 return this["slocum"];

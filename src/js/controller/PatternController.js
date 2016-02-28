@@ -254,7 +254,7 @@ function handlePatternAdd( aEvent )
         patterns = song.patterns;
 
     if ( patterns.length === 127 ) {
-        alert("cannot exceed pattern length of 127");
+        Pubsub.publish( "SHOW_ERROR", "Cannot exceed the allowed maxium of 127 patterns" );
         return;
     }
 

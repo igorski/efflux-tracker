@@ -20,14 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongModel           = require( "./model/SongModel" );
-var KeyboardController  = require( "./controller/KeyboardController" );
-var MenuController      = require( "./controller/MenuController" );
-var MetaController      = require( "./controller/MetaController" );
-var NoteEntryController = require( "./controller/NoteEntryController" );
-var PatternController   = require( "./controller/PatternController" );
-var SongController      = require( "./controller/SongController" );
-var Pubsub              = require( "pubsub-js" );
+var SongModel              = require( "./model/SongModel" );
+var KeyboardController     = require( "./controller/KeyboardController" );
+var MenuController         = require( "./controller/MenuController" );
+var MetaController         = require( "./controller/MetaController" );
+var NoteEntryController    = require( "./controller/NoteEntryController" );
+var NotificationController = require( "./controller/NotificationController" );
+var PatternController      = require( "./controller/PatternController" );
+var SongController         = require( "./controller/SongController" );
+var Pubsub                 = require( "pubsub-js" );
 
 /* initialize */
 
@@ -55,6 +56,7 @@ var slocum;
     SongController.init( container.querySelector( "#songSection" ), slocum );
     MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
     NoteEntryController.init( container, slocum, KeyboardController );
+    NotificationController.init( container );
     PatternController.init( container.querySelector( "#patternSection" ), slocum, KeyboardController, NoteEntryController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
