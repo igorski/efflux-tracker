@@ -35,21 +35,36 @@ How to create an Atari ROM for my composition
 ---------------------------------------------
 
 You will need to create a binary file that can run on an Atari 2600 (emulator). This sounds like a hassle, but implies
-you need to download some files listed here and merely follow these instructions. It's quite painless really.
+you need to download some files listed here and merely follow these instructions. It's quite painless really. For the ease
+of the experiment (not trying to insult anyone's intelligence here!) extract all downloaded files into the same folder.
 
-You will need an assembler such as [DASM](https://sourceforge.net/projects/dasm-dillon/) (Windows and Linux) to compile the
-assembly code into an executable program. Once you have created a pattern/song that you'd like to hear, you hit the "export"-
-button within Slocum Tracker and download the generated assembly file to the folder that holds the remaining
-[source code](http://www.qotile.net/files/music_kit_2.zip) of Paul Slocum's Sequencer Kit.
+Programs you will need:
 
-Execute the following command from the command line:
+You will require an assembler such as [DASM](https://sourceforge.net/projects/dasm-dillon/files/) to compile the
+assembly code into an executable program as well as [Paul Slocum's Sequencer Kit](http://www.qotile.net/files/music_kit_2.zip).
+
+Once you have created a pattern/song that you'd like to hear, you hit the "export"-button within Slocum Tracker and download
+the generated assembly file (_song.h_) to the folder that contains the assembler and Sequencer Kit defined above.
+
+Depending on your operating system, execute the appropriate of the following commands:
+
+In Windows from the Command Prompt:
 
     dasm songmain.asm -f3 -osong.bin
     
-And behold, a file "_song.bin_" has been generated containing your awesome track ready for playback. You can use an emulator
-such as the excellent [Stella](http://stella.sourceforge.net/downloads.php) to play your song. If you want to run it on
-an actual Atari 2600, you might want to shop around [AtariAge](https://www.atariage.com/) to find out how to get your
-code on a cartridge! 
+On Mac OS X from Terminal command line:
+
+    ./dasm.Darwin.x86 songmain.asm -f3 -osong.bin
+    
+On Linux from Terminal command line:
+
+    ./dasm.Linux.x86 songmain.asm -f3 -osong.bin
+    
+And behold, a file "_song.bin_" containing your awesome track ready for playback has been generated!
+
+You can use an emulator such as the excellent [Stella](http://stella.sourceforge.net/downloads.php) to play your song.
+If you want to run it on an actual Atari 2600, you might want to shop around [AtariAge](https://www.atariage.com/) to find
+out how to get your code on a cartridge! 
 
 Build instructions
 ------------------
