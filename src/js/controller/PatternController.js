@@ -104,6 +104,16 @@ var PatternController = module.exports =
 
                 editStep();
                 break;
+
+            case 8:  // backspace
+            case 46: // delete
+
+                var pattern = slocum.activeSong.patterns[ activePattern ];
+                var channel = pattern.channels[ activeChannel ];
+                channel[ activeStep ] = undefined; // clear content
+                PatternController.update(); // sync view with model
+                event.preventDefault();
+                break;
         }
         highlightActiveStep();
     }
