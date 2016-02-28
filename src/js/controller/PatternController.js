@@ -50,20 +50,20 @@ var PatternController = module.exports =
         container.setAttribute( "id", "patternEditor" );
         container.addEventListener( "click", handleClick );
         containerRef.appendChild( container );
-        positionTitle = containerRef.querySelector( "#currentPattern" );
+        positionTitle = document.querySelector( "#currentPattern" );
 
         PatternController.update(); // sync view with model state
 
         // add listeners
 
         keyboardController.setListener( PatternController );
-        containerRef.querySelector( "#patternClear"  ).addEventListener( "click", handlePatternClear );
-        containerRef.querySelector( "#patternCopy"   ).addEventListener( "click", handlePatternCopy );
-        containerRef.querySelector( "#patternPaste"  ).addEventListener( "click", handlePatternPaste );
-        containerRef.querySelector( "#patternAdd"    ).addEventListener( "click", handlePatternAdd );
-        containerRef.querySelector( "#patternDelete" ).addEventListener( "click", handlePatternDelete );
-        containerRef.querySelector( "#patternBack"   ).addEventListener( "click", handlePatternNavBack );
-        containerRef.querySelector( "#patternNext"   ).addEventListener( "click", handlePatternNavNext );
+        document.querySelector( "#patternClear"  ).addEventListener( "click", handlePatternClear );
+        document.querySelector( "#patternCopy"   ).addEventListener( "click", handlePatternCopy );
+        document.querySelector( "#patternPaste"  ).addEventListener( "click", handlePatternPaste );
+        document.querySelector( "#patternAdd"    ).addEventListener( "click", handlePatternAdd );
+        document.querySelector( "#patternDelete" ).addEventListener( "click", handlePatternDelete );
+        document.querySelector( "#patternBack"   ).addEventListener( "click", handlePatternNavBack );
+        document.querySelector( "#patternNext"   ).addEventListener( "click", handlePatternNavNext );
 
         // subscribe to pubsub messaing
 
@@ -118,6 +118,7 @@ var PatternController = module.exports =
                 break;
 
             case 32: // spacebar
+            case 13: // enter
 
                 editStep();
                 break;
@@ -147,6 +148,7 @@ function handleBroadcast( type, payload )
             activeStep    = 0;
 
             PatternController.update();
+            container.focus();
             break;
     }
 }
@@ -225,6 +227,7 @@ function editStep()
         var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
         channel[ activeStep ] = ( valid ) ? data : undefined;
 
+        PatternController.handleKey( 40 ); // proceed to next line
         PatternController.update();
     });
 }

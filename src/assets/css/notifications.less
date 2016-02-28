@@ -2,8 +2,10 @@
 {
   position: fixed;
   z-index: 1000;
-  top: 1em;
+  top: 45px;
   right: 0;
+  width: 33%;
+  max-width: 300px;
 
   .notificationWindow
   {
@@ -12,13 +14,25 @@
     padding: .5em 1em;
     margin-bottom: .5em;
     right: -500px;
+    background-color: #393b40;
+    border: 3px solid #28292d;
     border-radius: 7px;
-    background-color: #000;
     color: #FFF;
     transition: 1.0s ease-in-out;
+    cursor: pointer;
+    box-shadow: 0 0 0 rgba(0,255,255,0);
 
     &.visible {
       right: 1em;
+      box-shadow: 0 0 7px rgba(0,255,255,.35);
+    }
+
+    h3 {
+      color: #3bbbff;
+    }
+
+    p {
+      margin: .5em 0;
     }
   }
 }

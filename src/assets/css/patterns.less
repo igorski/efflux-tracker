@@ -1,3 +1,21 @@
+#patternSection
+{
+  .EditorComponent;
+
+  ul {
+    display: inline;
+
+    li {
+      display: inline;
+      cursor: pointer;
+    }
+  }
+
+  h4 {
+    display: inline;
+  }
+}
+
 #patternEditor
 {
   .pattern {
@@ -7,22 +25,24 @@
     margin: 0;
     padding: 0;
     border-right: 1px solid #000;
+    background-color: #101015;
 
     li {
       display: block;
       //width: 100%;
-      padding: 1em;
+      padding: .25em 1em;
       box-sizing: border-box;
       cursor: pointer;
-      border: 2px solid #fff;
+      border: 2px solid #000;
+      font-weight: bold;
 
       &:nth-child(odd) {
-        background-color: red;
-        border-color: red;
+        background-color: #323234;
+        border-color: #323234;
       }
 
       &.active {
-        border: 2px solid blueviolet;
+        border: 2px solid #3bbbff;
       }
     }
   }

@@ -40,8 +40,8 @@ var SongController = module.exports =
      */
     init : function( containerRef, slocumRef )
     {
-        container = containerRef;
-        slocum    = slocumRef;
+        container          = containerRef;
+        slocum             = slocumRef;
 
         container.innerHTML += templates.songView();
 
@@ -58,6 +58,18 @@ var SongController = module.exports =
         document.body.appendChild( list ); // see CSS for visiblity toggles
 
         list.addEventListener( "click", handleSongClick );
+    },
+
+    handleKey : function( keyCode, event )
+    {
+        console.log("OER");
+        switch ( keyCode )
+        {
+            case 27: // escape
+                console.log("er");
+                list.classList.remove( "active" );
+                break;
+        }
     }
 };
 
@@ -67,6 +79,11 @@ function handleLoad( aEvent )
 {
     var songs = slocum.SongModel.getSongs(), li;
     list.innerHTML = "";
+
+    if ( songs.length === 0 ) {
+        Pubsub.publish( "SHOW_ERROR", "There are currently no songs available to load. Why not create one?" );
+        return;
+    }
 
     songs.forEach( function( song )
     {
@@ -84,6 +101,48 @@ function handleSave( aEvent )
 {
     var song = slocum.activeSong;
 
+    if ( isValid( song )) {
+        slocum.SongModel.saveSong( song );
+        Pubsub.publish( "SHOW_FEEDBACK", "Song '" + song.meta.title + "' saved" );
+    }
+}
+
+function handleSongClick( aEvent )
+{
+    if ( aEvent.target.nodeName === "LI" )
+    {
+        var id = aEvent.target.getAttribute( "data-id" );
+        Pubsub.publish( "LOAD_SONG", id );
+        list.classList.remove( "active" );
+    }
+}
+
+function handleExport( aEvent )
+{
+    var song = slocum.activeSong;
+
+    if ( isValid( song ))
+    {
+        var asm = AssemblyPlugin.assemblify( song );
+
+        // download file to disk
+
+        var pom = document.createElement( "a" );
+        pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
+        pom.setAttribute( "download", "song.h" );
+        pom.click();
+    }
+}
+
+/**
+ * validates whether the current state of the song is
+ * eligible for saving / exporting
+ *
+ * @private
+ * @param song
+ */
+function isValid( song )
+{
     var hasContent = false;
 
     song.patterns.forEach( function( pattern )
@@ -101,40 +160,14 @@ function handleSave( aEvent )
 
     if ( !hasContent ) {
         Pubsub.publish( "SHOW_ERROR", "Song has no pattern content!" );
-        return;
+        return false;
     }
 
     if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
         hasContent = false;
 
-    if ( hasContent ) {
-        slocum.SongModel.saveSong( song );
-        Pubsub.publish( "SHOW_FEEDBACK", "Song '" + song.meta.title + "' saved" );
-    }
-    else {
-        Pubsub.publish( "SHOW_ERROR", "Song author and title are required when saving" );
-    }
-}
+    if ( !hasContent )
+        Pubsub.publish( "SHOW_ERROR", "Song has title and author name, take pride on your work!" );
 
-function handleSongClick( aEvent )
-{
-    if ( aEvent.target.nodeName === "LI" )
-    {
-        var id = aEvent.target.getAttribute( "data-id" );
-        Pubsub.publish( "LOAD_SONG", id );
-        list.classList.remove( "active" );
-    }
-}
-
-function handleExport( aEvent )
-{
-    var song = slocum.activeSong;
-    var asm  = AssemblyPlugin.assemblify( song );
-
-    // download file to disk
-
-    var pom = document.createElement( "a" );
-    pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
-    pom.setAttribute( "download", "song.h" );
-    pom.click();
+    return hasContent;
 }

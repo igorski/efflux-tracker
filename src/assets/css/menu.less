@@ -1,38 +1,59 @@
-@menu-height: 56px;
-@submenu-height: 73px;
+@menu-height: 46px;
 @toggle-width: 50px;
 
 #header {
   box-shadow: 0 0 5px rgba(0,0,0,.5);
-  padding: 0;
+  background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
+  background-repeat: repeat-x;
+  padding: .25em 0;
+  box-sizing: border-box;
   width: 100%;
   position: fixed;
   top: 0;
   z-index: 200;
+  border-bottom: 3px solid #53565d;
+
+  h1 {
+    color: #FFF;
+    display: inline;
+    margin: 0;
+    padding: .25em .5em 0 .5em;
+    font-size: 110%;
+  }
+
+  #songSection {
+    display: inline;
+  }
 
   ul {
     display: inline;
     list-style-type: none;
-    padding: 0 0 0 1em;
+    padding: 0 0 0 .75em;
+    box-sizing: border-box;
     margin: 0;
 
     li {
       display: inline;
-      padding: 0 1em 0 0;
+      padding: 0 .5em 0 0;
       margin: 0;
+      font-family: Montserrat, Helvetica, Verdana;
+      cursor: pointer;
+
+      &:hover {
+        color: #FFF;
+      }
     }
   }
 }
 
 #menu
 {
-  background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
-  background-repeat: repeat-x;
-  width: 100%;
-  height: @menu-height;
+  color: #b6b6b6;
+  display: block;
   box-sizing: border-box;
   margin: 0 auto;
-  padding: 1em 0;
+  padding: .5em 0;
+  width: 100%;
 
   .toggle {
     position: absolute;
@@ -45,16 +66,14 @@
   }
 
   ul {
-    width: @app-width;
-    margin: 0 auto;
     padding: 0;
-    display: block;
+    display: inline;
 
     h1 {
       display: inline;
 
       a {
-        color: @color-main;
+        color: #3bbbff;
         text-decoration: none;
       }
     }
@@ -67,7 +86,7 @@
       padding-bottom: 1em;
 
       &:hover {
-        color: @color-main;
+        color: #3bbbff;
         border-bottom: none;
         text-decoration: none;
       }
@@ -81,14 +100,11 @@
   }
 }
 
-/* everything between minimum desktop width and mobile view */
-
-@media screen and ( max-width: @app-width ) and ( min-width: @mobile-width )
+@media screen and ( min-width: @app-width )
 {
-  #menu ul {
-    padding: 0 1em;
-    width: 100%;
-    box-sizing: border-box;
+  #menu {
+    width: @app-width;
+    margin: 0 auto;
   }
 }
 
@@ -121,7 +137,7 @@
         }
 
         &:hover {
-          background-color: @color-main;
+          background-color: #3bbbff;
         }
       }
     }
@@ -166,7 +182,7 @@
           color: #FFF;
           font-weight: bold;
           font-style: italic;
-          background-color: @color-main;
+          background-color: #3bbbff;
         }
       }
     }

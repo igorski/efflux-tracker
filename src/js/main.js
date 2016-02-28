@@ -57,7 +57,7 @@ var slocum;
     MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
     NoteEntryController.init( container, slocum, KeyboardController );
     NotificationController.init( container );
-    PatternController.init( container.querySelector( "#patternSection" ), slocum, KeyboardController, NoteEntryController );
+    PatternController.init( container.querySelector( "#patternEditor" ), slocum, KeyboardController, NoteEntryController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
@@ -76,7 +76,7 @@ function handleBroadcast( type, payload )
             var song = slocum.SongModel.getSongById( payload );
 
             if ( song ) {
-                slocum.activeSong = song;
+                slocum.activeSong = JSON.parse( JSON.stringify( song ));
                 Pubsub.publish( "SONG_LOADED", song );
             }
             break;

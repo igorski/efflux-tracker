@@ -4,8 +4,6 @@
 @app-width: 960px;
 @mobile-width: 640px; // the threshold where we start to use the mobile view
 
-@color-main: #0db0bc;
-
 html, body {
   height: 100%;
 }
@@ -13,14 +11,20 @@ html, body {
 body {
   margin: 0;
   padding: 0;
-  background-color: #EEE;
-  //background-color: #212224;
+  background-color: #53565c;
+  .noSelect;
 }
 
-.main {
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+#main {
   width: 100%;
   min-height: 100%;
-  margin: 0 auto;
+  margin: .5em auto;
   padding: .5em;
   box-sizing: border-box;
 
@@ -41,7 +45,7 @@ body {
 
 @media screen and ( min-width: @app-width )
 {
-  .main
+  #main
   {
     width: @app-width;
     padding: 0;
@@ -69,7 +73,7 @@ body {
 
 @media screen and ( min-width: @mobile-width )
 {
-  .main
+  #main
   {
     padding: 0 1.5em;
 
@@ -90,14 +94,17 @@ body {
 
 @media screen and ( max-width: @mobile-width )
 {
-  .main {
+  #main {
     padding: 0 1.5em;
   }
 }
 
 @import url( "typography.less" );
+@import url( "mixins.less" );
+@import url( "form.less" );
 @import url( "index.less" );
 @import url( "menu.less" );
+@import url( "meta.less" );
 @import url( "notifications.less" );
 @import url( "songs.less" );
 @import url( "patterns.less" );

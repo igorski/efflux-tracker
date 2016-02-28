@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>Slocum Tracker</title>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" type="text/css">
     <link rel="stylesheet" href="./assets/css/layout.min.css" />
 </head>
 <body id="application">
@@ -17,6 +18,7 @@
             <div class="toggle">
                 <span>&#9776;</span>
             </div>
+            <h1>Slocum Tracker</h1>
             <section id="songSection"></section>
         </nav>
     </header>
@@ -24,7 +26,7 @@
     <div id="main">
         <section id="metaSection"></section>
         <section id="patternSection">
-            <h3>Pattern editor</h3>
+            <h2>Pattern editor</h2>
             <ul id="patternMenu">
                 <li>
                     <button id="patternClear">clear</button>
@@ -53,8 +55,9 @@
                     >>
                 </li>
             </ul>
-            <!-- channel editor added through HandleBars -->
         </section>
+        <!-- channel editor added through HandleBars -->
+        <section id="patternEditor"><!-- x --></section>
     </div>
 
     <div id="footer">

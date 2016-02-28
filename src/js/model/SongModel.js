@@ -158,15 +158,26 @@ SongModel.prototype.saveSong = function( aSong )
 SongModel.prototype.deleteSong = function( aSong )
 {
     var deleted = false;
-    var i = this._songs.length;
+    var i = this._songs.length, song;
 
     // remove duplicate song if existed
 
     while ( i-- )
     {
-        if ( this._songs[ i ].id === aSong.id ) {
-            this._songs.splice( i, 1 );
-            deleted = true;
+        song = this._songs[ i ];
+
+        if ( song.id === aSong.id )
+        {
+            if ( song.meta.title === aSong.meta.title )
+            {
+                // song existed, name is equal, remove old song so we can fully replace it
+                this._songs.splice( i, 1 );
+                deleted = true;
+            }
+            else {
+                // song existed, but was renamed, make id unique for renamed song (will be treated as new entry)
+                aSong.id += "b";
+            }
             break;
         }
     }
