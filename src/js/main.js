@@ -55,7 +55,7 @@ var slocum;
     SongController.init( container.querySelector( "#songSection" ), slocum );
     MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
     NoteEntryController.init( container, slocum, KeyboardController );
-    PatternController.init( container, slocum, KeyboardController, NoteEntryController );
+    PatternController.init( container.querySelector( "#patternSection" ), slocum, KeyboardController, NoteEntryController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 

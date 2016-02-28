@@ -127,7 +127,7 @@ module.exports =
             while ( i-- ) {
                 sourceStep = sourceChannel[ i ];
 
-                if ( sourceStep.sound )
+                if ( sourceStep && sourceStep.sound )
                     targetChannel[ i ] = sourceStep;
             }
         });

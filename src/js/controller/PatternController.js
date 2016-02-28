@@ -27,8 +27,8 @@ var PatternPlugin = require( "../plugins/PatternPlugin" );
 
 /* private properties */
 
-var container, slocum, noteEntryController, keyboardController;
-var activePattern = 0, activeChannel = 0, activeStep = 0;
+var container, slocum, noteEntryController, keyboardController, positionTitle;
+var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16, patternCopy;
 
 var PatternController = module.exports =
 {
@@ -50,9 +50,22 @@ var PatternController = module.exports =
         container.setAttribute( "id", "patternEditor" );
         container.addEventListener( "click", handleClick );
         containerRef.appendChild( container );
+        positionTitle = containerRef.querySelector( "#currentPattern" );
 
-        PatternController.update();
+        PatternController.update(); // sync view with model state
+
+        // add listeners
+
         keyboardController.setListener( PatternController );
+        containerRef.querySelector( "#patternClear"  ).addEventListener( "click", handlePatternClear );
+        containerRef.querySelector( "#patternCopy"   ).addEventListener( "click", handlePatternCopy );
+        containerRef.querySelector( "#patternPaste"  ).addEventListener( "click", handlePatternPaste );
+        containerRef.querySelector( "#patternAdd"    ).addEventListener( "click", handlePatternAdd );
+        containerRef.querySelector( "#patternDelete" ).addEventListener( "click", handlePatternDelete );
+        containerRef.querySelector( "#patternBack"   ).addEventListener( "click", handlePatternNavBack );
+        containerRef.querySelector( "#patternNext"   ).addEventListener( "click", handlePatternNavNext );
+
+        // subscribe to pubsub messaing
 
         Pubsub.subscribe( "SONG_LOADED", handleBroadcast );
     },
@@ -60,8 +73,11 @@ var PatternController = module.exports =
     update : function()
     {
         var pattern = slocum.activeSong.patterns[ activePattern ];
-        container.innerHTML = templates.patternEditor( pattern );
-
+        container.innerHTML = templates.patternEditor({
+            pattern : pattern
+        });
+        positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
+        positionTitle.querySelector( ".total" ).innerHTML   = slocum.activeSong.patterns.length.toString();
         highlightActiveStep();
     },
 
@@ -211,4 +227,75 @@ function editStep()
 
         PatternController.update();
     });
+}
+
+function handlePatternClear( aEvent )
+{
+    slocum.activeSong.patterns[ activePattern ] = PatternPlugin.createEmptyPattern( stepAmount );
+    PatternController.update();
+}
+
+function handlePatternCopy( aEvent )
+{
+    patternCopy = JSON.parse( JSON.stringify( slocum.activeSong.patterns[ activePattern ] ));
+}
+
+function handlePatternPaste( aEvent )
+{
+    if ( patternCopy ) {
+        PatternPlugin.mergePatterns( slocum.activeSong.patterns[ activePattern ], patternCopy );
+        PatternController.update();
+    }
+}
+
+function handlePatternAdd( aEvent )
+{
+    var song     = slocum.activeSong,
+        patterns = song.patterns;
+
+    if ( patterns.length === 127 ) {
+        alert("cannot exceed pattern length of 127");
+        return;
+    }
+
+    var front = patterns.slice( 0, activePattern + 1 );
+    var back  = patterns.slice( activePattern + 1 );
+
+    front.push( PatternPlugin.createEmptyPattern( stepAmount ));
+
+    song.patterns = front.concat( back );
+    handlePatternNavNext( null );
+}
+
+function handlePatternDelete( aEvent )
+{
+    var song     = slocum.activeSong,
+        patterns = song.patterns;
+
+    if ( patterns.length === 1 )
+    {
+        handlePatternClear( aEvent );
+    }
+    else {
+        song.patterns.splice( activePattern, 1 );
+        handlePatternNavBack( aEvent );
+    }
+}
+
+function handlePatternNavBack( aEvent )
+{
+    if ( activePattern > 0 ) {
+        --activePattern;
+        PatternController.update();
+    }
+}
+
+function handlePatternNavNext( aEvent )
+{
+    var max = slocum.activeSong.patterns.length - 1;
+
+    if ( activePattern < max ) {
+        ++activePattern;
+        PatternController.update();
+    }
 }

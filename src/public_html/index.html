@@ -22,9 +22,41 @@
     </header>
 
     <section id="application">
-        <!-- application templates appended here through HandleBars templates in JavaScript -->
+        <!-- most application templates are appended here through HandleBars templates in JavaScript -->
         <section id="songSection"></section>
         <section id="metaSection"></section>
+        <section id="patternSection">
+            <h3>Pattern editor</h3>
+            <ul id="patternMenu">
+                <li>
+                    <button id="patternClear">clear</button>
+                </li>
+                <li>
+                    <button id="patternCopy">copy</button>
+                </li>
+                <li>
+                    <button id="patternPaste">paste</button>
+                </li>
+                <li>
+                    <button id="patternAdd">add</button>
+                </li>
+                <li>
+                    <button id="patternDelete">delete</button>
+                </li>
+            </ul>
+            <h4 id="currentPattern">
+                Editing pattern <span class="current"></span> of <span class="total"></span>
+            </h4>
+            <ul id="patternNav">
+                <li id="patternBack">
+                    <<
+                </li>
+                <li id="patternNext">
+                    >>
+                </li>
+            </ul>
+            <!-- channel editor added through HandleBars -->
+        </section>
     </section>
 
     <div id="footer">

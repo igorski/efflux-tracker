@@ -108,6 +108,7 @@ var NoteEntryController = module.exports =
                 break;
 
             case 27: // escape
+            case 13: // enter
                 handleReady();
                 break;
         }
