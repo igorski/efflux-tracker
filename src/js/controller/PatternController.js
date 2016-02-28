@@ -20,9 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Pubsub     = require( "pubsub-js" );
+var Handlebars    = require( "handlebars/dist/handlebars.runtime.min.js" );
+var templates     = require( "../handlebars/templates" )( Handlebars );
+var Pubsub        = require( "pubsub-js" );
+var PatternPlugin = require( "../plugins/PatternPlugin" );
 
 /* private properties */
 
@@ -108,9 +109,7 @@ var PatternController = module.exports =
             case 8:  // backspace
             case 46: // delete
 
-                var pattern = slocum.activeSong.patterns[ activePattern ];
-                var channel = pattern.channels[ activeChannel ];
-                channel[ activeStep ] = undefined; // clear content
+                PatternPlugin.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
                 PatternController.update(); // sync view with model
                 event.preventDefault();
                 break;

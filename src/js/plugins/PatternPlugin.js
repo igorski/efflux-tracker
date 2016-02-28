@@ -131,6 +131,21 @@ module.exports =
                     targetChannel[ i ] = sourceStep;
             }
         });
+    },
+
+    /**
+     * clears the content at requested step for given channel
+     * for given pattern
+     *
+     * @public
+     * @param {PATTERN} pattern
+     * @param {number} channelNum
+     * @param {number} step
+     */
+    clearStep : function( pattern, channelNum, step )
+    {
+        var channel     = pattern.channels[ channelNum ];
+        channel[ step ] = generateEmptyPatternStep();
     }
 };
 
@@ -144,14 +159,18 @@ function generateEmptyChannelPatterns( amountOfSteps )
     out.forEach( function( channel )
     {
         i = amountOfSteps;
+
         while ( i-- )
-        {
-            channel[ i ] = {
-                sound: 0,
-                note: "",
-                octave: 0
-            };
-        }
+            channel[ i ] = generateEmptyPatternStep();
     });
     return out;
+}
+
+function generateEmptyPatternStep()
+{
+    return {
+        sound: 0,
+        note: "",
+        octave: 0
+    };
 }

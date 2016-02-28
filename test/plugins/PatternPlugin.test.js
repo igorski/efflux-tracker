@@ -182,4 +182,34 @@ describe( "PatternPlugin", function()
         assert.strictEqual( expected4, p1channel1[ 8 ],
             "expected step content at slot 8 to have merged at the expected step after pattern size mutation" );
     });
+
+    it( "should be able to clear the content for any request step", function()
+    {
+        var pattern = PatternPlugin.createEmptyPattern();
+
+        // generate some note content
+
+        var pchannel1 = pattern.channels[ 0 ];
+        var pchannel2 = pattern.channels[ 1 ];
+
+        var expected1 = pchannel1[ 0 ] = { sound: 4, note: "E",  octave: 2 };
+        var expected2 = pchannel1[ 1 ] = { sound: 4, note: "F",  octave: 3 };
+        var expected3 = pchannel2[ 0 ] = { sound: 4, note: "F#", octave: 4 };
+        var expected4 = pchannel2[ 1 ] = { sound: 4, note: "G",  octave: 5 };
+
+        // start clearing individual steps and asserting the results
+
+        PatternPlugin.clearStep( pattern, 0, 0 );
+
+        assert.notStrictEqual( expected1, pchannel1[ 0 ]);
+
+        PatternPlugin.clearStep( pattern, 1, 0 );
+
+        assert.notStrictEqual( expected3, pchannel2[ 0 ]);
+
+        // assert remaining steps are still existent
+
+        assert.strictEqual( expected2, pchannel1[ 1 ]);
+        assert.strictEqual( expected4, pchannel2[ 1 ]);
+    });
 });
