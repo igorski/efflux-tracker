@@ -102,7 +102,8 @@ SongModel.prototype.createSong = function()
             author   : "",
             created  : Date.now(),
             modified : Date.now(),
-            tempo    : 4
+            tempo    : 4,
+            tuning   : 0 // 0 - 2 the tuning setup to use in the TIA table
         },
 
         // data lists

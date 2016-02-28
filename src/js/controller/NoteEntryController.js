@@ -22,11 +22,13 @@
  */
 var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
+var Form       = require( "../utils/Form" );
+var TIA        = require( "../definitions/TIA" );
 
 /* private properties */
 
 var container, element, slocum, keyboardController;
-var sound, note, octave, data, callback;
+var soundSelect, noteSelect, octaveSelect, data, callback;
 
 var NoteEntryController = module.exports =
 {
@@ -47,9 +49,14 @@ var NoteEntryController = module.exports =
         element.setAttribute( "id", "noteEntry" );
         element.innerHTML = templates.noteEntry();
 
-        sound  = element.querySelector( "#sound" );
-        note   = element.querySelector( "#note" );
-        octave = element.querySelector( "#octave" );
+        soundSelect  = element.querySelector( "#sound" );
+        noteSelect   = element.querySelector( "#note" );
+        octaveSelect = element.querySelector( "#octave" );
+
+        // add listeners
+
+        soundSelect.addEventListener( "change", handleSoundSelect );
+        noteSelect.addEventListener ( "change", handleNoteSelect );
 
         element.querySelector( ".close-button" ).addEventListener( "click", handleReady );
     },
@@ -65,16 +72,20 @@ var NoteEntryController = module.exports =
         data     = options || { sound: "", note: "", octave: "" };
         callback = completeCallback;
 
-        sound.value  = data.sound;
-        note.value   = data.note;
-        octave.value = data.octave;
+        setSelectOptions();
+
+        Form.setSelectedOption( soundSelect, data.sound );
+        handleSoundSelect( null );
+        Form.setSelectedOption( noteSelect,  data.note );
+        handleNoteSelect( null );
+        Form.setSelectedOption( octaveSelect, data.octave );
 
         keyboardController.setListener( NoteEntryController );
 
         if ( !element.parentNode )
             container.appendChild( element );
 
-        sound.focus();
+        soundSelect.focus();
     },
 
     /* event handlers */
@@ -100,7 +111,6 @@ var NoteEntryController = module.exports =
 
             case 37: // left
 
-
                 break;
 
             case 32: // spacebar
@@ -125,12 +135,74 @@ function handleReady()
 
     if ( typeof callback === "function" )
     {
-        data.sound  = sound.value;
-        data.note   = note.value;
-        data.octave = octave.value;
+        data.sound  = Form.getSelectedOption( soundSelect );
+        data.note   = Form.getSelectedOption( noteSelect );
+        data.octave = Form.getSelectedOption( octaveSelect );
 
         callback( data );
     }
-
     callback = null;
+}
+
+function setSelectOptions()
+{
+    var tuning = slocum.activeSong.meta.tuning;
+    var values = TIA.table.tunings[ tuning ];
+    var perc   = TIA.table.PERCUSSION;
+
+    var soundOptions = [];
+
+    perc.forEach( function( p )
+    {
+        soundOptions.push({ title: p.note, value: p.note });
+    });
+
+    Object.keys( values ).forEach( function( key ) {
+        soundOptions.push({ title: key, value: key });
+    });
+
+    Form.setOptions( soundSelect,  soundOptions );
+    Form.setOptions( noteSelect,   [{ title: "----" }] );
+    Form.setOptions( octaveSelect, [{ title: "----" }] );
+}
+
+function handleSoundSelect( aEvent )
+{
+    var sound = Form.getSelectedOption( soundSelect );
+    var tuning = slocum.activeSong.meta.tuning;
+    var values = TIA.table.tunings[ tuning ][ sound ];
+    var noteOptions = [], collectedNotes = [], note;
+
+    if ( values ) {
+        Object.keys( values ).forEach( function( key )
+        {
+            note = values[ key ].note;
+            if ( collectedNotes.indexOf( note ) === - 1 ) {
+                noteOptions.push({ title: note, value: note });
+                collectedNotes.push( note );
+            }
+        });
+    }
+    Form.setOptions( noteSelect, noteOptions );
+    handleNoteSelect( aEvent );
+}
+
+function handleNoteSelect( aEvent )
+{
+    var sound  = Form.getSelectedOption( soundSelect );
+    var note   = Form.getSelectedOption( noteSelect );
+    var tuning = slocum.activeSong.meta.tuning;
+    var values = TIA.table.tunings[ tuning ][ sound ];
+    var octaveOptions = [], entry;
+
+    if ( values )
+    {
+        for ( var i = 0; i < values.length; ++i )
+        {
+            entry = values[ i ];
+            if ( entry.note === note )
+                octaveOptions.push({ title: entry.octave, value: entry.octave });
+        }
+    }
+    Form.setOptions( octaveSelect, octaveOptions );
 }

@@ -28,6 +28,7 @@ var NoteEntryController    = require( "./controller/NoteEntryController" );
 var NotificationController = require( "./controller/NotificationController" );
 var PatternController      = require( "./controller/PatternController" );
 var SongController         = require( "./controller/SongController" );
+var ObjectUtil             = require( "./utils/ObjectUtil" );
 var Pubsub                 = require( "pubsub-js" );
 
 /* initialize */
@@ -76,7 +77,7 @@ function handleBroadcast( type, payload )
             var song = slocum.SongModel.getSongById( payload );
 
             if ( song ) {
-                slocum.activeSong = JSON.parse( JSON.stringify( song ));
+                slocum.activeSong = ObjectUtil.clone( song );
                 Pubsub.publish( "SONG_LOADED", song );
             }
             break;

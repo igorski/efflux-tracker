@@ -24,6 +24,7 @@ var Handlebars    = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates     = require( "../handlebars/templates" )( Handlebars );
 var Pubsub        = require( "pubsub-js" );
 var PatternPlugin = require( "../plugins/PatternPlugin" );
+var ObjectUtil    = require( "../utils/ObjectUtil" );
 
 /* private properties */
 
@@ -240,7 +241,7 @@ function handlePatternClear( aEvent )
 
 function handlePatternCopy( aEvent )
 {
-    patternCopy = JSON.parse( JSON.stringify( slocum.activeSong.patterns[ activePattern ] ));
+    patternCopy = ObjectUtil.clone( slocum.activeSong.patterns[ activePattern ] );
 }
 
 function handlePatternPaste( aEvent )

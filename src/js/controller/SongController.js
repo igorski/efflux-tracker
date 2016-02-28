@@ -167,7 +167,7 @@ function isValid( song )
         hasContent = false;
 
     if ( !hasContent )
-        Pubsub.publish( "SHOW_ERROR", "Song has title and author name, take pride on your work!" );
+        Pubsub.publish( "SHOW_ERROR", "Song has title and author name, take pride in your work!" );
 
     return hasContent;
 }

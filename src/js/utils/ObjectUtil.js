@@ -20,46 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Time       = require( "../utils/Time" );
-var ObjectUtil = require( "../utils/ObjectUtil" );
-
 module.exports =
 {
     /**
-     * @public
-     * @param {Object} song JSON song
-     * @return {string} assembly code to for Slocums Sequencer Kit
+     * clone given Object into a new Object instance
+     * with the same properties
+     *
+     * @param {Object} aObject
+     * @return {Object}
      */
-    assemblify : function( song )
+    clone : function( aObject )
     {
-        // clone data as we must modify some properties prior to passing it to the Handlebars template...
-
-        var data = ObjectUtil.clone( song );
-
-        data.meta.created = Time.timestampToDate( data.meta.created );
-        data.hats.pattern = convertHatPattern( data.hats.pattern );
-
-        return templates.asm( data );
+        return JSON.parse( JSON.stringify( aObject ));
     }
 };
-
-/* private methods */
-
-function convertHatPattern( pattern )
-{
-    var asmPattern = "";
-
-    for ( var i = 0, l = pattern.length; i < l; ++i )
-    {
-        if ( i % 8 === 0 ) {
-            if ( i > 0 )
-                asmPattern += "\n";
-
-            asmPattern += "    byte %";
-        }
-        asmPattern += pattern[ i ];
-    }
-    return asmPattern;
-}

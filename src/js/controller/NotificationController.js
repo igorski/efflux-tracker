@@ -80,14 +80,11 @@ function openWindow( title, body )
     var closeDialog = function()
     {
         dialog.removeEventListener( "click", closeDialog );
-
-        if ( !dialog.parentNode )
-            return;
-
         dialog.classList.remove( "visible" );
 
         setTimeout( function() {
-            container.removeChild( dialog );
+            if ( dialog.parentNode )
+                container.removeChild( dialog );
         }, 1000 );
     };
 

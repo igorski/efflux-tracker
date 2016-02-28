@@ -31,7 +31,10 @@ module.exports =
      */
     getSelectedOption : function( aSelect )
     {
-        return aSelect.options[ aSelect.selectedIndex ].value;
+        if ( aSelect.options && aSelect.options.length > 0 )
+            return aSelect.options[ aSelect.selectedIndex ].value;
+
+        return "";
     },
 
     /**
@@ -44,6 +47,10 @@ module.exports =
     setSelectedOption : function( aSelect, aValue )
     {
         var options = aSelect.options;
+
+        if ( !options )
+            return;
+
         var i = options.length, option;
 
         aValue = aValue.toString();
@@ -59,5 +66,35 @@ module.exports =
                 option.removeAttribute( "selected" );
             }
         }
+    },
+
+    /**
+     * sets the available options for a given select box
+     *
+     * @param {Element} aSelect
+     * @param {Array.<{
+     *            title: string,
+     *            value: *
+     *        }>} aOptions
+     */
+    setOptions : function( aSelect, aOptions )
+    {
+        var children = aSelect.childNodes;
+        var i = children.length;
+
+        while ( i-- ) {
+            aSelect.removeChild( aSelect.childNodes[ i ]);
+        }
+
+        var element;
+
+        aOptions.forEach( function( option )
+        {
+            element           = document.createElement( "option" );
+            element.value     = option.value;
+            element.innerHTML = option.title;
+
+            aSelect.appendChild( element );
+        });
     }
 };
