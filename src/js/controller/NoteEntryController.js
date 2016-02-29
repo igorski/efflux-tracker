@@ -28,7 +28,7 @@ var TIA        = require( "../definitions/TIA" );
 /* private properties */
 
 var container, element, slocum, keyboardController;
-var soundSelect, noteSelect, octaveSelect, data, callback;
+var soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
 
 var NoteEntryController = module.exports =
 {
@@ -52,6 +52,7 @@ var NoteEntryController = module.exports =
         soundSelect  = element.querySelector( "#sound" );
         noteSelect   = element.querySelector( "#note" );
         octaveSelect = element.querySelector( "#octave" );
+        accentSelect = element.querySelector( "#accent" );
 
         // add listeners
 
@@ -69,7 +70,7 @@ var NoteEntryController = module.exports =
      */
     open : function( options, completeCallback )
     {
-        data     = options || { sound: "", note: "", octave: "" };
+        data     = options || { sound: "", note: "", octave: "", accent: false };
         callback = completeCallback;
 
         setSelectOptions();
@@ -79,6 +80,7 @@ var NoteEntryController = module.exports =
         Form.setSelectedOption( noteSelect,  data.note );
         handleNoteSelect( null );
         Form.setSelectedOption( octaveSelect, data.octave );
+        Form.setSelectedOption( accentSelect, data.accent );
 
         keyboardController.setListener( NoteEntryController );
 
@@ -144,7 +146,8 @@ function handleReady()
     {
         data.sound  = Form.getSelectedOption( soundSelect );
         data.note   = Form.getSelectedOption( noteSelect );
-        data.octave = Form.getSelectedOption( octaveSelect );
+        data.octave = parseInt( Form.getSelectedOption( octaveSelect ), 10 );
+        data.accent = ( Form.getSelectedOption( accentSelect ) === "true" );
 
         callback( data );
     }

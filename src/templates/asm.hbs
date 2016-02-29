@@ -99,15 +99,15 @@ song2
 ;
 ; NOTE: each array can have a max of 64 sets of each 4 patterns
 ;
-; index for patternArrayH starts at 0, patternArrayL at 128 (go figure)
+; index for patternArrayH starts at 0, patternArrayL at 128
 
 ; 1. Higher volume patterns
 
 patternArrayH
 
-    word mute,mute,mute,mute    ; // a full measure of silence
 
-; 2. Lower volume patterns
+
+; 2. Lower volume patterns (note index starts at 128)
 
 patternArrayL
 
@@ -144,10 +144,4 @@ patternArrayL
 ;
 ; Each of the 8 bits corresponds to each of the 8 notes defined in the pattern
 
-; silence
-
-mute
-    byte 255,255,255,255
-    byte 255,255,255,255
-
-    byte 255
+{{patterns.patterns}}

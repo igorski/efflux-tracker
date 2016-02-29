@@ -27,7 +27,8 @@
  * @typedef {{
  *              sound: number,
  *              note: string,
- *              octave: number
+ *              octave: number,
+ *              accent: boolean
  *          }}
  */
 var PATTERN_STEP;
@@ -171,6 +172,7 @@ function generateEmptyPatternStep()
     return {
         sound: 0,
         note: "",
-        octave: 0
+        octave: 0,
+        accent: false
     };
 }

@@ -267,5 +267,35 @@ var TIA = module.exports =
                 ]
             }
         ]
+    },
+
+    /**
+     * retrieve the code for synthesizing given note
+     * at given octave for the given tuning
+     *
+     * @public
+     *
+     * @param {string} sound
+     * @param {number} tuning
+     * @param {string} note
+     * @param {number} octave
+     *
+     * @return {string|null}
+     */
+    getCode : function( tuning, sound, note, octave )
+    {
+        var soundDescription = tuning[ sound ];
+
+        if ( soundDescription )
+        {
+            var i = soundDescription.length, noteDescription;
+            while ( i-- )
+            {
+                noteDescription = soundDescription[ i ];
+                if ( noteDescription.note === note && noteDescription.octave === octave )
+                    return noteDescription.code;
+            }
+        }
+        return null;
     }
 };

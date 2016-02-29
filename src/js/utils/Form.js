@@ -42,7 +42,7 @@ module.exports =
      * element to the option that matches given aValue
      *
      * @param {Element} aSelect
-     * @param {string|number} aValue
+     * @param {string|number|boolean} aValue
      */
     setSelectedOption : function( aSelect, aValue )
     {

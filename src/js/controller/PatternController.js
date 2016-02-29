@@ -223,7 +223,8 @@ function editStep()
     {
         sound : step.sound,
         note  : step.note,
-        octave: step.octave
+        octave: step.octave,
+        accent: step.accent
 
     } : null;
 
