@@ -14,4 +14,9 @@
         <label for="hatPitch">Hi-hat pitch</label>
         <input type="range" id="hatPitch" min="0" max="31">
     </div>
+    <ul class="pattern">
+        {{#for 0 16 1}}
+            <li class="step">{{this}}</li>
+        {{/for}}
+    </ul>
 </div>

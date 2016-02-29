@@ -25,6 +25,16 @@ var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
 var Pubsub     = require( "pubsub-js" );
 
+Handlebars.registerHelper( 'for', function( from, to, incr, block )
+{
+    var accum = "";
+
+    for ( var i = from; i < to; i += incr )
+        accum += block.fn( i );
+
+    return accum;
+});
+
 /* private properties */
 
 var container, slocum, keyboardController;
@@ -132,10 +142,10 @@ function handleStartChange( aEvent )
 
 function handleVolumeChange( aEvent )
 {
-    slocum.activeSong.hats.volume = parseInt( Form.getSelectedOption( volume ), 10 );
+    slocum.activeSong.hats.volume = parseInt( volume.value, 10 );
 }
 
 function handlePitchChange( aEvent )
 {
-    slocum.activeSong.hats.pitch = parseInt( Form.getSelectedOption( pitch ), 10 );
+    slocum.activeSong.hats.pitch = parseInt( pitch.value, 10 );
 }

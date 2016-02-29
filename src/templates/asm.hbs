@@ -1,7 +1,8 @@
-; {{meta.title}}
 ;-------------------------------------------------------------
-; @author {{meta.author}} {{meta.created}}
-
+; "{{meta.title}}"
+;-------------------------------------------------------------
+; @author {{meta.author}}
+; @created {{meta.created}}
 
 ;-------------------------------------------------------------
 ; CONFIGURATION
@@ -18,7 +19,7 @@ soundTurnArray
     byte 0, 6, 4, 0
 
 ;-------------------------------------------------------------
-; Sound Type Array
+; SOUND TYPES
 ;
 ; This reserves eight of ten possible sounds for the track.
 ;
@@ -32,7 +33,6 @@ soundTurnArray
 ; 101 5 Lead    = 12
 ; 110 6 Saw     = 1
 ; 111 7 Engine  = 3
-;
 
 soundTypeArray
     byte 4, 6, 7, 8
@@ -41,7 +41,7 @@ soundTypeArray
 ;-------------------------------------------------------------
 ; HATS
 ;
-; F##king convenient. Specify the pattern in 32nd notes below.
+; Auto hi-hat playback. Specify the pattern in 32nd notes below.
 ; 0 = silence, 1 = playing. This pattern is repeated for each
 ; measure, Slocums hi-hat render is short enough to disregard it
 ; when writing patterns for other channels.
@@ -54,9 +54,9 @@ soundTypeArray
 ;
 ; Finally, you can specify the high hat volume (0-15), the
 ; pitch (0-31), and the high hat sound type.  Refer to the
-; table above for sound type values.  I typically use
+; table above for sound type values. "I typically use
 ; sound type 8 (Noise) and pitch 0 which sounds like a pretty
-; good high hat.  But you may find other interesting settings.
+; good high hat. But you may find other interesting settings."
 
 hatPattern
 {{hats.pattern}}
@@ -143,7 +143,6 @@ patternArrayL
 ; are accented. 0 = no accent, 1 = yep.
 ;
 ; Each of the 8 bits corresponds to each of the 8 notes defined in the pattern
-
 
 ; silence
 
