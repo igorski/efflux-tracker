@@ -53,8 +53,8 @@ module.exports =
 function convertPatterns( patterns, tuning )
 {
     var out = {
-        channel1sequence : "    byte ",
-        channel2sequence : "    byte ",
+        channel1sequence : "",
+        channel2sequence : "",
         patterns         : "",
         patternArrayH    : "",
         patternArrayL    : ""
@@ -121,12 +121,10 @@ function convertPatterns( patterns, tuning )
             out.patternArrayH += ( patternArray + " ; " + amountOfPatterns + "\n" ); // TODO  when using L add 128 to the patternnum
 
             if ( channelIndex === 0 ) {
-                out.channel1sequence += amountOfPatterns;
-                out.channel1sequence += ( amountOfPatterns % 2 === 0 ) ? ", " : "\n    byte ";
+                out.channel1sequence += "    byte " + amountOfPatterns + "\n";
             }
             else {
-                out.channel2sequence += amountOfPatterns;
-                out.channel2sequence += ( amountOfPatterns % 2 === 0 ) ? ", " : "\n    byte ";
+                out.channel2sequence += "    byte " + amountOfPatterns + "\n";
             }
             ++amountOfPatterns; // TODO: when using L array this starts at 128 !
         });
