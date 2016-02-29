@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var SongModel              = require( "./model/SongModel" );
+var HatController          = require( "./controller/HatController" );
 var KeyboardController     = require( "./controller/KeyboardController" );
 var MenuController         = require( "./controller/MenuController" );
 var MetaController         = require( "./controller/MetaController" );
@@ -59,6 +60,7 @@ var slocum;
     NoteEntryController.init( container, slocum, KeyboardController );
     NotificationController.init( container );
     PatternController.init( container.querySelector( "#patternEditor" ), slocum, KeyboardController, NoteEntryController );
+    HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 

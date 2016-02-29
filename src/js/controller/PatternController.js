@@ -125,11 +125,14 @@ var PatternController = module.exports =
                 break;
 
             case 8:  // backspace
-            case 46: // delete
-
-                PatternPlugin.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
-                PatternController.update(); // sync view with model
+                deleteHighlightedStep();
                 event.preventDefault();
+                PatternController.handleKey( 38 ); // move up to previous slot
+                break;
+
+            case 46: // delete
+                deleteHighlightedStep();
+                PatternController.handleKey( 40 ); // move down to next slot
                 break;
         }
         highlightActiveStep();
@@ -176,6 +179,12 @@ function highlightActiveStep()
             }
         }
     }
+}
+
+function deleteHighlightedStep()
+{
+    PatternPlugin.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+    PatternController.update(); // sync view with model
 }
 
 function handleClick( aEvent )
@@ -225,11 +234,14 @@ function editStep()
 
         // update model and view
 
-        var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
-        channel[ activeStep ] = ( valid ) ? data : undefined;
+        if ( data )
+        {
+            var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
+            channel[ activeStep ] = ( valid ) ? data : undefined;
 
-        PatternController.handleKey( 40 ); // proceed to next line
-        PatternController.update();
+            PatternController.handleKey( 40 ); // proceed to next line
+            PatternController.update();
+        }
     });
 }
 
@@ -269,6 +281,8 @@ function handlePatternAdd( aEvent )
 
     song.patterns = front.concat( back );
     handlePatternNavNext( null );
+
+    Pubsub.publish( "PATTERN_AMOUNT_UPDATED" );
 }
 
 function handlePatternDelete( aEvent )
@@ -283,6 +297,7 @@ function handlePatternDelete( aEvent )
     else {
         song.patterns.splice( activePattern, 1 );
         handlePatternNavBack( aEvent );
+        Pubsub.publish( "PATTERN_AMOUNT_UPDATED" );
     }
 }
 

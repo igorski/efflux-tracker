@@ -118,6 +118,9 @@ var NoteEntryController = module.exports =
                 break;
 
             case 27: // escape
+                handleClose();
+                break;
+
             case 13: // enter
                 handleReady();
                 break;
@@ -127,12 +130,16 @@ var NoteEntryController = module.exports =
 
 /* private methods */
 
+function handleClose()
+{
+    if ( typeof callback === "function" )
+        callback( null );
+
+    dispose();
+}
+
 function handleReady()
 {
-    if ( element.parentNode ) {
-        element.parentNode.removeChild( element );
-    }
-
     if ( typeof callback === "function" )
     {
         data.sound  = Form.getSelectedOption( soundSelect );
@@ -141,7 +148,7 @@ function handleReady()
 
         callback( data );
     }
-    callback = null;
+    dispose();
 }
 
 function setSelectOptions()
@@ -205,4 +212,12 @@ function handleNoteSelect( aEvent )
         }
     }
     Form.setOptions( octaveSelect, octaveOptions );
+}
+
+function dispose()
+{
+    if ( element.parentNode ) {
+        element.parentNode.removeChild( element );
+    }
+    callback = null;
 }
