@@ -24,6 +24,7 @@ var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
 var Pubsub     = require( "pubsub-js" );
+var Messages   = require( "../definitions/Messages" );
 
 Handlebars.registerHelper( 'for', function( from, to, incr, block )
 {
@@ -73,8 +74,8 @@ var HatController = module.exports =
         volume.addEventListener( "change", handleVolumeChange );
         pitch.addEventListener ( "change", handlePitchChange );
 
-        Pubsub.subscribe( "PATTERN_AMOUNT_UPDATED", handleBroadcast );
-        Pubsub.subscribe( "SONG_LOADED",            handleBroadcast );
+        Pubsub.subscribe( Messages.PATTERN_AMOUNT_UPDATED, handleBroadcast );
+        Pubsub.subscribe( Messages.SONG_LOADED,            handleBroadcast );
     },
 
     /**
@@ -128,8 +129,8 @@ function handleBroadcast( type, payload )
 {
     switch( type )
     {
-        case "SONG_LOADED":
-        case "PATTERN_AMOUNT_UPDATED":
+        case Messages.SONG_LOADED:
+        case Messages.PATTERN_AMOUNT_UPDATED:
             HatController.update();
             break;
     }

@@ -24,6 +24,7 @@ var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
 var Pubsub     = require( "pubsub-js" );
+var Messages   = require( "../definitions/Messages" );
 
 /* private properties */
 
@@ -67,7 +68,7 @@ var MetaController = module.exports =
             element.addEventListener( "blur",   handleFocusOut );
         });
 
-        Pubsub.subscribe( "SONG_LOADED", handleBroadcast );
+        Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
     },
 
     /**
@@ -92,7 +93,7 @@ function handleBroadcast( type, payload )
 {
     switch( type )
     {
-        case "SONG_LOADED":
+        case Messages.SONG_LOADED:
             MetaController.update();
             break;
     }

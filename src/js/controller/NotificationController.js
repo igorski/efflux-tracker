@@ -23,6 +23,7 @@
 var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Pubsub     = require( "pubsub-js" );
+var Messages   = require( "../definitions/Messages" );
 
 /* variables */
 
@@ -43,9 +44,9 @@ var NotificationController = module.exports =
 
         // subscribe to pubsub system to receive and broadcast messages across the application
 
-        Pubsub.subscribe( "SONG_LOADED",   handleBroadcast );
-        Pubsub.subscribe( "SHOW_ERROR",    handleBroadcast );
-        Pubsub.subscribe( "SHOW_FEEDBACK", handleBroadcast );
+        Pubsub.subscribe( Messages.SONG_LOADED,   handleBroadcast );
+        Pubsub.subscribe( Messages.SHOW_ERROR,    handleBroadcast );
+        Pubsub.subscribe( Messages.SHOW_FEEDBACK, handleBroadcast );
     }
 };
 
@@ -55,15 +56,15 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
-        case "SONG_LOADED":
+        case Messages.SONG_LOADED:
             openWindow( "Song loaded", "Loaded song '" + payload.meta.title + "'" );
             break;
 
-        case "SHOW_ERROR":
+        case Messages.SHOW_ERROR:
             openWindow( "Error", payload );
             break;
 
-        case "SHOW_FEEDBACK":
+        case Messages.SHOW_FEEDBACK:
             openWindow( "Operation completed", payload );
             break;
     }

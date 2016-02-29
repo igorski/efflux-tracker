@@ -31,6 +31,7 @@ var PatternController      = require( "./controller/PatternController" );
 var SongController         = require( "./controller/SongController" );
 var ObjectUtil             = require( "./utils/ObjectUtil" );
 var Pubsub                 = require( "pubsub-js" );
+var Messages               = require( "./definitions/Messages" );
 
 /* initialize */
 
@@ -64,7 +65,7 @@ var slocum;
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
-    Pubsub.subscribe( "LOAD_SONG", handleBroadcast );
+    Pubsub.subscribe( Messages.LOAD_SONG, handleBroadcast );
 
 })( self );
 
@@ -74,13 +75,13 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
-        case "LOAD_SONG":
+        case Messages.LOAD_SONG:
 
             var song = slocum.SongModel.getSongById( payload );
 
             if ( song ) {
                 slocum.activeSong = ObjectUtil.clone( song );
-                Pubsub.publish( "SONG_LOADED", song );
+                Pubsub.publish( Messages.SONG_LOADED, song );
             }
             break;
     }

@@ -23,6 +23,7 @@
 var Handlebars    = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates     = require( "../handlebars/templates" )( Handlebars );
 var Pubsub        = require( "pubsub-js" );
+var Messages      = require( "../definitions/Messages" );
 var PatternPlugin = require( "../plugins/PatternPlugin" );
 var ObjectUtil    = require( "../utils/ObjectUtil" );
 
@@ -68,7 +69,7 @@ var PatternController = module.exports =
 
         // subscribe to pubsub messaing
 
-        Pubsub.subscribe( "SONG_LOADED", handleBroadcast );
+        Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
     },
 
     update : function()
@@ -145,7 +146,7 @@ function handleBroadcast( type, payload )
 {
     switch( type )
     {
-        case "SONG_LOADED":
+        case Messages.SONG_LOADED:
 
             activePattern = 0;
             activeChannel = 0;
@@ -270,7 +271,7 @@ function handlePatternAdd( aEvent )
         patterns = song.patterns;
 
     if ( patterns.length === 127 ) {
-        Pubsub.publish( "SHOW_ERROR", "Cannot exceed the allowed maxium of 127 patterns" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maxium of 127 patterns" );
         return;
     }
 
@@ -282,7 +283,7 @@ function handlePatternAdd( aEvent )
     song.patterns = front.concat( back );
     handlePatternNavNext( null );
 
-    Pubsub.publish( "PATTERN_AMOUNT_UPDATED" );
+    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
 }
 
 function handlePatternDelete( aEvent )
@@ -297,7 +298,7 @@ function handlePatternDelete( aEvent )
     else {
         song.patterns.splice( activePattern, 1 );
         handlePatternNavBack( aEvent );
-        Pubsub.publish( "PATTERN_AMOUNT_UPDATED" );
+        Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
     }
 }
 

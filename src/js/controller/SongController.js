@@ -25,6 +25,7 @@ var templates      = require( "../handlebars/templates" )( Handlebars );
 var AssemblyPlugin = require( "../plugins/AssemblyPlugin" );
 var Time           = require( "../utils/Time" );
 var Pubsub         = require( "pubsub-js" );
+var Messages       = require( "../definitions/Messages" );
 
 /* private properties */
 
@@ -81,7 +82,7 @@ function handleLoad( aEvent )
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
-        Pubsub.publish( "SHOW_ERROR", "There are currently no songs available to load. Why not create one?" );
+        Pubsub.publish( Messages.SHOW_ERROR, "There are currently no songs available to load. Why not create one?" );
         return;
     }
 
@@ -103,7 +104,7 @@ function handleSave( aEvent )
 
     if ( isValid( song )) {
         slocum.SongModel.saveSong( song );
-        Pubsub.publish( "SHOW_FEEDBACK", "Song '" + song.meta.title + "' saved" );
+        Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
     }
 }
 
@@ -112,7 +113,7 @@ function handleSongClick( aEvent )
     if ( aEvent.target.nodeName === "LI" )
     {
         var id = aEvent.target.getAttribute( "data-id" );
-        Pubsub.publish( "LOAD_SONG", id );
+        Pubsub.publish( Messages.LOAD_SONG, id );
         list.classList.remove( "active" );
     }
 }
@@ -159,7 +160,7 @@ function isValid( song )
     });
 
     if ( !hasContent ) {
-        Pubsub.publish( "SHOW_ERROR", "Song has no pattern content!" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );
         return false;
     }
 
@@ -167,7 +168,7 @@ function isValid( song )
         hasContent = false;
 
     if ( !hasContent )
-        Pubsub.publish( "SHOW_ERROR", "Song has title and author name, take pride in your work!" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Song has title and author name, take pride in your work!" );
 
     return hasContent;
 }
