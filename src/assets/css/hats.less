@@ -1,0 +1,43 @@
+#hatSection
+{
+  .EditorComponent;
+
+  fieldset {
+    padding: 1em;
+    box-sizing: border-box;
+    border: none;
+
+    .wrapper {
+      float: left;
+      clear: left;
+
+      label {
+        float: left;
+        width: 125px;
+      }
+
+      input[type=range] {
+        width: 50px;
+      }
+    }
+  }
+
+  .pattern {
+    display: inline-block;
+    width: 175px;
+
+    li {
+      display: inline-block;
+      cursor: pointer;
+      margin: .1em;
+      width: 30px;
+      height: 30px;
+      background-color: #000;
+      //border-radius: 7px;
+
+      &.active {
+        background-color: #3bbbff;
+      }
+    }
+  }
+}

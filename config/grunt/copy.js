@@ -11,7 +11,7 @@ module.exports =
         {
             expand : true,
             cwd    : "<%= config.project.root %>",
-            src    : [ "**/*.!html", "**/vendor/**/*" ],
+            src    : [ "**/*.!html" ],
             dest   : "<%= config.target.env %>"
         },
         {

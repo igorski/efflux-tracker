@@ -39,7 +39,7 @@ Handlebars.registerHelper( 'for', function( from, to, incr, block )
 /* private properties */
 
 var container, slocum, keyboardController;
-var start, volume, pitch;
+var start, volume, pitch, patternContainer;
 
 var HatController = module.exports =
 {
@@ -63,6 +63,7 @@ var HatController = module.exports =
         start  = container.querySelector( "#hatStart" );
         volume = container.querySelector( "#hatVolume" );
         pitch  = container.querySelector( "#hatPitch" );
+        patternContainer = container.querySelector( ".pattern" );
 
         // synchronize with model
 
@@ -70,9 +71,10 @@ var HatController = module.exports =
 
         // add listeners
 
-        start.addEventListener ( "change", handleStartChange );
-        volume.addEventListener( "change", handleVolumeChange );
-        pitch.addEventListener ( "change", handlePitchChange );
+        start.addEventListener           ( "change", handleStartChange );
+        volume.addEventListener          ( "change", handleVolumeChange );
+        pitch.addEventListener           ( "change", handlePitchChange );
+        patternContainer.addEventListener( "click",  handlePatternClick );
 
         Pubsub.subscribe( Messages.PATTERN_AMOUNT_UPDATED, handleBroadcast );
         Pubsub.subscribe( Messages.SONG_LOADED,            handleBroadcast );
@@ -110,6 +112,21 @@ var HatController = module.exports =
 
         volume.value = hats.volume;
         pitch.value  = hats.pitch;
+
+        // update pattern buttons
+
+        var pattern   = hats.pattern;
+        var buttons   = patternContainer.querySelectorAll( "li" );
+        var increment = ( pattern.length / buttons.length );
+        var j, button;
+
+        for ( i = 0, j = 0; i < buttons.length; ++i, j += increment ) {
+            button = buttons[ i ];
+            if ( pattern[ j ] === 1 )
+                button.classList.add( "active" );
+            else
+                button.classList.remove( "active" );
+        }
     },
 
     /* event handlers */
@@ -149,4 +166,23 @@ function handleVolumeChange( aEvent )
 function handlePitchChange( aEvent )
 {
     slocum.activeSong.hats.pitch = parseInt( pitch.value, 10 );
+}
+
+function handlePatternClick( aEvent )
+{
+    var element = aEvent.target;
+
+    if ( element.tagName === "LI" )
+    {
+        element.classList.toggle( "active" );
+
+        // update model
+
+        var pattern   = slocum.activeSong.hats.pattern;
+        var buttons   = patternContainer.querySelectorAll( "li" );
+        var increment = ( pattern.length / buttons.length );
+
+        for ( var i = 0, j = 0; i < buttons.length; ++i, j += increment )
+            pattern[ j ] = buttons[ i ].classList.contains( "active" ) ? 1 : 0;
+    }
 }

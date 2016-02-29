@@ -48,10 +48,7 @@ var PatternController = module.exports =
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
-        container = document.createElement( "div" );
-        container.setAttribute( "id", "patternEditor" );
-        container.addEventListener( "click", handleClick );
-        containerRef.appendChild( container );
+        container     = containerRef;
         positionTitle = document.querySelector( "#currentPattern" );
 
         PatternController.update(); // sync view with model state
@@ -59,6 +56,8 @@ var PatternController = module.exports =
         // add listeners
 
         keyboardController.setListener( PatternController );
+        container.addEventListener( "click", handleClick );
+
         document.querySelector( "#patternClear"  ).addEventListener( "click", handlePatternClear );
         document.querySelector( "#patternCopy"   ).addEventListener( "click", handlePatternCopy );
         document.querySelector( "#patternPaste"  ).addEventListener( "click", handlePatternPaste );

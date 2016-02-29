@@ -64,8 +64,6 @@ module.exports = function( grunt )
         }
     });
 
-    // resolve shared musicparrot styles from node_modules using atomify-css
-
     grunt.registerTask( "css", function( env )
     {
         env        = env || "prod";
