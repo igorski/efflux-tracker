@@ -53,11 +53,14 @@ module.exports =
 function convertPatterns( patterns, tuning )
 {
     var out = {
-        sequences: "",
-        patterns : ""
+        channel1sequence : "    byte ",
+        channel2sequence : "    byte ",
+        patterns         : "",
+        patternArrayH    : "",
+        patternArrayL    : ""
     };
 
-    var amountOfSteps, patternString, accents, step, code, idx, increment, patternId, i, writeOffset;
+    var amountOfSteps, patternString, accents, step, code, idx, increment, patternId, patternArray, i, writeOffset;
     var amountOfPatterns = 0;
 
     var cachedPatterns = {};
@@ -67,12 +70,13 @@ function convertPatterns( patterns, tuning )
         amountOfSteps = pattern.steps;
         increment     = 32 / amountOfSteps; // sequencer works in 32 steps, Slocum Tracker patterns can be 16 steps
 
-        pattern.channels.forEach( function( channel )
+        pattern.channels.forEach( function( channel, channelIndex )
         {
+            patternArray  = "    word ";
             patternString = "";
             idx           = 0;
 
-            for ( i = 0, writeOffset = 0; writeOffset < amountOfSteps; ++i )
+            for ( i = 0, writeOffset = 0; idx < 32; ++i )
             {
                 step = null;
 
@@ -82,8 +86,12 @@ function convertPatterns( patterns, tuning )
                 }
                 code = ( step ) ? TIA.getCode( tuning, step.sound, step.note, step.octave ) : null;
 
+                // at beginning of each quarter measure, prepare accents list
+
                 if ( idx % 8 === 0 )
                     accents = "\n    byte %";
+
+                // every two 32nd notes, prefix output with byte declaration
 
                 if ( idx % 2 === 0 )
                     patternString += "    byte ";
@@ -92,30 +100,58 @@ function convertPatterns( patterns, tuning )
                 patternString += ( idx % 2 === 0 ) ? ", " : "\n";
                 accents       += ( code && step.accent ) ? 1 : 0;
 
-                if ( ++idx % 8 === 0 )
+                ++idx;
+
+                if ( idx % 8 === 0 || idx > 31 )
                 {
                     patternString += accents + "\n\n";
                     patternId = MD5( patternString.trim() ); // create unique ID for pattern content
 
-                    if ( !cachedPatterns.hasOwnProperty( patternId )) {
-                        ++amountOfPatterns;
-                        cachedPatterns[ patternId ] = "PATTERN" + amountOfPatterns + "\n" + patternString;
-                    }
-                    else {
-                        console.log("existed for id at pattern " + ( amountOfPatterns ),patternId);
-                    }
+                    if ( !cachedPatterns.hasOwnProperty( patternId ))
+                        cachedPatterns[ patternId ] = patternId + "\n" + patternString;
+                    else
+                        console.log( "existed for id '" + patternId + "'" );
+
                     patternString = "";
+                    patternArray += patternId;
+                    patternArray += ( idx > 31 ) ? "" : ", ";
                 }
             }
+            // TODO: also use L array !
+            out.patternArrayH += ( patternArray + " ; " + amountOfPatterns + "\n" ); // TODO  when using L add 128 to the patternnum
+
+            if ( channelIndex === 0 ) {
+                out.channel1sequence += amountOfPatterns;
+                out.channel1sequence += ( amountOfPatterns % 2 === 0 ) ? ", " : "\n    byte ";
+            }
+            else {
+                out.channel2sequence += amountOfPatterns;
+                out.channel2sequence += ( amountOfPatterns % 2 === 0 ) ? ", " : "\n    byte ";
+            }
+            ++amountOfPatterns; // TODO: when using L array this starts at 128 !
         });
     });
 
-    Object.keys( cachedPatterns ).forEach( function( key )
-    {
-        out.patterns += cachedPatterns[ key ];
-    });
+    // collect all assembled patterns
 
-    console.log(out.patterns);
+    var value, replacement;
+
+    Object.keys( cachedPatterns ).forEach( function( key, index )
+    {
+        // replace hashed value with a shorthand (otherwise code won't compile!)
+
+        replacement = "Pattern" + ( index + 1 );
+        value = cachedPatterns[ key ].replace( key, replacement );
+        out.patterns += value;
+
+        // replace usages of hashed value with new short hand
+
+        out.patternArrayH = out.patternArrayH.split( key ).join( replacement );
+        out.patternArrayL = out.patternArrayL.split( key ).join( replacement );
+    });
+    console.log(out.channel1sequence);
+    console.log(out.channel2sequence);
+
     return out;
 }
 

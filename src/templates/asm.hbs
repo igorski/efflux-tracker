@@ -61,13 +61,11 @@ soundTypeArray
 hatPattern
 {{hats.pattern}}
 
-
 HATSTART equ {{hats.start}}
 
 HATVOLUME equ {{hats.volume}}
 HATPITCH equ {{hats.pitch}}
 HATSOUND equ {{hats.sound}}
-
 
 ;-------------------------------------------------------------
 ; SONG SEQUENCE
@@ -80,12 +78,13 @@ HATSOUND equ {{hats.sound}}
 ; NOTE: 255 is required at the end of the list to indicate the end has been reached
 
 song1
-    byte 0,0    ; silence
+
+{{patterns.channel1sequence}}
     byte 255    ; end / loop
 
-
 song2
-    byte 0,0    ; silence
+
+{{patterns.channel2sequence}}
     byte 255    ; end / loop
 
 ;-------------------------------------------------------------
@@ -105,11 +104,13 @@ song2
 
 patternArrayH
 
-
+{{patterns.patternArrayH}}
 
 ; 2. Lower volume patterns (note index starts at 128)
 
 patternArrayL
+
+{{patterns.patternArrayL}}
 
 ;-------------------------------------------------------------
 ; PATTERNS:
