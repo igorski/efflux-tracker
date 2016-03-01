@@ -44,7 +44,7 @@ var start, volume, pitch, patternContainer;
 var HatController = module.exports =
 {
     /**
-     * initialize HatController, attach MetaView template into give container
+     * initialize HatController, attach HatEditor template into give container
      *
      * @param containerRef
      * @param slocumRef
@@ -131,7 +131,7 @@ var HatController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( keyCode, event )
+    handleKey : function( keyCode )
     {
         switch ( keyCode )
         {

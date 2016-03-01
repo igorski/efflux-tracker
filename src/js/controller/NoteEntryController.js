@@ -92,7 +92,7 @@ var NoteEntryController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( keyCode, event )
+    handleKey : function( keyCode )
     {
         switch ( keyCode )
         {

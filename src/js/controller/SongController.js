@@ -61,7 +61,7 @@ var SongController = module.exports =
         list.addEventListener( "click", handleSongClick );
     },
 
-    handleKey : function( keyCode, event )
+    handleKey : function( keyCode )
     {
         console.log("OER");
         switch ( keyCode )

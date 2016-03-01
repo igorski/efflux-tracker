@@ -64,5 +64,12 @@ module.exports =
 function handleKeyDown( aEvent )
 {
     if ( !suspended && listener && listener.handleKey )
-        listener.handleKey( aEvent.keyCode, aEvent );
+    {
+        // prevent defaults when using the arrows (prevents page jumps)
+
+        if ([ 37, 38, 39, 40 ].indexOf( aEvent.keyCode ) > -1 )
+            aEvent.preventDefault();
+
+        listener.handleKey( aEvent.keyCode );
+    }
 }

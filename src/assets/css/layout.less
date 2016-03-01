@@ -1,5 +1,4 @@
-@import url( "lib/work.less" );
-@import url( "lib/helpers.less" );
+@import url( "helpers.less" );
 
 @app-width: 960px;
 @mobile-width: 640px; // the threshold where we start to use the mobile view
@@ -26,7 +25,7 @@ ul {
   min-height: 100%;
   margin: .5em auto;
   padding: .5em;
-  box-sizing: border-box;
+  .boxSize;
 
   margin-bottom: -@footer-height; /* minus the footer height to make it sticky */
 
@@ -108,5 +107,6 @@ ul {
 @import url( "notifications.less" );
 @import url( "songs.less" );
 @import url( "patterns.less" );
+@import url( "help.less" );
 @import url( "hats.less" );
 @import url( "footer.less" );

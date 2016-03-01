@@ -84,7 +84,7 @@ var PatternController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( keyCode, event )
+    handleKey : function( keyCode )
     {
         switch ( keyCode )
         {
@@ -126,7 +126,6 @@ var PatternController = module.exports =
 
             case 8:  // backspace
                 deleteHighlightedStep();
-                event.preventDefault();
                 PatternController.handleKey( 38 ); // move up to previous slot
                 break;
 
