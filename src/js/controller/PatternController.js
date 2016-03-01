@@ -20,12 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars    = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates     = require( "../handlebars/templates" )( Handlebars );
-var Pubsub        = require( "pubsub-js" );
-var Messages      = require( "../definitions/Messages" );
-var PatternPlugin = require( "../plugins/PatternPlugin" );
-var ObjectUtil    = require( "../utils/ObjectUtil" );
+var Handlebars     = require( "handlebars/dist/handlebars.runtime.min.js" );
+var templates      = require( "../handlebars/templates" )( Handlebars );
+var Pubsub         = require( "pubsub-js" );
+var Messages       = require( "../definitions/Messages" );
+var PatternFactory = require( "../factories/PatternFactory" );
+var ObjectUtil     = require( "../utils/ObjectUtil" );
 
 /* private properties */
 
@@ -182,7 +182,7 @@ function highlightActiveStep()
 
 function deleteHighlightedStep()
 {
-    PatternPlugin.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+    PatternFactory.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
     PatternController.update(); // sync view with model
 }
 
@@ -247,7 +247,7 @@ function editStep()
 
 function handlePatternClear( aEvent )
 {
-    slocum.activeSong.patterns[ activePattern ] = PatternPlugin.createEmptyPattern( stepAmount );
+    slocum.activeSong.patterns[ activePattern ] = PatternFactory.createEmptyPattern( stepAmount );
     PatternController.update();
 }
 
@@ -259,7 +259,7 @@ function handlePatternCopy( aEvent )
 function handlePatternPaste( aEvent )
 {
     if ( patternCopy ) {
-        PatternPlugin.mergePatterns( slocum.activeSong.patterns[ activePattern ], patternCopy );
+        PatternFactory.mergePatterns( slocum.activeSong.patterns[ activePattern ], patternCopy );
         PatternController.update();
     }
 }
@@ -277,7 +277,7 @@ function handlePatternAdd( aEvent )
     var front = patterns.slice( 0, activePattern + 1 );
     var back  = patterns.slice( activePattern + 1 );
 
-    front.push( PatternPlugin.createEmptyPattern( stepAmount ));
+    front.push( PatternFactory.createEmptyPattern( stepAmount ));
 
     song.patterns = front.concat( back );
     handlePatternNavNext( null );

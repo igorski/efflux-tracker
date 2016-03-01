@@ -2,9 +2,9 @@
  * Created by igorzinken on 26-07-15.
  */
 var chai = require( "chai" );
-var PatternPlugin = require( "../../src/js/plugins/PatternPlugin" );
+var PatternFactory = require( "../../src/js/factories/PatternFactory" );
 
-describe( "PatternPlugin", function()
+describe( "PatternFactory", function()
 {
     /* setup */
 
@@ -45,10 +45,10 @@ describe( "PatternPlugin", function()
     it( "should be able to generate an empty pattern template for any requested step size", function()
     {
         var steps   = Math.round( 1 + ( Math.random() * 32 ));
-        var pattern = PatternPlugin.createEmptyPattern( steps );
+        var pattern = PatternFactory.createEmptyPattern( steps );
 
         assert.ok( typeof pattern === "object",
-            "expected PatternPlugin to have generated a pattern Object, got " + typeof pattern + " instead" );
+            "expected PatternFactory to have generated a pattern Object, got " + typeof pattern + " instead" );
 
         assert.strictEqual( steps, pattern.steps,
             "expected generated pattern to contain the requested amount of steps" );
@@ -65,16 +65,16 @@ describe( "PatternPlugin", function()
 
     it( "should by default generate an empty pattern template for a 16 step sequence", function()
     {
-        var pattern = PatternPlugin.createEmptyPattern();
+        var pattern = PatternFactory.createEmptyPattern();
 
         assert.strictEqual( 16, pattern.steps,
-            "expected PatternPlugin to have generated a pattern Object of 16 steps in length" );
+            "expected PatternFactory to have generated a pattern Object of 16 steps in length" );
     });
 
     it( "should be able to merge equal length patterns", function()
     {
-        var pattern1 = PatternPlugin.createEmptyPattern();
-        var pattern2 = PatternPlugin.createEmptyPattern();
+        var pattern1 = PatternFactory.createEmptyPattern();
+        var pattern2 = PatternFactory.createEmptyPattern();
 
         // generate some note content
 
@@ -88,7 +88,7 @@ describe( "PatternPlugin", function()
 
         // merge patterns
 
-        PatternPlugin.mergePatterns( pattern1, pattern2 );
+        PatternFactory.mergePatterns( pattern1, pattern2 );
 
         // assert results
 
@@ -109,8 +109,8 @@ describe( "PatternPlugin", function()
 
     it( "should be able to merge unequal length patterns when source is larger than target", function()
     {
-        var pattern1 = PatternPlugin.createEmptyPattern( 16 );
-        var pattern2 = PatternPlugin.createEmptyPattern( 32 );
+        var pattern1 = PatternFactory.createEmptyPattern( 16 );
+        var pattern2 = PatternFactory.createEmptyPattern( 32 );
 
         // generate some note content
 
@@ -124,7 +124,7 @@ describe( "PatternPlugin", function()
 
         // merge patterns
 
-        PatternPlugin.mergePatterns( pattern1, pattern2 );
+        PatternFactory.mergePatterns( pattern1, pattern2 );
 
         // assert results
 
@@ -149,8 +149,8 @@ describe( "PatternPlugin", function()
 
     it( "should be able to merge unequal length patterns when target is larger than the source", function()
     {
-        var pattern1 = PatternPlugin.createEmptyPattern( 32 );
-        var pattern2 = PatternPlugin.createEmptyPattern( 16 );
+        var pattern1 = PatternFactory.createEmptyPattern( 32 );
+        var pattern2 = PatternFactory.createEmptyPattern( 16 );
 
         // generate some note content
 
@@ -164,7 +164,7 @@ describe( "PatternPlugin", function()
 
         // merge patterns
 
-        PatternPlugin.mergePatterns( pattern1, pattern2 );
+        PatternFactory.mergePatterns( pattern1, pattern2 );
 
         // assert results
 
@@ -185,7 +185,7 @@ describe( "PatternPlugin", function()
 
     it( "should be able to clear the content for any request step", function()
     {
-        var pattern = PatternPlugin.createEmptyPattern();
+        var pattern = PatternFactory.createEmptyPattern();
 
         // generate some note content
 
@@ -199,11 +199,11 @@ describe( "PatternPlugin", function()
 
         // start clearing individual steps and asserting the results
 
-        PatternPlugin.clearStep( pattern, 0, 0 );
+        PatternFactory.clearStep( pattern, 0, 0 );
 
         assert.notStrictEqual( expected1, pchannel1[ 0 ]);
 
-        PatternPlugin.clearStep( pattern, 1, 0 );
+        PatternFactory.clearStep( pattern, 1, 0 );
 
         assert.notStrictEqual( expected3, pchannel2[ 0 ]);
 

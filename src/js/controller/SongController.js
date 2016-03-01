@@ -20,16 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars     = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates      = require( "../handlebars/templates" )( Handlebars );
-var AssemblyPlugin = require( "../plugins/AssemblyPlugin" );
-var Time           = require( "../utils/Time" );
-var Pubsub         = require( "pubsub-js" );
-var Messages       = require( "../definitions/Messages" );
+var Handlebars       = require( "handlebars/dist/handlebars.runtime.min.js" );
+var templates        = require( "../handlebars/templates" )( Handlebars );
+var AssemblerFactory = require( "../factories/AssemblerFactory" );
+var Time             = require( "../utils/Time" );
+var Pubsub           = require( "pubsub-js" );
+var Messages         = require( "../definitions/Messages" );
 
 /* private properties */
 
-var container, slocum, list;
+var container, slocum, keyboardController, list;
 
 var SongController = module.exports =
 {
@@ -38,11 +38,13 @@ var SongController = module.exports =
      *
      * @param containerRef
      * @param slocumRef
+     * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef )
+    init : function( containerRef, slocumRef, keyboardControllerRef )
     {
         container          = containerRef;
         slocum             = slocumRef;
+        keyboardController = keyboardControllerRef;
 
         container.innerHTML += templates.songView();
 
@@ -54,20 +56,18 @@ var SongController = module.exports =
 
         // create a list container to show the songs when loading
 
-        list = document.createElement( "div" );
+        list = document.createElement( "ul" );
         list.setAttribute( "id", "songList" );
-        document.body.appendChild( list ); // see CSS for visiblity toggles
+        document.body.appendChild( list ); // see CSS for visibility toggles
 
         list.addEventListener( "click", handleSongClick );
     },
 
     handleKey : function( keyCode )
     {
-        console.log("OER");
         switch ( keyCode )
         {
             case 27: // escape
-                console.log("er");
                 list.classList.remove( "active" );
                 break;
         }
@@ -90,12 +90,14 @@ function handleLoad( aEvent )
     {
         li = document.createElement( "li" );
         li.setAttribute( "data-id", song.id );
-        li.innerHTML = song.meta.title + " " + Time.timestampToDate( song.meta.created );
+        li.innerHTML = "<span class='title'>" + song.meta.title + "</span><span class='date'>" + Time.timestampToDate( song.meta.created ) + "</span>";
 
         list.appendChild( li );
     });
 
     list.classList.add( "active" );
+
+    keyboardController.setListener( SongController );
 }
 
 function handleSave( aEvent )
@@ -124,7 +126,7 @@ function handleExport( aEvent )
 
     if ( isValid( song ))
     {
-        var asm = AssemblyPlugin.assemblify( song );
+        var asm = AssemblerFactory.assemblify( song );
 
         // download file to disk
 
@@ -168,7 +170,7 @@ function isValid( song )
         hasContent = false;
 
     if ( !hasContent )
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has title and author name, take pride in your work!" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
 
     return hasContent;
 }

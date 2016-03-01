@@ -57,7 +57,7 @@ var slocum;
 
     KeyboardController.init( slocum );
     MenuController.init();
-    SongController.init( container.querySelector( "#songSection" ), slocum );
+    SongController.init( container.querySelector( "#songSection" ), slocum, KeyboardController );
     MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
     NoteEntryController.init( container, slocum, KeyboardController );
     NotificationController.init( container );

@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternPlugin = require( "../plugins/PatternPlugin" );
+var PatternFactory = require( "../factories/PatternFactory" );
 
 module.exports = SongModel;
 
@@ -114,7 +114,7 @@ SongModel.prototype.createSong = function()
          * @typedef {Array.<Object>}
          */
         patterns : [
-            PatternPlugin.createEmptyPattern( 16 )
+            PatternFactory.createEmptyPattern( 16 )
         ],
 
         hats : {
