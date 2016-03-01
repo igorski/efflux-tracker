@@ -63,7 +63,7 @@ var HatController = module.exports =
         start  = container.querySelector( "#hatStart" );
         volume = container.querySelector( "#hatVolume" );
         pitch  = container.querySelector( "#hatPitch" );
-        patternContainer = container.querySelector( ".pattern" );
+        patternContainer = container.querySelector( ".pattern ul" );
 
         // synchronize with model
 

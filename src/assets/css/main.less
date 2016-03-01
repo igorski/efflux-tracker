@@ -1,3 +1,21 @@
+// equal column heights for center section
+
+#center {
+  display: table;
+  width: 100%;
+
+  #patternEditor {
+    display: table-cell;
+    width: 65%;
+  }
+
+  #helpSection {
+    display: table-cell;
+    vertical-align: top;
+    width: 35%;
+  }
+}
+
 #patternSection
 {
   .EditorComponent;
@@ -59,6 +77,20 @@
   }
 }
 
+#helpSection
+{
+  .EditorComponent;
+  padding: 1em 1.5em;
+
+  h4 {
+    color: #FFF;
+    margin: 0;
+    font-size: 110%;
+  }
+}
+
+// note entry dialog
+
 #noteEntry {
   position: fixed;
   top: 50%;
@@ -74,22 +106,5 @@
     top: .5em;
     right: .5em;
     cursor: pointer;
-  }
-}
-
-
-#center {
-  display: table;
-  width: 100%;
-
-  #patternEditor {
-    display: table-cell;
-    width: 65%;
-  }
-
-  #helpSection {
-    display: table-cell;
-    vertical-align: top;
-    width: 35%;
   }
 }

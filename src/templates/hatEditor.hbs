@@ -1,12 +1,6 @@
-<div id=hatEditor">
+<div class="hatEditor controls">
     <h2>Auto hi-hats</h2>
     <fieldset>
-        <div class="wrapper select">
-            <label for="hatStart">Pattern start</label>
-            <select id="hatStart">
-                <option value="255">never</option>
-            </select>
-        </div>
         <div class="wrapper range">
             <label for="hatVolume">Hi-hat volume</label>
             <input type="range" id="hatVolume" min="0" max="15">
@@ -15,8 +9,17 @@
             <label for="hatPitch">Hi-hat pitch</label>
             <input type="range" id="hatPitch" min="0" max="31">
         </div>
+        <div class="wrapper select">
+            <label for="hatStart">Pattern start</label>
+            <select id="hatStart">
+                <option value="255">never</option>
+            </select>
+        </div>
     </fieldset>
-    <ul class="pattern">
+</div>
+<div class="hatEditor pattern">
+    <h2>Auto hat pattern</h2>
+    <ul>
         {{#for 0 16 1}}
             <li class="step"></li>
         {{/for}}

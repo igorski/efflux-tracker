@@ -1,4 +1,4 @@
-#hatSection
+.hatEditor
 {
   .EditorComponent;
   float: left;
@@ -9,45 +9,55 @@
   h2 {
     float: left;
     clear: left;
+    margin: 0;
   }
 
-  fieldset {
-    float: left;
-    clear: left;
-    padding: 1em;
-    border: none;
-    .boxSize;
+  &.controls
+  {
+    fieldset {
+      float: right;
+      padding: 0;
+      border: none;
+      .boxSize;
 
-    .wrapper {
-      float: left;
-      clear: left;
 
-      label {
+      .wrapper {
         float: left;
-        width: 125px;
-      }
 
-      input[type=range] {
-        width: 50px;
+        label {
+          float: left;
+          padding: 0 1em;
+          margin-top: 4px;
+        }
+
+        input[type=range] {
+          width: 50px;
+        }
       }
     }
   }
 
-  .pattern {
-    float: left;
-    margin-top: 1em;
+  &.pattern
+  {
+    margin: 0 0 .5em;
 
-    li {
-      display: inline-block;
-      cursor: pointer;
-      margin: .1em;
-      width: 30px;
+    ul {
+      float: left;
+      margin: 0 0 .25em 1em;
       height: 30px;
-      background-color: #000;
-      //border-radius: 7px;
 
-      &.active {
-        background-color: #3bbbff;
+      li {
+        display: inline-block;
+        cursor: pointer;
+        margin: .1em;
+        width: 30px;
+        height: 30px;
+        background-color: #000;
+        //border-radius: 7px;
+
+        &.active {
+          background-color: #3bbbff;
+        }
       }
     }
   }
