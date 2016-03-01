@@ -15,7 +15,7 @@ describe( "AssemblerFactory", function()
     var assert = chai.assert,
         expect = chai.expect;
 
-    var song, model;
+    var song, model, browser;
 
     // executed before the tests start running
 
@@ -65,6 +65,16 @@ describe( "AssemblerFactory", function()
 
         assert.ok( asm[ 4 ].indexOf( Time.timestampToDate( song.meta.created )) > -1,
             "expected assembly output to contain song title" );
+    });
+
+    it( "should have the correct tempo value in the assembly output", function()
+    {
+        song.meta.tempo = Math.round( Math.random() * 10 ) + 1;
+
+        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+
+        assert.ok( asm[ 12 ].indexOf( "TEMPODELAY equ " + song.meta.tempo ) > -1,
+            "expected assembly output to contain correct tempo value" );
     });
 });
 
