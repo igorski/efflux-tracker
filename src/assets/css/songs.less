@@ -21,18 +21,29 @@
     float: left;
     width: 100%;
     padding: 1em 2em;
-    box-sizing: border-box;
+    .boxSize;
     cursor: pointer;
+    transition: all 75ms ease-out;
+    border-bottom: 1px solid #53565c;
+    font-family: Montserrat, Helvetica, sans-serif;
+
+    .title, .date {
+      .noEvents;
+    }
 
     .title {
       float: left;
-      font-family: Montserrat, Helvetica, sans-serif;
     }
     .date {
       float: right;
     }
 
     &:nth-child(even) {
+      background-color: #53565c;
+      color: #FFF;
+    }
+
+    &:hover {
       background-color: #3bbbff;
     }
   }

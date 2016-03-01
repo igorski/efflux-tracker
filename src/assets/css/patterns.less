@@ -19,17 +19,27 @@
 #patternEditor
 {
   .pattern {
+    position: relative;
     float: left;
-    width: 300px;
+    width: 50%;
     list-style-type: none;
     margin: 0;
     padding: 0;
-    border-right: 1px solid #000;
     background-color: #101015;
+
+    &:first-of-type {
+      &:before {
+        position: absolute;
+        content: "";
+        border-right: 1px solid #000;
+        height: 100%;
+        top: 0;
+        right: 0;
+      }
+    }
 
     li {
       display: block;
-      //width: 100%;
       padding: .25em 1em;
       cursor: pointer;
       border: 2px solid #000;
@@ -41,8 +51,9 @@
         border-color: #323234;
       }
 
-      &.active {
+      &.active, &:hover {
         border: 2px solid #3bbbff;
+        z-index: 10;
       }
     }
   }
@@ -63,5 +74,22 @@
     top: .5em;
     right: .5em;
     cursor: pointer;
+  }
+}
+
+
+#center {
+  display: table;
+  width: 100%;
+
+  #patternEditor {
+    display: table-cell;
+    width: 65%;
+  }
+
+  #helpSection {
+    display: table-cell;
+    vertical-align: top;
+    width: 35%;
   }
 }
