@@ -109,8 +109,6 @@ function convertPatterns( patterns, tuning )
 
                     if ( !cachedPatterns.hasOwnProperty( patternId ))
                         cachedPatterns[ patternId ] = patternId + "\n" + patternString;
-                    else
-                        console.log( "existed for id '" + patternId + "'" );
 
                     patternString = "";
                     patternArray += patternId;
@@ -147,8 +145,6 @@ function convertPatterns( patterns, tuning )
         out.patternArrayH = out.patternArrayH.split( key ).join( replacement );
         out.patternArrayL = out.patternArrayL.split( key ).join( replacement );
     });
-    console.log(out.channel1sequence);
-    console.log(out.channel2sequence);
 
     return out;
 }
