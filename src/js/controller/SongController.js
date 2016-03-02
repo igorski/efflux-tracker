@@ -22,7 +22,7 @@
  */
 var Handlebars       = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates        = require( "../handlebars/templates" )( Handlebars );
-var AssemblerFactory = require( "../factories/AssemblerFactory" );
+var AssemblerFactory = require( "../factory/AssemblerFactory" );
 var Time             = require( "../utils/Time" );
 var Pubsub           = require( "pubsub-js" );
 var Messages         = require( "../definitions/Messages" );

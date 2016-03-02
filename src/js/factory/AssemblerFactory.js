@@ -42,7 +42,7 @@ module.exports =
 
         data.meta.created = Time.timestampToDate( data.meta.created );
         data.patterns     = convertPatterns( data.patterns, TIA.table.tunings[ song.meta.tuning ]);
-        data.hats.pattern = convertHatPattern( data.hats.pattern );
+        data.hats.pattern = convertHatPattern( data.hats.pattern, data.hats.steps );
 
         return templates.asm( data );
     }
@@ -149,11 +149,12 @@ function convertPatterns( patterns, tuning )
     return out;
 }
 
-function convertHatPattern( pattern )
+function convertHatPattern( pattern, steps )
 {
     var asmPattern = "";
+    var increment  = pattern.length / steps;
 
-    for ( var i = 0, l = pattern.length; i < l; ++i )
+    for ( var i = 0, l = pattern.length; i < l; i += increment )
     {
         if ( i % 8 === 0 )
         {

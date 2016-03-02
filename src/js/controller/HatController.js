@@ -39,7 +39,8 @@ Handlebars.registerHelper( 'for', function( from, to, incr, block )
 /* private properties */
 
 var container, slocum, keyboardController;
-var start, volume, pitch, patternContainer;
+var start, volume, pitch, steps, patternContainer;
+var lastStepAmount = 0;
 
 var HatController = module.exports =
 {
@@ -62,6 +63,7 @@ var HatController = module.exports =
 
         start  = container.querySelector( "#hatStart" );
         volume = container.querySelector( "#hatVolume" );
+        steps  = container.querySelector( "#hatSteps" );
         pitch  = container.querySelector( "#hatPitch" );
         patternContainer = container.querySelector( ".pattern ul" );
 
@@ -74,6 +76,7 @@ var HatController = module.exports =
         start.addEventListener           ( "change", handleStartChange );
         volume.addEventListener          ( "change", handleVolumeChange );
         pitch.addEventListener           ( "change", handlePitchChange );
+        steps.addEventListener           ( "change", handleStepsChange );
         patternContainer.addEventListener( "click",  handlePatternClick );
 
         Pubsub.subscribe( Messages.PATTERN_AMOUNT_UPDATED, handleBroadcast );
@@ -93,7 +96,8 @@ var HatController = module.exports =
         // title, value
 
         var options = [{ title: "Never", value: 255 }];
-        var i = amountOfPatterns;
+        var i = amountOfPatterns, j, button;
+
         while ( i-- )
         {
             options.push({
@@ -113,12 +117,26 @@ var HatController = module.exports =
         volume.value = hats.volume;
         pitch.value  = hats.pitch;
 
+        // pattern step amount changed? update button amount
+
+        if ( lastStepAmount !== hats.steps )
+        {
+            i = patternContainer.childNodes.length;
+            while ( i-- )
+                patternContainer.removeChild( patternContainer.childNodes[ i ]);
+
+            for ( i = 0; i < hats.steps; ++i ) {
+                button = document.createElement( "li" );
+                patternContainer.appendChild( button );
+            }
+            lastStepAmount = hats.steps;
+        }
+
         // update pattern buttons
 
         var pattern   = hats.pattern;
         var buttons   = patternContainer.querySelectorAll( "li" );
         var increment = ( pattern.length / buttons.length );
-        var j, button;
 
         for ( i = 0, j = 0; i < buttons.length; ++i, j += increment ) {
             button = buttons[ i ];
@@ -166,6 +184,35 @@ function handleVolumeChange( aEvent )
 function handlePitchChange( aEvent )
 {
     slocum.activeSong.hats.pitch = parseInt( pitch.value, 10 );
+}
+
+function handleStepsChange( aEvent )
+{
+    // pattern amount changed ?
+
+    var hats      = slocum.activeSong.hats;
+    var newAmount = parseInt( steps.value, 10 );
+    hats.steps    = newAmount;
+
+    // translate current active hat state to new precision
+
+    if ( newAmount !== lastStepAmount )
+    {
+        var pattern     = hats.pattern;
+        var transformed = new Array( newAmount );
+        var increment   = newAmount / lastStepAmount;
+        var lookup;
+
+        for ( var i = 0; i < newAmount; ++i )
+        {
+            lookup = Math.floor( i * increment );
+            transformed[ i ] = pattern[ lookup ];
+        }
+        hats.pattern = transformed;
+
+        // sync with model creates correct button amount and updates lastStepAmount
+        HatController.update();
+    }
 }
 
 function handlePatternClick( aEvent )

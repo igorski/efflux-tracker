@@ -10,6 +10,13 @@
             <input type="range" id="hatPitch" min="0" max="31">
         </div>
         <div class="wrapper select">
+            <label for="hatSteps">Pattern step amount</label>
+            <select id="hatSteps">
+                <option value="16">16</option>
+                <option value="32">32</option>
+            </select>
+        </div>
+        <div class="wrapper select">
             <label for="hatStart">Pattern start</label>
             <select id="hatStart">
                 <option value="255">never</option>
@@ -20,8 +27,6 @@
 <div class="hatEditor pattern">
     <h2>Auto hat pattern</h2>
     <ul>
-        {{#for 0 16 1}}
-            <li class="step"></li>
-        {{/for}}
+        <!-- filled by HatController -->
     </ul>
 </div>

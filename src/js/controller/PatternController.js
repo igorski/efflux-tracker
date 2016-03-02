@@ -24,7 +24,7 @@ var Handlebars     = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates      = require( "../handlebars/templates" )( Handlebars );
 var Pubsub         = require( "pubsub-js" );
 var Messages       = require( "../definitions/Messages" );
-var PatternFactory = require( "../factories/PatternFactory" );
+var PatternFactory = require( "../factory/PatternFactory" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
 
 /* private properties */
