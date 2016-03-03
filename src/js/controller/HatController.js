@@ -68,6 +68,7 @@ var HatController = module.exports =
         pitch.addEventListener           ( "change", handlePitchChange );
         steps.addEventListener           ( "change", handleStepsChange );
         patternContainer.addEventListener( "click",  handlePatternClick );
+        container.addEventListener       ( "mouseover", handleMouseOver );
 
         Pubsub.subscribe( Messages.PATTERN_AMOUNT_UPDATED, handleBroadcast );
         Pubsub.subscribe( Messages.SONG_LOADED,            handleBroadcast );
@@ -207,6 +208,11 @@ function handleStepsChange( aEvent )
         // sync with model creates correct button amount and updates lastStepAmount
         HatController.update();
     }
+}
+
+function handleMouseOver( aEvent )
+{
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicHats" );
 }
 
 function handlePatternClick( aEvent )
