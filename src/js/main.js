@@ -57,7 +57,7 @@ var slocum;
 
     var container = document.querySelector( "#application" );
 
-    container.innerHTML = templates.index();
+    container.innerHTML += templates.index();
 
     // initialize application controllers
 

@@ -26,7 +26,7 @@ Sounds cool, but I don't want to build from source, I just want to tinker with t
 -------------------------------------------------------------------------------------
 
 Of course, it was made to allow for easy composition, so let's cut the chatter!
-You can use the application right now from  your web browser by visiting: - link to follow -
+You can use the application right now from  your web browser by visiting [this link](http://www.igorski.nl/experiment/slocum-tracker).
 
 Do pay heed to the "How to create an Atari ROM for my composition"-section below to understand how
 to get the generated output from Slocum Tracker to play back sweet, pristine music on an Atari 2600 (emulator).
