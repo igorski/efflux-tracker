@@ -23,6 +23,7 @@
 var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
+var NoteUtil   = require( "../utils/NoteUtil" );
 var TIA        = require( "../definitions/TIA" );
 
 /* private properties */
@@ -77,9 +78,13 @@ var NoteEntryController = module.exports =
 
         Form.setSelectedOption( soundSelect, data.sound );
         handleSoundSelect( null );
-        Form.setSelectedOption( noteSelect,  data.note );
-        handleNoteSelect( null );
-        Form.setSelectedOption( octaveSelect, data.octave );
+
+        if ( !NoteUtil.isPercussive( data.sound ))
+        {
+            Form.setSelectedOption( noteSelect,  data.note );
+            handleNoteSelect( null );
+            Form.setSelectedOption( octaveSelect, data.octave );
+        }
         Form.setSelectedOption( accentSelect, data.accent );
 
         keyboardController.setListener( NoteEntryController );

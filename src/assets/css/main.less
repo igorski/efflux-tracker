@@ -73,6 +73,23 @@
         border: 2px solid #3bbbff;
         z-index: 10;
       }
+
+      span {
+        width: 45%;
+        display: inline-block;
+        .noEvents;
+
+        &.sound {
+          &.accent-true {
+            color: #FFF;
+          }
+        }
+
+        &.note {
+          text-align: right;
+          text-transform: uppercase;
+        }
+      }
     }
   }
 }
@@ -100,11 +117,35 @@
   margin-left: -150px;
   margin-top: -75px;
   background-color: #FFF;
+  padding: .25em 1em;
+  .boxSize;
+  border-radius: 7px;
+  box-shadow: 0 0 25px rgba(0,0,0,.5);
+
+  h4 {
+    margin: .75em 0;
+  }
+
+  select {
+    height: 45px;
+    min-width: 50px;
+    /*
+    float: left;
+    margin: 0;
+    border-radius: 0;
+    border: none;
+    */
+  }
+
+  #note, #octave {
+    text-transform: uppercase;
+    text-indent: 5px;
+  }
 
   .close-button {
     position: absolute;
-    top: .5em;
-    right: .5em;
+    top: .75em;
+    right: .75em;
     cursor: pointer;
   }
 }

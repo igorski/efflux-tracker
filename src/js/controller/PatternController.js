@@ -25,6 +25,7 @@ var templates      = require( "../handlebars/templates" )( Handlebars );
 var Pubsub         = require( "pubsub-js" );
 var Messages       = require( "../definitions/Messages" );
 var PatternFactory = require( "../factory/PatternFactory" );
+var NoteUtil       = require( "../utils/NoteUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
 
 /* private properties */
@@ -237,6 +238,12 @@ function editStep()
         if ( data )
         {
             var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
+
+            // percussive sounds are always valid (require no pitch and octave)
+
+            if ( NoteUtil.isPercussive( data.sound )) {
+                valid = true;
+            }
             channel[ activeStep ] = ( valid ) ? data : undefined;
 
             PatternController.handleKey( 40 ); // proceed to next line

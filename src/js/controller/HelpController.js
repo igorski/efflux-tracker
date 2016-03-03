@@ -28,7 +28,7 @@ var Messages   = require( "../definitions/Messages" );
 /* private properties */
 
 var container, slocum;
-var contentContainer;
+var contentContainer, currentSection;
 
 var HelpController = module.exports =
 {
@@ -69,9 +69,13 @@ function handleBroadcast( type, payload )
 
         case Messages.DISPLAY_HELP:
 
-            if ( typeof templates[ payload ] === "function" )
-                contentContainer.innerHTML = templates[ payload ]();
+            if ( currentSection !== payload )
+            {
+                if ( typeof templates[ payload ] === "function" )
+                    contentContainer.innerHTML = templates[ payload ]();
 
+                currentSection = payload;
+            }
             break;
     }
 }

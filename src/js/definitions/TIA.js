@@ -297,5 +297,27 @@ var TIA = module.exports =
             }
         }
         return null;
+    },
+
+    /**
+     * retrieve the code for synthesizing given percussive sound
+     *
+     * @public
+     *
+     * @param {string} sound
+     * @return {string|null}
+     */
+    getPercussionCode : function( sound )
+    {
+        var soundDescription = TIA.table.PERCUSSION;
+        var i = soundDescription.length, noteDescription;
+
+        while ( i-- )
+        {
+            noteDescription = soundDescription[ i ];
+            if ( noteDescription.note === sound )
+                return noteDescription.code;
+        }
+        return null;
     }
 };

@@ -24,6 +24,7 @@ var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Time       = require( "../utils/Time" );
 var ObjectUtil = require( "../utils/ObjectUtil" );
+var NoteUtil   = require( "../utils/NoteUtil" );
 var TIA        = require( "../definitions/TIA" );
 var MD5        = require( "md5" );
 
@@ -84,7 +85,16 @@ function convertPatterns( patterns, tuning )
                     step = channel[ writeOffset ];
                     ++writeOffset;
                 }
-                code = ( step ) ? TIA.getCode( tuning, step.sound, step.note, step.octave ) : null;
+
+                code = null;
+
+                if ( step )
+                {
+                    if ( NoteUtil.isPercussive( step.sound ))
+                        code = TIA.getPercussionCode( step.sound );
+                    else
+                        code = TIA.getCode( tuning, step.sound, step.note, step.octave );
+                }
 
                 // at beginning of each quarter measure, prepare accents list
 
