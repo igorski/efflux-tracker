@@ -2,7 +2,7 @@
  * Created by igorzinken on 26-07-15.
  */
 var chai = require( "chai" );
-var PatternFactory = require( "../../src/js/factories/PatternFactory" );
+var PatternFactory = require( "../../src/js/factory/PatternFactory" );
 
 describe( "PatternFactory", function()
 {

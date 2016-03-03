@@ -130,6 +130,8 @@ var HatController = module.exports =
                 patternContainer.appendChild( button );
             }
             lastStepAmount = hats.steps;
+
+            Form.setSelectedOption( steps, hats.steps );
         }
 
         // update pattern buttons
@@ -194,21 +196,23 @@ function handleStepsChange( aEvent )
     var newAmount = parseInt( steps.value, 10 );
     hats.steps    = newAmount;
 
-    // translate current active hat state to new precision
+    // if the new step amount is less precise than the last, sanitize
+    // the now out-of-range values
 
     if ( newAmount !== lastStepAmount )
     {
         var pattern     = hats.pattern;
-        var transformed = new Array( newAmount );
-        var increment   = newAmount / lastStepAmount;
-        var lookup;
+        var transformed = new Array( pattern.length );
 
-        for ( var i = 0; i < newAmount; ++i )
+        if ( newAmount < lastStepAmount )
         {
-            lookup = Math.floor( i * increment );
-            transformed[ i ] = pattern[ lookup ];
+            var increment = lastStepAmount / newAmount;
+
+            for ( var i = 0; i < transformed.length; ++i )
+                transformed[ i ] = ( i % increment === 0 ) ? pattern[ i ] : 0;
+
+            hats.pattern = transformed;
         }
-        hats.pattern = transformed;
 
         // sync with model creates correct button amount and updates lastStepAmount
         HatController.update();
