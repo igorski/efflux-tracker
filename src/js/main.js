@@ -31,8 +31,10 @@ var NotificationController = require( "./controller/NotificationController" );
 var PatternController      = require( "./controller/PatternController" );
 var SongController         = require( "./controller/SongController" );
 var ObjectUtil             = require( "./utils/ObjectUtil" );
-var Pubsub                 = require( "pubsub-js" );
 var Messages               = require( "./definitions/Messages" );
+var Pubsub                 = require( "pubsub-js" );
+var Handlebars             = require( "handlebars/dist/handlebars.runtime.min.js" );
+var templates              = require( "./handlebars/templates" )( Handlebars );
 
 /* initialize */
 
@@ -51,9 +53,13 @@ var slocum;
 
     slocum.activeSong = slocum.SongModel.createSong();
 
-    // initialize application controllers
+    // prepare view
 
     var container = document.querySelector( "#application" );
+
+    container.innerHTML = templates.index();
+
+    // initialize application controllers
 
     KeyboardController.init( slocum );
     MenuController.init();

@@ -1,0 +1,58 @@
+<header id="header">
+    <nav id="menu">
+        <div class="toggle">
+            <span>&#9776;</span>
+        </div>
+        <h1>Slocum Tracker</h1>
+        <section id="songSection"></section>
+    </nav>
+</header>
+
+<div id="main">
+    <section id="metaSection"></section>
+    <section id="patternSection">
+        <h2>Pattern editor</h2>
+        <ul id="patternMenu">
+            <li>
+                <button id="patternClear">clear</button>
+            </li>
+            <li>
+                <button id="patternCopy">copy</button>
+            </li>
+            <li>
+                <button id="patternPaste">paste</button>
+            </li>
+            <li>
+                <button id="patternAdd">add</button>
+            </li>
+            <li>
+                <button id="patternDelete">delete</button>
+            </li>
+        </ul>
+        <ul id="patternNav">
+            <li>
+                <h4 id="currentPattern">
+                    Editing pattern <span class="current"></span> of <span class="total"></span>
+                </h4>
+            </li>
+            <li id="patternBack">
+                <<
+            </li>
+            <li id="patternNext">
+                >>
+            </li>
+        </ul>
+    </section>
+    <!-- views added through HandleBars -->
+    <div id="center">
+        <section id="patternEditor"><!-- x --></section>
+        <section id="helpSection"><!-- x --></section>
+    </div>
+    <section id="hatSection"><!-- x --></section>
+</div>
+
+<div id="footer">
+    <span>
+        &copy; <a href="http://www.igorski.nl" target="_blank">igorski.nl</a> 2016
+    </span>
+</div>
