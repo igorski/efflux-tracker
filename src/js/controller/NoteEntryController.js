@@ -85,6 +85,8 @@ var NoteEntryController = module.exports =
             handleNoteSelect( null );
             Form.setSelectedOption( octaveSelect, data.octave );
         }
+        updateSelectStates();
+
         Form.setSelectedOption( accentSelect, data.accent );
 
         keyboardController.setListener( NoteEntryController );
@@ -199,6 +201,7 @@ function handleSoundSelect( aEvent )
         });
     }
     Form.setOptions( noteSelect, noteOptions );
+    updateSelectStates();
     handleNoteSelect( aEvent );
 }
 
@@ -220,6 +223,18 @@ function handleNoteSelect( aEvent )
         }
     }
     Form.setOptions( octaveSelect, octaveOptions );
+}
+
+function updateSelectStates()
+{
+    if ( NoteUtil.isPercussive( Form.getSelectedOption( soundSelect ) )) {
+        noteSelect.classList.add( "disabled" );
+        octaveSelect.classList.add( "disabled" );
+    }
+    else {
+        noteSelect.classList.remove( "disabled" );
+        octaveSelect.classList.remove( "disabled" );
+    }
 }
 
 function dispose()
