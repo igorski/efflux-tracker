@@ -88,8 +88,9 @@ song2
 ;-------------------------------------------------------------
 ; SONG MEASURES
 ;
-; Slocums Sequencer Kit defines "patternArrayH" for non-attenuated
-; audio and "patternArrayL" for a reduced output
+; Slocums Sequencer Kit defines two arrays for storing patterns
+; "patternArrayH" holds non-attenuated audio while "patternArrayL" can be used
+; for defining patterns to be played back at a reduced output
 ;
 ; each word contains a set of four patterns, effectively creating
 ; a full measure of music
@@ -97,7 +98,7 @@ song2
 ; NOTE: each array can have a max of 64 sets of each 4 patterns
 ;
 ; index for patternArrayH starts at 0, patternArrayL at 128
-
+;
 ; 1. Higher volume patterns
 
 patternArrayH
