@@ -66,8 +66,9 @@ function handleKeyDown( aEvent )
     if ( !suspended && listener && listener.handleKey )
     {
         // prevent defaults when using the arrows (prevents page jumps)
+        // and backspace (prevent navigating back in history)
 
-        if ([ 37, 38, 39, 40 ].indexOf( aEvent.keyCode ) > -1 )
+        if ([ 8, 37, 38, 39, 40 ].indexOf( aEvent.keyCode ) > -1 )
             aEvent.preventDefault();
 
         listener.handleKey( aEvent.keyCode );

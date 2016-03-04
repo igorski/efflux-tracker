@@ -67,7 +67,10 @@ var PatternController = module.exports =
         document.querySelector( "#patternBack"   ).addEventListener( "click", handlePatternNavBack );
         document.querySelector( "#patternNext"   ).addEventListener( "click", handlePatternNavNext );
 
-        // subscribe to pubsub messaing
+        var pSection = document.querySelector( "#patternSection" );
+        pSection.addEventListener( "mouseover", handleMouseOver );
+
+        // subscribe to pubsub messaging
 
         Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
     },
@@ -324,4 +327,9 @@ function handlePatternNavNext( aEvent )
         ++activePattern;
         PatternController.update();
     }
+}
+
+function handleMouseOver( aEvent )
+{
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
 }

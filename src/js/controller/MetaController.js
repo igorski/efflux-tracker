@@ -68,6 +68,8 @@ var MetaController = module.exports =
             element.addEventListener( "blur",   handleFocusOut );
         });
 
+        container.addEventListener( "mouseover", handleMouseOver );
+
         Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
     },
 
@@ -134,4 +136,9 @@ function handleFocusIn( aEvent )
 function handleFocusOut( aEvent )
 {
     keyboardController.setSuspended( false );
+}
+
+function handleMouseOver( aEvent )
+{
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicMeta" );
 }

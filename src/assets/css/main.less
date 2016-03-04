@@ -113,9 +113,9 @@
   top: 50%;
   left: 50%;
   width: 300px;
-  height: 150px;
+  height: 180px;
   margin-left: -150px;
-  margin-top: -75px;
+  margin-top: -90px;
   background-color: #FFF;
   padding: .25em 1em;
   .boxSize;
@@ -138,13 +138,18 @@
 
     &.disabled {
       .noEvents;
-      background-color: #DDD;
+      background-color: #DDD !important;
     }
   }
 
   #note, #octave {
     text-transform: uppercase;
-    text-indent: 5px;
+    text-indent: 7px;
+    background-color: @color-4;
+  }
+
+  #accent {
+    background-color: @color-3;
   }
 
   .close-button {

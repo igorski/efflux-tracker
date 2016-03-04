@@ -57,8 +57,9 @@ var NoteEntryController = module.exports =
 
         // add listeners
 
-        soundSelect.addEventListener( "change", handleSoundSelect );
-        noteSelect.addEventListener ( "change", handleNoteSelect );
+        soundSelect.addEventListener ( "change", handleSoundSelect );
+        noteSelect.addEventListener  ( "change", handleNoteSelect );
+        octaveSelect.addEventListener( "change", handleOctaveSelect );
 
         element.querySelector( ".close-button" ).addEventListener( "click", handleReady );
     },
@@ -203,6 +204,13 @@ function handleSoundSelect( aEvent )
     Form.setOptions( noteSelect, noteOptions );
     updateSelectStates();
     handleNoteSelect( aEvent );
+
+    if ( !NoteUtil.isPercussive( sound )) {
+        noteSelect.focus();
+    }
+    else {
+        accentSelect.focus();
+    }
 }
 
 function handleNoteSelect( aEvent )
@@ -223,6 +231,13 @@ function handleNoteSelect( aEvent )
         }
     }
     Form.setOptions( octaveSelect, octaveOptions );
+
+    octaveSelect.focus();
+}
+
+function handleOctaveSelect( aEvent )
+{
+    accentSelect.focus();
 }
 
 function updateSelectStates()
