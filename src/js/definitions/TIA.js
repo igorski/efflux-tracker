@@ -124,8 +124,8 @@ var TIA = module.exports =
 
             {
                 LOW_BASS : [
-                    { note: "b",  octave: 0, code: "%xxx01010" }, // -11  -22
-                    { note: "g#", octave: 0, code: "%xxx01100" }  //   0  -13
+                    { note: "b",  octave: 0, code: "%00101010" }, // -11  -22
+                    { note: "g#", octave: 0, code: "%00101100" }  //   0  -13
                 ],
 
                 BASS : [
