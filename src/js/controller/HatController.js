@@ -204,7 +204,6 @@ function handleStepsChange( aEvent )
 
             hats.pattern = transformed;
         }
-
         // sync with model creates correct button amount and updates lastStepAmount
         HatController.update();
     }

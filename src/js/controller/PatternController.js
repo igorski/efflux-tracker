@@ -25,13 +25,14 @@ var templates      = require( "../handlebars/templates" )( Handlebars );
 var Pubsub         = require( "pubsub-js" );
 var Messages       = require( "../definitions/Messages" );
 var PatternFactory = require( "../factory/PatternFactory" );
+var Form           = require( "../utils/Form" );
 var NoteUtil       = require( "../utils/NoteUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
 
 /* private properties */
 
-var container, slocum, noteEntryController, keyboardController, positionTitle;
-var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16, patternCopy;
+var container, slocum, noteEntryController, keyboardController;
+var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16, patternCopy, positionTitle, stepSelection;
 
 var PatternController = module.exports =
 {
@@ -51,6 +52,7 @@ var PatternController = module.exports =
 
         container     = containerRef;
         positionTitle = document.querySelector( "#currentPattern" );
+        stepSelection = document.querySelector( "#patternSteps"  );
 
         PatternController.update(); // sync view with model state
 
@@ -59,13 +61,15 @@ var PatternController = module.exports =
         keyboardController.setListener( PatternController );
         container.addEventListener( "click", handleClick );
 
-        document.querySelector( "#patternClear"  ).addEventListener( "click", handlePatternClear );
-        document.querySelector( "#patternCopy"   ).addEventListener( "click", handlePatternCopy );
-        document.querySelector( "#patternPaste"  ).addEventListener( "click", handlePatternPaste );
-        document.querySelector( "#patternAdd"    ).addEventListener( "click", handlePatternAdd );
-        document.querySelector( "#patternDelete" ).addEventListener( "click", handlePatternDelete );
-        document.querySelector( "#patternBack"   ).addEventListener( "click", handlePatternNavBack );
-        document.querySelector( "#patternNext"   ).addEventListener( "click", handlePatternNavNext );
+        document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
+        document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
+        document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
+        document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
+        document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
+        document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
+        document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
+
+        stepSelection.addEventListener( "change", handlePatternStepChange );
 
         var pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
@@ -83,6 +87,7 @@ var PatternController = module.exports =
         });
         positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
         positionTitle.querySelector( ".total" ).innerHTML   = slocum.activeSong.patterns.length.toString();
+        Form.setSelectedOption( stepSelection, pattern.steps );
         highlightActiveStep();
     },
 
@@ -327,6 +332,44 @@ function handlePatternNavNext( aEvent )
         ++activePattern;
         PatternController.update();
     }
+}
+
+function handlePatternStepChange( aEvent )
+{
+    var song    = slocum.activeSong,
+        pattern = song.patterns[ activePattern ];
+
+    var oldAmount = pattern.steps;
+    var newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
+
+    console.log( pattern, newAmount );
+
+    // update model values
+    pattern.steps = newAmount;
+
+    pattern.channels.forEach( function( channel, index )
+    {
+        var transformed = new Array( newAmount), i, j, increment;
+
+        if ( newAmount < oldAmount )
+        {
+            // changing from 32 to 16 steps
+            increment = oldAmount / newAmount;
+
+            for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
+                transformed[ i ] = channel[ j ];
+       }
+        else {
+            // changing from 16 to 32 steps
+            increment = newAmount / oldAmount;
+
+            for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
+                transformed[ j ] = channel[ i ];
+        }
+        pattern.channels[ index ] = transformed;
+    });
+
+    PatternController.update(); // sync with model
 }
 
 function handleMouseOver( aEvent )
