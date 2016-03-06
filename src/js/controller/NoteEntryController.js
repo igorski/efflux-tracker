@@ -75,6 +75,8 @@ var NoteEntryController = module.exports =
         data     = options || { sound: "", note: "", octave: "", accent: false };
         callback = completeCallback;
 
+        keyboardController.setBlockDefaults( false );
+
         setSelectOptions();
 
         Form.setSelectedOption( soundSelect, data.sound );
@@ -244,6 +246,8 @@ function updateSelectStates()
 
 function dispose()
 {
+    keyboardController.setBlockDefaults( true );
+
     if ( element.parentNode ) {
         element.parentNode.removeChild( element );
     }

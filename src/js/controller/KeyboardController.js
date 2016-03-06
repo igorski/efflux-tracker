@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var slocum, listener, suspended = false, optionDown = false;
+var slocum, listener, suspended = false, blockDefaults = true, optionDown = false;
 
 module.exports =
 {
@@ -45,7 +45,7 @@ module.exports =
      */
     hasOption : function( aEvent )
     {
-        return optionDown || aEvent.ctrlKey ;
+        return ( optionDown === true ) || aEvent.ctrlKey;
     },
 
     /**
@@ -73,6 +73,16 @@ module.exports =
     setSuspended : function( value )
     {
         suspended = value;
+    },
+
+    /**
+     * whether to block default behaviour on certain keys
+     *
+     * @param value
+     */
+    setBlockDefaults : function( value )
+    {
+        blockDefaults = value;
     }
 };
 
@@ -84,15 +94,17 @@ function handleKeyDown( aEvent )
     {
         switch ( aEvent.keyCode )
         {
-            // prevent defaults when using the arrows (prevents page jumps)
-            // and backspace (preventd navigating back in history)
+            // prevent defaults when using the arrows, space (prevents page jumps)
+            // and backspace (prevents navigating back in history)
 
             case 8:
+            case 32:
             case 37:
             case 38:
             case 39:
             case 40:
-                aEvent.preventDefault();
+                if ( blockDefaults )
+                    aEvent.preventDefault();
                 break;
 
             // capture the apple key here as it not recognized as a modifier
@@ -110,17 +122,20 @@ function handleKeyDown( aEvent )
 
 function handleKeyUp( aEvent )
 {
-    if ( optionDown )
+    if ( !suspended && listener && listener.handleKey )
     {
-        switch ( aEvent.keyCode )
+        if ( optionDown )
         {
-            case 224:   // Firefox
-            case 17:    // Opera
-            case 91:    // WebKit left key
-            case 93:    // Webkit right key
-                optionDown = false;
-                break;
+            switch ( aEvent.keyCode )
+            {
+                case 224:   // Firefox
+                case 17:    // Opera
+                case 91:    // WebKit left key
+                case 93:    // Webkit right key
+                    optionDown = false;
+                    break;
+            }
         }
+        listener.handleKey( "down", aEvent.keyCode, aEvent );
     }
-    listener.handleKey( "down", aEvent.keyCode, aEvent );
 }

@@ -22,25 +22,25 @@
  */
 module.exports = SelectionModel;
 
-function SelectionModel( songModel )
+var ObjectUtil = require( "../utils/ObjectUtil" );
+
+function SelectionModel()
 {
     /* instance properties */
 
     /**
      * @public
-     * @type {{patterns: Array.<Array>}}
+     * @type {Array.<Array.<number>>}
      */
     this.selection = [
         [], []
     ];
 
-    this.copySelection = [];
-
     /**
      * @private
-     * @type {SongModel}
+     * @type {Array.<Array<PATTERN_STEP>>}
      */
-    this._songModel = songModel;
+    this._copySelection = null;
 }
 
 /**
@@ -108,16 +108,6 @@ SelectionModel.prototype.clearSelection = function()
 };
 
 /**
- * copy the current selection contents
- *
- * @public
- */
-SelectionModel.prototype.copySelection = function()
-{
-    this.copySelection = this.selection.slice();
-};
-
-/**
  * retrieve the maximum value contained in the selection
  *
  * @public
@@ -152,6 +142,63 @@ SelectionModel.prototype.getMaxValue = function()
 SelectionModel.prototype.getSelectionLength = function()
 {
     return Math.max( this.selection[ 0 ].length, this.selection[ 1 ].length );
+};
+
+/**
+ * @public
+ *
+ * @param {Object} song
+ * @param {number} activePattern
+ */
+SelectionModel.prototype.copySelection = function( song, activePattern )
+{
+    if ( this.getSelectionLength() > 0 )
+    {
+        this._copySelection = [ [], [] ];
+
+        var pattern = song.patterns[ activePattern ];
+
+        for ( var i = 0; i < 2; ++i )
+        {
+            if ( this.selection[ i ].length > 0 )
+            {
+                for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
+                   this._copySelection[ i ].push( ObjectUtil.clone( pattern.channels[ i ][ j ]));
+            }
+        }
+    }
+};
+
+/**
+ * @public
+ *
+ * @param {Object} song
+ * @param {number} activePattern
+ * @param {number} activeChannel
+ * @param {number} activeStep
+ */
+SelectionModel.prototype.pasteSelection = function( song, activePattern, activeChannel, activeStep )
+{
+    if ( this._copySelection !== null )
+    {
+        var target = song.patterns[ activePattern ];
+        var source, writeIndex;
+
+        for ( var i = activeChannel, j = 0; i < 2; ++i, ++j )
+        {
+            source = target.channels[ i ];
+
+            this._copySelection[ j ].forEach( function( pattern, index )
+            {
+                writeIndex = activeStep + index;
+
+                if ( writeIndex < source.length ) {
+                    if ( pattern.sound !== 0 )
+                        source[ writeIndex  ] = ObjectUtil.clone( pattern );
+                }
+            });
+        }
+    }
 };
 
 /* private methods */

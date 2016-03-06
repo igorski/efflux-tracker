@@ -57,7 +57,7 @@ var PatternController = module.exports =
         positionTitle = document.querySelector( "#currentPattern" );
         stepSelection = document.querySelector( "#patternSteps"  );
 
-        selectionModel = new SelectionModel( slocum.SongModel );
+        selectionModel = new SelectionModel();
 
         PatternController.update(); // sync view with model state
 
@@ -114,7 +114,7 @@ var PatternController = module.exports =
 
                     // when holding down shift make a selection
 
-                    if ( aEvent.shiftKey )
+                    if ( aEvent && aEvent.shiftKey )
                     {
                         if ( stepOnSelection === -1 || prevVerticalKey !== keyCode )
                         {
@@ -146,7 +146,7 @@ var PatternController = module.exports =
 
                     // when holding down shift make a selection
 
-                    if ( aEvent.shiftKey )
+                    if ( aEvent && aEvent.shiftKey )
                     {
                         if ( stepOnSelection === -1 || prevVerticalKey !== keyCode ) {
                             shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.getMinValue() );
@@ -208,8 +208,10 @@ var PatternController = module.exports =
                 case 86: // V
 
                     // paste current selection
-                    if ( keyboardController.hasOption( aEvent ))
-                        handleSelectionPaste();
+                    if ( keyboardController.hasOption( aEvent )) {
+                        selectionModel.pasteSelection( slocum.activeSong, activePattern, activeChannel, activeStep );
+                        PatternController.update();
+                    }
 
                     break;
 
@@ -217,7 +219,7 @@ var PatternController = module.exports =
 
                     // copy current selection
                     if ( keyboardController.hasOption( aEvent ))
-                        SelectionModel.copySelection();
+                        selectionModel.copySelection( slocum.activeSong, activePattern );
 
                     break;
             }
@@ -242,6 +244,7 @@ function handleBroadcast( type, payload )
             activeChannel = 0;
             activeStep    = 0;
 
+            selectionModel.clearSelection();
             PatternController.update();
             container.focus();
             break;
@@ -348,7 +351,7 @@ function editStep()
             }
             channel[ activeStep ] = ( valid ) ? data : undefined;
 
-            PatternController.handleKey( type, 40 ); // proceed to next line
+            PatternController.handleKey( "down", 40 ); // proceed to next line
             PatternController.update();
         }
     });
@@ -357,6 +360,7 @@ function editStep()
 function handlePatternClear( aEvent )
 {
     slocum.activeSong.patterns[ activePattern ] = PatternFactory.createEmptyPattern( stepAmount );
+    selectionModel.clearSelection();
     PatternController.update();
 }
 
@@ -370,14 +374,6 @@ function handlePatternPaste( aEvent )
     if ( patternCopy ) {
         PatternFactory.mergePatterns( slocum.activeSong.patterns[ activePattern ], patternCopy );
         PatternController.update();
-    }
-}
-
-function handleSelectionPaste()
-{
-    if ( copySelection.length > 0 )
-    {
-        var pattern = slocum.activeSong.patterns[ activePattern ];
     }
 }
 
@@ -422,6 +418,7 @@ function handlePatternNavBack( aEvent )
 {
     if ( activePattern > 0 ) {
         --activePattern;
+        selectionModel.clearSelection();
         PatternController.update();
     }
 }
@@ -432,6 +429,7 @@ function handlePatternNavNext( aEvent )
 
     if ( activePattern < max ) {
         ++activePattern;
+        selectionModel.clearSelection();
         PatternController.update();
     }
 }
