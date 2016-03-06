@@ -63,13 +63,12 @@ var SongController = module.exports =
         list.addEventListener( "click", handleSongClick );
     },
 
-    handleKey : function( keyCode )
+    handleKey : function( type, keyCode, event )
     {
-        switch ( keyCode )
+        if ( type === "down" && keyCode === 27 )
         {
-            case 27: // escape
-                list.classList.remove( "active" );
-                break;
+            // close on escape key
+            list.classList.remove( "active" );
         }
     }
 };

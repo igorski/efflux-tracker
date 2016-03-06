@@ -100,40 +100,30 @@ var NoteEntryController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( keyCode )
+    handleKey : function( type, keyCode, event )
     {
-        switch ( keyCode )
+        if ( type === "down" )
         {
-            case 38: // up
+            switch ( keyCode )
+            {
+                case 38: // up
 
 
-                break;
+                    break;
 
-            case 40: // down
-
-
-                break;
-
-            case 39: // right
+                case 40: // down
 
 
-                break;
+                    break;
 
-            case 37: // left
+                case 27: // escape
+                    handleClose();
+                    break;
 
-                break;
-
-            case 32: // spacebar
-
-                break;
-
-            case 27: // escape
-                handleClose();
-                break;
-
-            case 13: // enter
-                handleReady();
-                break;
+                case 13: // enter
+                    handleReady();
+                    break;
+            }
         }
     }
 };

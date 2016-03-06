@@ -24,6 +24,7 @@ var Handlebars     = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates      = require( "../handlebars/templates" )( Handlebars );
 var Pubsub         = require( "pubsub-js" );
 var Messages       = require( "../definitions/Messages" );
+var SelectionModel = require( "../model/SelectionModel" );
 var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
 var NoteUtil       = require( "../utils/NoteUtil" );
@@ -32,7 +33,9 @@ var ObjectUtil     = require( "../utils/ObjectUtil" );
 /* private properties */
 
 var container, slocum, noteEntryController, keyboardController;
-var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16, patternCopy, positionTitle, stepSelection;
+var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
+    stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
+    prevVerticalKey, selectionModel, patternCopy, positionTitle, stepSelection;
 
 var PatternController = module.exports =
 {
@@ -53,6 +56,8 @@ var PatternController = module.exports =
         container     = containerRef;
         positionTitle = document.querySelector( "#currentPattern" );
         stepSelection = document.querySelector( "#patternSteps"  );
+
+        selectionModel = new SelectionModel( slocum.SongModel );
 
         PatternController.update(); // sync view with model state
 
@@ -93,57 +98,135 @@ var PatternController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( keyCode )
+    handleKey : function( type, keyCode, aEvent )
     {
-        switch ( keyCode )
+        if ( type === "down" )
         {
-            case 38: // up
+            var curStep    = activeStep,
+                curChannel = activeChannel;
 
-                if ( --activeStep < 0 )
-                    activeStep = 0;
+            switch ( keyCode )
+            {
+                case 38: // up
 
-                break;
+                    if ( --activeStep < 0 )
+                        activeStep = 0;
 
-            case 40: // down
+                    // when holding down shift make a selection
 
-                var maxStep = slocum.activeSong.patterns[ activePattern ].steps - 1;
+                    if ( aEvent.shiftKey )
+                    {
+                        if ( stepOnSelection === -1 || prevVerticalKey !== keyCode )
+                        {
+                            shrinkSelection = ( curStep === selectionModel.getMaxValue() );
+                            minOnSelection  = selectionModel.getMinValue();
+                            maxOnSelection  = selectionModel.getMaxValue();
+                            stepOnSelection = (( minOnSelection === curStep ) ? minOnSelection : activeStep ) + 2;
+                        }
 
-                if ( ++activeStep > maxStep )
-                    activeStep = maxStep;
+                        if ( shrinkSelection )
+                        {
+                            if ( minOnSelection === activeStep )
+                                stepOnSelection = -1;
 
-                break;
+                            selectionModel.setSelection( activeChannel, minOnSelection, activeStep );
+                        }
+                        else
+                            selectionModel.setSelection( activeChannel, activeStep, stepOnSelection );
+                    }
+                    prevVerticalKey = keyCode;
+                    break;
 
-            case 39: // right
+                case 40: // down
 
-                if ( ++activeChannel > 1 )
-                    activeChannel = 1;
+                    var maxStep = slocum.activeSong.patterns[ activePattern ].steps - 1;
 
-                break;
+                    if ( ++activeStep > maxStep )
+                        activeStep = maxStep;
 
-            case 37: // left
+                    // when holding down shift make a selection
 
-                if ( --activeChannel < 0 )
-                    activeChannel = 0;
+                    if ( aEvent.shiftKey )
+                    {
+                        if ( stepOnSelection === -1 || prevVerticalKey !== keyCode ) {
+                            shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.getMinValue() );
+                            minOnSelection  = selectionModel.getMinValue();
+                            maxOnSelection  = selectionModel.getMaxValue() + 1;
+                            console.log("min:"+minOnSelection,"max:"+maxOnSelection,"active:"+activeStep);
+                            stepOnSelection = ( maxOnSelection === ( activeStep - 1 )) ? minOnSelection : activeStep - 1;
+                        }
 
-                break;
+                        if ( shrinkSelection )
+                        {
+                            if ( maxOnSelection === activeStep + 1 )
+                                stepOnSelection = -1;
 
-            case 32: // spacebar
-            case 13: // enter
+                            selectionModel.setSelection( activeChannel, activeStep, maxOnSelection );
+                        }
+                        else
+                            selectionModel.setSelection( activeChannel, stepOnSelection, Math.max( selectionModel.getMaxValue(), activeStep ) + 1 );
+                    }
+                    prevVerticalKey = keyCode;
+                    break;
 
-                editStep();
-                break;
+                case 39: // right
 
-            case 8:  // backspace
-                deleteHighlightedStep();
-                PatternController.handleKey( 38 ); // move up to previous slot
-                break;
+                    if ( ++activeChannel > 1 )
+                        activeChannel = 1;
 
-            case 46: // delete
-                deleteHighlightedStep();
-                PatternController.handleKey( 40 ); // move down to next slot
-                break;
+                    if ( aEvent.shiftKey )
+                        selectionModel.equalizeSelection( curChannel, true );
+
+                    break;
+
+                case 37: // left
+
+                    if ( --activeChannel < 0 )
+                        activeChannel = 0;
+
+                    if ( aEvent.shiftKey )
+                        selectionModel.equalizeSelection( curChannel, true );
+
+                    break;
+
+                case 32: // spacebar
+                case 13: // enter
+
+                    editStep();
+                    break;
+
+                case 8:  // backspace
+                    deleteHighlightedStep();
+                    PatternController.handleKey( type, 38 ); // move up to previous slot
+                    break;
+
+                case 46: // delete
+                    deleteHighlightedStep();
+                    PatternController.handleKey( type, 40 ); // move down to next slot
+                    break;
+
+                case 86: // V
+
+                    // paste current selection
+                    if ( keyboardController.hasOption( aEvent ))
+                        handleSelectionPaste();
+
+                    break;
+
+                case 67: // C
+
+                    // copy current selection
+                    if ( keyboardController.hasOption( aEvent ))
+                        SelectionModel.copySelection();
+
+                    break;
+            }
+            highlightActiveStep();
         }
-        highlightActiveStep();
+        else if ( keyCode === 16 )
+        {
+            stepOnSelection = -1;
+        }
     }
 };
 
@@ -170,6 +253,8 @@ function highlightActiveStep()
     var pContainers = container.querySelectorAll( ".pattern" ),
         pContainer, items, item;
 
+    var activeStyle = "active", selectedStyle = "selected";
+
     for ( var i = 0, l = pContainers.length; i < l; ++i ) {
         pContainer = pContainers[ i ];
         items = pContainer.querySelectorAll( "li" );
@@ -180,10 +265,19 @@ function highlightActiveStep()
             item = items[ j ];
 
             if ( i === activeChannel && j === activeStep ) {
-                item.classList.add( "active" );
+                item.classList.add( activeStyle );
             }
             else {
-                item.classList.remove( "active" );
+                item.classList.remove( activeStyle );
+            }
+
+            // highlight selection
+
+            if ( selectionModel.selection[ i ].indexOf( j ) > -1 ) {
+                item.classList.add( selectedStyle );
+            }
+            else {
+                item.classList.remove( selectedStyle );
             }
         }
     }
@@ -254,7 +348,7 @@ function editStep()
             }
             channel[ activeStep ] = ( valid ) ? data : undefined;
 
-            PatternController.handleKey( 40 ); // proceed to next line
+            PatternController.handleKey( type, 40 ); // proceed to next line
             PatternController.update();
         }
     });
@@ -279,13 +373,21 @@ function handlePatternPaste( aEvent )
     }
 }
 
+function handleSelectionPaste()
+{
+    if ( copySelection.length > 0 )
+    {
+        var pattern = slocum.activeSong.patterns[ activePattern ];
+    }
+}
+
 function handlePatternAdd( aEvent )
 {
     var song     = slocum.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === 127 ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maxium of 127 patterns" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 127 patterns" );
         return;
     }
 
@@ -341,8 +443,6 @@ function handlePatternStepChange( aEvent )
 
     var oldAmount = pattern.steps;
     var newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
-
-    console.log( pattern, newAmount );
 
     // update model values
     pattern.steps = newAmount;

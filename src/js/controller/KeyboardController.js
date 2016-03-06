@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var slocum, listener, suspended = false;
+var slocum, listener, suspended = false, optionDown = false;
 
 module.exports =
 {
@@ -33,12 +33,29 @@ module.exports =
     {
         slocum = slocumRef;
         window.addEventListener( "keydown", handleKeyDown );
+        window.addEventListener( "keyup",   handleKeyUp );
+    },
+
+    /**
+     * whether the Apple option or a control key is
+     * currently held down for the given event
+     *
+     * @paran {Event} aEvent
+     * @returns {boolean}
+     */
+    hasOption : function( aEvent )
+    {
+        return optionDown || aEvent.ctrlKey ;
     },
 
     /**
      * attach a listener to receive updates whenever a key
      * has been released. listenerRef requires a "handleKey"
-     * function
+     * function which receives three arguments:
+     *
+     * {string} type, either "up" or "down"
+     * {number} keyCode, the keys keyCode
+     * {Event} event, the keyboard event
      *
      * @param {Object|Function} listenerRef
      */
@@ -65,12 +82,45 @@ function handleKeyDown( aEvent )
 {
     if ( !suspended && listener && listener.handleKey )
     {
-        // prevent defaults when using the arrows (prevents page jumps)
-        // and backspace (prevent navigating back in history)
+        switch ( aEvent.keyCode )
+        {
+            // prevent defaults when using the arrows (prevents page jumps)
+            // and backspace (preventd navigating back in history)
 
-        if ([ 8, 37, 38, 39, 40 ].indexOf( aEvent.keyCode ) > -1 )
-            aEvent.preventDefault();
+            case 8:
+            case 37:
+            case 38:
+            case 39:
+            case 40:
+                aEvent.preventDefault();
+                break;
 
-        listener.handleKey( aEvent.keyCode );
+            // capture the apple key here as it not recognized as a modifier
+
+            case 224:   // Firefox
+            case 17:    // Opera
+            case 91:    // WebKit left key
+            case 93:    // Webkit right key
+                optionDown = true;
+                break;
+        }
+        listener.handleKey( "up", aEvent.keyCode, aEvent );
     }
+}
+
+function handleKeyUp( aEvent )
+{
+    if ( optionDown )
+    {
+        switch ( aEvent.keyCode )
+        {
+            case 224:   // Firefox
+            case 17:    // Opera
+            case 91:    // WebKit left key
+            case 93:    // Webkit right key
+                optionDown = false;
+                break;
+        }
+    }
+    listener.handleKey( "down", aEvent.keyCode, aEvent );
 }

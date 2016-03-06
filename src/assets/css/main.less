@@ -60,7 +60,8 @@
       display: block;
       padding: .25em 1em;
       cursor: pointer;
-      border: 2px solid #000;
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
       font-weight: bold;
       .boxSize;
 
@@ -72,6 +73,10 @@
       &.active, &:hover {
         border: 2px solid @color-highlight;
         z-index: 10;
+      }
+
+      &.selected {
+        border-color: red;
       }
 
       span {

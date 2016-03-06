@@ -142,12 +142,9 @@ var HatController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( keyCode )
+    handleKey : function( type, keyCode, event )
     {
-        switch ( keyCode )
-        {
-
-        }
+        // nothing (yet?)...
     }
 };
 
