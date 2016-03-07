@@ -194,8 +194,6 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
         var targetPattern, writeIndex;
         var j = 0;
 
-        console.log("pastin'",this._copySelection[0],this._copySelection[1]);
-
         if (( activeChannel === 0 && this._copySelection[ 0 ].length === 0 ) ||
             ( activeChannel === 1 && this._copySelection[ 0 ].length === 0 ))
         {
