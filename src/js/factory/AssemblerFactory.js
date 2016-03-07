@@ -128,6 +128,7 @@ function convertPatterns( patterns, tuning )
             // TODO: also use L array !
             out.patternArrayH += ( patternArray + " ; " + amountOfPatterns + "\n" ); // TODO  when using L add 128 to the patternnum
 
+            // TODO: reuse existing words!
             if ( channelIndex === 0 ) {
                 out.channel1sequence += "    byte " + amountOfPatterns + "\n";
             }
