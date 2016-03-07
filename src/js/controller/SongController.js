@@ -61,6 +61,13 @@ var SongController = module.exports =
         document.body.appendChild( list ); // see CSS for visibility toggles
 
         list.addEventListener( "click", handleSongClick );
+
+        // add message listeners
+        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
+        {
+            if ( payload !== SongController )
+                handleClose()
+        });
     },
 
     handleKey : function( type, keyCode, event )
@@ -68,7 +75,7 @@ var SongController = module.exports =
         if ( type === "down" && keyCode === 27 )
         {
             // close on escape key
-            list.classList.remove( "active" );
+            handleClose();
         }
     }
 };
@@ -77,6 +84,8 @@ var SongController = module.exports =
 
 function handleLoad( aEvent )
 {
+    Pubsub.publish( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
+
     var songs = slocum.SongModel.getSongs(), li;
     list.innerHTML = "";
 
@@ -172,4 +181,9 @@ function isValid( song )
         Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
 
     return hasContent;
+}
+
+function handleClose()
+{
+    list.classList.remove( "active" );
 }

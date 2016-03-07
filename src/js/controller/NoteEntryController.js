@@ -24,7 +24,9 @@ var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
 var templates  = require( "../handlebars/templates" )( Handlebars );
 var Form       = require( "../utils/Form" );
 var NoteUtil   = require( "../utils/NoteUtil" );
+var Messages   = require( "../definitions/Messages" );
 var TIA        = require( "../definitions/TIA" );
+var Pubsub     = require( "pubsub-js" );
 
 /* private properties */
 
@@ -61,7 +63,13 @@ var NoteEntryController = module.exports =
         noteSelect.addEventListener  ( "change", handleNoteSelect );
         octaveSelect.addEventListener( "change", handleOctaveSelect );
 
-        element.querySelector( ".close-button" ).addEventListener( "click", handleReady );
+        element.querySelector( ".close-button" ).addEventListener( "click", handleClose );
+
+        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
+        {
+            if ( payload !== NoteEntryController )
+                handleClose();
+        } );
     },
 
     /**
@@ -72,6 +80,8 @@ var NoteEntryController = module.exports =
      */
     open : function( options, completeCallback )
     {
+        Pubsub.publish( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
+
         data     = options || { sound: "", note: "", octave: "", accent: false };
         callback = completeCallback;
 
