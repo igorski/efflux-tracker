@@ -152,7 +152,6 @@ var PatternController = module.exports =
                             shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.getMinValue() );
                             minOnSelection  = selectionModel.getMinValue();
                             maxOnSelection  = selectionModel.getMaxValue() + 1;
-                            console.log("min:"+minOnSelection,"max:"+maxOnSelection,"active:"+activeStep);
                             stepOnSelection = ( maxOnSelection === ( activeStep - 1 )) ? minOnSelection : activeStep - 1;
                         }
 
@@ -171,8 +170,15 @@ var PatternController = module.exports =
 
                 case 39: // right
 
-                    if ( ++activeChannel > 1 )
-                        activeChannel = 1;
+                    if ( ++activeChannel > 1 ) {
+                        if ( activePattern < ( slocum.activeSong.patterns.length - 1 )) {
+                            ++activePattern;
+                            activeChannel = 0;
+                            PatternController.update();
+                        }
+                        else
+                            activeChannel = 1;
+                    }
 
                     if ( aEvent.shiftKey )
                         selectionModel.equalizeSelection( curChannel, true );
@@ -181,8 +187,15 @@ var PatternController = module.exports =
 
                 case 37: // left
 
-                    if ( --activeChannel < 0 )
-                        activeChannel = 0;
+                    if ( --activeChannel < 0 ) {
+                        if ( activePattern > 0 ) {
+                            --activePattern;
+                            activeChannel = 1;
+                            PatternController.update();
+                        }
+                        else
+                            activeChannel = 0;
+                    }
 
                     if ( aEvent.shiftKey )
                         selectionModel.equalizeSelection( curChannel, true );

@@ -199,6 +199,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
             });
         }
     }
+    this.clearSelection();
 };
 
 /* private methods */

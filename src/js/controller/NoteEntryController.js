@@ -123,7 +123,10 @@ var NoteEntryController = module.exports =
                     break;
 
                 case 13: // enter
-                    handleReady();
+
+                    if ( document.activeElement && document.activeElement === accentSelect )
+                        handleReady();
+
                     break;
             }
         }
@@ -229,7 +232,9 @@ function handleNoteSelect( aEvent )
 
 function handleOctaveSelect( aEvent )
 {
-    accentSelect.focus();
+    requestAnimationFrame( function() {
+        accentSelect.focus(); // prevents immediate close when selecting using enter
+    });
 }
 
 function updateSelectStates()
