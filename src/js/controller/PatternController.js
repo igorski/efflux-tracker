@@ -134,6 +134,9 @@ var PatternController = module.exports =
                         else
                             selectionModel.setSelection( activeChannel, activeStep, stepOnSelection );
                     }
+                    else
+                        selectionModel.clearSelection();
+
                     prevVerticalKey = keyCode;
                     break;
 
@@ -165,6 +168,9 @@ var PatternController = module.exports =
                         else
                             selectionModel.setSelection( activeChannel, stepOnSelection, Math.max( selectionModel.getMaxValue(), activeStep ) + 1 );
                     }
+                    else
+                        selectionModel.clearSelection();
+
                     prevVerticalKey = keyCode;
                     break;
 
@@ -182,6 +188,8 @@ var PatternController = module.exports =
 
                     if ( aEvent.shiftKey )
                         selectionModel.equalizeSelection( curChannel, true );
+                    else
+                        selectionModel.clearSelection();
 
                     break;
 
@@ -199,6 +207,8 @@ var PatternController = module.exports =
 
                     if ( aEvent.shiftKey )
                         selectionModel.equalizeSelection( curChannel, true );
+                    else
+                        selectionModel.clearSelection();
 
                     break;
 
@@ -232,7 +242,13 @@ var PatternController = module.exports =
 
                     // copy current selection
                     if ( keyboardController.hasOption( aEvent ))
+                    {
+                        if ( !selectionModel.hasSelection() )
+                            selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
+
                         selectionModel.copySelection( slocum.activeSong, activePattern );
+                       selectionModel.clearSelection();
+                    }
 
                     break;
             }

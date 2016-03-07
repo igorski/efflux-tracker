@@ -75,7 +75,7 @@ describe( "AssemblerFactory", function()
 
         var asm = textToLineArray( AssemblerFactory.assemblify( song ));
 
-        assert.ok( asm[ 12 ].indexOf( "TEMPODELAY equ " + song.meta.tempo ) > -1,
+        assert.ok( asm[ 11 ].indexOf( "TEMPODELAY equ " + song.meta.tempo ) > -1,
             "expected assembly output to contain correct tempo value" );
     });
 

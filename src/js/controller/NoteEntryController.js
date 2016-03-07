@@ -133,10 +133,7 @@ var NoteEntryController = module.exports =
                     break;
 
                 case 13: // enter
-
-                    if ( document.activeElement && document.activeElement === accentSelect )
-                        handleReady();
-
+                    handleReady();
                     break;
             }
         }

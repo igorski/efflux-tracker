@@ -87,6 +87,9 @@ describe( "SelectionModel", function()
 
         assert.strictEqual( 0, model.selection[ 1 ].length,
             "expected selection to have cleared" );
+
+        assert.notOk( model.hasSelection(),
+            "expected model not to have a selection after clearing" );
     });
 
     it( "should equalize the selection for both channels when forced", function()
@@ -144,5 +147,16 @@ describe( "SelectionModel", function()
 
         assert.strictEqual( expected, model.getSelectionLength(),
             "expected model to return '" + expected + "' for its selection length" );
+    });
+
+    it( "should know whether it has a selection", function()
+    {
+        assert.notOk( model.hasSelection(),
+            "expected model not to have a selection by default" );
+
+        model.setSelection( 0, 0, 16 );
+
+        assert.ok( model.hasSelection(),
+            "expected model to have a selection after invocation of setter" );
     });
 });

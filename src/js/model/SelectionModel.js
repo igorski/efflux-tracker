@@ -146,6 +146,15 @@ SelectionModel.prototype.getSelectionLength = function()
 
 /**
  * @public
+ * @return {boolean}
+ */
+SelectionModel.prototype.hasSelection = function()
+{
+    return this.getSelectionLength() > 0;
+};
+
+/**
+ * @public
  *
  * @param {Object} song
  * @param {number} activePattern
@@ -182,19 +191,28 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
     if ( this._copySelection !== null )
     {
         var target = song.patterns[ activePattern ];
-        var source, writeIndex;
+        var targetPattern, writeIndex;
+        var j = 0;
 
-        for ( var i = activeChannel, j = 0; i < 2; ++i, ++j )
+        console.log("pastin'",this._copySelection[0],this._copySelection[1]);
+
+        if (( activeChannel === 0 && this._copySelection[ 0 ].length === 0 ) ||
+            ( activeChannel === 1 && this._copySelection[ 0 ].length === 0 ))
         {
-            source = target.channels[ i ];
+            j = 1;
+        }
+
+        for ( var i = activeChannel; i < 2 && j < 2; ++i, ++j )
+        {
+            targetPattern = target.channels[ i ];
 
             this._copySelection[ j ].forEach( function( pattern, index )
             {
                 writeIndex = activeStep + index;
 
-                if ( writeIndex < source.length ) {
+                if ( writeIndex < targetPattern.length ) {
                     if ( pattern.sound !== 0 )
-                        source[ writeIndex  ] = ObjectUtil.clone( pattern );
+                        targetPattern[ writeIndex ] = ObjectUtil.clone( pattern );
                 }
             });
         }
