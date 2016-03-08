@@ -43,7 +43,7 @@ var PATTERN_STEP;
  */
 var PATTERN;
 
-module.exports =
+var PatternFactory = module.exports =
 {
     /**
      * @public
@@ -134,6 +134,16 @@ module.exports =
         });
     },
 
+    generateEmptyPatternStep : function()
+    {
+        return {
+            sound: 0,
+            note: "",
+            octave: 0,
+            accent: false
+        };
+    },
+
     /**
      * clears the content at requested step for given channel
      * for given pattern
@@ -146,7 +156,7 @@ module.exports =
     clearStep : function( pattern, channelNum, step )
     {
         var channel     = pattern.channels[ channelNum ];
-        channel[ step ] = generateEmptyPatternStep();
+        channel[ step ] = PatternFactory.generateEmptyPatternStep();
     }
 };
 
@@ -162,17 +172,7 @@ function generateEmptyChannelPatterns( amountOfSteps )
         i = amountOfSteps;
 
         while ( i-- )
-            channel[ i ] = generateEmptyPatternStep();
+            channel[ i ] = PatternFactory.generateEmptyPatternStep();
     });
     return out;
-}
-
-function generateEmptyPatternStep()
-{
-    return {
-        sound: 0,
-        note: "",
-        octave: 0,
-        accent: false
-    };
 }

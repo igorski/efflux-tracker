@@ -22,7 +22,8 @@
  */
 module.exports = SelectionModel;
 
-var ObjectUtil = require( "../utils/ObjectUtil" );
+var PatternFactory = require( "../factory/PatternFactory" );
+var ObjectUtil     = require( "../utils/ObjectUtil" );
 
 function SelectionModel()
 {
@@ -173,6 +174,35 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
             {
                 for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
                    this._copySelection[ i ].push( ObjectUtil.clone( pattern.channels[ i ][ j ]));
+            }
+        }
+    }
+};
+
+/**
+ * @public
+ *
+ * @param {Object} song
+ * @param {number} activePattern
+ * @param {number} activeChannel
+ * @param {number} activeStep
+ */
+SelectionModel.prototype.cutSelection = function( song, activePattern, activeChannel, activeStep )
+{
+    if ( this.getSelectionLength() > 0 )
+    {
+        // copy first
+        this.copySelection( song, activePattern );
+
+        // delete second
+        var pattern = song.patterns[ activePattern ];
+
+        for ( var i = 0; i < 2; ++i )
+        {
+            if ( this.selection[ i ].length > 0 )
+            {
+                for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
+                    pattern.channels[ i ][ j ] = PatternFactory.generateEmptyPatternStep();
             }
         }
     }

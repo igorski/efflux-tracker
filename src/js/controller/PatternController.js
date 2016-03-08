@@ -228,6 +228,21 @@ var PatternController = module.exports =
                     PatternController.handleKey( type, 40 ); // move down to next slot
                     break;
 
+                case 88: // X
+
+                    // cut current selection
+
+                    if ( keyboardController.hasOption( aEvent ))
+                    {
+                        if ( !selectionModel.hasSelection() )
+                            selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
+
+                        selectionModel.cutSelection( slocum.activeSong, activePattern, activeChannel, activeStep );
+                        selectionModel.clearSelection();
+                        PatternController.update();
+                    }
+                    break;
+
                 case 86: // V
 
                     // paste current selection
@@ -247,7 +262,7 @@ var PatternController = module.exports =
                             selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
 
                         selectionModel.copySelection( slocum.activeSong, activePattern );
-                       selectionModel.clearSelection();
+                        selectionModel.clearSelection();
                     }
 
                     break;
