@@ -25,6 +25,7 @@ var templates      = require( "../handlebars/templates" )( Handlebars );
 var Pubsub         = require( "pubsub-js" );
 var Messages       = require( "../definitions/Messages" );
 var SelectionModel = require( "../model/SelectionModel" );
+var StateModel     = require( "../model/StateModel" );
 var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
 var NoteUtil       = require( "../utils/NoteUtil" );
@@ -35,7 +36,7 @@ var ObjectUtil     = require( "../utils/ObjectUtil" );
 var container, slocum, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
-    prevVerticalKey, selectionModel, patternCopy, positionTitle, stepSelection;
+    prevVerticalKey, stateModel, selectionModel, patternCopy, positionTitle, stepSelection;
 
 var PatternController = module.exports =
 {
@@ -58,6 +59,7 @@ var PatternController = module.exports =
         stepSelection = document.querySelector( "#patternSteps"  );
 
         selectionModel = new SelectionModel();
+        stateModel     = new StateModel();
 
         PatternController.update(); // sync view with model state
 
@@ -86,6 +88,9 @@ var PatternController = module.exports =
 
     update : function()
     {
+        if ( activePattern >= slocum.activeSong.patterns.length )
+            activePattern = slocum.activeSong.patterns.length - 1;
+
         var pattern = slocum.activeSong.patterns[ activePattern ];
         container.innerHTML = templates.patternEditor({
             pattern : pattern
@@ -228,6 +233,24 @@ var PatternController = module.exports =
                     PatternController.handleKey( type, 40 ); // move down to next slot
                     break;
 
+                case 90: // Z
+
+                    if ( keyboardController.hasOption( aEvent ))
+                    {
+                        var state;
+                        if ( !aEvent.shiftKey )
+                            state = stateModel.undo();
+                        else
+                            state = stateModel.redo();
+
+                        if ( state !== null ) {
+                            slocum.activeSong = state;
+                            PatternController.update();
+                        }
+                    }
+
+                    break;
+
                 case 88: // X
 
                     // cut current selection
@@ -240,6 +263,7 @@ var PatternController = module.exports =
                         selectionModel.cutSelection( slocum.activeSong, activePattern, activeChannel, activeStep );
                         selectionModel.clearSelection();
                         PatternController.update();
+                        saveState();
                     }
                     break;
 
@@ -249,6 +273,7 @@ var PatternController = module.exports =
                     if ( keyboardController.hasOption( aEvent )) {
                         selectionModel.pasteSelection( slocum.activeSong, activePattern, activeChannel, activeStep );
                         PatternController.update();
+                        saveState();
                     }
 
                     break;
@@ -289,6 +314,7 @@ function handleBroadcast( type, payload )
             activeStep    = 0;
 
             selectionModel.clearSelection();
+            stateModel.flush();
             PatternController.update();
             container.focus();
             break;
@@ -334,6 +360,7 @@ function deleteHighlightedStep()
 {
     PatternFactory.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
     PatternController.update(); // sync view with model
+    saveState();
 }
 
 function handleClick( aEvent )
@@ -397,6 +424,7 @@ function editStep()
 
             PatternController.handleKey( "down", 40 ); // proceed to next line
             PatternController.update();
+            saveState();
         }
     });
 }
@@ -517,4 +545,9 @@ function handlePatternStepChange( aEvent )
 function handleMouseOver( aEvent )
 {
     Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
+}
+
+function saveState()
+{
+    stateModel.store( ObjectUtil.clone( slocum.activeSong ));
 }
