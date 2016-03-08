@@ -78,7 +78,11 @@
       &.selected {
         background-color: @color-highlight;
         border-color: @color-highlight;
-        color: #FFF;
+        color: #FFF !important;
+
+        span {
+          color: #FFF !important;
+        }
       }
 
       span {
@@ -88,14 +92,45 @@
 
         &.sound {
           &.accent-true {
-            color: #FFF;
+            font-style: italic;
           }
         }
 
         &.note {
           text-align: right;
           text-transform: uppercase;
+          color: #b6b6b6;
         }
+      }
+
+      // sound types
+
+      &.kick,
+      &.hat,
+      &.snare,
+      &.snare2 {
+        color: #FFF;
+      }
+
+      &.pitfall {
+        color: @color-6;
+      }
+
+      &.square {
+        color: @color-5;
+      }
+
+      &.lead {
+        color: @color-4;
+      }
+
+      &.bass,
+      &.low_bass {
+        color: @color-3;
+      }
+
+      &.saw {
+        color: @color-2;
       }
     }
   }

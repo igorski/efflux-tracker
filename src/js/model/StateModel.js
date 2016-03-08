@@ -75,7 +75,7 @@ StateModel.prototype.store = function( data )
     // history beyond this store point
 
     if ( this._current < maxIndex )
-        this._states = this._states.slice( this._current );
+        this._states = this._states.slice( 0, this._current );
 
     // if we're exceeding the maximum amount of recordable states, remove the first saved state
 
