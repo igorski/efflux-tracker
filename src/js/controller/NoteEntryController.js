@@ -20,13 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Form       = require( "../utils/Form" );
-var NoteUtil   = require( "../utils/NoteUtil" );
-var Messages   = require( "../definitions/Messages" );
-var TIA        = require( "../definitions/TIA" );
-var Pubsub     = require( "pubsub-js" );
+var Form         = require( "../utils/Form" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var NoteUtil     = require( "../utils/NoteUtil" );
+var Messages     = require( "../definitions/Messages" );
+var TIA          = require( "../definitions/TIA" );
+var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
@@ -50,7 +49,7 @@ var NoteEntryController = module.exports =
 
         element = document.createElement( "div" );
         element.setAttribute( "id", "noteEntry" );
-        element.innerHTML = templates.noteEntry();
+        element.innerHTML = TemplateUtil.render( "noteEntry" );
 
         soundSelect  = element.querySelector( "#sound" );
         noteSelect   = element.querySelector( "#note" );

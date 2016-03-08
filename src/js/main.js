@@ -31,10 +31,9 @@ var NotificationController = require( "./controller/NotificationController" );
 var PatternController      = require( "./controller/PatternController" );
 var SongController         = require( "./controller/SongController" );
 var ObjectUtil             = require( "./utils/ObjectUtil" );
+var TemplateUtil           = require( "./utils/TemplateUtil" );
 var Messages               = require( "./definitions/Messages" );
 var Pubsub                 = require( "pubsub-js" );
-var Handlebars             = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates              = require( "./handlebars/templates" )( Handlebars );
 
 /* initialize */
 
@@ -57,7 +56,7 @@ var slocum;
 
     var container = document.querySelector( "#application" );
 
-    container.innerHTML += templates.index();
+    container.innerHTML += TemplateUtil.render( "index" );
 
     // initialize application controllers
 

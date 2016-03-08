@@ -20,8 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars     = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates      = require( "../handlebars/templates" )( Handlebars );
 var Pubsub         = require( "pubsub-js" );
 var Messages       = require( "../definitions/Messages" );
 var SelectionModel = require( "../model/SelectionModel" );
@@ -30,6 +28,7 @@ var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
 var NoteUtil       = require( "../utils/NoteUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
+var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
@@ -92,7 +91,7 @@ var PatternController = module.exports =
             activePattern = slocum.activeSong.patterns.length - 1;
 
         var pattern = slocum.activeSong.patterns[ activePattern ];
-        container.innerHTML = templates.patternEditor({
+        container.innerHTML = TemplateUtil.render( "patternEditor", {
             pattern : pattern
         });
         positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
@@ -549,5 +548,9 @@ function handleMouseOver( aEvent )
 
 function saveState()
 {
+    // you might argue its wasteful to store full clones of the current
+    // song content, however we're not running this in the limited memory space
+    // of an Atari 2600 !! this should be just fine and hella fast
+
     stateModel.store( ObjectUtil.clone( slocum.activeSong ));
 }

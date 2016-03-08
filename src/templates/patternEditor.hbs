@@ -1,7 +1,7 @@
 {{#each pattern.channels}}
 <ul class="pattern">
     {{#each this}}
-    <li class="{{this.sound}}">
+    <li class="{{toLowerCase this.sound}}">
         {{#if this.sound}}
             <span class="sound accent-{{this.accent}}">
                 {{this.sound}}

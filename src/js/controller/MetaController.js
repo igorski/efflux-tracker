@@ -20,11 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Form       = require( "../utils/Form" );
-var Pubsub     = require( "pubsub-js" );
-var Messages   = require( "../definitions/Messages" );
+var Form         = require( "../utils/Form" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var Pubsub       = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
 
 /* private properties */
 
@@ -46,7 +45,7 @@ var MetaController = module.exports =
         slocum             = slocumRef;
         keyboardController = keyboardControllerRef;
 
-        container.innerHTML += templates.metaView();
+        container.innerHTML += TemplateUtil.render( "metaView" );
 
         // cache view elements
 

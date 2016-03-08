@@ -20,10 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars       = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates        = require( "../handlebars/templates" )( Handlebars );
 var AssemblerFactory = require( "../factory/AssemblerFactory" );
 var Time             = require( "../utils/Time" );
+var TemplateUtil     = require( "../utils/TemplateUtil" );
 var Pubsub           = require( "pubsub-js" );
 var Messages         = require( "../definitions/Messages" );
 
@@ -46,7 +45,7 @@ var SongController = module.exports =
         slocum             = slocumRef;
         keyboardController = keyboardControllerRef;
 
-        container.innerHTML += templates.songView();
+        container.innerHTML += TemplateUtil.render( "songView" );
 
         // grab references to elements in the template
 

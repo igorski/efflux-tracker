@@ -20,10 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Pubsub     = require( "pubsub-js" );
-var Messages   = require( "../definitions/Messages" );
+var Pubsub       = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
@@ -43,7 +42,7 @@ var HelpController = module.exports =
         container          = containerRef;
         slocum             = slocumRef;
 
-        container.innerHTML += templates.helpView();
+        container.innerHTML += TemplateUtil.render( "helpView" );
 
         // cache view elements
 
@@ -71,8 +70,10 @@ function handleBroadcast( type, payload )
 
             if ( currentSection !== payload )
             {
-                if ( typeof templates[ payload ] === "function" )
-                    contentContainer.innerHTML = templates[ payload ]();
+                var template = TemplateUtil.render( payload );
+
+                if ( template.length > 0 )
+                    contentContainer.innerHTML = template;
 
                 currentSection = payload;
             }

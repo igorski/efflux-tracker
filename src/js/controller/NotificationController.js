@@ -20,10 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Pubsub     = require( "pubsub-js" );
-var Messages   = require( "../definitions/Messages" );
+var Pubsub       = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
 
 /* variables */
 
@@ -74,7 +73,7 @@ function openWindow( title, body )
 {
     var dialog       = document.createElement( "div" );
     dialog.className = "notificationWindow";
-    dialog.innerHTML = templates.notificationView({ title: title, content: body });
+    dialog.innerHTML = TemplateUtil.render( "notificationView", { title: title, content: body });
     container.appendChild( dialog );
     dialog.classList.add( "visible" );
 

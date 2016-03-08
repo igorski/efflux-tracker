@@ -20,13 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
-var Time       = require( "../utils/Time" );
-var ObjectUtil = require( "../utils/ObjectUtil" );
-var NoteUtil   = require( "../utils/NoteUtil" );
-var TIA        = require( "../definitions/TIA" );
-var MD5        = require( "md5" );
+var Time         = require( "../utils/Time" );
+var ObjectUtil   = require( "../utils/ObjectUtil" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var NoteUtil     = require( "../utils/NoteUtil" );
+var TIA          = require( "../definitions/TIA" );
+var MD5          = require( "md5" );
 
 module.exports =
 {
@@ -45,7 +44,7 @@ module.exports =
         data.patterns     = convertPatterns( data.patterns, TIA.table.tunings[ song.meta.tuning ]);
         data.hats.pattern = convertHatPattern( data.hats.pattern );
 
-        return templates.asm( data );
+        return TemplateUtil.render( "asm", data );
     }
 };
 
