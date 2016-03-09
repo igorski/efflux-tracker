@@ -35,7 +35,8 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 var container, slocum, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
-    prevVerticalKey, stateModel, selectionModel, patternCopy, positionTitle, stepSelection;
+    prevVerticalKey, stateModel, selectionModel, patternCopy, positionTitle,
+    stepSelection, channel1attenuation, channel2attenuation;
 
 var PatternController = module.exports =
 {
@@ -53,9 +54,11 @@ var PatternController = module.exports =
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
-        container     = containerRef;
-        positionTitle = document.querySelector( "#currentPattern" );
-        stepSelection = document.querySelector( "#patternSteps"  );
+        container           = containerRef;
+        positionTitle       = document.querySelector( "#currentPattern" );
+        stepSelection       = document.querySelector( "#patternSteps"  );
+        channel1attenuation = document.querySelector( "#channel1attenuation"  );
+        channel2attenuation = document.querySelector( "#channel2attenuation"  );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();
@@ -75,7 +78,9 @@ var PatternController = module.exports =
         document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
         document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
 
-        stepSelection.addEventListener( "change", handlePatternStepChange );
+        stepSelection.addEventListener      ( "change", handlePatternStepChange );
+        channel1attenuation.addEventListener( "change", handleAttenuationChange );
+        channel2attenuation.addEventListener( "change", handleAttenuationChange );
 
         var pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
@@ -92,11 +97,15 @@ var PatternController = module.exports =
 
         var pattern = slocum.activeSong.patterns[ activePattern ];
         container.innerHTML = TemplateUtil.render( "patternEditor", {
+            steps   : pattern.steps,
             pattern : pattern
         });
         positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
         positionTitle.querySelector( ".total" ).innerHTML   = slocum.activeSong.patterns.length.toString();
         Form.setSelectedOption( stepSelection, pattern.steps );
+        Form.setSelectedOption( channel1attenuation, pattern.channel1attenuation );
+        Form.setSelectedOption( channel2attenuation, pattern.channel2attenuation );
+
         highlightActiveStep();
     },
 
@@ -314,6 +323,7 @@ function handleBroadcast( type, payload )
 
             selectionModel.clearSelection();
             stateModel.flush();
+            stateModel.store();
             PatternController.update();
             container.focus();
             break;
@@ -453,8 +463,8 @@ function handlePatternAdd( aEvent )
     var song     = slocum.activeSong,
         patterns = song.patterns;
 
-    if ( patterns.length === 127 ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 127 patterns" );
+    if ( patterns.length === 128 ) {
+        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 128 patterns" );
         return;
     }
 
@@ -479,8 +489,14 @@ function handlePatternDelete( aEvent )
         handlePatternClear( aEvent );
     }
     else {
+
         song.patterns.splice( activePattern, 1 );
-        handlePatternNavBack( aEvent );
+
+        if ( activePattern > 0 )
+            handlePatternNavBack( aEvent );
+        else
+            PatternController.update();
+
         Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
     }
 }
@@ -539,6 +555,22 @@ function handlePatternStepChange( aEvent )
     });
 
     PatternController.update(); // sync with model
+}
+
+function handleAttenuationChange( aEvent )
+{
+    var pattern = slocum.activeSong.patterns[ activePattern ], value;
+    switch ( aEvent.target )
+    {
+        case channel1attenuation:
+            pattern.channel1attenuation = ( Form.getSelectedOption( channel1attenuation ) === "true" );
+            break;
+
+        case channel2attenuation:
+            pattern.channel2attenuation = ( Form.getSelectedOption( channel2attenuation ) === "true" );
+            break;
+    }
+    saveState();
 }
 
 function handleMouseOver( aEvent )

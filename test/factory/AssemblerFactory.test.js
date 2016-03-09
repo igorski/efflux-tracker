@@ -153,6 +153,51 @@ describe( "AssemblerFactory", function()
             "expected four re-used patterns for channel 2" );
     });
 
+    it( "should write patterns into the appropriate volume arrays", function()
+    {
+        var channel1 = song.patterns[ 0 ].channels[ 0 ];
+        var channel2 = song.patterns[ 0 ].channels[ 1 ];
+        var bank     = TIA.table.tunings[ 0 ].BASS;
+        var i, j, l, def, out;
+
+        song.patterns[ 0 ].channel2attenuation = true; // attenuate channel 2
+
+        // add some random notes for the first quaver of each channel
+
+       for ( i = 0; i < 2; ++i )
+        {
+            for ( j = 0, l = song.patterns[ 0 ].steps / 4; j < l; ++j )
+            {
+                def = bank[ rand( 0, bank.length - 1 )];
+                out = {
+                    sound: "BASS",
+                    note: def.note,
+                    octave: def.octave,
+                    accent: randBool()
+                };
+
+                if ( i === 0 )
+                    channel1[ j ] = out;
+                else
+                    channel2[ j ] = out;
+            }
+        }
+
+        // assert results
+
+        var asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+
+        assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern2, Pattern2 ; 0" ) > -1,
+            "expected channel 1 pattern to be in the higher volume Array starting at index 0" );
+
+        asm = textToLineArray( AssemblerFactory.assemblify( song ));
+        patternDef = getLineNumForText( asm, "Lower volume patterns" ) + 3;
+
+        assert.ok( asm[ patternDef ].indexOf( "word Pattern3, Pattern2, Pattern2, Pattern2 ; 128" ) > -1,
+            "expected channel 2 pattern to be in the lower volume Array starting at index 128" );
+    });
+
     it( "should define duplicate patterns only once to save space", function()
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];

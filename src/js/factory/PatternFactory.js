@@ -58,8 +58,8 @@ var PatternFactory = module.exports =
 
         return {
             steps               : amountOfSteps,
-            pattern1attenuation : false,
-            pattern2attenuation : false,
+            channel1attenuation : false,
+            channel2attenuation : false,
             channels            : generateEmptyChannelPatterns( amountOfSteps )
         };
     },

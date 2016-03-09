@@ -66,7 +66,7 @@ var slocum;
     MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
     NoteEntryController.init( container, slocum, KeyboardController );
     NotificationController.init( container );
-    PatternController.init( container.querySelector( "#patternEditor" ), slocum, KeyboardController, NoteEntryController );
+    PatternController.init( container.querySelector( "#patternContainer" ), slocum, KeyboardController, NoteEntryController );
     HelpController.init( container.querySelector( "#helpSection" ), slocum );
     HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
 

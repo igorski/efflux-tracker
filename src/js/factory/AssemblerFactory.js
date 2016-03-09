@@ -60,8 +60,8 @@ function convertPatterns( patterns, tuning )
         patternArrayL    : ""
     };
 
-    var amountOfSteps, patternString, accents, step, code, idx, increment, patternId, patternArray, i, writeOffset;
-    var amountOfPatterns = 0;
+    var amountOfSteps, patternString, accents, step, code, idx, increment, patternId, patternArray, attenuate, i, writeOffset;
+    var arrayHIndex = 0, arrayLIndex = 128;
 
     var cachedPatterns = {};
 
@@ -72,6 +72,7 @@ function convertPatterns( patterns, tuning )
 
         pattern.channels.forEach( function( channel, channelIndex )
         {
+            attenuate     = pattern[ "channel" + ( channelIndex + 1 ) + "attenuation" ];
             patternArray  = "    word ";
             patternString = "";
             idx           = 0;
@@ -124,17 +125,29 @@ function convertPatterns( patterns, tuning )
                     patternArray += ( idx > 31 ) ? "" : ", ";
                 }
             }
-            // TODO: also use L array !
-            out.patternArrayH += ( patternArray + " ; " + amountOfPatterns + "\n" ); // TODO  when using L add 128 to the patternnum
 
+            // attenuated patterns go into the lower volume "patternArrayL" (starting at index 128)
+            // otherwise patterns go into the higher volume "patternArrayH" (starting at index 0)
             // TODO: reuse existing words!
-            if ( channelIndex === 0 ) {
-                out.channel1sequence += "    byte " + amountOfPatterns + "\n";
+
+            if ( attenuate ) {
+                out.patternArrayL += ( patternArray + " ; " + arrayLIndex + "\n" );
+                ++arrayLIndex;
+
+                if ( channelIndex === 0 )
+                    out.channel1sequence += "    byte " + arrayLIndex + "\n";
+                else
+                    out.channel2sequence += "    byte " + arrayLIndex + "\n";
             }
             else {
-                out.channel2sequence += "    byte " + amountOfPatterns + "\n";
+                out.patternArrayH += ( patternArray + " ; " + arrayHIndex + "\n" );
+                ++arrayHIndex;
+
+                if ( channelIndex === 0 )
+                    out.channel1sequence += "    byte " + arrayHIndex + "\n";
+                else
+                    out.channel2sequence += "    byte " + arrayHIndex + "\n";
             }
-            ++amountOfPatterns; // TODO: when using L array this starts at 128 !
         });
     });
 

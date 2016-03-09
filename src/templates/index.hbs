@@ -49,19 +49,23 @@
             </li>
         </ul>
     </section>
-    <!-- views added through HandleBars -->
     <div id="center">
-        <section id="patternAttenuation">
-            <select id="pattern1attenuation">
-                <option value="false"></option>
-                <option value="true"></option>
-            </select>
-            <select id="pattern2attenuation">
-                <option value="false"></option>
-                <option value="true"></option>
-            </select>
+        <section id="patternEditor">
+            <section id="patternAttenuation">
+                <label for="channel1attenuation">Channel 1</label>
+                <select id="channel1attenuation">
+                    <option value="false">Full volume</option>
+                    <option value="true">Attenuated</option>
+                </select>
+                <label for="channel1attenuation">Channel 2</label>
+                <select id="channel2attenuation">
+                    <option value="false">Full volume</option>
+                    <option value="true">Attenuated</option>
+                </select>
+            </section>
+            <!-- additional views added through HandleBars -->
+            <section id="patternContainer"><!-- x --></section>
         </section>
-        <section id="patternEditor"><!-- x --></section>
         <section id="helpSection"><!-- x --></section>
     </div>
     <section id="hatSection"><!-- x --></section>
