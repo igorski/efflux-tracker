@@ -132,21 +132,23 @@ function convertPatterns( patterns, tuning )
 
             if ( attenuate ) {
                 out.patternArrayL += ( patternArray + " ; " + arrayLIndex + "\n" );
-                ++arrayLIndex;
 
                 if ( channelIndex === 0 )
                     out.channel1sequence += "    byte " + arrayLIndex + "\n";
                 else
                     out.channel2sequence += "    byte " + arrayLIndex + "\n";
+
+                ++arrayLIndex;
             }
             else {
                 out.patternArrayH += ( patternArray + " ; " + arrayHIndex + "\n" );
-                ++arrayHIndex;
 
                 if ( channelIndex === 0 )
                     out.channel1sequence += "    byte " + arrayHIndex + "\n";
                 else
                     out.channel2sequence += "    byte " + arrayHIndex + "\n";
+
+                ++arrayHIndex;
             }
         });
     });
