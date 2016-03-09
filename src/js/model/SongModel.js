@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Fixtures       = require( "../definitions/Fixtures" );
 var PatternFactory = require( "../factory/PatternFactory" );
 
 module.exports = SongModel;
@@ -38,13 +39,15 @@ function SongModel()
 
     var songs = window.localStorage.getItem( 'songs' );
 
-    if ( typeof songs === "string" )
-    {
-        try {
-            this._songs = JSON.parse( songs );
-        }
-        catch ( e ) {}
+    // no songs available ? load fixtures with "factory content"
+
+    if ( typeof songs !== "string" )
+        songs = Fixtures.songs;
+
+    try {
+        this._songs = JSON.parse( songs );
     }
+    catch ( e ) {}
 }
 
 /* public methods */
