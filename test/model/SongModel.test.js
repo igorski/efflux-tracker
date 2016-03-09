@@ -35,6 +35,7 @@ describe( "SongModel", function()
     beforeEach( function()
     {
         model = new SongModel();
+        model._songs = []; // no fixtures during test
     });
 
     // executed after each individual test
