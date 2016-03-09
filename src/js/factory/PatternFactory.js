@@ -57,8 +57,10 @@ var PatternFactory = module.exports =
         amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
 
         return {
-            steps    : amountOfSteps,
-            channels : generateEmptyChannelPatterns( amountOfSteps )
+            steps               : amountOfSteps,
+            channel1attenuation : false,
+            channel2attenuation : false,
+            channels            : generateEmptyChannelPatterns( amountOfSteps )
         };
     },
 
@@ -134,6 +136,12 @@ var PatternFactory = module.exports =
         });
     },
 
+    /**
+     * generates the (empty) content for a single pattern step
+     *
+     * @public
+     * @return {Object}
+     */
     generateEmptyPatternStep : function()
     {
         return {

@@ -38,6 +38,21 @@ Handlebars.registerHelper( "toLowerCase", function( string )
     return "";
 });
 
+/**
+ * use in template like:
+ *
+ * {{loop 10}}
+ */
+Handlebars.registerHelper( "loop", function( n, block )
+{
+    var out = "";
+
+    for( var i = 0; i < n; ++i )
+        out += block.fn( i );
+
+    return out;
+});
+
 module.exports =
 {
     /**
