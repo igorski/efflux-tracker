@@ -1,3 +1,8 @@
+<ul class="pattern indices">
+    {{#each pattern.channels}}
+        0
+    {{/each}}
+</ul>
 {{#each pattern.channels}}
 <ul class="pattern">
     {{#each this}}
@@ -8,7 +13,10 @@
             </span>
             {{# if this.note}}
             <span class="note">
-                {{this.note}} - {{this.octave}}
+                {{this.note}}
+            </span>
+            <span class="octave">
+                 - {{this.octave}}
             </span>
             {{/if}}
         {{else}}
