@@ -20,6 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Pubsub   = require( "pubsub-js" );
+var Messages = require( "../definitions/Messages" );
+
 /* variables */
 
 var header, menu, toggle;
@@ -31,12 +34,12 @@ module.exports =
     {
         menu   = document.getElementById( "menu" );
         header = document.getElementById( "header" );
+        toggle = menu.querySelector( ".toggle" );
 
-        if ( menu && header )
-            toggle = menu.querySelector( ".toggle" );
+        toggle.addEventListener( "click",     handleToggle );
+        menu.addEventListener  ( "mouseover", handleMouseOver );
 
-        if ( toggle )
-            toggle.addEventListener( "click", handleToggle );
+        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, handleBroadcast );
     }
 };
 
@@ -58,4 +61,21 @@ function handleToggle( e )
         header.classList.remove( "expanded" );
         document.body.style.overflow = "auto";
     }
+}
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case Messages.CLOSE_OVERLAYS:
+
+            if ( menuOpened )
+                handleToggle( null );
+            break;
+    }
+}
+
+function handleMouseOver( aEvent )
+{
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicSong" );
 }
