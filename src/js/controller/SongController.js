@@ -51,6 +51,7 @@ var SongController = module.exports =
 
         container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
         container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
+        container.querySelector( "#songReset"  ).addEventListener( "click", handleReset );
         container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
 
         // create a list container to show the songs when loading
@@ -124,6 +125,14 @@ function handleSongClick( aEvent )
         var id = aEvent.target.getAttribute( "data-id" );
         Pubsub.publish( Messages.LOAD_SONG, id );
         list.classList.remove( "active" );
+    }
+}
+
+function handleReset( aEvent )
+{
+    if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
+        slocum.activeSong = slocum.SongModel.createSong();
+        Pubsub.publish( Messages.SONG_LOADED, slocum.activeSong );
     }
 }
 

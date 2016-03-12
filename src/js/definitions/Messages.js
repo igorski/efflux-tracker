@@ -22,11 +22,11 @@
  */
 module.exports =
 {
-    "SHOW_ERROR"                : 0,
-    "SHOW_FEEDBACK"             : 1,
-    "LOAD_SONG"                 : 2,
-    "SONG_LOADED"               : 3,
-    "PATTERN_AMOUNT_UPDATED"    : 4,
-    "DISPLAY_HELP"              : 5,
-    "CLOSE_OVERLAYS"            : 6
+    SHOW_ERROR                : 0,
+    SHOW_FEEDBACK             : 1,
+    LOAD_SONG                 : 2,
+    SONG_LOADED               : 3,
+    PATTERN_AMOUNT_UPDATED    : 4,
+    DISPLAY_HELP              : 5,
+    CLOSE_OVERLAYS            : 6
 };
