@@ -36,3 +36,24 @@
     }
   }
 }
+
+@media screen and ( max-width: @mobile-width )
+{
+  #notifications {
+    width: 100%;
+    max-width: 100%;
+    left: 0;
+    right: auto;
+
+    .notificationWindow {
+      width: 100%;
+      right: auto;
+      top: -500px;
+      padding: 1em 2em;
+
+      &.visible {
+        top: 0;
+      }
+    }
+  }
+}
