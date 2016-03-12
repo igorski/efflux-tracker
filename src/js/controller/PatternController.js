@@ -396,6 +396,7 @@ function handleClick( aEvent )
             }
         }
     }
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
 }
 
 function editStep()
