@@ -367,7 +367,13 @@ function highlightActiveStep()
 
 function deleteHighlightedStep()
 {
-    PatternFactory.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+    if ( selectionModel.hasSelection() )
+    {
+        selectionModel.deleteSelection( slocum.activeSong, activePattern );
+    }
+    else {
+        PatternFactory.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+    }
     PatternController.update(); // sync view with model
     saveState();
 }

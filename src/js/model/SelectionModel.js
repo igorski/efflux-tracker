@@ -155,6 +155,8 @@ SelectionModel.prototype.hasSelection = function()
 };
 
 /**
+ * copies the contents within the current selection
+ *
  * @public
  *
  * @param {Object} song
@@ -162,48 +164,65 @@ SelectionModel.prototype.hasSelection = function()
  */
 SelectionModel.prototype.copySelection = function( song, activePattern )
 {
-    if ( this.getSelectionLength() > 0 )
+    if ( this.getSelectionLength() === 0 )
+        return;
+
+    this._copySelection = [ [], [] ];
+
+    var pattern = song.patterns[ activePattern ];
+
+    for ( var i = 0; i < 2; ++i )
     {
-        this._copySelection = [ [], [] ];
-
-        var pattern = song.patterns[ activePattern ];
-
-        for ( var i = 0; i < 2; ++i )
+        if ( this.selection[ i ].length > 0 )
         {
-            if ( this.selection[ i ].length > 0 )
-            {
-                for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
-                   this._copySelection[ i ].push( ObjectUtil.clone( pattern.channels[ i ][ j ]));
-            }
+            for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
+               this._copySelection[ i ].push( ObjectUtil.clone( pattern.channels[ i ][ j ]));
         }
     }
 };
 
 /**
+ * cuts the contents within the current selection
+ * (copies their data and deletes them)
+ *
  * @public
  *
  * @param {Object} song
  * @param {number} activePattern
- * @param {number} activeChannel
- * @param {number} activeStep
  */
-SelectionModel.prototype.cutSelection = function( song, activePattern, activeChannel, activeStep )
+SelectionModel.prototype.cutSelection = function( song, activePattern )
 {
-    if ( this.getSelectionLength() > 0 )
+    if ( this.getSelectionLength() === 0 )
+        return;
+
+    // copy first
+    this.copySelection( song, activePattern );
+
+    // delete second
+    this.deleteSelection( song, activePattern );
+};
+
+/**
+ * deletes the contents within the current selection
+ *
+ * @public
+ *
+ * @param {Object} song
+ * @param {number} activePattern
+ */
+SelectionModel.prototype.deleteSelection = function( song, activePattern )
+{
+    if ( this.getSelectionLength() === 0 )
+        return;
+
+    var pattern = song.patterns[ activePattern ];
+
+    for ( var i = 0; i < 2; ++i )
     {
-        // copy first
-        this.copySelection( song, activePattern );
-
-        // delete second
-        var pattern = song.patterns[ activePattern ];
-
-        for ( var i = 0; i < 2; ++i )
+        if ( this.selection[ i ].length > 0 )
         {
-            if ( this.selection[ i ].length > 0 )
-            {
-                for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
-                    pattern.channels[ i ][ j ] = PatternFactory.generateEmptyPatternStep();
-            }
+            for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
+                pattern.channels[ i ][ j ] = PatternFactory.generateEmptyPatternStep();
         }
     }
 };
