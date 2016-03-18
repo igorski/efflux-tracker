@@ -11,7 +11,7 @@ input {
   color: #bfbfbf;
 }
 
-select, button {
+select, .selector, button {
   display: inline-block;
   -webkit-appearance: none;
      -moz-appearance: none;
@@ -22,10 +22,11 @@ select, button {
   cursor: pointer;
   border: 3px solid #333;
   font-weight: bold;
+}
 
-  &:hover {
-    color: #FFF;
-  }
+select:hover,
+button:hover {
+  color: #FFF;
 }
 
 select {

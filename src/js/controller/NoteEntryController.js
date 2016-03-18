@@ -20,17 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Form         = require( "../utils/Form" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var NoteUtil     = require( "../utils/NoteUtil" );
 var Messages     = require( "../definitions/Messages" );
+var Select       = require( "../ui/Select" );
+var SelectList   = require( "../ui/SelectList" );
 var TIA          = require( "../definitions/TIA" );
 var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
 var container, element, slocum, keyboardController;
-var soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
+var selectList, soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
 
 var NoteEntryController = module.exports =
 {
@@ -51,18 +52,25 @@ var NoteEntryController = module.exports =
         element.setAttribute( "id", "noteEntry" );
         element.innerHTML = TemplateUtil.render( "noteEntry" );
 
-        soundSelect  = element.querySelector( "#sound" );
-        noteSelect   = element.querySelector( "#note" );
-        octaveSelect = element.querySelector( "#octave" );
-        accentSelect = element.querySelector( "#accent" );
+        soundSelect  = new Select( element.querySelector( "#sound" ),  handleSoundSelect );
+        noteSelect   = new Select( element.querySelector( "#note" ),   handleNoteSelect );
+        octaveSelect = new Select( element.querySelector( "#octave" ), handleOctaveSelect );
+        accentSelect = new Select( element.querySelector( "#accent" ));
+
+        accentSelect.setOptions([
+            { title: "ACC", value: true },
+            { title: "No",  value: false }
+        ]);
+
+        selectList = new SelectList(
+            [ soundSelect, noteSelect, octaveSelect, accentSelect ],
+            this, keyboardControllerRef
+        );
 
         // add listeners
 
-        soundSelect.addEventListener ( "change", handleSoundSelect );
-        noteSelect.addEventListener  ( "change", handleNoteSelect );
-        octaveSelect.addEventListener( "change", handleOctaveSelect );
-
-        element.querySelector( ".close-button" ).addEventListener( "click", handleClose );
+        element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+        element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
 
         Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
         {
@@ -88,25 +96,27 @@ var NoteEntryController = module.exports =
 
         setSelectOptions();
 
-        Form.setSelectedOption( soundSelect, data.sound );
+        if ( data.sound !== 0 )
+            soundSelect.setValue( data.sound );
+
         handleSoundSelect( null );
 
         if ( !NoteUtil.isPercussive( data.sound ))
         {
-            Form.setSelectedOption( noteSelect,  data.note );
+            noteSelect.setValue( data.note );
             handleNoteSelect( null );
-            Form.setSelectedOption( octaveSelect, data.octave );
+            octaveSelect.setValue( data.octave );
         }
         updateSelectStates();
 
-        Form.setSelectedOption( accentSelect, data.accent );
+        accentSelect.setValue( data.accent );
 
         keyboardController.setListener( NoteEntryController );
 
         if ( !element.parentNode )
             container.appendChild( element );
 
-        soundSelect.focus();
+        selectList.focus( 0, true );
     },
 
     /* event handlers */
@@ -117,16 +127,6 @@ var NoteEntryController = module.exports =
         {
             switch ( keyCode )
             {
-                case 38: // up
-
-
-                    break;
-
-                case 40: // down
-
-
-                    break;
-
                 case 27: // escape
                     handleClose();
                     break;
@@ -153,10 +153,10 @@ function handleReady()
 {
     if ( typeof callback === "function" )
     {
-        data.sound  = Form.getSelectedOption( soundSelect );
-        data.note   = Form.getSelectedOption( noteSelect );
-        data.octave = parseInt( Form.getSelectedOption( octaveSelect ), 10 );
-        data.accent = ( Form.getSelectedOption( accentSelect ) === "true" );
+        data.sound  = soundSelect.getValue();
+        data.note   = noteSelect.getValue();
+        data.octave = parseInt( octaveSelect.getValue(), 10 );
+        data.accent = ( accentSelect.getValue() === true );
 
         callback( data );
     }
@@ -180,14 +180,14 @@ function setSelectOptions()
         soundOptions.push({ title: key, value: key });
     });
 
-    Form.setOptions( soundSelect,  soundOptions );
-    Form.setOptions( noteSelect,   [{ title: "----" }] );
-    Form.setOptions( octaveSelect, [{ title: "----" }] );
+    soundSelect.setOptions ( soundOptions );
+    noteSelect.setOptions  ( [{ title: "----" }] );
+    octaveSelect.setOptions( [{ title: "----" }] );
 }
 
-function handleSoundSelect( aEvent )
+function handleSoundSelect()
 {
-    var sound = Form.getSelectedOption( soundSelect );
+    var sound  = soundSelect.getValue();
     var tuning = slocum.activeSong.meta.tuning;
     var values = TIA.table.tunings[ tuning ][ sound ];
     var noteOptions = [], collectedNotes = [], note;
@@ -202,22 +202,15 @@ function handleSoundSelect( aEvent )
             }
         });
     }
-    Form.setOptions( noteSelect, noteOptions );
+    noteSelect.setOptions( noteOptions );
     updateSelectStates();
-    handleNoteSelect( aEvent );
-
-    if ( !NoteUtil.isPercussive( sound )) {
-        noteSelect.focus();
-    }
-    else {
-        accentSelect.focus();
-    }
+    handleNoteSelect();
 }
 
-function handleNoteSelect( aEvent )
+function handleNoteSelect()
 {
-    var sound  = Form.getSelectedOption( soundSelect );
-    var note   = Form.getSelectedOption( noteSelect );
+    var sound  = soundSelect.getValue();
+    var note   = noteSelect.getValue();
     var tuning = slocum.activeSong.meta.tuning;
     var values = TIA.table.tunings[ tuning ][ sound ];
     var octaveOptions = [], entry;
@@ -231,27 +224,23 @@ function handleNoteSelect( aEvent )
                 octaveOptions.push({ title: entry.octave, value: entry.octave });
         }
     }
-    Form.setOptions( octaveSelect, octaveOptions );
-
-    octaveSelect.focus();
+    octaveSelect.setOptions( octaveOptions );
 }
 
-function handleOctaveSelect( aEvent )
+function handleOctaveSelect()
 {
-    requestAnimationFrame( function() {
-        accentSelect.focus(); // prevents immediate close when selecting using enter
-    });
+
 }
 
 function updateSelectStates()
 {
-    if ( NoteUtil.isPercussive( Form.getSelectedOption( soundSelect ) )) {
-        noteSelect.classList.add( "disabled" );
-        octaveSelect.classList.add( "disabled" );
+    if ( NoteUtil.isPercussive( soundSelect.getValue() )) {
+        noteSelect.setEnabled( false );
+        octaveSelect.setEnabled( false );
     }
     else {
-        noteSelect.classList.remove( "disabled" );
-        octaveSelect.classList.remove( "disabled" );
+        noteSelect.setEnabled( true );
+        octaveSelect.setEnabled( true );
     }
 }
 

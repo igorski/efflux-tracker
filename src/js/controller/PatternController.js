@@ -398,6 +398,8 @@ function handleClick( aEvent )
                     activeStep    = j;
                     highlightActiveStep();
 
+                    keyboardController.setListener( PatternController );
+
                     if ( aEvent.type === "dblclick" )
                         editStep();
                     break;
