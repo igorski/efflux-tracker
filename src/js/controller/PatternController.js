@@ -35,7 +35,8 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 var container, slocum, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
-    prevVerticalKey, stateModel, selectionModel, patternCopy, positionTitle,
+    prevVerticalKey, interactionData = {},
+    stateModel, selectionModel, patternCopy, positionTitle,
     stepSelection, channel1attenuation, channel2attenuation;
 
 var PatternController = module.exports =
@@ -68,9 +69,10 @@ var PatternController = module.exports =
         // add listeners
 
         keyboardController.setListener( PatternController );
-        container.addEventListener( "click",      handleClick );
-        container.addEventListener( "touchstart", handleClick );
-        container.addEventListener( "dblclick",   handleClick );
+        container.addEventListener( "click",      handleInteraction );
+        container.addEventListener( "touchstart", handleInteraction );
+        container.addEventListener( "touchend",   handleInteraction );
+        container.addEventListener( "dblclick",   handleInteraction );
 
         document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
         document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
@@ -380,8 +382,16 @@ function deleteHighlightedStep()
     saveState();
 }
 
-function handleClick( aEvent )
+function handleInteraction( aEvent )
 {
+    // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
+
+    if ( aEvent.type === "touchstart" ) {
+        interactionData.offset = window.scrollY;
+        interactionData.time   = Date.now();
+        return;
+    }
+
     if ( aEvent.target.nodeName === "LI" )
     {
         var pContainers = container.querySelectorAll( ".pattern" ),
@@ -401,9 +411,11 @@ function handleClick( aEvent )
 
                     keyboardController.setListener( PatternController );
 
-                    if ( aEvent.type === "touchstart" || aEvent.type === "dblclick" )
+                    if ( aEvent.type === "dblclick" || ( aEvent.type === "touchend" &&
+                        window.scrollY === interactionData.offset && ( Date.now() - interactionData.time ) < 200 )) {
+                        aEvent.preventDefault();
                         editStep();
-
+                    }
                     break;
                 }
             }
