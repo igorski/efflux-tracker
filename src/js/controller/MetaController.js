@@ -21,9 +21,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var Form         = require( "../utils/Form" );
+var SongUtil     = require( "../utils/SongUtil" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
-var Pubsub       = require( "pubsub-js" );
+var TIA          = require( "../definitions/TIA" );
 var Messages     = require( "../definitions/Messages" );
+var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
@@ -113,7 +115,28 @@ function handleChange( aEvent )
     meta.title  = title.value;
     meta.author = author.value;
     meta.tempo  = parseInt( Form.getSelectedOption( tempo ), 10 );
-    meta.tuning = parseInt( Form.getSelectedOption( tuning ), 10 );
+
+    var newTuning = parseInt( Form.getSelectedOption( tuning ), 10 );
+
+    if ( meta.tuning !== newTuning )
+    {
+        if ( SongUtil.hasContent( slocum.activeSong ))
+        {
+            if ( confirm( "You are about to change song tuning, this means all existing notes" +
+                "that aren't available in the new tuning will be removed. Are you sure?" ))
+            {
+                SongUtil.sanitizeForTuning( slocum.activeSong, TIA.table.tunings[ newTuning ]);
+                meta.tuning = newTuning;
+                Pubsub.publish( Messages.REFRESH_SONG, slocum.activeSong );
+            }
+            else {
+                Form.setSelectedOption( tuning, meta.tuning );
+            }
+        }
+        else {
+            meta.tuning = newTuning;
+        }
+    }
 }
 
 /**

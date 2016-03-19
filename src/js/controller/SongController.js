@@ -23,6 +23,7 @@
 var AssemblerFactory = require( "../factory/AssemblerFactory" );
 var Time             = require( "../utils/Time" );
 var TemplateUtil     = require( "../utils/TemplateUtil" );
+var SongUtil         = require( "../utils/SongUtil" );
 var Pubsub           = require( "pubsub-js" );
 var Messages         = require( "../definitions/Messages" );
 
@@ -170,20 +171,7 @@ function handleExport( aEvent )
  */
 function isValid( song )
 {
-    var hasContent = false;
-
-    song.patterns.forEach( function( pattern )
-    {
-        pattern.channels.forEach( function( channel )
-        {
-            channel.forEach( function( pattern )
-            {
-                if ( pattern && pattern.sound ) {
-                    hasContent = true;
-                }
-            });
-        })
-    });
+    var hasContent = SongUtil.hasContent( song );
 
     if ( !hasContent ) {
         Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );

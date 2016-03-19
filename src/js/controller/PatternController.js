@@ -91,7 +91,8 @@ var PatternController = module.exports =
 
         // subscribe to pubsub messaging
 
-        Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
+        Pubsub.subscribe( Messages.SONG_LOADED,  handleBroadcast );
+        Pubsub.subscribe( Messages.REFRESH_SONG, handleBroadcast );
     },
 
     update : function()
@@ -319,13 +320,15 @@ function handleBroadcast( type, payload )
 {
     switch( type )
     {
+        case Messages.REFRESH_SONG:
         case Messages.SONG_LOADED:
 
-            activePattern = 0;
-            activeChannel = 0;
-            activeStep    = 0;
-
-            selectionModel.clearSelection();
+            if ( type !== Messages.REFRESH_SONG ) {
+                activePattern = 0;
+                activeChannel = 0;
+                activeStep    = 0;
+                selectionModel.clearSelection();
+            }
             stateModel.flush();
             stateModel.store();
             PatternController.update();

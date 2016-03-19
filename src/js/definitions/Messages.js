@@ -26,7 +26,8 @@ module.exports =
     SHOW_FEEDBACK             : 1,
     LOAD_SONG                 : 2,
     SONG_LOADED               : 3,
-    PATTERN_AMOUNT_UPDATED    : 4,
-    DISPLAY_HELP              : 5,
-    CLOSE_OVERLAYS            : 6
+    REFRESH_SONG              : 4,
+    PATTERN_AMOUNT_UPDATED    : 5,
+    DISPLAY_HELP              : 6,
+    CLOSE_OVERLAYS            : 7
 };
