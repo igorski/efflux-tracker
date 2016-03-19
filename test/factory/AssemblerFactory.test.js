@@ -198,7 +198,7 @@ describe( "AssemblerFactory", function()
             "expected channel 2 pattern to be in the lower volume Array starting at index 128" );
     });
 
-    it( "should define duplicate patterns only once to save space", function()
+    it( "should define duplicate subpatterns only once to save space", function()
     {
         var channel1 = song.patterns[ 0 ].channels[ 0 ];
         var channel2 = song.patterns[ 0 ].channels[ 1 ];
@@ -252,6 +252,104 @@ describe( "AssemblerFactory", function()
 
         assert.ok( asm[ patternDef + 1 ].indexOf( "word Pattern2, Pattern1, Pattern2, Pattern3" ) > -1,
             "expected two re-used silent, one re-used pattern and one unique pattern for channel 2" );
+    });
+
+    it( "should duplicate pattern words only once to save space", function()
+    {
+        var channel1 = song.patterns[ 0 ].channels[ 0 ];
+        var channel2 = song.patterns[ 0 ].channels[ 1 ];
+        var steps    = song.patterns[ 0 ].steps;
+        var bank     = TIA.table.tunings[ 0 ].BASS;
+        var i, j, l, def;
+
+        // add some random notes for the first measure of the first channels bar
+
+        for ( i = 0, l = steps; i < l; ++i )
+        {
+            def = bank[ rand( 0, bank.length - 1 )];
+            channel1[ i ] = {
+                sound: "BASS",
+                note: def.note,
+                octave: def.octave,
+                accent: randBool()
+            };
+        }
+
+        // copy the first channels measure over onto the second channel
+
+        for ( i = 0; i < steps; ++i )
+            channel2[ i ] = ObjectUtil.clone( channel1[ i ]);
+
+        var asm        = textToLineArray( AssemblerFactory.assemblify( song ));
+        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+
+        assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
+             "expected pattern declaration to match expectation" );
+
+        assert.ok( asm[ patternDef + 1 ].length === 0,
+             "expected only one pattern to have been declared as duplicates should be omitted" );
+
+        var songDef = getLineNumForText( asm, "song1" ) + 1;
+
+        assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
+            "expected byte 0 to have been declared for song 1" );
+
+        songDef = getLineNumForText( asm, "song2" ) + 1;
+
+        assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
+            "expected byte 0 to have been redeclared for song 2" );
+    });
+
+    it( "should duplicate pattern words when it doesn't exist for the specified volume pattern", function()
+    {
+        var channel1 = song.patterns[ 0 ].channels[ 0 ];
+        var channel2 = song.patterns[ 0 ].channels[ 1 ];
+        var steps    = song.patterns[ 0 ].steps;
+        var bank     = TIA.table.tunings[ 0 ].BASS;
+        var i, j, l, def;
+
+        // add some random notes for the first measure of the first channels bar
+
+        for ( i = 0, l = steps; i < l; ++i )
+        {
+            def = bank[ rand( 0, bank.length - 1 )];
+            channel1[ i ] = {
+                sound: "BASS",
+                note: def.note,
+                octave: def.octave,
+                accent: randBool()
+            };
+        }
+
+        // copy the first channels measure over onto the second channel
+
+        for ( i = 0; i < steps; ++i )
+            channel2[ i ] = ObjectUtil.clone( channel1[ i ]);
+
+        // attenuate channel 2 (its pattern will now be part of the lower volume pattern Array)
+
+        song.patterns[ 0 ].channel2attenuation = true;
+
+        var asm        = textToLineArray( AssemblerFactory.assemblify( song ));
+        var patternDef = getLineNumForText( asm, "Higher volume patterns" ) + 3;
+
+        assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
+             "expected pattern declaration to match expectation" );
+
+        patternDef = getLineNumForText( asm, "Lower volume patterns" ) + 3;
+
+        assert.ok( asm[ patternDef ].indexOf( "word Pattern1, Pattern2, Pattern3, Pattern4" ) > -1,
+             "expected pattern to have been redeclared as it didn't exist in the lower volume Array yet" );
+
+        var songDef = getLineNumForText( asm, "song1" ) + 1;
+
+        assert.ok( asm[ songDef ].indexOf( "byte 0" ) > -1,
+            "expected byte 0 to have been declared for song 1" );
+
+        songDef = getLineNumForText( asm, "song2" ) + 1;
+
+        assert.ok( asm[ songDef ].indexOf( "byte 128" ) > -1,
+            "expected byte 128 to have been declared for song 2" );
     });
 
     it( "should redeclare a pattern that is a duplicate by notes, but not by accents", function()

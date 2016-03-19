@@ -60,10 +60,12 @@ function convertPatterns( patterns, tuning )
         patternArrayL    : ""
     };
 
-    var amountOfSteps, patternString, accents, step, code, idx, increment, patternId, patternArray, attenuate, i, writeOffset;
-    var arrayHIndex = 0, arrayLIndex = 128;
+    var amountOfSteps, patternString, accents, step, code, idx, increment, attenuate, i, writeOffset;
+    var patternWordString, patternId, patternExisted, existingPatternIndex, patternIndex;
 
     var cachedPatterns = {};
+    var patternArrayH  = []; // all high volume patterns
+    var patternArrayL  = []; // all low volume patterns
 
     patterns.forEach( function( pattern )
     {
@@ -72,10 +74,10 @@ function convertPatterns( patterns, tuning )
 
         pattern.channels.forEach( function( channel, channelIndex )
         {
-            attenuate     = pattern[ "channel" + ( channelIndex + 1 ) + "attenuation" ];
-            patternArray  = "    word ";
-            patternString = "";
-            idx           = 0;
+            attenuate         = pattern[ "channel" + ( channelIndex + 1 ) + "attenuation" ];
+            patternWordString = "    word ";
+            patternString     = "";
+            idx               = 0;
 
             for ( i = 0, writeOffset = 0; idx < 32; ++i )
             {
@@ -120,38 +122,55 @@ function convertPatterns( patterns, tuning )
                     if ( !cachedPatterns.hasOwnProperty( patternId ))
                         cachedPatterns[ patternId ] = patternId + "\n" + patternString;
 
-                    patternString = "";
-                    patternArray += patternId;
-                    patternArray += ( idx > 31 ) ? "" : ", ";
+                    patternString      = "";
+                    patternWordString += patternId;
+                    patternWordString += ( idx > 31 ) ? "" : ", ";
                 }
             }
 
             // attenuated patterns go into the lower volume "patternArrayL" (starting at index 128)
             // otherwise patterns go into the higher volume "patternArrayH" (starting at index 0)
-            // TODO: reuse existing words!
+            // here we also make sure the word pattern we just created didn't exist before
+            // if it did, we'll re-use the existing declaration to save bytes!
 
-            if ( attenuate ) {
-                out.patternArrayL += ( patternArray + " ; " + arrayLIndex + "\n" );
+            if ( attenuate )
+            {
+                existingPatternIndex = getPreviousPatternDeclaration( patternArrayL, patternWordString );
+                patternExisted       = ( existingPatternIndex > -1 );
 
-                if ( channelIndex === 0 )
-                    out.channel1sequence += "    byte " + arrayLIndex + "\n";
+                if ( !patternExisted ) {
+                    patternIndex = 128 + patternArrayL.length;
+                    patternArrayL.push( patternWordString + " ; " + patternIndex + "\n" );
+                }
                 else
-                    out.channel2sequence += "    byte " + arrayLIndex + "\n";
-
-                ++arrayLIndex;
+                    patternIndex = existingPatternIndex;
             }
-            else {
-                out.patternArrayH += ( patternArray + " ; " + arrayHIndex + "\n" );
+            else
+            {
+                existingPatternIndex = getPreviousPatternDeclaration( patternArrayH, patternWordString );
+                patternExisted       = ( existingPatternIndex > -1 );
 
-                if ( channelIndex === 0 )
-                    out.channel1sequence += "    byte " + arrayHIndex + "\n";
+                if ( !patternExisted ) {
+                    patternIndex = patternArrayH.length;
+                    patternArrayH.push( patternWordString + " ; " + patternIndex + "\n" );
+                }
                 else
-                    out.channel2sequence += "    byte " + arrayHIndex + "\n";
-
-                ++arrayHIndex;
+                    patternIndex = existingPatternIndex;
             }
+
+            // write into the channel sequences
+
+            if ( channelIndex === 0 )
+                out.channel1sequence += "    byte " + patternIndex + "\n";
+            else
+                out.channel2sequence += "    byte " + patternIndex + "\n";
         });
     });
+
+    // convert the pattern Arrays into strings
+
+    out.patternArrayH = patternArrayH.join( "" );
+    out.patternArrayL = patternArrayL.join( "" );
 
     // collect all assembled patterns
 
@@ -190,4 +209,15 @@ function convertHatPattern( pattern )
         asmPattern += pattern[ i ];
     }
     return asmPattern;
+}
+
+function getPreviousPatternDeclaration( patternArray, patternString )
+{
+    var i = patternArray.length;
+    while ( i-- )
+    {
+        if ( patternArray[ i ].indexOf( patternString ) > -1 )
+            return i;
+    }
+    return -1;
 }
