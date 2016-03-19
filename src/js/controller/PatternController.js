@@ -68,8 +68,9 @@ var PatternController = module.exports =
         // add listeners
 
         keyboardController.setListener( PatternController );
-        container.addEventListener( "click",    handleClick );
-        container.addEventListener( "dblclick", handleClick );
+        container.addEventListener( "click",      handleClick );
+        container.addEventListener( "touchstart", handleClick );
+        container.addEventListener( "dblclick",   handleClick );
 
         document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
         document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
@@ -400,8 +401,9 @@ function handleClick( aEvent )
 
                     keyboardController.setListener( PatternController );
 
-                    if ( aEvent.type === "dblclick" )
+                    if ( aEvent.type === "touchstart" || aEvent.type === "dblclick" )
                         editStep();
+
                     break;
                 }
             }
