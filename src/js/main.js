@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var SongModel              = require( "./model/SongModel" );
-var HatController          = require( "./controller/HatController" );
 var HelpController         = require( "./controller/HelpController" );
 var KeyboardController     = require( "./controller/KeyboardController" );
 var MenuController         = require( "./controller/MenuController" );
@@ -37,20 +36,20 @@ var Pubsub                 = require( "pubsub-js" );
 
 /* initialize */
 
-var slocum;
+var tracker;
 
 (function( ref )
 {
     // prepare application model
 
-    slocum = ref.slocum =
+    tracker = ref.tracker =
     {
         SongModel : new SongModel()
     };
 
     // create new empty song or load last available song
 
-    slocum.activeSong = slocum.SongModel.createSong();
+    tracker.activeSong = tracker.SongModel.createSong();
 
     // prepare view
 
@@ -60,15 +59,14 @@ var slocum;
 
     // initialize application controllers
 
-    KeyboardController.init( slocum );
+    KeyboardController.init( tracker );
     MenuController.init();
-    SongController.init( container.querySelector( "#songSection" ), slocum, KeyboardController );
-    MetaController.init( container.querySelector( "#metaSection" ), slocum, KeyboardController );
-    NoteEntryController.init( container, slocum, KeyboardController );
+    SongController.init( container.querySelector( "#songSection" ), tracker, KeyboardController );
+    MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
+    NoteEntryController.init( container, tracker, KeyboardController );
     NotificationController.init( container );
-    PatternController.init( container.querySelector( "#patternContainer" ), slocum, KeyboardController, NoteEntryController );
-    HelpController.init( container.querySelector( "#helpSection" ), slocum );
-    HatController.init( container.querySelector( "#hatSection" ), slocum, KeyboardController );
+    PatternController.init( container.querySelector( "#patternContainer" ), tracker, KeyboardController, NoteEntryController );
+    HelpController.init( container.querySelector( "#helpSection" ), tracker );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
@@ -84,10 +82,10 @@ function handleBroadcast( type, payload )
     {
         case Messages.LOAD_SONG:
 
-            var song = slocum.SongModel.getSongById( payload );
+            var song = tracker.SongModel.getSongById( payload );
 
             if ( song ) {
-                slocum.activeSong = ObjectUtil.clone( song );
+                tracker.activeSong = ObjectUtil.clone( song );
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }
             break;

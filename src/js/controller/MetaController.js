@@ -23,14 +23,13 @@
 var Form         = require( "../utils/Form" );
 var SongUtil     = require( "../utils/SongUtil" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
-var TIA          = require( "../definitions/TIA" );
 var Messages     = require( "../definitions/Messages" );
 var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, slocum, keyboardController;
-var title, author, tempo, tuning;
+var container, tracker, keyboardController;
+var title, author, tempo;
 
 var MetaController = module.exports =
 {
@@ -38,13 +37,13 @@ var MetaController = module.exports =
      * initialize MetaController, attach MetaView template into give container
      *
      * @param containerRef
-     * @param slocumRef
+     * @param trackerRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init : function( containerRef, trackerRef, keyboardControllerRef )
     {
         container          = containerRef;
-        slocum             = slocumRef;
+        tracker             = trackerRef;
         keyboardController = keyboardControllerRef;
 
         container.innerHTML += TemplateUtil.render( "metaView" );
@@ -54,7 +53,6 @@ var MetaController = module.exports =
         title  = container.querySelector( "#songTitle" );
         author = container.querySelector( "#songAuthor" );
         tempo  = container.querySelector( "#songTempo" );
-        tuning = container.querySelector( "#songTuning" );
 
         // synchronize with model
 
@@ -62,7 +60,7 @@ var MetaController = module.exports =
 
         // add listeners
 
-        [ title, author, tempo, tuning ].forEach( function( element )
+        [ title, author, tempo ].forEach( function( element )
         {
             element.addEventListener( "change", handleChange );
             element.addEventListener( "focus",  handleFocusIn );
@@ -80,13 +78,12 @@ var MetaController = module.exports =
      */
     update : function()
     {
-        var meta = slocum.activeSong.meta;
+        var meta = tracker.activeSong.meta;
 
         title.value  = meta.title;
         author.value = meta.author;
 
         Form.setSelectedOption( tempo,  meta.tempo );
-        Form.setSelectedOption( tuning, meta.tuning );
     }
 };
 
@@ -110,33 +107,11 @@ function handleBroadcast( type, payload )
  */
 function handleChange( aEvent )
 {
-    var meta = slocum.activeSong.meta;
+    var meta = tracker.activeSong.meta;
 
     meta.title  = title.value;
     meta.author = author.value;
     meta.tempo  = parseInt( Form.getSelectedOption( tempo ), 10 );
-
-    var newTuning = parseInt( Form.getSelectedOption( tuning ), 10 );
-
-    if ( meta.tuning !== newTuning )
-    {
-        if ( SongUtil.hasContent( slocum.activeSong ))
-        {
-            if ( confirm( "You are about to change song tuning, this means all existing notes" +
-                "that aren't available in the new tuning will be removed. Are you sure?" ))
-            {
-                SongUtil.sanitizeForTuning( slocum.activeSong, TIA.table.tunings[ newTuning ]);
-                meta.tuning = newTuning;
-                Pubsub.publish( Messages.REFRESH_SONG, slocum.activeSong );
-            }
-            else {
-                Form.setSelectedOption( tuning, meta.tuning );
-            }
-        }
-        else {
-            meta.tuning = newTuning;
-        }
-    }
 }
 
 /**

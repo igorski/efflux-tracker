@@ -45,9 +45,9 @@ module.exports = function( grunt )
                 grunt.task.run( "clean:dev" );
                 grunt.task.run( "copy" );
                 grunt.task.run( "concat" );
+                grunt.task.run( "handlebars" );
                 grunt.task.run( "css:dev" );
                 grunt.task.run( "replace:dev" );
-                grunt.task.run( "handlebars" );
                 grunt.task.run( "browserify:dev" );
                 break;
 
@@ -55,10 +55,10 @@ module.exports = function( grunt )
                 grunt.task.run( "clean:prod" );
                 grunt.task.run( "copy" );
                 grunt.task.run( "concat" );
+                grunt.task.run( "handlebars" );
                 grunt.task.run( "css:prod" );
                 grunt.task.run( "replace:prod" );
                 grunt.task.run( "browserify:prod" );
-                grunt.task.run( "handlebars" );
                 grunt.task.run( "uglify:prod" );
                 break;
         }

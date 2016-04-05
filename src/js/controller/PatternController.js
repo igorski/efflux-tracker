@@ -32,12 +32,12 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var container, slocum, noteEntryController, keyboardController;
+var container, tracker, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
     prevVerticalKey, interactionData = {},
     stateModel, selectionModel, patternCopy, positionTitle,
-    stepSelection, channel1attenuation, channel2attenuation;
+    stepSelection;
 
 var PatternController = module.exports =
 {
@@ -45,21 +45,19 @@ var PatternController = module.exports =
      * initialize PatternController
      *
      * @param containerRef
-     * @param slocumRef
+     * @param trackerRef
      * @param keyboardControllerRef
      * @param noteEntryControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef, noteEntryControllerRef )
+    init : function( containerRef, trackerRef, keyboardControllerRef, noteEntryControllerRef )
     {
-        slocum              = slocumRef;
+        tracker              = trackerRef;
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
         container           = containerRef;
         positionTitle       = document.querySelector( "#currentPattern" );
         stepSelection       = document.querySelector( "#patternSteps"  );
-        channel1attenuation = document.querySelector( "#channel1attenuation"  );
-        channel2attenuation = document.querySelector( "#channel2attenuation"  );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();
@@ -82,9 +80,7 @@ var PatternController = module.exports =
         document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
         document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
 
-        stepSelection.addEventListener      ( "change", handlePatternStepChange );
-        channel1attenuation.addEventListener( "change", handleAttenuationChange );
-        channel2attenuation.addEventListener( "change", handleAttenuationChange );
+        stepSelection.addEventListener( "change", handlePatternStepChange );
 
         var pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
@@ -97,19 +93,17 @@ var PatternController = module.exports =
 
     update : function()
     {
-        if ( activePattern >= slocum.activeSong.patterns.length )
-            activePattern = slocum.activeSong.patterns.length - 1;
+        if ( activePattern >= tracker.activeSong.patterns.length )
+            activePattern = tracker.activeSong.patterns.length - 1;
 
-        var pattern = slocum.activeSong.patterns[ activePattern ];
+        var pattern = tracker.activeSong.patterns[ activePattern ];
         container.innerHTML = TemplateUtil.render( "patternEditor", {
             steps   : pattern.steps,
             pattern : pattern
         });
         positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
-        positionTitle.querySelector( ".total" ).innerHTML   = slocum.activeSong.patterns.length.toString();
+        positionTitle.querySelector( ".total" ).innerHTML   = tracker.activeSong.patterns.length.toString();
         Form.setSelectedOption( stepSelection, pattern.steps );
-        Form.setSelectedOption( channel1attenuation, pattern.channel1attenuation );
-        Form.setSelectedOption( channel2attenuation, pattern.channel2attenuation );
 
         highlightActiveStep();
     },
@@ -160,7 +154,7 @@ var PatternController = module.exports =
 
                 case 40: // down
 
-                    var maxStep = slocum.activeSong.patterns[ activePattern ].steps - 1;
+                    var maxStep = tracker.activeSong.patterns[ activePattern ].steps - 1;
 
                     if ( ++activeStep > maxStep )
                         activeStep = maxStep;
@@ -195,7 +189,7 @@ var PatternController = module.exports =
                 case 39: // right
 
                     if ( ++activeChannel > 1 ) {
-                        if ( activePattern < ( slocum.activeSong.patterns.length - 1 )) {
+                        if ( activePattern < ( tracker.activeSong.patterns.length - 1 )) {
                             ++activePattern;
                             activeChannel = 0;
                             PatternController.update();
@@ -257,7 +251,7 @@ var PatternController = module.exports =
                             state = stateModel.redo();
 
                         if ( state !== null ) {
-                            slocum.activeSong = state;
+                            tracker.activeSong = state;
                             PatternController.update();
                         }
                     }
@@ -273,7 +267,7 @@ var PatternController = module.exports =
                         if ( !selectionModel.hasSelection() )
                             selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
 
-                        selectionModel.cutSelection( slocum.activeSong, activePattern, activeChannel, activeStep );
+                        selectionModel.cutSelection( tracker.activeSong, activePattern, activeChannel, activeStep );
                         selectionModel.clearSelection();
                         PatternController.update();
                         saveState();
@@ -284,7 +278,7 @@ var PatternController = module.exports =
 
                     // paste current selection
                     if ( keyboardController.hasOption( aEvent )) {
-                        selectionModel.pasteSelection( slocum.activeSong, activePattern, activeChannel, activeStep );
+                        selectionModel.pasteSelection( tracker.activeSong, activePattern, activeChannel, activeStep );
                         PatternController.update();
                         saveState();
                     }
@@ -299,7 +293,7 @@ var PatternController = module.exports =
                         if ( !selectionModel.hasSelection() )
                             selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
 
-                        selectionModel.copySelection( slocum.activeSong, activePattern );
+                        selectionModel.copySelection( tracker.activeSong, activePattern );
                         selectionModel.clearSelection();
                     }
 
@@ -376,10 +370,10 @@ function deleteHighlightedStep()
 {
     if ( selectionModel.hasSelection() )
     {
-        selectionModel.deleteSelection( slocum.activeSong, activePattern );
+        selectionModel.deleteSelection( tracker.activeSong, activePattern );
     }
     else {
-        PatternFactory.clearStep( slocum.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+        PatternFactory.clearStep( tracker.activeSong.patterns[ activePattern ], activeChannel, activeStep );
     }
     PatternController.update(); // sync view with model
     saveState();
@@ -429,7 +423,7 @@ function handleInteraction( aEvent )
 
 function editStep()
 {
-    var pattern = slocum.activeSong.patterns[ activePattern ];
+    var pattern = tracker.activeSong.patterns[ activePattern ];
     var channel = pattern.channels[ activeChannel ];
     var step    = channel[ activeStep ];
 
@@ -469,27 +463,27 @@ function editStep()
 
 function handlePatternClear( aEvent )
 {
-    slocum.activeSong.patterns[ activePattern ] = PatternFactory.createEmptyPattern( stepAmount );
+    tracker.activeSong.patterns[ activePattern ] = PatternFactory.createEmptyPattern( stepAmount );
     selectionModel.clearSelection();
     PatternController.update();
 }
 
 function handlePatternCopy( aEvent )
 {
-    patternCopy = ObjectUtil.clone( slocum.activeSong.patterns[ activePattern ] );
+    patternCopy = ObjectUtil.clone( tracker.activeSong.patterns[ activePattern ] );
 }
 
 function handlePatternPaste( aEvent )
 {
     if ( patternCopy ) {
-        PatternFactory.mergePatterns( slocum.activeSong.patterns[ activePattern ], patternCopy );
+        PatternFactory.mergePatterns( tracker.activeSong.patterns[ activePattern ], patternCopy );
         PatternController.update();
     }
 }
 
 function handlePatternAdd( aEvent )
 {
-    var song     = slocum.activeSong,
+    var song     = tracker.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === 128 ) {
@@ -510,7 +504,7 @@ function handlePatternAdd( aEvent )
 
 function handlePatternDelete( aEvent )
 {
-    var song     = slocum.activeSong,
+    var song     = tracker.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === 1 )
@@ -541,7 +535,7 @@ function handlePatternNavBack( aEvent )
 
 function handlePatternNavNext( aEvent )
 {
-    var max = slocum.activeSong.patterns.length - 1;
+    var max = tracker.activeSong.patterns.length - 1;
 
     if ( activePattern < max ) {
         ++activePattern;
@@ -552,7 +546,7 @@ function handlePatternNavNext( aEvent )
 
 function handlePatternStepChange( aEvent )
 {
-    var song    = slocum.activeSong,
+    var song    = tracker.activeSong,
         pattern = song.patterns[ activePattern ];
 
     var oldAmount = pattern.steps;
@@ -586,22 +580,6 @@ function handlePatternStepChange( aEvent )
     PatternController.update(); // sync with model
 }
 
-function handleAttenuationChange( aEvent )
-{
-    var pattern = slocum.activeSong.patterns[ activePattern ], value;
-    switch ( aEvent.target )
-    {
-        case channel1attenuation:
-            pattern.channel1attenuation = ( Form.getSelectedOption( channel1attenuation ) === "true" );
-            break;
-
-        case channel2attenuation:
-            pattern.channel2attenuation = ( Form.getSelectedOption( channel2attenuation ) === "true" );
-            break;
-    }
-    saveState();
-}
-
 function handleMouseOver( aEvent )
 {
     Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
@@ -613,5 +591,5 @@ function saveState()
     // song content, however we're not running this in the limited memory space
     // of an Atari 2600 !! this should be just fine and hella fast
 
-    stateModel.store( ObjectUtil.clone( slocum.activeSong ));
+    stateModel.store( ObjectUtil.clone( tracker.activeSong ));
 }

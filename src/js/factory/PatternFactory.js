@@ -57,10 +57,8 @@ var PatternFactory = module.exports =
         amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
 
         return {
-            steps               : amountOfSteps,
-            channel1attenuation : false,
-            channel2attenuation : false,
-            channels            : generateEmptyChannelPatterns( amountOfSteps )
+            steps    : amountOfSteps,
+            channels : generateEmptyChannelPatterns( amountOfSteps )
         };
     },
 

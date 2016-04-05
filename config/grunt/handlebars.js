@@ -2,7 +2,7 @@ module.exports =
 {
   compile: {
     options: {
-      namespace: "slocum",
+      namespace: "ztracker",
       commonjs: true,
       processName: function(filePath) {
         // template name is the filename without the suffix

@@ -20,18 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var slocum, listener, suspended = false, blockDefaults = true, optionDown = false;
+var tracker, listener, suspended = false, blockDefaults = true, optionDown = false;
 
 module.exports =
 {
     /**
      * initialize KeyboardController
      *
-     * @param slocumRef
+     * @param trackerRef
      */
-    init : function( slocumRef )
+    init : function( trackerRef )
     {
-        slocum = slocumRef;
+        tracker = trackerRef;
         window.addEventListener( "keydown", handleKeyDown );
         window.addEventListener( "keyup",   handleKeyUp );
     },

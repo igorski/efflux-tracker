@@ -1,7 +1,7 @@
 {
-  "name": "slocum-tracker",
+  "name": "ztracker",
   "version": "1.0.0",
-  "description": "graphical tracker interface that exports composition into assembly",
+  "description": "web based tracker interface enabling music creation within the web browser",
   "private": true,
   "author": "Igor Zinken",
   "license": "MIT",
@@ -21,10 +21,11 @@
     "pubsub-js": "^1.5.0",
     "handlebars": "^3.0.3",
     "atomify-css" : "^3.2.2",
-    "md5" : "^2.0.0",
     "chai": "^1.9.2",
     "mocha": "^2.2.5",
-    "mock-browser": "^0.91.34"
+    "mock-browser": "^0.91.34",
+    "zjslib": "^0.1.4",
+    "zcanvas": "^1.1.1"
   },
   "scripts": {
     "test": "mocha test"

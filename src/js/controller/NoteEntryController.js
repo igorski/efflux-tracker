@@ -25,12 +25,11 @@ var NoteUtil     = require( "../utils/NoteUtil" );
 var Messages     = require( "../definitions/Messages" );
 var Select       = require( "../ui/Select" );
 var SelectList   = require( "../ui/SelectList" );
-var TIA          = require( "../definitions/TIA" );
 var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, element, slocum, keyboardController;
+var container, element, tracker, keyboardController;
 var selectList, soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
 
 var NoteEntryController = module.exports =
@@ -39,13 +38,13 @@ var NoteEntryController = module.exports =
      * initialize NoteEntryController
      *
      * @param containerRef
-     * @param slocumRef
+     * @param trackerRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init : function( containerRef, trackerRef, keyboardControllerRef )
     {
         container          = containerRef;
-        slocum             = slocumRef;
+        tracker             = trackerRef;
         keyboardController = keyboardControllerRef;
 
         element = document.createElement( "div" );
@@ -165,12 +164,10 @@ function handleReady()
 
 function setSelectOptions()
 {
-    var tuning = slocum.activeSong.meta.tuning;
-    var values = TIA.table.tunings[ tuning ];
-    var perc   = TIA.table.PERCUSSION;
+    var tuning = tracker.activeSong.meta.tuning;
 
     var soundOptions = [];
-
+ /*
     perc.forEach( function( p )
     {
         soundOptions.push({ title: p.note, value: p.note });
@@ -179,7 +176,7 @@ function setSelectOptions()
     Object.keys( values ).forEach( function( key ) {
         soundOptions.push({ title: key, value: key });
     });
-
+   */
     soundSelect.setOptions ( soundOptions );
     noteSelect.setOptions  ( [{ title: "----" }] );
     octaveSelect.setOptions( [{ title: "----" }] );
@@ -188,9 +185,9 @@ function setSelectOptions()
 function handleSoundSelect()
 {
     var sound  = soundSelect.getValue();
-    var tuning = slocum.activeSong.meta.tuning;
-    var values = TIA.table.tunings[ tuning ][ sound ];
+    var tuning = tracker.activeSong.meta.tuning;
     var noteOptions = [], collectedNotes = [], note;
+    var values;
 
     if ( values ) {
         Object.keys( values ).forEach( function( key )
@@ -211,9 +208,8 @@ function handleNoteSelect()
 {
     var sound  = soundSelect.getValue();
     var note   = noteSelect.getValue();
-    var tuning = slocum.activeSong.meta.tuning;
-    var values = TIA.table.tunings[ tuning ][ sound ];
     var octaveOptions = [], entry;
+    var values;
 
     if ( values )
     {

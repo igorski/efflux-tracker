@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var AssemblerFactory = require( "../factory/AssemblerFactory" );
 var Time             = require( "../utils/Time" );
 var TemplateUtil     = require( "../utils/TemplateUtil" );
 var SongUtil         = require( "../utils/SongUtil" );
@@ -29,7 +28,7 @@ var Messages         = require( "../definitions/Messages" );
 
 /* private properties */
 
-var container, slocum, keyboardController, list;
+var container, tracker, keyboardController, list;
 
 var SongController = module.exports =
 {
@@ -37,13 +36,13 @@ var SongController = module.exports =
      * initialize SongController, attach SongView template into give container
      *
      * @param containerRef
-     * @param slocumRef
+     * @param trackerRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, slocumRef, keyboardControllerRef )
+    init : function( containerRef, trackerRef, keyboardControllerRef )
     {
         container          = containerRef;
-        slocum             = slocumRef;
+        tracker             = trackerRef;
         keyboardController = keyboardControllerRef;
 
         container.innerHTML += TemplateUtil.render( "songView" );
@@ -53,7 +52,6 @@ var SongController = module.exports =
         container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
         container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
         container.querySelector( "#songReset"  ).addEventListener( "click", handleReset );
-        container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
 
         // create a list container to show the songs when loading
 
@@ -87,7 +85,7 @@ function handleLoad( aEvent )
 {
     Pubsub.publish( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
 
-    var songs = slocum.SongModel.getSongs(), li;
+    var songs = tracker.SongModel.getSongs(), li;
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
@@ -111,10 +109,10 @@ function handleLoad( aEvent )
 
 function handleSave( aEvent )
 {
-    var song = slocum.activeSong;
+    var song = tracker.activeSong;
 
     if ( isValid( song )) {
-        slocum.SongModel.saveSong( song );
+        tracker.SongModel.saveSong( song );
         Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
     }
 }
@@ -132,33 +130,8 @@ function handleSongClick( aEvent )
 function handleReset( aEvent )
 {
     if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
-        slocum.activeSong = slocum.SongModel.createSong();
-        Pubsub.publish( Messages.SONG_LOADED, slocum.activeSong );
-    }
-}
-
-function handleExport( aEvent )
-{
-    var song = slocum.activeSong;
-
-    if ( isValid( song ))
-    {
-        var asm = AssemblerFactory.assemblify( song );
-
-        // download file to disk
-
-        var pom = document.createElement( "a" );
-        pom.setAttribute( "href", "data:text/plain;charset=utf-8," + encodeURIComponent( asm ));
-        pom.setAttribute( "download", "song.h" );
-
-        if ( document.createEvent ) {
-            var event = document.createEvent( "MouseEvents" );
-            event.initEvent( "click", true, true );
-            pom.dispatchEvent( event );
-        }
-        else {
-            pom.click();
-        }
+        tracker.activeSong = tracker.SongModel.createSong();
+        Pubsub.publish( Messages.SONG_LOADED, tracker.activeSong );
     }
 }
 

@@ -4,6 +4,7 @@
 var chai           = require( "chai" );
 var SelectionModel = require( "../../src/js/model/SelectionModel" );
 var SongModel      = require( "../../src/js/model/SongModel" );
+var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
 
 describe( "SelectionModel", function()
 {
@@ -13,12 +14,15 @@ describe( "SelectionModel", function()
     var assert = chai.assert,
         expect = chai.expect;
 
-    var model;
+    var browser, model;
 
     // executed before the tests start running
 
     before( function()
     {
+        browser       = new MockBrowser();
+        global.window = browser.getWindow();
+
         model = new SelectionModel( new SongModel() );
     });
 

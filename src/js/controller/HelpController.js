@@ -26,7 +26,7 @@ var TemplateUtil = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var container, slocum;
+var container, tracker;
 var contentContainer, currentSection;
 
 var HelpController = module.exports =
@@ -35,12 +35,12 @@ var HelpController = module.exports =
      * initialize HelpController, attach HelpView template into give container
      *
      * @param containerRef
-     * @param slocumRef
+     * @param trackerRef
      */
-    init : function( containerRef, slocumRef )
+    init : function( containerRef, trackerRef )
     {
         container          = containerRef;
-        slocum             = slocumRef;
+        tracker             = trackerRef;
 
         container.innerHTML += TemplateUtil.render( "helpView" );
 
