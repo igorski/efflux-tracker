@@ -20,8 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Fixtures       = require( "../definitions/Fixtures" );
-var PatternFactory = require( "../factory/PatternFactory" );
+var Fixtures        = require( "../definitions/Fixtures" );
+var PatternFactory  = require( "../factory/PatternFactory" );
+var InstrumentModel = require( "./InstrumentModel" );
 
 module.exports = SongModel;
 
@@ -105,9 +106,15 @@ SongModel.prototype.createSong = function()
             author   : "",
             created  : Date.now(),
             modified : Date.now(),
-            tempo    : 4, // 1 - 10
-            tuning   : 0  // 0 - 2 the tuning setup to use in the TIA table
+            tempo    : 4  // 1 - 10
         },
+
+        // instruments
+
+        instruments : [
+            new InstrumentModel( 1 ),
+            new InstrumentModel( 2 ),
+        ],
 
         // data lists
 
@@ -118,21 +125,7 @@ SongModel.prototype.createSong = function()
          */
         patterns : [
             PatternFactory.createEmptyPattern( 16 )
-        ],
-
-        hats : {
-            start   : 255, // is measure num, 255 == never use auto hi-hat
-            volume  : 5,   // 0 - 15
-            pitch   : 0,   // 0 - 31
-            sound   : 8,   // 1, 4, 6, 7, 8, 12, 14, 15
-            steps   : 16,  // 16 or 32
-            pattern : [
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0,
-                0, 0, 0, 0, 0, 0, 0, 0
-            ]
-        }
+        ]
     };
 };
 

@@ -20,33 +20,45 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory = require( "../factory/PatternFactory" );
+module.exports = InstrumentModel;
 
-module.exports =
+var WaveTables = require( "../definitions/WaveTables" );
+
+/**
+ * @constructor
+ * @param {number} id
+ */
+function InstrumentModel( id )
 {
+    /* instance properties */
+
     /**
-     * validates whether the song has any pattern content
+     * @public
+     * @type {number}
+     */
+    this.id = id;
+
+    /**
+     * @public
+     * @type {string}
+     */
+    this.name = "Instrument " + id;
+
+    /**
+     * Array of samples that will be set onto the
+     * Instruments OscillatorNodes WaveTable
      *
      * @public
-     * @param {Object} song
-     * @return {boolean}
+     * @type {Array.<number>}
      */
-    hasContent : function( song )
-    {
-        var hasContent = false;
+    this.table = WaveTables.HORN;
 
-        song.patterns.forEach( function( songPattern )
-        {
-            songPattern.channels.forEach( function( channel )
-            {
-                channel.forEach( function( pattern )
-                {
-                    if ( pattern && pattern.sound ) {
-                        hasContent = true;
-                    }
-                });
-            });
-        });
-        return hasContent;
-    }
-};
+    /**
+     * the OscillatorNode that will render this Instruments
+     * audio inside the AudioContext
+     *
+     * @public
+     * @type {OscillatorNode}
+     */
+    this.oscillator;
+}

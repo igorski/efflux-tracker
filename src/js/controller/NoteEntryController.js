@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var TemplateUtil = require( "../utils/TemplateUtil" );
-var NoteUtil     = require( "../utils/NoteUtil" );
 var Messages     = require( "../definitions/Messages" );
 var Select       = require( "../ui/Select" );
 var SelectList   = require( "../ui/SelectList" );
@@ -100,12 +99,10 @@ var NoteEntryController = module.exports =
 
         handleSoundSelect( null );
 
-        if ( !NoteUtil.isPercussive( data.sound ))
-        {
-            noteSelect.setValue( data.note );
-            handleNoteSelect( null );
-            octaveSelect.setValue( data.octave );
-        }
+        noteSelect.setValue( data.note );
+        handleNoteSelect( null );
+        octaveSelect.setValue( data.octave );
+
         updateSelectStates();
 
         accentSelect.setValue( data.accent );
@@ -164,8 +161,6 @@ function handleReady()
 
 function setSelectOptions()
 {
-    var tuning = tracker.activeSong.meta.tuning;
-
     var soundOptions = [];
  /*
     perc.forEach( function( p )
@@ -185,7 +180,6 @@ function setSelectOptions()
 function handleSoundSelect()
 {
     var sound  = soundSelect.getValue();
-    var tuning = tracker.activeSong.meta.tuning;
     var noteOptions = [], collectedNotes = [], note;
     var values;
 
@@ -230,14 +224,8 @@ function handleOctaveSelect()
 
 function updateSelectStates()
 {
-    if ( NoteUtil.isPercussive( soundSelect.getValue() )) {
-        noteSelect.setEnabled( false );
-        octaveSelect.setEnabled( false );
-    }
-    else {
-        noteSelect.setEnabled( true );
-        octaveSelect.setEnabled( true );
-    }
+    noteSelect.setEnabled( true );
+    octaveSelect.setEnabled( true );
 }
 
 function dispose()

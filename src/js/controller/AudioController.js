@@ -20,33 +20,37 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory = require( "../factory/PatternFactory" );
+var audioContext;
 
 module.exports =
 {
     /**
-     * validates whether the song has any pattern content
+     * query whether we can actually use the WebAudio API in
+     * the current application environment
      *
-     * @public
-     * @param {Object} song
      * @return {boolean}
      */
-    hasContent : function( song )
+    isSupported : function()
     {
-        var hasContent = false;
+        return ( typeof AudioContext !== "undefined" ||
+                 typeof webkitAudioContext !== "undefined" );
+    },
 
-        song.patterns.forEach( function( songPattern )
-        {
-            songPattern.channels.forEach( function( channel )
-            {
-                channel.forEach( function( pattern )
-                {
-                    if ( pattern && pattern.sound ) {
-                        hasContent = true;
-                    }
-                });
-            });
-        });
-        return hasContent;
+    init : function()
+    {
+        if ( typeof AudioContext !== "undefined" ) {
+            audioContext = new AudioContext();
+        }
+        else if ( typeof webkitAudioContext !== "undefined" ) {
+            audioContext = new webkitAudioContext();
+        }
+        else {
+            throw new Error( "WebAudio API not supported" );
+        }
+    },
+
+    createOscillator : function()
+    {
+        return audioContext.createOscillator();
     }
 };

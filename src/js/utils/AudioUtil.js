@@ -1,7 +1,4 @@
 /**
- * Created by igorzinken on 03-03-16.
- */
-/**
  * The MIT License (MIT)
  *
  * Igor Zinken 2016 - http://www.igorski.nl
@@ -25,8 +22,19 @@
  */
 module.exports =
 {
-    isPercussive : function( sound )
+    /**
+     * set the sample contents of given frequencyArray
+     * as the WaveTable for given OscillatorNode oscillator
+     *
+     * @param {OscillatorNode} oscillator
+     * @param {Array.<number>} frequencyArray
+     */
+    setWaveTable : function( oscillator, frequencyArray )
     {
-        return ( [ "KICK", "HAT", "SNARE", "SNARE2" ].indexOf( sound ) > - 1 );
+        var real = new Float32Array( frequencyArray );
+        var imag = new Float32Array( real.length );
+
+        var table = oscillator.context.createPeriodicWave( real, imag );
+        oscillator.setPeriodicWave( table );
     }
 };

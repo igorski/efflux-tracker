@@ -26,7 +26,6 @@ var SelectionModel = require( "../model/SelectionModel" );
 var StateModel     = require( "../model/StateModel" );
 var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
-var NoteUtil       = require( "../utils/NoteUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
 var TemplateUtil   = require( "../utils/TemplateUtil" );
 
@@ -447,11 +446,6 @@ function editStep()
         {
             var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
 
-            // percussive sounds are always valid (require no pitch and octave)
-
-            if ( NoteUtil.isPercussive( data.sound )) {
-                valid = true;
-            }
             channel[ activeStep ] = ( valid ) ? data : undefined;
 
             PatternController.handleKey( "down", 40 ); // proceed to next line

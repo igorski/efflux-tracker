@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var SongModel              = require( "./model/SongModel" );
+var AudioController        = require( "./controller/AudioController" );
 var HelpController         = require( "./controller/HelpController" );
 var KeyboardController     = require( "./controller/KeyboardController" );
 var MenuController         = require( "./controller/MenuController" );
@@ -59,6 +60,7 @@ var tracker;
 
     // initialize application controllers
 
+    AudioController.init();
     KeyboardController.init( tracker );
     MenuController.init();
     SongController.init( container.querySelector( "#songSection" ), tracker, KeyboardController );

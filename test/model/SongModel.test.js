@@ -60,9 +60,6 @@ describe( "SongModel", function()
         assert.ok( typeof song.meta.tempo === "number",
             "expected created Object to have a numerical tempo property" );
 
-        assert.ok( typeof song.hats === "object",
-            "expected created Object to have a hats property Object" );
-
         assert.ok( song.patterns instanceof Array,
             "expected created Object to have a patterns Array" );
 

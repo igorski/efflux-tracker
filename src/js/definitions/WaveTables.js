@@ -20,33 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory = require( "../factory/PatternFactory" );
-
 module.exports =
 {
-    /**
-     * validates whether the song has any pattern content
-     *
-     * @public
-     * @param {Object} song
-     * @return {boolean}
-     */
-    hasContent : function( song )
-    {
-        var hasContent = false;
-
-        song.patterns.forEach( function( songPattern )
-        {
-            songPattern.channels.forEach( function( channel )
-            {
-                channel.forEach( function( pattern )
-                {
-                    if ( pattern && pattern.sound ) {
-                        hasContent = true;
-                    }
-                });
-            });
-        });
-        return hasContent;
-    }
+    HORN : [ 0, 0.4, 0.4, 1, 1, 1, 0.3, 0.7, 0.6, 0.5, 0.9, 0.8 ]
 };
