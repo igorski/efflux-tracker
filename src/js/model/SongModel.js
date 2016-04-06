@@ -113,7 +113,7 @@ SongModel.prototype.createSong = function()
 
         instruments : [
             new InstrumentModel( 1 ),
-            new InstrumentModel( 2 ),
+            new InstrumentModel( 2 )
         ],
 
         // data lists

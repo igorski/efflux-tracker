@@ -20,6 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var AudioFactory = require( "../factory/AudioFactory" );
+
+/* private properties */
+
 var audioContext;
 
 module.exports =
@@ -49,8 +53,29 @@ module.exports =
         }
     },
 
-    createOscillator : function()
+    getContext : function()
     {
-        return audioContext.createOscillator();
+        return audioContext;
+    },
+
+    soundPitch : function( frequencyInHertz, startTimeInSeconds, durationInSeconds )
+    {
+        // length of "beep" (in seconds)
+
+        var oscillator = audioContext.createOscillator();
+        oscillator.connect( audioContext.destination );
+
+        oscillator.frequency.value = frequencyInHertz;
+
+        if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 )
+            startTimeInSeconds = audioContext.currentTime;
+
+        if ( typeof durationInSeconds !== "number" )
+            durationInSeconds = 1;
+
+        // oscillator will start, stop and can be garbage collected after going out of scope
+
+        AudioFactory.startOscillation( oscillator, startTimeInSeconds );
+        AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
     }
 };

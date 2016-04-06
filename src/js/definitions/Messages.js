@@ -22,12 +22,22 @@
  */
 module.exports =
 {
+    // system messages
+
     SHOW_ERROR                : 0,
     SHOW_FEEDBACK             : 1,
-    LOAD_SONG                 : 2,
-    SONG_LOADED               : 3,
-    REFRESH_SONG              : 4,
-    PATTERN_AMOUNT_UPDATED    : 5,
-    DISPLAY_HELP              : 6,
-    CLOSE_OVERLAYS            : 7
+    DISPLAY_HELP              : 2,
+    CLOSE_OVERLAYS            : 3,
+
+    // song messages
+
+    LOAD_SONG                 : 4,
+    SONG_LOADED               : 5,
+    REFRESH_SONG              : 6,
+    PATTERN_SWITCH            : 7,
+    PATTERN_AMOUNT_UPDATED    : 8,
+
+    // recording messages
+
+    RECORDING_COMPLETE        : 9
 };
