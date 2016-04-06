@@ -1,7 +1,11 @@
 module.exports = {
     js: {
-        files: "<%= config.project.root %>**/*.js",
+        files: "<%= config.project.js %>**/*.js",
         tasks: [ "browserify:dev" ]
+    },
+    workers: {
+        files: "<%= config.project.workers %>**/*.js",
+        tasks: [ "copy:workers" ]
     },
     html: {
         files: "<%= config.project.root %>**/*.html",

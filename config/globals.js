@@ -11,6 +11,7 @@ var config = module.exports =
         project: {
             root      : 'src/',
             js        : 'src/js',
+            workers   : 'src/workers',
             assets    : 'src/assets/',
             templates : 'src/templates/',
             modules   : 'node_modules/'

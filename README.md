@@ -29,6 +29,7 @@ All sources can be found in the _./src_-folder.
 
  * _./src/assets_ contains all CSS style declarations in .less format as well fonts
  * _./src/js_ contains all JavaScript sourcecode with _main.js_ being the application entry point
+ * _./src/workers_ contains all JavaScript Workers (will be served as separate files when requested)
  * _./src/templates_ contains all HMTL snippets used by the application in Handlebars format
  * _./src/public_html_ contains the main HTML page that will link to the source output
  

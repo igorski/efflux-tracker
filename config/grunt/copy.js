@@ -36,5 +36,18 @@ module.exports =
             src    : [ "**/*", "!**/css/**" ],
             dest   : "<%= config.target.env %>/assets"
         }]
+    },
+
+    workers :
+    {
+        files : [
+
+            {
+                expand : true,
+                cwd    : "<%= config.project.workers %>",
+                src    : [ "**/*" ],
+                dest   : "<%= config.target.env %>"
+            }
+        ]
     }
 };
