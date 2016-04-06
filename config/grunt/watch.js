@@ -1,10 +1,10 @@
 module.exports = {
     js: {
-        files: "<%= config.project.js %>**/*.js",
+        files: "<%= config.project.js %>/**/*.js",
         tasks: [ "browserify:dev" ]
     },
     workers: {
-        files: "<%= config.project.workers %>**/*.js",
+        files: "<%= config.project.workers %>/**/*.js",
         tasks: [ "copy:workers" ]
     },
     html: {
