@@ -29,6 +29,7 @@ var MetaController         = require( "./controller/MetaController" );
 var NoteEntryController    = require( "./controller/NoteEntryController" );
 var NotificationController = require( "./controller/NotificationController" );
 var PatternController      = require( "./controller/PatternController" );
+var SequencerController    = require( "./controller/SequencerController" );
 var SongController         = require( "./controller/SongController" );
 var ObjectUtil             = require( "./utils/ObjectUtil" );
 var TemplateUtil           = require( "./utils/TemplateUtil" );
@@ -41,6 +42,17 @@ var tracker;
 
 (function( ref )
 {
+    // grab reference to application container in template
+
+    var container = document.querySelector( "#application" );
+
+    // WebAudio API not supported ? halt application start
+
+    if ( !AudioController.isSupported() ) {
+        container.innerHTML = TemplateUtil.render( "notSupported" );
+        return;
+    }
+
     // prepare application model
 
     tracker = ref.tracker =
@@ -54,8 +66,6 @@ var tracker;
 
     // prepare view
 
-    var container = document.querySelector( "#application" );
-
     container.innerHTML += TemplateUtil.render( "index" );
 
     // initialize application controllers
@@ -63,6 +73,7 @@ var tracker;
     AudioController.init();
     KeyboardController.init( tracker );
     MenuController.init();
+    SequencerController.init( AudioController );
     SongController.init( container.querySelector( "#songSection" ), tracker, KeyboardController );
     MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
     NoteEntryController.init( container, tracker, KeyboardController );
