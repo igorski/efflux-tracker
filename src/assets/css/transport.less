@@ -1,0 +1,125 @@
+@font-face {
+  font-family: 'transporter';
+  src: url('../fonts/transporter.eot?26455943');
+  src: url('../fonts/transporter.eot?26455943#iefix') format('embedded-opentype'),
+       url('../fonts/transporter.woff?26455943') format('woff'),
+       url('../fonts/transporter.ttf?26455943') format('truetype'),
+       url('../fonts/transporter.svg?26455943#transporter') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+#transportControls
+{
+  .EditorComponent;
+  font-family: Montserrat, Helvetica, Verdana, sans-serif;
+
+  ul {
+    list-style-type: none;
+    display: inline;
+  }
+
+  li {
+    display: inline;
+    padding: .5em;
+    font-weight: bold;
+    cursor: pointer;
+
+    // record button
+    &.rec {
+      background-color: #d00e57;
+      padding: 0 .5em;
+      border-radius: .5em;
+
+      &.enabled {
+        background-color: #FFF;
+      }
+    }
+
+    // measure indicator
+    &.measure {
+      background-color: #0096e3;
+      color: #000;
+      border-radius: .25em;
+      font-size: 75%;
+    }
+
+    &.icon-metronome {
+      padding: 0 0 0 .5em;
+    }
+
+    &.icon-settings {
+      padding: 0 .25em;
+    }
+
+    &.enabled {
+      color: red;
+    }
+  }
+
+  // tempo control
+
+  .wrapper.range {
+    padding: .5em 0 0 .5em;
+    display: inline;
+
+    label {
+      margin-right: 1em;
+      display: inline-block;
+    }
+
+    input {
+      display: inline-block;
+      margin: 0 .5em 0 0;
+      vertical-align: middle;
+    }
+
+    .value {
+      display: inline-block;
+      font-weight: bold;
+      font-style: italic;
+      font-size: 120%;
+      vertical-align: middle;
+    }
+  }
+
+  /* icons */
+
+  [class^="icon-"]:before,
+  [class*=" icon-"]:before
+  {
+    font-family: "transporter";
+    font-style: normal;
+    font-weight: normal;
+    speak: none;
+
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    /* opacity: .8; */
+
+    /* For safety - reset parent styles, that can break glyph codes*/
+    font-variant: normal;
+    text-transform: none;
+
+    /* fix buttons height, for twitter bootstrap */
+    line-height: 1em;
+
+    /* Animation center compensation - margins should be symmetric */
+    /* remove if not needed */
+    margin-left: .2em;
+
+    /* you can be more comfortable with increased icons size */
+    /* font-size: 120%; */
+
+    /* Uncomment for 3D effect */
+    /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
+  }
+
+  .icon-play:before { content: '\e800'; }
+  .icon-stop:before { content: '\e801'; }
+  .icon-metronome:before { content: '\e802'; }
+  .icon-settings:before { content: '\e803'; }
+}

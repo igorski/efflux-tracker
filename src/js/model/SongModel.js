@@ -106,7 +106,7 @@ SongModel.prototype.createSong = function()
             author   : "",
             created  : Date.now(),
             modified : Date.now(),
-            tempo    : 4  // 1 - 10
+            tempo    : 120.0
         },
 
         // instruments

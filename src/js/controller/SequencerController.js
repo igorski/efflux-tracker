@@ -20,19 +20,69 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var audioController;
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var Messages     = require( "../definitions/Messages" );
+var Pubsub       = require( "pubsub-js" );
 
-module.exports =
+/* private properties */
+
+var tracker, audioController;
+var tempo, tempoDisplay;
+
+var SequencerController = module.exports =
 {
     /**
-     * initialize the SequencerController, build its view and
-     * keep a reference to the AudioController
+     * initialize the SequencerController, attach view into
+     * given container and hold a reference to the AudioController
      *
      * @public
+     * @param {Element} containerRef
+     * @param {Object} trackerRef
      * @param {AudioController} audioControllerRef
      */
-    init :  function( audioControllerRef )
+    init :  function( containerRef, trackerRef, audioControllerRef )
     {
+        tracker         = trackerRef;
         audioController = audioControllerRef;
+
+        containerRef.innerHTML += TemplateUtil.render( "transport" );
+
+        // cache view elements
+
+        tempoDisplay = containerRef.querySelector( "#songTempoDisplay" );
+        tempo        = containerRef.querySelector( "#songTempo" );
+        tempo.addEventListener( "input", handleTempoChange );
+
+        Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
+    },
+
+    /**
+     * synchronize Transport contents with
+     * the current state of the model
+     */
+    update : function()
+    {
+        var meta = tracker.activeSong.meta;
+        tempoDisplay.innerHTML = meta.tempo + " BPM";
     }
 };
+
+/* private methods */
+
+function handleBroadcast( type, payload )
+{
+    switch( type )
+    {
+        case Messages.SONG_LOADED:
+            SequencerController.update();
+            break;
+    }
+}
+
+function handleTempoChange( e )
+{
+    var meta   = tracker.activeSong.meta;
+    meta.tempo = parseFloat( e.target.value );
+
+    SequencerController.update(); // sync with model
+}

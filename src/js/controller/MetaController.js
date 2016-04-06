@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Form         = require( "../utils/Form" );
 var SongUtil     = require( "../utils/SongUtil" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Messages     = require( "../definitions/Messages" );
@@ -29,7 +28,7 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, tracker, keyboardController;
-var title, author, tempo;
+var title, author;
 
 var MetaController = module.exports =
 {
@@ -43,7 +42,7 @@ var MetaController = module.exports =
     init : function( containerRef, trackerRef, keyboardControllerRef )
     {
         container          = containerRef;
-        tracker             = trackerRef;
+        tracker            = trackerRef;
         keyboardController = keyboardControllerRef;
 
         container.innerHTML += TemplateUtil.render( "metaView" );
@@ -52,7 +51,6 @@ var MetaController = module.exports =
 
         title  = container.querySelector( "#songTitle" );
         author = container.querySelector( "#songAuthor" );
-        tempo  = container.querySelector( "#songTempo" );
 
         // synchronize with model
 
@@ -60,7 +58,7 @@ var MetaController = module.exports =
 
         // add listeners
 
-        [ title, author, tempo ].forEach( function( element )
+        [ title, author ].forEach( function( element )
         {
             element.addEventListener( "change", handleChange );
             element.addEventListener( "focus",  handleFocusIn );
@@ -82,8 +80,6 @@ var MetaController = module.exports =
 
         title.value  = meta.title;
         author.value = meta.author;
-
-        Form.setSelectedOption( tempo,  meta.tempo );
     }
 };
 
@@ -111,7 +107,6 @@ function handleChange( aEvent )
 
     meta.title  = title.value;
     meta.author = author.value;
-    meta.tempo  = parseInt( Form.getSelectedOption( tempo ), 10 );
 }
 
 /**
