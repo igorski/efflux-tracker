@@ -426,12 +426,12 @@ function editStep()
     var channel = pattern.channels[ activeChannel ];
     var step    = channel[ activeStep ];
 
+    /** @type {PATTERN_STEP} */
     var options = ( step ) ?
     {
-        sound : step.sound,
-        note  : step.note,
-        octave: step.octave,
-        accent: step.accent
+        instrument : step.instrument,
+        note       : step.note,
+        octave     : step.octave
 
     } : null;
 
@@ -444,7 +444,7 @@ function editStep()
 
         if ( data )
         {
-            var valid = ( data.sound !== "" && data.note !== "" && data.octave !== "" );
+            var valid = ( data.instrument !== "" && data.note !== "" && data.octave !== "" );
 
             channel[ activeStep ] = ( valid ) ? data : undefined;
 

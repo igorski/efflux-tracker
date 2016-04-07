@@ -29,7 +29,8 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var selectList, soundSelect, noteSelect, octaveSelect, accentSelect, data, callback;
+var selectList, instrumentSelect, noteSelect, octaveSelect, data, callback;
+var noteOptions = [], octaveOptions = [];
 
 var NoteEntryController = module.exports =
 {
@@ -50,20 +51,27 @@ var NoteEntryController = module.exports =
         element.setAttribute( "id", "noteEntry" );
         element.innerHTML = TemplateUtil.render( "noteEntry" );
 
-        soundSelect  = new Select( element.querySelector( "#sound" ),  handleSoundSelect );
-        noteSelect   = new Select( element.querySelector( "#note" ),   handleNoteSelect );
-        octaveSelect = new Select( element.querySelector( "#octave" ), handleOctaveSelect );
-        accentSelect = new Select( element.querySelector( "#accent" ));
-
-        accentSelect.setOptions([
-            { title: "ACC", value: true },
-            { title: "No",  value: false }
-        ]);
+        noteSelect       = new Select( element.querySelector( "#note" ));
+        octaveSelect     = new Select( element.querySelector( "#octave" ));
+        instrumentSelect = new Select( element.querySelector( "#instrument" ));
 
         selectList = new SelectList(
-            [ soundSelect, noteSelect, octaveSelect, accentSelect ],
+            [ noteSelect, octaveSelect, instrumentSelect ],
             this, keyboardControllerRef
         );
+
+        // set note and octave options
+
+        [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ].forEach( function( note )
+        {
+            noteOptions.push({ title: note, value: note });
+        });
+
+        for ( var i = 1; i <= 8; ++i )
+            octaveOptions.push({ title: i, value: i });
+
+        noteSelect.setOptions  ( noteOptions );
+        octaveSelect.setOptions( octaveOptions );
 
         // add listeners
 
@@ -87,25 +95,16 @@ var NoteEntryController = module.exports =
     {
         Pubsub.publish( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
-        data     = options || { sound: "", note: "", octave: "", accent: false };
+        data     = ( options && options.note !== "" ) ? options : { instrument: 1, note: "A", octave: 4 };
         callback = completeCallback;
 
         keyboardController.setBlockDefaults( false );
 
         setSelectOptions();
 
-        if ( data.sound !== 0 )
-            soundSelect.setValue( data.sound );
-
-        handleSoundSelect( null );
-
+        instrumentSelect.setValue( data.instrument );
         noteSelect.setValue( data.note );
-        handleNoteSelect( null );
         octaveSelect.setValue( data.octave );
-
-        updateSelectStates();
-
-        accentSelect.setValue( data.accent );
 
         keyboardController.setListener( NoteEntryController );
 
@@ -149,10 +148,9 @@ function handleReady()
 {
     if ( typeof callback === "function" )
     {
-        data.sound  = soundSelect.getValue();
-        data.note   = noteSelect.getValue();
-        data.octave = parseInt( octaveSelect.getValue(), 10 );
-        data.accent = ( accentSelect.getValue() === true );
+        data.instrument = instrumentSelect.getValue();
+        data.note       = noteSelect.getValue();
+        data.octave     = parseInt( octaveSelect.getValue(), 10 );
 
         callback( data );
     }
@@ -161,71 +159,12 @@ function handleReady()
 
 function setSelectOptions()
 {
-    var soundOptions = [];
- /*
-    perc.forEach( function( p )
-    {
-        soundOptions.push({ title: p.note, value: p.note });
+    var instrumentOptions = [];
+
+    tracker.activeSong.instruments.forEach( function( instrument ) {
+        instrumentOptions.push({ title: instrument.name, value: instrument.id });
     });
-
-    Object.keys( values ).forEach( function( key ) {
-        soundOptions.push({ title: key, value: key });
-    });
-   */
-    soundSelect.setOptions ( soundOptions );
-    noteSelect.setOptions  ( [{ title: "----" }] );
-    octaveSelect.setOptions( [{ title: "----" }] );
-}
-
-function handleSoundSelect()
-{
-    var sound  = soundSelect.getValue();
-    var noteOptions = [], collectedNotes = [], note;
-    var values;
-
-    if ( values ) {
-        Object.keys( values ).forEach( function( key )
-        {
-            note = values[ key ].note;
-            if ( collectedNotes.indexOf( note ) === - 1 ) {
-                noteOptions.push({ title: note, value: note });
-                collectedNotes.push( note );
-            }
-        });
-    }
-    noteSelect.setOptions( noteOptions );
-    updateSelectStates();
-    handleNoteSelect();
-}
-
-function handleNoteSelect()
-{
-    var sound  = soundSelect.getValue();
-    var note   = noteSelect.getValue();
-    var octaveOptions = [], entry;
-    var values;
-
-    if ( values )
-    {
-        for ( var i = 0; i < values.length; ++i )
-        {
-            entry = values[ i ];
-            if ( entry.note === note )
-                octaveOptions.push({ title: entry.octave, value: entry.octave });
-        }
-    }
-    octaveSelect.setOptions( octaveOptions );
-}
-
-function handleOctaveSelect()
-{
-
-}
-
-function updateSelectStates()
-{
-    noteSelect.setEnabled( true );
-    octaveSelect.setEnabled( true );
+    instrumentSelect.setOptions( instrumentOptions );
 }
 
 function dispose()

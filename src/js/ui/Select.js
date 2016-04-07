@@ -77,6 +77,12 @@ function Select( aElement, aChangeCallback, aOptions )
      * @private
      * @type {boolean}
      */
+    this._enabled = true;
+
+    /**
+     * @private
+     * @type {boolean}
+     */
     this._focused = false;
 
     /**

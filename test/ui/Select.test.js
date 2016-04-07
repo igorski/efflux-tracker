@@ -162,8 +162,8 @@ describe( "Select", function()
     {
         var select = new Select( element, null, options );
 
-        assert.notOk( select.isEnabled(),
-            "expected Select not to be enabled after construction" );
+        assert.ok( select.isEnabled(),
+            "expected Select to be enabled after construction" );
 
         select.setEnabled( true );
 

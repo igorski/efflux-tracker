@@ -41,7 +41,7 @@ module.exports =
             {
                 channel.forEach( function( pattern )
                 {
-                    if ( pattern && pattern.sound ) {
+                    if ( pattern && pattern.note !== "" ) {
                         hasContent = true;
                     }
                 });

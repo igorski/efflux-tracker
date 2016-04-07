@@ -25,10 +25,9 @@
  * type definition for a single pattern step
  *
  * @typedef {{
- *              sound: number,
+ *              instrument: number,
  *              note: string,
- *              octave: number,
- *              accent: boolean
+ *              octave: number
  *          }}
  */
 var PATTERN_STEP;
@@ -128,7 +127,7 @@ var PatternFactory = module.exports =
             while ( i-- ) {
                 sourceStep = sourceChannel[ i ];
 
-                if ( sourceStep && sourceStep.sound )
+                if ( sourceStep && sourceStep.note !== "" )
                     targetChannel[ i ] = sourceStep;
             }
         });
@@ -138,15 +137,14 @@ var PatternFactory = module.exports =
      * generates the (empty) content for a single pattern step
      *
      * @public
-     * @return {Object}
+     * @return {PATTERN_STEP}
      */
     generateEmptyPatternStep : function()
     {
         return {
-            sound: 0,
+            instrument: 1,
             note: "",
-            octave: 0,
-            accent: false
+            octave: 0
         };
     },
 

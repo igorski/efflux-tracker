@@ -258,7 +258,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
                 writeIndex = activeStep + index;
 
                 if ( writeIndex < targetPattern.length ) {
-                    if ( pattern.sound !== 0 )
+                    if ( pattern.note !== "" )
                         targetPattern[ writeIndex ] = ObjectUtil.clone( pattern );
                 }
             });

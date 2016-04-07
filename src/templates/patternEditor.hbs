@@ -6,14 +6,14 @@
 {{#each pattern.channels}}
 <ul class="pattern">
     {{#each this}}
-    <li class="{{toLowerCase this.sound}}">
-        {{#if this.sound}}
-            <span class="sound accent-{{this.accent}}">
-                {{this.sound}}
-            </span>
+    <li class="{{toLowerCase this.instrument}}">
+        {{#if this.note}}
             {{# if this.note}}
             <span class="note">
                 {{this.note}} - {{this.octave}}
+            </span>
+            <span class="instrument">
+                {{this.instrument}}
             </span>
             {{/if}}
         {{else}}

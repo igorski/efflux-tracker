@@ -28,6 +28,7 @@ function SelectList( selects, parent, keyboardControllerRef )
 
     /**
      * all Select instances that should be managed by this SelectList
+     * their order determines tab index
      *
      * @private
      * @type {Array.<Select>}

@@ -81,10 +81,10 @@ describe( "PatternFactory", function()
         var p1channel1 = pattern1.channels[ 0 ];
         var p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 0 ] = { sound: 4, note: "C#", octave: 4, accent: false };
-        var expected2 = p1channel1[ 4 ] = { sound: 4, note: "D",  octave: 5, accent: false };
-        var expected3 = p2channel1[ 2 ] = { sound: 4, note: "E",  octave: 6, accent: false };
-        var expected4 = p2channel1[ 6 ] = { sound: 4, note: "F",  octave: 7, accent: false };
+        var expected1 = p1channel1[ 0 ] = { instrument: 1, note: "C#", octave: 4 };
+        var expected2 = p1channel1[ 4 ] = { instrument: 1, note: "D",  octave: 5 };
+        var expected3 = p2channel1[ 2 ] = { instrument: 1, note: "E",  octave: 6 };
+        var expected4 = p2channel1[ 6 ] = { instrument: 1, note: "F",  octave: 7 };
 
         // merge patterns
 
@@ -117,10 +117,10 @@ describe( "PatternFactory", function()
         var p1channel1 = pattern1.channels[ 0 ];
         var p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 0 ]  = { sound: 4, note: "C#", octave: 4, accent: false };
-        var expected2 = p1channel1[ 4 ]  = { sound: 4, note: "D",  octave: 5, accent: false };
-        var expected3 = p2channel1[ 15 ] = { sound: 4, note: "E",  octave: 6, accent: false };
-        var expected4 = p2channel1[ 29 ] = { sound: 4, note: "F",  octave: 7, accent: false };
+        var expected1 = p1channel1[ 0 ]  = { instrument: 1, note: "C#", octave: 4 };
+        var expected2 = p1channel1[ 4 ]  = { instrument: 1, note: "D",  octave: 5 };
+        var expected3 = p2channel1[ 15 ] = { instrument: 1, note: "E",  octave: 6 };
+        var expected4 = p2channel1[ 29 ] = { instrument: 1, note: "F",  octave: 7 };
 
         // merge patterns
 
@@ -157,10 +157,10 @@ describe( "PatternFactory", function()
         var p1channel1 = pattern1.channels[ 0 ];
         var p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 15 ] = { sound: 4, note: "E",  octave: 6, accent: false };
-        var expected2 = p1channel1[ 29 ] = { sound: 4, note: "F",  octave: 7, accent: false };
-        var expected3 = p2channel1[ 0 ]  = { sound: 4, note: "C#", octave: 4, accent: false };
-        var expected4 = p2channel1[ 4 ]  = { sound: 4, note: "D",  octave: 5, accent: false };
+        var expected1 = p1channel1[ 15 ] = { instrument: 1, note: "E",  octave: 6 };
+        var expected2 = p1channel1[ 29 ] = { instrument: 1, note: "F",  octave: 7 };
+        var expected3 = p2channel1[ 0 ]  = { instrument: 1, note: "C#", octave: 4 };
+        var expected4 = p2channel1[ 4 ]  = { instrument: 1, note: "D",  octave: 5 };
 
         // merge patterns
 
@@ -192,10 +192,10 @@ describe( "PatternFactory", function()
         var pchannel1 = pattern.channels[ 0 ];
         var pchannel2 = pattern.channels[ 1 ];
 
-        var expected1 = pchannel1[ 0 ] = { sound: 4, note: "E",  octave: 2, accent: false };
-        var expected2 = pchannel1[ 1 ] = { sound: 4, note: "F",  octave: 3, accent: false };
-        var expected3 = pchannel2[ 0 ] = { sound: 4, note: "F#", octave: 4, accent: false };
-        var expected4 = pchannel2[ 1 ] = { sound: 4, note: "G",  octave: 5, accent: false };
+        var expected1 = pchannel1[ 0 ] = { instrument: 1, note: "E",  octave: 2 };
+        var expected2 = pchannel1[ 1 ] = { instrument: 1, note: "F",  octave: 3 };
+        var expected3 = pchannel2[ 0 ] = { instrument: 1, note: "F#", octave: 4 };
+        var expected4 = pchannel2[ 1 ] = { instrument: 1, note: "G",  octave: 5 };
 
         // start clearing individual steps and asserting the results
 
