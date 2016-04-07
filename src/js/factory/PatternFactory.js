@@ -166,9 +166,19 @@ var PatternFactory = module.exports =
 
 /* private methods */
 
-function generateEmptyChannelPatterns( amountOfSteps )
+/**
+ * @private
+ * @param {number} amountOfSteps the amount of steps to generate in each pattern
+ * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
+ * @returns {Array.<Array.<PATTERN_STEP>>}
+ */
+function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
 {
     var out = [ new Array( amountOfSteps ), new Array( amountOfSteps ) ];
+
+    if ( addEmptyPatternStep !== true )
+        return out;
+
     var i;
 
     out.forEach( function( channel )

@@ -1,10 +1,11 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai        = require( "chai" );
-var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
-var SongModel   = require( "../../src/js/model/SongModel" );
-var SongUtil    = require( "../../src/js/utils/SongUtil" );
+var chai           = require( "chai" );
+var MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
+var SongModel      = require( "../../src/js/model/SongModel" );
+var PatternFactory = require( "../../src/js/factory/PatternFactory" );
+var SongUtil       = require( "../../src/js/utils/SongUtil" );
 
 describe( "SongUtil", function()
 {
@@ -56,8 +57,9 @@ describe( "SongUtil", function()
         // add a note to the first available slot in the firs
         // available channel of the first available pattern
 
-        var firstSlot  = song.patterns[ 0 ].channels[ 0 ][ 0 ];
-        firstSlot.note = "C#";
+        var firstStep  = PatternFactory.generateEmptyPatternStep();
+        firstStep.note = "C#";
+        song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstStep;
 
         assert.ok( SongUtil.hasContent( song ),
             "expected song to have content after a note was defined in the first pattern" );
