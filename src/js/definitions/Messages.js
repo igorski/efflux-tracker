@@ -37,7 +37,8 @@ module.exports =
     PATTERN_SWITCH            : 7,
     PATTERN_AMOUNT_UPDATED    : 8,
 
-    // recording messages
+    // sequencer messages
 
-    RECORDING_COMPLETE        : 9
+    PLAYBACK_STOPPED          : 9,
+    RECORDING_COMPLETE        : 10
 };

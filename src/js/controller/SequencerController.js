@@ -114,10 +114,30 @@ var SequencerController = module.exports =
             worker.postMessage({ "cmd" : "start" });
         }
         else {
+
             cl.add( "icon-play" );
             cl.remove( "icon-stop" );
 
             worker.postMessage({ "cmd" : "stop" });
+
+            Pubsub.publish( Messages.PLAYBACK_STOPPED );
+
+            // unset playing state of existing events
+
+            tracker.activeSong.patterns.forEach( function( pattern )
+            {
+                pattern.channels.forEach( function( channel )
+                {
+                    channel.forEach( function( event )
+                    {
+                        if ( event )
+                            event.playing = false;
+                    });
+                });
+            });
+            var i = queueHandlers.length;
+            while ( i-- )
+                freeHandler( queueHandlers[ i ]);
         }
     },
 

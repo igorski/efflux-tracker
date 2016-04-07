@@ -41,6 +41,10 @@ var AudioController = module.exports =
                  typeof webkitAudioContext !== "undefined" );
     },
 
+    /**
+     * initialize the audioContent so we can
+     * synthesize audio using the WebAudio API
+     */
     init : function()
     {
         if ( typeof AudioContext !== "undefined" ) {
@@ -54,11 +58,16 @@ var AudioController = module.exports =
         }
     },
 
+    /**
+     * halts all playing audio, flushed events and
+     * resets unique event id counter
+     */
     reset : function()
     {
         var oscillator;
 
-        Object.keys( events ).forEach( function( key, index ) {
+        Object.keys( events ).forEach( function( key, index )
+        {
             oscillator = events[ key ];
 
             if ( oscillator )
@@ -69,11 +78,22 @@ var AudioController = module.exports =
         UNIQUE_EVENT_ID = 0;
     },
 
+    /**
+     * retrieve a reference to the audioContext
+     *
+     * @return {AudioContext}
+     */
     getContext : function()
     {
         return audioContext;
     },
 
+    /**
+     * synthesize the audio for given event at given startTime
+     *
+     * @param {Object} aEvent
+     * @param {number=} startTimeInSeconds optional, defaults to current time
+     */
     noteOn : function( aEvent, startTimeInSeconds )
     {
         aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
@@ -81,9 +101,17 @@ var AudioController = module.exports =
         console.log("NOTE ON FOR " + aEvent.id);
         var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
 
+        if ( typeof startTimeInSeconds !== "number" )
+            startTimeInSeconds = audioContext.currentTime;
+
         events[ aEvent.id ] = AudioController.soundPitch( frequency, startTimeInSeconds, aEvent.length );
     },
 
+    /**
+     * immediately stop playing audio for the given event
+     *
+     * @param {Object} aEvent
+     */
     noteOff : function( aEvent )
     {
         var oscillator = events[ aEvent.id ];
@@ -96,10 +124,17 @@ var AudioController = module.exports =
         delete events[ aEvent.id ];
     },
 
+    /**
+     * sound a sine wave at given frequency can be used for reference
+     *
+     * @param {number} frequencyInHertz
+     * @param {number=} startTimeInSeconds optional, defaults to current time
+     * @param {number=} durationInSeconds optional, defaults to 1 second
+     *
+     * @return {Oscillator} created Oscillator
+     */
     soundPitch : function( frequencyInHertz, startTimeInSeconds, durationInSeconds )
     {
-        // length of "beep" (in seconds)
-
         var oscillator = audioContext.createOscillator();
         oscillator.connect( audioContext.destination );
 

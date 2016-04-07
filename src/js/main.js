@@ -83,7 +83,8 @@ var tracker;
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
-    Pubsub.subscribe( Messages.LOAD_SONG, handleBroadcast );
+    Pubsub.subscribe( Messages.LOAD_SONG,        handleBroadcast );
+    Pubsub.subscribe( Messages.PLAYBACK_STOPPED, handleBroadcast );
 
 })( self );
 
@@ -102,6 +103,11 @@ function handleBroadcast( type, payload )
                 tracker.activeSong = ObjectUtil.clone( song );
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }
+            break;
+
+        case Messages.PLAYBACK_STOPPED:
+
+            AudioController.reset();
             break;
     }
 }
