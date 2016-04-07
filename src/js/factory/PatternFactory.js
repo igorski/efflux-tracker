@@ -159,8 +159,8 @@ var PatternFactory = module.exports =
      */
     clearStep : function( pattern, channelNum, step )
     {
-        var channel     = pattern.channels[ channelNum ];
-        channel[ step ] = PatternFactory.generateEmptyPatternStep();
+        var channel = pattern.channels[ channelNum ];
+        delete channel[ step ];
     }
 };
 

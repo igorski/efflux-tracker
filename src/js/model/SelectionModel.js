@@ -222,7 +222,7 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern )
         if ( this.selection[ i ].length > 0 )
         {
             for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
-                pattern.channels[ i ][ j ] = PatternFactory.generateEmptyPatternStep();
+                delete pattern.channels[ i ][ j ];
         }
     }
 };

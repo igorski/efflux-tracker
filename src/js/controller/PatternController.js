@@ -368,12 +368,10 @@ function highlightActiveStep()
 function deleteHighlightedStep()
 {
     if ( selectionModel.hasSelection() )
-    {
         selectionModel.deleteSelection( tracker.activeSong, activePattern );
-    }
-    else {
+    else
         PatternFactory.clearStep( tracker.activeSong.patterns[ activePattern ], activeChannel, activeStep );
-    }
+
     PatternController.update(); // sync view with model
     saveState();
 }
