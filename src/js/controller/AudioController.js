@@ -21,12 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var AudioFactory = require( "../factory/AudioFactory" );
+var Pitch        = require( "../definitions/Pitch" );
 
 /* private properties */
 
-var audioContext;
+var audioContext, UNIQUE_EVENT_ID = 0, events = {};
 
-module.exports =
+var AudioController = module.exports =
 {
     /**
      * query whether we can actually use the WebAudio API in
@@ -53,9 +54,46 @@ module.exports =
         }
     },
 
+    reset : function()
+    {
+        var oscillator;
+
+        Object.keys( events ).forEach( function( key, index ) {
+            oscillator = events[ key ];
+
+            if ( oscillator )
+                AudioFactory.stopOscillation( oscillator );
+        });
+
+        events          = {};
+        UNIQUE_EVENT_ID = 0;
+    },
+
     getContext : function()
     {
         return audioContext;
+    },
+
+    noteOn : function( aEvent, startTimeInSeconds )
+    {
+        aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
+
+        console.log("NOTE ON FOR " + aEvent.id);
+        var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
+
+        events[ aEvent.id ] = AudioController.soundPitch( frequency, startTimeInSeconds, aEvent.length );
+    },
+
+    noteOff : function( aEvent )
+    {
+        var oscillator = events[ aEvent.id ];
+
+        console.log("NOTE OFF FOR " + aEvent.id);
+
+        if ( oscillator )
+            AudioFactory.stopOscillation( oscillator );
+
+        delete events[ aEvent.id ];
     },
 
     soundPitch : function( frequencyInHertz, startTimeInSeconds, durationInSeconds )
@@ -77,5 +115,7 @@ module.exports =
 
         AudioFactory.startOscillation( oscillator, startTimeInSeconds );
         AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
+
+        return oscillator;
     }
 };

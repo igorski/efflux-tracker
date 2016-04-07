@@ -98,6 +98,7 @@ function handleBroadcast( type, payload )
             var song = tracker.SongModel.getSongById( payload );
 
             if ( song ) {
+                AudioController.reset();
                 tracker.activeSong = ObjectUtil.clone( song );
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }

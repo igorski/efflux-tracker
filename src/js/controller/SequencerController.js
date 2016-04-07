@@ -33,8 +33,7 @@ var playBTN, tempo, tempoDisplay;
 var playing = false, looping = false, recording = false,
     scheduleAheadTime = .1, subdivisions = 64;  // these determine sequencing accuracy
 
-var eventQueue = [];
-var currentMeasure, firstMeasureStartTime, startTime, currentMeasureOffset, currentSubdivision, nextNoteTime;
+var currentMeasure, firstMeasureStartTime, startTime, currentMeasureOffset, currentSubdivision, nextNoteTime, queueHandlers = [];
 
 var beatAmount = 4, beatUnit = 4; // time signature (beat amount is upper numeral (i.e. the "3" in 3/4) while beat unit is the lower numeral)
 
@@ -243,10 +242,8 @@ function nextNote()
 
             // replace the notes present in the newly reached measure in case replacement mode is active
 
-            if ( replaceNotes ){
-                eventQueue[ currentMeasure - 1 ] = [];
+            if ( replaceNotes )
                 removeEventsInMeasure( recordedEvents, currentMeasure );
-            }
         }
         Pubsub.publish( Messages.PATTERN_SWITCH, song.patterns[ currentMeasure ]);
     }
@@ -267,23 +264,34 @@ function scheduleNote( beatNumber, time )
 
     if ( sequenceNotes )
     {
-        var measureEvents = eventQueue[ currentMeasure - 1 ];
+        // TODO : cache active pattern
+        var channels = tracker.activeSong.patterns[ currentMeasure - 1 ].channels;
 
-        if ( measureEvents ) // measure amount change
+        var i = channels.length, channel, j, event;
+
+        while ( i-- )
         {
-            var i = measureEvents.length;
+            channel = channels[ i ];
+            j = channel.length;
 
-            while ( i-- )
+            while ( j-- )
             {
-                var event = measureEvents[ i ];
+                event = channel[ j ];
 
+                if ( !event )
+                    continue;
+
+                // QQQQ
+                event.length = 3;
+                event.startMeasure = currentMeasure;
+                event.startMeasureOffset = currentMeasureOffset;
+                // E.O. QQQ
                 if ( !event.playing &&
                       event.startMeasure === currentMeasure &&
                       currentMeasureOffset >= event.startMeasureOffset &&
                       currentMeasureOffset < ( event.startMeasureOffset + event.length ))
                 {
-                    // enqueue into AudioRenderer queue at the right time
-
+                    // enqueue into AudioContext queue at the right time
                     enqueueEvent( event, time );
                 }
             }
@@ -329,11 +337,9 @@ function enqueueEvent( aEvent, aTime )
 
     clock.onended = function( e )
     {
+        audioController.noteOn( aEvent, audioContext.currentTime );
+        dequeueEvent( aEvent, audioContext.currentTime + aEvent.length );
         freeHandler( clock ); // clear reference to this timed event
-
-        console.log("NOTE ON");
-
-        dequeueEvent( aEvent, vo, audioContext.currentTime + aEvent.length );
     };
 
     // store reference to prevent garbage collection prior to executing callback !
@@ -363,11 +369,9 @@ function dequeueEvent( aEvent, aTime )
 
     clock.onended = function( e )
     {
-        freeHandler( clock ); // clear reference to this timed event
-
-        console.log( "NOTE OFF");
-
         aEvent.playing = false;
+        audioController.noteOff( aEvent );
+        freeHandler( clock ); // clear reference to this timed event
     };
 
     // store reference to clock (prevents garbage collection prior to callback execution!)
@@ -383,6 +387,9 @@ function dequeueEvent( aEvent, aTime )
 }
 
 /**
+ * free reference to given "clock" (makes it
+ * eligible for garbage collection)
+ *
  * @private
  * @param {OscillatorNode} aNode
  * @return {boolean}

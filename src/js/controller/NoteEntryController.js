@@ -22,6 +22,7 @@
  */
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Messages     = require( "../definitions/Messages" );
+var Pitch        = require( "../definitions/Pitch" );
 var Select       = require( "../ui/Select" );
 var SelectList   = require( "../ui/SelectList" );
 var Pubsub       = require( "pubsub-js" );
@@ -62,7 +63,7 @@ var NoteEntryController = module.exports =
 
         // set note and octave options
 
-        [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ].forEach( function( note )
+        Pitch.OCTAVE_SCALE.forEach( function( note )
         {
             noteOptions.push({ title: note, value: note });
         });
