@@ -38,9 +38,9 @@ module.exports =
         var measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
         var eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
+        audioEvent.seq.length             = length;
         audioEvent.seq.startMeasure       = patternNum;
         audioEvent.seq.startMeasureOffset = eventOffset;
-        audioEvent.seq.endMeasure         = Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));
-        audioEvent.seq.length             = length;
+        audioEvent.seq.endMeasure         = patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));
     }
 };

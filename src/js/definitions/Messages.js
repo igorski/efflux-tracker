@@ -34,7 +34,7 @@ module.exports =
     LOAD_SONG                 : 4,
     SONG_LOADED               : 5,
     REFRESH_SONG              : 6,
-    PATTERN_SWITCH            : 7,
+    PATTERN_SWITCH            : 7,  // payload consists of number describing new pattern index
     PATTERN_AMOUNT_UPDATED    : 8,
 
     // sequencer messages

@@ -55,24 +55,21 @@ var Pitch = module.exports =
 
         // detect flat enharmonic
         var i = aNote.indexOf( "b" );
-        if ( i > -1 )
-        {
+        if ( i > -1 ) {
             aNote = aNote.substr( i - 1, 1 );
             enharmonic = -1;
         }
 
         // detect sharp enharmonic
         i = aNote.indexOf( "#" );
-        if ( i > -1 )
-        {
+        if ( i > -1 ) {
             aNote = aNote.substr( i - 1, 1 );
             enharmonic = 1;
         }
 
         freq = Pitch.getOctaveIndex( aNote, enharmonic );
 
-        if ( aOctave === 4 )
-        {
+        if ( aOctave === 4 ) {
             return freq;
         }
         else
@@ -161,7 +158,7 @@ var Pitch = module.exports =
 
         for ( var i = 0, j = octave.length; i < j; ++i )
         {
-            if ( scale[ i ] == aNote )
+            if ( scale[ i ] === aNote )
             {
                 var k = i + aEnharmonic;
 

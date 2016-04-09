@@ -87,8 +87,10 @@ var PatternController = module.exports =
 
         // subscribe to pubsub messaging
 
-        Pubsub.subscribe( Messages.SONG_LOADED,  handleBroadcast );
-        Pubsub.subscribe( Messages.REFRESH_SONG, handleBroadcast );
+        [ Messages.SONG_LOADED, Messages.REFRESH_SONG, Messages.PATTERN_SWITCH ].forEach( function( msg )
+        {
+            Pubsub.subscribe( msg, handleBroadcast );
+        });
     },
 
     update : function()
@@ -327,6 +329,11 @@ function handleBroadcast( type, payload )
             stateModel.store();
             PatternController.update();
             container.focus();
+            break;
+
+        case Messages.PATTERN_SWITCH:
+            activePattern = payload;
+            PatternController.update();
             break;
     }
 }

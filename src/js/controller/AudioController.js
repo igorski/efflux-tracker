@@ -21,7 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var AudioFactory = require( "../factory/AudioFactory" );
+var AudioUtil    = require( "../utils/AudioUtil" );
 var Pitch        = require( "../definitions/Pitch" );
+var WaveTables   = require( "../definitions/WaveTables" );
 
 /* private properties */
 
@@ -98,13 +100,20 @@ var AudioController = module.exports =
     {
         aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
 
-        console.log("NOTE ON FOR " + aEvent.id);
+        console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ")");
         var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
 
         if ( typeof startTimeInSeconds !== "number" )
             startTimeInSeconds = audioContext.currentTime;
 
-        events[ aEvent.id ] = AudioController.soundPitch( frequency, startTimeInSeconds, aEvent.length );
+        /*
+        var osc = audioContext.createOscillator();
+        AudioUtil.setWaveTable( osc, WaveTables.HORN );
+        osc.connect( audioContext.destination );
+        AudioFactory.startOscillation( osc, startTimeInSeconds );
+        AudioFactory.stopOscillation( osc, startTimeInSeconds + aEvent.seq.length);
+        */
+        events[ aEvent.id ] = AudioUtil.beep( audioContext, frequency, startTimeInSeconds, aEvent.seq.length );
     },
 
     /**
@@ -116,41 +125,12 @@ var AudioController = module.exports =
     {
         var oscillator = events[ aEvent.id ];
 
-        console.log("NOTE OFF FOR " + aEvent.id);
+        console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ")");
 
-        if ( oscillator )
-            AudioFactory.stopOscillation( oscillator );
-
+        if ( oscillator ) {
+            AudioFactory.stopOscillation( oscillator, audioContext.currentTime );
+            oscillator.disconnect();
+        }
         delete events[ aEvent.id ];
-    },
-
-    /**
-     * sound a sine wave at given frequency can be used for reference
-     *
-     * @param {number} frequencyInHertz
-     * @param {number=} startTimeInSeconds optional, defaults to current time
-     * @param {number=} durationInSeconds optional, defaults to 1 second
-     *
-     * @return {Oscillator} created Oscillator
-     */
-    soundPitch : function( frequencyInHertz, startTimeInSeconds, durationInSeconds )
-    {
-        var oscillator = audioContext.createOscillator();
-        oscillator.connect( audioContext.destination );
-
-        oscillator.frequency.value = frequencyInHertz;
-
-        if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 )
-            startTimeInSeconds = audioContext.currentTime;
-
-        if ( typeof durationInSeconds !== "number" )
-            durationInSeconds = 1;
-
-        // oscillator will start, stop and can be garbage collected after going out of scope
-
-        AudioFactory.startOscillation( oscillator, startTimeInSeconds );
-        AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
-
-        return oscillator;
     }
 };

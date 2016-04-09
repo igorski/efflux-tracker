@@ -20,11 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var AudioFactory = require( "../factory/AudioFactory" );
+
 module.exports =
 {
     /**
      * set the sample contents of given frequencyArray
      * as the WaveTable for given OscillatorNode oscillator
+     *
+     * @public
      *
      * @param {OscillatorNode} oscillator
      * @param {Array.<number>} frequencyArray
@@ -36,5 +40,69 @@ module.exports =
 
         var table = oscillator.context.createPeriodicWave( real, imag );
         oscillator.setPeriodicWave( table );
+    },
+
+    /**
+     * creates a silent node that uses the accuracy of the Web Audio
+     * clock to strictly time a callback event
+     *
+     * @public
+     *
+     * @param {AudioContext} audioContext
+     * @param {number} time when the callback should be fired (relative to AudioContext currentTime)
+     * @param {!Function} callback function to execute
+     * @return {Oscillator}
+     */
+    createTimer : function( audioContext, time, callback )
+    {
+        var timer = audioContext.createOscillator();
+
+        timer.onended = callback;
+
+        var noGain = AudioFactory.createGainNode( audioContext );
+        timer.connect( noGain );
+        noGain.gain.value = 0;
+        noGain.connect( audioContext.destination );
+
+        AudioFactory.startOscillation( timer, audioContext.currentTime );
+        AudioFactory.stopOscillation ( timer, time );
+
+        return timer;
+    },
+
+    /**
+     * sound a sine wave at given frequency (can be used for testing)
+     *
+     * @public
+     *
+     * @param {AudioContext} audioContext
+     * @param {number} frequencyInHertz
+     * @param {number=} startTimeInSeconds optional, defaults to current time
+     * @param {number=} durationInSeconds optional, defaults to 1 second
+     *
+     * @return {Oscillator} created Oscillator
+     */
+    beep : function( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
+    {
+        var oscillator = audioContext.createOscillator();
+        oscillator.connect( audioContext.destination );
+
+        oscillator.frequency.value = frequencyInHertz;
+
+        if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 )
+            startTimeInSeconds = audioContext.currentTime;
+
+        if ( typeof durationInSeconds !== "number" )
+            durationInSeconds = 1;
+
+        // oscillator will start, stop and can be garbage collected after going out of scope
+
+        oscillator.onended = function() {
+            oscillator.disconnect();
+        };
+        AudioFactory.startOscillation( oscillator, startTimeInSeconds );
+        AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
+
+        return oscillator;
     }
 };

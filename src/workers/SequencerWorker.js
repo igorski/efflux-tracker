@@ -39,9 +39,8 @@ self.addEventListener( "message", function( aEvent )
 
                 clearInterval( timer );
 
-                timer = setInterval( function()
-                {
-                    postMessage({ cmd: "step" });
+                timer = setInterval( function() {
+                    postMessage({ cmd: "collect" });
                 }, interval );
                 break;
 
