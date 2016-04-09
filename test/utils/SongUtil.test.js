@@ -19,7 +19,7 @@ describe( "SongUtil", function()
 
     before( function()
     {
-        browser       = new MockBrowser();
+        var browser   = new MockBrowser();
         global.window = browser.getWindow();
     });
 
@@ -57,7 +57,7 @@ describe( "SongUtil", function()
         // add a note to the first available slot in the firs
         // available channel of the first available pattern
 
-        var firstEvent  = PatternFactory.generateEmptyAudioEvent();
+        var firstEvent  = PatternFactory.createAudioEvent();
         firstEvent.note = "C#";
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
@@ -80,7 +80,7 @@ describe( "SongUtil", function()
 
         // generate some events
 
-        var firstEvent  = PatternFactory.generateEmptyAudioEvent();
+        var firstEvent  = PatternFactory.createAudioEvent();
         firstEvent.note = "C#";
         firstEvent.seq.startMeasureOffset = 10;
         firstEvent.seq.length             = 2.5;
@@ -88,7 +88,7 @@ describe( "SongUtil", function()
         var expectedOffset1 = firstEvent.seq.startMeasureOffset * ratio;
         var expectedLength1 = firstEvent.seq.length * ratio;
 
-        var secondEvent  = PatternFactory.generateEmptyAudioEvent();
+        var secondEvent  = PatternFactory.createAudioEvent();
         secondEvent.note = "C#";
         secondEvent.seq.startMeasureOffset = 5;
         secondEvent.seq.length             = 1.5;

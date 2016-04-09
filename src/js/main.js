@@ -32,6 +32,7 @@ var PatternController      = require( "./controller/PatternController" );
 var SequencerController    = require( "./controller/SequencerController" );
 var SongController         = require( "./controller/SongController" );
 var ObjectUtil             = require( "./utils/ObjectUtil" );
+var SongUtil               = require( "./utils/SongUtil" );
 var TemplateUtil           = require( "./utils/TemplateUtil" );
 var Messages               = require( "./definitions/Messages" );
 var Pubsub                 = require( "pubsub-js" );
@@ -101,6 +102,7 @@ function handleBroadcast( type, payload )
             if ( song ) {
                 AudioController.reset();
                 tracker.activeSong = ObjectUtil.clone( song );
+                SongUtil.resetPlayState( tracker.activeSong.patterns );
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }
             break;

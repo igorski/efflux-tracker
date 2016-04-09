@@ -22,14 +22,20 @@
  */
 
 /**
- * type definition for a single AudioEvent
+ * type definition for a single AudioEvent, the "seq"
+ * Object defines the properties for playback within the Sequencer
+ * and defines values in seconds
  *
  * @typedef {{
  *              instrument: number,
  *              note: string,
  *              octave: number,
  *              seq: {
- *                  startMeasureOffset: number
+ *                  playing: boolean,
+ *                  startMeasure: number
+ *                  startMeasureOffset: number,
+ *                  endMeasure: number,
+ *                  length: number
  *              }
  *          }}
  */
@@ -142,14 +148,18 @@ var PatternFactory = module.exports =
      * @public
      * @return {AUDIO_EVENT}
      */
-    generateEmptyAudioEvent : function()
+    createAudioEvent : function()
     {
         return {
             instrument: 1,
             note: "",
             octave: 0,
             seq : {
-                startMeasureOffset: 0
+                playing            : false,
+                startMeasure       : 0,
+                startMeasureOffset : 0,
+                endMeasure         : 0,
+                length             : 0
             }
         };
     },
@@ -192,7 +202,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
         i = amountOfSteps;
 
         while ( i-- )
-            channel[ i ] = PatternFactory.generateEmptyAudioEvent();
+            channel[ i ] = PatternFactory.createAudioEvent();
     });
     return out;
 }

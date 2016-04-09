@@ -105,7 +105,7 @@ var SequencerController = module.exports =
             firstMeasureStartTime =
             currentMeasureOffset  =
             startTime             = audioContext.currentTime;
-            currentMeasure        = 1;
+            currentMeasure        = 0;
 
             if ( recording && metronomeCountIn )
             {
@@ -129,17 +129,7 @@ var SequencerController = module.exports =
 
             // unset playing state of existing events
 
-            tracker.activeSong.patterns.forEach( function( pattern )
-            {
-                pattern.channels.forEach( function( channel )
-                {
-                    channel.forEach( function( event )
-                    {
-                        if ( event )
-                            event.playing = false;
-                    });
-                });
-            });
+            SongUtil.resetPlayState( tracker.activeSong.patterns );
             var i = queueHandlers.length;
             while ( i-- )
                 freeHandler( queueHandlers[ i ]);
@@ -256,10 +246,10 @@ function nextNote()
     {
         // advance the measure
 
-        if ( ++currentMeasure > totalMeasures )
+        if ( ++currentMeasure >= totalMeasures )
         {
             // last measure reached, jump back to first
-            currentMeasure        = 1;
+            currentMeasure        = 0;
             firstMeasureStartTime = audioContext.currentTime;
 
             if ( recording )
@@ -318,7 +308,7 @@ function scheduleNote( beatNumber, time )
     if ( sequenceNotes )
     {
         // TODO : cache active pattern
-        var channels = tracker.activeSong.patterns[ currentMeasure - 1 ].channels;
+        var channels = tracker.activeSong.patterns[ currentMeasure ].channels;
 
         var i = channels.length, channel, j, event;
 
@@ -331,18 +321,10 @@ function scheduleNote( beatNumber, time )
             {
                 event = channel[ j ];
 
-                if ( !event )
-                    continue;
-
-                // QQQQ
-                event.length = 3;
-                event.startMeasure = currentMeasure;
-                event.startMeasureOffset = currentMeasureOffset;
-                // E.O. QQQ
-                if ( !event.playing &&
-                      event.startMeasure === currentMeasure &&
-                      currentMeasureOffset >= event.startMeasureOffset &&
-                      currentMeasureOffset < ( event.startMeasureOffset + event.length ))
+                if ( event && !event.seq.playing &&
+                     event.seq.startMeasure === currentMeasure &&
+                     currentMeasureOffset >= event.seq.startMeasureOffset &&
+                     currentMeasureOffset < ( event.seq.startMeasureOffset + event.seq.length ))
                 {
                     // enqueue into AudioContext queue at the right time
                     enqueueEvent( event, time );
@@ -384,14 +366,14 @@ function scheduleNote( beatNumber, time )
  */
 function enqueueEvent( aEvent, aTime )
 {
-    aEvent.playing = true; // lock it for querying during playback
+    aEvent.seq.playing = true; // lock it for querying during playback
 
     var clock = audioContext.createOscillator();
 
     clock.onended = function( e )
     {
         audioController.noteOn( aEvent, audioContext.currentTime );
-        dequeueEvent( aEvent, audioContext.currentTime + aEvent.length );
+        dequeueEvent( aEvent, audioContext.currentTime + aEvent.seq.length );
         freeHandler( clock ); // clear reference to this timed event
     };
 
@@ -422,7 +404,7 @@ function dequeueEvent( aEvent, aTime )
 
     clock.onended = function( e )
     {
-        aEvent.playing = false;
+        aEvent.seq.playing = false;
         audioController.noteOff( aEvent );
         freeHandler( clock ); // clear reference to this timed event
     };

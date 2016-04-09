@@ -26,6 +26,7 @@ var SelectionModel = require( "../model/SelectionModel" );
 var StateModel     = require( "../model/StateModel" );
 var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
+var EventUtil      = require( "../utils/EventUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
 var TemplateUtil   = require( "../utils/TemplateUtil" );
 
@@ -422,14 +423,14 @@ function editStep()
 {
     var pattern = tracker.activeSong.patterns[ activePattern ];
     var channel = pattern.channels[ activeChannel ];
-    var step    = channel[ activeStep ];
+    var event   = channel[ activeStep ];
 
     /** @type {AUDIO_EVENT} */
-    var options = ( step ) ?
+    var options = ( event ) ?
     {
-        instrument : step.instrument,
-        note       : step.note,
-        octave     : step.octave
+        instrument : event.instrument,
+        note       : event.note,
+        octave     : event.octave
 
     } : null;
 
@@ -444,11 +445,22 @@ function editStep()
         {
             var valid = ( data.instrument !== "" && data.note !== "" && data.octave !== "" );
 
-            channel[ activeStep ] = ( valid ) ? data : undefined;
+            if ( valid ) {
+                if ( !event )
+                    event = PatternFactory.createAudioEvent();
 
-            PatternController.handleKey( "down", 40 ); // proceed to next line
-            PatternController.update();
-            saveState();
+                event.instrument = data.instrument;
+                event.note       = data.note;
+                event.octave     = data.octave;
+
+                EventUtil.setPosition( event, pattern, activePattern, activeStep, ( 1 / pattern.steps ), tracker.activeSong.meta.tempo );
+
+                channel[ activeStep ] = event;
+
+                PatternController.handleKey( "down", 40 ); // proceed to next line
+                PatternController.update();
+                saveState();
+            }
         }
     });
 }

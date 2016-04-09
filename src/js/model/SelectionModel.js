@@ -23,6 +23,7 @@
 module.exports = SelectionModel;
 
 var PatternFactory = require( "../factory/PatternFactory" );
+var EventUtil      = require( "../utils/EventUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
 
 function SelectionModel()
@@ -240,7 +241,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
     if ( this._copySelection !== null )
     {
         var target = song.patterns[ activePattern ];
-        var targetPattern, writeIndex;
+        var targetPattern, writeIndex, clone;
         var j = 0;
 
         if (( activeChannel === 0 && this._copySelection[ 0 ].length === 0 ) ||
@@ -258,8 +259,12 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
                 writeIndex = activeStep + index;
 
                 if ( writeIndex < targetPattern.length ) {
-                    if ( event && event.note !== "" )
-                        targetPattern[ writeIndex ] = ObjectUtil.clone( event );
+                    if ( event && event.note !== "" ) {
+                        clone = ObjectUtil.clone( event );
+
+                        EventUtil.setPosition( clone, target, i, writeIndex, clone.seq.length, song.meta.tempo );
+                        targetPattern[ writeIndex ] = clone;
+                    }
                 }
             });
         }

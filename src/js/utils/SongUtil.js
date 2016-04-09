@@ -85,5 +85,26 @@ module.exports =
                 }
             }
         }
+    },
+
+    /**
+     * unset the play state of all of the songs events
+     *
+     * @public
+     * @param {Array.<PATTERN>} patterns
+     */
+    resetPlayState : function( patterns )
+    {
+        patterns.forEach( function( pattern )
+        {
+            pattern.channels.forEach( function( channel )
+            {
+                channel.forEach( function( event )
+                {
+                    if ( event )
+                        event.seq.playing = false;
+                });
+            });
+        });
     }
 };
