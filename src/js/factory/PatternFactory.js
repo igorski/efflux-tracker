@@ -22,22 +22,25 @@
  */
 
 /**
- * type definition for a single pattern step
+ * type definition for a single AudioEvent
  *
  * @typedef {{
  *              instrument: number,
  *              note: string,
- *              octave: number
+ *              octave: number,
+ *              seq: {
+ *                  startMeasureOffset: number
+ *              }
  *          }}
  */
-var PATTERN_STEP;
+var AUDIO_EVENT;
 
 /**
  * type definition for a pattern list
  *
  * @typedef {{
  *              steps: number,
- *              channels: Array.<Array.<PATTERN_STEP>>
+ *              channels: Array.<Array.<AUDIO_EVENT>>
  *          }}
  */
 var PATTERN;
@@ -134,30 +137,33 @@ var PatternFactory = module.exports =
     },
 
     /**
-     * generates the (empty) content for a single pattern step
+     * generates the (empty) content for a single Audio Event
      *
      * @public
-     * @return {PATTERN_STEP}
+     * @return {AUDIO_EVENT}
      */
-    generateEmptyPatternStep : function()
+    generateEmptyAudioEvent : function()
     {
         return {
             instrument: 1,
             note: "",
-            octave: 0
+            octave: 0,
+            seq : {
+                startMeasureOffset: 0
+            }
         };
     },
 
     /**
-     * clears the content at requested step for given channel
-     * for given pattern
+     * clears the AudioEvent at requested step position in
+     * the given channel for the given pattern
      *
      * @public
      * @param {PATTERN} pattern
      * @param {number} channelNum
      * @param {number} step
      */
-    clearStep : function( pattern, channelNum, step )
+    clearEvent : function( pattern, channelNum, step )
     {
         var channel = pattern.channels[ channelNum ];
         delete channel[ step ];
@@ -170,7 +176,7 @@ var PatternFactory = module.exports =
  * @private
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
  * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
- * @returns {Array.<Array.<PATTERN_STEP>>}
+ * @returns {Array.<Array.<AUDIO_EVENT>>}
  */
 function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
 {
@@ -186,7 +192,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
         i = amountOfSteps;
 
         while ( i-- )
-            channel[ i ] = PatternFactory.generateEmptyPatternStep();
+            channel[ i ] = PatternFactory.generateEmptyAudioEvent();
     });
     return out;
 }

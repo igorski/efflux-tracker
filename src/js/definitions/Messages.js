@@ -40,5 +40,6 @@ module.exports =
     // sequencer messages
 
     PLAYBACK_STOPPED          : 9,
-    RECORDING_COMPLETE        : 10
+    RECORDING_COMPLETE        : 10,
+    TEMPO_UPDATED             : 11  // payload consists of Array.<number> w/ old and new tempo values
 };

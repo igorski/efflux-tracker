@@ -48,5 +48,42 @@ module.exports =
             });
         });
         return hasContent;
+    },
+
+    /**
+     * update the existing offsets for all of the Songs
+     * audioEvents within its patterns
+     *
+     * @public
+     * @param {Array.<PATTERN>} patterns the Songs patterns
+     * @param {number} ratio by which to update the existing values
+     */
+    updateEventOffsets : function( patterns, ratio )
+    {
+        // reverse looping for speed
+        var i, j, k, songPattern, channel, pattern;
+
+        i = patterns.length;
+        while ( i-- )
+        {
+            songPattern = patterns[ i ];
+            j = songPattern.channels.length;
+
+            while ( j-- )
+            {
+                channel = songPattern.channels[ j ];
+                k = channel.length;
+
+                while ( k-- )
+                {
+                    pattern = channel[ k ];
+
+                    if ( pattern && pattern.seq ) {
+                        pattern.seq.startMeasureOffset *= ratio;
+                        pattern.seq.length *= ratio;
+                    }
+                }
+            }
+        }
     }
 };

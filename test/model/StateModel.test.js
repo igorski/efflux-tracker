@@ -98,7 +98,7 @@ describe( "StateModel", function()
             state = model.undo();
 
             assert.strictEqual( states[ i ], state,
-                "expected to have restored the state recorded for the given step '" + i + "'" );
+                "expected to have restored the state recorded for the given step position'" + i + "'" );
         }
     });
 
@@ -138,7 +138,7 @@ describe( "StateModel", function()
             state = model.redo();
 
             assert.strictEqual( states[ i ], state,
-                "expected to have restored the state recorded for the given step '" + i + "'" );
+                "expected to have restored the state recorded for the given step position '" + i + "'" );
         }
     });
 });

@@ -39,7 +39,7 @@ function SelectionModel()
 
     /**
      * @private
-     * @type {Array.<Array<PATTERN_STEP>>}
+     * @type {Array.<Array<AUDIO_EVENT>>}
      */
     this._copySelection = null;
 }
@@ -253,13 +253,13 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
         {
             targetPattern = target.channels[ i ];
 
-            this._copySelection[ j ].forEach( function( pattern, index )
+            this._copySelection[ j ].forEach( function( event, index )
             {
                 writeIndex = activeStep + index;
 
                 if ( writeIndex < targetPattern.length ) {
-                    if ( pattern.note !== "" )
-                        targetPattern[ writeIndex ] = ObjectUtil.clone( pattern );
+                    if ( event && event.note !== "" )
+                        targetPattern[ writeIndex ] = ObjectUtil.clone( event );
                 }
             });
         }

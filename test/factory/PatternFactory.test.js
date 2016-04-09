@@ -42,7 +42,7 @@ describe( "PatternFactory", function()
 
     /* actual unit tests */
 
-    it( "should be able to generate an empty pattern template for any requested step size", function()
+    it( "should be able to generate an empty pattern template for any requested step amount", function()
     {
         var steps   = Math.round( 1 + ( Math.random() * 32 ));
         var pattern = PatternFactory.createEmptyPattern( steps );
@@ -95,16 +95,16 @@ describe( "PatternFactory", function()
         p1channel1 = pattern1.channels[ 0 ];
 
         assert.strictEqual( expected1, p1channel1[ 0 ],
-            "expected step content at slot 0 to have merged with the expected step" );
+            "expected audio event at slot 0 to have merged with the expected step" );
 
         assert.strictEqual( expected2, p1channel1[ 4 ],
-            "expected step content at slot 0 to have merged with the expected step" );
+            "expected audio event at slot 0 to have merged with the expected step" );
 
         assert.strictEqual( expected3, p1channel1[ 2 ],
-            "expected step content at slot 0 to have merged with the expected step" );
+            "expected audio event at slot 0 to have merged with the expected step" );
 
         assert.strictEqual( expected4, p1channel1[ 6 ],
-            "expected step content at slot 0 to have merged with the expected step" );
+            "expected audio event at slot 0 to have merged with the expected step" );
     });
 
     it( "should be able to merge unequal length patterns when source is larger than target", function()
@@ -131,19 +131,19 @@ describe( "PatternFactory", function()
         p1channel1 = pattern1.channels[ 0 ];
 
         assert.strictEqual( expected1, p1channel1[ 0 ],
-            "expected step content at slot 0 to have remained equal after pattern size mutation" );
+            "expected audio event at slot 0 to have remained equal after pattern size mutation" );
 
         assert.notStrictEqual( expected2, p1channel1[ 4 ],
-            "expected step content at slot 4 to have moved to slot 8 after pattern size mutation" );
+            "expected audio event at slot 4 to have moved to slot 8 after pattern size mutation" );
 
         assert.strictEqual( expected2, p1channel1[ 8 ],
-            "expected step content at slot 4 to have moved to slot 8 after pattern size mutation" );
+            "expected audio event at slot 4 to have moved to slot 8 after pattern size mutation" );
 
         assert.strictEqual( expected3, p1channel1[ 15 ],
-            "expected step content at slot 15 to have merged at the expected step" );
+            "expected audio event at slot 15 to have merged at the expected step" );
 
         assert.strictEqual( expected4, p1channel1[ 29 ],
-            "expected step content at slot 15 to have merged at the expected step" );
+            "expected audio event at slot 15 to have merged at the expected step" );
     });
 
 
@@ -171,19 +171,19 @@ describe( "PatternFactory", function()
         p1channel1 = pattern1.channels[ 0 ];
 
         assert.strictEqual( expected1, p1channel1[ 15 ],
-            "expected step content at slot 15 to have merged at the expected step" );
+            "expected audio event at slot 15 to have merged at the expected step" );
 
         assert.strictEqual( expected2, p1channel1[ 29 ],
-            "expected step content at slot 29 to have merged at the expected step" );
+            "expected audio event at slot 29 to have merged at the expected step" );
 
         assert.strictEqual( expected3, p1channel1[ 0 ],
-            "expected step content at slot 0 to have merged at the expected step after pattern size mutation" );
+            "expected audio event at slot 0 to have merged at the expected step after pattern size mutation" );
 
         assert.strictEqual( expected4, p1channel1[ 8 ],
-            "expected step content at slot 8 to have merged at the expected step after pattern size mutation" );
+            "expected audio event at slot 8 to have merged at the expected step after pattern size mutation" );
     });
 
-    it( "should be able to clear the content for any request step", function()
+    it( "should be able to clear the AudioEvent content for any requested step position", function()
     {
         var pattern = PatternFactory.createEmptyPattern();
 
@@ -192,22 +192,24 @@ describe( "PatternFactory", function()
         var pchannel1 = pattern.channels[ 0 ];
         var pchannel2 = pattern.channels[ 1 ];
 
+        // create some AudioEvents
+
         var expected1 = pchannel1[ 0 ] = { instrument: 1, note: "E",  octave: 2 };
         var expected2 = pchannel1[ 1 ] = { instrument: 1, note: "F",  octave: 3 };
         var expected3 = pchannel2[ 0 ] = { instrument: 1, note: "F#", octave: 4 };
         var expected4 = pchannel2[ 1 ] = { instrument: 1, note: "G",  octave: 5 };
 
-        // start clearing individual steps and asserting the results
+        // start clearing individual events and asserting the results
 
-        PatternFactory.clearStep( pattern, 0, 0 );
+        PatternFactory.clearEvent( pattern, 0, 0 );
 
         assert.notStrictEqual( expected1, pchannel1[ 0 ]);
 
-        PatternFactory.clearStep( pattern, 1, 0 );
+        PatternFactory.clearEvent( pattern, 1, 0 );
 
         assert.notStrictEqual( expected3, pchannel2[ 0 ]);
 
-        // assert remaining steps are still existent
+        // assert remaining events are still existent
 
         assert.strictEqual( expected2, pchannel1[ 1 ]);
         assert.strictEqual( expected4, pchannel2[ 1 ]);

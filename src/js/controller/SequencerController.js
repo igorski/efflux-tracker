@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var SongUtil     = require( "../utils/SongUtil" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Messages     = require( "../definitions/Messages" );
 var AudioFactory = require( "../factory/AudioFactory" );
@@ -60,6 +61,10 @@ var SequencerController = module.exports =
         audioContext    = audioControllerRef.getContext();
 
         containerRef.innerHTML += TemplateUtil.render( "transport" );
+
+        // initialization
+
+        SequencerController.setPosition( 0 );
 
         // cache view elements
 
@@ -142,6 +147,26 @@ var SequencerController = module.exports =
     },
 
     /**
+     * set the sequencers position
+     *
+     * @public
+     * @param {number} measure
+     */
+    setPosition : function( measure )
+    {
+        var song = tracker.activeSong;
+        if ( measure >= song.patterns.length )
+            measure = song.patterns.length - 1;
+
+        var currentTime = audioContext.currentTime;
+
+        currentMeasure        = measure;
+        currentSubdivision    = 0;
+        nextNoteTime          = currentTime;
+        firstMeasureStartTime = currentTime - ( measure * ( 60.0 / song.meta.tempo * beatAmount ));
+    },
+
+    /**
      * synchronize Transport contents with
      * the current state of the model
      */
@@ -172,9 +197,17 @@ function handlePlayToggle( e )
 
 function handleTempoChange( e )
 {
-    var meta   = tracker.activeSong.meta;
-    meta.tempo = parseFloat( e.target.value );
+    var meta = tracker.activeSong.meta;
 
+    var oldTempo = meta.tempo;
+    var newTempo = parseFloat( e.target.value );
+    meta.tempo   = newTempo;
+
+    // update existing event offsets by the tempo ratio
+
+    SongUtil.updateEventOffsets( tracker.activeSong.patterns, ( oldTempo / newTempo ));
+
+    Pubsub.publish( Messages.TEMPO_UPDATED, [ oldTempo, newTempo ]);
     SequencerController.update(); // sync with model
 }
 

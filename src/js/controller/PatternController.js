@@ -370,7 +370,7 @@ function deleteHighlightedStep()
     if ( selectionModel.hasSelection() )
         selectionModel.deleteSelection( tracker.activeSong, activePattern );
     else
-        PatternFactory.clearStep( tracker.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+        PatternFactory.clearEvent( tracker.activeSong.patterns[ activePattern ], activeChannel, activeStep );
 
     PatternController.update(); // sync view with model
     saveState();
@@ -424,7 +424,7 @@ function editStep()
     var channel = pattern.channels[ activeChannel ];
     var step    = channel[ activeStep ];
 
-    /** @type {PATTERN_STEP} */
+    /** @type {AUDIO_EVENT} */
     var options = ( step ) ?
     {
         instrument : step.instrument,
