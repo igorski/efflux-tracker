@@ -101,6 +101,10 @@ var InstrumentController = module.exports =
         Form.setSelectedOption( oscEnabledSelect, oscillator.enabled );
         Form.setSelectedOption( instrumentSelect, instrument.id );
 
+        detuneControl.value      = oscillator.detune;
+        octaveShiftControl.value = oscillator.octaveShift;
+        fineShiftControl.value   = oscillator.fineShift;
+
         canvas.invalidate();
     },
 
