@@ -81,7 +81,7 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
              aEvent.type === "mouseup" ) {
 
             this.isDragging = false;
-            return;
+            return true;
         }
 
         // translate pointer position to a table value
@@ -124,4 +124,5 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
         this.isDragging = true;
         return true;
     }
+    return false;
 };

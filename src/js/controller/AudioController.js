@@ -43,6 +43,42 @@ var AudioController = module.exports =
     },
 
     /**
+     * on iOS all audio is muted unless the engine has been initialized directly
+     * after a user event. this method starts the engine (silently) as soon as
+     * a touch interaction has occurred in the document
+     *
+     * @public
+     */
+    iOSinit : function()
+    {
+        // not an actual iOS check, but we're omitting this if no touch events are available
+        // as we'll silently start the engine on the very first touch interaction
+
+        if ( !( "ontouchstart" in window ))
+            return;
+
+        var handler = function( e )
+        {
+            document.removeEventListener( "touchstart", handler, false );
+
+            var source  = audioContext.createOscillator();
+            source.type = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
+
+            // no need to HEAR it, though ;-)
+            var noGain = AudioFactory.createGainNode( self.context );
+            source.connect( noGain );
+            noGain.gain.value = 0;
+
+            noGain.connect( audioContext.destination );
+            AudioFactory.startOscillation( source, 0 );  // triggers unmute in iOS
+            AudioFactory.stopOscillation ( source, 0 );  // stops the oscillation so oscillator can be garbage collected
+
+            noGain.disconnect();
+        };
+        document.addEventListener( "touchstart", handler );
+    },
+
+    /**
      * initialize the audioContent so we can
      * synthesize audio using the WebAudio API
      */
@@ -57,6 +93,7 @@ var AudioController = module.exports =
         else {
             throw new Error( "WebAudio API not supported" );
         }
+        AudioController.iOSinit();
     },
 
     /**
