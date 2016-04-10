@@ -336,7 +336,7 @@ function enqueueEvent( aEvent, aTime )
 
     var clock = AudioUtil.createTimer( audioContext, aTime, function( e )
     {
-        audioController.noteOn( aEvent, audioContext.currentTime );
+        audioController.noteOn( aEvent, tracker.activeSong.instruments[ aEvent.instrument ], audioContext.currentTime );
         dequeueEvent( aEvent, aTime + aEvent.seq.length );
         freeHandler( clock ); // clear reference to this timed event
     });

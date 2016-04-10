@@ -20,9 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Fixtures        = require( "../definitions/Fixtures" );
-var PatternFactory  = require( "../factory/PatternFactory" );
-var InstrumentModel = require( "./InstrumentModel" );
+var Fixtures          = require( "../definitions/Fixtures" );
+var PatternFactory    = require( "../factory/PatternFactory" );
+var InstrumentFactory = require( "../factory/InstrumentFactory" );
 
 module.exports = SongModel;
 
@@ -112,8 +112,8 @@ SongModel.prototype.createSong = function()
         // instruments
 
         instruments : [
-            new InstrumentModel( 1 ),
-            new InstrumentModel( 2 )
+            InstrumentFactory.createInstrument( 0 ),
+            InstrumentFactory.createInstrument( 1 )
         ],
 
         // data lists

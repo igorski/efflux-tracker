@@ -96,7 +96,7 @@ var NoteEntryController = module.exports =
     {
         Pubsub.publish( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
-        data     = ( options && options.note !== "" ) ? options : { instrument: 1, note: "A", octave: 4 };
+        data     = ( options && options.note !== "" ) ? options : { instrument: 0, note: "A", octave: 4 };
         callback = completeCallback;
 
         keyboardController.setBlockDefaults( false );

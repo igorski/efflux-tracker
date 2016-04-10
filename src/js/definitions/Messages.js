@@ -26,20 +26,24 @@ module.exports =
 
     SHOW_ERROR                : 0,
     SHOW_FEEDBACK             : 1,
+
+    // UI messages
+
     DISPLAY_HELP              : 2,
     CLOSE_OVERLAYS            : 3,
+    TOGGLE_INSTRUMENT_EDITOR  : 4,  // payload consists of number describing selected instrument index
 
     // song messages
 
-    LOAD_SONG                 : 4,
-    SONG_LOADED               : 5,
-    REFRESH_SONG              : 6,
-    PATTERN_SWITCH            : 7,  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : 8,
+    LOAD_SONG                 : 5,
+    SONG_LOADED               : 6,
+    REFRESH_SONG              : 7,
+    PATTERN_SWITCH            : 8,  // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED    : 9,
 
     // sequencer messages
 
-    PLAYBACK_STOPPED          : 9,
-    RECORDING_COMPLETE        : 10,
-    TEMPO_UPDATED             : 11  // payload consists of Array.<number> w/ old and new tempo values
+    PLAYBACK_STOPPED          : 10,
+    RECORDING_COMPLETE        : 11,
+    TEMPO_UPDATED             : 12  // payload consists of Array.<number> w/ old and new tempo values
 };

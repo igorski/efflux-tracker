@@ -170,14 +170,16 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
 
     this._copySelection = [ [], [] ];
 
-    var pattern = song.patterns[ activePattern ];
+    var pattern = song.patterns[ activePattern], stepValue;
 
     for ( var i = 0; i < 2; ++i )
     {
         if ( this.selection[ i ].length > 0 )
         {
-            for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
-               this._copySelection[ i ].push( ObjectUtil.clone( pattern.channels[ i ][ j ]));
+            for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j ) {
+                stepValue = pattern.channels[ i ][ j ];
+                this._copySelection[ i ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
+            }
         }
     }
 };

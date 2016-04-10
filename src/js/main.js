@@ -23,6 +23,7 @@
 var SongModel              = require( "./model/SongModel" );
 var AudioController        = require( "./controller/AudioController" );
 var HelpController         = require( "./controller/HelpController" );
+var InstrumentController   = require( "./controller/InstrumentController" );
 var KeyboardController     = require( "./controller/KeyboardController" );
 var MenuController         = require( "./controller/MenuController" );
 var MetaController         = require( "./controller/MetaController" );
@@ -74,6 +75,7 @@ var tracker;
     AudioController.init();
     KeyboardController.init( tracker );
     MenuController.init();
+    InstrumentController.init( container, tracker, KeyboardController );
     SongController.init( container.querySelector( "#songSection" ), tracker, KeyboardController );
     MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
     SequencerController.init( container.querySelector( "#transportSection" ), tracker, AudioController );

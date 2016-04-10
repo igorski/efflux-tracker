@@ -25,8 +25,7 @@
     "mocha": "^2.2.5",
     "mock-browser": "^0.91.34",
     "dspjs":"^1.0.0",
-    "zjslib": "^0.1.4",
-    "zcanvas": "^1.1.1",
+    "zcanvas": "^1.1.2",
     "zmidi": "^0.1.2"
   },
   "scripts": {

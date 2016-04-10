@@ -92,10 +92,11 @@ var AudioController = module.exports =
     /**
      * synthesize the audio for given event at given startTime
      *
-     * @param {Object} aEvent
+     * @param {AUDIO_EVENT} aEvent
+     * @param {INSTRUMENT} aInstrument to playback the event
      * @param {number=} startTimeInSeconds optional, defaults to current time
      */
-    noteOn : function( aEvent, startTimeInSeconds )
+    noteOn : function( aEvent, aInstrument, startTimeInSeconds )
     {
         aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
 
@@ -105,14 +106,29 @@ var AudioController = module.exports =
         if ( typeof startTimeInSeconds !== "number" )
             startTimeInSeconds = audioContext.currentTime;
 
-        /*
-        var osc = audioContext.createOscillator();
-        AudioUtil.setWaveTable( osc, WaveTables.HORN );
-        osc.connect( audioContext.destination );
-        AudioFactory.startOscillation( osc, startTimeInSeconds );
-        AudioFactory.stopOscillation( osc, startTimeInSeconds + aEvent.seq.length);
-        */
-        events[ aEvent.id ] = AudioUtil.beep( audioContext, frequency, startTimeInSeconds, aEvent.seq.length );
+        var oscillators = [];
+
+        aInstrument.oscillators.forEach( function( oscillatorVO, index )
+        {
+            if ( oscillatorVO.enabled ) {
+
+                var osc = audioContext.createOscillator();
+
+                // TODO: cache these wave tables !!
+                AudioUtil.setWaveTableFromGraph( osc, aInstrument.oscillators[ index ].table );
+
+                osc.frequency.value = frequency;
+                osc.connect( audioContext.destination );
+
+                // TODO : ADSR and tuning
+
+                AudioFactory.startOscillation( osc, startTimeInSeconds );
+                AudioFactory.stopOscillation ( osc, startTimeInSeconds + aEvent.seq.length );
+
+                oscillators.push( osc );
+            }
+        });
+        events[ aEvent.id ] = oscillators;
     },
 
     /**
@@ -122,13 +138,17 @@ var AudioController = module.exports =
      */
     noteOff : function( aEvent )
     {
-        var oscillator = events[ aEvent.id ];
+        var event = events[ aEvent.id ];
 
         console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ")");
 
-        if ( oscillator ) {
-            AudioFactory.stopOscillation( oscillator, audioContext.currentTime );
-            oscillator.disconnect();
+        if ( event ) {
+
+            event.forEach( function( oscillator )
+            {
+                AudioFactory.stopOscillation( oscillator, audioContext.currentTime );
+                oscillator.disconnect();
+            });
         }
         delete events[ aEvent.id ];
     }
