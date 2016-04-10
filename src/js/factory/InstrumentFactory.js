@@ -45,7 +45,10 @@ var INSTRUMENT;
  *
  * @typedef {{
  *     enabled: boolean,
- *     table: Array.<number>
+ *     table: Array.<number>,
+ *     detune      : number,
+ *     octaveShift : number,
+ *     fineShift   : number
  * }}
  */
 var INSTRUMENT_OSCILLATOR;
@@ -109,8 +112,11 @@ var InstrumentFactory = module.exports =
         }
 
         return {
-            enabled: aEnabled,
-            table: table
+            enabled     : aEnabled,
+            table       : table,
+            detune      : 0,
+            octaveShift : 0,
+            fineShift   : 0
         };
     }
 };

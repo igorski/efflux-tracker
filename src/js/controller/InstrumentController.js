@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var TemplateUtil  = require( "../utils/TemplateUtil" );
+var Form          = require( "../utils/Form" );
 var Messages      = require( "../definitions/Messages" );
 var zCanvas       = require( "zCanvas" ).zCanvas;
 var WaveTableDraw = require( "../components/WaveTableDraw" );
@@ -28,7 +29,9 @@ var Pubsub        = require( "pubsub-js" );
 
 /* private properties */
 
-var container, tracker, keyboardController, view, canvas, wtDraw;
+var container, tracker, keyboardController, view, canvas, wtDraw,
+    instrumentSelect, oscEnabledSelect, detuneControl, octaveShiftControl, fineShiftControl;
+
 var activeOscillatorIndex = 0, instrumentId = 0, instrument;
 
 var InstrumentController = module.exports =
@@ -47,6 +50,12 @@ var InstrumentController = module.exports =
         view.setAttribute( "id", "instrumentEditor" );
         view.innerHTML = TemplateUtil.render( "instrumentEditor" );
 
+        instrumentSelect   = view.querySelector( "#instrumentSelect" );
+        oscEnabledSelect   = view.querySelector( "#oscillatorEnabled" );
+        detuneControl      = view.querySelector( "#detune" );
+        octaveShiftControl = view.querySelector( "#octaveShift" );
+        fineShiftControl   = view.querySelector( "#fineShift" );
+
         canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
         canvas.insertInPage( view.querySelector( "#canvasContainer" ));
 
@@ -57,6 +66,13 @@ var InstrumentController = module.exports =
         });
 
         // add listeners
+
+        view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
+        detuneControl.addEventListener     ( "input", handleTuningChange );
+        octaveShiftControl.addEventListener( "input", handleTuningChange );
+        fineShiftControl.addEventListener  ( "input", handleTuningChange );
+        instrumentSelect.addEventListener  ( "change", handleInstrumentSelect );
+        oscEnabledSelect.addEventListener  ( "change", handleOscillatorEnabledChange );
 
         [ Messages.CLOSE_OVERLAYS, Messages.TOGGLE_INSTRUMENT_EDITOR ].forEach( function( msg )
         {
@@ -75,11 +91,17 @@ var InstrumentController = module.exports =
                 break;
             }
         }
+
         if ( !instrument )
             return;
 
+        var oscillator = instrument.oscillators[ activeOscillatorIndex ];
         view.querySelector( "h2" ).innerHTML = "Editing " + instrument.name;
-        wtDraw.setTable( instrument.oscillators[ activeOscillatorIndex ].table );
+        wtDraw.setTable( oscillator.table );
+        Form.setSelectedOption( oscEnabledSelect, oscillator.enabled );
+        Form.setSelectedOption( instrumentSelect, instrument.id );
+
+        canvas.invalidate();
     },
 
     handleKey : function( type, keyCode, event )
@@ -113,5 +135,56 @@ function handleBroadcast( type, payload )
                 canvas.removeChild( wtDraw );
             }
             break;
+    }
+}
+
+function handleOscillatorTabClick( aEvent )
+{
+    var element = aEvent.target;
+    if ( element.nodeName === "LI" ) {
+
+        var value = parseFloat( element.getAttribute( "data-oscillator" ));
+        if ( !isNaN( value )) {
+            activeOscillatorIndex = value - 1;
+            InstrumentController.update();
+        }
+    }
+}
+
+function handleTuningChange( aEvent )
+{
+    if ( !instrument )
+        return;
+
+    var oscillator = instrument.oscillators[ activeOscillatorIndex ],
+        target     = aEvent.target,
+        value      = parseFloat( target.value );
+
+    switch ( aEvent.target )
+    {
+        case detuneControl:
+            oscillator.detune = value;
+            break;
+
+        case octaveShiftControl:
+            oscillator.octaveShift = value;
+            break;
+
+        case fineShiftControl:
+            oscillator.fineShift = value;
+            break;
+    }
+}
+
+function handleInstrumentSelect( aEvent )
+{
+    instrumentId = parseFloat( Form.getSelectedOption( instrumentSelect ));
+    InstrumentController.update();
+}
+
+function handleOscillatorEnabledChange( aEvent )
+{
+    if ( instrument ) {
+        instrument.oscillators[ activeOscillatorIndex ].enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
     }
 }

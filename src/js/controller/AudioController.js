@@ -106,18 +106,41 @@ var AudioController = module.exports =
         if ( typeof startTimeInSeconds !== "number" )
             startTimeInSeconds = audioContext.currentTime;
 
-        var oscillators = [];
+        var oscillators = [], oscillator;
 
         aInstrument.oscillators.forEach( function( oscillatorVO, index )
         {
             if ( oscillatorVO.enabled ) {
 
+                oscillator = aInstrument.oscillators[ index ];
                 var osc = audioContext.createOscillator();
 
                 // TODO: cache these wave tables !!
-                AudioUtil.setWaveTableFromGraph( osc, aInstrument.oscillators[ index ].table );
+                AudioUtil.setWaveTableFromGraph( osc, oscillator.table );
 
-                osc.frequency.value = frequency;
+                // tune frequency to oscillator
+
+                var lfo2Tmpfreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
+                var lfo2freq    = lfo2Tmpfreq;
+
+                // octave shift ( -2 to +2 )
+                if ( oscillator.octaveShift !== 0 )
+                {
+                    if ( oscillator.octaveShift < 0 )
+                        lfo2freq = lfo2Tmpfreq / Math.abs( oscillator.octaveShift * 2 );
+                    else
+                        lfo2freq += ( lfo2Tmpfreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
+                }
+
+                // fine shift ( -7 to +7 )
+                var fineShift = ( lfo2Tmpfreq / 12 * Math.abs( oscillator.fineShift ));
+
+                if ( oscillator.fineShift < 0 )
+                    lfo2freq -= fineShift;
+                 else
+                    lfo2freq += fineShift;
+
+                osc.frequency.value = lfo2freq;
                 osc.connect( audioContext.destination );
 
                 // TODO : ADSR and tuning

@@ -22,14 +22,13 @@
  */
 var SongUtil     = require( "../utils/SongUtil" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
-var Form         = require( "../utils/Form" );
 var Messages     = require( "../definitions/Messages" );
 var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
 var container, tracker, keyboardController;
-var title, author, instrSelect;
+var title, author, instrumentEditBtn;
 
 var MetaController = module.exports =
 {
@@ -50,9 +49,9 @@ var MetaController = module.exports =
 
         // cache view elements
 
-        title       = container.querySelector( "#songTitle" );
-        author      = container.querySelector( "#songAuthor" );
-        instrSelect = container.querySelector( "#instrumentSelect" );
+        title             = container.querySelector( "#songTitle" );
+        author            = container.querySelector( "#songAuthor" );
+        instrumentEditBtn = container.querySelector( "#instrumentEditBtn" );
 
         // synchronize with model
 
@@ -67,7 +66,7 @@ var MetaController = module.exports =
             element.addEventListener( "blur",   handleFocusOut );
         });
 
-        instrSelect.addEventListener( "change", handleInstrumentSelect );
+        instrumentEditBtn.addEventListener( "click", handleInstrumentSelect );
         container.addEventListener( "mouseover", handleMouseOver );
 
         Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
@@ -135,8 +134,7 @@ function handleFocusOut( aEvent )
 
 function handleInstrumentSelect( aEvent )
 {
-    var instrument = Form.getSelectedOption( instrSelect );
-    Pubsub.publish( Messages.TOGGLE_INSTRUMENT_EDITOR, instrument );
+    Pubsub.publish( Messages.TOGGLE_INSTRUMENT_EDITOR, 0 );
 }
 
 function handleMouseOver( aEvent )

@@ -1,4 +1,8 @@
 <h2>Instrument editor</h2>
+<select id="instrumentSelect">
+    <option value="0">Instrument 1</option>
+    <option value="1">Instrument 2</option>
+</select>
 <ul id="oscillatorTabs">
     <li data-oscillator="1">
         Oscillator 1
@@ -11,3 +15,19 @@
     </li>
 </ul>
 <div id="canvasContainer"><!-- x --></div>
+<select id="oscillatorEnabled">
+    <option value="true">Enabled</option>
+    <option value="false">Disabled</option>
+</select>
+<div class="wrapper input range">
+    <label for="detune">Detune</label>
+    <input type="range" name="tempo" id="detune" min="-50" max="50" step=".1" value="0">
+</div>
+<div class="wrapper input range">
+    <label for="octaveShift">Octave shift</label>
+    <input type="range" name="tempo" id="octaveShift" min="-2" max="2" step="1" value="0">
+</div>
+<div class="wrapper input range">
+    <label for="fineShift">Fine shift</label>
+    <input type="range" name="tempo" id="fineShift" min="-7" max="7" step="1" value="0">
+</div>
