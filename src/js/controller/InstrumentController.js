@@ -30,7 +30,9 @@ var Pubsub        = require( "pubsub-js" );
 /* private properties */
 
 var container, tracker, keyboardController, view, canvas, wtDraw,
-    instrumentSelect, oscEnabledSelect, oscWaveformSelect, detuneControl, octaveShiftControl, fineShiftControl;
+    instrumentSelect, oscEnabledSelect, oscWaveformSelect,
+    detuneControl, octaveShiftControl, fineShiftControl,
+    attackControl, decayControl, sustainControl, releaseControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrument;
 
@@ -56,6 +58,10 @@ var InstrumentController = module.exports =
         detuneControl      = view.querySelector( "#detune" );
         octaveShiftControl = view.querySelector( "#octaveShift" );
         fineShiftControl   = view.querySelector( "#fineShift" );
+        attackControl      = view.querySelector( "#attack" );
+        decayControl       = view.querySelector( "#decay" );
+        sustainControl     = view.querySelector( "#sustain" );
+        releaseControl     = view.querySelector( "#release" );
 
         canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
         canvas.insertInPage( view.querySelector( "#canvasContainer" ));
@@ -71,12 +77,17 @@ var InstrumentController = module.exports =
         // add listeners
 
         view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
-        detuneControl.addEventListener     ( "input", handleTuningChange );
-        octaveShiftControl.addEventListener( "input", handleTuningChange );
-        fineShiftControl.addEventListener  ( "input", handleTuningChange );
         instrumentSelect.addEventListener  ( "change", handleInstrumentSelect );
         oscEnabledSelect.addEventListener  ( "change", handleOscillatorEnabledChange );
         oscWaveformSelect.addEventListener ( "change", handleWaveformChange );
+
+        [ detuneControl, octaveShiftControl, fineShiftControl ].forEach( function( control ) {
+            control.addEventListener( "input", handleTuningChange );
+        });
+
+        [ attackControl, decayControl, sustainControl, releaseControl ].forEach( function( control ) {
+            control.addEventListener( "input", handleEnvelopeChange );
+        });
 
         [ Messages.CLOSE_OVERLAYS, Messages.TOGGLE_INSTRUMENT_EDITOR ].forEach( function( msg )
         {
@@ -109,6 +120,11 @@ var InstrumentController = module.exports =
         detuneControl.value      = oscillator.detune;
         octaveShiftControl.value = oscillator.octaveShift;
         fineShiftControl.value   = oscillator.fineShift;
+
+        attackControl.value  = oscillator.adsr.attack;
+        decayControl.value   = oscillator.adsr.decay;
+        sustainControl.value = oscillator.adsr.sustain;
+        releaseControl.value = oscillator.adsr.release;
 
         canvas.invalidate();
     },
@@ -169,7 +185,7 @@ function handleTuningChange( aEvent )
         target     = aEvent.target,
         value      = parseFloat( target.value );
 
-    switch ( aEvent.target )
+    switch ( target )
     {
         case detuneControl:
             oscillator.detune = value;
@@ -181,6 +197,35 @@ function handleTuningChange( aEvent )
 
         case fineShiftControl:
             oscillator.fineShift = value;
+            break;
+    }
+}
+
+function handleEnvelopeChange( aEvent )
+{
+    if ( !instrument )
+        return;
+
+    var oscillator = instrument.oscillators[ activeOscillatorIndex ],
+        target     = aEvent.target,
+        value      = parseFloat( target.value );
+
+    switch ( target )
+    {
+        case attackControl:
+            oscillator.adsr.attack = value;
+            break;
+
+        case decayControl:
+            oscillator.adsr.decay = value;
+            break;
+
+        case sustainControl:
+            oscillator.adsr.sustain = value;
+            break;
+
+        case releaseControl:
+            oscillator.adsr.release = value;
             break;
     }
 }

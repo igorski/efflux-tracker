@@ -27,6 +27,27 @@ var Pitch        = require( "../definitions/Pitch" );
 var WaveTables   = require( "../definitions/WaveTables" );
 var Pubsub       = require( "pubsub-js" );
 
+/* type definitions */
+
+/**
+ * describes a single voice for an event (an event is
+ * a note being triggered for an instrument, however the
+ * instrument can have multiple voices / oscillators)
+ * which are bundled for a single event in an EVENT_OBJECT
+ *
+ * @typedef {{
+ *              oscillator: OscillatorNode,
+ *              envelope: AudioParam,
+ *              adsr: Object
+ *          }}
+ */
+var EVENT_VOICE;
+
+/**
+ * @type {Array.<EVENT_VOICE>}
+ */
+var EVENT_OBJECT;
+
 /* private properties */
 
 var audioContext, pool,
@@ -101,11 +122,11 @@ var AudioController = module.exports =
 
         Object.keys( events ).forEach( function( key, index )
         {
-            event = events[ key ];
+            event = /** @type {EVENT_OBJECT} */ ( events[ key ] );
 
             if ( event ) {
                 event.forEach( function( oscillator ) {
-                    AudioFactory.stopOscillation( oscillator );
+                    AudioFactory.stopOscillation( oscillator.oscillator );
                 });
             }
         });
@@ -134,20 +155,21 @@ var AudioController = module.exports =
     {
         aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
 
-        //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ")");
+        //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
+
         var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
 
         if ( typeof startTimeInSeconds !== "number" )
             startTimeInSeconds = audioContext.currentTime;
 
-        var oscillators = [], oscillator;
+        var oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
 
         aInstrument.oscillators.forEach( function( oscillatorVO, oscillatorIndex )
         {
             if ( oscillatorVO.enabled ) {
 
-                oscillator = aInstrument.oscillators[ oscillatorIndex ];
-                var osc = audioContext.createOscillator(), table;
+                voice = aInstrument.oscillators[ oscillatorIndex ];
+                var oscillator = audioContext.createOscillator(), table;
 
                 // get WaveTable from pool
 
@@ -159,39 +181,54 @@ var AudioController = module.exports =
                 if ( !table ) // no table ? that's a bit of a problem. what did you break!?
                     return;
 
-                osc.setPeriodicWave( table );
+                oscillator.setPeriodicWave( table );
 
                 // tune event frequency to oscillator tuning
 
-                var lfo2Tmpfreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
+                var lfo2Tmpfreq = frequency + ( frequency / 1200 * voice.detune ); // 1200 cents == octave
                 var lfo2freq    = lfo2Tmpfreq;
 
-                // octave shift ( -2 to +2 )
-                if ( oscillator.octaveShift !== 0 )
+                if ( voice.octaveShift !== 0 )
                 {
-                    if ( oscillator.octaveShift < 0 )
-                        lfo2freq = lfo2Tmpfreq / Math.abs( oscillator.octaveShift * 2 );
+                    if ( voice.octaveShift < 0 )
+                        lfo2freq = lfo2Tmpfreq / Math.abs( voice.octaveShift * 2 );
                     else
-                        lfo2freq += ( lfo2Tmpfreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
+                        lfo2freq += ( lfo2Tmpfreq * Math.abs( voice.octaveShift * 2 ) - 1 );
                 }
 
-                // fine shift ( -7 to +7 )
-                var fineShift = ( lfo2Tmpfreq / 12 * Math.abs( oscillator.fineShift ));
+                var fineShift = ( lfo2Tmpfreq / 12 * Math.abs( voice.fineShift ));
 
-                if ( oscillator.fineShift < 0 )
+                if ( voice.fineShift < 0 )
                     lfo2freq -= fineShift;
                  else
                     lfo2freq += fineShift;
 
-                osc.frequency.value = lfo2freq;
-                osc.connect( audioContext.destination );
+                oscillator.frequency.value = lfo2freq;
 
-                // TODO : ADSR
+                // apply amplitude envelopes
 
-                AudioFactory.startOscillation( osc, startTimeInSeconds );
-                AudioFactory.stopOscillation ( osc, startTimeInSeconds + aEvent.seq.length );
+                var envelopeNode = AudioFactory.createGainNode( audioContext ),
+                    envelope = envelopeNode.gain;
 
-                oscillators.push( osc );
+                var ADSR = oscillatorVO.adsr;
+                var attackEnd  = startTimeInSeconds + ADSR.attack,
+                    decayEnd   = attackEnd + ADSR.decay;
+
+                envelope.cancelScheduledValues( startTimeInSeconds );
+                envelope.setValueAtTime( 0.0, startTimeInSeconds );         // envelope start value
+                envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
+                envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
+
+                // connect oscillator to volume envelope, connect envelope to output
+
+                oscillator.connect( envelopeNode );
+                envelopeNode.connect( audioContext.destination );
+
+                // start playback
+
+                AudioFactory.startOscillation( oscillator, startTimeInSeconds );
+
+                oscillators.push( /** @type {EVENT_VOICE} */ ( { oscillator: oscillator, adsr: ADSR, envelope: envelope } ));
             }
         });
         events[ aEvent.id ] = oscillators;
@@ -200,20 +237,36 @@ var AudioController = module.exports =
     /**
      * immediately stop playing audio for the given event
      *
-     * @param {Object} aEvent
+     * @param {AUDIO_EVENT} aEvent
      */
     noteOff : function( aEvent )
     {
-        var event = events[ aEvent.id ];
+        var eventObject = events[ aEvent.id ];
 
-        //console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ")");
+        //console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
 
-        if ( event ) {
+        if ( eventObject ) {
 
-            event.forEach( function( oscillator )
+            eventObject.forEach( function( event )
             {
-                AudioFactory.stopOscillation( oscillator, audioContext.currentTime );
-                oscillator.disconnect();
+                var oscillator = event.oscillator,
+                    envelope   = event.envelope,
+                    ADSR       = event.adsr;
+
+                // apply release envelope
+
+                envelope.cancelScheduledValues( audioContext.currentTime );
+                envelope.setValueAtTime( envelope.value, audioContext.currentTime );
+                envelope.linearRampToValueAtTime( 0.0, audioContext.currentTime + ADSR.release );
+
+                // stop synthesis and remove note on release end
+
+                AudioUtil.createTimer( audioContext, audioContext.currentTime + ADSR.release, function()
+                {
+                    AudioFactory.stopOscillation( this, audioContext.currentTime );
+                    this.disconnect();
+
+                }.bind( oscillator ));
             });
         }
         delete events[ aEvent.id ];
@@ -236,7 +289,6 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.SET_CUSTOM_WAVEFORM:
-            console.log("setting the custom waveform");
             createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
             break;
     }

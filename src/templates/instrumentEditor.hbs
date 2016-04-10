@@ -25,6 +25,7 @@
     <option value="SQUARE">Square</option>
     <option value="CUSTOM">Custom</option>
 </select>
+<h2>Oscillator tuning</h2>
 <div class="wrapper input range">
     <label for="detune">Detune</label>
     <input type="range" name="tempo" id="detune" min="-50" max="50" step=".1" value="0">
@@ -36,4 +37,21 @@
 <div class="wrapper input range">
     <label for="fineShift">Fine shift</label>
     <input type="range" name="tempo" id="fineShift" min="-7" max="7" step="1" value="0">
+</div>
+<h2>Envelopes</h2>
+<div class="wrapper input range">
+    <label for="attack">Attack</label>
+    <input type="range" name="tempo" id="attack" min="0" max="1" step=".01" value="0">
+</div>
+<div class="wrapper input range">
+    <label for="decay">Decay</label>
+    <input type="range" name="tempo" id="decay" min="0" max="1" step=".01" value="0">
+</div>
+<div class="wrapper input range">
+    <label for="sustain">Sustain</label>
+    <input type="range" name="tempo" id="sustain" min="0" max="1" step=".01" value=".75">
+</div>
+<div class="wrapper input range">
+    <label for="release">Release</label>
+    <input type="range" name="tempo" id="release" min="0" max="1" step=".01" value="0">
 </div>

@@ -27,12 +27,6 @@
  * @typedef {{
  *              id: number,
  *              name: string,
- *              adsr: {
- *                  attack: number,
- *                  decay: number,
- *                  sustain: number,
- *                  release: number
- *              },
  *              oscillators: Array.<INSTRUMENT_OSCILLATOR>
  *          }}
  */
@@ -45,6 +39,11 @@ var INSTRUMENT;
  * the table Array holds numerical values in the -1 to +1 range
  * describing a bipolar waveform for the oscillator to use when waveform is CUSTOM
  *
+ * octaveShift (-2 to +2)
+ * fineShift (-7 to +7)
+ *
+ * ADSR values are envelope operations in seconds
+ *
  * @typedef {{
  *     enabled: boolean,
  *     waveform: string,
@@ -52,6 +51,12 @@ var INSTRUMENT;
  *     detune      : number,
  *     octaveShift : number,
  *     fineShift   : number
+ *     adsr: {
+ *         attack: number,
+ *         decay: number,
+ *         sustain: number,
+ *         release: number
+ *     },
  * }}
  */
 var INSTRUMENT_OSCILLATOR;
@@ -74,12 +79,6 @@ var InstrumentFactory = module.exports =
         return {
             id   : aId,
             name : ( typeof aName === "string" ) ? aName : "Instrument " + ( aId + 1 ),
-            adsr : {
-                attack  : 0,
-                decay   : 0,
-                sustain : 1,
-                release : 0
-            },
             oscillators : [
                 InstrumentFactory.createOscillator( true,  DEFAULT_TABLE_SIZE ),
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE ),
@@ -120,7 +119,13 @@ var InstrumentFactory = module.exports =
             table       : table,
             detune      : 0,
             octaveShift : 0,
-            fineShift   : 0
+            fineShift   : 0,
+            adsr : {
+                attack  : 0,
+                decay   : 0,
+                sustain : .75,
+                release : 0
+            }
         };
     }
 };
