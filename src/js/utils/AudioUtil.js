@@ -29,18 +29,17 @@ module.exports =
      * y-coordinate points drawn in the UI) and apply it onto the given
      * OscillatorNode oscillator
      *
-     * @param {OscillatorNode} oscillator
+     * @param {AudioContext} audioContext
      * @param {Array.<number>} graphPoints
      */
-    setWaveTableFromGraph : function( oscillator, graphPoints )
+    createWaveTableFromGraph : function( audioContext, graphPoints )
     {
         // DFT provided by dsp.js
 
         var ft = new DFT( graphPoints.length );
         ft.forward( graphPoints );
 
-        var table = oscillator.context.createPeriodicWave( ft.real, ft.imag );
-        oscillator.setPeriodicWave( table );
+        return audioContext.createPeriodicWave( ft.real, ft.imag );
     },
 
     /**

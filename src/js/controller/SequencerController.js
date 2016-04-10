@@ -81,7 +81,9 @@ var SequencerController = module.exports =
 
         // setup messaging system
 
-        Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
+        [ Messages.LOAD_SONG, Messages.SONG_LOADED ].forEach( function( msg ) {
+            Pubsub.subscribe( msg, handleBroadcast );
+        });
 
         worker = new Worker( "SequencerWorker.js" );
         worker.onmessage = function( msg )
@@ -121,7 +123,7 @@ var SequencerController = module.exports =
 
             worker.postMessage({ "cmd" : "stop" });
 
-            Pubsub.publish( Messages.PLAYBACK_STOPPED );
+            Pubsub.publishSync( Messages.PLAYBACK_STOPPED );
 
             // unset playing state of existing events
 
@@ -179,8 +181,11 @@ function handleBroadcast( type, payload )
 {
     switch( type )
     {
-        case Messages.SONG_LOADED:
+        case Messages.LOAD_SONG:
             SequencerController.setPlaying( false );
+            break;
+
+        case Messages.SONG_LOADED:
             SequencerController.update();
             break;
     }
@@ -215,7 +220,7 @@ function handleTempoChange( e )
 
     SongUtil.updateEventOffsets( tracker.activeSong.patterns, ( oldTempo / newTempo ));
 
-    Pubsub.publish( Messages.TEMPO_UPDATED, [ oldTempo, newTempo ]);
+    Pubsub.publishSync( Messages.TEMPO_UPDATED, [ oldTempo, newTempo ]);
     SequencerController.update(); // sync with model
 }
 
@@ -296,7 +301,7 @@ function step()
                 if ( !looping )
                 {
                     SequencerController.setPlaying( false );
-                    Pubsub.publish( Messages.RECORDING_COMPLETE );
+                    Pubsub.publishSync( Messages.RECORDING_COMPLETE );
                     return;
                 }
             }
@@ -316,7 +321,7 @@ function step()
                 firstMeasureStartTime = audioContext.currentTime;
             }
         }
-        Pubsub.publish( Messages.PATTERN_SWITCH, currentMeasure );
+        Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
     }
     currentMeasureOffset = ( audioContext.currentTime - firstMeasureStartTime ) - ( currentMeasure * measureLength );
 }

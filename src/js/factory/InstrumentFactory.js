@@ -40,11 +40,14 @@ var INSTRUMENT;
 
 /**
  * type definition for an instruments oscillator
- * the table Array hold numerical values in the -1 to +1 range
- * describing a bipolar waveform for the oscillator
+ * waveform is an enumeration which can be SAW, TRIANGLE, SQUARE or CUSTOM
+ *
+ * the table Array holds numerical values in the -1 to +1 range
+ * describing a bipolar waveform for the oscillator to use when waveform is CUSTOM
  *
  * @typedef {{
  *     enabled: boolean,
+ *     waveform: string,
  *     table: Array.<number>,
  *     detune      : number,
  *     octaveShift : number,
@@ -113,6 +116,7 @@ var InstrumentFactory = module.exports =
 
         return {
             enabled     : aEnabled,
+            waveform    : "SAW",
             table       : table,
             detune      : 0,
             octaveShift : 0,

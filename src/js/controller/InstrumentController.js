@@ -30,7 +30,7 @@ var Pubsub        = require( "pubsub-js" );
 /* private properties */
 
 var container, tracker, keyboardController, view, canvas, wtDraw,
-    instrumentSelect, oscEnabledSelect, detuneControl, octaveShiftControl, fineShiftControl;
+    instrumentSelect, oscEnabledSelect, oscWaveformSelect, detuneControl, octaveShiftControl, fineShiftControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrument;
 
@@ -52,6 +52,7 @@ var InstrumentController = module.exports =
 
         instrumentSelect   = view.querySelector( "#instrumentSelect" );
         oscEnabledSelect   = view.querySelector( "#oscillatorEnabled" );
+        oscWaveformSelect  = view.querySelector( "#oscillatorWaveformSelect" );
         detuneControl      = view.querySelector( "#detune" );
         octaveShiftControl = view.querySelector( "#octaveShift" );
         fineShiftControl   = view.querySelector( "#fineShift" );
@@ -61,8 +62,10 @@ var InstrumentController = module.exports =
 
         wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), function( table )
         {
-            if ( instrument )
-                instrument.oscillators[ activeOscillatorIndex].table = table;
+            if ( instrument ) {
+                instrument.oscillators[ activeOscillatorIndex ].table = table;
+                cacheOscillatorWaveForm( instrument.oscillators[ activeOscillatorIndex ] );
+            }
         });
 
         // add listeners
@@ -73,6 +76,7 @@ var InstrumentController = module.exports =
         fineShiftControl.addEventListener  ( "input", handleTuningChange );
         instrumentSelect.addEventListener  ( "change", handleInstrumentSelect );
         oscEnabledSelect.addEventListener  ( "change", handleOscillatorEnabledChange );
+        oscWaveformSelect.addEventListener ( "change", handleWaveformChange );
 
         [ Messages.CLOSE_OVERLAYS, Messages.TOGGLE_INSTRUMENT_EDITOR ].forEach( function( msg )
         {
@@ -98,8 +102,9 @@ var InstrumentController = module.exports =
         var oscillator = instrument.oscillators[ activeOscillatorIndex ];
         view.querySelector( "h2" ).innerHTML = "Editing " + instrument.name;
         wtDraw.setTable( oscillator.table );
-        Form.setSelectedOption( oscEnabledSelect, oscillator.enabled );
-        Form.setSelectedOption( instrumentSelect, instrument.id );
+        Form.setSelectedOption( oscEnabledSelect,  oscillator.enabled );
+        Form.setSelectedOption( oscWaveformSelect, oscillator.waveform );
+        Form.setSelectedOption( instrumentSelect,  instrument.id );
 
         detuneControl.value      = oscillator.detune;
         octaveShiftControl.value = oscillator.octaveShift;
@@ -111,7 +116,7 @@ var InstrumentController = module.exports =
     handleKey : function( type, keyCode, event )
     {
         if ( type === "down" && keyCode === 27 )
-            Pubsub.publish( Messages.CLOSE_OVERLAYS );
+            Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
     }
 };
 
@@ -188,7 +193,20 @@ function handleInstrumentSelect( aEvent )
 
 function handleOscillatorEnabledChange( aEvent )
 {
-    if ( instrument ) {
-        instrument.oscillators[ activeOscillatorIndex ].enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
-    }
+    var oscillator = instrument.oscillators[ activeOscillatorIndex ];
+    oscillator.enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
+    cacheOscillatorWaveForm( oscillator );
+}
+
+function handleWaveformChange( aEvent )
+{
+    var oscillator = instrument.oscillators[ activeOscillatorIndex ];
+    instrument.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
+    cacheOscillatorWaveForm( oscillator );
+}
+
+function cacheOscillatorWaveForm( oscillator )
+{
+    if ( oscillator.enabled && oscillator.waveform === "CUSTOM" )
+        Pubsub.publishSync( Messages.SET_CUSTOM_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator.table ]);
 }

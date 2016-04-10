@@ -83,13 +83,13 @@ var SongController = module.exports =
 
 function handleLoad( aEvent )
 {
-    Pubsub.publish( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
+    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
 
     var songs = tracker.SongModel.getSongs(), li;
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "There are currently no songs available to load. Why not create one?" );
+        Pubsub.publishSync( Messages.SHOW_ERROR, "There are currently no songs available to load. Why not create one?" );
         return;
     }
 
@@ -113,7 +113,7 @@ function handleSave( aEvent )
 
     if ( isValid( song )) {
         tracker.SongModel.saveSong( song );
-        Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
+        Pubsub.publishSync( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
     }
 }
 
@@ -122,7 +122,7 @@ function handleSongClick( aEvent )
     if ( aEvent.target.nodeName === "LI" )
     {
         var id = aEvent.target.getAttribute( "data-id" );
-        Pubsub.publish( Messages.LOAD_SONG, id );
+        Pubsub.publishSync( Messages.LOAD_SONG, id );
         list.classList.remove( "active" );
     }
 }
@@ -131,7 +131,7 @@ function handleReset( aEvent )
 {
     if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
         tracker.activeSong = tracker.SongModel.createSong();
-        Pubsub.publish( Messages.SONG_LOADED, tracker.activeSong );
+        Pubsub.publishSync( Messages.SONG_LOADED, tracker.activeSong );
     }
 }
 
@@ -147,7 +147,7 @@ function isValid( song )
     var hasContent = SongUtil.hasContent( song );
 
     if ( !hasContent ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );
+        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no pattern content!" );
         return false;
     }
 
@@ -155,7 +155,7 @@ function isValid( song )
         hasContent = false;
 
     if ( !hasContent )
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
+        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
 
     return hasContent;
 }

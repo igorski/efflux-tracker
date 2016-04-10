@@ -54,7 +54,7 @@ var HelpController = module.exports =
 
         // show default content
 
-        Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicGeneral" );
+        Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicGeneral" );
     }
 };
 

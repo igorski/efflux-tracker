@@ -423,7 +423,7 @@ function handleInteraction( aEvent )
             }
         }
     }
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
+    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicTracker" );
 }
 
 function editStep()
@@ -498,7 +498,7 @@ function handlePatternAdd( aEvent )
         patterns = song.patterns;
 
     if ( patterns.length === 128 ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 128 patterns" );
+        Pubsub.publishSync( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 128 patterns" );
         return;
     }
 
@@ -510,7 +510,7 @@ function handlePatternAdd( aEvent )
     song.patterns = front.concat( back );
     handlePatternNavNext( null );
 
-    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
+    Pubsub.publishSync( Messages.PATTERN_AMOUNT_UPDATED );
 }
 
 function handlePatternDelete( aEvent )
@@ -531,7 +531,7 @@ function handlePatternDelete( aEvent )
         else
             PatternController.update();
 
-        Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
+        Pubsub.publishSync( Messages.PATTERN_AMOUNT_UPDATED );
     }
 }
 
@@ -593,7 +593,7 @@ function handlePatternStepChange( aEvent )
 
 function handleMouseOver( aEvent )
 {
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
+    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicPattern" );
 }
 
 function saveState()

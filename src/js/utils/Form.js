@@ -61,6 +61,7 @@ module.exports =
 
             if ( option.value === aValue ) {
                 option.setAttribute( "selected", "selected" );
+                aSelect.value = aValue;
             }
             else {
                 option.removeAttribute( "selected" );

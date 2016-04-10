@@ -72,7 +72,7 @@ var tracker;
 
     // initialize application controllers
 
-    AudioController.init();
+    AudioController.init( tracker.activeSong.instruments );
     KeyboardController.init( tracker );
     MenuController.init();
     InstrumentController.init( container, tracker, KeyboardController );
@@ -86,8 +86,7 @@ var tracker;
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
-    Pubsub.subscribe( Messages.LOAD_SONG,        handleBroadcast );
-    Pubsub.subscribe( Messages.PLAYBACK_STOPPED, handleBroadcast );
+    Pubsub.subscribe( Messages.LOAD_SONG, handleBroadcast );
 
 })( self );
 
@@ -102,16 +101,10 @@ function handleBroadcast( type, payload )
             var song = tracker.SongModel.getSongById( payload );
 
             if ( song ) {
-                AudioController.reset();
                 tracker.activeSong = ObjectUtil.clone( song );
-                SongUtil.resetPlayState( tracker.activeSong.patterns );
-                Pubsub.publish( Messages.SONG_LOADED, song );
+                SongUtil.resetPlayState( tracker.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
+                Pubsub.publishSync( Messages.SONG_LOADED, song );
             }
-            break;
-
-        case Messages.PLAYBACK_STOPPED:
-
-            AudioController.reset();
             break;
     }
 }

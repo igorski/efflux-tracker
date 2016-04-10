@@ -116,6 +116,8 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
         cache.x = aEventX;
         cache.y = aEventY;
 
+        aEvent.preventDefault();
+
         this.updateHandler( this.table );
     }
     else if ( aEvent.type === "touchstart" ||

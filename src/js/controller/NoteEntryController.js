@@ -94,7 +94,7 @@ var NoteEntryController = module.exports =
      */
     open : function( options, completeCallback )
     {
-        Pubsub.publish( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
+        Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
         data     = ( options && options.note !== "" ) ? options : { instrument: 0, note: "A", octave: 4 };
         callback = completeCallback;

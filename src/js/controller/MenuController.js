@@ -77,5 +77,5 @@ function handleBroadcast( type, payload )
 
 function handleMouseOver( aEvent )
 {
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicSong" );
+    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicSong" );
 }

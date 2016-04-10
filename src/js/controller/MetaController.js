@@ -134,10 +134,10 @@ function handleFocusOut( aEvent )
 
 function handleInstrumentSelect( aEvent )
 {
-    Pubsub.publish( Messages.TOGGLE_INSTRUMENT_EDITOR, 0 );
+    Pubsub.publishSync( Messages.TOGGLE_INSTRUMENT_EDITOR, 0 );
 }
 
 function handleMouseOver( aEvent )
 {
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicMeta" );
+    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicMeta" );
 }
