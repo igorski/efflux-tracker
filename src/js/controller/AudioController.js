@@ -65,7 +65,7 @@ var AudioController = module.exports =
             source.type = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
 
             // no need to HEAR it, though ;-)
-            var noGain = AudioFactory.createGainNode( self.context );
+            var noGain = AudioFactory.createGainNode( audioContext );
             source.connect( noGain );
             noGain.gain.value = 0;
 
