@@ -23,7 +23,6 @@
 var AudioFactory = require( "../factory/AudioFactory" );
 var AudioUtil    = require( "../utils/AudioUtil" );
 var Pitch        = require( "../definitions/Pitch" );
-var WaveTables   = require( "../definitions/WaveTables" );
 
 /* private properties */
 

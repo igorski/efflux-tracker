@@ -25,20 +25,23 @@ var AudioFactory = require( "../factory/AudioFactory" );
 module.exports =
 {
     /**
-     * set the sample contents of given frequencyArray
-     * as the WaveTable for given OscillatorNode oscillator
+     * create a WaveTable from given graphPoints Array (a list of
+     * y-coordinate points drawn in the UI) and apply it onto the given
+     * OscillatorNode oscillator
      *
-     * @public
+     * for ready-made tables, consult: http://chromium.googlecode.com/svn/trunk/samples/audio/wave-tables/
      *
      * @param {OscillatorNode} oscillator
-     * @param {Array.<number>} frequencyArray
+     * @param {Array.<number>} graphPoints
      */
-    setWaveTable : function( oscillator, frequencyArray )
+    setWaveTableFromGraph : function( oscillator, graphPoints )
     {
-        var real = new Float32Array( frequencyArray );
-        var imag = new Float32Array( real.length );
+        // DFT provided by dsp.js
 
-        var table = oscillator.context.createPeriodicWave( real, imag );
+        var ft = new DFT( graphPoints.length );
+        ft.forward( graphPoints );
+
+        var table = oscillator.context.createPeriodicWave( ft.real, ft.imag );
         oscillator.setPeriodicWave( table );
     },
 

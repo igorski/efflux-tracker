@@ -22,8 +22,6 @@
  */
 module.exports = InstrumentModel;
 
-var WaveTables = require( "../definitions/WaveTables" );
-
 /**
  * @constructor
  * @param {number} id
@@ -45,20 +43,12 @@ function InstrumentModel( id )
     this.name = "Instrument " + id;
 
     /**
-     * Array of samples that will be set onto the
-     * Instruments OscillatorNodes WaveTable
+     * Array of points that will be converted into a
+     * WaveTable by the AudioUtil, so it can be sot
+     * onto the Instruments OscillatorNode WaveTable
      *
      * @public
      * @type {Array.<number>}
      */
-    this.table = WaveTables.HORN;
-
-    /**
-     * the OscillatorNode that will render this Instruments
-     * audio inside the AudioContext
-     *
-     * @public
-     * @type {OscillatorNode}
-     */
-    this.oscillator;
+    this.table;
 }
