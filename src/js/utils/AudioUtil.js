@@ -29,8 +29,6 @@ module.exports =
      * y-coordinate points drawn in the UI) and apply it onto the given
      * OscillatorNode oscillator
      *
-     * for ready-made tables, consult: http://chromium.googlecode.com/svn/trunk/samples/audio/wave-tables/
-     *
      * @param {OscillatorNode} oscillator
      * @param {Array.<number>} graphPoints
      */
