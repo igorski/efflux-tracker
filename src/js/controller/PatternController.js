@@ -456,6 +456,7 @@ function editStep()
                 if ( !event )
                     event = PatternFactory.createAudioEvent();
 
+                event.action     = 1; // noteOn
                 event.instrument = data.instrument;
                 event.note       = data.note;
                 event.octave     = data.octave;
