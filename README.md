@@ -64,3 +64,9 @@ Unit tests go in the _./test_-folder. The file name for a unit test must be equa
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
 
 NOTE : Node v 4.0 or higher must be installed for running the tests (these depend on jsdom)
+
+TODO
+----
+
+ 1 Adjusting synth properties should be directly audible on currently playing events
+ 2 Add modulator parameters to adjust modules from the tracker

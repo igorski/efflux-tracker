@@ -77,7 +77,7 @@ var SequencerController = module.exports =
         // add event listeners
 
         playBTN.addEventListener( "click", handlePlayToggle );
-        tempoSlider.addEventListener  ( "input", handleTempoChange );
+        tempoSlider.addEventListener( "input", handleTempoChange );
         metronomeToggle.addEventListener( "click", handleMetronomeToggle );
 
         // setup messaging system

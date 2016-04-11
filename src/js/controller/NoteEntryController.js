@@ -21,17 +21,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var TemplateUtil = require( "../utils/TemplateUtil" );
+var Form         = require( "../utils/Form" );
 var Messages     = require( "../definitions/Messages" );
 var Pitch        = require( "../definitions/Pitch" );
-var Select       = require( "../ui/Select" );
-var SelectList   = require( "../ui/SelectList" );
 var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var selectList, instrumentSelect, noteSelect, octaveSelect, data, callback;
-var noteOptions = [], octaveOptions = [];
+var instrumentSelect, noteList, octaveList, data, callback;
+var selectedNote, selectedOctave;
 
 var NoteEntryController = module.exports =
 {
@@ -45,34 +44,26 @@ var NoteEntryController = module.exports =
     init : function( containerRef, trackerRef, keyboardControllerRef )
     {
         container          = containerRef;
-        tracker             = trackerRef;
+        tracker            = trackerRef;
         keyboardController = keyboardControllerRef;
 
         element = document.createElement( "div" );
         element.setAttribute( "id", "noteEntry" );
         element.innerHTML = TemplateUtil.render( "noteEntry" );
 
-        noteSelect       = new Select( element.querySelector( "#note" ));
-        octaveSelect     = new Select( element.querySelector( "#octave" ));
-        instrumentSelect = new Select( element.querySelector( "#instrument" ));
+        // grab view elements
 
-        selectList = new SelectList(
-            [ noteSelect, octaveSelect, instrumentSelect ],
-            this, keyboardControllerRef
-        );
+        instrumentSelect = element.querySelector( "#instrument" );
 
-        // set note and octave options
+        // initialize keyboard and octave selectors
 
-        Pitch.OCTAVE_SCALE.forEach( function( note )
-        {
-            noteOptions.push({ title: note, value: note });
-        });
+        var keyboard = element.querySelector( "#keyboardNotes" );
+        noteList     = keyboard.querySelectorAll( "li" );
+        keyboard.addEventListener( "click", handleKeyboardClick );
 
-        for ( var i = 1; i <= 8; ++i )
-            octaveOptions.push({ title: i, value: i });
-
-        noteSelect.setOptions  ( noteOptions );
-        octaveSelect.setOptions( octaveOptions );
+        var octaves = element.querySelector( "#octaves" );
+        octaveList  = octaves.querySelectorAll( "li" );
+        octaves.addEventListener( "click", handleOctaveClick );
 
         // add listeners
 
@@ -83,7 +74,7 @@ var NoteEntryController = module.exports =
         {
             if ( payload !== NoteEntryController )
                 handleClose();
-        } );
+        });
     },
 
     /**
@@ -96,23 +87,23 @@ var NoteEntryController = module.exports =
     {
         Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
-        data     = ( options && options.action !== 0 ) ? options : { instrument: 0, note: "A", octave: 4 };
+        data     = ( options && options.action !== 0 ) ? options : { instrument: 0, note: "C", octave: 3 };
         callback = completeCallback;
 
         keyboardController.setBlockDefaults( false );
 
-        setSelectOptions();
+        setSelectedValueInList( noteList, data.note );
+        setSelectedValueInList( octaveList, data.octave );
 
-        instrumentSelect.setValue( data.instrument );
-        noteSelect.setValue( data.note );
-        octaveSelect.setValue( data.octave );
+        selectedNote = data.note;
+        selectedOctave = data.octave;
+
+        Form.setSelectedOption( instrumentSelect, data.instrument );
 
         keyboardController.setListener( NoteEntryController );
 
         if ( !element.parentNode )
             container.appendChild( element );
-
-        selectList.focus( 0, true );
     },
 
     /* event handlers */
@@ -130,6 +121,52 @@ var NoteEntryController = module.exports =
                 case 13: // enter
                     handleReady();
                     break;
+
+                /* notes */
+
+                case 67: // C
+                    selectedNote = ( selectedNote === "C" ) ? "C#" : "C"; // jump between C and C#
+                    setSelectedValueInList( noteList, selectedNote );
+                    break;
+
+                case 68: // D
+                    selectedNote = ( selectedNote === "D" ) ? "D#" : "D"; // jump between D and D#
+                    setSelectedValueInList( noteList, selectedNote );
+                    break;
+
+                case 69: // E
+                    setSelectedValueInList( noteList, selectedNote = "E" );
+                    break;
+
+                case 70: // F
+                    selectedNote = ( selectedNote === "F" ) ? "F#" : "F"; // jump between F and F#
+                    setSelectedValueInList( noteList, selectedNote );
+                    break;
+
+                case 71: // G
+                    selectedNote = ( selectedNote === "G" ) ? "G#" : "G"; // jump between C and C#
+                    setSelectedValueInList( noteList, selectedNote );
+                    break;
+
+                case 65: // A
+                    selectedNote = ( selectedNote === "A" ) ? "A#" : "A"; // jump between A and A#
+                    setSelectedValueInList( noteList, selectedNote );
+                    break;
+
+                case 66: // B
+                    setSelectedValueInList( noteList, selectedNote = "B" );
+                    break;
+
+                /* octaves */
+
+                case 49: setSelectedValueInList( octaveList, 1 ); break;
+                case 50: setSelectedValueInList( octaveList, 2 ); break;
+                case 51: setSelectedValueInList( octaveList, 3 ); break;
+                case 52: setSelectedValueInList( octaveList, 4 ); break;
+                case 53: setSelectedValueInList( octaveList, 5 ); break;
+                case 54: setSelectedValueInList( octaveList, 6 ); break;
+                case 55: setSelectedValueInList( octaveList, 7 ); break;
+                case 56: setSelectedValueInList( octaveList, 8 ); break;
             }
         }
     }
@@ -149,23 +186,13 @@ function handleReady()
 {
     if ( typeof callback === "function" )
     {
-        data.instrument = instrumentSelect.getValue();
-        data.note       = noteSelect.getValue();
-        data.octave     = parseInt( octaveSelect.getValue(), 10 );
+        data.instrument = Form.getSelectedOption( instrumentSelect );
+        data.note       = getSelectedValueFromList( noteList );
+        data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
 
         callback( data );
     }
     dispose();
-}
-
-function setSelectOptions()
-{
-    var instrumentOptions = [];
-
-    tracker.activeSong.instruments.forEach( function( instrument ) {
-        instrumentOptions.push({ title: instrument.name, value: instrument.id });
-    });
-    instrumentSelect.setOptions( instrumentOptions );
 }
 
 function dispose()
@@ -176,4 +203,56 @@ function dispose()
         element.parentNode.removeChild( element );
     }
     callback = null;
+}
+
+/* note selection */
+
+function handleKeyboardClick( aEvent )
+{
+    var target = aEvent.target;
+    if ( target.nodeName === "LI" ) {
+        selectedNote = target.getAttribute( "data-value" );
+        setSelectedValueInList( noteList, selectedNote );
+    }
+}
+
+/* octave select */
+
+function handleOctaveClick( aEvent )
+{
+    var target = aEvent.target;
+    if ( target.nodeName === "LI" ) {
+        selectedOctave = target.getAttribute( "data-value" );
+        setSelectedValueInList( octaveList, selectedOctave );
+    }
+}
+
+/* list functions */
+
+function setSelectedValueInList( list, value )
+{
+    value = value.toString();
+    var i = list.length, option;
+
+    while ( i-- )
+    {
+        option = list[ i ];
+
+        if ( option.getAttribute( "data-value" ) === value )
+            option.classList.add( "selected" );
+        else
+            option.classList.remove( "selected" );
+    }
+}
+
+function getSelectedValueFromList( list )
+{
+    var i = list.length, option;
+    while ( i-- )
+    {
+        option = list[ i ];
+        if ( option.classList.contains( "selected" ))
+            return option.getAttribute( "data-value" );
+    }
+    return null;
 }
