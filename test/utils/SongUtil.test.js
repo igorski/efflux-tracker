@@ -52,17 +52,17 @@ describe( "SongUtil", function()
         var song  = model.createSong();
 
         assert.notOk( SongUtil.hasContent( song ),
-            "expected song not to have content as no notes were defined in any pattern" );
+            "expected song not to have content as no events with an action were defined in any pattern" );
 
         // add a note to the first available slot in the firs
         // available channel of the first available pattern
 
-        var firstEvent  = PatternFactory.createAudioEvent();
-        firstEvent.note = "C#";
+        var firstEvent    = PatternFactory.createAudioEvent();
+        firstEvent.action = 1;
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
         assert.ok( SongUtil.hasContent( song ),
-            "expected song to have content after a note was defined in the first pattern" );
+            "expected song to have content after a event action was defined in the first pattern" );
     });
 
     it( "should be able to update existing Audio Event offsets recursively", function()
@@ -80,16 +80,16 @@ describe( "SongUtil", function()
 
         // generate some events
 
-        var firstEvent  = PatternFactory.createAudioEvent();
-        firstEvent.note = "C#";
+        var firstEvent    = PatternFactory.createAudioEvent();
+        firstEvent.action = 1;
         firstEvent.seq.startMeasureOffset = 10;
         firstEvent.seq.length             = 2.5;
 
         var expectedOffset1 = firstEvent.seq.startMeasureOffset * ratio;
         var expectedLength1 = firstEvent.seq.length * ratio;
 
-        var secondEvent  = PatternFactory.createAudioEvent();
-        secondEvent.note = "C#";
+        var secondEvent    = PatternFactory.createAudioEvent();
+        secondEvent.action = 1;
         secondEvent.seq.startMeasureOffset = 5;
         secondEvent.seq.length             = 1.5;
 

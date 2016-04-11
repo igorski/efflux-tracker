@@ -22,14 +22,19 @@
  */
 
 /**
- * type definition for a single AudioEvent, the "seq"
- * Object defines the properties for playback within the Sequencer
- * and defines values in seconds
+ * type definition for a single AudioEvent, the "action" property is
+ * an enumeration describing the action of the note, e.g.:
+ *
+ * 0 = nothing, 1 = noteOn, 2 = noteOff (kills previous note)
+ *
+ * the "seq" Object defines the properties for playback within the
+ * Sequencer and defines values in seconds
  *
  * @typedef {{
  *              instrument: number,
  *              note: string,
  *              octave: number,
+ *              action: number,
  *              seq: {
  *                  playing: boolean,
  *                  startMeasure: number
@@ -136,7 +141,7 @@ var PatternFactory = module.exports =
             while ( i-- ) {
                 sourceStep = sourceChannel[ i ];
 
-                if ( sourceStep && sourceStep.note !== "" )
+                if ( sourceStep && sourceStep.action !== 0 )
                     targetChannel[ i ] = sourceStep;
             }
         });
@@ -154,6 +159,7 @@ var PatternFactory = module.exports =
             instrument: 1,
             note: "",
             octave: 0,
+            action: 0,
             seq : {
                 playing            : false,
                 startMeasure       : 0,

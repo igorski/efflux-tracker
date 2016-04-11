@@ -261,7 +261,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
                 writeIndex = activeStep + index;
 
                 if ( writeIndex < targetPattern.length ) {
-                    if ( event && event.note !== "" ) {
+                    if ( event && event.action !== 0 ) {
                         clone = ObjectUtil.clone( event );
 
                         EventUtil.setPosition( clone, target, activePattern, writeIndex, clone.seq.length, song.meta.tempo );

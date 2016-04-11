@@ -41,7 +41,7 @@ module.exports =
             {
                 channel.forEach( function( pattern )
                 {
-                    if ( pattern && pattern.note !== "" ) {
+                    if ( pattern && pattern.action !== 0 ) {
                         hasContent = true;
                     }
                 });
