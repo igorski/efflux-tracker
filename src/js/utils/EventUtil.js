@@ -30,15 +30,16 @@ module.exports =
      * @param {PATTERN} pattern
      * @param {number} patternNum index of the pattern within the entire Song (e.g. "measure")
      * @param {number} patternStep index of the audioEvent within the pattern
-     * @param {number} length the duration (in seconds) of the audioEvent
      * @param {number} tempo in BPM of the song
+     * @param {number=} length optional duration (in seconds) of the audioEvent, defaults to
+     *                  the smallest unit available for given patterns length
      */
-    setPosition : function( audioEvent, pattern, patternNum, patternStep, length, tempo )
+    setPosition : function( audioEvent, pattern, patternNum, patternStep, tempo, length )
     {
         var measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
         var eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
-        audioEvent.seq.length             = length;
+        audioEvent.seq.length             = ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength;
         audioEvent.seq.startMeasure       = patternNum;
         audioEvent.seq.startMeasureOffset = eventOffset;
         audioEvent.seq.endMeasure         = patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));

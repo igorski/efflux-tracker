@@ -284,7 +284,6 @@ var PatternController = module.exports =
                         PatternController.update();
                         saveState();
                     }
-
                     break;
 
                 case 67: // C
@@ -298,7 +297,13 @@ var PatternController = module.exports =
                         selectionModel.copySelection( tracker.activeSong, activePattern );
                         selectionModel.clearSelection();
                     }
+                    break;
 
+                case 75: // K
+
+                    var chokeEvent = PatternFactory.createAudioEvent();
+                    chokeEvent.action = 2; // noteOff;
+                    addEventAtCurrentPosition( chokeEvent );
                     break;
             }
             highlightActiveStep();
@@ -453,6 +458,7 @@ function editStep()
             var valid = ( data.instrument !== "" && data.note !== "" && data.octave !== "" );
 
             if ( valid ) {
+
                 if ( !event )
                     event = PatternFactory.createAudioEvent();
 
@@ -461,13 +467,7 @@ function editStep()
                 event.note       = data.note;
                 event.octave     = data.octave;
 
-                EventUtil.setPosition( event, pattern, activePattern, activeStep, ( 1 / pattern.steps ), tracker.activeSong.meta.tempo );
-
-                channel[ activeStep ] = event;
-
-                PatternController.handleKey( "down", 40 ); // proceed to next line
-                PatternController.update();
-                saveState();
+                event = addEventAtCurrentPosition( event );
             }
         }
     });
@@ -604,4 +604,25 @@ function saveState()
     // of an Atari 2600 !! this should be just fine and hella fast
 
     stateModel.store( ObjectUtil.clone( tracker.activeSong ));
+}
+
+/**
+ * adds given AudioEvent at the currently highlighted position
+ *
+ * @param {AUDIO_EVENT} event
+ */
+function addEventAtCurrentPosition( event )
+{
+    var pattern = tracker.activeSong.patterns[ activePattern ];
+    var channel = pattern.channels[ activeChannel ];
+
+    EventUtil.setPosition(
+        event, pattern, activePattern, activeStep,
+        tracker.activeSong.meta.tempo
+    );
+    channel[ activeStep ] = event;
+
+    PatternController.handleKey( "down", 40 ); // proceed to next line
+    PatternController.update();
+    saveState();
 }

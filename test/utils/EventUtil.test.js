@@ -46,6 +46,34 @@ describe( "EventUtil", function()
 
     /* actual unit tests */
 
+    it( "should, when no length is given, calculate the duration as the minimum unit relative to the patterns length", function()
+    {
+        var model       = new SongModel();
+        var song        = model.createSong();
+        var pattern     = song.patterns[ 0 ];
+        song.meta.tempo = 120;
+
+        var audioEvent = PatternFactory.createAudioEvent();
+
+        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
+
+        var measureLength  = ( 60 / song.meta.tempo ) * 4;
+        var expectedLength = ( 1 / pattern.steps ) * measureLength;
+
+        assert.strictEqual( expectedLength, audioEvent.seq.length,
+            "expected event duration to be " + expectedLength + " seconds" );
+
+        // increase pattern size
+
+        pattern.steps  *= 2;
+        expectedLength = ( 1 / pattern.steps ) * measureLength;
+
+        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
+
+        assert.strictEqual( expectedLength, audioEvent.seq.length,
+            "expected event duration to be " + expectedLength + " seconds" );
+    });
+
     it( "should be able to update the position of a AudioEvent", function()
     {
         var model       = new SongModel();
@@ -60,7 +88,7 @@ describe( "EventUtil", function()
 
         var audioEvent = PatternFactory.createAudioEvent();
 
-        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 2, expectedLength, song.meta.tempo );
+        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 2, song.meta.tempo, expectedLength );
 
         assert.strictEqual( expectedStartMeasure, audioEvent.seq.startMeasure,
             "expected event to start at measure " + expectedStartMeasure );
@@ -89,7 +117,7 @@ describe( "EventUtil", function()
 
         var audioEvent = PatternFactory.createAudioEvent();
 
-        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, expectedLength, song.meta.tempo );
+        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo, expectedLength );
 
         assert.strictEqual( expectedStartMeasure, audioEvent.seq.startMeasure,
             "expected event to start at measure " + expectedStartMeasure );

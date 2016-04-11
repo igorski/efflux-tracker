@@ -153,6 +153,10 @@ var AudioController = module.exports =
      */
     noteOn : function( aEvent, aInstrument, startTimeInSeconds )
     {
+        // only "noteOn" actions allowed
+        if ( aEvent.action !== 1 )
+            return;
+
         aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
 
         //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );

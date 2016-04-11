@@ -41,7 +41,8 @@ var playing           = false,
     beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
     beatUnit          = 4;
 
-var currentMeasure, measureStartTime, firstMeasureStartTime, currentMeasureOffset, currentStep, nextNoteTime, channels, measureLength = 2, queueHandlers = [];
+var currentMeasure, measureStartTime, firstMeasureStartTime, currentMeasureOffset,
+    currentStep, nextNoteTime, channels, measureLength = 2, queueHandlers = [];
 
 var SequencerController = module.exports =
 {
@@ -253,7 +254,7 @@ function collect()
                          compareTime < ( event.seq.startMeasureOffset + event.seq.length ))
                     {
                         // enqueue into AudioContext queue at the right time
-                        enqueueEvent( event, nextNoteTime );
+                        enqueueEvent( event, nextNoteTime, currentMeasure, i );
                     }
                 }
             }
@@ -334,8 +335,10 @@ function step()
  *
  * @param {AUDIO_EVENT} aEvent
  * @param {number} aTime AudioContext timestamp to start event playback
+ * @param {number} aEventMeasure measure the event belongs to
+ * @param {number} aEventChannel channel the event belongs to
  */
-function enqueueEvent( aEvent, aTime )
+function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 {
     aEvent.seq.playing = true; // lock it for querying during playback
 
@@ -345,6 +348,44 @@ function enqueueEvent( aEvent, aTime )
         dequeueEvent( aEvent, aTime + aEvent.seq.length );
         freeHandler( clock ); // clear reference to this timed event
     });
+
+    // calculate the note duration for the event
+
+    var patternDuration = ( 60 / tracker.activeSong.meta.tempo ) * beatAmount;
+    var patterns        = tracker.activeSong.patterns;
+    var duration        = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
+
+    if ( aEvent.action === 1 ) // but only for "noteOn" events
+    {
+        var foundEvent = false, foundEnd = false, compareEvent, channel, j, jl;
+
+        for ( var i = aEventMeasure, l = patterns.length; i < l; ++i )
+        {
+            channel = patterns[ i ].channels[ aEventChannel ];
+
+            for ( j = 0, jl = channel.length; j < jl; ++j )
+            {
+                compareEvent = channel[ j ];
+
+                if ( !foundEvent )
+                {
+                    if ( compareEvent === aEvent )
+                        foundEvent = true;
+                }
+                else if ( !foundEnd )
+                {
+                    if ( compareEvent && compareEvent.action > 0 ) { // > 0 as any type of event should act as a kill
+                        foundEnd = true;
+                        break;
+                    }
+                    duration += ( 1 / channel.length ) * patternDuration; // keep incrementing duration until event is found
+                }
+            }
+            if ( foundEnd )
+                break;
+        }
+    }
+    aEvent.seq.length = duration;
 
     // store reference to prevent garbage collection prior to callback execution !
     queueHandlers.push( clock );
