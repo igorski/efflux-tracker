@@ -20,12 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var AudioFactory = require( "../factory/AudioFactory" );
-var AudioUtil    = require( "../utils/AudioUtil" );
-var Messages     = require( "../definitions/Messages" );
-var Pitch        = require( "../definitions/Pitch" );
-var WaveTables   = require( "../definitions/WaveTables" );
-var Pubsub       = require( "pubsub-js" );
+var AudioFactory   = require( "../factory/AudioFactory" );
+var AudioUtil      = require( "../utils/AudioUtil" );
+var InstrumentUtil = require( "../utils/InstrumentUtil" );
+var Config         = require( "../config/Config" );
+var Messages       = require( "../definitions/Messages" );
+var Pitch          = require( "../definitions/Pitch" );
+var WaveTables     = require( "../definitions/WaveTables" );
+var Pubsub         = require( "pubsub-js" );
 
 /* type definitions */
 
@@ -38,21 +40,32 @@ var Pubsub       = require( "pubsub-js" );
  * @typedef {{
  *              oscillator: OscillatorNode,
  *              envelope: AudioParam,
+ *              frequency: number,
  *              adsr: Object
  *          }}
  */
 var EVENT_VOICE;
 
 /**
- * @type {Array.<EVENT_VOICE>}
+ * a single noteOn / noteOff event (can contain
+ * multiple voices)
+ *
+ * @typedef {Array.<EVENT_VOICE>}
  */
 var EVENT_OBJECT;
 
 /* private properties */
 
 var audioContext, pool,
-    UNIQUE_EVENT_ID = 0,
-    events = {};
+    UNIQUE_EVENT_ID = 0;
+
+/**
+ * list that will contain all EVENT_OBJECTs
+ * playing back for any of the Songs instruments
+ *
+ * @type {Array.<Object>}
+ */
+var instrumentEvents = [];
 
 var AudioController = module.exports =
 {
@@ -103,11 +116,13 @@ var AudioController = module.exports =
             CUSTOM: [] // created and maintained by "cacheCustomTables()"
         };
 
+        AudioController.reset();
         cacheCustomTables( instruments );
 
         // subscribe to messages
 
-        [ Messages.SONG_LOADED, Messages.PLAYBACK_STOPPED, Messages.SET_CUSTOM_WAVEFORM ].forEach( function( msg ) {
+        [ Messages.SONG_LOADED, Messages.PLAYBACK_STOPPED,
+          Messages.SET_CUSTOM_WAVEFORM, Messages.ADJUST_OSCILLATOR_TUNING ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
         });
     },
@@ -120,17 +135,24 @@ var AudioController = module.exports =
     {
         var event;
 
-        Object.keys( events ).forEach( function( key, index )
+        instrumentEvents.forEach( function( events, instrumentIndex )
         {
-            event = /** @type {EVENT_OBJECT} */ ( events[ key ] );
+            Object.keys( events ).forEach( function( key, eventIndex )
+            {
+                event = /** @type {EVENT_OBJECT} */ ( events[ key ] );
 
-            if ( event ) {
-                event.forEach( function( oscillator ) {
-                    AudioFactory.stopOscillation( oscillator.oscillator );
-                });
-            }
+                if ( event ) {
+                    event.forEach( function( voice, oscillatorIndex ) {
+                        AudioFactory.stopOscillation( voice.oscillator );
+                    });
+                }
+            });
         });
-        events          = {};
+
+        instrumentEvents = new Array( Config.INSTRUMENT_AMOUNT );
+        for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+            instrumentEvents[ i ] = {};
+
         UNIQUE_EVENT_ID = 0;
     },
 
@@ -153,7 +175,8 @@ var AudioController = module.exports =
      */
     noteOn : function( aEvent, aInstrument, startTimeInSeconds )
     {
-        // only "noteOn" actions allowed
+        // only "noteOn" actions are processed
+
         if ( aEvent.action !== 1 )
             return;
 
@@ -189,25 +212,7 @@ var AudioController = module.exports =
 
                 // tune event frequency to oscillator tuning
 
-                var lfo2Tmpfreq = frequency + ( frequency / 1200 * voice.detune ); // 1200 cents == octave
-                var lfo2freq    = lfo2Tmpfreq;
-
-                if ( voice.octaveShift !== 0 )
-                {
-                    if ( voice.octaveShift < 0 )
-                        lfo2freq = lfo2Tmpfreq / Math.abs( voice.octaveShift * 2 );
-                    else
-                        lfo2freq += ( lfo2Tmpfreq * Math.abs( voice.octaveShift * 2 ) - 1 );
-                }
-
-                var fineShift = ( lfo2Tmpfreq / 12 * Math.abs( voice.fineShift ));
-
-                if ( voice.fineShift < 0 )
-                    lfo2freq -= fineShift;
-                 else
-                    lfo2freq += fineShift;
-
-                oscillator.frequency.value = lfo2freq;
+                oscillator.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
 
                 // apply amplitude envelopes
 
@@ -232,20 +237,26 @@ var AudioController = module.exports =
 
                 AudioFactory.startOscillation( oscillator, startTimeInSeconds );
 
-                oscillators.push( /** @type {EVENT_VOICE} */ ( { oscillator: oscillator, adsr: ADSR, envelope: envelope } ));
+                oscillators.push( /** @type {EVENT_VOICE} */ ({
+                    oscillator: oscillator,
+                    adsr: ADSR,
+                    envelope: envelope,
+                    frequency: frequency
+                }));
             }
         });
-        events[ aEvent.id ] = oscillators;
+        instrumentEvents[ aInstrument.id ][ aEvent.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
     },
 
     /**
      * immediately stop playing audio for the given event
      *
      * @param {AUDIO_EVENT} aEvent
+     * @param {INSTRUMENT} aInstrument playing back the event
      */
-    noteOff : function( aEvent )
+    noteOff : function( aEvent, aInstrument )
     {
-        var eventObject = events[ aEvent.id ];
+        var eventObject = instrumentEvents[ aInstrument.id ][ aEvent.id ];
 
         //console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
 
@@ -273,7 +284,7 @@ var AudioController = module.exports =
                 }.bind( oscillator ));
             });
         }
-        delete events[ aEvent.id ];
+        delete instrumentEvents[ aInstrument.id ][ aEvent.id ];
     }
 };
 
@@ -294,6 +305,10 @@ function handleBroadcast( type, payload )
 
         case Messages.SET_CUSTOM_WAVEFORM:
             createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
+            break;
+
+        case Messages.ADJUST_OSCILLATOR_TUNING:
+            InstrumentUtil.adjustEventTunings( instrumentEvents[ payload[ 0 ]], payload[ 1 ]);
             break;
     }
 }

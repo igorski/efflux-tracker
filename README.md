@@ -68,6 +68,9 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- 1 Default selected instrument in note entry editor should match channel
- 2 Adjusting synth properties should be directly audible on currently playing events
- 3 Add modulator parameters to adjust modules from the tracker
+ * Default selected instrument in note entry editor should match channel
+ * Implement comporessor on master bus
+ * Implement volume for each oscillator
+ * Implement filter
+ * Implement delay
+ * Add modulator parameters to adjust modules from the tracker

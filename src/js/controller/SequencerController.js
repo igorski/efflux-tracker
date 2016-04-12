@@ -397,7 +397,7 @@ function dequeueEvent( aEvent, aTime )
     var clock = AudioUtil.createTimer( audioContext, aTime, function( e )
     {
         aEvent.seq.playing = false;
-        audioController.noteOff( aEvent );
+        audioController.noteOff( aEvent, tracker.activeSong.instruments[ aEvent.instrument ]);
         freeHandler( clock ); // clear reference to this timed event
     });
 

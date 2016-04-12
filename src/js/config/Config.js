@@ -22,33 +22,5 @@
  */
 module.exports =
 {
-    // system messages
-
-    SHOW_ERROR                : 0,
-    SHOW_FEEDBACK             : 1,
-
-    // UI messages
-
-    DISPLAY_HELP              : 2,
-    CLOSE_OVERLAYS            : 3,
-    TOGGLE_INSTRUMENT_EDITOR  : 4,  // payload consists of number describing selected instrument index
-    SET_CUSTOM_WAVEFORM       : 5,  // payload is Array [ instrumentIndex, oscillatorIndex, waveform table (Array.<number>) ]
-
-    // song messages
-
-    LOAD_SONG                 : 6,  // payload consists of the Song that has been loaded
-    SONG_LOADED               : 7,  // payload consists of the Song that has been loaded
-    REFRESH_SONG              : 8,
-    PATTERN_SWITCH            : 9,  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : 10,
-
-    // sequencer messages
-
-    PLAYBACK_STOPPED          : 11,
-    RECORDING_COMPLETE        : 12,
-    TEMPO_UPDATED             : 13, // payload is Array [ old tempo, new tempo ]
-
-    // editor messages
-
-    ADJUST_OSCILLATOR_TUNING  : 14  // payload is Array [ oscillator index, INSTRUMENT_OSCILLATOR ]
+    INSTRUMENT_AMOUNT   : 8
 };

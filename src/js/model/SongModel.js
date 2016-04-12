@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config            = require( "../config/Config" );
 var Fixtures          = require( "../definitions/Fixtures" );
 var PatternFactory    = require( "../factory/PatternFactory" );
 var InstrumentFactory = require( "../factory/InstrumentFactory" );
@@ -93,7 +94,7 @@ SongModel.prototype.getSongById = function( id )
  */
 SongModel.prototype.createSong = function()
 {
-    return {
+    var song = {
 
         // unique identifier
 
@@ -111,10 +112,7 @@ SongModel.prototype.createSong = function()
 
         // instruments
 
-        instruments : [
-            InstrumentFactory.createInstrument( 0 ),
-            InstrumentFactory.createInstrument( 1 )
-        ],
+        instruments : [],
 
         // data lists
 
@@ -127,6 +125,11 @@ SongModel.prototype.createSong = function()
             PatternFactory.createEmptyPattern( 16 )
         ]
     };
+
+    for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        song.instruments[ i ] = InstrumentFactory.createInstrument( i );
+
+    return song;
 };
 
 /**
