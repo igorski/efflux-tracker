@@ -69,7 +69,6 @@ TODO
 ----
 
  * Default selected instrument in note entry editor should match channel
- * Implement comporessor on master bus
  * Implement volume for each oscillator
  * Implement filter
  * Implement delay

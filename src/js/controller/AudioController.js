@@ -56,7 +56,7 @@ var EVENT_OBJECT;
 
 /* private properties */
 
-var audioContext, pool,
+var audioContext, masterBus, compressor, pool,
     UNIQUE_EVENT_ID = 0;
 
 /**
@@ -99,7 +99,9 @@ var AudioController = module.exports =
         else {
             throw new Error( "WebAudio API not supported (try 'isSupported()' prior to invoking)" );
         }
-        iOSinit();
+
+        AudioUtil.iOSinit( audioContext );
+        setupRouting();
 
         // initialize the WaveTable pool
 
@@ -234,7 +236,7 @@ var AudioController = module.exports =
                 // connect oscillator to volume envelope, connect envelope to output
 
                 oscillator.connect( envelopeNode );
-                envelopeNode.connect( audioContext.destination );
+                envelopeNode.connect( masterBus );  // TODO : instruments need a bus that connects to the master
 
                 // start playback
 
@@ -317,38 +319,12 @@ function handleBroadcast( type, payload )
     }
 }
 
-/**
- * on iOS all audio is muted unless the engine has been initialized directly
- * after a user event. this method starts the engine (silently) as soon as
- * a touch interaction has occurred in the document
- */
-function iOSinit()
+function setupRouting()
 {
-    // not an actual iOS check, but we're omitting this if no touch events are available
-    // as we'll silently start the engine on the very first touch interaction
-
-    if ( !( "ontouchstart" in window ))
-        return;
-
-    var handler = function( e )
-    {
-        document.removeEventListener( "touchstart", handler, false );
-
-        var source  = audioContext.createOscillator();
-        source.type = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
-
-        // no need to HEAR it, though ;-)
-        var noGain = AudioFactory.createGainNode( audioContext );
-        source.connect( noGain );
-        noGain.gain.value = 0;
-
-        noGain.connect( audioContext.destination );
-        AudioFactory.startOscillation( source, 0 );  // triggers unmute in iOS
-        AudioFactory.stopOscillation ( source, 0 );  // stops the oscillation so oscillator can be garbage collected
-
-        noGain.disconnect();
-    };
-    document.addEventListener( "touchstart", handler );
+    masterBus  = AudioFactory.createGainNode( audioContext );
+    compressor = audioContext.createDynamicsCompressor();
+    masterBus.connect( compressor );
+    compressor.connect( audioContext.destination );
 }
 
 /**
