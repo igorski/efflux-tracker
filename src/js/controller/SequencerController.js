@@ -125,13 +125,7 @@ var SequencerController = module.exports =
             worker.postMessage({ "cmd" : "stop" });
 
             Pubsub.publishSync( Messages.PLAYBACK_STOPPED );
-
-            // unset playing state of existing events
-
-            SongUtil.resetPlayState( tracker.activeSong.patterns );
-            var i = queueHandlers.length;
-            while ( i-- )
-                freeHandler( queueHandlers[ i ]);
+            clearPending();
         }
     },
 
@@ -328,9 +322,6 @@ function step()
 }
 
 /**
- * use a silent OscillatorNode as a strictly timed clock
- * for adding AudioEvents to output
- *
  * @private
  *
  * @param {AUDIO_EVENT} aEvent
@@ -340,16 +331,9 @@ function step()
  */
 function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 {
-    aEvent.seq.playing = true; // lock it for querying during playback
+    aEvent.seq.playing = true; // lock the Event for further querying during its playback
 
-    var clock = AudioUtil.createTimer( audioContext, aTime, function( e )
-    {
-        audioController.noteOn( aEvent, tracker.activeSong.instruments[ aEvent.instrument ], audioContext.currentTime );
-        dequeueEvent( aEvent, aTime + aEvent.seq.length );
-        freeHandler( clock ); // clear reference to this timed event
-    });
-
-    // calculate the note duration for the event
+    // calculate the total duration for the event
 
     var patternDuration = ( 60 / tracker.activeSong.meta.tempo ) * beatAmount;
     var patterns        = tracker.activeSong.patterns;
@@ -374,7 +358,10 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
                 }
                 else if ( !foundEnd )
                 {
-                    if ( compareEvent && compareEvent.action > 0 ) { // > 0 as any type of event should act as a kill
+                    // the next event (any event with an action) will
+                    // halt the playback of the given event
+
+                    if ( compareEvent && compareEvent.action > 0 ) {
                         foundEnd = true;
                         break;
                     }
@@ -387,13 +374,18 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
     }
     aEvent.seq.length = duration;
 
-    // store reference to prevent garbage collection prior to callback execution !
-    queueHandlers.push( clock );
+    // play back the event in the AudioController
+
+    audioController.noteOn( aEvent, tracker.activeSong.instruments[ aEvent.instrument ], aTime );
+
+    // noteOff will be triggered by the Sequencer
+
+    dequeueEvent( aEvent, aTime + aEvent.seq.length );
 }
 
 /**
  * use a silent OscillatorNode as a strictly timed clock
- * for removing AudioEvents from the AudioRenderer queue
+ * for removing the AudioEvents from the AudioController
  *
  * @private
  *
@@ -411,6 +403,15 @@ function dequeueEvent( aEvent, aTime )
 
     // store reference to prevent garbage collection prior to callback execution !
     queueHandlers.push( clock );
+}
+
+function clearPending()
+{
+    SongUtil.resetPlayState( tracker.activeSong.patterns ); // unset playing state of existing events
+
+    var i = queueHandlers.length;
+    while ( i-- )
+        freeHandler( queueHandlers[ i ]);
 }
 
 /**
