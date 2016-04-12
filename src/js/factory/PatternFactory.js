@@ -22,15 +22,18 @@
  */
 
 /**
- * type definition for a single AudioEvent, the "action" property is
- * an enumeration describing the action of the note, e.g.:
+ * type definition for a single AudioEvent
  *
+ * "id" is assigned by the AudioController at playback
+ *
+ * the "action" property is an enumeration describing the action of the note, e.g.:
  * 0 = nothing, 1 = noteOn, 2 = noteOff (kills previous note)
  *
  * the "seq" Object defines the properties for playback within the
  * Sequencer and defines values in seconds
  *
  * @typedef {{
+ *              id: number,
  *              instrument: number,
  *              note: string,
  *              octave: number,

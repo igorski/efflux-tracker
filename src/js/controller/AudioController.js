@@ -63,7 +63,7 @@ var audioContext, pool,
  * list that will contain all EVENT_OBJECTs
  * playing back for any of the Songs instruments
  *
- * @type {Array.<Object>}
+ * @type {Array.<Array.<EVENT_OBJECT>>}
  */
 var instrumentEvents = [];
 
@@ -137,21 +137,24 @@ var AudioController = module.exports =
 
         instrumentEvents.forEach( function( events, instrumentIndex )
         {
-            Object.keys( events ).forEach( function( key, eventIndex )
+            var i = events.length,
+                event;
+
+            while ( i-- )
             {
-                event = /** @type {EVENT_OBJECT} */ ( events[ key ] );
+                event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
 
                 if ( event ) {
                     event.forEach( function( voice, oscillatorIndex ) {
                         AudioFactory.stopOscillation( voice.oscillator );
                     });
                 }
-            });
+            }
         });
 
         instrumentEvents = new Array( Config.INSTRUMENT_AMOUNT );
         for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-            instrumentEvents[ i ] = {};
+            instrumentEvents[ i ] = [];
 
         UNIQUE_EVENT_ID = 0;
     },
@@ -180,7 +183,7 @@ var AudioController = module.exports =
         if ( aEvent.action !== 1 )
             return;
 
-        aEvent.id = ( ++UNIQUE_EVENT_ID ).toString(); // create unique event identifier
+        aEvent.id = ( ++UNIQUE_EVENT_ID ); // create unique event identifier
 
         //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
 
