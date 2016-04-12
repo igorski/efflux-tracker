@@ -68,7 +68,6 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Default selected instrument in note entry editor should match channel
  * Implement volume for each oscillator
  * Implement filter
  * Implement delay

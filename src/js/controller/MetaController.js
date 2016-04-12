@@ -139,5 +139,5 @@ function handleInstrumentSelect( aEvent )
 
 function handleMouseOver( aEvent )
 {
-    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicMeta" );
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicMeta" );
 }

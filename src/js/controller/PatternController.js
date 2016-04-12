@@ -33,7 +33,7 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 /* private properties */
 
 var container, tracker, noteEntryController, keyboardController;
-var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16,
+var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16, activeInstrument = 0,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
     prevVerticalKey, interactionData = {},
     stateModel, selectionModel, patternCopy, positionTitle,
@@ -193,11 +193,11 @@ var PatternController = module.exports =
                     if ( ++activeChannel > 1 ) {
                         if ( activePattern < ( tracker.activeSong.patterns.length - 1 )) {
                             ++activePattern;
-                            activeChannel = 0;
+                            activeChannel = activeInstrument = 0;
                             PatternController.update();
                         }
                         else
-                            activeChannel = 1;
+                            activeChannel = activeInstrument = 1;
                     }
 
                     if ( aEvent.shiftKey )
@@ -212,11 +212,11 @@ var PatternController = module.exports =
                     if ( --activeChannel < 0 ) {
                         if ( activePattern > 0 ) {
                             --activePattern;
-                            activeChannel = 1;
+                            activeChannel = activeInstrument = 1;
                             PatternController.update();
                         }
                         else
-                            activeChannel = 0;
+                            activeChannel = activeInstrument = 0;
                     }
 
                     if ( aEvent.shiftKey )
@@ -412,8 +412,12 @@ function handleInteraction( aEvent )
             while ( j-- )
             {
                 if ( items[ j ] === aEvent.target ) {
-                    activeChannel = i;
-                    activeStep    = j;
+
+                    if ( i !== activeChannel ) {
+                        activeInstrument = i; // when entering a new channel lane, make default instrument match index
+                        activeChannel    = i;
+                    }
+                    activeStep       = j;
                     highlightActiveStep();
 
                     keyboardController.setListener( PatternController );
@@ -428,7 +432,7 @@ function handleInteraction( aEvent )
             }
         }
     }
-    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicTracker" );
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
 }
 
 function editStep()
@@ -437,14 +441,12 @@ function editStep()
     var channel = pattern.channels[ activeChannel ];
     var event   = channel[ activeStep ];
 
-    /** @type {AUDIO_EVENT} */
-    var options = ( event ) ?
+    var options =
     {
-        instrument : event.instrument,
-        note       : event.note,
-        octave     : event.octave
-
-    } : null;
+        instrument : ( event ) ? event.instrument : activeInstrument,
+        note       : ( event ) ? event.note       : "C",
+        octave     : ( event ) ? event.octave     : 3
+    };
 
     noteEntryController.open( options, function( data )
     {
@@ -467,7 +469,8 @@ function editStep()
                 event.note       = data.note;
                 event.octave     = data.octave;
 
-                event = addEventAtCurrentPosition( event );
+                addEventAtCurrentPosition( event );
+                activeInstrument = event.instrument; // save last added instrument as default
             }
         }
     });
@@ -499,7 +502,7 @@ function handlePatternAdd( aEvent )
         patterns = song.patterns;
 
     if ( patterns.length === 128 ) {
-        Pubsub.publishSync( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 128 patterns" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 128 patterns" );
         return;
     }
 
@@ -594,7 +597,7 @@ function handlePatternStepChange( aEvent )
 
 function handleMouseOver( aEvent )
 {
-    Pubsub.publishSync( Messages.DISPLAY_HELP, "helpTopicPattern" );
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
 }
 
 function saveState()
