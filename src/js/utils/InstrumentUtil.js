@@ -82,5 +82,31 @@ var InstrumentUtil = module.exports =
                 }
             }
         }
+    },
+
+    /**
+     * alter the wavetable of currently playing events to match
+     * changes made to the waveform of given oscillator
+     *
+     * @public
+     *
+     * @param {Array.<EVENT_OBJECT>} events
+     * @param {number} oscillatorIndex
+     * @param {PeriodicWave} table
+     */
+    adjustWaveForms : function( events, oscillatorIndex, table )
+    {
+        var i = events.length, event;
+
+        while ( i-- )
+        {
+            if ( event = events[ i ] ) {
+
+                if ( event.length > oscillatorIndex ) {
+
+                    event[ oscillatorIndex ].oscillator.setPeriodicWave( table );
+                }
+            }
+        }
     }
 };

@@ -307,7 +307,8 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.SET_CUSTOM_WAVEFORM:
-            createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
+            var table = createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
+            InstrumentUtil.adjustWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
             break;
 
         case Messages.ADJUST_OSCILLATOR_TUNING:
@@ -380,8 +381,9 @@ function cacheCustomTables( instruments )
  * @param {number} instrumentIndex index of the instrument within the pool
  * @param {number} oscillatorIndex index of the oscillator within the instrument
  * @param {Array.<number>} table list of points
+ * @return {PeriodicWave} the created WaveTable
  */
 function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table )
 {
-    pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioUtil.createWaveTableFromGraph( audioContext, table );
+    return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioUtil.createWaveTableFromGraph( audioContext, table );
 }

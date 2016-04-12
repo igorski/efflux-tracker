@@ -29,8 +29,11 @@ module.exports =
      * y-coordinate points drawn in the UI) and apply it onto the given
      * OscillatorNode oscillator
      *
+     * @public
+     *
      * @param {AudioContext} audioContext
      * @param {Array.<number>} graphPoints
+     * @return {PeriodicWave}
      */
     createWaveTableFromGraph : function( audioContext, graphPoints )
     {

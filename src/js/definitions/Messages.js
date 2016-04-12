@@ -32,7 +32,7 @@ module.exports =
     DISPLAY_HELP              : 2,
     CLOSE_OVERLAYS            : 3,
     TOGGLE_INSTRUMENT_EDITOR  : 4,  // payload consists of number describing selected instrument index
-    SET_CUSTOM_WAVEFORM       : 5,  // payload is Array [ instrumentIndex, oscillatorIndex, waveform table (Array.<number>) ]
+    SET_CUSTOM_WAVEFORM       : 5,  // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
 
     // song messages
 
@@ -50,5 +50,5 @@ module.exports =
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING  : 14  // payload is Array [ instrument id, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_TUNING  : 14  // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
 };
