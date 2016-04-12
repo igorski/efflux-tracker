@@ -59,26 +59,25 @@ var InstrumentUtil = module.exports =
     /**
      * alter the frequency of currently playing events to match changes
      * made to the tuning of given oscillator
+     *
      * @public
      *
      * @param {Array.<EVENT_OBJECT>} events
+     * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
-    adjustEventTunings : function( events, oscillator )
+    adjustEventTunings : function( events, oscillatorIndex, oscillator )
     {
         var i = events.length,
-            j, event, voice;
+            event, voice;
 
         while ( i-- )
         {
-            event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
+            if ( event = events[ i ] ) {
 
-            if ( event ) {
+                if ( event.length > oscillatorIndex ) {
 
-                j = event.length;
-
-                while ( j-- ) {
-                    voice = event[ j ];
+                    voice = event[ oscillatorIndex ];
                     voice.oscillator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator );
                 }
             }

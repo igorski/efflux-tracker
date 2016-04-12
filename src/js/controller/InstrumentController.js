@@ -199,7 +199,7 @@ function handleTuningChange( aEvent )
             oscillator.fineShift = value;
             break;
     }
-    Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_TUNING, [ activeOscillatorIndex, oscillator ]);
+    Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_TUNING, [ instrumentId, activeOscillatorIndex, oscillator ]);
 }
 
 function handleEnvelopeChange( aEvent )

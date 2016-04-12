@@ -311,7 +311,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.ADJUST_OSCILLATOR_TUNING:
-            InstrumentUtil.adjustEventTunings( instrumentEvents[ payload[ 0 ]], payload[ 1 ]);
+            InstrumentUtil.adjustEventTunings( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
             break;
     }
 }
