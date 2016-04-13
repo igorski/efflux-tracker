@@ -45,9 +45,10 @@ var INSTRUMENT;
  * ADSR values are envelope operations in seconds
  *
  * @typedef {{
- *     enabled: boolean,
- *     waveform: string,
- *     table: Array.<number>,
+ *     enabled     : boolean,
+ *     waveform    : string,
+ *     table       : Array.<number>,
+ *     volume      : number,
  *     detune      : number,
  *     octaveShift : number,
  *     fineShift   : number
@@ -117,6 +118,7 @@ var InstrumentFactory = module.exports =
             enabled     : aEnabled,
             waveform    : "SAW",
             table       : table,
+            volume      : 1,
             detune      : 0,
             octaveShift : 0,
             fineShift   : 0,

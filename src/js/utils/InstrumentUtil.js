@@ -85,6 +85,34 @@ var InstrumentUtil = module.exports =
     },
 
     /**
+     * alter the frequency of currently playing events to match changes
+     * made to the tuning of given oscillator
+     *
+     * @public
+     *
+     * @param {Array.<EVENT_OBJECT>} events
+     * @param {number} oscillatorIndex
+     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     */
+    adjustEventVolume : function( events, oscillatorIndex, oscillator )
+    {
+        var i = events.length,
+            event, voice;
+
+        while ( i-- )
+        {
+            if ( event = events[ i ] ) {
+
+                if ( event.length > oscillatorIndex ) {
+
+                    voice = event[ oscillatorIndex ];
+                    voice.gain.gain.value = oscillator.volume;
+                }
+            }
+        }
+    },
+
+    /**
      * alter the wavetable of currently playing events to match
      * changes made to the waveform of given oscillator
      *
@@ -94,7 +122,7 @@ var InstrumentUtil = module.exports =
      * @param {number} oscillatorIndex
      * @param {PeriodicWave} table
      */
-    adjustWaveForms : function( events, oscillatorIndex, table )
+    adjustEventWaveForms : function( events, oscillatorIndex, table )
     {
         var i = events.length, event;
 

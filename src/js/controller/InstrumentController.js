@@ -30,7 +30,7 @@ var Pubsub        = require( "pubsub-js" );
 /* private properties */
 
 var container, tracker, keyboardController, view, canvas, wtDraw,
-    instrumentSelect, oscEnabledSelect, oscWaveformSelect,
+    instrumentSelect, oscEnabledSelect, oscWaveformSelect, volumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl;
 
@@ -55,6 +55,7 @@ var InstrumentController = module.exports =
         instrumentSelect   = view.querySelector( "#instrumentSelect" );
         oscEnabledSelect   = view.querySelector( "#oscillatorEnabled" );
         oscWaveformSelect  = view.querySelector( "#oscillatorWaveformSelect" );
+        volumeControl      = view.querySelector( "#volume" );
         detuneControl      = view.querySelector( "#detune" );
         octaveShiftControl = view.querySelector( "#octaveShift" );
         fineShiftControl   = view.querySelector( "#fineShift" );
@@ -77,9 +78,10 @@ var InstrumentController = module.exports =
         // add listeners
 
         view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
-        instrumentSelect.addEventListener  ( "change", handleInstrumentSelect );
-        oscEnabledSelect.addEventListener  ( "change", handleOscillatorEnabledChange );
-        oscWaveformSelect.addEventListener ( "change", handleWaveformChange );
+        instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
+        oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
+        oscWaveformSelect.addEventListener( "change", handleWaveformChange );
+        volumeControl.addEventListener    ( "input",  handleVolumeChange );
 
         [ detuneControl, octaveShiftControl, fineShiftControl ].forEach( function( control ) {
             control.addEventListener( "input", handleTuningChange );
@@ -120,6 +122,7 @@ var InstrumentController = module.exports =
         detuneControl.value      = oscillator.detune;
         octaveShiftControl.value = oscillator.octaveShift;
         fineShiftControl.value   = oscillator.fineShift;
+        volumeControl.value      = oscillator.volume;
 
         attackControl.value  = oscillator.adsr.attack;
         decayControl.value   = oscillator.adsr.decay;
@@ -249,6 +252,15 @@ function handleWaveformChange( aEvent )
     var oscillator = instrument.oscillators[ activeOscillatorIndex ];
     instrument.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
     cacheOscillatorWaveForm( oscillator );
+}
+
+function handleVolumeChange( aEvent )
+{
+    instrument.oscillators[ activeOscillatorIndex ].volume = parseFloat( volumeControl.value );
+    Pubsub.publishSync(
+        Messages.ADJUST_OSCILLATOR_VOLUME,
+        [ instrumentId, activeOscillatorIndex, instrument.oscillators[ activeOscillatorIndex ] ]
+    );
 }
 
 function cacheOscillatorWaveForm( oscillator )

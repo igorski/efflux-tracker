@@ -40,6 +40,7 @@ var Pubsub         = require( "pubsub-js" );
  * @typedef {{
  *              oscillator: OscillatorNode,
  *              envelope: AudioParam,
+ *              gain: AudioParam,
  *              frequency: number,
  *              adsr: Object
  *          }}
@@ -123,8 +124,13 @@ var AudioController = module.exports =
 
         // subscribe to messages
 
-        [ Messages.SONG_LOADED, Messages.PLAYBACK_STOPPED,
-          Messages.SET_CUSTOM_WAVEFORM, Messages.ADJUST_OSCILLATOR_TUNING ].forEach( function( msg ) {
+        [   Messages.SONG_LOADED,
+            Messages.PLAYBACK_STOPPED,
+            Messages.SET_CUSTOM_WAVEFORM,
+            Messages.ADJUST_OSCILLATOR_TUNING,
+            Messages.ADJUST_OSCILLATOR_VOLUME
+
+        ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
         });
     },
@@ -233,10 +239,13 @@ var AudioController = module.exports =
                 envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
                 envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
 
-                // connect oscillator to volume envelope, connect envelope to output
+                // connect oscillator to track gain > envelope gain > output
 
-                oscillator.connect( envelopeNode );
-                envelopeNode.connect( masterBus );  // TODO : instruments need a bus that connects to the master
+                var trackGain = AudioFactory.createGainNode( audioContext );
+                trackGain.gain.value = oscillatorVO.volume;
+                oscillator.connect( trackGain );
+                trackGain.connect( envelopeNode );
+                envelopeNode.connect( masterBus );
 
                 // start playback
 
@@ -246,7 +255,8 @@ var AudioController = module.exports =
                     oscillator: oscillator,
                     adsr: ADSR,
                     envelope: envelope,
-                    frequency: frequency
+                    frequency: frequency,
+                    gain: trackGain
                 }));
             }
         });
@@ -310,11 +320,15 @@ function handleBroadcast( type, payload )
 
         case Messages.SET_CUSTOM_WAVEFORM:
             var table = createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
-            InstrumentUtil.adjustWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
+            InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
             break;
 
         case Messages.ADJUST_OSCILLATOR_TUNING:
             InstrumentUtil.adjustEventTunings( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
+            break;
+
+        case Messages.ADJUST_OSCILLATOR_VOLUME:
+            InstrumentUtil.adjustEventVolume( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
             break;
     }
 }
