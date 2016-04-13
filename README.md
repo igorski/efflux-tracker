@@ -68,7 +68,9 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Implement volume for each oscillator
  * Implement filter
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
+ * Implement correct sequence range
+ * Implement MIDI control
+ * Implement audio export
