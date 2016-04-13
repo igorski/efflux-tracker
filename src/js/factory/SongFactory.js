@@ -20,7 +20,48 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var PatternFactory    = require( "./PatternFactory" );
+var InstrumentFactory = require( "./InstrumentFactory" );
+
 module.exports =
 {
-    INSTRUMENT_AMOUNT : 8
+    createSong : function( amountOfInstruments )
+    {
+        var song = {
+
+            // unique identifier
+
+            id : Date.now() + Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 ),
+
+            // outline of meta data
+
+            meta : {
+                title    : "",
+                author   : "",
+                created  : Date.now(),
+                modified : Date.now(),
+                tempo    : 120.0
+            },
+
+            // instruments
+
+            instruments : [],
+
+            // data lists
+
+            /**
+             * this type definition states what a pattern Object looks like
+             *
+             * @typedef {Array.<PATTERN>}
+             */
+            patterns : [
+                PatternFactory.createEmptyPattern( 16 )
+            ]
+        };
+
+        for ( var i = 0; i < amountOfInstruments; ++i )
+            song.instruments[ i ] = InstrumentFactory.createInstrument( i );
+
+        return song;
+    }
 };
