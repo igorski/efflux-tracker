@@ -128,7 +128,8 @@ var AudioController = module.exports =
             Messages.PLAYBACK_STOPPED,
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
-            Messages.ADJUST_OSCILLATOR_VOLUME
+            Messages.ADJUST_OSCILLATOR_VOLUME,
+            Messages.CHANGE_WAVEFORM
 
         ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
@@ -321,6 +322,10 @@ function handleBroadcast( type, payload )
         case Messages.SET_CUSTOM_WAVEFORM:
             var table = createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
             InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
+            break;
+
+        case Messages.CHANGE_WAVEFORM:
+            InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], pool[ payload[ 2 ].waveform ] );
             break;
 
         case Messages.ADJUST_OSCILLATOR_TUNING:

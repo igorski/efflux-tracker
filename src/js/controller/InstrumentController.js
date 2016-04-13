@@ -267,4 +267,6 @@ function cacheOscillatorWaveForm( oscillator )
 {
     if ( oscillator.enabled && oscillator.waveform === "CUSTOM" )
         Pubsub.publishSync( Messages.SET_CUSTOM_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator.table ]);
+    else
+        Pubsub.publishSync( Messages.CHANGE_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator ]);
 }

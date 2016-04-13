@@ -51,5 +51,6 @@ module.exports =
     // editor messages
 
     ADJUST_OSCILLATOR_TUNING  : 14, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME  : 15  // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME  : 15, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 16  // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
 };
