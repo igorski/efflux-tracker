@@ -32,7 +32,8 @@ var Pubsub        = require( "pubsub-js" );
 var container, tracker, keyboardController, view, canvas, wtDraw,
     instrumentSelect, oscEnabledSelect, oscWaveformSelect, volumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
-    attackControl, decayControl, sustainControl, releaseControl;
+    attackControl, decayControl, sustainControl, releaseControl,
+    frequencyControl, qControl, lfoSelect, speedControl, depthControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrument;
 
@@ -63,6 +64,11 @@ var InstrumentController = module.exports =
         decayControl       = view.querySelector( "#decay" );
         sustainControl     = view.querySelector( "#sustain" );
         releaseControl     = view.querySelector( "#release" );
+        frequencyControl   = view.querySelector( "#filterFrequency" );
+        qControl           = view.querySelector( "#filterQ" );
+        lfoSelect          = view.querySelector( "#filterLFO" );
+        speedControl       = view.querySelector( "#filterSpeed" );
+        depthControl       = view.querySelector( "#filterDepth" );
 
         canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
         canvas.insertInPage( view.querySelector( "#canvasContainer" ));
@@ -89,6 +95,11 @@ var InstrumentController = module.exports =
 
         [ attackControl, decayControl, sustainControl, releaseControl ].forEach( function( control ) {
             control.addEventListener( "input", handleEnvelopeChange );
+        });
+
+        lfoSelect.addEventListener( "change", handleFilterChange );
+        [ frequencyControl, qControl, speedControl, depthControl ].forEach( function( control ) {
+            control.addEventListener( "input", handleFilterChange );
         });
 
         [ Messages.CLOSE_OVERLAYS, Messages.TOGGLE_INSTRUMENT_EDITOR ].forEach( function( msg )
@@ -128,6 +139,12 @@ var InstrumentController = module.exports =
         decayControl.value   = oscillator.adsr.decay;
         sustainControl.value = oscillator.adsr.sustain;
         releaseControl.value = oscillator.adsr.release;
+
+        Form.setSelectedOption( lfoSelect, instrument.filter.lfoEnabled );
+        frequencyControl.value = instrument.filter.frequency;
+        qControl.value         = instrument.filter.q;
+        speedControl.value     = instrument.filter.speed;
+        depthControl.value     = instrument.filter.depth;
 
         canvas.invalidate();
     },
@@ -181,9 +198,6 @@ function handleOscillatorTabClick( aEvent )
 
 function handleTuningChange( aEvent )
 {
-    if ( !instrument )
-        return;
-
     var oscillator = instrument.oscillators[ activeOscillatorIndex ],
         target     = aEvent.target,
         value      = parseFloat( target.value );
@@ -207,9 +221,6 @@ function handleTuningChange( aEvent )
 
 function handleEnvelopeChange( aEvent )
 {
-    if ( !instrument )
-        return;
-
     var oscillator = instrument.oscillators[ activeOscillatorIndex ],
         target     = aEvent.target,
         value      = parseFloat( target.value );
@@ -232,6 +243,19 @@ function handleEnvelopeChange( aEvent )
             oscillator.adsr.release = value;
             break;
     }
+}
+
+function handleFilterChange( aEvent )
+{
+    var filter = instrument.filter;
+
+    filter.frequency  = parseFloat( frequencyControl.value );
+    filter.q          = parseFloat( qControl.value );
+    filter.speed      = parseFloat( speedControl.value );
+    filter.depth      = parseFloat( depthControl.value );
+    filter.lfoEnabled = ( Form.getSelectedOption( lfoSelect ) === "true" );
+
+    Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrumentId, filter ]);
 }
 
 function handleInstrumentSelect( aEvent )

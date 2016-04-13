@@ -57,7 +57,7 @@ var EVENT_OBJECT;
 
 /* private properties */
 
-var audioContext, masterBus, compressor, pool,
+var audioContext, masterBus, compressor, pool, instrumentModules,
     UNIQUE_EVENT_ID = 0;
 
 /**
@@ -129,7 +129,8 @@ var AudioController = module.exports =
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
             Messages.ADJUST_OSCILLATOR_VOLUME,
-            Messages.CHANGE_WAVEFORM
+            Messages.CHANGE_WAVEFORM,
+            Messages.UPDATE_FILTER_SETTINGS
 
         ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
@@ -165,11 +166,13 @@ var AudioController = module.exports =
         for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
             instrumentEvents[ i ] = [];
 
+        createModules();
+
         UNIQUE_EVENT_ID = 0;
     },
 
     /**
-     * retrieve a reference to the audioContext
+     * retrieve a reference to the AudioContext
      *
      * @return {AudioContext}
      */
@@ -228,25 +231,28 @@ var AudioController = module.exports =
 
                 // apply amplitude envelopes
 
-                var envelopeNode = AudioFactory.createGainNode( audioContext ),
-                    envelope = envelopeNode.gain;
+                var adsrNode = AudioFactory.createGainNode( audioContext ),
+                    envelope = adsrNode.gain;
 
-                var ADSR = oscillatorVO.adsr;
-                var attackEnd  = startTimeInSeconds + ADSR.attack,
-                    decayEnd   = attackEnd + ADSR.decay;
+                var ADSR      = oscillatorVO.adsr,
+                    attackEnd = startTimeInSeconds + ADSR.attack,
+                    decayEnd  = attackEnd + ADSR.decay;
 
                 envelope.cancelScheduledValues( startTimeInSeconds );
                 envelope.setValueAtTime( 0.0, startTimeInSeconds );         // envelope start value
                 envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
                 envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
 
-                // connect oscillator to track gain > envelope gain > output
+                // route oscillator to filter module > track gain > envelope gain > output
+
+                var modules = instrumentModules[ aInstrument.id ];
 
                 var trackGain = AudioFactory.createGainNode( audioContext );
                 trackGain.gain.value = oscillatorVO.volume;
-                oscillator.connect( trackGain );
-                trackGain.connect( envelopeNode );
-                envelopeNode.connect( masterBus );
+                oscillator.connect( modules.filter.filter );
+                modules.filter.filter.connect( trackGain );
+                trackGain.connect( adsrNode );
+                adsrNode.connect( masterBus );
 
                 // start playback
 
@@ -335,6 +341,17 @@ function handleBroadcast( type, payload )
         case Messages.ADJUST_OSCILLATOR_VOLUME:
             InstrumentUtil.adjustEventVolume( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
             break;
+
+        case Messages.UPDATE_FILTER_SETTINGS:
+            var filter = instrumentModules[ payload[ 0 ]].filter;
+            var props  = payload[ 1 ];
+
+            filter.filter.frequency.value = props.frequency;
+            filter.filter.Q.value         = props.q;
+            filter.lfo.frequency.value    = props.speed;
+            filter.lfoAmp.gain.value      = props.depth / 100 * props.frequency;
+            AudioFactory.toggleFilterLFO( filter, props.lfoEnabled );
+            break;
     }
 }
 
@@ -344,6 +361,17 @@ function setupRouting()
     compressor = audioContext.createDynamicsCompressor();
     masterBus.connect( compressor );
     compressor.connect( audioContext.destination );
+}
+
+function createModules()
+{
+    instrumentModules = new Array( Config.INSTRUMENT_AMOUNT );
+    for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+    {
+        instrumentModules[ i ] = {
+            filter: AudioFactory.createFilter( audioContext )
+        };
+    }
 }
 
 /**

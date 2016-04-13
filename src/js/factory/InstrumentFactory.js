@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config = require( "../config/Config" );
 
 /**
  * type definition for an instrument
@@ -27,7 +28,14 @@
  * @typedef {{
  *              id: number,
  *              name: string,
- *              oscillators: Array.<INSTRUMENT_OSCILLATOR>
+ *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
+ *              filter : {
+ *                  lfoEnabled : boolean,
+ *                  frequency  : number,
+ *                  q          : number,
+ *                  speed      : number,
+ *                  depth      : number
+ *              }
  *          }}
  */
 var INSTRUMENT;
@@ -57,7 +65,7 @@ var INSTRUMENT;
  *         decay: number,
  *         sustain: number,
  *         release: number
- *     },
+ *     }
  * }}
  */
 var INSTRUMENT_OSCILLATOR;
@@ -84,7 +92,14 @@ var InstrumentFactory = module.exports =
                 InstrumentFactory.createOscillator( true,  DEFAULT_TABLE_SIZE ),
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE ),
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE )
-            ]
+            ],
+            filter : {
+                lfoEnabled : false,
+                frequency  : Config.DEFAULT_FILTER_FREQ,
+                q          : Config.DEFAULT_FILTER_Q,
+                speed      : Config.DEFAULT_FILTER_LFO_SPEED,
+                depth      : Config.DEFAULT_FILTER_LFO_DEPTH
+            }
         };
     },
 

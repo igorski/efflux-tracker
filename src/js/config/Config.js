@@ -22,5 +22,16 @@
  */
 module.exports =
 {
-    INSTRUMENT_AMOUNT : 8
+    INSTRUMENT_AMOUNT           : 8,
+
+    DEFAULT_FILTER_FREQ         : 880,
+    DEFAULT_FILTER_Q            : 5,
+
+    DEFAULT_FILTER_LFO_SPEED    : .5,
+    DEFAULT_FILTER_LFO_DEPTH    : 50,
+
+    DEFAULT_DELAY_MIX           : .65,
+    DEFAULT_DELAY_FEEDBACK      : 0.0000001,
+    DEFAULT_DELAY_TIME          : 0.33,
+    DEFAULT_DELAY_CUT_OFF       : 1500
 };

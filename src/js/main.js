@@ -57,14 +57,13 @@ var tracker;
 
     // prepare application model
 
+    var songModel = new SongModel();
+
     tracker = ref.tracker =
     {
-        SongModel : new SongModel()
+        SongModel  : songModel,
+        activeSong : songModel.createSong() // create new empty song or load last available song
     };
-
-    // create new empty song or load last available song
-
-    tracker.activeSong = tracker.SongModel.createSong();
 
     // prepare view
 

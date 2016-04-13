@@ -52,5 +52,6 @@ module.exports =
 
     ADJUST_OSCILLATOR_TUNING  : 14, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
     ADJUST_OSCILLATOR_VOLUME  : 15, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    CHANGE_WAVEFORM           : 16  // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 16, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    UPDATE_FILTER_SETTINGS    : 17  // payload is Array [ instrument index, filter properties Object ]
 };

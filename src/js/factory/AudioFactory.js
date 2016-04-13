@@ -20,13 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config = require( "../config/Config" );
+
+/* type definitions */
+
+/**
+ * @typedef {{
+ *              filter: BiquadFilterNode,
+ *              lfo: OscillatorNode,
+ *              lfoAmp: GainNode
+ *          }}
+ */
+var FILTER_MODULE;
+
+/* private properties */
+
 var isStandards = !!( "AudioContext" in window );
 
 /**
  * AudioFactory provides wrapper methods to overcome
  * differences in AudioContext implementations across browsers
  */
-module.exports =
+var AudioFactory = module.exports =
 {
     /**
      * @public
@@ -91,5 +106,63 @@ module.exports =
             delay.delayTime.value = aMaxDelayTime;
 
         return delay;
+    },
+
+    /**
+     * create a filter that can be modulated by a
+     * low frequency oscillator
+     *
+     * @public
+     *
+     * @param {AudioContext} audioContext
+     * @return {FILTER_MODULE}
+     */
+    createFilter : function( audioContext )
+    {
+        var filter = audioContext.createBiquadFilter();
+        var lfo    = audioContext.createOscillator();
+        var lfoAmp = AudioFactory.createGainNode( audioContext );
+
+        AudioFactory.startOscillation( lfo, audioContext.currentTime );
+        lfoAmp.connect( filter.frequency );
+
+        lfo.frequency.value = Config.DEFAULT_FILTER_LFO_SPEED;
+        lfoAmp.gain.value   = Config.DEFAULT_FILTER_LFO_DEPTH / 100 * filter.frequency.value;
+
+        filter.frequency.value = Config.DEFAULT_FILTER_FREQ;
+        filter.Q.value         = Config.DEFAULT_FILTER_Q;
+
+        return {
+            filter     : filter,
+            lfo        : lfo,
+            lfoAmp     : lfoAmp,
+            lfoEnabled : false
+        };
+    },
+
+    /**
+     * toggle the on/off state of a FILTER_MODULE's LFO
+     *
+     * @param {FILTER_MODULE} filterModule
+     * @param {boolean} enabled
+     */
+    toggleFilterLFO : function( filterModule, enabled )
+    {
+        if ( enabled )
+        {
+            if ( !filterModule.lfoEnabled ) {
+                filterModule.lfo.connect( filterModule.lfoAmp );
+                filterModule.lfoEnabled = true;
+            }
+        }
+        else if ( filterModule.lfoEnabled )
+        {
+            filterModule.lfoEnabled = false;
+
+            // we must dis- and reconnect to ensure the next noteOn works!
+            // (AudioBufferSourceNode can only be played once)
+
+            filterModule.lfo.disconnect();
+        }
     }
 };
