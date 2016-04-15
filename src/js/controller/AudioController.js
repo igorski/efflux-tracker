@@ -41,6 +41,7 @@ var Pubsub         = require( "pubsub-js" );
  *              oscillator: OscillatorNode,
  *              envelope: AudioParam,
  *              gain: AudioParam,
+ *              outputNode: AudioParam,
  *              frequency: number,
  *              adsr: Object
  *          }}
@@ -205,6 +206,7 @@ var AudioController = module.exports =
             startTimeInSeconds = audioContext.currentTime;
 
         var oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
+        var modules     = instrumentModules[ aInstrument.id ];
 
         aInstrument.oscillators.forEach( function( oscillatorVO, oscillatorIndex )
         {
@@ -243,16 +245,13 @@ var AudioController = module.exports =
                 envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
                 envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
 
-                // route oscillator to filter module > track gain > envelope gain > output
+                // route oscillator to track gain > envelope gain > instrument gain
 
-                var modules = instrumentModules[ aInstrument.id ];
-
-                var trackGain = AudioFactory.createGainNode( audioContext );
-                trackGain.gain.value = oscillatorVO.volume;
-                oscillator.connect( modules.filter.filter );
-                modules.filter.filter.connect( trackGain );
-                trackGain.connect( adsrNode );
-                adsrNode.connect( masterBus );
+                var oscillatorGain = AudioFactory.createGainNode( audioContext );
+                oscillatorGain.gain.value = oscillatorVO.volume;
+                oscillator.connect( oscillatorGain );
+                oscillatorGain.connect( adsrNode );
+                adsrNode.connect( modules.output );
 
                 // start playback
 
@@ -263,7 +262,8 @@ var AudioController = module.exports =
                     adsr: ADSR,
                     envelope: envelope,
                     frequency: frequency,
-                    gain: trackGain
+                    gain: oscillatorGain,
+                    outputNode: adsrNode
                 }));
             }
         });
@@ -284,6 +284,8 @@ var AudioController = module.exports =
 
         if ( eventObject ) {
 
+            var modules = instrumentModules[ aInstrument.id ];
+
             eventObject.forEach( function( event )
             {
                 var oscillator = event.oscillator,
@@ -301,7 +303,11 @@ var AudioController = module.exports =
                 AudioUtil.createTimer( audioContext, audioContext.currentTime + ADSR.release, function()
                 {
                     AudioFactory.stopOscillation( this, audioContext.currentTime );
+
+                    // disconnect oscillator and its output node from the instrument output
+
                     this.disconnect();
+                    event.outputNode.disconnect( modules.output );
 
                 }.bind( oscillator ));
             });
@@ -348,7 +354,7 @@ function handleBroadcast( type, payload )
 
             filter.filter.frequency.value = props.frequency;
             filter.filter.Q.value         = props.q;
-            filter.filter.type            = props.type;
+
             filter.lfo.frequency.value    = props.speed;
             filter.lfoAmp.gain.value      = props.depth / 100 * props.frequency;
 
@@ -371,11 +377,17 @@ function setupRouting()
 function createModules()
 {
     instrumentModules = new Array( Config.INSTRUMENT_AMOUNT );
+    var module;
+
     for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
     {
-        instrumentModules[ i ] = {
+        module = instrumentModules[ i ] = {
+            output: AudioFactory.createGainNode( audioContext ),
             filter: AudioFactory.createFilter( audioContext )
         };
+        // connect modules to output
+        module.output.connect( module.filter.filter );
+        module.filter.filter.connect( masterBus );
     }
 }
 

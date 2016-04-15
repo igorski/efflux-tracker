@@ -68,6 +68,7 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
+ * When stopping and starting the Sequencer, filter LFO is disabled...
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
  * Implement correct sequence range
