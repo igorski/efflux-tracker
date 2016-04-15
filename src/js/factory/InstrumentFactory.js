@@ -87,7 +87,7 @@ var InstrumentFactory = module.exports =
     {
         return {
             id   : aId,
-            name : ( typeof aName === "string" ) ? aName : "Instrument " + ( aId + 1 ),
+            name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
             oscillators : [
                 InstrumentFactory.createOscillator( true,  DEFAULT_TABLE_SIZE ),
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE ),

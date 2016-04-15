@@ -126,6 +126,16 @@ var InstrumentController = module.exports =
         if ( !instrument )
             return;
 
+        var tabs = view.querySelectorAll( "#oscillatorTabs li" ), tab;
+        i = tabs.length;
+        while ( i-- ) {
+            tab = tabs[ i ].classList;
+            if ( i === activeOscillatorIndex )
+                tab.add( "active" );
+            else
+            tab.remove( "active" );
+        }
+
         var oscillator = instrument.oscillators[ activeOscillatorIndex ];
         view.querySelector( "h2" ).innerHTML = "Editing " + instrument.name;
         wtDraw.setTable( oscillator.table );
