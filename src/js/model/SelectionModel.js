@@ -22,6 +22,7 @@
  */
 module.exports = SelectionModel;
 
+var Config         = require( "../config/Config" );
 var PatternFactory = require( "../factory/PatternFactory" );
 var EventUtil      = require( "../utils/EventUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
@@ -34,15 +35,17 @@ function SelectionModel()
      * @public
      * @type {Array.<Array.<number>>}
      */
-    this.selection = [
-        [], []
-    ];
+    this.selection = [];
 
     /**
      * @private
      * @type {Array.<Array<AUDIO_EVENT>>}
      */
     this._copySelection = null;
+
+    /* initialize */
+
+    this.clearSelection();
 }
 
 /**
@@ -65,34 +68,40 @@ SelectionModel.prototype.setSelection = function( activeChannel, selectionStart,
     for ( var i = selectionStart; i < selectionEnd; ++i )
         patterns.push( i );
 
-    if ( prevLength === 0 && patterns.length === 2 )
+    if ( prevLength === 0 && patterns.length === this.selection.length )
         forceEqualize = false;
 
     this.equalizeSelection( activeChannel, forceEqualize );
 };
 
 /**
- * equalize selection length for both channels (if the other channel
+ * equalize selection length for all channels (if the other channels
  * had a selection, or when force is true)
  *
  * @public
  *
- * @param {number} activeChannel
+ * @param {number} minSelect
+ * @param {number} maxSelect
  * @param {boolean=} force optional defaults to false
  */
-SelectionModel.prototype.equalizeSelection = function( activeChannel, force )
+SelectionModel.prototype.equalizeSelection = function( minSelect, maxSelect, force )
 {
     // equalize selection length for both channels (if other channel had selection)
 
     if (( force === true ))
     {
-        var currentChannel = this.selection[ activeChannel ];
-        var otherChannel   = this.selection[ ( activeChannel === 0 ) ? 1 : 0 ];
+        var selection      = this.selection,
+            currentChannel = selection[ minSelect ],
+            otherChannel;
 
         currentChannel.forEach( function( pattern, index )
         {
-            if ( otherChannel.indexOf( pattern ) === -1 ) {
-                otherChannel.push( pattern ) ;
+            for ( var i = minSelect; i < maxSelect; ++i )
+            {
+                otherChannel = selection[ i ];
+
+                if ( otherChannel.indexOf( pattern ) === -1 )
+                    otherChannel.push( pattern );
             }
         });
     }
@@ -106,7 +115,10 @@ SelectionModel.prototype.equalizeSelection = function( activeChannel, force )
  */
 SelectionModel.prototype.clearSelection = function()
 {
-    this.selection = [ [], [] ];
+    this.selection = [];
+
+    for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        this.selection.push( [] );
 };
 
 /**
@@ -117,10 +129,12 @@ SelectionModel.prototype.clearSelection = function()
  */
 SelectionModel.prototype.getMinValue = function()
 {
-    var val1 = Math.min.apply( Math, this.selection[ 0 ]);
-    var val2 = Math.min.apply( Math, this.selection[ 1 ]);
+    var min = 0;
 
-    return Math.min( val1, val2 );
+    for ( var i = 0, l = this.selection.length; i < l; ++i )
+        min = Math.min( min, Math.min.apply( Math, this.selection[ i ]));
+
+    return min;
 };
 
 /**
@@ -131,10 +145,12 @@ SelectionModel.prototype.getMinValue = function()
  */
 SelectionModel.prototype.getMaxValue = function()
 {
-    var val1 = Math.max.apply( Math, this.selection[ 0 ]);
-    var val2 = Math.max.apply( Math, this.selection[ 1 ]);
+    var max = 0;
 
-    return Math.max( val1, val2 );
+    for ( var i = 0, l = this.selection.length; i < l; ++i )
+        max = Math.max( max, Math.max.apply( Math, this.selection[ i ]));
+
+    return max;
 };
 
 /**
@@ -143,7 +159,12 @@ SelectionModel.prototype.getMaxValue = function()
  */
 SelectionModel.prototype.getSelectionLength = function()
 {
-    return Math.max( this.selection[ 0 ].length, this.selection[ 1 ].length );
+    var length = 0;
+
+    for ( var i = 0, l = this.selection.length; i < l; ++i )
+        length = Math.max( length, this.selection[ i ].length );
+
+    return length;
 };
 
 /**
@@ -168,11 +189,16 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
     if ( this.getSelectionLength() === 0 )
         return;
 
-    this._copySelection = [ [], [] ];
+    var i = 0, max = this.selection.length;
+
+    this._copySelection = [];
+
+    for ( i; i < max; ++i )
+        this._copySelection.push( [] );
 
     var pattern = song.patterns[ activePattern], stepValue;
 
-    for ( var i = 0; i < 2; ++i )
+    for ( i = 0; i < max; ++i )
     {
         if ( this.selection[ i ].length > 0 )
         {
@@ -220,7 +246,7 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern )
 
     var pattern = song.patterns[ activePattern ];
 
-    for ( var i = 0; i < 2; ++i )
+    for ( var i = 0, max = this.selection.length; i < max; ++i )
     {
         if ( this.selection[ i ].length > 0 )
         {
@@ -252,7 +278,8 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
             j = 1;
         }
 
-        for ( var i = activeChannel; i < 2 && j < 2; ++i, ++j )
+        var max = this.selection.length;
+        for ( var i = activeChannel; i < max && j < max; ++i, ++j )
         {
             targetPattern = target.channels[ i ];
 
@@ -280,6 +307,7 @@ SelectionModel.prototype.sort = function()
 {
     var sortMethod = function( a, b ){ return a-b; };
 
-    this.selection[ 0 ].sort( sortMethod );
-    this.selection[ 1 ].sort( sortMethod );
+    var i = this.selection.length;
+    while ( i-- )
+        this.selection[ i ].sort( sortMethod );
 };

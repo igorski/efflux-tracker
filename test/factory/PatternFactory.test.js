@@ -1,7 +1,8 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai = require( "chai" );
+var chai           = require( "chai" );
+var Config         = require( "../../src/js/config/Config" );
 var PatternFactory = require( "../../src/js/factory/PatternFactory" );
 
 describe( "PatternFactory", function()
@@ -53,8 +54,8 @@ describe( "PatternFactory", function()
         assert.strictEqual( steps, pattern.steps,
             "expected generated pattern to contain the requested amount of steps" );
 
-        assert.strictEqual( 2, pattern.channels.length,
-            "expected generated pattern to contain 2 channels, got " + pattern.channels.length + " instead" );
+        assert.strictEqual( Config.INSTRUMENT_AMOUNT, pattern.channels.length,
+            "expected generated pattern to contain " + Config.INSTRUMENT_AMOUNT + " channels, got " + pattern.channels.length + " instead" );
 
         assert.strictEqual( steps, pattern.channels[ 0 ].length,
             "expected generated channel pattern list to be " + steps + " steps in length, got " + pattern.channels[ 0 ].length );

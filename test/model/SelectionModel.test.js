@@ -4,7 +4,7 @@
 var chai           = require( "chai" );
 var SelectionModel = require( "../../src/js/model/SelectionModel" );
 var SongModel      = require( "../../src/js/model/SongModel" );
-var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
+var MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
 
 describe( "SelectionModel", function()
 {

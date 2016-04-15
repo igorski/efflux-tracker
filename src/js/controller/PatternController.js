@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var Pubsub         = require( "pubsub-js" );
+var Config         = require( "../config/Config" );
 var Messages       = require( "../definitions/Messages" );
 var SelectionModel = require( "../model/SelectionModel" );
 var StateModel     = require( "../model/StateModel" );
@@ -33,8 +34,8 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 /* private properties */
 
 var container, tracker, noteEntryController, keyboardController;
-var activePattern = 0, activeChannel = 0, activeStep = 0, stepAmount = 16, activeInstrument = 0,
-    stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection,
+var activePattern = 0, activeChannel = 0, maxChannel = 0, activeStep = 0, stepAmount = 16, activeInstrument = 0,
+    stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection, minPatternSelect = 0, maxPatternSelect = 0,
     prevVerticalKey, interactionData = {},
     stateModel, selectionModel, patternCopy, positionTitle,
     stepSelection;
@@ -51,7 +52,7 @@ var PatternController = module.exports =
      */
     init : function( containerRef, trackerRef, keyboardControllerRef, noteEntryControllerRef )
     {
-        tracker              = trackerRef;
+        tracker             = trackerRef;
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
@@ -85,9 +86,16 @@ var PatternController = module.exports =
         var pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
 
+        maxChannel = Config.INSTRUMENT_AMOUNT - 1;
+
         // subscribe to pubsub messaging
 
-        [ Messages.SONG_LOADED, Messages.REFRESH_SONG, Messages.PATTERN_SWITCH ].forEach( function( msg )
+        [
+            Messages.SONG_LOADED,
+            Messages.REFRESH_SONG,
+            Messages.PATTERN_SWITCH
+
+        ].forEach( function( msg )
         {
             Pubsub.subscribe( msg, handleBroadcast );
         });
@@ -190,18 +198,20 @@ var PatternController = module.exports =
 
                 case 39: // right
 
-                    if ( ++activeChannel > 1 ) {
+                    if ( ++activeChannel > maxChannel ) {
                         if ( activePattern < ( tracker.activeSong.patterns.length - 1 )) {
                             ++activePattern;
                             activeChannel = activeInstrument = 0;
                             PatternController.update();
                         }
                         else
-                            activeChannel = activeInstrument = 1;
+                            activeChannel = activeInstrument = maxChannel;
                     }
 
-                    if ( aEvent.shiftKey )
-                        selectionModel.equalizeSelection( curChannel, true );
+                    if ( aEvent.shiftKey ) {
+                        maxPatternSelect = Math.min( ++maxPatternSelect, maxChannel );
+                        selectionModel.equalizeSelection( minPatternSelect, maxPatternSelect, true );
+                    }
                     else
                         selectionModel.clearSelection();
 
@@ -219,8 +229,10 @@ var PatternController = module.exports =
                             activeChannel = activeInstrument = 0;
                     }
 
-                    if ( aEvent.shiftKey )
-                        selectionModel.equalizeSelection( curChannel, true );
+                    if ( aEvent.shiftKey ) {
+                        minPatternSelect = Math.max( --maxPatternSelect, 0 );
+                        selectionModel.equalizeSelection( minPatternSelect, maxPatternSelect, true );
+                    }
                     else
                         selectionModel.clearSelection();
 
@@ -347,31 +359,30 @@ function highlightActiveStep()
         pContainer, items, item;
 
     var activeStyle = "active", selectedStyle = "selected";
+    var selection;
 
-    for ( var i = 0, l = pContainers.length; i < l; ++i ) {
+    for ( var i = 0, l = pContainers.length; i < l; ++i )
+    {
         pContainer = pContainers[ i ];
-        items = pContainer.querySelectorAll( "li" );
+        selection  = selectionModel.selection[ i ];
+        items      = pContainer.querySelectorAll( "li" );
 
         var j = items.length;
         while ( j-- )
         {
-            item = items[ j ];
+            item = items[ j ].classList;
 
-            if ( i === activeChannel && j === activeStep ) {
-                item.classList.add( activeStyle );
-            }
-            else {
-                item.classList.remove( activeStyle );
-            }
+            if ( i === activeChannel && j === activeStep )
+                item.add( activeStyle );
+            else
+                item.remove( activeStyle );
 
             // highlight selection
 
-            if ( selectionModel.selection[ i ].indexOf( j ) > -1 ) {
-                item.classList.add( selectedStyle );
-            }
-            else {
-                item.classList.remove( selectedStyle );
-            }
+            if ( selection.indexOf( j ) > -1 )
+                item.add( selectedStyle );
+            else
+                item.remove( selectedStyle );
         }
     }
 }

@@ -3,25 +3,30 @@
         <li>{{this}}</li>
     {{/loop}}
 </ul>
-{{#each pattern.channels}}
-<ul class="pattern">
-    {{#each this}}
-    <li class="{{toLowerCase this.instrument}}">
-        {{#if this.action}}
-            {{# if this.note}}
-            <span class="note">
-                {{this.note}} - {{this.octave}}
-            </span>
-            <span class="instrument">
-                {{this.instrument}}
-            </span>
+<div class="container">
+    <div class="wrapper">
+    {{#each pattern.channels}}
+    <ul class="pattern">
+        {{#each this}}
+        <li class="{{toLowerCase this.instrument}}">
+            {{#if this.action}}
+                {{# if this.note}}
+                <span class="note">
+                    {{this.note}} - {{this.octave}}
+                </span>
+                <span class="instrument">
+                    {{this.instrument}}
+                </span>
+                {{else}}
+                    //// OFF ////
+                {{/if}}
             {{else}}
-                //// OFF ////
+                ----
             {{/if}}
-        {{else}}
-            ----
-        {{/if}}
-    </li>
+        </li>
+        {{/each}}
+    </ul>
     {{/each}}
-</ul>
-{{/each}}
+        </div>
+    </div>
+</div>

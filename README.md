@@ -74,3 +74,4 @@ TODO
  * Implement correct sequence range
  * Implement MIDI control
  * Implement audio export
+ * Support mouse drag for selection

@@ -1,0 +1,152 @@
+@patternWidth: 150px;
+
+#patternSection
+{
+  .EditorComponent;
+
+  ul {
+    display: inline;
+
+    li {
+      display: inline;
+      cursor: pointer;
+    }
+  }
+
+  h4 {
+    display: inline;
+  }
+}
+
+#patternContainer
+{
+  .container {
+    width: 535px;
+    overflow-x: scroll;
+
+    .wrapper {
+      width: ( 8 * @patternWidth );
+    }
+  }
+}
+
+#patternEditor
+{
+  .indices {
+    position: relative;
+    float: left;
+    width: 32px;
+    background-color: #000;
+
+    li {
+      display: block;
+      font-family: Montserrat, Helvetica, Verdana, sans-serif;
+      font-weight: bold;
+      text-align: center;
+      border-top: 2px solid #000;
+      padding: .25em 0;
+      border-bottom: 2px solid #323234;
+      .noEvents;
+      .noSelect;
+      .boxSize;
+    }
+  }
+
+  .pattern {
+    position: relative;
+    float: left;
+    width: @patternWidth;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #101015;
+
+    &:first-of-type {
+      &:before {
+        position: absolute;
+        content: "";
+        border-right: 1px solid #000;
+        height: 100%;
+        top: 0;
+        right: 0;
+      }
+    }
+
+    li {
+      display: block;
+      padding: .25em 1em;
+      cursor: pointer;
+      border-top: 2px solid #000;
+      border-bottom: 2px solid #000;
+      font-weight: bold;
+      .boxSize;
+
+      &:nth-child(odd) {
+        background-color: #323234;
+        border-color: #323234;
+      }
+
+      &.active, &:hover {
+        border: 2px solid @color-highlight;
+        z-index: 10;
+      }
+
+      &.selected {
+        background-color: @color-highlight;
+        border-color: @color-highlight;
+        color: #FFF !important;
+
+        span {
+          color: #FFF !important;
+        }
+      }
+
+      span {
+        display: inline-block;
+        .noEvents;
+
+        &.sound, &.note {
+          width: 45%;
+          &.accent-true {
+            font-style: italic;
+          }
+        }
+
+        &.note {
+          text-transform: uppercase;
+          color: #b6b6b6;
+        }
+      }
+
+      // sound types
+
+      &.kick,
+      &.hat,
+      &.snare,
+      &.snare2 {
+        color: #FFF;
+      }
+
+      &.pitfall {
+        color: @color-6;
+      }
+
+      &.square {
+        color: @color-5;
+      }
+
+      &.lead {
+        color: @color-4;
+      }
+
+      &.bass,
+      &.low_bass {
+        color: @color-3;
+      }
+
+      &.saw {
+        color: @color-2;
+      }
+    }
+  }
+}

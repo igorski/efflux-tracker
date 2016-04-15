@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config = require( "../config/Config" );
 
 /**
  * type definition for a single AudioEvent
@@ -199,12 +200,13 @@ var PatternFactory = module.exports =
  */
 function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
 {
-    var out = [ new Array( amountOfSteps ), new Array( amountOfSteps ) ];
+    var out = [], i;
+
+    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        out.push( new Array( amountOfSteps ));
 
     if ( addEmptyPatternStep !== true )
         return out;
-
-    var i;
 
     out.forEach( function( channel )
     {
