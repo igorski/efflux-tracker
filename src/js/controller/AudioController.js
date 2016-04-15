@@ -376,10 +376,24 @@ function setupRouting()
 
 function createModules()
 {
-    instrumentModules = new Array( Config.INSTRUMENT_AMOUNT );
-    var module;
+    var i, module;
 
-    for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+    // clean up and disconnect old modules (if existed)
+    if ( instrumentModules && instrumentModules.length > 0 )
+    {
+        i = instrumentModules.length;
+        while ( i-- )
+        {
+            module = instrumentModules[ i ];
+            module.output.disconnect();
+            module.filter.filter.disconnect();
+        }
+    }
+
+    // create new modules
+    instrumentModules = new Array( Config.INSTRUMENT_AMOUNT );
+
+    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
     {
         module = instrumentModules[ i ] = {
             output: AudioFactory.createGainNode( audioContext ),
