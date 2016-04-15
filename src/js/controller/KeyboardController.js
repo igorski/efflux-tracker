@@ -20,6 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Messages = require( "../definitions/Messages" );
+var Pubsub   = require( "pubsub-js" );
+
 var tracker, listener, suspended = false, blockDefaults = true, optionDown = false;
 
 module.exports =
@@ -94,11 +97,17 @@ function handleKeyDown( aEvent )
     {
         switch ( aEvent.keyCode )
         {
+            case 32: // spacebar
+                if ( blockDefaults )
+                    aEvent.preventDefault();
+
+                Pubsub.publish( Messages.TOGGLE_SEQUENCER_PLAYSTATE );
+                break;
+
             // prevent defaults when using the arrows, space (prevents page jumps)
             // and backspace (prevents navigating back in history)
 
             case 8:
-            case 32:
             case 37:
             case 38:
             case 39:

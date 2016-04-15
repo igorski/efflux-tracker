@@ -226,9 +226,7 @@ var PatternController = module.exports =
 
                     break;
 
-                case 32: // spacebar
                 case 13: // enter
-
                     editStep();
                     break;
 

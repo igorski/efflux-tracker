@@ -44,14 +44,15 @@ module.exports =
 
     // sequencer messages
 
-    PLAYBACK_STOPPED          : 11,
-    RECORDING_COMPLETE        : 12,
-    TEMPO_UPDATED             : 13, // payload is Array [ old tempo, new tempo ]
+    TOGGLE_SEQUENCER_PLAYSTATE : 11,
+    PLAYBACK_STOPPED           : 12,
+    RECORDING_COMPLETE         : 13,
+    TEMPO_UPDATED              : 14, // payload is Array [ old tempo, new tempo ]
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING  : 14, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME  : 15, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    CHANGE_WAVEFORM           : 16, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    UPDATE_FILTER_SETTINGS    : 17  // payload is Array [ instrument index, filter properties Object ]
+    ADJUST_OSCILLATOR_TUNING  : 15, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME  : 16, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 17, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    UPDATE_FILTER_SETTINGS    : 18  // payload is Array [ instrument index, filter properties Object ]
 };

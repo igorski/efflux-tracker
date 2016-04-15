@@ -82,7 +82,12 @@ var SequencerController = module.exports =
 
         // setup messaging system
 
-        [ Messages.LOAD_SONG, Messages.SONG_LOADED ].forEach( function( msg ) {
+        [
+            Messages.TOGGLE_SEQUENCER_PLAYSTATE,
+            Messages.LOAD_SONG,
+            Messages.SONG_LOADED
+
+        ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
         });
 
@@ -176,6 +181,10 @@ function handleBroadcast( type, payload )
 {
     switch( type )
     {
+        case Messages.TOGGLE_SEQUENCER_PLAYSTATE:
+            SequencerController.setPlaying( !playing );
+            break;
+
         case Messages.LOAD_SONG:
             SequencerController.setPlaying( false );
             break;
