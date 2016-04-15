@@ -348,9 +348,14 @@ function handleBroadcast( type, payload )
 
             filter.filter.frequency.value = props.frequency;
             filter.filter.Q.value         = props.q;
+            filter.filter.type            = props.type;
             filter.lfo.frequency.value    = props.speed;
             filter.lfoAmp.gain.value      = props.depth / 100 * props.frequency;
-            AudioFactory.toggleFilterLFO( filter, props.lfoEnabled );
+
+            if ( props.lfoType !== "off" )
+                filter.lfo.type = props.lfoType;
+
+            AudioFactory.toggleFilterLFO( filter, props.lfoType !== "off" );
             break;
     }
 }

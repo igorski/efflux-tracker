@@ -94,11 +94,12 @@ var InstrumentFactory = module.exports =
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE )
             ],
             filter : {
-                lfoEnabled : false,
-                frequency  : Config.DEFAULT_FILTER_FREQ,
-                q          : Config.DEFAULT_FILTER_Q,
-                speed      : Config.DEFAULT_FILTER_LFO_SPEED,
-                depth      : Config.DEFAULT_FILTER_LFO_DEPTH
+                frequency   : Config.DEFAULT_FILTER_FREQ,
+                q           : Config.DEFAULT_FILTER_Q,
+                speed       : Config.DEFAULT_FILTER_LFO_SPEED,
+                depth       : Config.DEFAULT_FILTER_LFO_DEPTH,
+                type        : "lowpass",
+                lfoType     : "off"
             }
         };
     },

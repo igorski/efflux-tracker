@@ -77,8 +77,21 @@
         <input type="range" id="filterQ" min="0" max="40" step="1" value="5">
     </div>
     <select id="filterLFO">
-        <option value="true">Enabled</option>
-        <option value="false">Disabled</option>
+        <option value="off">Disabled</option>
+        <option value="sine">Sine</option>
+        <option value="square">Square</option>
+        <option value="sawtooth">Sawtooth</option>
+        <option value="triangle">Triangle</option>
+    </select>
+    <select id="filterType">
+        <option value="lowpass">Lowpass</option>
+        <option value="highpass">Highpass</option>
+        <option value="bandpass">Bandpass</option>
+        <option value="lowshelf">Lowshelf</option>
+        <option value="highshelf">Highshelf</option>
+        <option value="peaking">Peaking</option>
+        <option value="notch">Notch</option>
+        <option value="allpass">Allpass</option>
     </select>
     <div class="wrapper input range">
         <label for="filterSpeed">LFO Speed</label>

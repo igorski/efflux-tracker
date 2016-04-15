@@ -54,7 +54,8 @@ WaveTableDraw.prototype.setTable = function( aTableArray )
 
 WaveTableDraw.prototype.draw = function( aCanvasContext )
 {
-    aCanvasContext.fillStyle = "#FF0000";
+    aCanvasContext.strokeStyle = "#CC0000";
+    aCanvasContext.lineWidth = 5;
     aCanvasContext.beginPath();
 
     var h = this._bounds.height,
@@ -68,9 +69,9 @@ WaveTableDraw.prototype.draw = function( aCanvasContext )
     {
         point = ( this.table[ i ] + 1 ) * .5; // convert from -1 to +1 bipolar range
         aCanvasContext.lineTo( x + ( i * size ), y - ( point * h ));
-        aCanvasContext.fillRect( x + ( i * size ) - ( size * .5 ), y - ( point * h ) - 1.5, size, 3 );
     }
     aCanvasContext.stroke();
+    aCanvasContext.closePath();
 };
 
 WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )

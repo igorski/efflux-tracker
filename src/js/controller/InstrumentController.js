@@ -33,7 +33,7 @@ var container, tracker, keyboardController, view, canvas, wtDraw,
     instrumentSelect, oscEnabledSelect, oscWaveformSelect, volumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
-    frequencyControl, qControl, lfoSelect, speedControl, depthControl;
+    frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrument;
 
@@ -67,10 +67,12 @@ var InstrumentController = module.exports =
         frequencyControl   = view.querySelector( "#filterFrequency" );
         qControl           = view.querySelector( "#filterQ" );
         lfoSelect          = view.querySelector( "#filterLFO" );
+        filterSelect       = view.querySelector( "#filterType" );
         speedControl       = view.querySelector( "#filterSpeed" );
         depthControl       = view.querySelector( "#filterDepth" );
 
         canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
+        canvas.setBackgroundColor( "#000000" );
         canvas.insertInPage( view.querySelector( "#canvasContainer" ));
 
         wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), function( table )
@@ -97,7 +99,8 @@ var InstrumentController = module.exports =
             control.addEventListener( "input", handleEnvelopeChange );
         });
 
-        lfoSelect.addEventListener( "change", handleFilterChange );
+        lfoSelect.addEventListener   ( "change", handleFilterChange );
+        filterSelect.addEventListener( "change", handleFilterChange );
         [ frequencyControl, qControl, speedControl, depthControl ].forEach( function( control ) {
             control.addEventListener( "input", handleFilterChange );
         });
@@ -140,7 +143,8 @@ var InstrumentController = module.exports =
         sustainControl.value = oscillator.adsr.sustain;
         releaseControl.value = oscillator.adsr.release;
 
-        Form.setSelectedOption( lfoSelect, instrument.filter.lfoEnabled );
+        Form.setSelectedOption( lfoSelect,    instrument.filter.lfoType );
+        Form.setSelectedOption( filterSelect, instrument.filter.type );
         frequencyControl.value = instrument.filter.frequency;
         qControl.value         = instrument.filter.q;
         speedControl.value     = instrument.filter.speed;
@@ -249,11 +253,12 @@ function handleFilterChange( aEvent )
 {
     var filter = instrument.filter;
 
-    filter.frequency  = parseFloat( frequencyControl.value );
-    filter.q          = parseFloat( qControl.value );
-    filter.speed      = parseFloat( speedControl.value );
-    filter.depth      = parseFloat( depthControl.value );
-    filter.lfoEnabled = ( Form.getSelectedOption( lfoSelect ) === "true" );
+    filter.frequency = parseFloat( frequencyControl.value );
+    filter.q         = parseFloat( qControl.value );
+    filter.speed     = parseFloat( speedControl.value );
+    filter.depth     = depthControl.value;
+    filter.lfoType   = Form.getSelectedOption( lfoSelect );
+    filter.type      = Form.getSelectedOption( filterSelect );
 
     Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrumentId, filter ]);
 }
