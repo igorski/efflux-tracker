@@ -35,7 +35,39 @@ function SelectionModel()
      * @public
      * @type {Array.<Array.<number>>}
      */
-    this.selection = [];
+    this.selectedChannels = [];
+
+    /**
+     * index of the first selected channel in the selection
+     *
+     * @public
+     * @type {number}
+     */
+    this.firstSelectedChannel = 0;
+
+    /**
+     * index of the last selected channel in the selection
+     *
+     * @public
+     * @type {number}
+     */
+    this.lastSelectedChannel = 0;
+
+    /**
+     * the lowest index within the selection
+     *
+     * @public
+     * @type {number}
+     */
+    this.minSelectedStep = 0;
+
+    /**
+     * the highest index within the selection
+     *
+     * @public
+     * @type {number}
+     */
+    this.maxSelectedStep = 0;
 
     /**
      * @private
@@ -49,29 +81,60 @@ function SelectionModel()
 }
 
 /**
- * sets the selection for given channel to the range selectionStart - selectionEnd
+ * sets the channels that are present in the selection
  *
  * @public
  *
- * @param {number} activeChannel
- * @param {number} selectionStart
- * @param {number} selectionEnd
+ * @param {number} firstChannel
+ * @param {number=} lastChannel optional defaults to firstChannel for single channel selection
  */
-SelectionModel.prototype.setSelection = function( activeChannel, selectionStart, selectionEnd )
+SelectionModel.prototype.setSelectionChannelRange = function( firstChannel, lastChannel )
 {
-    var prevLength    = this.getMinValue();
-    var forceEqualize = this.selection[( activeChannel === 0 ) ? 1 : 0 ].length > 0;
+    if ( typeof lastChannel !== "number" )
+        lastChannel = firstChannel;
+
+    this.firstSelectedChannel = firstChannel;
+    this.lastSelectedChannel  = 1 + lastChannel;
+
+    for ( var i = this.firstSelectedChannel; i < this.lastSelectedChannel; ++i )
+    {
+        if ( !this.hasSelectionForChannel( i ))
+            this.selectedChannels[ i ] = [];
+    }
+};
+
+/**
+ * sets the selected steps within the selection to given range
+ *
+ * @public
+ *
+ * @param {number} selectionStart the index of the first step in the selection
+ * @param {number} selectionEnd the index of the last step in the selection
+ */
+SelectionModel.prototype.setSelection = function( selectionStart, selectionEnd )
+{
+    // get current range in existing selections
+
+    var minValue = this.minSelectedStep,
+        maxValue = this.maxSelectedStep;
+
+    // update to new values
+
+    this.minSelectedStep = selectionStart;
+    this.maxSelectedStep = selectionEnd;
+
     this.clearSelection();
 
-    var patterns = this.selection[ activeChannel ];
+    var i, j, patterns;
 
-    for ( var i = selectionStart; i < selectionEnd; ++i )
-        patterns.push( i );
+    for ( i = this.firstSelectedChannel; i < this.lastSelectedChannel; ++i )
+    {
+        patterns = this.selectedChannels[ i ] = [];
 
-    if ( prevLength === 0 && patterns.length === this.selection.length )
-        forceEqualize = false;
-
-    this.equalizeSelection( activeChannel, forceEqualize );
+        for ( j = this.minSelectedStep; j < this.maxSelectedStep; ++j )
+            patterns.push( j );
+    }
+    this.equalizeSelection( this.minSelectedStep, this.maxSelectedStep );
 };
 
 /**
@@ -80,23 +143,20 @@ SelectionModel.prototype.setSelection = function( activeChannel, selectionStart,
  *
  * @public
  *
- * @param {number} minSelect
- * @param {number} maxSelect
- * @param {boolean=} force optional defaults to false
+ * @param {number} minSelect the index of the first step in the selection to equalize
+ * @param {number} maxSelect the index of the last step in the selection to equalize
  */
-SelectionModel.prototype.equalizeSelection = function( minSelect, maxSelect, force )
+SelectionModel.prototype.equalizeSelection = function( minSelect, maxSelect )
 {
-    // equalize selection length for both channels (if other channel had selection)
+    var i, j, currentChannel, otherChannel;
+    var selection = this.selectedChannels;
 
-    if (( force === true ))
+    for ( i = this.firstSelectedChannel; i < this.lastSelectedChannel; ++i )
     {
-        var selection      = this.selection,
-            currentChannel = selection[ minSelect ],
-            otherChannel;
-
+        currentChannel = selection[ i ];
         currentChannel.forEach( function( pattern, index )
         {
-            for ( var i = minSelect; i < maxSelect; ++i )
+            for ( j = minSelect; j < maxSelect; ++j )
             {
                 otherChannel = selection[ i ];
 
@@ -115,14 +175,11 @@ SelectionModel.prototype.equalizeSelection = function( minSelect, maxSelect, for
  */
 SelectionModel.prototype.clearSelection = function()
 {
-    this.selection = [];
-
-    for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-        this.selection.push( [] );
+    this.selectedChannels = [];
 };
 
 /**
- * retrieve the maximum value contained in the selection
+ * retrieve the minimum value contained in the selection
  *
  * @public
  * @return {number}
@@ -131,8 +188,8 @@ SelectionModel.prototype.getMinValue = function()
 {
     var min = 0;
 
-    for ( var i = 0, l = this.selection.length; i < l; ++i )
-        min = Math.min( min, Math.min.apply( Math, this.selection[ i ]));
+    for ( var i = 0, l = this.selectedChannels.length; i < l; ++i  )
+        min = Math.min( min, Math.min.apply( Math, this.selectedChannels[ i ]));
 
     return min;
 };
@@ -147,8 +204,8 @@ SelectionModel.prototype.getMaxValue = function()
 {
     var max = 0;
 
-    for ( var i = 0, l = this.selection.length; i < l; ++i )
-        max = Math.max( max, Math.max.apply( Math, this.selection[ i ]));
+    for (var i = 0, l = this.selectedChannels.length; i < l; ++i )
+        max = Math.max( max, Math.max.apply( Math, this.selectedChannels[ i ]));
 
     return max;
 };
@@ -159,12 +216,7 @@ SelectionModel.prototype.getMaxValue = function()
  */
 SelectionModel.prototype.getSelectionLength = function()
 {
-    var length = 0;
-
-    for ( var i = 0, l = this.selection.length; i < l; ++i )
-        length = Math.max( length, this.selection[ i ].length );
-
-    return length;
+    return ( this.maxSelectedStep - this.minSelectedStep );
 };
 
 /**
@@ -173,7 +225,17 @@ SelectionModel.prototype.getSelectionLength = function()
  */
 SelectionModel.prototype.hasSelection = function()
 {
-    return this.getSelectionLength() > 0;
+    return ( this.selectedChannels.length > 0 );
+};
+
+/**
+ * @public
+ * @param {number} channel
+ * @return {boolean}
+ */
+SelectionModel.prototype.hasSelectionForChannel = function( channel )
+{
+    return ( this.selectedChannels[ channel ] instanceof Array && this.selectedChannels[ channel ].length > 0 );
 };
 
 /**
@@ -189,7 +251,7 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
     if ( this.getSelectionLength() === 0 )
         return;
 
-    var i = 0, max = this.selection.length;
+    var i = 0, max = this.selectedChannels.length;
 
     this._copySelection = [];
 
@@ -200,7 +262,7 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
 
     for ( i = 0; i < max; ++i )
     {
-        if ( this.selection[ i ].length > 0 )
+        if ( this.selectedChannels[ i ].length > 0 )
         {
             for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j ) {
                 stepValue = pattern.channels[ i ][ j ];
@@ -246,9 +308,9 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern )
 
     var pattern = song.patterns[ activePattern ];
 
-    for ( var i = 0, max = this.selection.length; i < max; ++i )
+    for (var i = 0, max = this.selectedChannels.length; i < max; ++i )
     {
-        if ( this.selection[ i ].length > 0 )
+        if ( this.selectedChannels[ i ].length > 0 )
         {
             for ( var j = this.getMinValue(), l = this.getMaxValue(); j <= l; ++j )
                 delete pattern.channels[ i ][ j ];
@@ -278,7 +340,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
             j = 1;
         }
 
-        var max = this.selection.length;
+        var max = this.selectedChannels.length;
         for ( var i = activeChannel; i < max && j < max; ++i, ++j )
         {
             targetPattern = target.channels[ i ];
@@ -307,7 +369,7 @@ SelectionModel.prototype.sort = function()
 {
     var sortMethod = function( a, b ){ return a-b; };
 
-    var i = this.selection.length;
+    var i = this.selectedChannels.length;
     while ( i-- )
-        this.selection[ i ].sort( sortMethod );
+        this.selectedChannels[ i ].sort( sortMethod );
 };

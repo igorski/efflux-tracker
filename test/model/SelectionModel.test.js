@@ -49,95 +49,114 @@ describe( "SelectionModel", function()
 
     /* actual unit tests */
 
+    it( "should be able to select multiple channels for its selection", function()
+    {
+        model.setSelectionChannelRange( 0 );
+
+        assert.strictEqual( 1, model.selectedChannels.length,
+            "expected SelectionModel to have 1 channel in its selection range" );
+
+        model.setSelectionChannelRange( 0, 3 );
+
+        assert.strictEqual( 4, model.selectedChannels.length,
+            "expected SelectionModel to have 4 channels in its selection range" );
+
+        assert.strictEqual( 0, model.firstSelectedChannel,
+            "expected first selected channel to have index 0" );
+
+        assert.strictEqual( 4, model.lastSelectedChannel,
+            "expected last selected channel to have index 4" );
+    });
+
     it( "should add indices to its current selection", function()
     {
-        var activeChannel = 0, max = 16;
-        model.setSelection( activeChannel, 0, max );
+        model.setSelectionChannelRange( 0 ); // select a single channel
 
-        for ( var i = 0; i < max; ++i )
+        var min = 0, max = 16, i;
+
+        for ( i = min; i < max; ++i )
         {
-            assert.ok( model.selection[ activeChannel ].indexOf( i ) > -1,
+            assert.notOk( model.selectedChannels[ 0 ].indexOf( i ) > -1,
+                "expected SelectionModel not to have index '" + i + "' in the current selection prior to setting one" );
+        }
+
+        model.setSelection( min, max );
+
+        for ( i = min; i < max; ++i )
+        {
+            assert.ok( model.selectedChannels[ 0 ].indexOf( i ) > -1,
                 "expected SelectionModel to have added index '" + i + "' to the current selection" );
         }
+    });
+
+    it( "should know the minimum and maximum indices of its selection", function()
+    {
+        model.setSelectionChannelRange( 0 ); // select a single channel
+
+        var min = 0;
+        var max = 16;
+
+        model.setSelection( min, max );
+
+        assert.strictEqual( 0, model.minSelectedStep,
+            "expected model to return '" + 0 + "' for its minimum selection value" );
+
+        var expected = max;
+
+        assert.strictEqual( expected, model.maxSelectedStep,
+            "expected model to return '" + expected + "' for its maximum selection value" );
     });
 
     it( "should add not add the same index twice to its current selection", function()
     {
         var activeChannel = 0, max = 1;
 
-        assert.strictEqual( 0, model.selection[ activeChannel ].length,
+        model.setSelectionChannelRange( activeChannel, max );
+
+        assert.strictEqual( 0, model.selectedChannels[ activeChannel ].length,
             "expected selection to have 0 length prior to addition" );
 
-        model.setSelection( activeChannel, 0, max );
+        model.setSelection( 0, max );
 
-        assert.strictEqual( 1, model.selection[ activeChannel ].length,
+        assert.strictEqual( 1, model.selectedChannels[ activeChannel ].length,
             "expected selection to have length of 1 after addition" );
 
-        model.setSelection( activeChannel, 0, max );
+        model.setSelection( 0, max );
 
-        assert.strictEqual( 1, model.selection[ activeChannel ].length,
+        assert.strictEqual( 1, model.selectedChannels[ activeChannel ].length,
             "expected selection to remain at length of 1 after addition of same value" );
     });
 
     it ( "should be able to clear its selection", function()
     {
-        model.setSelection( 0, 0, 1 );
-        model.setSelection( 1, 0, 2 );
+        model.setSelectionChannelRange( 0, 1 );
+
+        model.setSelection( 0, 1 );
+        model.setSelection( 0, 2 );
 
         model.clearSelection();
 
-        assert.strictEqual( 0, model.selection[ 0 ].length,
-            "expected selection to have cleared" );
-
-        assert.strictEqual( 0, model.selection[ 1 ].length,
+        assert.strictEqual( 0, model.selectedChannels.length,
             "expected selection to have cleared" );
 
         assert.notOk( model.hasSelection(),
             "expected model not to have a selection after clearing" );
     });
 
-    it( "should equalize the selection for both channels when forced", function()
+    it( "should be able to equalize the selection for all channels", function()
     {
+        model.setSelectionChannelRange( 0, 3 );
+
         var activeChannel = 0;
         var otherChannel  = 1;
         var max           = 4;
 
-        model.setSelection( activeChannel, 0, max );
+        model.setSelection( 0, max );
+        model.equalizeSelection();
 
-        model.equalizeSelection( activeChannel, true );
-
-        assert.strictEqual( JSON.stringify( model.selection[ activeChannel ]),
-                            JSON.stringify( model.selection[ otherChannel ] ),
+        assert.strictEqual( JSON.stringify( model.selectedChannels[ activeChannel ]),
+                            JSON.stringify( model.selectedChannels[ otherChannel ] ),
             "expected both channel contents to be equal but they were not" );
-    });
-
-    it( "should equalize the selection for both channels if both channels had content", function()
-    {
-        var activeChannel = 0;
-        var otherChannel  = 1;
-
-        model.setSelection( activeChannel, 0, 4 );
-        model.setSelection( otherChannel,  0, 8 );
-
-        assert.strictEqual( JSON.stringify( model.selection[ activeChannel ]),
-                            JSON.stringify( model.selection[ otherChannel ] ),
-            "expected both channel contents to be equal but they were not" );
-    });
-
-    it( "should know the minimum, maximum values of its selection", function()
-    {
-        var min = 0;
-        var max = 16;
-
-        model.setSelection( 1, min, max );
-
-        assert.strictEqual( 0, model.getMinValue(),
-            "expected model to return '" + 0 + "' for its minimum selection value" );
-
-        var expected = max - 1;
-
-        assert.strictEqual( expected, model.getMaxValue(),
-            "expected model to return '" + expected + "' for its maximum selection value" );
     });
 
     it( "should know the full length of its selection", function()
@@ -145,7 +164,7 @@ describe( "SelectionModel", function()
         var min = 0;
         var max = 16;
 
-        model.setSelection( 0, min, max );
+        model.setSelection( min, max );
 
         var expected = max - min;
 
@@ -158,7 +177,7 @@ describe( "SelectionModel", function()
         assert.notOk( model.hasSelection(),
             "expected model not to have a selection by default" );
 
-        model.setSelection( 0, 0, 16 );
+        model.setSelection( 0, 16 );
 
         assert.ok( model.hasSelection(),
             "expected model to have a selection after invocation of setter" );

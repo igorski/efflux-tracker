@@ -150,8 +150,8 @@ var PatternTrackListController = module.exports =
                         if ( stepOnSelection === -1 || prevVerticalKey !== keyCode )
                         {
                             shrinkSelection = ( curStep === selectionModel.getMaxValue() );
-                            minOnSelection  = selectionModel.getMinValue();
-                            maxOnSelection  = selectionModel.getMaxValue();
+                            minOnSelection  = selectionModel.minSelectedStep;
+                            maxOnSelection  = selectionModel.maxSelectedStep;
                             stepOnSelection = (( minOnSelection === curStep ) ? minOnSelection : activeStep ) + 2;
                         }
 
@@ -160,10 +160,10 @@ var PatternTrackListController = module.exports =
                             if ( minOnSelection === activeStep )
                                 stepOnSelection = -1;
 
-                            selectionModel.setSelection( activeChannel, minOnSelection, activeStep );
+                            selectionModel.setSelection( minOnSelection, activeStep );
                         }
                         else
-                            selectionModel.setSelection( activeChannel, activeStep, stepOnSelection );
+                            selectionModel.setSelection( activeStep, stepOnSelection );
                     }
                     else
                         selectionModel.clearSelection();
@@ -184,8 +184,8 @@ var PatternTrackListController = module.exports =
                     {
                         if ( stepOnSelection === -1 || prevVerticalKey !== keyCode ) {
                             shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.getMinValue() );
-                            minOnSelection  = selectionModel.getMinValue();
-                            maxOnSelection  = selectionModel.getMaxValue() + 1;
+                            minOnSelection  = selectionModel.minSelectedStep;
+                            maxOnSelection  = selectionModel.maxSelectedStep;
                             stepOnSelection = ( maxOnSelection === ( activeStep - 1 )) ? minOnSelection : activeStep - 1;
                         }
 
@@ -194,10 +194,10 @@ var PatternTrackListController = module.exports =
                             if ( maxOnSelection === activeStep + 1 )
                                 stepOnSelection = -1;
 
-                            selectionModel.setSelection( activeChannel, activeStep, maxOnSelection );
+                            selectionModel.setSelection( activeStep, maxOnSelection );
                         }
                         else
-                            selectionModel.setSelection( activeChannel, stepOnSelection, Math.max( selectionModel.getMaxValue(), activeStep ) + 1 );
+                            selectionModel.setSelection( stepOnSelection, Math.max( selectionModel.maxSelectedStep, activeStep ) + 1 );
                     }
                     else
                         selectionModel.clearSelection();
@@ -220,8 +220,7 @@ var PatternTrackListController = module.exports =
                        container.scrollLeft = (( activeChannel - 2 ) * PATTERN_WIDTH );
 
                     if ( aEvent.shiftKey ) {
-                        maxPatternSelect = Math.min( ++maxPatternSelect, maxChannel );
-                        selectionModel.equalizeSelection( minPatternSelect, maxPatternSelect, true );
+                        selectionModel.setSelectionChannelRange( selectionModel.firstSelectedChannel, activeChannel );
                     }
                     else
                         selectionModel.clearSelection();
@@ -377,7 +376,7 @@ function highlightActiveStep()
     for ( var i = 0, l = pContainers.length; i < l; ++i )
     {
         pContainer = pContainers[ i ];
-        selection  = selectionModel.selection[ i ];
+        selection  = selectionModel.selectedChannels[ i ];
         items      = pContainer.querySelectorAll( "li" );
 
         var j = items.length;
@@ -392,7 +391,7 @@ function highlightActiveStep()
 
             // highlight selection
 
-            if ( selection.indexOf( j ) > -1 )
+            if ( selection && selection.indexOf( j ) > -1 )
                 item.add( selectedStyle );
             else
                 item.remove( selectedStyle );
