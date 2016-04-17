@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config       = require( "../config/Config" );
 var AudioUtil    = require( "../utils/AudioUtil" );
 var SongUtil     = require( "../utils/SongUtil" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
@@ -91,7 +92,7 @@ var SequencerController = module.exports =
             Pubsub.subscribe( msg, handleBroadcast );
         });
 
-        worker = new Worker( "SequencerWorker.js" );
+        worker = new Worker( Config.getWorkerPath() + "SequencerWorker.js" );
         worker.onmessage = function( msg )
         {
             if ( msg.data.cmd === "collect" )

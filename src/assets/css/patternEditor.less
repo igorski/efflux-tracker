@@ -18,25 +18,15 @@
   }
 }
 
-#patternContainer
-{
-  .container {
-    width: 535px;
-    overflow-x: scroll;
-
-    .wrapper {
-      width: ( 8 * @patternWidth );
-    }
-  }
-}
-
 #patternEditor
 {
+  background-color: #000;
+  vertical-align: top;
+
   .indices {
     position: relative;
-    float: left;
+    float: right;
     width: 32px;
-    background-color: #000;
 
     li {
       display: block;
@@ -51,6 +41,21 @@
       .boxSize;
     }
   }
+}
+
+#patternContainer
+{
+  width: 535px;
+  overflow-x: scroll;
+
+  .wrapper {
+    width: ( 8 * @patternWidth );
+  }
+}
+
+#patternTrackList
+{
+  background-color: #393b40;
 
   .pattern {
     position: relative;

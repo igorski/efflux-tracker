@@ -20,30 +20,47 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Pubsub       = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+
+/* private properties */
+
+var container, indiceContainer;
+
 module.exports =
 {
-    INSTRUMENT_AMOUNT           : 8,
-
-    DEFAULT_FILTER_FREQ         : 880,
-    DEFAULT_FILTER_Q            : 5,
-
-    DEFAULT_FILTER_LFO_SPEED    : .5,
-    DEFAULT_FILTER_LFO_DEPTH    : 50,
-
-    DEFAULT_DELAY_MIX           : .65,
-    DEFAULT_DELAY_FEEDBACK      : 0.0000001,
-    DEFAULT_DELAY_TIME          : 0.33,
-    DEFAULT_DELAY_CUT_OFF       : 1500,
-
     /**
-     * return the path to the Worker scripts relative from the applications address
-     * as Worker location can differ dependent on the production environment
+     * initialize PatternEditorController
      *
-     * @public
-     * @return {string}
+     * @param containerRef
      */
-    getWorkerPath : function()
+    init : function( containerRef )
     {
-        return ( typeof window.workerPath === "string" ) ? window.workerPath : "";
+        container       = containerRef;
+        indiceContainer = container.querySelector( ".indices" );
+
+        // setup messaging system
+        Pubsub.subscribe( Messages.PATTERN_STEPS_UPDATED, handleBroadcast );
+
+        // initialize
+        updateStepAmount( 16 );
     }
 };
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case Messages.PATTERN_STEPS_UPDATED:
+            updateStepAmount( payload );
+            break;
+    }
+}
+
+function updateStepAmount( amount )
+{
+    indiceContainer.innerHTML = TemplateUtil.render(
+        "patternEditorIndices", { amount: amount }
+    );
+}

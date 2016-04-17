@@ -20,23 +20,24 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongModel              = require( "./model/SongModel" );
-var AudioController        = require( "./controller/AudioController" );
-var HelpController         = require( "./controller/HelpController" );
-var InstrumentController   = require( "./controller/InstrumentController" );
-var KeyboardController     = require( "./controller/KeyboardController" );
-var MenuController         = require( "./controller/MenuController" );
-var MetaController         = require( "./controller/MetaController" );
-var NoteEntryController    = require( "./controller/NoteEntryController" );
-var NotificationController = require( "./controller/NotificationController" );
-var PatternController      = require( "./controller/PatternController" );
-var SequencerController    = require( "./controller/SequencerController" );
-var SongController         = require( "./controller/SongController" );
-var ObjectUtil             = require( "./utils/ObjectUtil" );
-var SongUtil               = require( "./utils/SongUtil" );
-var TemplateUtil           = require( "./utils/TemplateUtil" );
-var Messages               = require( "./definitions/Messages" );
-var Pubsub                 = require( "pubsub-js" );
+var SongModel                  = require( "./model/SongModel" );
+var AudioController            = require( "./controller/AudioController" );
+var HelpController             = require( "./controller/HelpController" );
+var InstrumentController       = require( "./controller/InstrumentController" );
+var KeyboardController         = require( "./controller/KeyboardController" );
+var MenuController             = require( "./controller/MenuController" );
+var MetaController             = require( "./controller/MetaController" );
+var NoteEntryController        = require( "./controller/NoteEntryController" );
+var NotificationController     = require( "./controller/NotificationController" );
+var PatternEditorController    = require( "./controller/PatternEditorController" );
+var PatternTrackListController = require( "./controller/PatternTrackListController" );
+var SequencerController        = require( "./controller/SequencerController" );
+var SongController             = require( "./controller/SongController" );
+var ObjectUtil                 = require( "./utils/ObjectUtil" );
+var SongUtil                   = require( "./utils/SongUtil" );
+var TemplateUtil               = require( "./utils/TemplateUtil" );
+var Messages                   = require( "./definitions/Messages" );
+var Pubsub                     = require( "pubsub-js" );
 
 /* initialize */
 
@@ -80,7 +81,11 @@ var tracker;
     SequencerController.init( container.querySelector( "#transportSection" ), tracker, AudioController );
     NoteEntryController.init( container, tracker, KeyboardController );
     NotificationController.init( container );
-    PatternController.init( container.querySelector( "#patternContainer" ), tracker, KeyboardController, NoteEntryController );
+    PatternEditorController.init( container.querySelector( "#patternEditor" ));
+    PatternTrackListController.init(
+        container.querySelector( "#patternContainer" ),
+        tracker, KeyboardController, NoteEntryController
+    );
     HelpController.init( container.querySelector( "#helpSection" ), tracker );
 
     // subscribe to pubsub system to receive and broadcast messages across the application

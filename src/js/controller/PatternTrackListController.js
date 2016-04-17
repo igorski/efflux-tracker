@@ -33,17 +33,19 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var container, tracker, noteEntryController, keyboardController;
+var wrapper, container, tracker, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, maxChannel = 0, activeStep = 0, stepAmount = 16, activeInstrument = 0,
     stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection, minPatternSelect = 0, maxPatternSelect = 0,
     prevVerticalKey, interactionData = {},
     stateModel, selectionModel, patternCopy, positionTitle,
     stepSelection;
 
-var PatternController = module.exports =
+var PATTERN_WIDTH = 150; // width of a single track/pattern column
+
+var PatternTrackListController = module.exports =
 {
     /**
-     * initialize PatternController
+     * initialize PatternTrackListController
      *
      * @param containerRef
      * @param trackerRef
@@ -56,22 +58,23 @@ var PatternController = module.exports =
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
-        container           = containerRef;
-        positionTitle       = document.querySelector( "#currentPattern" );
-        stepSelection       = document.querySelector( "#patternSteps"  );
+        container     = containerRef;
+        wrapper       = containerRef.querySelector( ".wrapper" );
+        positionTitle = document.querySelector( "#currentPattern" );
+        stepSelection = document.querySelector( "#patternSteps"  );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();
 
-        PatternController.update(); // sync view with model state
+        PatternTrackListController.update(); // sync view with model state
 
         // add listeners
 
-        keyboardController.setListener( PatternController );
-        container.addEventListener( "click",      handleInteraction );
-        container.addEventListener( "touchstart", handleInteraction );
-        container.addEventListener( "touchend",   handleInteraction );
-        container.addEventListener( "dblclick",   handleInteraction );
+        keyboardController.setListener( PatternTrackListController );
+        wrapper.addEventListener( "click",      handleInteraction );
+        wrapper.addEventListener( "touchstart", handleInteraction );
+        wrapper.addEventListener( "touchend",   handleInteraction );
+        wrapper.addEventListener( "dblclick",   handleInteraction );
 
         document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
         document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
@@ -106,14 +109,20 @@ var PatternController = module.exports =
         if ( activePattern >= tracker.activeSong.patterns.length )
             activePattern = tracker.activeSong.patterns.length - 1;
 
+        // record the current scroll offset of the container so we can restore it after updating of the HTML
+        var coords = { x: container.scrollLeft, y: container.scrollTop };
+
         var pattern = tracker.activeSong.patterns[ activePattern ];
-        container.innerHTML = TemplateUtil.render( "patternEditor", {
+        wrapper.innerHTML = TemplateUtil.render( "patternTrackList", {
             steps   : pattern.steps,
             pattern : pattern
         });
         positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
         positionTitle.querySelector( ".total" ).innerHTML   = tracker.activeSong.patterns.length.toString();
         Form.setSelectedOption( stepSelection, pattern.steps );
+
+        container.scrollLeft = coords.x;
+        container.scrollTop  = coords.y;
 
         highlightActiveStep();
     },
@@ -202,11 +211,13 @@ var PatternController = module.exports =
                         if ( activePattern < ( tracker.activeSong.patterns.length - 1 )) {
                             ++activePattern;
                             activeChannel = activeInstrument = 0;
-                            PatternController.update();
+                            PatternTrackListController.update();
                         }
                         else
                             activeChannel = activeInstrument = maxChannel;
                     }
+                    else if ( activeChannel > 2 )
+                       container.scrollLeft = (( activeChannel - 2 ) * PATTERN_WIDTH );
 
                     if ( aEvent.shiftKey ) {
                         maxPatternSelect = Math.min( ++maxPatternSelect, maxChannel );
@@ -223,11 +234,13 @@ var PatternController = module.exports =
                         if ( activePattern > 0 ) {
                             --activePattern;
                             activeChannel = activeInstrument = 1;
-                            PatternController.update();
+                            PatternTrackListController.update();
                         }
                         else
                             activeChannel = activeInstrument = 0;
                     }
+                    else if ( activeChannel >= 0 )
+                        container.scrollLeft = ( activeChannel * PATTERN_WIDTH );
 
                     if ( aEvent.shiftKey ) {
                         minPatternSelect = Math.max( --maxPatternSelect, 0 );
@@ -244,12 +257,12 @@ var PatternController = module.exports =
 
                 case 8:  // backspace
                     deleteHighlightedStep();
-                    PatternController.handleKey( type, 38 ); // move up to previous slot
+                    PatternTrackListController.handleKey( type, 38 ); // move up to previous slot
                     break;
 
                 case 46: // delete
                     deleteHighlightedStep();
-                    PatternController.handleKey( type, 40 ); // move down to next slot
+                    PatternTrackListController.handleKey( type, 40 ); // move down to next slot
                     break;
 
                 case 90: // Z
@@ -264,7 +277,7 @@ var PatternController = module.exports =
 
                         if ( state !== null ) {
                             tracker.activeSong = state;
-                            PatternController.update();
+                            PatternTrackListController.update();
                         }
                     }
 
@@ -281,7 +294,7 @@ var PatternController = module.exports =
 
                         selectionModel.cutSelection( tracker.activeSong, activePattern, activeChannel, activeStep );
                         selectionModel.clearSelection();
-                        PatternController.update();
+                        PatternTrackListController.update();
                         saveState();
                     }
                     break;
@@ -291,7 +304,7 @@ var PatternController = module.exports =
                     // paste current selection
                     if ( keyboardController.hasOption( aEvent )) {
                         selectionModel.pasteSelection( tracker.activeSong, activePattern, activeChannel, activeStep );
-                        PatternController.update();
+                        PatternTrackListController.update();
                         saveState();
                     }
                     break;
@@ -342,20 +355,20 @@ function handleBroadcast( type, payload )
             }
             stateModel.flush();
             stateModel.store();
-            PatternController.update();
-            container.focus();
+            PatternTrackListController.update();
+            wrapper.focus();
             break;
 
         case Messages.PATTERN_SWITCH:
             activePattern = payload;
-            PatternController.update();
+            PatternTrackListController.update();
             break;
     }
 }
 
 function highlightActiveStep()
 {
-    var pContainers = container.querySelectorAll( ".pattern" ),
+    var pContainers = wrapper.querySelectorAll( ".pattern" ),
         pContainer, items, item;
 
     var activeStyle = "active", selectedStyle = "selected";
@@ -394,7 +407,7 @@ function deleteHighlightedStep()
     else
         PatternFactory.clearEvent( tracker.activeSong.patterns[ activePattern ], activeChannel, activeStep );
 
-    PatternController.update(); // sync view with model
+    PatternTrackListController.update(); // sync view with model
     saveState();
 }
 
@@ -410,7 +423,7 @@ function handleInteraction( aEvent )
 
     if ( aEvent.target.nodeName === "LI" )
     {
-        var pContainers = container.querySelectorAll( ".pattern" ),
+        var pContainers = wrapper.querySelectorAll( ".pattern" ),
         pContainer, items;
 
         for ( var i = 0, l = pContainers.length; i < l; ++i ) {
@@ -429,7 +442,7 @@ function handleInteraction( aEvent )
                     activeStep       = j;
                     highlightActiveStep();
 
-                    keyboardController.setListener( PatternController );
+                    keyboardController.setListener( PatternTrackListController );
 
                     if ( aEvent.type === "dblclick" || ( aEvent.type === "touchend" &&
                         window.scrollY === interactionData.offset && ( Date.now() - interactionData.time ) < 200 )) {
@@ -460,7 +473,7 @@ function editStep()
     noteEntryController.open( options, function( data )
     {
         // restore interest in keyboard controller events
-        keyboardController.setListener( PatternController );
+        keyboardController.setListener( PatternTrackListController );
 
         // update model and view
 
@@ -489,7 +502,7 @@ function handlePatternClear( aEvent )
 {
     tracker.activeSong.patterns[ activePattern ] = PatternFactory.createEmptyPattern( stepAmount );
     selectionModel.clearSelection();
-    PatternController.update();
+    PatternTrackListController.update();
 }
 
 function handlePatternCopy( aEvent )
@@ -501,7 +514,7 @@ function handlePatternPaste( aEvent )
 {
     if ( patternCopy ) {
         PatternFactory.mergePatterns( tracker.activeSong.patterns[ activePattern ], patternCopy );
-        PatternController.update();
+        PatternTrackListController.update();
     }
 }
 
@@ -542,7 +555,7 @@ function handlePatternDelete( aEvent )
         if ( activePattern > 0 )
             handlePatternNavBack( aEvent );
         else
-            PatternController.update();
+            PatternTrackListController.update();
 
         Pubsub.publishSync( Messages.PATTERN_AMOUNT_UPDATED );
     }
@@ -553,7 +566,7 @@ function handlePatternNavBack( aEvent )
     if ( activePattern > 0 ) {
         --activePattern;
         selectionModel.clearSelection();
-        PatternController.update();
+        PatternTrackListController.update();
     }
 }
 
@@ -564,7 +577,7 @@ function handlePatternNavNext( aEvent )
     if ( activePattern < max ) {
         ++activePattern;
         selectionModel.clearSelection();
-        PatternController.update();
+        PatternTrackListController.update();
     }
 }
 
@@ -601,7 +614,8 @@ function handlePatternStepChange( aEvent )
         pattern.channels[ index ] = transformed;
     });
 
-    PatternController.update(); // sync with model
+    Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newAmount );
+    PatternTrackListController.update(); // sync with model
 }
 
 function handleMouseOver( aEvent )
@@ -634,7 +648,7 @@ function addEventAtCurrentPosition( event )
     );
     channel[ activeStep ] = event;
 
-    PatternController.handleKey( "down", 40 ); // proceed to next line
-    PatternController.update();
+    PatternTrackListController.handleKey( "down", 40 ); // proceed to next line
+    PatternTrackListController.update();
     saveState();
 }

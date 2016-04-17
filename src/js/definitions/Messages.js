@@ -41,18 +41,19 @@ module.exports =
     REFRESH_SONG              : 8,
     PATTERN_SWITCH            : 9,  // payload consists of number describing new pattern index
     PATTERN_AMOUNT_UPDATED    : 10,
+    PATTERN_STEPS_UPDATED     : 11, // payload consists of number describing new pattern length
 
     // sequencer messages
 
-    TOGGLE_SEQUENCER_PLAYSTATE : 11,
-    PLAYBACK_STOPPED           : 12,
-    RECORDING_COMPLETE         : 13,
-    TEMPO_UPDATED              : 14, // payload is Array [ old tempo, new tempo ]
+    TOGGLE_SEQUENCER_PLAYSTATE : 12,
+    PLAYBACK_STOPPED           : 13,
+    RECORDING_COMPLETE         : 14,
+    TEMPO_UPDATED              : 15, // payload is Array [ old tempo, new tempo ]
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING  : 15, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME  : 16, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    CHANGE_WAVEFORM           : 17, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    UPDATE_FILTER_SETTINGS    : 18  // payload is Array [ instrument index, filter properties Object ]
+    ADJUST_OSCILLATOR_TUNING  : 16, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME  : 17, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 18, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    UPDATE_FILTER_SETTINGS    : 19  // payload is Array [ instrument index, filter properties Object ]
 };
