@@ -149,11 +149,14 @@ var PatternTrackListController = module.exports =
                     {
                         if ( stepOnSelection === -1 || prevVerticalKey !== keyCode )
                         {
-                            shrinkSelection = ( curStep === selectionModel.getMaxValue() );
+                            shrinkSelection = ( curStep === ( selectionModel.maxSelectedStep ));
                             minOnSelection  = selectionModel.minSelectedStep;
                             maxOnSelection  = selectionModel.maxSelectedStep;
                             stepOnSelection = (( minOnSelection === curStep ) ? minOnSelection : activeStep ) + 2;
                         }
+
+                        if ( !selectionModel.hasSelection() )
+                            selectionModel.setSelectionChannelRange( activeChannel );
 
                         if ( shrinkSelection )
                         {
@@ -163,7 +166,7 @@ var PatternTrackListController = module.exports =
                             selectionModel.setSelection( minOnSelection, activeStep );
                         }
                         else
-                            selectionModel.setSelection( activeStep, stepOnSelection );
+                            selectionModel.setSelection( activeStep, stepOnSelection - 1 );
                     }
                     else
                         selectionModel.clearSelection();
@@ -183,11 +186,14 @@ var PatternTrackListController = module.exports =
                     if ( aEvent && aEvent.shiftKey )
                     {
                         if ( stepOnSelection === -1 || prevVerticalKey !== keyCode ) {
-                            shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.getMinValue() );
+                            shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.minSelectedStep && activeStep !== 1 );
                             minOnSelection  = selectionModel.minSelectedStep;
                             maxOnSelection  = selectionModel.maxSelectedStep;
                             stepOnSelection = ( maxOnSelection === ( activeStep - 1 )) ? minOnSelection : activeStep - 1;
                         }
+
+                        if ( !selectionModel.hasSelection() )
+                            selectionModel.setSelectionChannelRange( activeChannel );
 
                         if ( shrinkSelection )
                         {
@@ -197,7 +203,7 @@ var PatternTrackListController = module.exports =
                             selectionModel.setSelection( activeStep, maxOnSelection );
                         }
                         else
-                            selectionModel.setSelection( stepOnSelection, Math.max( selectionModel.maxSelectedStep, activeStep ) + 1 );
+                            selectionModel.setSelection( stepOnSelection, Math.max( selectionModel.maxSelectedStep, activeStep ));
                     }
                     else
                         selectionModel.clearSelection();
@@ -239,11 +245,11 @@ var PatternTrackListController = module.exports =
                             activeChannel = activeInstrument = 0;
                     }
                     else if ( activeChannel >= 0 )
-                        container.scrollLeft = ( activeChannel * PATTERN_WIDTH );
+                        container.scrollLeft = ( activeChannel > 2 ) ? ( activeChannel * PATTERN_WIDTH ) : 0;
 
                     if ( aEvent.shiftKey ) {
                         minPatternSelect = Math.max( --maxPatternSelect, 0 );
-                        selectionModel.equalizeSelection( minPatternSelect, maxPatternSelect, true );
+                        selectionModel.setSelectionChannelRange( selectionModel.firstSelectedChannel, activeChannel );
                     }
                     else
                         selectionModel.clearSelection();

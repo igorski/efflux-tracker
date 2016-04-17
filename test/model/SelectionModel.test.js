@@ -64,22 +64,15 @@ describe( "SelectionModel", function()
         assert.strictEqual( 0, model.firstSelectedChannel,
             "expected first selected channel to have index 0" );
 
-        assert.strictEqual( 4, model.lastSelectedChannel,
-            "expected last selected channel to have index 4" );
+        assert.strictEqual( 3, model.lastSelectedChannel,
+            "expected last selected channel to have index 3" );
     });
 
     it( "should add indices to its current selection", function()
     {
-        model.setSelectionChannelRange( 0 ); // select a single channel
-
         var min = 0, max = 16, i;
 
-        for ( i = min; i < max; ++i )
-        {
-            assert.notOk( model.selectedChannels[ 0 ].indexOf( i ) > -1,
-                "expected SelectionModel not to have index '" + i + "' in the current selection prior to setting one" );
-        }
-
+        model.setSelectionChannelRange( 0 ); // select a single channel
         model.setSelection( min, max );
 
         for ( i = min; i < max; ++i )
@@ -112,19 +105,15 @@ describe( "SelectionModel", function()
         var activeChannel = 0, max = 1;
 
         model.setSelectionChannelRange( activeChannel, max );
+        model.setSelection( 0, max );
 
-        assert.strictEqual( 0, model.selectedChannels[ activeChannel ].length,
-            "expected selection to have 0 length prior to addition" );
+        assert.strictEqual( 2, model.selectedChannels[ activeChannel ].length,
+            "expected selection to have length of 2 after addition" );
 
         model.setSelection( 0, max );
 
-        assert.strictEqual( 1, model.selectedChannels[ activeChannel ].length,
-            "expected selection to have length of 1 after addition" );
-
-        model.setSelection( 0, max );
-
-        assert.strictEqual( 1, model.selectedChannels[ activeChannel ].length,
-            "expected selection to remain at length of 1 after addition of same value" );
+        assert.strictEqual( 2, model.selectedChannels[ activeChannel ].length,
+            "expected selection to remain at length of 2 after addition of same value" );
     });
 
     it ( "should be able to clear its selection", function()
@@ -161,6 +150,7 @@ describe( "SelectionModel", function()
 
     it( "should know the full length of its selection", function()
     {
+        model.setSelectionChannelRange( 0, 1 );
         var min = 0;
         var max = 16;
 
@@ -177,9 +167,21 @@ describe( "SelectionModel", function()
         assert.notOk( model.hasSelection(),
             "expected model not to have a selection by default" );
 
+        model.setSelectionChannelRange( 0, 4 );
         model.setSelection( 0, 16 );
 
         assert.ok( model.hasSelection(),
             "expected model to have a selection after invocation of setter" );
+    });
+
+    it( "should not allow setting the selection step range without specifying the channel range first", function()
+    {
+        model = new SelectionModel( new SongModel() );
+
+        expect( function()
+        {
+            model.setSelection( 0, 16 );
+
+        }).to.throw( /cannot set selection range if no selection channel range had been specified/ );
     });
 });
