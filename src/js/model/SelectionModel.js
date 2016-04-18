@@ -75,6 +75,26 @@ function SelectionModel()
      */
     this._copySelection = null;
 
+    /**
+     * Value Object containing the states associated
+     * with the current selection action triggered by key events, see
+     * PatternTrackListController
+     *
+     * @public
+     * @type {Object}
+     */
+    this.actionCache =
+    {
+        stepOnSelection      : -1,
+        channelOnSelection   : -1,
+        directionOnSelection : 0,
+        shrinkSelection      : false,
+        minOnSelection       : -1,
+        maxOnSelection       : -1,
+        prevHorizontalKey    : -1,
+        prevVerticalKey      : -1
+    };
+
     /* initialize */
 
     this.clearSelection();
@@ -86,7 +106,7 @@ function SelectionModel()
  * @public
  *
  * @param {number} firstChannel
- * @param {number=} lastChannel optional defaults to firstChannel for single channel selection
+ * @param {number=} lastChannel optional (defaults to firstChannel for single channel selection)
  */
 SelectionModel.prototype.setSelectionChannelRange = function( firstChannel, lastChannel )
 {
@@ -112,15 +132,13 @@ SelectionModel.prototype.setSelectionChannelRange = function( firstChannel, last
  */
 SelectionModel.prototype.setSelection = function( selectionStart, selectionEnd )
 {
-    if ( !this.selectedChannels.length > 0 )
-        throw new Error( "cannot set selection range if no selection channel range had been specified" );
+    //if ( !this.selectedChannels.length > 0 )
+        //throw new Error( "cannot set selection range if no selection channel range had been specified" );
 
     // update to new values
 
     this.minSelectedStep = Math.min( selectionStart, selectionEnd );
     this.maxSelectedStep = Math.max( selectionEnd, selectionStart );
-
-    console.log("set selection range: " + this.minSelectedStep + " - " + this.maxSelectedStep);
 
     var i, j, patterns;
 
@@ -192,6 +210,117 @@ SelectionModel.prototype.getSelectionLength = function()
 
 /**
  * @public
+ *
+ * @param {number} keyCode determining the vertical direction we're moving in (38 = up, 40 = down)
+ * @param {number} activeChannel the active channel in the track list
+ * @param {number} curStep the current active step within the current pattern
+ * @param {number} activeStep the next active step within the current pattern
+ */
+SelectionModel.prototype.handleVerticalKeySelectAction = function( keyCode, activeChannel, curStep, activeStep )
+{
+    var ac           = this.actionCache,
+        isUp         = ( keyCode === 38 ),
+        hadSelection = this.hasSelection();
+
+    if ( isUp )
+    {
+        // moving up
+
+        if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode )
+        {
+            ac.shrinkSelection = ( curStep === ( this.maxSelectedStep ));
+            ac.minOnSelection  = this.minSelectedStep;
+            ac.maxOnSelection  = this.maxSelectedStep;
+            ac.stepOnSelection = (( ac.minOnSelection === curStep ) ? ac.minOnSelection : activeStep ) + 2;
+        }
+
+        if ( !hadSelection )
+            this.setSelectionChannelRange( activeChannel );
+
+        if ( ac.shrinkSelection )
+        {
+            if ( ac.minOnSelection === activeStep )
+                ac.stepOnSelection = -1;
+
+            this.setSelection( ac.minOnSelection, activeStep );
+        }
+        else
+            this.setSelection( activeStep, ac.stepOnSelection - 1 );
+    }
+    else
+    {
+        // moving down
+
+        if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode )
+        {
+            ac.shrinkSelection = ( ac.prevVerticalKey !== keyCode && curStep === this.minSelectedStep && activeStep !== 1 );
+            ac.minOnSelection  = this.minSelectedStep;
+            ac.maxOnSelection  = this.maxSelectedStep;
+            ac.stepOnSelection = ( ac.maxOnSelection === ( activeStep - 1 )) ? ac.minOnSelection : activeStep - 1;
+        }
+
+        if ( !hadSelection )
+            this.setSelectionChannelRange( activeChannel );
+
+        if ( ac.shrinkSelection )
+        {
+            if ( ac.maxOnSelection === activeStep + 1 )
+                ac.stepOnSelection = -1;
+
+            this.setSelection( activeStep, ac.maxOnSelection );
+        }
+        else
+            this.setSelection( ac.stepOnSelection, Math.max( this.maxSelectedStep, activeStep ));
+    }
+    ac.prevVerticalKey = keyCode;
+};
+
+/**
+ * @public
+ *
+ * @param {number} keyCode the horizontal direction we're moving in (37 = left, 39 = right)
+ * @param {number} activeChannel
+ * @param {number} activeStep
+ */
+SelectionModel.prototype.handleHorizontalKeySelectAction = function( keyCode, activeChannel, activeStep )
+{
+    var ac           = this.actionCache,
+        isLeft       = ( keyCode === 37 ),
+        curChannel   = ( isLeft ) ? activeChannel + 1 : activeChannel,
+        hadSelection = this.hasSelection();
+
+    if ( !hadSelection ) {
+
+        this.minSelectedStep = activeStep;
+        this.maxSelectedStep = activeStep;
+        console.log("DIRECTION ON SEL : " + keyCode);
+        ac.directionOnSelection = keyCode;
+        ac.channelOnSelection   = ( isLeft ) ? activeChannel + 1 : activeChannel;
+    }
+    else {
+
+        var wasLeftOnSelection = ( ac.prevHorizontalKey === keyCode );
+
+        if ( isLeft )
+        {
+            console.log("is:" + isLeft + " was:" + wasLeftOnSelection);
+            // are we enlarging or shrinking the selection?
+            if ( wasLeftOnSelection )
+                this.setSelectionChannelRange( activeChannel, this.actionCache.channelOnSelection );
+            else
+                this.setSelectionChannelRange( this.firstSelectedChannel, activeChannel );
+        }
+        else
+        {
+            // moving right
+            this.setSelectionChannelRange( this.firstSelectedChannel, activeChannel );
+        }
+    }
+    ac.prevHorizontalKey = keyCode;
+};
+
+/**
+ * @public
  * @return {boolean}
  */
 SelectionModel.prototype.hasSelection = function()
@@ -220,10 +349,12 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
         this._copySelection.push( [] );
 
     var pattern = song.patterns[ activePattern], stepValue;
+    var channel;
 
     for ( i = 0; i < max; ++i )
     {
-        if ( this.selectedChannels[ i ].length > 0 )
+        channel = this.selectedChannels[ i ];
+        if ( channel && channel.length > 0 )
         {
             for ( var j = this.minSelectedStep, l = this.maxSelectedStep; j <= l; ++j ) {
                 stepValue = pattern.channels[ i ][ j ];
@@ -269,7 +400,7 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern )
 
     var pattern = song.patterns[ activePattern ];
 
-    for (var i = 0, max = this.selectedChannels.length; i < max; ++i )
+    for ( var i = this.firstSelectedChannel; i <= this.lastSelectedChannel; ++i )
     {
         if ( this.selectedChannels[ i ].length > 0 )
         {
@@ -293,16 +424,9 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
     {
         var target = song.patterns[ activePattern ];
         var targetPattern, writeIndex, clone;
-        var j = 0;
+        var selectionLength = this._copySelection.length;
 
-        if (( activeChannel === 0 && this._copySelection[ 0 ].length === 0 ) ||
-            ( activeChannel === 1 && this._copySelection[ 0 ].length === 0 ))
-        {
-            j = 1;
-        }
-
-        var max = this.selectedChannels.length;
-        for ( var i = activeChannel; i < max && j < max; ++i, ++j )
+        for ( var i = activeChannel, max = target.channels.length, j = 0; i < max && j < selectionLength; ++i, ++j )
         {
             targetPattern = target.channels[ i ];
 
@@ -311,9 +435,10 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
                 writeIndex = activeStep + index;
 
                 if ( writeIndex < targetPattern.length ) {
-                    if ( event && event.action !== 0 ) {
-                        clone = ObjectUtil.clone( event );
 
+                    if ( event && event.action !== 0 ) {
+
+                        clone = ObjectUtil.clone( event );
                         EventUtil.setPosition( clone, target, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
                         targetPattern[ writeIndex ] = clone;
                     }
@@ -328,8 +453,6 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
 
 SelectionModel.prototype.sort = function()
 {
-    var sortMethod = function( a, b ){ return a-b; };
-
     var i = this.selectedChannels.length, channel;
 
     while ( i-- ) {
@@ -338,3 +461,7 @@ SelectionModel.prototype.sort = function()
             channel.sort( sortMethod );
     }
 };
+
+function sortMethod( a, b ) {
+    return a - b;
+}

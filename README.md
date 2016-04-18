@@ -75,3 +75,4 @@ TODO
  * Implement MIDI control
  * Implement audio export
  * Support mouse drag for selection
+ * Implement importing and expoting to disk

@@ -173,15 +173,4 @@ describe( "SelectionModel", function()
         assert.ok( model.hasSelection(),
             "expected model to have a selection after invocation of setter" );
     });
-
-    it( "should not allow setting the selection step range without specifying the channel range first", function()
-    {
-        model = new SelectionModel( new SongModel() );
-
-        expect( function()
-        {
-            model.setSelection( 0, 16 );
-
-        }).to.throw( /cannot set selection range if no selection channel range had been specified/ );
-    });
 });

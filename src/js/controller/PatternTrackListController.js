@@ -35,10 +35,8 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 var wrapper, container, tracker, noteEntryController, keyboardController;
 var activePattern = 0, activeChannel = 0, maxChannel = 0, activeStep = 0, stepAmount = 16, activeInstrument = 0,
-    stepOnSelection = -1, shrinkSelection = false, minOnSelection, maxOnSelection, minPatternSelect = 0, maxPatternSelect = 0,
-    prevVerticalKey, interactionData = {},
-    stateModel, selectionModel, patternCopy, positionTitle,
-    stepSelection;
+    minPatternSelect = 0, maxPatternSelect = 0, interactionData = {}, stateModel, selectionModel,
+    patternCopy, positionTitle, stepSelect;
 
 var PATTERN_WIDTH = 150; // width of a single track/pattern column
 
@@ -61,7 +59,7 @@ var PatternTrackListController = module.exports =
         container     = containerRef;
         wrapper       = containerRef.querySelector( ".wrapper" );
         positionTitle = document.querySelector( "#currentPattern" );
-        stepSelection = document.querySelector( "#patternSteps"  );
+        stepSelect = document.querySelector( "#patternSteps"  );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();
@@ -84,7 +82,7 @@ var PatternTrackListController = module.exports =
         document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
         document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
 
-        stepSelection.addEventListener( "change", handlePatternStepChange );
+        stepSelect.addEventListener( "change", handlePatternStepChange );
 
         var pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
@@ -119,7 +117,7 @@ var PatternTrackListController = module.exports =
         });
         positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
         positionTitle.querySelector( ".total" ).innerHTML   = tracker.activeSong.patterns.length.toString();
-        Form.setSelectedOption( stepSelection, pattern.steps );
+        Form.setSelectedOption( stepSelect, pattern.steps );
 
         container.scrollLeft = coords.x;
         container.scrollTop  = coords.y;
@@ -133,8 +131,7 @@ var PatternTrackListController = module.exports =
     {
         if ( type === "down" )
         {
-            var curStep    = activeStep,
-                curChannel = activeChannel;
+            var curStep = activeStep; // the current step position within the pattern
 
             switch ( keyCode )
             {
@@ -143,35 +140,13 @@ var PatternTrackListController = module.exports =
                     if ( --activeStep < 0 )
                         activeStep = 0;
 
-                    // when holding down shift make a selection
+                    // when holding down shift make a selection, otherwise clear selection
 
                     if ( aEvent && aEvent.shiftKey )
-                    {
-                        if ( stepOnSelection === -1 || prevVerticalKey !== keyCode )
-                        {
-                            shrinkSelection = ( curStep === ( selectionModel.maxSelectedStep ));
-                            minOnSelection  = selectionModel.minSelectedStep;
-                            maxOnSelection  = selectionModel.maxSelectedStep;
-                            stepOnSelection = (( minOnSelection === curStep ) ? minOnSelection : activeStep ) + 2;
-                        }
-
-                        if ( !selectionModel.hasSelection() )
-                            selectionModel.setSelectionChannelRange( activeChannel );
-
-                        if ( shrinkSelection )
-                        {
-                            if ( minOnSelection === activeStep )
-                                stepOnSelection = -1;
-
-                            selectionModel.setSelection( minOnSelection, activeStep );
-                        }
-                        else
-                            selectionModel.setSelection( activeStep, stepOnSelection - 1 );
-                    }
+                        selectionModel.handleVerticalKeySelectAction( keyCode, activeChannel, curStep, activeStep );
                     else
                         selectionModel.clearSelection();
 
-                    prevVerticalKey = keyCode;
                     break;
 
                 case 40: // down
@@ -181,34 +156,13 @@ var PatternTrackListController = module.exports =
                     if ( ++activeStep > maxStep )
                         activeStep = maxStep;
 
-                    // when holding down shift make a selection
+                    // when holding down shift make a selection, otherwise clear existing selection
 
                     if ( aEvent && aEvent.shiftKey )
-                    {
-                        if ( stepOnSelection === -1 || prevVerticalKey !== keyCode ) {
-                            shrinkSelection = ( prevVerticalKey !== keyCode && curStep === selectionModel.minSelectedStep && activeStep !== 1 );
-                            minOnSelection  = selectionModel.minSelectedStep;
-                            maxOnSelection  = selectionModel.maxSelectedStep;
-                            stepOnSelection = ( maxOnSelection === ( activeStep - 1 )) ? minOnSelection : activeStep - 1;
-                        }
-
-                        if ( !selectionModel.hasSelection() )
-                            selectionModel.setSelectionChannelRange( activeChannel );
-
-                        if ( shrinkSelection )
-                        {
-                            if ( maxOnSelection === activeStep + 1 )
-                                stepOnSelection = -1;
-
-                            selectionModel.setSelection( activeStep, maxOnSelection );
-                        }
-                        else
-                            selectionModel.setSelection( stepOnSelection, Math.max( selectionModel.maxSelectedStep, activeStep ));
-                    }
+                        selectionModel.handleVerticalKeySelectAction( keyCode, activeChannel, curStep, activeStep );
                     else
                         selectionModel.clearSelection();
 
-                    prevVerticalKey = keyCode;
                     break;
 
                 case 39: // right
@@ -225,9 +179,8 @@ var PatternTrackListController = module.exports =
                     else if ( activeChannel > 2 )
                        container.scrollLeft = (( activeChannel - 2 ) * PATTERN_WIDTH );
 
-                    if ( aEvent.shiftKey ) {
-                        selectionModel.setSelectionChannelRange( selectionModel.firstSelectedChannel, activeChannel );
-                    }
+                    if ( aEvent.shiftKey )
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
                     else
                         selectionModel.clearSelection();
 
@@ -249,7 +202,7 @@ var PatternTrackListController = module.exports =
 
                     if ( aEvent.shiftKey ) {
                         minPatternSelect = Math.max( --maxPatternSelect, 0 );
-                        selectionModel.setSelectionChannelRange( selectionModel.firstSelectedChannel, activeChannel );
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
                     }
                     else
                         selectionModel.clearSelection();
@@ -295,9 +248,9 @@ var PatternTrackListController = module.exports =
                     if ( keyboardController.hasOption( aEvent ))
                     {
                         if ( !selectionModel.hasSelection() )
-                            selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
+                            selectionModel.setSelection( activeStep, activeStep + 1 );
 
-                        selectionModel.cutSelection( tracker.activeSong, activePattern, activeChannel, activeStep );
+                        selectionModel.cutSelection( tracker.activeSong, activePattern );
                         selectionModel.clearSelection();
                         PatternTrackListController.update();
                         saveState();
@@ -320,7 +273,7 @@ var PatternTrackListController = module.exports =
                     if ( keyboardController.hasOption( aEvent ))
                     {
                         if ( !selectionModel.hasSelection() )
-                            selectionModel.setSelection( activeChannel, activeStep, activeStep + 1 );
+                            selectionModel.setSelection( activeStep, activeStep + 1 );
 
                         selectionModel.copySelection( tracker.activeSong, activePattern );
                         selectionModel.clearSelection();
@@ -337,9 +290,7 @@ var PatternTrackListController = module.exports =
             highlightActiveStep();
         }
         else if ( keyCode === 16 )
-        {
-            stepOnSelection = -1;
-        }
+            selectionModel.actionCache.stepOnSelection = -1;
     }
 };
 
@@ -592,7 +543,7 @@ function handlePatternStepChange( aEvent )
         pattern = song.patterns[ activePattern ];
 
     var oldAmount = pattern.steps;
-    var newAmount = parseInt( Form.getSelectedOption( stepSelection ), 10 );
+    var newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
 
     // update model values
     pattern.steps = newAmount;
