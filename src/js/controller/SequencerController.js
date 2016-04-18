@@ -328,6 +328,7 @@ function step()
         Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
     }
     currentMeasureOffset = ( audioContext.currentTime - firstMeasureStartTime ) - ( currentMeasure * measureLength );
+    Pubsub.publish( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
 }
 
 /**
