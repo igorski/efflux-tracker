@@ -131,7 +131,8 @@ var PatternTrackListController = module.exports =
     {
         if ( type === "down" )
         {
-            var curStep = activeStep; // the current step position within the pattern
+            var curStep    = activeStep,
+                curChannel = activeChannel; // the current step position and channel within the pattern
 
             switch ( keyCode )
             {
@@ -180,7 +181,7 @@ var PatternTrackListController = module.exports =
                        container.scrollLeft = (( activeChannel - 2 ) * PATTERN_WIDTH );
 
                     if ( aEvent.shiftKey )
-                        selectionModel.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, activeStep );
                     else
                         selectionModel.clearSelection();
 
@@ -202,7 +203,7 @@ var PatternTrackListController = module.exports =
 
                     if ( aEvent.shiftKey ) {
                         minPatternSelect = Math.max( --maxPatternSelect, 0 );
-                        selectionModel.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, activeStep );
                     }
                     else
                         selectionModel.clearSelection();
@@ -272,9 +273,10 @@ var PatternTrackListController = module.exports =
                     // copy current selection
                     if ( keyboardController.hasOption( aEvent ))
                     {
-                        if ( !selectionModel.hasSelection() )
+                        if ( !selectionModel.hasSelection() ) {
+                            selectionModel.setSelectionChannelRange( activeChannel );
                             selectionModel.setSelection( activeStep, activeStep + 1 );
-
+                        }
                         selectionModel.copySelection( tracker.activeSong, activePattern );
                         selectionModel.clearSelection();
                     }

@@ -173,4 +173,86 @@ describe( "SelectionModel", function()
         assert.ok( model.hasSelection(),
             "expected model to have a selection after invocation of setter" );
     });
+
+    it( "should be able to expand and shrink its selection when starting key selection to the right", function()
+    {
+        var keyCode       = 39; // right
+        var activeChannel = Math.round( Math.random() * 3 ) + 1;
+        var activeStep    = 1;
+
+        // test 1. expand
+        
+        assert.strictEqual( 0, model.firstSelectedChannel,
+            "expected no channel to be selected prior to action" );
+        assert.strictEqual( 0, model.lastSelectedChannel,
+            "expected no channel to be selected prior to action" );
+
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === activeChannel && model.lastSelectedChannel === ( activeChannel + 1 ),
+            "A expected model to have a 1 channel wide selection range after expanding" );
+
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === activeChannel && model.lastSelectedChannel === ( activeChannel + 2 ),
+            "B expected model to have a 2 channel wide selection range after expanding" );
+
+        // test 2. shrink
+        
+        keyCode = 37; // left
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === activeChannel && model.lastSelectedChannel === ( activeChannel + 1 ),
+            "expected model to have a 1 channel wide selection range after shrinking" );
+        
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === activeChannel && model.lastSelectedChannel === activeChannel,
+            "expected model to have a 0 channel wide selection range after shrinking (single channel selected)" );
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === ( activeChannel - 1 ) && model.lastSelectedChannel === activeChannel,
+            "expected model to have a 1 channel wide selection range after shrinking (single channel selected)" );
+    });
+
+    it( "should be able to expand and shrink its selection when starting key selection to the left", function()
+    {
+        var keyCode       = 37; // left
+        var activeChannel = Math.round( Math.random() * 3 ) + 1;
+        var activeStep    = 1;
+
+        // test 1. expand
+
+        assert.strictEqual( 0, model.firstSelectedChannel,
+            "expected no channel to be selected prior to action" );
+        assert.strictEqual( 0, model.lastSelectedChannel,
+            "expected no channel to be selected prior to action" );
+
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === ( activeChannel - 1 ) && model.lastSelectedChannel === activeChannel,
+            "expected model to have a 1 channel wide selection range after expanding" );
+
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === ( activeChannel - 2 ) && model.lastSelectedChannel === activeChannel,
+            "expected model to have a 2 channel wide selection range after expanding" );
+
+        // test 2. shrink
+
+        keyCode = 39; // right
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === ( activeChannel - 1 ) && model.lastSelectedChannel === activeChannel,
+            "A expected model to have a 1 channel wide selection range after shrinking" );
+
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === activeChannel && model.lastSelectedChannel === activeChannel,
+            "expected model to have a 0 channel wide selection range after shrinking (single channel selected)" );
+        model.handleHorizontalKeySelectAction( keyCode, activeChannel, activeStep );
+
+        assert.ok( model.firstSelectedChannel === ( activeChannel + 1 ) && model.lastSelectedChannel === activeChannel,
+            "expected model to have a 2 channel wide selection range after shrinking (single channel selected)" );
+    });
 });

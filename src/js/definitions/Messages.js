@@ -49,11 +49,12 @@ module.exports =
     PLAYBACK_STOPPED           : 13,
     RECORDING_COMPLETE         : 14,
     TEMPO_UPDATED              : 15, // payload is Array [ old tempo, new tempo ]
+    STEP_POSITION_REACHED      : 16, // payload is Array [ current step position, total step positions (per measure) ]
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING  : 16, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME  : 17, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    CHANGE_WAVEFORM           : 18, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    UPDATE_FILTER_SETTINGS    : 19  // payload is Array [ instrument index, filter properties Object ]
+    ADJUST_OSCILLATOR_TUNING  : 17, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME  : 18, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 19, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    UPDATE_FILTER_SETTINGS    : 20  // payload is Array [ instrument index, filter properties Object ]
 };

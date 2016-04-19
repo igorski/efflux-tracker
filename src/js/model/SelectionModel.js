@@ -83,17 +83,7 @@ function SelectionModel()
      * @public
      * @type {Object}
      */
-    this.actionCache =
-    {
-        stepOnSelection      : -1,
-        channelOnSelection   : -1,
-        directionOnSelection : 0,
-        shrinkSelection      : false,
-        minOnSelection       : -1,
-        maxOnSelection       : -1,
-        prevHorizontalKey    : -1,
-        prevVerticalKey      : -1
-    };
+    this.actionCache = {};
 
     /* initialize */
 
@@ -197,6 +187,17 @@ SelectionModel.prototype.clearSelection = function()
     this.maxSelectedStep      =
     this.firstSelectedChannel =
     this.lastSelectedChannel  = 0;
+
+    var ac = this.actionCache;
+
+    ac.stepOnSelection      = -1;
+    ac.channelOnSelection   = -1;
+    ac.directionOnSelection = 0;
+    ac.shrinkSelection      = false;
+    ac.minOnSelection       = -1;
+    ac.maxOnSelection       = -1;
+    ac.prevHorizontalKey    = -1;
+    ac.prevVerticalKey      = -1;
 };
 
 /**
@@ -221,6 +222,9 @@ SelectionModel.prototype.handleVerticalKeySelectAction = function( keyCode, acti
     var ac           = this.actionCache,
         isUp         = ( keyCode === 38 ),
         hadSelection = this.hasSelection();
+
+    if ( !hadSelection )
+        ac.channelOnSelection = activeChannel;
 
     if ( isUp )
     {
@@ -279,43 +283,43 @@ SelectionModel.prototype.handleVerticalKeySelectAction = function( keyCode, acti
  * @public
  *
  * @param {number} keyCode the horizontal direction we're moving in (37 = left, 39 = right)
- * @param {number} activeChannel
- * @param {number} activeStep
+ * @param {number} activeChannelOnStart the active channel when the horizontal selection started
+ * @param {number} activeStepOnStart the active step when the horizontal selection started
  */
-SelectionModel.prototype.handleHorizontalKeySelectAction = function( keyCode, activeChannel, activeStep )
+SelectionModel.prototype.handleHorizontalKeySelectAction = function( keyCode, activeChannelOnStart, activeStepOnStart )
 {
     var ac           = this.actionCache,
         isLeft       = ( keyCode === 37 ),
-        curChannel   = ( isLeft ) ? activeChannel + 1 : activeChannel,
         hadSelection = this.hasSelection();
 
     if ( !hadSelection ) {
 
-        this.minSelectedStep = activeStep;
-        this.maxSelectedStep = activeStep;
-        console.log("DIRECTION ON SEL : " + keyCode);
-        ac.directionOnSelection = keyCode;
-        ac.channelOnSelection   = ( isLeft ) ? activeChannel + 1 : activeChannel;
+        this.minSelectedStep      = activeStepOnStart;
+        this.maxSelectedStep      = activeStepOnStart;
+        this.lastSelectedChannel  = activeChannelOnStart;
+        this.firstSelectedChannel = activeChannelOnStart;
+        this.lastSelectedChannel  = activeChannelOnStart;
+        ac.channelOnSelection     = activeChannelOnStart;
+        ac.directionOnSelection   = keyCode;
     }
-    else {
 
-        var wasLeftOnSelection = ( ac.prevHorizontalKey === keyCode );
+    var targetLastSelectedChannel = ( isLeft ) ? this.lastSelectedChannel - 1 : this.lastSelectedChannel + 1;
 
-        if ( isLeft )
-        {
-            console.log("is:" + isLeft + " was:" + wasLeftOnSelection);
-            // are we enlarging or shrinking the selection?
-            if ( wasLeftOnSelection )
-                this.setSelectionChannelRange( activeChannel, this.actionCache.channelOnSelection );
-            else
-                this.setSelectionChannelRange( this.firstSelectedChannel, activeChannel );
-        }
-        else
-        {
-            // moving right
-            this.setSelectionChannelRange( this.firstSelectedChannel, activeChannel );
-        }
+    if ( hadSelection && ac.prevHorizontalKey !== keyCode )
+        targetLastSelectedChannel = ( isLeft ) ? this.lastSelectedChannel - 1 : activeChannelOnStart + 1;
+
+    // scenario : shrinking a selection that started with left movement, by moving to the right
+
+    if ( hadSelection && !isLeft && ac.prevHorizontalKey === 37 && ac.prevHorizontalKey === ac.directionOnSelection ) {
+        this.setSelectionChannelRange( this.firstSelectedChannel + 1, --targetLastSelectedChannel );
+        return;
     }
+
+    if ( targetLastSelectedChannel >= ac.channelOnSelection )
+        this.setSelectionChannelRange( ac.channelOnSelection, targetLastSelectedChannel );
+    else
+        this.setSelectionChannelRange( this.firstSelectedChannel - 1, this.lastSelectedChannel );
+
     ac.prevHorizontalKey = keyCode;
 };
 
@@ -362,6 +366,7 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
             }
         }
     }
+    console.log(this._copySelection,this.firstSelectedChannel,this.lastSelectedChannel);
 };
 
 /**

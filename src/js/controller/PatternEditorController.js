@@ -27,6 +27,7 @@ var TemplateUtil = require( "../utils/TemplateUtil" );
 /* private properties */
 
 var container, indiceContainer;
+var stepAmount = 0, rafPending = false;
 
 module.exports =
 {
@@ -41,7 +42,13 @@ module.exports =
         indiceContainer = container.querySelector( ".indices" );
 
         // setup messaging system
-        Pubsub.subscribe( Messages.PATTERN_STEPS_UPDATED, handleBroadcast );
+        [
+            Messages.PATTERN_STEPS_UPDATED,
+            Messages.STEP_POSITION_REACHED
+
+        ].forEach( function( msg ) {
+            Pubsub.subscribe( msg, handleBroadcast );
+        });
 
         // initialize
         updateStepAmount( 16 );
@@ -55,11 +62,42 @@ function handleBroadcast( type, payload )
         case Messages.PATTERN_STEPS_UPDATED:
             updateStepAmount( payload );
             break;
+
+        case Messages.STEP_POSITION_REACHED:
+
+            if ( rafPending )
+                return;
+
+            rafPending = true;
+
+            requestAnimationFrame( function()
+            {
+                var step = payload[ 0 ], total = payload[ 1 ];
+                var diff = total / stepAmount;
+
+                //if ( step % diff !== 0 )
+                  //  return;
+
+                var numbers = indiceContainer.querySelectorAll( "li" ),
+                    i = numbers.length, number;
+
+                while ( i-- )
+                {
+                    number = numbers[ i ];
+                    if ( i * diff === step )
+                        number.classList.add( "active" );
+                    else
+                        number.classList.remove( "active" );
+                }
+                rafPending = false;
+            });
+            break;
     }
 }
 
 function updateStepAmount( amount )
 {
+    stepAmount = amount;
     indiceContainer.innerHTML = TemplateUtil.render(
         "patternEditorIndices", { amount: amount }
     );
