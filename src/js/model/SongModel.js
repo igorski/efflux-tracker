@@ -162,5 +162,5 @@ SongModel.prototype.deleteSong = function( aSong )
  */
 SongModel.prototype.persist = function(  )
 {
-    window.localStorage.setItem( 'songs', JSON.stringify( this._songs ));
+    window.localStorage.setItem( "songs", JSON.stringify( this._songs ));
 };

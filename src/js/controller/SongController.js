@@ -45,13 +45,21 @@ var SongController = module.exports =
         tracker             = trackerRef;
         keyboardController = keyboardControllerRef;
 
-        container.innerHTML += TemplateUtil.render( "songView" );
+        var canImportExport  = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
+        container.innerHTML += TemplateUtil.render( "songView", { addExport: canImportExport } );
 
         // grab references to elements in the template
 
-        container.querySelector( "#songLoad"   ).addEventListener( "click", handleLoad );
-        container.querySelector( "#songSave"   ).addEventListener( "click", handleSave );
-        container.querySelector( "#songReset"  ).addEventListener( "click", handleReset );
+        container.querySelector( "#songLoad"  ).addEventListener( "click", handleLoad );
+        container.querySelector( "#songSave"  ).addEventListener( "click", handleSave );
+        container.querySelector( "#songReset" ).addEventListener( "click", handleReset );
+
+        if ( canImportExport ) {
+
+            container.querySelector( "#songImport" ).addEventListener( "click", handleImport );
+            container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+
+        }
 
         // create a list container to show the songs when loading
 
@@ -158,6 +166,62 @@ function isValid( song )
         Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
 
     return hasContent;
+}
+
+function handleImport()
+{
+    // inline handler to overcome blocking of the file select popup by the browser
+
+    var fileBrowser = document.createElement( "input" );
+    fileBrowser.setAttribute( "type",   "file" );
+    fileBrowser.setAttribute( "accept", ".ztk" );
+
+    var simulatedEvent = document.createEvent( "MouseEvent" );
+    simulatedEvent.initMouseEvent( "click", true, true, window, 1,
+                                   0, 0, 0, 0, false,
+                                   false, false, false, 0, null );
+
+    fileBrowser.dispatchEvent( simulatedEvent );
+    fileBrowser.addEventListener( "change", function( aEvent )
+    {
+        var reader = new FileReader();
+
+        reader.onload = function( e )
+        {
+            var fileData = e.target.result;
+            var song     = JSON.parse( atob( fileData ));
+
+            // rudimentary check if we're dealing with a valid song
+
+            if ( song.meta && song.instruments && song.patterns )
+            {
+                tracker.SongModel.saveSong( song );
+                tracker.activeSong = song;
+                Pubsub.publishSync( Messages.SONG_LOADED, song );
+            }
+        };
+        // start reading file contents
+        reader.readAsText( aEvent.target.files[ 0 ] );
+    });
+}
+
+function handleExport()
+{
+    var song = tracker.activeSong;
+
+    if ( isValid( song ) ) {
+
+        // encode song data
+
+        var data = btoa( JSON.stringify( song ));
+
+        // download file to disk
+
+        var pom = document.createElement( "a" );
+        pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
+        pom.setAttribute( "download", song.meta.title + ".ztk" );
+        pom.click();
+    }
 }
 
 function handleClose()

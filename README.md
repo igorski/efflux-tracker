@@ -13,7 +13,7 @@ Feature list
 - Create custom waveforms for multiple synth instruments
 - Directly edit instrument output using the pattern editor
 - Copy / clone patterns for nice and easy arranging
-- Save songs locally and continue working on them later (just don't clear the browsers local storage!)
+- Save songs locally to continue working on them later or export / import them between devices
 - Input notes using a MIDI controller
 
 Sounds cool, but I don't want to build from source, I just want to tinker with this!!
@@ -75,4 +75,3 @@ TODO
  * Implement MIDI control
  * Implement audio export
  * Support mouse drag for selection
- * Implement importing and expoting to disk
