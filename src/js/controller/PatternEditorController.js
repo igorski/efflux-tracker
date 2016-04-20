@@ -41,6 +41,11 @@ module.exports =
         container       = containerRef;
         indiceContainer = container.querySelector( ".indices" );
 
+        // grab references to elements
+
+        container.querySelector( ".addNote" ).addEventListener( "click", handleNoteAdd );
+        container.querySelector( ".addOff" ).addEventListener ( "click", handleOffAdd );
+
         // setup messaging system
         [
             Messages.PATTERN_STEPS_UPDATED,
@@ -93,6 +98,16 @@ function handleBroadcast( type, payload )
             });
             break;
     }
+}
+
+function handleNoteAdd( aEvent )
+{
+    Pubsub.publish( Messages.ADD_NOTE_AT_POSITION );
+}
+
+function handleOffAdd( aEvent )
+{
+    Pubsub.publish( Messages.ADD_OFF_AT_POSITION );
 }
 
 function updateStepAmount( amount )

@@ -94,7 +94,9 @@ var PatternTrackListController = module.exports =
         [
             Messages.SONG_LOADED,
             Messages.REFRESH_SONG,
-            Messages.PATTERN_SWITCH
+            Messages.PATTERN_SWITCH,
+            Messages.ADD_NOTE_AT_POSITION,
+            Messages.ADD_OFF_AT_POSITION
 
         ].forEach( function( msg )
         {
@@ -284,9 +286,7 @@ var PatternTrackListController = module.exports =
 
                 case 75: // K
 
-                    var chokeEvent = PatternFactory.createAudioEvent();
-                    chokeEvent.action = 2; // noteOff;
-                    addEventAtCurrentPosition( chokeEvent );
+                    addOffEvent();
                     break;
             }
             highlightActiveStep();
@@ -320,6 +320,14 @@ function handleBroadcast( type, payload )
         case Messages.PATTERN_SWITCH:
             activePattern = payload;
             PatternTrackListController.update();
+            break;
+
+        case Messages.ADD_NOTE_AT_POSITION:
+            editStep();
+            break;
+
+        case Messages.ADD_OFF_AT_POSITION:
+            addOffEvent();
             break;
     }
 }
@@ -402,8 +410,8 @@ function handleInteraction( aEvent )
 
                     keyboardController.setListener( PatternTrackListController );
 
-                    if ( aEvent.type === "dblclick" || ( aEvent.type === "touchend" &&
-                        window.scrollY === interactionData.offset && ( Date.now() - interactionData.time ) < 200 )) {
+                    if ( aEvent.type === "dblclick" ) {
+
                         aEvent.preventDefault();
                         editStep();
                     }
@@ -454,6 +462,13 @@ function editStep()
             }
         }
     });
+}
+
+function addOffEvent()
+{
+    var chokeEvent = PatternFactory.createAudioEvent();
+    chokeEvent.action = 2; // noteOff;
+    addEventAtCurrentPosition( chokeEvent );
 }
 
 function handlePatternClear( aEvent )
