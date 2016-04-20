@@ -345,16 +345,17 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
     if ( this.getSelectionLength() === 0 )
         return;
 
-    var i = 0, max = this.selectedChannels.length;
+    var i, max = this.selectedChannels.length;
 
     this._copySelection = [];
 
-    for ( i; i < max; ++i )
+    for ( i = 0; i < max; ++i )
         this._copySelection.push( [] );
 
     var pattern = song.patterns[ activePattern], stepValue;
     var channel;
 
+    var copyIndex = 0;
     for ( i = 0; i < max; ++i )
     {
         channel = this.selectedChannels[ i ];
@@ -362,11 +363,11 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
         {
             for ( var j = this.minSelectedStep, l = this.maxSelectedStep; j <= l; ++j ) {
                 stepValue = pattern.channels[ i ][ j ];
-                this._copySelection[ i ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
+                this._copySelection[ copyIndex ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
             }
+            ++copyIndex;
         }
     }
-    console.log(this._copySelection,this.firstSelectedChannel,this.lastSelectedChannel);
 };
 
 /**
