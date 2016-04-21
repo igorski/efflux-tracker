@@ -33,6 +33,7 @@ var PatternEditorController    = require( "./controller/PatternEditorController"
 var PatternTrackListController = require( "./controller/PatternTrackListController" );
 var SequencerController        = require( "./controller/SequencerController" );
 var SongController             = require( "./controller/SongController" );
+var SystemController           = require( "./controller/SystemController" );
 var ObjectUtil                 = require( "./utils/ObjectUtil" );
 var SongUtil                   = require( "./utils/SongUtil" );
 var TemplateUtil               = require( "./utils/TemplateUtil" );
@@ -87,6 +88,7 @@ var tracker;
         tracker, KeyboardController, NoteEntryController
     );
     HelpController.init( container.querySelector( "#helpSection" ), tracker );
+    SystemController.init();
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
@@ -94,7 +96,7 @@ var tracker;
 
 })( self );
 
-/* private handlers */
+/* private methods */
 
 function handleBroadcast( type, payload )
 {

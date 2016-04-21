@@ -23,11 +23,12 @@
 var Pubsub       = require( "pubsub-js" );
 var Messages     = require( "../definitions/Messages" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
+var DOM          = require( "zjslib" ).DOM;
 
 /* private properties */
 
-var container, indiceContainer;
-var stepAmount = 0, rafPending = false;
+var container, indiceContainer, controlContainer;
+var stepAmount = 0, patternIndices, rafPending = false;
 
 module.exports =
 {
@@ -38,8 +39,9 @@ module.exports =
      */
     init : function( containerRef )
     {
-        container       = containerRef;
-        indiceContainer = container.querySelector( ".indices" );
+        container        = containerRef;
+        controlContainer = container.querySelector( ".controls" );
+        indiceContainer  = container.querySelector( ".indices" );
 
         // grab references to elements
 
@@ -49,6 +51,7 @@ module.exports =
 
         // setup messaging system
         [
+            Messages.WINDOW_SCROLLED,
             Messages.PATTERN_STEPS_UPDATED,
             Messages.STEP_POSITION_REACHED
 
@@ -65,6 +68,16 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
+        case Messages.WINDOW_SCROLLED:
+
+            // ensure the controlContainer is always visible regardless of scroll offset
+            // threshold defines when to offset the containers top, the last number defines the fixed header height
+            var scrollY   = window.scrollY;
+            var threshold = DOM.getElementCoordinates( container, true ).y - 45;
+
+            controlContainer.style.marginTop = (( scrollY > threshold ) ? scrollY - threshold : 0 ) + "px";
+            break;
+
         case Messages.PATTERN_STEPS_UPDATED:
             updateStepAmount( payload );
             break;
@@ -84,12 +97,11 @@ function handleBroadcast( type, payload )
                 //if ( step % diff !== 0 )
                   //  return;
 
-                var numbers = indiceContainer.querySelectorAll( "li" ),
-                    i = numbers.length, number;
+                var i = patternIndices.length, number;
 
                 while ( i-- )
                 {
-                    number = numbers[ i ];
+                    number = patternIndices[ i ];
                     if ( i * diff === step )
                         number.classList.add( "active" );
                     else
@@ -122,4 +134,5 @@ function updateStepAmount( amount )
     indiceContainer.innerHTML = TemplateUtil.render(
         "patternEditorIndices", { amount: amount }
     );
+    patternIndices = indiceContainer.querySelectorAll( "li" );
 }

@@ -59,7 +59,7 @@ var PatternTrackListController = module.exports =
         container     = containerRef;
         wrapper       = containerRef.querySelector( ".wrapper" );
         positionTitle = document.querySelector( "#currentPattern" );
-        stepSelect = document.querySelector( "#patternSteps"  );
+        stepSelect    = document.querySelector( "#patternSteps"  );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();

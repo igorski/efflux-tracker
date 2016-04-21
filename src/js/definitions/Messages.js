@@ -26,38 +26,40 @@ module.exports =
 
     SHOW_ERROR                : 0,
     SHOW_FEEDBACK             : 1,
+    WINDOW_SCROLLED           : 2,
+    WINDOW_RESIZED            : 3,
 
     // UI messages
 
-    DISPLAY_HELP              : 2,
-    CLOSE_OVERLAYS            : 3,
-    TOGGLE_INSTRUMENT_EDITOR  : 4,  // payload consists of number describing selected instrument index
-    SET_CUSTOM_WAVEFORM       : 5,  // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
+    DISPLAY_HELP              : 4,
+    CLOSE_OVERLAYS            : 5,
+    TOGGLE_INSTRUMENT_EDITOR  : 6,  // payload consists of number describing selected instrument index
+    SET_CUSTOM_WAVEFORM       : 7,  // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
 
     // song messages
 
-    LOAD_SONG                 : 6,  // payload consists of the Song that has been loaded
-    SONG_LOADED               : 7,  // payload consists of the Song that has been loaded
-    REFRESH_SONG              : 8,
-    PATTERN_SWITCH            : 9,  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : 10,
-    PATTERN_STEPS_UPDATED     : 11, // payload consists of number describing new pattern length
+    LOAD_SONG                 : 8,  // payload consists of the Song that has been loaded
+    SONG_LOADED               : 9,  // payload consists of the Song that has been loaded
+    REFRESH_SONG              : 10,
+    PATTERN_SWITCH            : 11,  // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED    : 12,
+    PATTERN_STEPS_UPDATED     : 13, // payload consists of number describing new pattern length
 
     // sequencer messages
 
-    TOGGLE_SEQUENCER_PLAYSTATE : 12,
-    PLAYBACK_STOPPED           : 13,
-    RECORDING_COMPLETE         : 14,
-    TEMPO_UPDATED              : 15, // payload is Array [ old tempo, new tempo ]
-    STEP_POSITION_REACHED      : 16, // payload is Array [ current step position, total step positions (per measure) ]
+    TOGGLE_SEQUENCER_PLAYSTATE : 14,
+    PLAYBACK_STOPPED           : 15,
+    RECORDING_COMPLETE         : 16,
+    TEMPO_UPDATED              : 17, // payload is Array [ old tempo, new tempo ]
+    STEP_POSITION_REACHED      : 18, // payload is Array [ current step position, total step positions (per measure) ]
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING  : 17, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME  : 18, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    CHANGE_WAVEFORM           : 19, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    UPDATE_FILTER_SETTINGS    : 20, // payload is Array [ instrument index, filter properties Object ]
-    ADD_NOTE_AT_POSITION      : 21,
-    ADD_OFF_AT_POSITION       : 22,
-    REMOVE_NOTE_AT_POSITION   : 23
+    ADJUST_OSCILLATOR_TUNING  : 19, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME  : 20, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 21, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    UPDATE_FILTER_SETTINGS    : 22, // payload is Array [ instrument index, filter properties Object ]
+    ADD_NOTE_AT_POSITION      : 23,
+    ADD_OFF_AT_POSITION       : 24,
+    REMOVE_NOTE_AT_POSITION   : 25
 };

@@ -4,26 +4,23 @@
   display: table;
   width: 100%;
   padding-bottom: 1em;
-
-  #patternEditor {
-    display: table-cell;
-    width: 14%;
-  }
-
-  #patternTrackList {
-    display: table-cell;
-    width: 51%;
-  }
-
-  #helpSection {
-    display: table-cell;
-    vertical-align: top;
-    width: 35%;
-  }
 }
 
-#helpSection
-{
+#patternEditor {
+  display: table-cell;
+  width: 14%;
+}
+
+#patternTrackList {
+  display: table-cell;
+  width: 51%;
+}
+
+#helpSection {
+  display: table-cell;
+  vertical-align: top;
+  width: 35%;
+
   .EditorComponent;
   padding: 1em 1.5em;
 
@@ -34,11 +31,35 @@
   }
 }
 
-@media screen and ( max-width: @mobile-width )
+@media screen and ( min-width: @app-width )
 {
-  #center {
-    #helpSection {
+  #patternEditor {
+    width: 9%;
+  }
+  #patternTrackList {
+    width: 56%;
+  }
+  #helpSection {
+    width: 35%;
+  }
+}
+
+@media screen and ( max-width: @tablet-portrait-width )
+{
+  #patternEditor {
+    width: 10%;
+    .controls li {
+      margin-right: .5em;
+    }
+    .indices {
       display: none;
     }
+  }
+  #patternTrackList {
+    width: 90%;
+  }
+  #helpSection {
+    display: none;
+    width: 0;
   }
 }
