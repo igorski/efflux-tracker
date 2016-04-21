@@ -174,7 +174,7 @@ var PatternTrackListController = module.exports =
                     if ( ++activeChannel > maxChannel ) {
                         if ( activePattern < ( tracker.activeSong.patterns.length - 1 )) {
                             ++activePattern;
-                            activeChannel = activeInstrument = 0;
+                            activeChannel = 0;
                             PatternTrackListController.update();
                         }
                         else
@@ -182,6 +182,8 @@ var PatternTrackListController = module.exports =
                     }
                     else if ( activeChannel > 2 )
                        container.scrollLeft = (( activeChannel - 2 ) * PATTERN_WIDTH );
+
+                    activeInstrument = activeChannel;
 
                     if ( aEvent.shiftKey )
                         selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, activeStep );
@@ -195,7 +197,7 @@ var PatternTrackListController = module.exports =
                     if ( --activeChannel < 0 ) {
                         if ( activePattern > 0 ) {
                             --activePattern;
-                            activeChannel = activeInstrument = 1;
+                            activeChannel = 1;
                             PatternTrackListController.update();
                         }
                         else
@@ -203,6 +205,8 @@ var PatternTrackListController = module.exports =
                     }
                     else if ( activeChannel >= 0 )
                         container.scrollLeft = ( activeChannel > 2 ) ? ( activeChannel * PATTERN_WIDTH ) : 0;
+
+                    activeInstrument = activeChannel;
 
                     if ( aEvent.shiftKey ) {
                         minPatternSelect = Math.max( --maxPatternSelect, 0 );
@@ -395,9 +399,12 @@ function handleInteraction( aEvent )
     if ( aEvent.target.nodeName === "LI" )
     {
         var pContainers = wrapper.querySelectorAll( ".pattern" ),
-        pContainer, items;
+            found = false, pContainer, items;
 
         for ( var i = 0, l = pContainers.length; i < l; ++i ) {
+
+            if ( found ) break;
+
             pContainer = pContainers[ i ];
             items = pContainer.querySelectorAll( "li" );
 
@@ -419,6 +426,7 @@ function handleInteraction( aEvent )
 
                         aEvent.preventDefault();
                         editStep();
+                        found = true;
                     }
                     break;
                 }
