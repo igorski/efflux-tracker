@@ -126,6 +126,7 @@ var AudioController = module.exports =
         // subscribe to messages
 
         [   Messages.SONG_LOADED,
+            Messages.PLAYBACK_STARTED,
             Messages.PLAYBACK_STOPPED,
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
@@ -322,6 +323,10 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
+        case Messages.PLAYBACK_STARTED:
+            applyModules();
+            break;
+
         case Messages.PLAYBACK_STOPPED:
             AudioController.reset();
             break;
@@ -405,6 +410,17 @@ function createModules()
         module.output.connect( module.filter.filter );
         module.filter.filter.connect( masterBus );
     }
+}
+
+/**
+ * apply the module settings described in
+ * the currently active songs model
+ */
+function applyModules()
+{
+    tracker.activeSong.instruments.forEach( function( instrument ) {
+        Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
+    });
 }
 
 /**

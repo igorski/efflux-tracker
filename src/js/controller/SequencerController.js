@@ -122,6 +122,8 @@ var SequencerController = module.exports =
             cl.remove( "icon-play" );
 
             worker.postMessage({ "cmd" : "start" });
+
+            Pubsub.publishSync( Messages.PLAYBACK_STARTED );
         }
         else {
 

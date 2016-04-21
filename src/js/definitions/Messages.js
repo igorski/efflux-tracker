@@ -48,18 +48,19 @@ module.exports =
     // sequencer messages
 
     TOGGLE_SEQUENCER_PLAYSTATE : 14,
-    PLAYBACK_STOPPED           : 15,
-    RECORDING_COMPLETE         : 16,
-    TEMPO_UPDATED              : 17, // payload is Array [ old tempo, new tempo ]
-    STEP_POSITION_REACHED      : 18, // payload is Array [ current step position, total step positions (per measure) ]
+    PLAYBACK_STARTED           : 15,
+    PLAYBACK_STOPPED           : 16,
+    RECORDING_COMPLETE         : 17,
+    TEMPO_UPDATED              : 18, // payload is Array [ old tempo, new tempo ]
+    STEP_POSITION_REACHED      : 19, // payload is Array [ current step position, total step positions (per measure) ]
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING  : 19, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME  : 20, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    CHANGE_WAVEFORM           : 21, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    UPDATE_FILTER_SETTINGS    : 22, // payload is Array [ instrument index, filter properties Object ]
-    ADD_NOTE_AT_POSITION      : 23,
-    ADD_OFF_AT_POSITION       : 24,
-    REMOVE_NOTE_AT_POSITION   : 25
+    ADJUST_OSCILLATOR_TUNING  : 20, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME  : 21, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    CHANGE_WAVEFORM           : 22, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    UPDATE_FILTER_SETTINGS    : 23, // payload is Array [ instrument index, filter properties Object ]
+    ADD_NOTE_AT_POSITION      : 24,
+    ADD_OFF_AT_POSITION       : 25,
+    REMOVE_NOTE_AT_POSITION   : 26
 };
