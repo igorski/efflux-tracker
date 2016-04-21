@@ -29,6 +29,7 @@ var Config = require( "../config/Config" );
  *              id: number,
  *              name: string,
  *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
+ *              volume: number,
  *              filter : {
  *                  lfoEnabled : boolean,
  *                  frequency  : number,
@@ -93,6 +94,7 @@ var InstrumentFactory = module.exports =
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE ),
                 InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE )
             ],
+            volume: 1,
             filter : {
                 frequency   : Config.DEFAULT_FILTER_FREQ,
                 q           : Config.DEFAULT_FILTER_Q,

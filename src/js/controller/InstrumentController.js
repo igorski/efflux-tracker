@@ -30,9 +30,10 @@ var Pubsub        = require( "pubsub-js" );
 /* private properties */
 
 var container, tracker, keyboardController, view, canvas, wtDraw,
-    instrumentSelect, oscEnabledSelect, oscWaveformSelect, volumeControl,
+    instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
+    instrumentVolumeControl,
     frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
@@ -53,23 +54,24 @@ var InstrumentController = module.exports =
         view.setAttribute( "id", "instrumentEditor" );
         view.innerHTML = TemplateUtil.render( "instrumentEditor" );
 
-        instrumentSelect   = view.querySelector( "#instrumentSelect" );
-        oscEnabledSelect   = view.querySelector( "#oscillatorEnabled" );
-        oscWaveformSelect  = view.querySelector( "#oscillatorWaveformSelect" );
-        volumeControl      = view.querySelector( "#volume" );
-        detuneControl      = view.querySelector( "#detune" );
-        octaveShiftControl = view.querySelector( "#octaveShift" );
-        fineShiftControl   = view.querySelector( "#fineShift" );
-        attackControl      = view.querySelector( "#attack" );
-        decayControl       = view.querySelector( "#decay" );
-        sustainControl     = view.querySelector( "#sustain" );
-        releaseControl     = view.querySelector( "#release" );
-        frequencyControl   = view.querySelector( "#filterFrequency" );
-        qControl           = view.querySelector( "#filterQ" );
-        lfoSelect          = view.querySelector( "#filterLFO" );
-        filterSelect       = view.querySelector( "#filterType" );
-        speedControl       = view.querySelector( "#filterSpeed" );
-        depthControl       = view.querySelector( "#filterDepth" );
+        instrumentSelect        = view.querySelector( "#instrumentSelect" );
+        oscEnabledSelect        = view.querySelector( "#oscillatorEnabled" );
+        oscWaveformSelect       = view.querySelector( "#oscillatorWaveformSelect" );
+        oscVolumeControl        = view.querySelector( "#volume" );
+        detuneControl           = view.querySelector( "#detune" );
+        octaveShiftControl      = view.querySelector( "#octaveShift" );
+        fineShiftControl        = view.querySelector( "#fineShift" );
+        attackControl           = view.querySelector( "#attack" );
+        decayControl            = view.querySelector( "#decay" );
+        sustainControl          = view.querySelector( "#sustain" );
+        releaseControl          = view.querySelector( "#release" );
+        instrumentVolumeControl = view.querySelector( "#instrumentVolume" );
+        frequencyControl        = view.querySelector( "#filterFrequency" );
+        qControl                = view.querySelector( "#filterQ" );
+        lfoSelect               = view.querySelector( "#filterLFO" );
+        filterSelect            = view.querySelector( "#filterType" );
+        speedControl            = view.querySelector( "#filterSpeed" );
+        depthControl            = view.querySelector( "#filterDepth" );
 
         canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
         canvas.setBackgroundColor( "#000000" );
@@ -86,10 +88,10 @@ var InstrumentController = module.exports =
         // add listeners
 
         view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
-        instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
-        oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
-        oscWaveformSelect.addEventListener( "change", handleWaveformChange );
-        volumeControl.addEventListener    ( "input",  handleVolumeChange );
+        instrumentSelect.addEventListener ( "change",  handleInstrumentSelect );
+        oscEnabledSelect.addEventListener ( "change",  handleOscillatorEnabledChange );
+        oscWaveformSelect.addEventListener( "change",  handleOscillatorWaveformChange );
+        oscVolumeControl.addEventListener ( "input",   handleOscillatorVolumeChange );
 
         [ detuneControl, octaveShiftControl, fineShiftControl ].forEach( function( control ) {
             control.addEventListener( "input", handleTuningChange );
@@ -98,6 +100,8 @@ var InstrumentController = module.exports =
         [ attackControl, decayControl, sustainControl, releaseControl ].forEach( function( control ) {
             control.addEventListener( "input", handleEnvelopeChange );
         });
+
+        instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
 
         lfoSelect.addEventListener   ( "change", handleFilterChange );
         filterSelect.addEventListener( "change", handleFilterChange );
@@ -146,12 +150,14 @@ var InstrumentController = module.exports =
         detuneControl.value      = oscillator.detune;
         octaveShiftControl.value = oscillator.octaveShift;
         fineShiftControl.value   = oscillator.fineShift;
-        volumeControl.value      = oscillator.volume;
+        oscVolumeControl.value   = oscillator.volume;
 
         attackControl.value  = oscillator.adsr.attack;
         decayControl.value   = oscillator.adsr.decay;
         sustainControl.value = oscillator.adsr.sustain;
         releaseControl.value = oscillator.adsr.release;
+
+        instrumentVolumeControl.value = instrumentRef.volume;
 
         Form.setSelectedOption( lfoSelect,    instrumentRef.filter.lfoType );
         Form.setSelectedOption( filterSelect, instrumentRef.filter.type );
@@ -286,19 +292,27 @@ function handleOscillatorEnabledChange( aEvent )
     cacheOscillatorWaveForm( oscillator );
 }
 
-function handleWaveformChange( aEvent )
+function handleOscillatorWaveformChange(aEvent )
 {
     var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     instrumentRef.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
     cacheOscillatorWaveForm( oscillator );
 }
 
-function handleVolumeChange( aEvent )
+function handleOscillatorVolumeChange(aEvent )
 {
-    instrumentRef.oscillators[ activeOscillatorIndex ].volume = parseFloat( volumeControl.value );
+    instrumentRef.oscillators[ activeOscillatorIndex ].volume = parseFloat( oscVolumeControl.value );
     Pubsub.publishSync(
         Messages.ADJUST_OSCILLATOR_VOLUME,
         [ instrumentId, activeOscillatorIndex, instrumentRef.oscillators[ activeOscillatorIndex ] ]
+    );
+}
+
+function handleInstrumentVolumeChange(aEvent )
+{
+    instrumentRef.volume = parseFloat( instrumentVolumeControl.value );
+    Pubsub.publishSync(
+        Messages.ADJUST_INSTRUMENT_VOLUME, [ instrumentId, instrumentRef.volume ]
     );
 }
 
@@ -307,5 +321,5 @@ function cacheOscillatorWaveForm( oscillator )
     if ( oscillator.enabled && oscillator.waveform === "CUSTOM" )
         Pubsub.publishSync( Messages.SET_CUSTOM_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator.table ]);
     else
-        Pubsub.publishSync( Messages.CHANGE_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator ]);
+        Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator ]);
 }

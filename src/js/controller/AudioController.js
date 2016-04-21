@@ -131,7 +131,8 @@ var AudioController = module.exports =
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
             Messages.ADJUST_OSCILLATOR_VOLUME,
-            Messages.CHANGE_WAVEFORM,
+            Messages.ADJUST_OSCILLATOR_WAVEFORM,
+            Messages.ADJUST_INSTRUMENT_VOLUME,
             Messages.UPDATE_FILTER_SETTINGS
 
         ].forEach( function( msg ) {
@@ -341,7 +342,7 @@ function handleBroadcast( type, payload )
             InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
             break;
 
-        case Messages.CHANGE_WAVEFORM:
+        case Messages.ADJUST_OSCILLATOR_WAVEFORM:
             InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], pool[ payload[ 2 ].waveform ] );
             break;
 
@@ -351,6 +352,10 @@ function handleBroadcast( type, payload )
 
         case Messages.ADJUST_OSCILLATOR_VOLUME:
             InstrumentUtil.adjustEventVolume( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
+            break;
+
+        case Messages.ADJUST_INSTRUMENT_VOLUME:
+            instrumentModules[ payload[ 0 ]].output.gain.value = payload[ 1 ];
             break;
 
         case Messages.UPDATE_FILTER_SETTINGS:
@@ -418,7 +423,10 @@ function createModules()
  */
 function applyModules()
 {
-    tracker.activeSong.instruments.forEach( function( instrument ) {
+    var instrumentModule;
+    tracker.activeSong.instruments.forEach( function( instrument, index ) {
+        instrumentModule = instrumentModules[ index ];
+        instrumentModule.output.gain.value = instrument.volume;
         Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
     });
 }
