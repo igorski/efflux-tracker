@@ -1,6 +1,7 @@
 @import url( "helpers.less" );
 
 @app-width: 960px;
+@ideal-width: 1575px;
 @tablet-portrait-width: 768px;
 @mobile-width: 640px; // the threshold where we start to use the mobile view
 
@@ -47,25 +48,9 @@ ul {
 {
   #main
   {
-    width: @app-width;
+    width: 100%;
+    max-width: @ideal-width;
     padding: 0;
-
-    /* text flowing into multiple columns */
-
-    .text-content {
-      -webkit-column-count: 2;
-         -moz-column-count: 2;
-              column-count: 2;
-
-      -webkit-column-gap: 20px;
-         -moz-column-gap: 20px;
-              column-gap: 20px;
-
-      p {
-        display: inline-block;
-        vertical-align: top;
-      }
-    }
   }
 }
 
