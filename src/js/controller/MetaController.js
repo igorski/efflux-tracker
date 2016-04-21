@@ -27,7 +27,7 @@ var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, tracker, keyboardController;
+var container, tracker, keyboardController, editorModel;
 var title, author, instrumentEditBtn;
 
 var MetaController = module.exports =
@@ -43,6 +43,7 @@ var MetaController = module.exports =
     {
         container          = containerRef;
         tracker            = trackerRef;
+        editorModel        = tracker.EditorModel;
         keyboardController = keyboardControllerRef;
 
         container.innerHTML += TemplateUtil.render( "metaView" );
@@ -134,7 +135,7 @@ function handleFocusOut( aEvent )
 
 function handleInstrumentSelect( aEvent )
 {
-    Pubsub.publishSync( Messages.TOGGLE_INSTRUMENT_EDITOR, 0 );
+    Pubsub.publishSync( Messages.TOGGLE_INSTRUMENT_EDITOR, editorModel.activeInstrument );
 }
 
 function handleMouseOver( aEvent )

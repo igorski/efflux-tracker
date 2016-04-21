@@ -47,13 +47,14 @@ module.exports =
 
         container.querySelector( ".addNote" ).addEventListener( "click", handleNoteAdd );
         container.querySelector( ".addOff" ).addEventListener ( "click", handleOffAdd );
-        container.querySelector( ".removeNote" ).addEventListener ( "click", handleNoteDelete );
+        container.querySelector( ".removeNote" ).addEventListener( "click", handleNoteDelete );
 
         // setup messaging system
         [
             Messages.WINDOW_SCROLLED,
             Messages.PATTERN_STEPS_UPDATED,
-            Messages.STEP_POSITION_REACHED
+            Messages.STEP_POSITION_REACHED,
+            Messages.SONG_LOADED
 
         ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
@@ -80,6 +81,10 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_STEPS_UPDATED:
             updateStepAmount( payload );
+            break;
+
+        case Messages.SONG_LOADED:
+            updateStepAmount( tracker.EditorModel.amountOfSteps );
             break;
 
         case Messages.STEP_POSITION_REACHED:

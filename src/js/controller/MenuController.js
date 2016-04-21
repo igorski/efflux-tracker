@@ -39,7 +39,14 @@ module.exports =
         toggle.addEventListener( "click",     handleToggle );
         menu.addEventListener  ( "mouseover", handleMouseOver );
 
-        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, handleBroadcast );
+        [
+            Messages.WINDOW_RESIZED,
+            Messages.CLOSE_OVERLAYS
+
+        ].forEach( function( msg )
+        {
+            Pubsub.subscribe( msg, handleBroadcast );
+        });
     }
 };
 
@@ -67,6 +74,7 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
+        case Messages.WINDOW_RESIZED: // also close menu on resize
         case Messages.CLOSE_OVERLAYS:
 
             if ( menuOpened )

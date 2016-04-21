@@ -51,7 +51,6 @@ function handleEvent( aEvent )
     {
         case "resize":
             Pubsub.publish( Messages.WINDOW_RESIZED );
-            Pubsub.publish( Messages.CLOSE_OVERLAYS );
             calculateDimensions();
             break;
 

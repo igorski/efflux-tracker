@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var EditorModel                = require( "./model/EditorModel" );
 var SongModel                  = require( "./model/SongModel" );
 var AudioController            = require( "./controller/AudioController" );
 var HelpController             = require( "./controller/HelpController" );
@@ -40,7 +41,7 @@ var TemplateUtil               = require( "./utils/TemplateUtil" );
 var Messages                   = require( "./definitions/Messages" );
 var Pubsub                     = require( "pubsub-js" );
 
-/* initialize */
+/* initialize application */
 
 var tracker;
 
@@ -63,8 +64,9 @@ var tracker;
 
     tracker = ref.tracker =
     {
-        SongModel  : songModel,
-        activeSong : songModel.createSong() // create new empty song or load last available song
+        EditorModel : new EditorModel(),
+        SongModel   : songModel,
+        activeSong  : songModel.createSong() // create new empty song or load last available song
     };
 
     // prepare view
@@ -108,6 +110,7 @@ function handleBroadcast( type, payload )
 
             if ( song ) {
                 tracker.activeSong = ObjectUtil.clone( song );
+                tracker.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
                 SongUtil.resetPlayState( tracker.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
             }

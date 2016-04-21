@@ -35,7 +35,7 @@ var container, tracker, keyboardController, view, canvas, wtDraw,
     attackControl, decayControl, sustainControl, releaseControl,
     frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl;
 
-var activeOscillatorIndex = 0, instrumentId = 0, instrument;
+var activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
 
 var InstrumentController = module.exports =
 {
@@ -77,9 +77,9 @@ var InstrumentController = module.exports =
 
         wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), function( table )
         {
-            if ( instrument ) {
-                instrument.oscillators[ activeOscillatorIndex ].table = table;
-                cacheOscillatorWaveForm( instrument.oscillators[ activeOscillatorIndex ] );
+            if ( instrumentRef ) {
+                instrumentRef.oscillators[ activeOscillatorIndex ].table = table;
+                cacheOscillatorWaveForm( instrumentRef.oscillators[ activeOscillatorIndex ] );
             }
         });
 
@@ -114,16 +114,16 @@ var InstrumentController = module.exports =
     update : function()
     {
         var instruments = tracker.activeSong.instruments, i = instruments.length;
-        instrument = null;
+        instrumentRef = null;
 
         while ( i-- ) {
             if ( instruments[ i ].id == instrumentId ) {
-                instrument = instruments[ i ];
+                instrumentRef = instruments[ i ];
                 break;
             }
         }
 
-        if ( !instrument )
+        if ( !instrumentRef )
             return;
 
         var tabs = view.querySelectorAll( "#oscillatorTabs li" ), tab;
@@ -136,12 +136,12 @@ var InstrumentController = module.exports =
             tab.remove( "active" );
         }
 
-        var oscillator = instrument.oscillators[ activeOscillatorIndex ];
-        view.querySelector( "h2" ).innerHTML = "Editing " + instrument.name;
+        var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
+        view.querySelector( "h2" ).innerHTML = "Editing " + instrumentRef.name;
         wtDraw.setTable( oscillator.table );
         Form.setSelectedOption( oscEnabledSelect,  oscillator.enabled );
         Form.setSelectedOption( oscWaveformSelect, oscillator.waveform );
-        Form.setSelectedOption( instrumentSelect,  instrument.id );
+        Form.setSelectedOption( instrumentSelect,  instrumentRef.id );
 
         detuneControl.value      = oscillator.detune;
         octaveShiftControl.value = oscillator.octaveShift;
@@ -153,12 +153,12 @@ var InstrumentController = module.exports =
         sustainControl.value = oscillator.adsr.sustain;
         releaseControl.value = oscillator.adsr.release;
 
-        Form.setSelectedOption( lfoSelect,    instrument.filter.lfoType );
-        Form.setSelectedOption( filterSelect, instrument.filter.type );
-        frequencyControl.value = instrument.filter.frequency;
-        qControl.value         = instrument.filter.q;
-        speedControl.value     = instrument.filter.speed;
-        depthControl.value     = instrument.filter.depth;
+        Form.setSelectedOption( lfoSelect,    instrumentRef.filter.lfoType );
+        Form.setSelectedOption( filterSelect, instrumentRef.filter.type );
+        frequencyControl.value = instrumentRef.filter.frequency;
+        qControl.value         = instrumentRef.filter.q;
+        speedControl.value     = instrumentRef.filter.speed;
+        depthControl.value     = instrumentRef.filter.depth;
 
         canvas.invalidate();
     },
@@ -212,7 +212,7 @@ function handleOscillatorTabClick( aEvent )
 
 function handleTuningChange( aEvent )
 {
-    var oscillator = instrument.oscillators[ activeOscillatorIndex ],
+    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
         target     = aEvent.target,
         value      = parseFloat( target.value );
 
@@ -235,7 +235,7 @@ function handleTuningChange( aEvent )
 
 function handleEnvelopeChange( aEvent )
 {
-    var oscillator = instrument.oscillators[ activeOscillatorIndex ],
+    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
         target     = aEvent.target,
         value      = parseFloat( target.value );
 
@@ -261,7 +261,7 @@ function handleEnvelopeChange( aEvent )
 
 function handleFilterChange( aEvent )
 {
-    var filter = instrument.filter;
+    var filter = instrumentRef.filter;
 
     filter.frequency = parseFloat( frequencyControl.value );
     filter.q         = parseFloat( qControl.value );
@@ -281,24 +281,24 @@ function handleInstrumentSelect( aEvent )
 
 function handleOscillatorEnabledChange( aEvent )
 {
-    var oscillator = instrument.oscillators[ activeOscillatorIndex ];
+    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     oscillator.enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
     cacheOscillatorWaveForm( oscillator );
 }
 
 function handleWaveformChange( aEvent )
 {
-    var oscillator = instrument.oscillators[ activeOscillatorIndex ];
-    instrument.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
+    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
+    instrumentRef.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
     cacheOscillatorWaveForm( oscillator );
 }
 
 function handleVolumeChange( aEvent )
 {
-    instrument.oscillators[ activeOscillatorIndex ].volume = parseFloat( volumeControl.value );
+    instrumentRef.oscillators[ activeOscillatorIndex ].volume = parseFloat( volumeControl.value );
     Pubsub.publishSync(
         Messages.ADJUST_OSCILLATOR_VOLUME,
-        [ instrumentId, activeOscillatorIndex, instrument.oscillators[ activeOscillatorIndex ] ]
+        [ instrumentId, activeOscillatorIndex, instrumentRef.oscillators[ activeOscillatorIndex ] ]
     );
 }
 

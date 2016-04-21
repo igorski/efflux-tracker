@@ -33,8 +33,8 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var wrapper, container, tracker, noteEntryController, keyboardController;
-var activePattern = 0, activeChannel = 0, maxChannel = 0, activeStep = 0, stepAmount = 16, activeInstrument = 0,
+var wrapper, container, tracker, editorModel, noteEntryController, keyboardController;
+var activeChannel = 0, maxChannel = 0,
     minPatternSelect = 0, maxPatternSelect = 0, interactionData = {}, stateModel, selectionModel,
     patternCopy, positionTitle, stepSelect;
 
@@ -53,6 +53,7 @@ var PatternTrackListController = module.exports =
     init : function( containerRef, trackerRef, keyboardControllerRef, noteEntryControllerRef )
     {
         tracker             = trackerRef;
+        editorModel         = tracker.EditorModel;
         keyboardController  = keyboardControllerRef;
         noteEntryController = noteEntryControllerRef;
 
@@ -107,11 +108,13 @@ var PatternTrackListController = module.exports =
 
     update : function()
     {
+        var activePattern = editorModel.activePattern;
+
         if ( activePattern >= tracker.activeSong.patterns.length )
             activePattern = tracker.activeSong.patterns.length - 1;
 
         // record the current scroll offset of the container so we can restore it after updating of the HTML
-        var coords = { x: container.scrollLeft, y: container.scrollTop };
+        var coordinates = { x: container.scrollLeft, y: container.scrollTop };
 
         var pattern = tracker.activeSong.patterns[ activePattern ];
         wrapper.innerHTML = TemplateUtil.render( "patternTrackList", {
@@ -122,8 +125,8 @@ var PatternTrackListController = module.exports =
         positionTitle.querySelector( ".total" ).innerHTML   = tracker.activeSong.patterns.length.toString();
         Form.setSelectedOption( stepSelect, pattern.steps );
 
-        container.scrollLeft = coords.x;
-        container.scrollTop  = coords.y;
+        container.scrollLeft = coordinates.x;
+        container.scrollTop  = coordinates.y;
 
         highlightActiveStep();
     },
@@ -134,20 +137,20 @@ var PatternTrackListController = module.exports =
     {
         if ( type === "down" )
         {
-            var curStep    = activeStep,
+            var curStep    = editorModel.activeStep,
                 curChannel = activeChannel; // the current step position and channel within the pattern
 
             switch ( keyCode )
             {
                 case 38: // up
 
-                    if ( --activeStep < 0 )
-                        activeStep = 0;
+                    if ( --editorModel.activeStep < 0 )
+                        editorModel.activeStep = 0;
 
                     // when holding down shift make a selection, otherwise clear selection
 
                     if ( aEvent && aEvent.shiftKey )
-                        selectionModel.handleVerticalKeySelectAction( keyCode, activeChannel, curStep, activeStep );
+                        selectionModel.handleVerticalKeySelectAction( keyCode, activeChannel, curStep, editorModel.activeStep );
                     else
                         selectionModel.clearSelection();
 
@@ -155,15 +158,15 @@ var PatternTrackListController = module.exports =
 
                 case 40: // down
 
-                    var maxStep = tracker.activeSong.patterns[ activePattern ].steps - 1;
+                    var maxStep = tracker.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
-                    if ( ++activeStep > maxStep )
-                        activeStep = maxStep;
+                    if ( ++editorModel.activeStep > maxStep )
+                        editorModel.activeStep = maxStep;
 
                     // when holding down shift make a selection, otherwise clear existing selection
 
                     if ( aEvent && aEvent.shiftKey )
-                        selectionModel.handleVerticalKeySelectAction( keyCode, activeChannel, curStep, activeStep );
+                        selectionModel.handleVerticalKeySelectAction( keyCode, activeChannel, curStep, editorModel.activeStep );
                     else
                         selectionModel.clearSelection();
 
@@ -172,21 +175,21 @@ var PatternTrackListController = module.exports =
                 case 39: // right
 
                     if ( ++activeChannel > maxChannel ) {
-                        if ( activePattern < ( tracker.activeSong.patterns.length - 1 )) {
-                            ++activePattern;
+                        if ( editorModel.activePattern < ( tracker.activeSong.patterns.length - 1 )) {
+                            ++editorModel.activePattern;
                             activeChannel = 0;
                             PatternTrackListController.update();
                         }
                         else
-                            activeChannel = activeInstrument = maxChannel;
+                            activeChannel = maxChannel;
                     }
                     else if ( activeChannel > 2 )
                        container.scrollLeft = (( activeChannel - 2 ) * PATTERN_WIDTH );
 
-                    activeInstrument = activeChannel;
+                    editorModel.activeInstrument = activeChannel;
 
                     if ( aEvent.shiftKey )
-                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, activeStep );
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
                     else
                         selectionModel.clearSelection();
 
@@ -195,22 +198,22 @@ var PatternTrackListController = module.exports =
                 case 37: // left
 
                     if ( --activeChannel < 0 ) {
-                        if ( activePattern > 0 ) {
-                            --activePattern;
+                        if ( editorModel.activePattern > 0 ) {
+                            --editorModel.activePattern;
                             activeChannel = 1;
                             PatternTrackListController.update();
                         }
                         else
-                            activeChannel = activeInstrument = 0;
+                            activeChannel = 0;
                     }
                     else if ( activeChannel >= 0 )
                         container.scrollLeft = ( activeChannel > 2 ) ? ( activeChannel * PATTERN_WIDTH ) : 0;
 
-                    activeInstrument = activeChannel;
+                    editorModel.activeInstrument = activeChannel;
 
                     if ( aEvent.shiftKey ) {
                         minPatternSelect = Math.max( --maxPatternSelect, 0 );
-                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, activeStep );
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
                     }
                     else
                         selectionModel.clearSelection();
@@ -256,9 +259,9 @@ var PatternTrackListController = module.exports =
                     if ( keyboardController.hasOption( aEvent ))
                     {
                         if ( !selectionModel.hasSelection() )
-                            selectionModel.setSelection( activeStep, activeStep + 1 );
+                            selectionModel.setSelection( editorModel.activeStep, editorModel.activeStep + 1 );
 
-                        selectionModel.cutSelection( tracker.activeSong, activePattern );
+                        selectionModel.cutSelection( tracker.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
                         PatternTrackListController.update();
                         saveState();
@@ -269,7 +272,9 @@ var PatternTrackListController = module.exports =
 
                     // paste current selection
                     if ( keyboardController.hasOption( aEvent )) {
-                        selectionModel.pasteSelection( tracker.activeSong, activePattern, activeChannel, activeStep );
+                        selectionModel.pasteSelection(
+                            tracker.activeSong, editorModel.activePattern, activeChannel, editorModel.activeStep
+                        );
                         PatternTrackListController.update();
                         saveState();
                     }
@@ -282,9 +287,9 @@ var PatternTrackListController = module.exports =
                     {
                         if ( !selectionModel.hasSelection() ) {
                             selectionModel.setSelectionChannelRange( activeChannel );
-                            selectionModel.setSelection( activeStep, activeStep + 1 );
+                            selectionModel.setSelection( editorModel.activeStep, editorModel.activeStep + 1 );
                         }
-                        selectionModel.copySelection( tracker.activeSong, activePattern );
+                        selectionModel.copySelection( tracker.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
                     }
                     break;
@@ -311,9 +316,9 @@ function handleBroadcast( type, payload )
         case Messages.SONG_LOADED:
 
             if ( type !== Messages.REFRESH_SONG ) {
-                activePattern = 0;
+                editorModel.activePattern = 0;
+                editorModel.activeStep    = 0;
                 activeChannel = 0;
-                activeStep    = 0;
                 selectionModel.clearSelection();
             }
             stateModel.flush();
@@ -323,7 +328,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.PATTERN_SWITCH:
-            activePattern = payload;
+            editorModel.activePattern = payload;
             PatternTrackListController.update();
             break;
 
@@ -344,10 +349,9 @@ function handleBroadcast( type, payload )
 function highlightActiveStep()
 {
     var pContainers = wrapper.querySelectorAll( ".pattern" ),
-        pContainer, items, item;
-
-    var activeStyle = "active", selectedStyle = "selected";
-    var selection;
+        activeStyle = "active", selectedStyle = "selected",
+        activeStep = editorModel.activeStep,
+        selection, pContainer, items, item;
 
     for ( var i = 0, l = pContainers.length; i < l; ++i )
     {
@@ -378,9 +382,9 @@ function highlightActiveStep()
 function deleteHighlightedStep()
 {
     if ( selectionModel.hasSelection() )
-        selectionModel.deleteSelection( tracker.activeSong, activePattern );
+        selectionModel.deleteSelection( tracker.activeSong, editorModel.activePattern );
     else
-        PatternFactory.clearEvent( tracker.activeSong.patterns[ activePattern ], activeChannel, activeStep );
+        PatternFactory.clearEvent( tracker.activeSong.patterns[ editorModel.activePattern ], activeChannel, editorModel.activeStep );
 
     PatternTrackListController.update(); // sync view with model
     saveState();
@@ -414,10 +418,10 @@ function handleInteraction( aEvent )
                 if ( items[ j ] === aEvent.target ) {
 
                     if ( i !== activeChannel ) {
-                        activeInstrument = i; // when entering a new channel lane, make default instrument match index
+                        editorModel.activeInstrument = i; // when entering a new channel lane, make default instrument match index
                         activeChannel    = i;
                     }
-                    activeStep       = j;
+                    editorModel.activeStep = j;
                     highlightActiveStep();
 
                     keyboardController.setListener( PatternTrackListController );
@@ -438,13 +442,13 @@ function handleInteraction( aEvent )
 
 function editStep()
 {
-    var pattern = tracker.activeSong.patterns[ activePattern ];
+    var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
     var channel = pattern.channels[ activeChannel ];
-    var event   = channel[ activeStep ];
+    var event   = channel[ editorModel.activeStep ];
 
     var options =
     {
-        instrument : ( event ) ? event.instrument : activeInstrument,
+        instrument : ( event ) ? event.instrument : editorModel.activeInstrument,
         note       : ( event ) ? event.note       : "C",
         octave     : ( event ) ? event.octave     : 3
     };
@@ -471,7 +475,7 @@ function editStep()
                 event.octave     = data.octave;
 
                 addEventAtCurrentPosition( event );
-                activeInstrument = event.instrument; // save last added instrument as default
+                editorModel.activeInstrument = event.instrument; // save last added instrument as default
             }
         }
     });
@@ -486,20 +490,20 @@ function addOffEvent()
 
 function handlePatternClear( aEvent )
 {
-    tracker.activeSong.patterns[ activePattern ] = PatternFactory.createEmptyPattern( stepAmount );
+    tracker.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
     selectionModel.clearSelection();
     PatternTrackListController.update();
 }
 
 function handlePatternCopy( aEvent )
 {
-    patternCopy = ObjectUtil.clone( tracker.activeSong.patterns[ activePattern ] );
+    patternCopy = ObjectUtil.clone( tracker.activeSong.patterns[ editorModel.activePattern ] );
 }
 
 function handlePatternPaste( aEvent )
 {
     if ( patternCopy ) {
-        PatternFactory.mergePatterns( tracker.activeSong.patterns[ activePattern ], patternCopy );
+        PatternFactory.mergePatterns( tracker.activeSong.patterns[ editorModel.activePattern ], patternCopy );
         PatternTrackListController.update();
     }
 }
@@ -514,10 +518,10 @@ function handlePatternAdd( aEvent )
         return;
     }
 
-    var front = patterns.slice( 0, activePattern + 1 );
-    var back  = patterns.slice( activePattern + 1 );
+    var front = patterns.slice( 0, editorModel.activePattern + 1 );
+    var back  = patterns.slice( editorModel.activePattern + 1 );
 
-    front.push( PatternFactory.createEmptyPattern( stepAmount ));
+    front.push( PatternFactory.createEmptyPattern( editorModel.amountOfSteps ));
 
     song.patterns = front.concat( back );
     handlePatternNavNext( null );
@@ -536,9 +540,9 @@ function handlePatternDelete( aEvent )
     }
     else {
 
-        song.patterns.splice( activePattern, 1 );
+        song.patterns.splice( editorModel.activePattern, 1 );
 
-        if ( activePattern > 0 )
+        if ( editorModel.activePattern > 0 )
             handlePatternNavBack( aEvent );
         else
             PatternTrackListController.update();
@@ -549,8 +553,8 @@ function handlePatternDelete( aEvent )
 
 function handlePatternNavBack( aEvent )
 {
-    if ( activePattern > 0 ) {
-        --activePattern;
+    if ( editorModel.activePattern > 0 ) {
+        --editorModel.activePattern;
         selectionModel.clearSelection();
         PatternTrackListController.update();
     }
@@ -560,8 +564,8 @@ function handlePatternNavNext( aEvent )
 {
     var max = tracker.activeSong.patterns.length - 1;
 
-    if ( activePattern < max ) {
-        ++activePattern;
+    if ( editorModel.activePattern < max ) {
+        ++editorModel.activePattern;
         selectionModel.clearSelection();
         PatternTrackListController.update();
     }
@@ -570,13 +574,13 @@ function handlePatternNavNext( aEvent )
 function handlePatternStepChange( aEvent )
 {
     var song    = tracker.activeSong,
-        pattern = song.patterns[ activePattern ];
+        pattern = song.patterns[ editorModel.activePattern ];
 
     var oldAmount = pattern.steps;
     var newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
 
     // update model values
-    pattern.steps = newAmount;
+    pattern.steps = editorModel.amountOfSteps = newAmount;
 
     pattern.channels.forEach( function( channel, index )
     {
@@ -625,14 +629,14 @@ function saveState()
  */
 function addEventAtCurrentPosition( event )
 {
-    var pattern = tracker.activeSong.patterns[ activePattern ];
+    var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
     var channel = pattern.channels[ activeChannel ];
 
     EventUtil.setPosition(
-        event, pattern, activePattern, activeStep,
+        event, pattern, editorModel.activePattern, editorModel.activeStep,
         tracker.activeSong.meta.tempo
     );
-    channel[ activeStep ] = event;
+    channel[ editorModel.activeStep ] = event;
 
     PatternTrackListController.handleKey( "down", 40 ); // proceed to next line
     PatternTrackListController.update();
