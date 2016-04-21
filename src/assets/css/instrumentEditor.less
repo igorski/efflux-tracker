@@ -1,33 +1,32 @@
+@idealInstrumentEditorWidth: ( @app-width * .85 );
+@idealInstrumentEditorHeight: 540px;
+
 #instrumentEditor
 {
   .EditorComponent;
 
   position: absolute;
   z-index: 500;
-  top: 50%;
-  left: 50%;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 
-  @width: 750px;
-  @height: 500px;
-
-  width: @width;
-  height: @height;
-  margin-left: -@width / 2;
-  margin-top: -@height / 2;
+  h2 {
+    float: left;
+    margin: 0;
+  }
 
   canvas {
     border-radius: 7px;
     border: 4px solid #666;
   }
-
-  #instrumentSelect {
-    float: right;
-  }
 }
 
 #oscillatorTabs {
 
-  border-bottom: 1px solid #666;
+  float: left;
+  clear: left;
   margin: .5em 0 0;
 
   li {
@@ -50,6 +49,30 @@
   }
 }
 
+#instrumentSelect {
+  float: right;
+}
+
+#instrumentOscillatorEditor {
+
+  .boxSize;
+
+  .oscillatorWaveforms {
+    float: left;
+    clear: left;
+  }
+
+  #oscillatorEditor {
+    clear: left;
+  }
+}
+
+#instrumentModulesEditor {
+
+  padding: 1em;
+  .boxSize;
+}
+
 #canvasContainer {
   margin: 1em 0;
 }
@@ -57,6 +80,33 @@
 #oscillatorEditor,
 #filterEditor,
 #envelopeEditor {
-  //display: inline-block;
   float: left;
+}
+
+@media screen and ( min-width: @idealInstrumentEditorWidth )
+{
+  #instrumentEditor {
+
+    top: 50%;
+    left: 50%;
+    width: @idealInstrumentEditorWidth;
+    height: @idealInstrumentEditorHeight;
+    margin-left: -@idealInstrumentEditorWidth / 2;
+    margin-top: -@idealInstrumentEditorHeight / 2;
+  }
+
+  #instrumentOscillatorEditor {
+    float: left;
+    width: 70%;
+    padding: 1em;
+    border: 2px solid #666;
+    border-top: 1px solid #666;
+    border-bottom-left-radius: 7px;
+    border-bottom-right-radius: 7px;
+  }
+
+  #instrumentModulesEditor {
+    float: left;
+    width: 30%;
+  }
 }

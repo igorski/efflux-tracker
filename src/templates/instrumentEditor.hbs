@@ -1,4 +1,17 @@
 <h2>Instrument editor</h2>
+
+<ul id="oscillatorTabs">
+    <li data-oscillator="1">
+        Oscillator 1
+    </li>
+    <li data-oscillator="2">
+        Oscillator 2
+    </li>
+    <li data-oscillator="3">
+        Oscillator 3
+    </li>
+</ul>
+
 <select id="instrumentSelect">
     <option value="0">Instrument 0</option>
     <option value="1">Instrument 1</option>
@@ -11,28 +24,19 @@
 </select>
 
 <section id="instrumentOscillatorEditor">
-    <ul id="oscillatorTabs">
-        <li data-oscillator="1">
-            Oscillator 1
-        </li>
-        <li data-oscillator="2">
-            Oscillator 2
-        </li>
-        <li data-oscillator="3">
-            Oscillator 3
-        </li>
-    </ul>
     <div id="canvasContainer"><!-- x --></div>
-    <select id="oscillatorEnabled">
-        <option value="true">Enabled</option>
-        <option value="false">Disabled</option>
-    </select>
-    <select id="oscillatorWaveformSelect">
-        <option value="SAW">Sawtooth</option>
-        <option value="TRIANGLE">Triangle</option>
-        <option value="SQUARE">Square</option>
-        <option value="CUSTOM">Custom</option>
-    </select>
+    <div class="oscillatorWaveforms">
+        <select id="oscillatorEnabled">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+        </select>
+        <select id="oscillatorWaveformSelect">
+            <option value="SAW">Sawtooth</option>
+            <option value="TRIANGLE">Triangle</option>
+            <option value="SQUARE">Square</option>
+            <option value="CUSTOM">Custom</option>
+        </select>
+    </div>
 
     <div id="oscillatorEditor">
         <h2>Oscillator tuning</h2>
@@ -73,47 +77,48 @@
             <input type="range" id="release" min="0" max="1" step=".01" value="0">
         </div>
     </div>
-</div>
+</section>
 
-<h2>Output volume</h2>
-<div class="wrapper input range">
-    <label for="instrumentVolume">Instrument volume</label>
-    <input type="range" id="instrumentVolume" min="0" max="1" step=".01" value="0">
-</div>
+<section id="instrumentModulesEditor">
+    <div class="wrapper input range">
+        <label for="instrumentVolume">Output volume</label>
+        <input type="range" id="instrumentVolume" min="0" max="1" step=".01" value="0">
+    </div>
 
-<div id="filterEditor">
-    <h2>Filter</h2>
-    <div class="wrapper input range">
-        <label for="filterFrequency">Frequency</label>
-        <input type="range" id="filterFrequency" min="40" max="24000" step=".01" value="880">
+    <div id="filterEditor">
+        <h2>Filter</h2>
+        <div class="wrapper input range">
+            <label for="filterFrequency">Frequency</label>
+            <input type="range" id="filterFrequency" min="40" max="24000" step=".01" value="880">
+        </div>
+        <div class="wrapper input range">
+            <label for="filterQ">Q</label>
+            <input type="range" id="filterQ" min="0" max="40" step="1" value="5">
+        </div>
+        <select id="filterLFO">
+            <option value="off">Disabled</option>
+            <option value="sine">Sine</option>
+            <option value="square">Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
+        </select>
+        <select id="filterType">
+            <option value="lowpass">Lowpass</option>
+            <option value="highpass">Highpass</option>
+            <option value="bandpass">Bandpass</option>
+            <option value="lowshelf">Lowshelf</option>
+            <option value="highshelf">Highshelf</option>
+            <option value="peaking">Peaking</option>
+            <option value="notch">Notch</option>
+            <option value="allpass">Allpass</option>
+        </select>
+        <div class="wrapper input range">
+            <label for="filterSpeed">LFO Speed</label>
+            <input type="range" id="filterSpeed" min="0.1" max="25" step=".01" value="0.5">
+        </div>
+        <div class="wrapper input range">
+            <label for="filterDepth">LFO Depth</label>
+            <input type="range" id="filterDepth" min="0" max="100" step=".01" value="50">
+        </div>
     </div>
-    <div class="wrapper input range">
-        <label for="filterQ">Q</label>
-        <input type="range" id="filterQ" min="0" max="40" step="1" value="5">
-    </div>
-    <select id="filterLFO">
-        <option value="off">Disabled</option>
-        <option value="sine">Sine</option>
-        <option value="square">Square</option>
-        <option value="sawtooth">Sawtooth</option>
-        <option value="triangle">Triangle</option>
-    </select>
-    <select id="filterType">
-        <option value="lowpass">Lowpass</option>
-        <option value="highpass">Highpass</option>
-        <option value="bandpass">Bandpass</option>
-        <option value="lowshelf">Lowshelf</option>
-        <option value="highshelf">Highshelf</option>
-        <option value="peaking">Peaking</option>
-        <option value="notch">Notch</option>
-        <option value="allpass">Allpass</option>
-    </select>
-    <div class="wrapper input range">
-        <label for="filterSpeed">LFO Speed</label>
-        <input type="range" id="filterSpeed" min="0.1" max="25" step=".01" value="0.5">
-    </div>
-    <div class="wrapper input range">
-        <label for="filterDepth">LFO Depth</label>
-        <input type="range" id="filterDepth" min="0" max="100" step=".01" value="50">
-    </div>
-</div>
+</section>
