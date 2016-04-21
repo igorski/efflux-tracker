@@ -68,9 +68,18 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
+ * Implement per-instrument volume slider
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
  * Implement correct sequence range
  * Implement MIDI control
  * Implement audio export
  * Support mouse drag for selection
+ 
+KNOWN BUGS
+----------
+
+ * When adding a note to a track, by default it should use the instrument of the previous note in the lane
+ * When copy-pasting an existing pattern into a new pattern, the new pattern is silent
+ * When saving a song, the date is off!
+ * When re-opening the instrument editor, it shows the first instrument (show current tracks instrument)
