@@ -361,6 +361,8 @@ function handleBroadcast( type, payload )
             if ( props.lfoType !== "off" )
                 filter.lfo.type = props.lfoType;
 
+            filter.filter.type = props.type;
+
             AudioFactory.toggleFilterLFO( filter, props.lfoType !== "off" );
             break;
     }
