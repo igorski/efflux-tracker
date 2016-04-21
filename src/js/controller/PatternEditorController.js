@@ -45,6 +45,7 @@ module.exports =
 
         container.querySelector( ".addNote" ).addEventListener( "click", handleNoteAdd );
         container.querySelector( ".addOff" ).addEventListener ( "click", handleOffAdd );
+        container.querySelector( ".removeNote" ).addEventListener ( "click", handleNoteDelete );
 
         // setup messaging system
         [
@@ -108,6 +109,11 @@ function handleNoteAdd( aEvent )
 function handleOffAdd( aEvent )
 {
     Pubsub.publish( Messages.ADD_OFF_AT_POSITION );
+}
+
+function handleNoteDelete( aEvent )
+{
+    Pubsub.publish( Messages.REMOVE_NOTE_AT_POSITION );
 }
 
 function updateStepAmount( amount )

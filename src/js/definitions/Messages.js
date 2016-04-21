@@ -58,5 +58,6 @@ module.exports =
     CHANGE_WAVEFORM           : 19, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
     UPDATE_FILTER_SETTINGS    : 20, // payload is Array [ instrument index, filter properties Object ]
     ADD_NOTE_AT_POSITION      : 21,
-    ADD_OFF_AT_POSITION       : 22
+    ADD_OFF_AT_POSITION       : 22,
+    REMOVE_NOTE_AT_POSITION   : 23
 };

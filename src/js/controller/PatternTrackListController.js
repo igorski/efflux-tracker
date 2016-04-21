@@ -96,7 +96,8 @@ var PatternTrackListController = module.exports =
             Messages.REFRESH_SONG,
             Messages.PATTERN_SWITCH,
             Messages.ADD_NOTE_AT_POSITION,
-            Messages.ADD_OFF_AT_POSITION
+            Messages.ADD_OFF_AT_POSITION,
+            Messages.REMOVE_NOTE_AT_POSITION
 
         ].forEach( function( msg )
         {
@@ -328,6 +329,10 @@ function handleBroadcast( type, payload )
 
         case Messages.ADD_OFF_AT_POSITION:
             addOffEvent();
+            break;
+
+        case Messages.REMOVE_NOTE_AT_POSITION:
+            deleteHighlightedStep();
             break;
     }
 }

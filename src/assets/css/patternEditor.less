@@ -22,11 +22,39 @@
 {
   background-color: #000;
   vertical-align: top;
+  position: relative;
+
+  .controls {
+
+    float: left;
+
+    li {
+
+      width: 40px;
+      height: 40px;
+      margin: .5em;
+      border-radius: 50%;
+      background-color: #FFF;
+      background-repeat: no-repeat;
+      background-position: 50%;
+      background-size: 50%;
+      cursor: pointer;
+
+      &.addNote {
+        background-image: url('../images/icon-note-add.png');
+      }
+      &.addOff {
+        background-image: url('../images/icon-note-mute.png');
+      }
+      &.removeNote {
+        background-image: url('../images/icon-note-delete.png');
+      }
+    }
+  }
 
   .indices {
-    position: relative;
     float: right;
-    width: 32px;
+    width: 25px;
 
     li {
       display: block;
@@ -45,6 +73,7 @@
       }
     }
   }
+
 }
 
 #patternContainer
