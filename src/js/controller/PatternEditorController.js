@@ -91,11 +91,13 @@ function handleBroadcast( type, payload )
 
             requestAnimationFrame( function()
             {
+                rafPending = false;
+
                 var step = payload[ 0 ], total = payload[ 1 ];
                 var diff = total / stepAmount;
 
-                //if ( step % diff !== 0 )
-                  //  return;
+                if ( step % diff !== 0 )
+                    return;
 
                 var i = patternIndices.length, number;
 
@@ -107,7 +109,6 @@ function handleBroadcast( type, payload )
                     else
                         number.classList.remove( "active" );
                 }
-                rafPending = false;
             });
             break;
     }
