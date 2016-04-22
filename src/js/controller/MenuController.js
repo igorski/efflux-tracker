@@ -20,21 +20,63 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub   = require( "pubsub-js" );
-var Messages = require( "../definitions/Messages" );
+var Time             = require( "../utils/Time" );
+var TemplateUtil     = require( "../utils/TemplateUtil" );
+var SongUtil         = require( "../utils/SongUtil" );
+var Pubsub           = require( "pubsub-js" );
+var Messages         = require( "../definitions/Messages" );
+var zMIDILib         = require( "zmidi" ),
+    zMIDI            = zMIDILib.zMIDI;
 
-/* variables */
+/* private properties */
 
-var header, menu, toggle;
+
+var header, menu, toggle, tracker, songController;
 var menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
-module.exports =
+var MenuController = module.exports =
 {
-    init : function()
+    /**
+     * initialize MenuController, attach MenuView template into given container
+     *
+     * @param containerRef
+     * @param trackerRef
+     * @param songControllerRef
+     */
+    init : function( containerRef, trackerRef, songControllerRef )
     {
+        tracker            = trackerRef;
+        songController     = songControllerRef;
+
+        var canImportExport  = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
+        containerRef.innerHTML += TemplateUtil.render( "menuView", { addExport: canImportExport } );
+
+        // grab references to elements in the template
+
+        containerRef.querySelector( "#songLoad"  ).addEventListener( "click", handleLoad );
+        containerRef.querySelector( "#songSave"  ).addEventListener( "click", handleSave );
+        containerRef.querySelector( "#songReset" ).addEventListener( "click", handleReset );
+
+        if ( canImportExport ) {
+
+            containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
+            containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+        }
+
+        if ( zMIDI.isSupported() ) {
+
+            var midiSetup = containerRef.querySelector( "#midiSetup" );
+            midiSetup.classList.add( "enabled" );
+            midiSetup.addEventListener( "click", handleMIDISetup );
+        }
+
+        // get reference to DOM elements
+
         menu   = document.getElementById( "menu" );
         header = document.getElementById( "header" );
         toggle = menu.querySelector( ".toggle" );
+
+        // add event listeners
 
         toggle.addEventListener( "click",     handleToggle );
         menu.addEventListener  ( "mouseover", handleMouseOver );
@@ -85,5 +127,116 @@ function handleBroadcast( type, payload )
 
 function handleMouseOver( aEvent )
 {
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicSong" );
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicMenu" );
+}
+
+function handleLoad( aEvent )
+{
+    Pubsub.publish( Messages.CLOSE_OVERLAYS, MenuController ); // close open overlays
+    Pubsub.publish( Messages.OPEN_SONG_LIST );
+}
+
+function handleSave( aEvent )
+{
+    var song = tracker.activeSong;
+
+    if ( isValid( song )) {
+        tracker.SongModel.saveSong( song );
+        Pubsub.publishSync( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
+    }
+}
+
+
+function handleReset( aEvent )
+{
+    if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
+        tracker.activeSong = tracker.SongModel.createSong();
+        Pubsub.publishSync( Messages.SONG_LOADED, tracker.activeSong );
+    }
+}
+
+/**
+ * validates whether the current state of the song is
+ * eligible for saving / exporting
+ *
+ * @private
+ * @param song
+ */
+function isValid( song )
+{
+    var hasContent = SongUtil.hasContent( song );
+
+    if ( !hasContent ) {
+        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no pattern content!" );
+        return false;
+    }
+
+    if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
+        hasContent = false;
+
+    if ( !hasContent )
+        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
+
+    return hasContent;
+}
+
+function handleImport( aEvent )
+{
+    // inline handler to overcome blocking of the file select popup by the browser
+
+    var fileBrowser = document.createElement( "input" );
+    fileBrowser.setAttribute( "type",   "file" );
+    fileBrowser.setAttribute( "accept", ".ztk" );
+
+    var simulatedEvent = document.createEvent( "MouseEvent" );
+    simulatedEvent.initMouseEvent( "click", true, true, window, 1,
+                                   0, 0, 0, 0, false,
+                                   false, false, false, 0, null );
+
+    fileBrowser.dispatchEvent( simulatedEvent );
+    fileBrowser.addEventListener( "change", function( aEvent )
+    {
+        var reader = new FileReader();
+
+        reader.onload = function( e )
+        {
+            var fileData = e.target.result;
+            var song     = JSON.parse( atob( fileData ));
+
+            // rudimentary check if we're dealing with a valid song
+
+            if ( song.meta && song.instruments && song.patterns )
+            {
+                tracker.SongModel.saveSong( song );
+                tracker.activeSong = song;
+                Pubsub.publishSync( Messages.SONG_LOADED, song );
+            }
+        };
+        // start reading file contents
+        reader.readAsText( aEvent.target.files[ 0 ] );
+    });
+}
+
+function handleExport( aEvent )
+{
+    var song = tracker.activeSong;
+
+    if ( isValid( song ) ) {
+
+        // encode song data
+
+        var data = btoa( JSON.stringify( song ));
+
+        // download file to disk
+
+        var pom = document.createElement( "a" );
+        pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
+        pom.setAttribute( "download", song.meta.title + ".ztk" );
+        pom.click();
+    }
+}
+
+function handleMIDISetup( aEvent )
+{
+    alert( "TODO: implement" );
 }

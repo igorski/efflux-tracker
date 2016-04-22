@@ -25,6 +25,8 @@ var TemplateUtil     = require( "../utils/TemplateUtil" );
 var SongUtil         = require( "../utils/SongUtil" );
 var Pubsub           = require( "pubsub-js" );
 var Messages         = require( "../definitions/Messages" );
+var zMIDILib         = require( "zmidi" ),
+    zMIDI            = zMIDILib.zMIDI;
 
 /* private properties */
 
@@ -42,24 +44,8 @@ var SongController = module.exports =
     init : function( containerRef, trackerRef, keyboardControllerRef )
     {
         container          = containerRef;
-        tracker             = trackerRef;
+        tracker            = trackerRef;
         keyboardController = keyboardControllerRef;
-
-        var canImportExport  = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
-        container.innerHTML += TemplateUtil.render( "songView", { addExport: canImportExport } );
-
-        // grab references to elements in the template
-
-        container.querySelector( "#songLoad"  ).addEventListener( "click", handleLoad );
-        container.querySelector( "#songSave"  ).addEventListener( "click", handleSave );
-        container.querySelector( "#songReset" ).addEventListener( "click", handleReset );
-
-        if ( canImportExport ) {
-
-            container.querySelector( "#songImport" ).addEventListener( "click", handleImport );
-            container.querySelector( "#songExport" ).addEventListener( "click", handleExport );
-
-        }
 
         // create a list container to show the songs when loading
 
@@ -70,10 +56,14 @@ var SongController = module.exports =
         list.addEventListener( "click", handleSongClick );
 
         // add message listeners
-        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
+
+        [
+            Messages.CLOSE_OVERLAYS,
+            Messages.OPEN_SONG_LIST
+
+        ].forEach( function( msg )
         {
-            if ( payload !== SongController )
-                handleClose()
+            Pubsub.subscribe( msg, handleBroadcast );
         });
     },
 
@@ -89,10 +79,23 @@ var SongController = module.exports =
 
 /* private methods */
 
-function handleLoad( aEvent )
+function handleBroadcast( type, payload )
 {
-    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, SongController ); // close open overlays
+    switch ( type )
+    {
+        case Messages.CLOSE_OVERLAYS:
+            if ( payload !== SongController )
+                handleClose();
+            break;
 
+        case Messages.OPEN_SONG_LIST:
+            handleOpen();
+            break;
+    }
+}
+
+function handleOpen()
+{
     var songs = tracker.SongModel.getSongs(), li;
     list.innerHTML = "";
 
@@ -115,16 +118,6 @@ function handleLoad( aEvent )
     keyboardController.setListener( SongController );
 }
 
-function handleSave( aEvent )
-{
-    var song = tracker.activeSong;
-
-    if ( isValid( song )) {
-        tracker.SongModel.saveSong( song );
-        Pubsub.publishSync( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
-    }
-}
-
 function handleSongClick( aEvent )
 {
     if ( aEvent.target.nodeName === "LI" )
@@ -132,95 +125,6 @@ function handleSongClick( aEvent )
         var id = aEvent.target.getAttribute( "data-id" );
         Pubsub.publishSync( Messages.LOAD_SONG, id );
         list.classList.remove( "active" );
-    }
-}
-
-function handleReset( aEvent )
-{
-    if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
-        tracker.activeSong = tracker.SongModel.createSong();
-        Pubsub.publishSync( Messages.SONG_LOADED, tracker.activeSong );
-    }
-}
-
-/**
- * validates whether the current state of the song is
- * eligible for saving / exporting
- *
- * @private
- * @param song
- */
-function isValid( song )
-{
-    var hasContent = SongUtil.hasContent( song );
-
-    if ( !hasContent ) {
-        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no pattern content!" );
-        return false;
-    }
-
-    if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
-        hasContent = false;
-
-    if ( !hasContent )
-        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
-
-    return hasContent;
-}
-
-function handleImport()
-{
-    // inline handler to overcome blocking of the file select popup by the browser
-
-    var fileBrowser = document.createElement( "input" );
-    fileBrowser.setAttribute( "type",   "file" );
-    fileBrowser.setAttribute( "accept", ".ztk" );
-
-    var simulatedEvent = document.createEvent( "MouseEvent" );
-    simulatedEvent.initMouseEvent( "click", true, true, window, 1,
-                                   0, 0, 0, 0, false,
-                                   false, false, false, 0, null );
-
-    fileBrowser.dispatchEvent( simulatedEvent );
-    fileBrowser.addEventListener( "change", function( aEvent )
-    {
-        var reader = new FileReader();
-
-        reader.onload = function( e )
-        {
-            var fileData = e.target.result;
-            var song     = JSON.parse( atob( fileData ));
-
-            // rudimentary check if we're dealing with a valid song
-
-            if ( song.meta && song.instruments && song.patterns )
-            {
-                tracker.SongModel.saveSong( song );
-                tracker.activeSong = song;
-                Pubsub.publishSync( Messages.SONG_LOADED, song );
-            }
-        };
-        // start reading file contents
-        reader.readAsText( aEvent.target.files[ 0 ] );
-    });
-}
-
-function handleExport()
-{
-    var song = tracker.activeSong;
-
-    if ( isValid( song ) ) {
-
-        // encode song data
-
-        var data = btoa( JSON.stringify( song ));
-
-        // download file to disk
-
-        var pom = document.createElement( "a" );
-        pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
-        pom.setAttribute( "download", song.meta.title + ".ztk" );
-        pom.click();
     }
 }
 

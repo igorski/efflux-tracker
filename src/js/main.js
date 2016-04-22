@@ -77,11 +77,11 @@ var tracker;
 
     AudioController.init( tracker.activeSong.instruments );
     KeyboardController.init( tracker );
-    MenuController.init();
+    MenuController.init( container.querySelector( "#menuSection" ), tracker );
     InstrumentController.init( container, tracker, KeyboardController );
-    SongController.init( container.querySelector( "#songSection" ), tracker, KeyboardController );
     MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
     SequencerController.init( container.querySelector( "#transportSection" ), tracker, AudioController );
+    SongController.init( document.body, tracker, KeyboardController );
     NoteEntryController.init( container, tracker, KeyboardController );
     NotificationController.init( container );
     PatternEditorController.init( container.querySelector( "#patternEditor" ));
