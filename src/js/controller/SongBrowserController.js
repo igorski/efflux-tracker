@@ -20,13 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Time             = require( "../utils/Time" );
-var TemplateUtil     = require( "../utils/TemplateUtil" );
-var SongUtil         = require( "../utils/SongUtil" );
-var Pubsub           = require( "pubsub-js" );
-var Messages         = require( "../definitions/Messages" );
-var zMIDILib         = require( "zmidi" ),
-    zMIDI            = zMIDILib.zMIDI;
+var Time     = require( "../utils/Time" );
+var Pubsub   = require( "pubsub-js" );
+var Messages = require( "../definitions/Messages" );
 
 /* private properties */
 

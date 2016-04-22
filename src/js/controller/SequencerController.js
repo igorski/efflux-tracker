@@ -42,7 +42,7 @@ var playing           = false,
     beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
     beatUnit          = 4;
 
-var currentMeasure, measureStartTime, firstMeasureStartTime, currentMeasureOffset,
+var currentMeasure, measureStartTime, firstMeasureStartTime,
     currentStep, nextNoteTime, channels, measureLength = 2, queueHandlers = [];
 
 var SequencerController = module.exports =
@@ -115,7 +115,7 @@ var SequencerController = module.exports =
                 Metronome.countInComplete = false;
                 Metronome.enabled         = true;
             }
-            currentMeasureOffset = 0;
+            currentStep = 0; // always start current measure from the beginning
             SequencerController.setPosition( currentMeasure );
 
             cl.add( "icon-stop" );
@@ -296,7 +296,7 @@ function step()
 
         // advance the measure
 
-        if ( ++currentMeasure >= totalMeasures )
+        if ( ++currentMeasure === totalMeasures )
         {
             // last measure reached, jump back to first
             currentMeasure = 0;
@@ -330,7 +330,6 @@ function step()
         }
         Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
     }
-    currentMeasureOffset = ( audioContext.currentTime - firstMeasureStartTime ) - ( currentMeasure * measureLength );
     Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
 }
 
