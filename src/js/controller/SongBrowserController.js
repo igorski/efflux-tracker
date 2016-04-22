@@ -47,7 +47,7 @@ var SongBrowserController = module.exports =
 
         list = document.createElement( "ul" );
         list.setAttribute( "id", "songList" );
-        document.body.appendChild( list ); // see CSS for visibility toggles
+        containerRef.appendChild( list ); // see CSS for visibility toggles
 
         list.addEventListener( "click", handleSongClick );
 

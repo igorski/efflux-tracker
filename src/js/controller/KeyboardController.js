@@ -60,6 +60,8 @@ module.exports =
      * {number} keyCode, the keys keyCode
      * {Event} event, the keyboard event
      *
+     * the listener is usually another Controller
+     *
      * @param {Object|Function} listenerRef
      */
     setListener : function( listenerRef )

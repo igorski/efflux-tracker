@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Form             = require( "../utils/Form" );
 var Time             = require( "../utils/Time" );
 var TemplateUtil     = require( "../utils/TemplateUtil" );
 var SongUtil         = require( "../utils/SongUtil" );
@@ -31,6 +32,7 @@ var zMIDILib         = require( "zmidi" ),
 /* private properties */
 
 var container, keyboardController;
+var deviceSelect;
 
 var SettingsController = module.exports =
 {
@@ -41,14 +43,25 @@ var SettingsController = module.exports =
         // create a list container to show the songs when loading
 
         container = document.createElement( "div" );
-        container.setAttribute( "id", "config" );
+        container.setAttribute( "id", "settings" );
         container.innerHTML = TemplateUtil.render( "settingsView" );
         containerRef.appendChild( container ); // see CSS for visibility toggles
+
+        // grab reference to DOM elements
+
+        if ( zMIDI.isSupported() )  {
+            container.querySelector( "#midiSetup" ).classList.add( "enabled" );
+            container.querySelector( "#midiConnect" ).addEventListener( "click", handleMIDIConnect );
+            deviceSelect = container.querySelector( "#midiDevices" );
+            deviceSelect.addEventListener( "change", handleMIDIDeviceSelect );
+        }
 
         // add message listeners
 
         [
-            Messages.CLOSE_OVERLAYS
+            Messages.OPEN_SETTINGS_PANEL,
+            Messages.CLOSE_OVERLAYS,
+            Messages.MIDI_RECEIVED_INPUT_DEVICES
 
         ].forEach( function( msg )
         {
@@ -65,3 +78,63 @@ var SettingsController = module.exports =
         }
     }
 };
+
+/* private methods */
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case Messages.OPEN_SETTINGS_PANEL:
+            handleOpen();
+            break;
+
+        case Messages.CLOSE_OVERLAYS:
+            handleClose();
+            break;
+
+        case Messages.MIDI_RECEIVED_INPUT_DEVICES:
+            showAvailableMIDIDevices( payload );
+            break;
+    }
+}
+
+function handleOpen()
+{
+    container.classList.add( "active" );
+    keyboardController.setListener( SettingsController );
+}
+
+function handleClose()
+{
+    container.classList.remove( "active" );
+}
+
+function handleMIDIConnect( aEvent )
+{
+    Pubsub.publish( Messages.MIDI_CONNECT_TO_INTERFACE );
+}
+
+function handleMIDIDeviceSelect( aEvent )
+{
+    Pubsub.publish( Messages.MIDI_ADD_LISTENER_TO_DEVICE, aEvent.target );
+}
+
+function showAvailableMIDIDevices( aInputs )
+{
+    var options = [], option, input;
+
+    for ( var i = 0, l = aInputs.length; i < l; ++i )
+    {
+        input  = aInputs[ i ];
+        option = {
+            title : input.manufacturer + " " + input.name,
+            value : i
+        };
+       options.push( option );
+    }
+    Form.setOptions( deviceSelect, options );
+
+    if ( options.length === 1 )
+        Pubsub.publish( Messages.MIDI_ADD_LISTENER_TO_DEVICE, 0 );
+}

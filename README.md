@@ -70,10 +70,11 @@ TODO
 
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
- * Implement MIDI control
+ * Implement MIDI to pattern recording
  * Implement audio export
  * Support mouse drag for selection
  * Song browser: show author and modified date
+ * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  
 KNOWN BUGS
 ----------

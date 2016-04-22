@@ -1,12 +1,24 @@
 #settings
 {
   position: absolute;
+  .EditorComponent;
   @width: 500px;
   @height: 500px;
+  width: @width;
+  height: @height;
   top: 50%;
   left: 50%;
   margin-left: -( @width / 2 );
   margin-top: -( @height / 2 );
+  display: none;
+
+  &.active {
+    display: block;
+  }
+}
+
+#midiSetup
+{
   display: none;
 
   &.enabled {

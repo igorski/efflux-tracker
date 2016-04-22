@@ -28,11 +28,13 @@ var InstrumentController       = require( "./controller/InstrumentController" );
 var KeyboardController         = require( "./controller/KeyboardController" );
 var MenuController             = require( "./controller/MenuController" );
 var MetaController             = require( "./controller/MetaController" );
+var MidiController             = require( "./controller/MidiController" );
 var NoteEntryController        = require( "./controller/NoteEntryController" );
 var NotificationController     = require( "./controller/NotificationController" );
 var PatternEditorController    = require( "./controller/PatternEditorController" );
 var PatternTrackListController = require( "./controller/PatternTrackListController" );
 var SequencerController        = require( "./controller/SequencerController" );
+var SettingsController         = require( "./controller/SettingsController" );
 var SongBrowserController      = require( "./controller/SongBrowserController" );
 var SystemController           = require( "./controller/SystemController" );
 var ObjectUtil                 = require( "./utils/ObjectUtil" );
@@ -40,6 +42,7 @@ var SongUtil                   = require( "./utils/SongUtil" );
 var TemplateUtil               = require( "./utils/TemplateUtil" );
 var Messages                   = require( "./definitions/Messages" );
 var Pubsub                     = require( "pubsub-js" );
+var zMIDI                      = require( "zmidi" ).zMIDI;
 
 /* initialize application */
 
@@ -77,6 +80,7 @@ var tracker;
 
     AudioController.init( tracker.activeSong.instruments );
     KeyboardController.init( tracker );
+    SettingsController.init( document.body, KeyboardController );
     MenuController.init( container.querySelector( "#menuSection" ), tracker );
     InstrumentController.init( container, tracker, KeyboardController );
     MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
@@ -91,6 +95,11 @@ var tracker;
     );
     HelpController.init( container.querySelector( "#helpSection" ), tracker );
     SystemController.init();
+
+    // MIDI is currently only supported in Chrome
+
+    if ( zMIDI.isSupported() )
+        MidiController.init( tracker, AudioController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 

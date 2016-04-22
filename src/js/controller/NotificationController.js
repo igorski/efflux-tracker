@@ -43,9 +43,14 @@ var NotificationController = module.exports =
 
         // subscribe to pubsub system to receive and broadcast messages across the application
 
-        Pubsub.subscribe( Messages.SONG_LOADED,   handleBroadcast );
-        Pubsub.subscribe( Messages.SHOW_ERROR,    handleBroadcast );
-        Pubsub.subscribe( Messages.SHOW_FEEDBACK, handleBroadcast );
+        [
+            Messages.SONG_LOADED,
+            Messages.SHOW_ERROR,
+            Messages.SHOW_FEEDBACK
+
+        ].forEach( function( msg ) {
+            Pubsub.subscribe( msg, handleBroadcast );
+        });
     }
 };
 

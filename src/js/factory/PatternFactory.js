@@ -155,12 +155,15 @@ var PatternFactory = module.exports =
      * generates the (empty) content for a single Audio Event
      *
      * @public
+     *
+     * @param {number=} instrument optional index of the instrument to
+     *                  create the AudioEvent for
      * @return {AUDIO_EVENT}
      */
-    createAudioEvent : function()
+    createAudioEvent : function( instrument )
     {
         return {
-            instrument: 1,
+            instrument: ( typeof instrument === "number" ) ? instrument : 0,
             note: "",
             octave: 0,
             action: 0,

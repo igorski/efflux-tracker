@@ -20,13 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Time             = require( "../utils/Time" );
-var TemplateUtil     = require( "../utils/TemplateUtil" );
-var SongUtil         = require( "../utils/SongUtil" );
-var Pubsub           = require( "pubsub-js" );
-var Messages         = require( "../definitions/Messages" );
-var zMIDILib         = require( "zmidi" ),
-    zMIDI            = zMIDILib.zMIDI;
+var Time         = require( "../utils/Time" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var SongUtil     = require( "../utils/SongUtil" );
+var Pubsub       = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
+var zMIDI        = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
@@ -56,6 +55,7 @@ var MenuController = module.exports =
         containerRef.querySelector( "#songLoad"  ).addEventListener( "click", handleLoad );
         containerRef.querySelector( "#songSave"  ).addEventListener( "click", handleSave );
         containerRef.querySelector( "#songReset" ).addEventListener( "click", handleReset );
+        containerRef.querySelector( "#settingsBtn" ).addEventListener( "click",  handleSettings );
 
         if ( canImportExport ) {
 
@@ -63,11 +63,10 @@ var MenuController = module.exports =
             containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
         }
 
-        if ( zMIDI.isSupported() ) {
-
-            var midiSetup = containerRef.querySelector( "#midiSetup" );
-            midiSetup.classList.add( "enabled" );
-            midiSetup.addEventListener( "click", handleMIDISetup );
+        if ( !zMIDI.isSupported() ) {
+            // a bit cheap, the only setting we (for now) support is related to MIDI, if
+            // no MIDI is supported, hide the settings button
+            containerRef.querySelector( "#settingsBtn" ).style.display = "none";
         }
 
         // get reference to DOM elements
@@ -142,7 +141,7 @@ function handleSave( aEvent )
 
     if ( isValid( song )) {
         tracker.SongModel.saveSong( song );
-        Pubsub.publishSync( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
+        Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
     }
 }
 
@@ -151,8 +150,13 @@ function handleReset( aEvent )
 {
     if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
         tracker.activeSong = tracker.SongModel.createSong();
-        Pubsub.publishSync( Messages.SONG_LOADED, tracker.activeSong );
+        Pubsub.publish( Messages.SONG_LOADED, tracker.activeSong );
     }
+}
+
+function handleSettings( aEvent )
+{
+    Pubsub.publish( Messages.OPEN_SETTINGS_PANEL );
 }
 
 /**
@@ -167,7 +171,7 @@ function isValid( song )
     var hasContent = SongUtil.hasContent( song );
 
     if ( !hasContent ) {
-        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no pattern content!" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );
         return false;
     }
 
@@ -175,7 +179,7 @@ function isValid( song )
         hasContent = false;
 
     if ( !hasContent )
-        Pubsub.publishSync( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
+        Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
 
     return hasContent;
 }
@@ -209,7 +213,7 @@ function handleImport( aEvent )
             {
                 tracker.SongModel.saveSong( song );
                 tracker.activeSong = song;
-                Pubsub.publishSync( Messages.SONG_LOADED, song );
+                Pubsub.publish( Messages.SONG_LOADED, song );
             }
         };
         // start reading file contents
@@ -234,9 +238,4 @@ function handleExport( aEvent )
         pom.setAttribute( "download", song.meta.title + ".ztk" );
         pom.click();
     }
-}
-
-function handleMIDISetup( aEvent )
-{
-    alert( "TODO: implement" );
 }
