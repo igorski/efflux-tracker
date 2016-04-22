@@ -33,7 +33,7 @@ var NotificationController     = require( "./controller/NotificationController" 
 var PatternEditorController    = require( "./controller/PatternEditorController" );
 var PatternTrackListController = require( "./controller/PatternTrackListController" );
 var SequencerController        = require( "./controller/SequencerController" );
-var SongController             = require( "./controller/SongController" );
+var SongBrowserController      = require( "./controller/SongBrowserController" );
 var SystemController           = require( "./controller/SystemController" );
 var ObjectUtil                 = require( "./utils/ObjectUtil" );
 var SongUtil                   = require( "./utils/SongUtil" );
@@ -81,7 +81,7 @@ var tracker;
     InstrumentController.init( container, tracker, KeyboardController );
     MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
     SequencerController.init( container.querySelector( "#transportSection" ), tracker, AudioController );
-    SongController.init( document.body, tracker, KeyboardController );
+    SongBrowserController.init( document.body, tracker, KeyboardController );
     NoteEntryController.init( container, tracker, KeyboardController );
     NotificationController.init( container );
     PatternEditorController.init( container.querySelector( "#patternEditor" ));

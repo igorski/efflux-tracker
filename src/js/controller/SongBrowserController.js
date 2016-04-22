@@ -32,10 +32,10 @@ var zMIDILib         = require( "zmidi" ),
 
 var container, tracker, keyboardController, list;
 
-var SongController = module.exports =
+var SongBrowserController = module.exports =
 {
     /**
-     * initialize SongController, attach SongView template into give container
+     * initialize SongBrowserController, attach SongView template into give container
      *
      * @param containerRef
      * @param trackerRef
@@ -84,7 +84,7 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.CLOSE_OVERLAYS:
-            if ( payload !== SongController )
+            if ( payload !== SongBrowserController )
                 handleClose();
             break;
 
@@ -115,7 +115,7 @@ function handleOpen()
 
     list.classList.add( "active" );
 
-    keyboardController.setListener( SongController );
+    keyboardController.setListener( SongBrowserController );
 }
 
 function handleSongClick( aEvent )
