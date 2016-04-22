@@ -30,6 +30,10 @@ var Config = require( "../config/Config" );
  * the "action" property is an enumeration describing the action of the note, e.g.:
  * 0 = nothing, 1 = noteOn, 2 = noteOff (kills previous note)
  *
+ * the "recording" property describes whether the event is currently being
+ * recorded (won't be played back by the SequencerController as it is being
+ * played back via the MidiController)
+ *
  * the "seq" Object defines the properties for playback within the
  * Sequencer and defines values in seconds
  *
@@ -39,6 +43,7 @@ var Config = require( "../config/Config" );
  *              note: string,
  *              octave: number,
  *              action: number,
+ *              recording: boolean,
  *              seq: {
  *                  playing: boolean,
  *                  startMeasure: number
@@ -167,6 +172,7 @@ var PatternFactory = module.exports =
             note: "",
             octave: 0,
             action: 0,
+            recording: false,
             seq : {
                 playing            : false,
                 startMeasure       : 0,

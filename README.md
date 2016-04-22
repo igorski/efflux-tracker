@@ -70,7 +70,6 @@ TODO
 
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
- * Implement MIDI to pattern recording
  * Implement audio export
  * Support mouse drag for selection
  * Song browser: show author and modified date

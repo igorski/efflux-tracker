@@ -150,6 +150,13 @@ function handleReset( aEvent )
 {
     if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
         tracker.activeSong = tracker.SongModel.createSong();
+
+        var editorModel = tracker.EditorModel;
+        editorModel.activeInstrument =
+        editorModel.activePattern    =
+        editorModel.activeStep       = 0;
+        editorModel.amountOfSteps    = tracker.activeSong.patterns[ 0 ].steps;
+
         Pubsub.publish( Messages.SONG_LOADED, tracker.activeSong );
     }
 }

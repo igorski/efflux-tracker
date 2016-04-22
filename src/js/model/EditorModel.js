@@ -64,4 +64,21 @@ function EditorModel()
      * @type {number}
      */
     this.amountOfSteps = 16;
+
+    /**
+     * whether the editor is recording notes
+     * from the MIDI input device
+     *
+     * @public
+     * @type {boolean}
+     */
+    this.recordingInput = false;
+
+    /**
+     * whether the sequencer should loop its
+     * current range during recording
+     *
+     * @type {boolean}
+     */
+    this.loopedRecording = true;
 }

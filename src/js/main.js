@@ -99,7 +99,7 @@ var tracker;
     // MIDI is currently only supported in Chrome
 
     if ( zMIDI.isSupported() )
-        MidiController.init( tracker, AudioController );
+        MidiController.init( tracker, AudioController, SequencerController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 

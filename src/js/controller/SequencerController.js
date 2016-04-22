@@ -32,10 +32,9 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var tracker, audioController, audioContext, worker;
-var playBTN, tempoSlider, tempoDisplay, metronomeToggle;
+var playBTN, recordBTN, tempoSlider, tempoDisplay, metronomeToggle;
 
 var playing           = false,
-    looping           = false,
     recording         = false,
     scheduleAheadTime = .2,
     stepPrecision     = 64,
@@ -71,20 +70,24 @@ var SequencerController = module.exports =
         // cache view elements
 
         playBTN         = containerRef.querySelector( "#playBTN" );
+        recordBTN       = containerRef.querySelector( "#recordBTN" );
         tempoDisplay    = containerRef.querySelector( "#songTempoDisplay" );
         tempoSlider     = containerRef.querySelector( "#songTempo" );
         metronomeToggle = containerRef.querySelector( ".icon-metronome" );
 
         // add event listeners
 
-        playBTN.addEventListener( "click", handlePlayToggle );
-        tempoSlider.addEventListener( "input", handleTempoChange );
+        playBTN.addEventListener        ( "click", handlePlayToggle );
+        recordBTN.addEventListener      ( "click", handleRecordToggle );
+        tempoSlider.addEventListener    ( "input", handleTempoChange );
         metronomeToggle.addEventListener( "click", handleMetronomeToggle );
 
         // setup messaging system
 
         [
+            Messages.MIDI_DEVICE_CONNECTED,
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
+            Messages.SET_SEQUENCER_POSITION,
             Messages.LOAD_SONG,
             Messages.SONG_LOADED
 
@@ -98,6 +101,15 @@ var SequencerController = module.exports =
             if ( msg.data.cmd === "collect" )
                 collect();
         };
+    },
+
+    /**
+     * query whether the Sequencer is currently playing
+     * @return {boolean}
+     */
+    getPlaying : function()
+    {
+        return playing;
     },
 
     /**
@@ -116,7 +128,7 @@ var SequencerController = module.exports =
                 Metronome.enabled         = true;
             }
             currentStep = 0; // always start current measure from the beginning
-            SequencerController.setPosition( currentMeasure );
+            SequencerController.setPosition( tracker.EditorModel.activePattern );
 
             cl.add( "icon-stop" );
             cl.remove( "icon-play" );
@@ -133,6 +145,10 @@ var SequencerController = module.exports =
             worker.postMessage({ "cmd" : "stop" });
 
             Pubsub.publishSync( Messages.PLAYBACK_STOPPED );
+
+            if ( recording )
+                handleRecordToggle();
+
             clearPending();
         }
     },
@@ -165,6 +181,14 @@ var SequencerController = module.exports =
         channels = tracker.activeSong.patterns[ currentMeasure ].channels;
     },
 
+    getPosition : function()
+    {
+        return {
+            measure: currentMeasure,
+            step: currentStep
+        }
+    },
+
     /**
      * synchronize Transport contents with
      * the current state of the model
@@ -187,6 +211,10 @@ function handleBroadcast( type, payload )
             SequencerController.setPlaying( !playing );
             break;
 
+        case Messages.SET_SEQUENCER_POSITION:
+            SequencerController.setPosition( payload );
+            break;
+
         case Messages.LOAD_SONG:
             SequencerController.setPlaying( false );
             break;
@@ -194,12 +222,27 @@ function handleBroadcast( type, payload )
         case Messages.SONG_LOADED:
             SequencerController.update();
             break;
+
+        // when a MIDI device is connected, we allow recording from MIDI input
+        case Messages.MIDI_DEVICE_CONNECTED:
+            recordBTN.classList.add( "enabled" );
+            break;
     }
 }
 
 function handlePlayToggle( e )
 {
     SequencerController.setPlaying( !playing );
+}
+
+function handleRecordToggle( e )
+{
+    if ( recording = !recording )
+        recordBTN.classList.add( "active" );
+    else
+        recordBTN.classList.remove( "active" );
+
+    tracker.EditorModel.recordingInput = recording;
 }
 
 function handleMetronomeToggle( e )
@@ -253,7 +296,7 @@ function collect()
                 {
                     event = channel[ j ];
 
-                    if ( event && !event.seq.playing &&
+                    if ( event && !event.seq.playing && !event.recording &&
                          event.seq.startMeasure === currentMeasure &&
                          compareTime >= event.seq.startMeasureOffset &&
                          compareTime < ( event.seq.startMeasureOffset + event.seq.length ))
@@ -300,16 +343,13 @@ function step()
             // last measure reached, jump back to first
             currentMeasure = 0;
 
-            if ( recording )
-            {
-                // stop playing if we're recording and looping is disabled
+            // stop playing if we're recording and looping is disabled
 
-                if ( !looping )
-                {
-                    SequencerController.setPlaying( false );
-                    Pubsub.publishSync( Messages.RECORDING_COMPLETE );
-                    return;
-                }
+            if ( recording && !tracker.EditorModel.loopedRecording )
+            {
+                SequencerController.setPlaying( false );
+                Pubsub.publishSync( Messages.RECORDING_COMPLETE );
+                return;
             }
         }
         SequencerController.setPosition( currentMeasure, nextNoteTime );

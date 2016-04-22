@@ -22,6 +22,7 @@
  */
 var Time             = require( "../utils/Time" );
 var TemplateUtil     = require( "../utils/TemplateUtil" );
+var EventUtil        = require( "../utils/EventUtil" );
 var SongUtil         = require( "../utils/SongUtil" );
 var PatternFactory   = require( "../factory/PatternFactory" );
 var Pubsub           = require( "pubsub-js" );
@@ -33,21 +34,23 @@ var zMIDILib         = require( "zmidi" ),
 
 /* private properties */
 
-var tracker, audioController;
+var tracker, audioController, sequencerController;
 var currentlyConnectedInput = -1, playingNotes = [];
 
 var MidiController = module.exports =
 {
-    init : function( trackerRef, audioControllerRef )
+    init : function( trackerRef, audioControllerRef, sequencerControllerRef )
     {
-        tracker         = trackerRef;
-        audioController = audioControllerRef;
+        tracker             = trackerRef;
+        audioController     = audioControllerRef;
+        sequencerController = sequencerControllerRef;
 
         // setup messaging
 
         [
             Messages.MIDI_CONNECT_TO_INTERFACE,
-            Messages.MIDI_ADD_LISTENER_TO_DEVICE
+            Messages.MIDI_ADD_LISTENER_TO_DEVICE,
+            Messages.PLAYBACK_STOPPED
 
         ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
@@ -67,6 +70,10 @@ function handleBroadcast( type, payload )
 
         case Messages.MIDI_ADD_LISTENER_TO_DEVICE:
             addMIDIListener( payload );
+            break;
+
+        case Messages.PLAYBACK_STOPPED:
+            sanitizeRecordedEvents();
             break;
     }
 }
@@ -93,6 +100,7 @@ function addMIDIListener( aPortNumber )
     currentlyConnectedInput = aPortNumber;
 
     var device = zMIDI.getInChannels()[ aPortNumber ];
+    Pubsub.publish( Messages.MIDI_DEVICE_CONNECTED, aPortNumber );
     Pubsub.publish( Messages.SHOW_FEEDBACK,
         "Listening to MIDI messages coming from " + device.manufacturer + " " + device.name
     );
@@ -119,8 +127,9 @@ function handleConnectFailure( msg )
  */
 function handleMIDIMessage( aEvent )
 {
-    var noteValue = aEvent.value;   // we only deal with note on/off so these always reflect a NOTE
-    var audioEvent;
+    var noteValue   = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
+        editorModel = tracker.EditorModel,
+        audioEvent;
 
     switch ( aEvent.type )
     {
@@ -128,7 +137,7 @@ function handleMIDIMessage( aEvent )
 
             var pitch = MIDINotes.getPitchByNoteNumber( noteValue );
 
-            var instrumentId  = tracker.EditorModel.activeInstrument;
+            var instrumentId  = editorModel.activeInstrument;
             var instrument    = tracker.activeSong.instruments[ instrumentId ];
             audioEvent        = PatternFactory.createAudioEvent( instrumentId );
             audioEvent.note   = pitch.note;
@@ -137,16 +146,75 @@ function handleMIDIMessage( aEvent )
 
             playingNotes[ noteValue ] = { event: audioEvent, instrument: instrument };
             audioController.noteOn( audioEvent, instrument );
+
+            if ( editorModel.recordingInput )
+                recordEventIntoSong( audioEvent );
+
             break;
 
         case zMIDIEvent.NOTE_OFF:
 
             audioEvent = playingNotes[ noteValue ];
 
-            if ( audioEvent )
+            if ( audioEvent ) {
                 audioController.noteOff( audioEvent.event, audioEvent.instrument );
 
+                if ( editorModel.recordingInput ) {
+                    var offEvent = PatternFactory.createAudioEvent( audioEvent.instrument.id );
+                    offEvent.action = 2; // noteOff
+                    recordEventIntoSong( offEvent );
+                }
+            }
             delete playingNotes[ noteValue ];
             break;
     }
+}
+
+function recordEventIntoSong( audioEvent )
+{
+    if ( sequencerController.getPlaying() ) {
+
+        // sequencer is playing, add event at current step
+
+        var editorModel   = tracker.EditorModel;
+        var song          = tracker.activeSong;
+        var activePattern = editorModel.activePattern;
+        var pattern       = song.patterns[ activePattern ];
+        var channel       = pattern.channels[ editorModel.activeInstrument ];
+        var step          = Math.round( sequencerController.getPosition().step / 64 * editorModel.amountOfSteps );
+
+        EventUtil.setPosition(
+            audioEvent, pattern, activePattern, step, song.meta.tempo
+        );
+        audioEvent.recording = true;
+        channel[ step ]      = audioEvent;
+
+        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW ); // ensure we can see the note being added
+    }
+    else {
+        // sequencer isn't playing, add event at current editor step
+        // unless it is a noteOff, let the user add it explicitly
+        if ( audioEvent.action !== 2 )
+            Pubsub.publishSync( Messages.ADD_EVENT_AT_POSITION, audioEvent );
+    }
+}
+
+function sanitizeRecordedEvents()
+{
+    // unflag the recorded state of all the events
+    var patterns = tracker.activeSong.patterns, event, i;
+
+    patterns.forEach( function( pattern )
+    {
+        pattern.channels.forEach( function( events )
+        {
+            i = events.length;
+            while ( i-- )
+            {
+                event = events[ i ];
+                if ( event )
+                    event.recording = false;
+            }
+        });
+    });
 }

@@ -45,9 +45,9 @@ module.exports =
 
         // grab references to elements
 
-        container.querySelector( ".addNote" ).addEventListener( "click", handleNoteAdd );
-        container.querySelector( ".addOff" ).addEventListener ( "click", handleOffAdd );
-        container.querySelector( ".removeNote" ).addEventListener( "click", handleNoteDelete );
+        container.querySelector( ".addNote" ).addEventListener   ( "click", handleNoteAddClick );
+        container.querySelector( ".addOff" ).addEventListener    ( "click", handleNoteOffClick );
+        container.querySelector( ".removeNote" ).addEventListener( "click", handleNoteDeleteClick );
 
         // setup messaging system
         [
@@ -119,17 +119,17 @@ function handleBroadcast( type, payload )
     }
 }
 
-function handleNoteAdd( aEvent )
+function handleNoteAddClick(aEvent )
 {
-    Pubsub.publish( Messages.ADD_NOTE_AT_POSITION );
+    Pubsub.publish( Messages.EDIT_NOTE_AT_POSITION );
 }
 
-function handleOffAdd( aEvent )
+function handleNoteOffClick(aEvent )
 {
     Pubsub.publish( Messages.ADD_OFF_AT_POSITION );
 }
 
-function handleNoteDelete( aEvent )
+function handleNoteDeleteClick(aEvent )
 {
     Pubsub.publish( Messages.REMOVE_NOTE_AT_POSITION );
 }

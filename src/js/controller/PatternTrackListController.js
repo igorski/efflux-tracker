@@ -95,8 +95,10 @@ var PatternTrackListController = module.exports =
         [
             Messages.SONG_LOADED,
             Messages.REFRESH_SONG,
+            Messages.REFRESH_PATTERN_VIEW,
             Messages.PATTERN_SWITCH,
-            Messages.ADD_NOTE_AT_POSITION,
+            Messages.EDIT_NOTE_AT_POSITION,
+            Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
             Messages.REMOVE_NOTE_AT_POSITION
 
@@ -332,8 +334,16 @@ function handleBroadcast( type, payload )
             PatternTrackListController.update();
             break;
 
-        case Messages.ADD_NOTE_AT_POSITION:
+        case Messages.REFRESH_PATTERN_VIEW:
+            PatternTrackListController.update();
+            break;
+
+        case Messages.EDIT_NOTE_AT_POSITION:
             editStep();
+            break;
+
+        case Messages.ADD_EVENT_AT_POSITION:
+            addEventAtCurrentPosition( payload );
             break;
 
         case Messages.ADD_OFF_AT_POSITION:

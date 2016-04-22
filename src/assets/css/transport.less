@@ -21,17 +21,22 @@
 
   li {
     display: inline;
-    padding: .5em;
+    padding: .5em 0 .5em .5em;
     font-weight: bold;
     cursor: pointer;
 
     // record button
-    &.rec {
+    &#recordBTN {
       background-color: #d00e57;
-      padding: 0 .5em;
-      border-radius: .5em;
+      padding: 0 .65em;
+      border-radius: 50%;
+      display: none;
 
       &.enabled {
+        display: inline;
+      }
+
+      &.active {
         background-color: #FFF;
       }
     }
