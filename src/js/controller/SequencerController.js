@@ -142,21 +142,20 @@ var SequencerController = module.exports =
      *
      * @public
      * @param {number} measure
-     * @param {number=} step optional step within the measure
+     * @param {number=} currentTime optional time to sync given measure to
+     *        this will default to the currentTime of the AudioContext for instant enqueuing
      */
-    setPosition : function( measure, step )
+    setPosition : function( measure, currentTime )
     {
         var song = tracker.activeSong;
         if ( measure >= song.patterns.length )
             measure = song.patterns.length - 1;
 
-        var currentTime = audioContext.currentTime;
-
         if ( currentMeasure !== measure )
             currentStep = 0;
 
-        if ( typeof step === "number" )
-            currentStep = step;
+        if ( typeof currentTime !== "number" )
+            currentTime = audioContext.currentTime;
 
         currentMeasure        = measure;
         nextNoteTime          = currentTime;
@@ -313,7 +312,7 @@ function step()
                 }
             }
         }
-        SequencerController.setPosition( currentMeasure );
+        SequencerController.setPosition( currentMeasure, nextNoteTime );
 
         if ( recording )
         {

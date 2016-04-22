@@ -70,14 +70,13 @@ TODO
 
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
- * Implement correct sequence range
  * Implement MIDI control
  * Implement audio export
  * Support mouse drag for selection
+ * Song browser: show author and modified date
  
 KNOWN BUGS
 ----------
 
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * When copy-pasting an existing pattern into a new pattern, the new pattern is silent
- * When saving a song, the date is off!
