@@ -89,3 +89,4 @@ KNOWN BUGS
 
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * When copy-pasting an existing pattern into a new pattern, the new pattern is silent
+ * Cannot copy-paste module param instruction without note content

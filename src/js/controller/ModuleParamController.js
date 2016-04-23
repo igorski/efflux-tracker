@@ -58,6 +58,7 @@ var ModuleParamController = module.exports =
 
         element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
         element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
+        element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
 
         // subscribe to messaging system
 
@@ -123,7 +124,7 @@ function handleOpen( completeCallback )
 
     data =
     {
-        module : ( event && event.mp ) ? event.mp.module : "pitch",
+        module : ( event && event.mp ) ? event.mp.module : moduleList[ 0 ].getAttribute( "data-value" ),
         value  : ( event && event.mp ) ? event.mp.value  : 50
     };
 
@@ -185,6 +186,16 @@ function dispose()
         element.parentNode.removeChild( element );
     }
     closeCallback = null;
+}
+
+/* module selection */
+
+function handleModuleClick( aEvent )
+{
+    var target = aEvent.target;
+    if ( target.nodeName === "LI" ) {
+        setSelectedValueInList( moduleList, target.getAttribute( "data-value" ));
+    }
 }
 
 /* list functions */

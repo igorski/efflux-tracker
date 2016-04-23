@@ -22,6 +22,7 @@
  */
 var AudioFactory   = require( "../factory/AudioFactory" );
 var AudioUtil      = require( "../utils/AudioUtil" );
+var ModuleUtil     = require( "../utils/ModuleUtil" );
 var InstrumentUtil = require( "../utils/InstrumentUtil" );
 var Config         = require( "../config/Config" );
 var Messages       = require( "../definitions/Messages" );
@@ -56,10 +57,26 @@ var EVENT_VOICE;
  */
 var EVENT_OBJECT;
 
+/**
+ * @typedef {{
+ *              filter: FILTER_MODULE,
+ *              delay: DELAY_MODULE,
+ *              output: AudioParam
+ *          }}
+ */
+var INSTRUMENT_MODULES;
+
 /* private properties */
 
-var audioContext, masterBus, compressor, pool, instrumentModules,
-    UNIQUE_EVENT_ID = 0;
+var audioContext, masterBus, compressor, pool, UNIQUE_EVENT_ID = 0;
+
+/**
+ * list that will contain all modules
+ * for each instantiated instrument
+ *
+ * @type {Array.<INSTRUMENT_MODULES>}
+ */
+var instrumentModules;
 
 /**
  * list that will contain all EVENT_OBJECTs
@@ -194,7 +211,18 @@ var AudioController = module.exports =
      */
     noteOn : function( aEvent, aInstrument, startTimeInSeconds )
     {
-        // only "noteOn" actions are processed
+        // module parameter change specified ? process it inside the ModuleUtil
+
+        if ( aEvent.mp ) {
+            ModuleUtil.applyModuleParamChange(
+                aEvent,
+                instrumentModules[ aInstrument.id ],
+                instrumentEvents[ aInstrument.id ],
+                startTimeInSeconds || audioContext.currentTime
+            );
+        }
+
+        // only "noteOn" actions are processed beyond this point
 
         if ( aEvent.action !== 1 )
             return;
@@ -409,7 +437,7 @@ function createModules()
             filter : AudioFactory.createFilter( audioContext ),
             delay  : AudioFactory.createDelay( audioContext )
         };
-        AudioFactory.applyRouting( module, masterBus );
+        ModuleUtil.applyRouting( module, masterBus );
     }
 }
 

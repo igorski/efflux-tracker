@@ -20,8 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config = require( "../config/Config" );
-var Delay  = require( "../third_party/Delay" );
+var Config     = require( "../config/Config" );
+var Delay      = require( "../third_party/Delay" );
+var ModuleUtil = require( "../utils/ModuleUtil" );
 
 /* type definitions */
 
@@ -177,7 +178,7 @@ var AudioFactory = module.exports =
         filter.filter.type   = props.type;
         filter.filterEnabled = props.enabled;
 
-        AudioFactory.applyRouting( instrumentModule, output );
+        ModuleUtil.applyRouting( instrumentModule, output );
 
         if ( filterEnabled )
         {
@@ -237,48 +238,6 @@ var AudioFactory = module.exports =
         delay.cutoff   = props.cutoff;
         instrumentModule.delay.delayEnabled = props.enabled;
 
-        AudioFactory.applyRouting( instrumentModule, output );
-    },
-
-    /**
-     * apply the routing for the given instrument modules
-     * (e.g. toggling devices on/off and connecting them
-     * to the corresponding devices)
-     *
-     * @param {{
-     *            filter: FILTER_MODULE,
-     *            delay: DELAY_MODULE,
-     *            output: AudioParam
-     *
-     *        }} modules
-     * @param {AudioParam} output
-     */
-    applyRouting : function( modules, output )
-    {
-        var moduleOutput = modules.output,
-            filter       = modules.filter.filter,
-            delay        = modules.delay.delay;
-
-        moduleOutput.disconnect();
-        filter.disconnect();
-        delay.output.disconnect();
-
-        var route = [], lastModule = moduleOutput;
-
-        if ( modules.filter.filterEnabled )
-            route.push( filter );
-
-        if ( modules.delay.delayEnabled )
-            route.push( delay );
-
-        route.push( output );
-
-        var input;
-        route.forEach( function( mod )
-        {
-            input = ( mod instanceof Delay ) ? mod.input : mod; // Delay is special
-            lastModule.connect( input );
-            lastModule = ( mod instanceof Delay ) ? mod.output : mod;
-        });
+        ModuleUtil.applyRouting( instrumentModule, output );
     }
 };
