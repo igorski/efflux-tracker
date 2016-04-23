@@ -23,11 +23,15 @@
 var PatternFactory    = require( "./PatternFactory" );
 var InstrumentFactory = require( "./InstrumentFactory" );
 
+var FACTORY_VERSION = 1;
+
 module.exports =
 {
     createSong : function( amountOfInstruments )
     {
         var song = {
+
+            version: FACTORY_VERSION, // allows backwards compatibility when updating Song Object signature
 
             // unique identifier
 
