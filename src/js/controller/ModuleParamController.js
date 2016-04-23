@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var TemplateUtil = require( "../utils/TemplateUtil" );
+var EventFactory = require( "../factory/EventFactory" );
 var Form         = require( "../utils/Form" );
 var Messages     = require( "../definitions/Messages" );
 var Pubsub       = require( "pubsub-js" );
@@ -28,7 +29,8 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var data, closeCallback;
+var data, closeCallback,
+    moduleList, valueControl;
 
 var ModuleParamController = module.exports =
 {
@@ -48,6 +50,9 @@ var ModuleParamController = module.exports =
         element = TemplateUtil.renderAsElement( "moduleParamEntry" );
 
         // grab view elements
+
+        moduleList   = element.querySelectorAll( "#moduleSelect li" );
+        valueControl = element.querySelector( "#moduleValue" );
 
         // add listeners
 
@@ -118,7 +123,7 @@ function handleOpen( completeCallback )
 
     data =
     {
-        module : ( event && event.mp ) ? event.mp.module : "",
+        module : ( event && event.mp ) ? event.mp.module : "pitch",
         value  : ( event && event.mp ) ? event.mp.value  : 50
     };
 
@@ -128,6 +133,9 @@ function handleOpen( completeCallback )
 
     keyboardController.setBlockDefaults( false );
     keyboardController.setListener( ModuleParamController );
+
+    setSelectedValueInList( moduleList, data.module );
+    valueControl.value = data.value;
 
     if ( !element.parentNode )
         container.appendChild( element );
@@ -143,12 +151,28 @@ function handleClose()
 
 function handleReady()
 {
-    data.instrument = Form.getSelectedOption( instrumentSelect );
-    data.note       = getSelectedValueFromList( noteList );
-    data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
+    data.module = getSelectedValueFromList( moduleList );
+    data.value  = parseFloat( valueControl.value );
 
+    // update model and view
+
+//    if ( EventUtil.isValid( data )) {
+
+        var editorModel = tracker.EditorModel,
+            pattern     = tracker.activeSong.patterns[ editorModel.activePattern ],
+            channel     = pattern.channels[ editorModel.activeInstrument ],
+            event       = channel[ editorModel.activeStep ];
+
+        if ( !event )
+            event = EventFactory.createAudioEvent();
+
+        event.mp = data;
+
+        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, event );
+        editorModel.activeInstrument = event.instrument; // save last added instrument as default
+//    }
     if ( typeof closeCallback === "function" )
-        closeCallback( data );
+        closeCallback();
 
     dispose();
 }

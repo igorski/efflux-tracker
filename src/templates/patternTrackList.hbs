@@ -16,6 +16,11 @@
         {{else}}
             ----
         {{/if}}
+        {{# if this.mp }}
+        <span class="moduleParam">
+            {{this.mp.module }} {{ this.mp.value }}
+        </span>
+        {{/if}}
     </li>
     {{/each}}
 </ul>

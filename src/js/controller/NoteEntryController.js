@@ -192,10 +192,10 @@ function handleOpen( completeCallback )
     keyboardController.setBlockDefaults( false );
     keyboardController.setListener( NoteEntryController );
 
-    setSelectedValueInList( noteList, data.note );
+    setSelectedValueInList( noteList,   data.note );
     setSelectedValueInList( octaveList, data.octave );
 
-    selectedNote = data.note;
+    selectedNote   = data.note;
     selectedOctave = data.octave;
 
     Form.setSelectedOption( instrumentSelect, data.instrument );
@@ -222,10 +222,10 @@ function handleReady()
 
     if ( EventUtil.isValid( data )) {
 
-        var editorModel = tracker.EditorModel;
-        var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
-        var channel = pattern.channels[ editorModel.activeInstrument ];
-        var event   = channel[ editorModel.activeStep ];
+        var editorModel = tracker.EditorModel,
+            pattern     = tracker.activeSong.patterns[ editorModel.activePattern ],
+            channel     = pattern.channels[ editorModel.activeInstrument ],
+            event       = channel[ editorModel.activeStep ];
 
         if ( !event )
             event = EventFactory.createAudioEvent();
@@ -238,9 +238,10 @@ function handleReady()
         Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, event );
         editorModel.activeInstrument = event.instrument; // save last added instrument as default
 
-        if ( typeof closeCallback === "function" )
-            closeCallback();
     }
+    if ( typeof closeCallback === "function" )
+        closeCallback();
+
     dispose();
 }
 
