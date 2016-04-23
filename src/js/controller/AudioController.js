@@ -211,6 +211,82 @@ var AudioController = module.exports =
      */
     noteOn : function( aEvent, aInstrument, startTimeInSeconds )
     {
+        if ( aEvent.action === 1 ) // noteOn
+        {
+            aEvent.id = ( ++UNIQUE_EVENT_ID ); // create unique event identifier
+
+            //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
+
+            var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
+
+            if ( typeof startTimeInSeconds !== "number" )
+                startTimeInSeconds = audioContext.currentTime;
+
+            var oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
+            var modules     = instrumentModules[ aInstrument.id ];
+
+            aInstrument.oscillators.forEach( function( oscillatorVO, oscillatorIndex )
+            {
+                if ( oscillatorVO.enabled ) {
+
+                    voice = aInstrument.oscillators[ oscillatorIndex ];
+                    var oscillator = audioContext.createOscillator(), table;
+
+                    // get WaveTable from pool
+
+                    if ( oscillatorVO.waveform !== "CUSTOM" )
+                        table = pool[ oscillatorVO.waveform ];
+                    else
+                        table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
+
+                    if ( !table ) // no table ? that's a bit of a problem. what did you break!?
+                        return;
+
+                    oscillator.setPeriodicWave( table );
+
+                    // tune event frequency to oscillator tuning
+
+                    oscillator.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
+
+                    // apply amplitude envelopes
+
+                    var adsrNode = AudioFactory.createGainNode( audioContext ),
+                        envelope = adsrNode.gain;
+
+                    var ADSR      = oscillatorVO.adsr,
+                        attackEnd = startTimeInSeconds + ADSR.attack,
+                        decayEnd  = attackEnd + ADSR.decay;
+
+                    envelope.cancelScheduledValues( startTimeInSeconds );
+                    envelope.setValueAtTime( 0.0, startTimeInSeconds );         // envelope start value
+                    envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
+                    envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
+
+                    // route oscillator to track gain > envelope gain > instrument gain
+
+                    var oscillatorGain = AudioFactory.createGainNode( audioContext );
+                    oscillatorGain.gain.value = oscillatorVO.volume;
+                    oscillator.connect( oscillatorGain );
+                    oscillatorGain.connect( adsrNode );
+                    adsrNode.connect( modules.output );
+
+                    // start playback
+
+                    AudioFactory.startOscillation( oscillator, startTimeInSeconds );
+
+                    oscillators.push( /** @type {EVENT_VOICE} */ ({
+                        oscillator: oscillator,
+                        adsr: ADSR,
+                        envelope: envelope,
+                        frequency: frequency,
+                        gain: oscillatorGain,
+                        outputNode: adsrNode
+                    }));
+                }
+            });
+            instrumentEvents[ aInstrument.id ][ aEvent.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
+        }
+
         // module parameter change specified ? process it inside the ModuleUtil
 
         if ( aEvent.mp ) {
@@ -221,84 +297,6 @@ var AudioController = module.exports =
                 startTimeInSeconds || audioContext.currentTime
             );
         }
-
-        // only "noteOn" actions are processed beyond this point
-
-        if ( aEvent.action !== 1 )
-            return;
-
-        aEvent.id = ( ++UNIQUE_EVENT_ID ); // create unique event identifier
-
-        //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
-
-        var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
-
-        if ( typeof startTimeInSeconds !== "number" )
-            startTimeInSeconds = audioContext.currentTime;
-
-        var oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
-        var modules     = instrumentModules[ aInstrument.id ];
-
-        aInstrument.oscillators.forEach( function( oscillatorVO, oscillatorIndex )
-        {
-            if ( oscillatorVO.enabled ) {
-
-                voice = aInstrument.oscillators[ oscillatorIndex ];
-                var oscillator = audioContext.createOscillator(), table;
-
-                // get WaveTable from pool
-
-                if ( oscillatorVO.waveform !== "CUSTOM" )
-                    table = pool[ oscillatorVO.waveform ];
-                else
-                    table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
-
-                if ( !table ) // no table ? that's a bit of a problem. what did you break!?
-                    return;
-
-                oscillator.setPeriodicWave( table );
-
-                // tune event frequency to oscillator tuning
-
-                oscillator.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
-
-                // apply amplitude envelopes
-
-                var adsrNode = AudioFactory.createGainNode( audioContext ),
-                    envelope = adsrNode.gain;
-
-                var ADSR      = oscillatorVO.adsr,
-                    attackEnd = startTimeInSeconds + ADSR.attack,
-                    decayEnd  = attackEnd + ADSR.decay;
-
-                envelope.cancelScheduledValues( startTimeInSeconds );
-                envelope.setValueAtTime( 0.0, startTimeInSeconds );         // envelope start value
-                envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
-                envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
-
-                // route oscillator to track gain > envelope gain > instrument gain
-
-                var oscillatorGain = AudioFactory.createGainNode( audioContext );
-                oscillatorGain.gain.value = oscillatorVO.volume;
-                oscillator.connect( oscillatorGain );
-                oscillatorGain.connect( adsrNode );
-                adsrNode.connect( modules.output );
-
-                // start playback
-
-                AudioFactory.startOscillation( oscillator, startTimeInSeconds );
-
-                oscillators.push( /** @type {EVENT_VOICE} */ ({
-                    oscillator: oscillator,
-                    adsr: ADSR,
-                    envelope: envelope,
-                    frequency: frequency,
-                    gain: oscillatorGain,
-                    outputNode: adsrNode
-                }));
-            }
-        });
-        instrumentEvents[ aInstrument.id ][ aEvent.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
     },
 
     /**

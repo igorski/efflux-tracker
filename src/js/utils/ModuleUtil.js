@@ -73,35 +73,45 @@ var ModuleUtil = module.exports =
      * @param {INSTRUMENT_MODULES} modules
      * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
      * @param {number} startTimeInSeconds
+     * @param {number=} durationInSeconds optional duration, when undefined changes occur instantly at given startTimeInSeconds
      */
-    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds )
+    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds, durationInSeconds )
     {
         var mp = audioEvent.mp, i, j, event, voice;
+        var hasDuration = ( typeof durationInSeconds === "number" );
 
         i = instrumentEvents.length;
-        while ( i-- )
-        {
+
+        while ( i-- ) {
+
             event = instrumentEvents[ i ];
+
             if ( event ) {
+
                 j = event.length;
-                while ( j-- )
-                {
+
+                while ( j-- ) {
+
                     voice = event[ j ];
 
                     switch ( mp.module )
                     {
                         case "pitchUp":
-                            var outFreq = voice.frequency;
-                            var tmpFreq = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                            outFreq += ( tmpFreq * ( mp.value / 100 ));
-                            voice.oscillator.frequency.value = outFreq;
-                            break;
-
                         case "pitchDown":
-                            var outFreq = voice.frequency;
-                            var tmpFreq = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                            outFreq = ( tmpFreq * ( mp.value / 100 ));
-                            voice.oscillator.frequency.value = outFreq;
+
+                            var tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
+                            var target = ( tmp * ( mp.value / 100 ));
+
+                            if ( mp.module === "pitchUp" )
+                                target += voice.frequency;
+
+                            var freq = voice.oscillator.frequency;
+                            freq.cancelScheduledValues( startTimeInSeconds );
+                            freq.setValueAtTime(( hasDuration ) ? freq.value : target, startTimeInSeconds );
+
+                            if ( hasDuration )
+                                freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
+
                             break;
                     }
                 }
