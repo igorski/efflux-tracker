@@ -83,10 +83,11 @@ NICE TO HAVES
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  * Add overdrive (npm: wa-overdrive)
  * When selecting notes in noteEntry popup sound note when making changes to note / octave
+ * Add setting saying that patterns copied across tracks are assigned to the tracks default instrument
  
 KNOWN BUGS
 ----------
 
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
- * When copy-pasting an existing pattern into a new pattern, the new pattern is silent
- * Cannot copy-paste module param instruction without note content
+ * When copy-pasting an existing pattern into a new pattern, the new pattern is silent (has to do with
+   start measure and measure offset!)

@@ -168,9 +168,9 @@ function handleReady()
             event = EventFactory.createAudioEvent();
 
         event.mp = data;
+        event.instrument = editorModel.activeInstrument;
 
         Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, event );
-        editorModel.activeInstrument = event.instrument; // save last added instrument as default
 //    }
     if ( typeof closeCallback === "function" )
         closeCallback();
