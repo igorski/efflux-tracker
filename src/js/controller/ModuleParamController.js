@@ -87,6 +87,21 @@ var ModuleParamController = module.exports =
                 case 13: // enter
                     handleReady();
                     break;
+
+                case 48: // 0 through 9
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 53:
+                case 54:
+                case 55:
+                case 56:
+                case 57:
+
+                    var num = parseFloat( String.fromCharCode( keyCode ));
+                    valueControl.value = ( num === 0 ) ? 100 : num * 10;
+                    break;
             }
         }
     }

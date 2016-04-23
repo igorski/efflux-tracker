@@ -68,7 +68,7 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Add modulator parameters to adjust modules from the tracker
+ * Add modulator parameters for: glide (uses duration, pitch should be instantaneously) instrument volume, filter toggle, filter freq, filter q, delay toggle, delay time,feedback,cutoff,offset
  * Move active pattern selectors to transport controls
  * Add Module Param editor button to controls list
  * Skin range inputs
