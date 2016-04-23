@@ -81,6 +81,7 @@ NICE TO HAVES
  * Improve arrow key navigation within patterns
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  * Add overdrive (npm: wa-overdrive)
+ * When selecting notes in noteEntry popup sound note when making changes to note / octave
  
 KNOWN BUGS
 ----------

@@ -28,7 +28,7 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var callback;
+var data, callback;
 
 var ModuleParamController = module.exports =
 {
@@ -45,11 +45,14 @@ var ModuleParamController = module.exports =
         tracker            = trackerRef;
         keyboardController = keyboardControllerRef;
 
-        element = document.createElement( "div" );
-        element.setAttribute( "id", "noteEntry" );
-        element.innerHTML = TemplateUtil.render( "moduleParamEntry" );
+        element = TemplateUtil.renderAsElement( "moduleParamEntry" );
 
         // grab view elements
+
+        // add listeners
+
+        element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+        element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
 
         // subscribe to messaging system
 
@@ -111,6 +114,10 @@ function handleOpen( options, completeCallback )
 {
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
 
+    data     = options;
+    callback = completeCallback;
+
+    keyboardController.setBlockDefaults( false );
     keyboardController.setListener( ModuleParamController );
 
     if ( !element.parentNode )

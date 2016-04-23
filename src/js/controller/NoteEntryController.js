@@ -47,9 +47,7 @@ var NoteEntryController = module.exports =
         tracker            = trackerRef;
         keyboardController = keyboardControllerRef;
 
-        element = document.createElement( "div" );
-        element.setAttribute( "id", "noteEntry" );
-        element.innerHTML = TemplateUtil.render( "noteEntry" );
+        element = TemplateUtil.renderAsElement( "noteEntry" );
 
         // grab view elements
 
@@ -180,6 +178,7 @@ function handleOpen( options, completeCallback )
     callback = completeCallback;
 
     keyboardController.setBlockDefaults( false );
+    keyboardController.setListener( NoteEntryController );
 
     setSelectedValueInList( noteList, data.note );
     setSelectedValueInList( octaveList, data.octave );
@@ -188,8 +187,6 @@ function handleOpen( options, completeCallback )
     selectedOctave = data.octave;
 
     Form.setSelectedOption( instrumentSelect, data.instrument );
-
-    keyboardController.setListener( NoteEntryController );
 
     if ( !element.parentNode )
         container.appendChild( element );

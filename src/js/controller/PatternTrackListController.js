@@ -495,6 +495,7 @@ function editStep()
 function editModuleParamsForStep()
 {
     var options = {};
+
     Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, [ options, function( data )
     {
         // restore interest in keyboard controller events
