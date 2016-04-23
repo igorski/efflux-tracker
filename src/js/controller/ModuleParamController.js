@@ -93,7 +93,7 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.OPEN_MODULE_PARAM_PANEL:
-            handleOpen( payload[ 0 ], payload[ 1 ]);
+            handleOpen( payload );
             break;
 
         case Messages.CLOSE_OVERLAYS:
@@ -107,14 +107,23 @@ function handleBroadcast( type, payload )
 /**
  * open module param entry pane
  *
- * @param {Object} options
  * @param {Function} completeCallback
  */
-function handleOpen( options, completeCallback )
+function handleOpen( completeCallback )
 {
+    var editorModel = tracker.EditorModel;
+    var pattern     = tracker.activeSong.patterns[ editorModel.activePattern ];
+    var channel     = pattern.channels[ editorModel.activeInstrument ];
+    var event       = channel[ editorModel.activeStep ];
+
+    data =
+    {
+        module : ( event && event.mp ) ? event.mp.module : "",
+        value  : ( event && event.mp ) ? event.mp.value  : 50
+    };
+
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
 
-    data          = options;
     closeCallback = completeCallback;
 
     keyboardController.setBlockDefaults( false );
@@ -134,14 +143,13 @@ function handleClose()
 
 function handleReady()
 {
-    if ( typeof closeCallback === "function" )
-    {
-        //data.instrument = Form.getSelectedOption( instrumentSelect );
-        //data.note       = getSelectedValueFromList( noteList );
-        //data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
+    data.instrument = Form.getSelectedOption( instrumentSelect );
+    data.note       = getSelectedValueFromList( noteList );
+    data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
 
+    if ( typeof closeCallback === "function" )
         closeCallback( data );
-    }
+
     dispose();
 }
 

@@ -155,7 +155,7 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.OPEN_NOTE_ENTRY_PANEL:
-            handleOpen( payload[ 0 ], payload[ 1 ]);
+            handleOpen( payload );
             break;
 
         case Messages.CLOSE_OVERLAYS:
@@ -169,14 +169,24 @@ function handleBroadcast( type, payload )
 /**
  * open note entry pane
  *
- * @param {Object} options
  * @param {Function} completeCallback
  */
-function handleOpen( options, completeCallback )
+function handleOpen( completeCallback )
 {
+    var editorModel = tracker.EditorModel;
+    var pattern     = tracker.activeSong.patterns[ editorModel.activePattern ];
+    var channel     = pattern.channels[ editorModel.activeInstrument ];
+    var event       = channel[ editorModel.activeStep ];
+
+    data =
+    {
+        instrument : ( event ) ? event.instrument : editorModel.activeInstrument,
+        note       : ( event ) ? event.note       : "C",
+        octave     : ( event ) ? event.octave     : 3
+    };
+
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
-    data          = options;
     closeCallback = completeCallback;
 
     keyboardController.setBlockDefaults( false );

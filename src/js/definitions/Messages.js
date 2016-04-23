@@ -37,8 +37,8 @@ module.exports =
     SET_CUSTOM_WAVEFORM       : 7,  // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
     OPEN_SONG_LIST            : 8,
     OPEN_SETTINGS_PANEL       : 9,
-    OPEN_NOTE_ENTRY_PANEL     : 10, // payload is Array [ options Object, callback Function ]
-    OPEN_MODULE_PARAM_PANEL   : 11, // payload is Array [ options Object, callback Function ]
+    OPEN_NOTE_ENTRY_PANEL     : 10, // payload is callback Function to be executed on panel close
+    OPEN_MODULE_PARAM_PANEL   : 11, // payload is callback Function to be executed on panel close
 
     // song messages
 

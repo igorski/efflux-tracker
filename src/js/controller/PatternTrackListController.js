@@ -450,33 +450,20 @@ function handleInteraction( aEvent )
 
 function editNoteForStep()
 {
-    var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
-    var channel = pattern.channels[ editorModel.activeInstrument ];
-    var event   = channel[ editorModel.activeStep ];
-
-    var options =
-    {
-        instrument : ( event ) ? event.instrument : editorModel.activeInstrument,
-        note       : ( event ) ? event.note       : "C",
-        octave     : ( event ) ? event.octave     : 3
-    };
-
-    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, [ options, function()
+    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, function()
     {
         // restore interest in keyboard controller events
         keyboardController.setListener( PatternTrackListController );
-    }]);
+    });
 }
 
 function editModuleParamsForStep()
 {
-    var options = {};
-
-    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, [ options, function()
+    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function()
     {
         // restore interest in keyboard controller events
         keyboardController.setListener( PatternTrackListController );
-    }]);
+    });
 }
 
 function addOffEvent()
