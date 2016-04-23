@@ -20,47 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config = require( "../config/Config" );
-
-/**
- * type definition for a single AudioEvent
- *
- * "id" is assigned by the AudioController at playback
- *
- * the "action" property is an enumeration describing the action of the note, e.g.:
- * 0 = nothing, 1 = noteOn, 2 = noteOff (kills previous note)
- *
- * the "recording" property describes whether the event is currently being
- * recorded (won't be played back by the SequencerController as it is being
- * played back via the MidiController)
- *
- * the "seq" Object defines the properties for playback within the
- * Sequencer and defines values in seconds
- *
- * the "mp" Object is optional and defines an optional parameter
- * change action on one of the instruments modules
- *
- * @typedef {{
- *              id: number,
- *              instrument: number,
- *              note: string,
- *              octave: number,
- *              action: number,
- *              recording: boolean,
- *              seq: {
- *                  playing: boolean,
- *                  startMeasure: number
- *                  startMeasureOffset: number,
- *                  endMeasure: number,
- *                  length: number
- *              },
- *              mp: {
- *                  module: string,
- *                  value: number
- *              }
- *          }}
- */
-var AUDIO_EVENT;
+var Config       = require( "../config/Config" ),
+    EventFactory = require( "./EventFactory" );
 
 /**
  * type definition for a pattern list
@@ -164,54 +125,6 @@ var PatternFactory = module.exports =
     },
 
     /**
-     * generates the (empty) content for a single Audio Event
-     *
-     * @public
-     *
-     * @param {number=} instrument optional index of the instrument to
-     *                  create the AudioEvent for
-     * @return {AUDIO_EVENT}
-     */
-    createAudioEvent : function( instrument )
-    {
-        return {
-            instrument : ( typeof instrument === "number" ) ? instrument : 0,
-            note       : "",
-            octave     : 0,
-            action     : 0,
-            recording  : false,
-            seq : {
-                playing            : false,
-                startMeasure       : 0,
-                startMeasureOffset : 0,
-                endMeasure         : 0,
-                length             : 0
-            }
-        };
-    },
-
-    /**
-     * generates a param change event for an instrument module
-     * can be nested inside an AUDIO_EVENT
-     *
-     * @public
-     *
-     * @param {string} module
-     * @param {number} value
-     * @return {{
-     *             module: string,
-     *             value: number
-     *         }}
-     */
-    createModuleParam : function( module, value )
-    {
-        return {
-            module : module,
-            value  : value
-        }
-    },
-
-    /**
      * clears the AudioEvent at requested step position in
      * the given channel for the given pattern
      *
@@ -250,7 +163,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
         i = amountOfSteps;
 
         while ( i-- )
-            channel[ i ] = PatternFactory.createAudioEvent();
+            channel[ i ] = EventFactory.createAudioEvent();
     });
     return out;
 }

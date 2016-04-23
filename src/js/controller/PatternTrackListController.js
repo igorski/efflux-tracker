@@ -25,6 +25,7 @@ var Config         = require( "../config/Config" );
 var Messages       = require( "../definitions/Messages" );
 var SelectionModel = require( "../model/SelectionModel" );
 var StateModel     = require( "../model/StateModel" );
+var EventFactory   = require( "../factory/EventFactory" );
 var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
 var EventUtil      = require( "../utils/EventUtil" );
@@ -476,7 +477,7 @@ function editNoteForStep()
             if ( EventUtil.isValid( data )) {
 
                 if ( !event )
-                    event = PatternFactory.createAudioEvent();
+                    event = EventFactory.createAudioEvent();
 
                 event.action     = 1; // noteOn
                 event.instrument = data.instrument;
@@ -508,9 +509,9 @@ function editModuleParamsForStep()
 
 function addOffEvent()
 {
-    var chokeEvent = PatternFactory.createAudioEvent();
-    chokeEvent.action = 2; // noteOff;
-    addEventAtCurrentPosition( chokeEvent );
+    var offEvent = EventFactory.createAudioEvent();
+    offEvent.action = 2; // noteOff;
+    addEventAtCurrentPosition( offEvent );
 }
 
 function handlePatternClear( aEvent )

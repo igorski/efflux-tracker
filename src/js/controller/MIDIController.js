@@ -20,17 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Time             = require( "../utils/Time" );
-var TemplateUtil     = require( "../utils/TemplateUtil" );
-var EventUtil        = require( "../utils/EventUtil" );
-var SongUtil         = require( "../utils/SongUtil" );
-var PatternFactory   = require( "../factory/PatternFactory" );
-var Pubsub           = require( "pubsub-js" );
-var Messages         = require( "../definitions/Messages" );
-var zMIDILib         = require( "zmidi" ),
-    zMIDI            = zMIDILib.zMIDI,
-    zMIDIEvent       = zMIDILib.zMIDIEvent,
-    MIDINotes        = zMIDILib.MIDINotes;
+var Time         = require( "../utils/Time" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var EventUtil    = require( "../utils/EventUtil" );
+var SongUtil     = require( "../utils/SongUtil" );
+var EventFactory = require( "../factory/EventFactory" );
+var Pubsub       = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
+var zMIDILib     = require( "zmidi" ),
+    zMIDI        = zMIDILib.zMIDI,
+    zMIDIEvent   = zMIDILib.zMIDIEvent,
+    MIDINotes    = zMIDILib.MIDINotes;
 
 /* private properties */
 
@@ -139,7 +139,7 @@ function handleMIDIMessage( aEvent )
 
             var instrumentId  = editorModel.activeInstrument;
             var instrument    = tracker.activeSong.instruments[ instrumentId ];
-            audioEvent        = PatternFactory.createAudioEvent( instrumentId );
+            audioEvent        = EventFactory.createAudioEvent( instrumentId );
             audioEvent.note   = pitch.note;
             audioEvent.octave = pitch.octave;
             audioEvent.action = 1; // noteOn
@@ -160,7 +160,7 @@ function handleMIDIMessage( aEvent )
                 audioController.noteOff( audioEvent.event, audioEvent.instrument );
 
                 if ( editorModel.recordingInput ) {
-                    var offEvent = PatternFactory.createAudioEvent( audioEvent.instrument.id );
+                    var offEvent = EventFactory.createAudioEvent( audioEvent.instrument.id );
                     offEvent.action = 2; // noteOff
                     recordEventIntoSong( offEvent );
                 }

@@ -1,11 +1,11 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai           = require( "chai" );
-var EventUtil      = require( "../../src/js/utils/EventUtil" );
-var MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
-var PatternFactory = require( "../../src/js/factory/PatternFactory" );
-var SongModel      = require( "../../src/js/model/SongModel" );
+var chai         = require( "chai" );
+var EventUtil    = require( "../../src/js/utils/EventUtil" );
+var MockBrowser  = require( "mock-browser" ).mocks.MockBrowser;
+var EventFactory = require( "../../src/js/factory/EventFactory" );
+var SongModel    = require( "../../src/js/model/SongModel" );
 
 describe( "EventUtil", function()
 {
@@ -53,7 +53,7 @@ describe( "EventUtil", function()
         var pattern     = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
 
@@ -86,7 +86,7 @@ describe( "EventUtil", function()
         var expectedEndMeasure         = 0;
         var expectedLength             = .5;
 
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 2, song.meta.tempo, expectedLength );
 
@@ -115,7 +115,7 @@ describe( "EventUtil", function()
         var expectedLength             = 4;  // duration is 4 seconds (2 measures at 120 BPM)
         var expectedEndMeasure         = 2;  // events duration exceeds 2 measures (each at 2s at 120 BPM)
 
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo, expectedLength );
 
@@ -134,14 +134,14 @@ describe( "EventUtil", function()
 
     it( "should not validate empty AudioEvents", function()
     {
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
         assert.notOk( EventUtil.isValid( audioEvent ),
             "expected empty AudioEvent not be valid" );
     });
 
     it( "should not validate AudioEvents with invalid data types", function()
     {
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
 
         audioEvent.instrument = "foo";
 
@@ -163,7 +163,7 @@ describe( "EventUtil", function()
 
     it( "should not validate AudioEvents with out of range data types", function()
     {
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
 
         audioEvent.instrument = 0;
         audioEvent.note       = "C";
@@ -180,7 +180,7 @@ describe( "EventUtil", function()
 
     it( "should validate AudioEvents with correct note data", function()
     {
-        var audioEvent = PatternFactory.createAudioEvent();
+        var audioEvent = EventFactory.createAudioEvent();
 
         audioEvent.instrument = 0;
         audioEvent.note       = "C";

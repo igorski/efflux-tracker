@@ -4,6 +4,7 @@
 var chai           = require( "chai" );
 var MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
 var SongModel      = require( "../../src/js/model/SongModel" );
+var EventFactory   = require( "../../src/js/factory/EventFactory" );
 var PatternFactory = require( "../../src/js/factory/PatternFactory" );
 var SongUtil       = require( "../../src/js/utils/SongUtil" );
 
@@ -57,7 +58,7 @@ describe( "SongUtil", function()
         // add a note to the first available slot in the firs
         // available channel of the first available pattern
 
-        var firstEvent    = PatternFactory.createAudioEvent();
+        var firstEvent    = EventFactory.createAudioEvent();
         firstEvent.action = 1;
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
@@ -80,7 +81,7 @@ describe( "SongUtil", function()
 
         // generate some events
 
-        var firstEvent    = PatternFactory.createAudioEvent();
+        var firstEvent    = EventFactory.createAudioEvent();
         firstEvent.action = 1;
         firstEvent.seq.startMeasureOffset = 10;
         firstEvent.seq.length             = 2.5;
@@ -88,7 +89,7 @@ describe( "SongUtil", function()
         var expectedOffset1 = firstEvent.seq.startMeasureOffset * ratio;
         var expectedLength1 = firstEvent.seq.length * ratio;
 
-        var secondEvent    = PatternFactory.createAudioEvent();
+        var secondEvent    = EventFactory.createAudioEvent();
         secondEvent.action = 1;
         secondEvent.seq.startMeasureOffset = 5;
         secondEvent.seq.length             = 1.5;
