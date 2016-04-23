@@ -38,6 +38,14 @@ var Config = require( "../config/Config" );
  *                  type        : string,
  *                  lfoType     : string,
  *                  enabled     : boolean
+ *              },
+ *              delay : {
+ *                  enabled  : boolean,
+ *                  type     : number,
+ *                  time     : number,
+ *                  feedback : number,
+ *                  cutoff   : number,
+ *                  offset   : number
  *              }
  *          }}
  */
@@ -98,13 +106,21 @@ var InstrumentFactory = module.exports =
             ],
             volume: 1,
             filter : {
+                enabled     : false,
                 frequency   : Config.DEFAULT_FILTER_FREQ,
                 q           : Config.DEFAULT_FILTER_Q,
                 speed       : Config.DEFAULT_FILTER_LFO_SPEED,
                 depth       : Config.DEFAULT_FILTER_LFO_DEPTH,
                 type        : "lowpass",
-                lfoType     : "off",
-                enabled     : false
+                lfoType     : "off"
+            },
+            delay : {
+                enabled  : false,
+                type     : 0,
+                time     : 0.5,
+                feedback : 0.5,
+                cutoff   : 880,
+                offset   : 0
             }
         };
     },

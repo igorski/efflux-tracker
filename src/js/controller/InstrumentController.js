@@ -30,11 +30,11 @@ var Pubsub        = require( "pubsub-js" );
 /* private properties */
 
 var container, tracker, keyboardController, view, canvas, wtDraw,
-    instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl,
+    instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
-    instrumentVolumeControl,
-    filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl;
+    filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
+    delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
 
@@ -58,6 +58,9 @@ var InstrumentController = module.exports =
         oscEnabledSelect        = view.querySelector( "#oscillatorEnabled" );
         oscWaveformSelect       = view.querySelector( "#oscillatorWaveformSelect" );
         oscVolumeControl        = view.querySelector( "#volume" );
+        instrumentVolumeControl = view.querySelector( "#instrumentVolume" );
+
+        // oscillator tuning
         detuneControl           = view.querySelector( "#detune" );
         octaveShiftControl      = view.querySelector( "#octaveShift" );
         fineShiftControl        = view.querySelector( "#fineShift" );
@@ -65,7 +68,8 @@ var InstrumentController = module.exports =
         decayControl            = view.querySelector( "#decay" );
         sustainControl          = view.querySelector( "#sustain" );
         releaseControl          = view.querySelector( "#release" );
-        instrumentVolumeControl = view.querySelector( "#instrumentVolume" );
+
+        // filter
         filterEnabledSelect     = view.querySelector( "#filterEnabled" );
         frequencyControl        = view.querySelector( "#filterFrequency" );
         qControl                = view.querySelector( "#filterQ" );
@@ -73,6 +77,14 @@ var InstrumentController = module.exports =
         filterSelect            = view.querySelector( "#filterType" );
         speedControl            = view.querySelector( "#filterSpeed" );
         depthControl            = view.querySelector( "#filterDepth" );
+
+        // delay
+        delayEnabledSelect   = view.querySelector( "#delayEnabled" );
+        delayTypeSelect      = view.querySelector( "#delayType" );
+        delayTimeControl     = view.querySelector( "#delayTime" );
+        delayFeedbackControl = view.querySelector( "#delayFeedback" );
+        delayCutoffControl   = view.querySelector( "#delayCutoff" );
+        delayOffsetControl   = view.querySelector( "#delayOffset" );
 
         canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
         canvas.setBackgroundColor( "#000000" );
@@ -109,6 +121,12 @@ var InstrumentController = module.exports =
         filterSelect.addEventListener       ( "change", handleFilterChange );
         [ frequencyControl, qControl, speedControl, depthControl ].forEach( function( control ) {
             control.addEventListener( "input", handleFilterChange );
+        });
+
+        delayEnabledSelect.addEventListener( "change", handleDelayChange );
+        delayTypeSelect.addEventListener   ( "change", handleDelayChange );
+        [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( function(control ) {
+            control.addEventListener( "input", handleDelayChange );
         });
 
         [ Messages.CLOSE_OVERLAYS, Messages.TOGGLE_INSTRUMENT_EDITOR ].forEach( function( msg )
@@ -161,13 +179,20 @@ var InstrumentController = module.exports =
 
         instrumentVolumeControl.value = instrumentRef.volume;
 
-        Form.setSelectedOption( filterEnabledSelect,  instrumentRef.filter.enabled );
-        Form.setSelectedOption( lfoSelect,    instrumentRef.filter.lfoType );
-        Form.setSelectedOption( filterSelect, instrumentRef.filter.type );
+        Form.setSelectedOption( filterEnabledSelect, instrumentRef.filter.enabled );
+        Form.setSelectedOption( lfoSelect,           instrumentRef.filter.lfoType );
+        Form.setSelectedOption( filterSelect,        instrumentRef.filter.type );
         frequencyControl.value = instrumentRef.filter.frequency;
         qControl.value         = instrumentRef.filter.q;
         speedControl.value     = instrumentRef.filter.speed;
         depthControl.value     = instrumentRef.filter.depth;
+
+        Form.setSelectedOption( delayEnabledSelect, instrumentRef.delay.enabled );
+        Form.setSelectedOption( delayTypeSelect,    instrumentRef.delay.type );
+        delayTimeControl.value     = instrumentRef.delay.time;
+        delayFeedbackControl.value = instrumentRef.delay.feedback;
+        delayCutoffControl.value   = instrumentRef.delay.cutoff;
+        delayOffsetControl.value   = instrumentRef.delay.offset + .5;
 
         canvas.invalidate();
     },
@@ -281,6 +306,20 @@ function handleFilterChange( aEvent )
     filter.enabled   = ( Form.getSelectedOption( filterEnabledSelect ) === "true" );
 
     Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrumentId, filter ]);
+}
+
+function handleDelayChange( aEvent )
+{
+    var delay = instrumentRef.delay;
+
+    delay.enabled  = ( Form.getSelectedOption( delayEnabledSelect ) === "true" );
+    delay.type     = parseFloat( Form.getSelectedOption( delayTypeSelect ));
+    delay.time     = delayTimeControl.value;
+    delay.feedback = delayFeedbackControl.value;
+    delay.cutoff   = delayCutoffControl.value;
+    delay.offset   = delayOffsetControl.value - .5;
+
+    Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS, [ instrumentId, delay ]);
 }
 
 function handleInstrumentSelect( aEvent )

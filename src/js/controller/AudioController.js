@@ -133,7 +133,8 @@ var AudioController = module.exports =
             Messages.ADJUST_OSCILLATOR_VOLUME,
             Messages.ADJUST_OSCILLATOR_WAVEFORM,
             Messages.ADJUST_INSTRUMENT_VOLUME,
-            Messages.UPDATE_FILTER_SETTINGS
+            Messages.UPDATE_FILTER_SETTINGS,
+            Messages.UPDATE_DELAY_SETTINGS
 
         ].forEach( function( msg ) {
             Pubsub.subscribe( msg, handleBroadcast );
@@ -359,24 +360,17 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.UPDATE_FILTER_SETTINGS:
-            var instrumentModule = instrumentModules[ payload[ 0 ]];
-            var filter = instrumentModule.filter;
-            var props  = payload[ 1 ];
+            AudioFactory.applyFilterConfiguration(
+                instrumentModules[ payload[ 0 ]],
+                payload[ 1 ], masterBus
+            );
+            break;
 
-            filter.filter.frequency.value = props.frequency;
-            filter.filter.Q.value         = props.q;
-
-            filter.lfo.frequency.value    = props.speed;
-            filter.lfoAmp.gain.value      = props.depth / 100 * props.frequency;
-
-            if ( props.lfoType !== "off" )
-                filter.lfo.type = props.lfoType;
-
-            filter.filter.type          = props.type;
-            filter.filter.filterEnabled = props.enabled;
-
-            AudioFactory.applyRouting( instrumentModule, masterBus );
-            AudioFactory.toggleFilterLFO( filter, props.lfoType !== "off" );
+        case Messages.UPDATE_DELAY_SETTINGS:
+            AudioFactory.applyDelayConfiguration(
+                instrumentModules[ payload[ 0 ]],
+                payload[ 1 ], masterBus
+            );
             break;
     }
 }
@@ -430,6 +424,7 @@ function applyModules()
         instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;
         Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
+        Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS,  [ instrument.id, instrument.delay ]);
     });
 }
 

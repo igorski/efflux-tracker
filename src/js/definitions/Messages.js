@@ -65,15 +65,16 @@ module.exports =
     ADJUST_OSCILLATOR_WAVEFORM : 26, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
     ADJUST_INSTRUMENT_VOLUME   : 27, // payload is Array [ instrument index, new volume ]
     UPDATE_FILTER_SETTINGS     : 28, // payload is Array [ instrument index, filter properties Object ]
-    EDIT_NOTE_AT_POSITION      : 29,
-    ADD_EVENT_AT_POSITION      : 30, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
-    ADD_OFF_AT_POSITION        : 31,
-    REMOVE_NOTE_AT_POSITION    : 32,
+    UPDATE_DELAY_SETTINGS      : 29, // payload is Array [ instrument index, delay properties Object ]
+    EDIT_NOTE_AT_POSITION      : 30,
+    ADD_EVENT_AT_POSITION      : 31, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
+    ADD_OFF_AT_POSITION        : 32,
+    REMOVE_NOTE_AT_POSITION    : 33,
 
     // MIDI messages
 
-    MIDI_CONNECT_TO_INTERFACE   : 33,
-    MIDI_ADD_LISTENER_TO_DEVICE : 34, // payload is device number (is MIDIInput list number)
-    MIDI_RECEIVED_INPUT_DEVICES : 35, // payload is Array.<MIDIInput>
-    MIDI_DEVICE_CONNECTED       : 36  // payload is device number (is MIDIInput list number)
+    MIDI_CONNECT_TO_INTERFACE   : 34,
+    MIDI_ADD_LISTENER_TO_DEVICE : 35, // payload is device number (is MIDIInput list number)
+    MIDI_RECEIVED_INPUT_DEVICES : 36, // payload is Array.<MIDIInput>
+    MIDI_DEVICE_CONNECTED       : 37  // payload is device number (is MIDIInput list number)
 };

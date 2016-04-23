@@ -153,28 +153,47 @@ var AudioFactory = module.exports =
     },
 
     /**
-     * toggle the on/off state of a FILTER_MODULE's LFO
+     * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
+     * onto a Filter module
      *
-     * @param {FILTER_MODULE} filterModule
-     * @param {boolean} enabled
+     * @param {Object} instrumentModule
+     * @param {Object} props
+     * @param {AudioParam} output
      */
-    toggleFilterLFO : function( filterModule, enabled )
+    applyFilterConfiguration : function( instrumentModule, props, output )
     {
-        if ( enabled )
+        var filter        = instrumentModule.filter;
+        var filterEnabled = ( props.lfoType !== "off" );
+
+        filter.filter.frequency.value = props.frequency;
+        filter.filter.Q.value         = props.q;
+
+        filter.lfo.frequency.value    = props.speed;
+        filter.lfoAmp.gain.value      = props.depth / 100 * props.frequency;
+
+        if ( filterEnabled )
+            filter.lfo.type = props.lfoType;
+
+        filter.filter.type   = props.type;
+        filter.filterEnabled = props.enabled;
+
+        AudioFactory.applyRouting( instrumentModule, output );
+
+        if ( filterEnabled )
         {
-            if ( !filterModule.lfoEnabled ) {
-                filterModule.lfo.connect( filterModule.lfoAmp );
-                filterModule.lfoEnabled = true;
+            if ( !filter.lfoEnabled ) {
+                filter.lfo.connect( filter.lfoAmp );
+                filter.lfoEnabled = true;
             }
         }
-        else if ( filterModule.lfoEnabled )
+        else if ( filter.lfoEnabled )
         {
-            filterModule.lfoEnabled = false;
+            filter.lfoEnabled = false;
 
             // we must dis- and reconnect to ensure the next noteOn works!
             // (AudioBufferSourceNode can only be played once)
 
-            filterModule.lfo.disconnect();
+            filter.lfo.disconnect();
         }
     },
 
@@ -200,6 +219,28 @@ var AudioFactory = module.exports =
     },
 
     /**
+     * apply a Delay configuration (see INSTRUMENT in InstrumentFactory)
+     * onto a Delay module
+     *
+     * @param {Object} instrumentModule
+     * @param {Object} props
+     * @param {AudioParam} output
+     */
+    applyDelayConfiguration : function( instrumentModule, props, output )
+    {
+        var delay = instrumentModule.delay.delay;
+
+        delay.type     = props.type;
+        delay.delay    = props.time;
+        delay.feedback = props.feedback;
+        delay.offset   = props.offset;
+        delay.cutoff   = props.cutoff;
+        instrumentModule.delay.delayEnabled = props.enabled;
+
+        AudioFactory.applyRouting( instrumentModule, output );
+    },
+
+    /**
      * apply the routing for the given instrument modules
      * (e.g. toggling devices on/off and connecting them
      * to the corresponding devices)
@@ -212,7 +253,7 @@ var AudioFactory = module.exports =
      *        }} modules
      * @param {AudioParam} output
      */
-    applyRouting: function( modules, output )
+    applyRouting : function( modules, output )
     {
         var moduleOutput = modules.output,
             filter       = modules.filter.filter,
@@ -224,10 +265,10 @@ var AudioFactory = module.exports =
 
         var route = [], lastModule = moduleOutput;
 
-        if ( filter.filterEnabled )
+        if ( modules.filter.filterEnabled )
             route.push( filter );
 
-        if ( delay.delayEnabled )
+        if ( modules.delay.delayEnabled )
             route.push( delay );
 
         route.push( output );
@@ -236,7 +277,7 @@ var AudioFactory = module.exports =
         route.forEach( function( mod )
         {
             input = ( mod instanceof Delay ) ? mod.input : mod; // Delay is special
-            lastModule.connect( mod );
+            lastModule.connect( input );
             lastModule = ( mod instanceof Delay ) ? mod.output : mod;
         });
     }

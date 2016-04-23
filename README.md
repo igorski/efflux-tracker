@@ -68,13 +68,11 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Implement delay
  * Add modulator parameters to adjust modules from the tracker
  * Song browser: show author and modified date, implement delete
  * Add pattern selectors to transport controls
  * Skin range inputs
  * Implement audio export
- * Add small fade-in to metronome beep
  * Create fixtures
  
 NICE TO HAVES
