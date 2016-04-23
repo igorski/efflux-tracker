@@ -296,7 +296,7 @@ var PatternTrackListController = module.exports =
                     }
                     break;
 
-                case 75: // K
+                case 79: // O
 
                     addOffEvent();
                     break;

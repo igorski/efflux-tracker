@@ -14,7 +14,7 @@ Feature list
 - Directly edit instrument output using the pattern editor
 - Copy / clone patterns for nice and easy arranging
 - Save songs locally to continue working on them later or export / import them between devices
-- Input notes using a MIDI controller
+- Input notes using a MIDI controller and/or record them live during playback
 
 Sounds cool, but I don't want to build from source, I just want to tinker with this!!
 -------------------------------------------------------------------------------------
@@ -70,10 +70,19 @@ TODO
 
  * Implement delay
  * Add modulator parameters to adjust modules from the tracker
+ * Song browser: show author and modified date, implement delete
+ * Add pattern selectors to transport controls
+ * Skin range inputs
  * Implement audio export
+ * Add small fade-in to metronome beep
+ * Create fixtures
+ 
+NICE TO HAVES
+-------------
+
  * Support mouse drag for selection
- * Song browser: show author and modified date
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
+ * Add overdrive (npm: wa-overdrive)
  
 KNOWN BUGS
 ----------

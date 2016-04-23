@@ -31,11 +31,13 @@ var Config = require( "../config/Config" );
  *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
  *              volume: number,
  *              filter : {
- *                  lfoEnabled : boolean,
- *                  frequency  : number,
- *                  q          : number,
- *                  speed      : number,
- *                  depth      : number
+ *                  frequency   : number,
+ *                  q           : number,
+ *                  speed       : number,
+ *                  depth       : number,
+ *                  type        : string,
+ *                  lfoType     : string,
+ *                  enabled     : boolean
  *              }
  *          }}
  */
@@ -101,7 +103,8 @@ var InstrumentFactory = module.exports =
                 speed       : Config.DEFAULT_FILTER_LFO_SPEED,
                 depth       : Config.DEFAULT_FILTER_LFO_DEPTH,
                 type        : "lowpass",
-                lfoType     : "off"
+                lfoType     : "off",
+                enabled     : false
             }
         };
     },

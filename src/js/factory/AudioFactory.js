@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var Config = require( "../config/Config" );
+var Delay  = require( "../third_party/Delay" );
 
 /* type definitions */
 
@@ -28,10 +29,20 @@ var Config = require( "../config/Config" );
  * @typedef {{
  *              filter: BiquadFilterNode,
  *              lfo: OscillatorNode,
- *              lfoAmp: GainNode
+ *              lfoAmp: GainNode,
+ *              lfoEnabled: boolean,
+ *              filterEnabled: boolean
  *          }}
  */
 var FILTER_MODULE;
+
+/**
+ * @typedef {{
+ *              delay: Delay,
+ *              delayEnabled: boolean
+ *          }}
+ */
+var DELAY_MODULE;
 
 /* private properties */
 
@@ -133,10 +144,11 @@ var AudioFactory = module.exports =
         filter.Q.value         = Config.DEFAULT_FILTER_Q;
 
         return {
-            filter     : filter,
-            lfo        : lfo,
-            lfoAmp     : lfoAmp,
-            lfoEnabled : false
+            filter        : filter,
+            lfo           : lfo,
+            lfoAmp        : lfoAmp,
+            lfoEnabled    : false,
+            filterEnabled : false
         };
     },
 
@@ -164,5 +176,68 @@ var AudioFactory = module.exports =
 
             filterModule.lfo.disconnect();
         }
+    },
+
+    /**
+     * @param {AudioContext} audioContext
+     * @return {DELAY_MODULE}
+     */
+    createDelay : function( audioContext )
+    {
+        var delay = new Delay( audioContext,
+        {
+            type: 0,
+            delay: 0.5,
+            feedback: 0.42,
+            offset: -0.027,
+            cutoff: 1200
+        });
+
+        return {
+            delay: delay,
+            delayEnabled: false
+        }
+    },
+
+    /**
+     * apply the routing for the given instrument modules
+     * (e.g. toggling devices on/off and connecting them
+     * to the corresponding devices)
+     *
+     * @param {{
+     *            filter: FILTER_MODULE,
+     *            delay: DELAY_MODULE,
+     *            output: AudioParam
+     *
+     *        }} modules
+     * @param {AudioParam} output
+     */
+    applyRouting: function( modules, output )
+    {
+        var moduleOutput = modules.output,
+            filter       = modules.filter.filter,
+            delay        = modules.delay.delay;
+
+        moduleOutput.disconnect();
+        filter.disconnect();
+        delay.output.disconnect();
+
+        var route = [], lastModule = moduleOutput;
+
+        if ( filter.filterEnabled )
+            route.push( filter );
+
+        if ( delay.delayEnabled )
+            route.push( delay );
+
+        route.push( output );
+
+        var input;
+        route.forEach( function( mod )
+        {
+            input = ( mod instanceof Delay ) ? mod.input : mod; // Delay is special
+            lastModule.connect( mod );
+            lastModule = ( mod instanceof Delay ) ? mod.output : mod;
+        });
     }
 };

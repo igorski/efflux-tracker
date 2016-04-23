@@ -34,7 +34,7 @@ var container, tracker, keyboardController, view, canvas, wtDraw,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
     instrumentVolumeControl,
-    frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl;
+    filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl;
 
 var activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
 
@@ -66,6 +66,7 @@ var InstrumentController = module.exports =
         sustainControl          = view.querySelector( "#sustain" );
         releaseControl          = view.querySelector( "#release" );
         instrumentVolumeControl = view.querySelector( "#instrumentVolume" );
+        filterEnabledSelect     = view.querySelector( "#filterEnabled" );
         frequencyControl        = view.querySelector( "#filterFrequency" );
         qControl                = view.querySelector( "#filterQ" );
         lfoSelect               = view.querySelector( "#filterLFO" );
@@ -103,8 +104,9 @@ var InstrumentController = module.exports =
 
         instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
 
-        lfoSelect.addEventListener   ( "change", handleFilterChange );
-        filterSelect.addEventListener( "change", handleFilterChange );
+        filterEnabledSelect.addEventListener( "change", handleFilterChange );
+        lfoSelect.addEventListener          ( "change", handleFilterChange );
+        filterSelect.addEventListener       ( "change", handleFilterChange );
         [ frequencyControl, qControl, speedControl, depthControl ].forEach( function( control ) {
             control.addEventListener( "input", handleFilterChange );
         });
@@ -159,6 +161,7 @@ var InstrumentController = module.exports =
 
         instrumentVolumeControl.value = instrumentRef.volume;
 
+        Form.setSelectedOption( filterEnabledSelect,  instrumentRef.filter.enabled );
         Form.setSelectedOption( lfoSelect,    instrumentRef.filter.lfoType );
         Form.setSelectedOption( filterSelect, instrumentRef.filter.type );
         frequencyControl.value = instrumentRef.filter.frequency;
@@ -275,6 +278,7 @@ function handleFilterChange( aEvent )
     filter.depth     = depthControl.value;
     filter.lfoType   = Form.getSelectedOption( lfoSelect );
     filter.type      = Form.getSelectedOption( filterSelect );
+    filter.enabled   = ( Form.getSelectedOption( filterEnabledSelect ) === "true" );
 
     Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrumentId, filter ]);
 }

@@ -359,7 +359,8 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.UPDATE_FILTER_SETTINGS:
-            var filter = instrumentModules[ payload[ 0 ]].filter;
+            var instrumentModule = instrumentModules[ payload[ 0 ]];
+            var filter = instrumentModule.filter;
             var props  = payload[ 1 ];
 
             filter.filter.frequency.value = props.frequency;
@@ -371,8 +372,10 @@ function handleBroadcast( type, payload )
             if ( props.lfoType !== "off" )
                 filter.lfo.type = props.lfoType;
 
-            filter.filter.type = props.type;
+            filter.filter.type          = props.type;
+            filter.filter.filterEnabled = props.enabled;
 
+            AudioFactory.applyRouting( instrumentModule, masterBus );
             AudioFactory.toggleFilterLFO( filter, props.lfoType !== "off" );
             break;
     }
@@ -408,12 +411,11 @@ function createModules()
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
     {
         module = instrumentModules[ i ] = {
-            output: AudioFactory.createGainNode( audioContext ),
-            filter: AudioFactory.createFilter( audioContext )
+            output : AudioFactory.createGainNode( audioContext ),
+            filter : AudioFactory.createFilter( audioContext ),
+            delay  : AudioFactory.createDelay( audioContext )
         };
-        // connect modules to output
-        module.output.connect( module.filter.filter );
-        module.filter.filter.connect( masterBus );
+        AudioFactory.applyRouting( module, masterBus );
     }
 }
 
