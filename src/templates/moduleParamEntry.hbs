@@ -1,9 +1,16 @@
 <div id="moduleParamEntry">
     <h4>Module Parameter Change editor</h4>
+    <ul class="moduleSelect">
+        <li data-value="pitch">pitch</li>
+    </ul>
+    <div class="wrapper input range">
+        <label for="moduleValue">Module value</label>
+        <input type="range" id="moduleValue" min="0" max="100" step="1" value="50">
+    </div>
     <div class="close-button">x</div>
     <p>
-        For fast editing: use the keyboard to type a note name and
-        octave number for easy pitch selection. Hit enter to confirm.
+        For fast editing: use the keyboard to type a module name and
+        numerical value for its parameter. Hit enter to confirm.
     </p>
     <button class="confirm-button">OK</button>
 </div>

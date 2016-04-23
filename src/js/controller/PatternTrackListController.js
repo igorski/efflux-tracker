@@ -465,29 +465,10 @@ function editNoteForStep()
         octave     : ( event ) ? event.octave     : 3
     };
 
-    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, [ options, function( data )
+    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, [ options, function()
     {
         // restore interest in keyboard controller events
         keyboardController.setListener( PatternTrackListController );
-
-        // update model and view
-
-        if ( data )
-        {
-            if ( EventUtil.isValid( data )) {
-
-                if ( !event )
-                    event = EventFactory.createAudioEvent();
-
-                event.action     = 1; // noteOn
-                event.instrument = data.instrument;
-                event.note       = data.note;
-                event.octave     = data.octave;
-
-                addEventAtCurrentPosition( event );
-                editorModel.activeInstrument = event.instrument; // save last added instrument as default
-            }
-        }
     }]);
 }
 
@@ -495,15 +476,10 @@ function editModuleParamsForStep()
 {
     var options = {};
 
-    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, [ options, function( data )
+    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, [ options, function()
     {
         // restore interest in keyboard controller events
         keyboardController.setListener( PatternTrackListController );
-
-        if ( data )
-        {
-            console.log("got shit?");
-        }
     }]);
 }
 

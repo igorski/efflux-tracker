@@ -21,6 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var TemplateUtil = require( "../utils/TemplateUtil" );
+var EventUtil    = require( "../utils/EventUtil" );
+var EventFactory = require( "../factory/EventFactory" );
 var Form         = require( "../utils/Form" );
 var Messages     = require( "../definitions/Messages" );
 var Pitch        = require( "../definitions/Pitch" );
@@ -29,7 +31,7 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var instrumentSelect, noteList, octaveList, data, callback;
+var instrumentSelect, noteList, octaveList, data, closeCallback;
 var selectedNote, selectedOctave;
 
 var NoteEntryController = module.exports =
@@ -174,8 +176,8 @@ function handleOpen( options, completeCallback )
 {
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
 
-    data     = options;
-    callback = completeCallback;
+    data          = options;
+    closeCallback = completeCallback;
 
     keyboardController.setBlockDefaults( false );
     keyboardController.setListener( NoteEntryController );
@@ -194,21 +196,40 @@ function handleOpen( options, completeCallback )
 
 function handleClose()
 {
-    if ( typeof callback === "function" )
-        callback( null );
+    if ( typeof closeCallback === "function" )
+        closeCallback();
 
     dispose();
 }
 
 function handleReady()
 {
-    if ( typeof callback === "function" )
-    {
-        data.instrument = parseFloat( Form.getSelectedOption( instrumentSelect ));
-        data.note       = getSelectedValueFromList( noteList );
-        data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
+    data.instrument = parseFloat( Form.getSelectedOption( instrumentSelect ));
+    data.note       = getSelectedValueFromList( noteList );
+    data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
 
-        callback( data );
+    // update model and view
+
+    if ( EventUtil.isValid( data )) {
+
+        var editorModel = tracker.EditorModel;
+        var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
+        var channel = pattern.channels[ editorModel.activeInstrument ];
+        var event   = channel[ editorModel.activeStep ];
+
+        if ( !event )
+            event = EventFactory.createAudioEvent();
+
+        event.action     = 1; // noteOn
+        event.instrument = data.instrument;
+        event.note       = data.note;
+        event.octave     = data.octave;
+
+        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, event );
+        editorModel.activeInstrument = event.instrument; // save last added instrument as default
+
+        if ( typeof closeCallback === "function" )
+            closeCallback();
     }
     dispose();
 }
@@ -220,7 +241,7 @@ function dispose()
     if ( element.parentNode ) {
         element.parentNode.removeChild( element );
     }
-    callback = null;
+    closeCallback = null;
 }
 
 /* note selection */

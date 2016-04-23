@@ -28,7 +28,7 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var data, callback;
+var data, closeCallback;
 
 var ModuleParamController = module.exports =
 {
@@ -114,8 +114,8 @@ function handleOpen( options, completeCallback )
 {
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
 
-    data     = options;
-    callback = completeCallback;
+    data          = options;
+    closeCallback = completeCallback;
 
     keyboardController.setBlockDefaults( false );
     keyboardController.setListener( ModuleParamController );
@@ -126,21 +126,21 @@ function handleOpen( options, completeCallback )
 
 function handleClose()
 {
-    if ( typeof callback === "function" )
-        callback( null );
+    if ( typeof closeCallback === "function" )
+        closeCallback( null );
 
     dispose();
 }
 
 function handleReady()
 {
-    if ( typeof callback === "function" )
+    if ( typeof closeCallback === "function" )
     {
         //data.instrument = Form.getSelectedOption( instrumentSelect );
         //data.note       = getSelectedValueFromList( noteList );
         //data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
 
-        callback( data );
+        closeCallback( data );
     }
     dispose();
 }
@@ -152,7 +152,7 @@ function dispose()
     if ( element.parentNode ) {
         element.parentNode.removeChild( element );
     }
-    callback = null;
+    closeCallback = null;
 }
 
 /* list functions */
