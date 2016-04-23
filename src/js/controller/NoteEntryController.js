@@ -204,7 +204,7 @@ function handleReady()
 {
     if ( typeof callback === "function" )
     {
-        data.instrument = Form.getSelectedOption( instrumentSelect );
+        data.instrument = parseFloat( Form.getSelectedOption( instrumentSelect ));
         data.note       = getSelectedValueFromList( noteList );
         data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
 

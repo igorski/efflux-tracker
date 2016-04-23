@@ -43,5 +43,21 @@ module.exports =
         audioEvent.seq.startMeasure       = patternNum;
         audioEvent.seq.startMeasureOffset = eventOffset;
         audioEvent.seq.endMeasure         = patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));
+    },
+
+    /**
+     * verify whether given AudioEvent is valid (e.g. has content)
+     *
+     * @public
+     * @param {AUDIO_EVENT} audioEvent
+     * @return {boolean}
+     */
+    isValid : function( audioEvent )
+    {
+        return (
+            typeof audioEvent.instrument === "number" && audioEvent.instrument  >= 0 &&
+            typeof audioEvent.note       === "string" && audioEvent.note.length > 0 &&
+            typeof audioEvent.octave     === "number" && audioEvent.octave > 0 && audioEvent.octave <= 8
+        );
     }
 };

@@ -131,4 +131,62 @@ describe( "EventUtil", function()
         assert.strictEqual( expectedLength, audioEvent.seq.length,
             "expected event duration to be " + expectedLength + " seconds" );
     });
+
+    it( "should not validate empty AudioEvents", function()
+    {
+        var audioEvent = PatternFactory.createAudioEvent();
+        assert.notOk( EventUtil.isValid( audioEvent ),
+            "expected empty AudioEvent not be valid" );
+    });
+
+    it( "should not validate AudioEvents with invalid data types", function()
+    {
+        var audioEvent = PatternFactory.createAudioEvent();
+
+        audioEvent.instrument = "foo";
+
+        assert.notOk( EventUtil.isValid( audioEvent ),
+            "expected AudioEvent not be valid as instrument was not of numeric type" );
+
+        audioEvent.instrument = 1;
+        audioEvent.note       = 2;
+
+        assert.notOk( EventUtil.isValid( audioEvent ),
+            "expected AudioEvent not be valid as note was not of string type" );
+
+        audioEvent.note   = "C";
+        audioEvent.octave = "bar";
+
+        assert.notOk( EventUtil.isValid( audioEvent ),
+            "expected AudioEvent not be valid as octave was not of number type" );
+    });
+
+    it( "should not validate AudioEvents with out of range data types", function()
+    {
+        var audioEvent = PatternFactory.createAudioEvent();
+
+        audioEvent.instrument = 0;
+        audioEvent.note       = "C";
+        audioEvent.octave     = 0;
+
+        assert.notOk( EventUtil.isValid( audioEvent ),
+            "expected AudioEvent not be valid as octave was below allowed threshold" );
+
+        audioEvent.octave = 9;
+
+        assert.notOk( EventUtil.isValid( audioEvent ),
+            "expected AudioEvent not be valid as octave was above allowed threshold" );
+    });
+
+    it( "should validate AudioEvents with correct note data", function()
+    {
+        var audioEvent = PatternFactory.createAudioEvent();
+
+        audioEvent.instrument = 0;
+        audioEvent.note       = "C";
+        audioEvent.octave     = 3;
+
+        assert.ok( EventUtil.isValid( audioEvent ),
+            "expected AudioEvent to contain valid note data" );
+    });
 });

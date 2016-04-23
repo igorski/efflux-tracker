@@ -220,7 +220,7 @@ var PatternTrackListController = module.exports =
                     break;
 
                 case 13: // enter
-                    editStep();
+                    editNoteForStep();
                     break;
 
                 case 8:  // backspace
@@ -340,7 +340,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.EDIT_NOTE_AT_POSITION:
-            editStep();
+            editNoteForStep();
             break;
 
         case Messages.ADD_EVENT_AT_POSITION:
@@ -440,7 +440,7 @@ function handleInteraction( aEvent )
                     if ( aEvent.type === "dblclick" ) {
 
                         aEvent.preventDefault();
-                        editStep();
+                        editNoteForStep();
                         found = true;
                     }
                     break;
@@ -451,7 +451,7 @@ function handleInteraction( aEvent )
     Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
 }
 
-function editStep()
+function editNoteForStep()
 {
     var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
     var channel = pattern.channels[ activeChannel ];
@@ -473,9 +473,7 @@ function editStep()
 
         if ( data )
         {
-            var valid = ( data.instrument !== "" && data.note !== "" && data.octave !== "" );
-
-            if ( valid ) {
+            if ( EventUtil.isValid( data )) {
 
                 if ( !event )
                     event = PatternFactory.createAudioEvent();

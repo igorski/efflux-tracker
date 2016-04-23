@@ -70,6 +70,7 @@ TODO
 
  * Add modulator parameters to adjust modules from the tracker
  * Move active pattern selectors to transport controls
+ * Add Module Param editor button to controls list
  * Skin range inputs
  * Implement audio export
  * Create fixtures
