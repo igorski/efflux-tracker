@@ -94,6 +94,11 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
 
         var cache = this.interactionCache;
 
+        // these have been observed to be floating point on Chrome for Android
+
+        aEventX = Math.round( aEventX );
+        aEventY = Math.round( aEventY );
+
         // smooth the surrounding coordinates to avoid sudden spikes
 
         if ( cache.x > -1 )
