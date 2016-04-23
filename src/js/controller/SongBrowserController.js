@@ -20,13 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Time     = require( "../utils/Time" );
-var Pubsub   = require( "pubsub-js" );
-var Messages = require( "../definitions/Messages" );
+var Time         = require( "../utils/Time" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var Messages     = require( "../definitions/Messages" );
+var Pubsub       = require( "pubsub-js" );
+var EventHandler = require( "zjslib" ).EventHandler;
 
 /* private properties */
 
-var container, tracker, keyboardController, list;
+var tracker, keyboardController,
+    container, list, closeBtn, handler;
 
 var SongBrowserController = module.exports =
 {
@@ -39,17 +42,20 @@ var SongBrowserController = module.exports =
      */
     init : function( containerRef, trackerRef, keyboardControllerRef )
     {
-        container          = containerRef;
         tracker            = trackerRef;
         keyboardController = keyboardControllerRef;
 
-        // create a list container to show the songs when loading
+        // append SongBrowser template to page, see CSS toggles for visibility
 
-        list = document.createElement( "ul" );
-        list.setAttribute( "id", "songList" );
-        containerRef.appendChild( list ); // see CSS for visibility toggles
+        containerRef.appendChild( TemplateUtil.renderAsElement( "songBrowser" ));
 
-        list.addEventListener( "click", handleSongClick );
+        container = containerRef.querySelector( "#songBrowser" );
+        list      = container.querySelector   ( ".songList" );
+        closeBtn  = container.querySelector   ( ".close" );
+
+        // add event listeners
+
+        closeBtn.addEventListener( "click", handleClose );
 
         // add message listeners
 
@@ -100,31 +106,67 @@ function handleOpen()
         return;
     }
 
+    // create an EventHandler to hold references to all listeners (allows easy instant cleanup)
+    disposeHandler();
+    handler = new EventHandler();
+
     songs.forEach( function( song )
     {
         li = document.createElement( "li" );
         li.setAttribute( "data-id", song.id );
-        li.innerHTML = "<span class='title'>" + song.meta.title + "</span><span class='date'>" + Time.timestampToDate( song.meta.created ) + "</span>";
+        li.innerHTML = "<span class='title'>" + song.meta.title + ", by " + song.meta.author + "</span>" +
+            "<span class='date'>" + Time.timestampToDate( song.meta.modified ) + "</span>" +
+            "<span class='delete'>x</span>";
 
         list.appendChild( li );
+
+        handler.addEventListener( li, "click", handleSongOpenClick );
+        handler.addEventListener( li.querySelector( ".delete" ), "click", handleSongDeleteClick );
     });
 
-    list.classList.add( "active" );
+    container.classList.add( "active" );
 
     keyboardController.setListener( SongBrowserController );
 }
 
-function handleSongClick( aEvent )
+function handleClose()
 {
-    if ( aEvent.target.nodeName === "LI" )
-    {
-        var id = aEvent.target.getAttribute( "data-id" );
-        Pubsub.publishSync( Messages.LOAD_SONG, id );
-        list.classList.remove( "active" );
+    disposeHandler();
+    container.classList.remove( "active" );
+}
+
+function handleSongOpenClick( aEvent )
+{
+    var id = aEvent.target.getAttribute( "data-id" );
+    Pubsub.publishSync( Messages.LOAD_SONG, id );
+    container.classList.remove( "active" );
+}
+
+function handleSongDeleteClick( aEvent )
+{
+    var id        = aEvent.target.parentNode.getAttribute( "data-id"),
+        songModel = tracker.SongModel,
+        song      = songModel.getSongById( id );
+
+    if ( !song )
+        return;
+
+    var doDelete = confirm( "Are you sure you want to delete song '" + song.meta.title + "' ? This operation cannot be undone." );
+
+    if ( doDelete ) {
+        songModel.deleteSong( song );
+        Pubsub.publishSync( Messages.OPEN_SONG_LIST ); // refresh list
     }
 }
 
-function handleClose()
+/**
+ * frees all event handlers attached to the created
+ * SongBrowser DOM elements so they can be garbage collected
+ */
+function disposeHandler()
 {
-    list.classList.remove( "active" );
+    if ( handler ) {
+        handler.dispose();
+        handler = null;
+    }
 }

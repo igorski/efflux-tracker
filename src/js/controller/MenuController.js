@@ -52,10 +52,10 @@ var MenuController = module.exports =
 
         // grab references to elements in the template
 
-        containerRef.querySelector( "#songLoad"  ).addEventListener( "click", handleLoad );
-        containerRef.querySelector( "#songSave"  ).addEventListener( "click", handleSave );
-        containerRef.querySelector( "#songReset" ).addEventListener( "click", handleReset );
-        containerRef.querySelector( "#settingsBtn" ).addEventListener( "click",  handleSettings );
+        containerRef.querySelector( "#songLoad"  ).addEventListener( "click",   handleLoad );
+        containerRef.querySelector( "#songSave"  ).addEventListener( "click",   handleSave );
+        containerRef.querySelector( "#songReset" ).addEventListener( "click",   handleReset );
+        containerRef.querySelector( "#settingsBtn" ).addEventListener( "click", handleSettings );
 
         if ( canImportExport ) {
 
@@ -163,6 +163,7 @@ function handleReset( aEvent )
 
 function handleSettings( aEvent )
 {
+    Pubsub.publish( Messages.CLOSE_OVERLAYS, MenuController ); // close open overlays
     Pubsub.publish( Messages.OPEN_SETTINGS_PANEL );
 }
 

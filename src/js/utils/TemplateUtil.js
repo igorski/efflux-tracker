@@ -53,7 +53,7 @@ Handlebars.registerHelper( "loop", function( n, block )
     return out;
 });
 
-module.exports =
+var TemplateUtil = module.exports =
 {
     /**
      * render a template using Handlebars
@@ -70,5 +70,25 @@ module.exports =
             return templates[ templateName ]( data );
 
         return "";
+    },
+
+    /**
+     * render a template using Handlebars and return an Element
+     *
+     * @param {string} templateName
+     * @param {Object=} data optional data to pass to the template
+     *
+     * @return {Element}
+     */
+    renderAsElement : function( templateName, data )
+    {
+        var html    = TemplateUtil.render( templateName, data );
+        var element = document.createElement( "div" );
+        element.setAttribute( "class", templateName + "-wrapper" );
+
+        if ( html.length > 0 )
+            element.innerHTML = html;
+
+        return element;
     }
 };

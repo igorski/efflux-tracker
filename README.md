@@ -69,8 +69,7 @@ TODO
 ----
 
  * Add modulator parameters to adjust modules from the tracker
- * Song browser: show author and modified date, implement delete
- * Add pattern selectors to transport controls
+ * Move active pattern selectors to transport controls
  * Skin range inputs
  * Implement audio export
  * Create fixtures
@@ -78,7 +77,8 @@ TODO
 NICE TO HAVES
 -------------
 
- * Support mouse drag for selection
+ * Support mouse / touch drag for selection
+ * Improve arrow key navigation within patterns
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  * Add overdrive (npm: wa-overdrive)
  

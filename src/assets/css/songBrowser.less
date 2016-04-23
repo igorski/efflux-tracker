@@ -1,14 +1,17 @@
-#songList {
+@songBrowserWidth: 500px;
+@songBrowserHeight: 500px;
+
+#songBrowser {
   border-radius: 14px;
   box-shadow: 0 0 7px rgba(0,0,0,.5);
   padding: 0;
   position: fixed;
   top: 50%;
   left: 50%;
-  width: 500px;
-  margin-left: -250px;
-  height: 500px;
-  margin-top: -250px;
+  width: @songBrowserWidth;
+  margin-left: -( @songBrowserWidth / 2 );
+  height: @songBrowserHeight;
+  margin-top: -( @songBrowserHeight / 2 );
   overflow: scroll;
   background-color: #FFF;
   color: #000;
@@ -16,6 +19,32 @@
   overflow-x: hidden;
   overflow-y: auto;
   .noSelect;
+
+  .header {
+
+    padding: 1em;
+    .boxSize;
+    background-color: @color-highlight;
+    float: left;
+    width: 100%;
+
+    h2 {
+      float: left;
+      margin: 0;
+      color: #000;
+    }
+
+    .close {
+      float: right;
+      cursor: pointer;
+      font-weight: bold;
+    }
+  }
+
+  ul {
+    width: 100%;
+    list-style-type: none;
+  }
 
   li {
     float: left;
@@ -27,15 +56,24 @@
     border-bottom: 1px solid #53565c;
     font-family: Montserrat, Helvetica, sans-serif;
 
+    .title, .date, .delete {
+      display: inline-block;
+    }
+
     .title, .date {
       .noEvents;
     }
 
     .title {
-      float: left;
+      width: 55%;
     }
+
     .date {
-      float: right;
+      width: 40%;
+    }
+
+    .delete {
+      width: 5%;
     }
 
     &:nth-child(even) {
@@ -53,9 +91,9 @@
   }
 }
 
-@media screen and ( max-width: @mobile-width )
+@media screen and ( max-width: @songBrowserWidth )
 {
-  #songList {
+  #songBrowser {
     top: 0;
     left: 0;
     width: 100%;
