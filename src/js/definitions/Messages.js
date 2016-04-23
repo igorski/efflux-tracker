@@ -37,44 +37,46 @@ module.exports =
     SET_CUSTOM_WAVEFORM       : 7,  // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
     OPEN_SONG_LIST            : 8,
     OPEN_SETTINGS_PANEL       : 9,
+    OPEN_NOTE_ENTRY_PANEL     : 10, // payload is Array [ options Object, callback Function ]
+    OPEN_MODULE_PARAM_PANEL   : 11, // payload is Array [ options Object, callback Function ]
 
     // song messages
 
-    LOAD_SONG                 : 10,  // payload consists of the Song that has been loaded
-    SONG_LOADED               : 11,  // payload consists of the Song that has been loaded
-    REFRESH_SONG              : 12,
-    REFRESH_PATTERN_VIEW      : 13,
-    PATTERN_SWITCH            : 14,  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : 15,
-    PATTERN_STEPS_UPDATED     : 16, // payload consists of number describing new pattern length
+    LOAD_SONG                 : 12,  // payload consists of the Song that has been loaded
+    SONG_LOADED               : 13,  // payload consists of the Song that has been loaded
+    REFRESH_SONG              : 14,
+    REFRESH_PATTERN_VIEW      : 15,
+    PATTERN_SWITCH            : 16,  // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED    : 17,
+    PATTERN_STEPS_UPDATED     : 18,  // payload consists of number describing new pattern length
 
     // sequencer messages
 
-    TOGGLE_SEQUENCER_PLAYSTATE : 17,
-    PLAYBACK_STARTED           : 18,
-    PLAYBACK_STOPPED           : 19,
-    SET_SEQUENCER_POSITION     : 20, // payload is number describing new measure position
-    RECORDING_COMPLETE         : 21,
-    TEMPO_UPDATED              : 22, // payload is Array [ old tempo, new tempo ]
-    STEP_POSITION_REACHED      : 23, // payload is Array [ current step position, total step positions (per measure) ]
+    TOGGLE_SEQUENCER_PLAYSTATE : 19,
+    PLAYBACK_STARTED           : 20,
+    PLAYBACK_STOPPED           : 21,
+    SET_SEQUENCER_POSITION     : 22, // payload is number describing new measure position
+    RECORDING_COMPLETE         : 23,
+    TEMPO_UPDATED              : 24, // payload is Array [ old tempo, new tempo ]
+    STEP_POSITION_REACHED      : 25, // payload is Array [ current step position, total step positions (per measure) ]
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING   : 24, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME   : 25, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_WAVEFORM : 26, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_INSTRUMENT_VOLUME   : 27, // payload is Array [ instrument index, new volume ]
-    UPDATE_FILTER_SETTINGS     : 28, // payload is Array [ instrument index, filter properties Object ]
-    UPDATE_DELAY_SETTINGS      : 29, // payload is Array [ instrument index, delay properties Object ]
-    EDIT_NOTE_AT_POSITION      : 30,
-    ADD_EVENT_AT_POSITION      : 31, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
-    ADD_OFF_AT_POSITION        : 32,
-    REMOVE_NOTE_AT_POSITION    : 33,
+    ADJUST_OSCILLATOR_TUNING   : 26, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME   : 27, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_WAVEFORM : 28, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_INSTRUMENT_VOLUME   : 29, // payload is Array [ instrument index, new volume ]
+    UPDATE_FILTER_SETTINGS     : 30, // payload is Array [ instrument index, filter properties Object ]
+    UPDATE_DELAY_SETTINGS      : 31, // payload is Array [ instrument index, delay properties Object ]
+    EDIT_NOTE_AT_POSITION      : 32,
+    ADD_EVENT_AT_POSITION      : 33, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
+    ADD_OFF_AT_POSITION        : 34,
+    REMOVE_NOTE_AT_POSITION    : 35,
 
     // MIDI messages
 
-    MIDI_CONNECT_TO_INTERFACE   : 34,
-    MIDI_ADD_LISTENER_TO_DEVICE : 35, // payload is device number (is MIDIInput list number)
-    MIDI_RECEIVED_INPUT_DEVICES : 36, // payload is Array.<MIDIInput>
-    MIDI_DEVICE_CONNECTED       : 37  // payload is device number (is MIDIInput list number)
+    MIDI_CONNECT_TO_INTERFACE   : 36,
+    MIDI_ADD_LISTENER_TO_DEVICE : 37, // payload is device number (is MIDIInput list number)
+    MIDI_RECEIVED_INPUT_DEVICES : 39, // payload is Array.<MIDIInput>
+    MIDI_DEVICE_CONNECTED       : 40  // payload is device number (is MIDIInput list number)
 };

@@ -29,6 +29,7 @@ var KeyboardController         = require( "./controller/KeyboardController" );
 var MenuController             = require( "./controller/MenuController" );
 var MetaController             = require( "./controller/MetaController" );
 var MidiController             = require( "./controller/MidiController" );
+var ModuleParamController      = require( "./controller/ModuleParamController" );
 var NoteEntryController        = require( "./controller/NoteEntryController" );
 var NotificationController     = require( "./controller/NotificationController" );
 var PatternEditorController    = require( "./controller/PatternEditorController" );
@@ -87,11 +88,12 @@ var tracker;
     SequencerController.init( container.querySelector( "#transportSection" ), tracker, AudioController );
     SongBrowserController.init( document.body, tracker, KeyboardController );
     NoteEntryController.init( container, tracker, KeyboardController );
+    ModuleParamController.init( container, tracker, KeyboardController );
     NotificationController.init( container );
     PatternEditorController.init( container.querySelector( "#patternEditor" ));
     PatternTrackListController.init(
         container.querySelector( "#patternContainer" ),
-        tracker, KeyboardController, NoteEntryController
+        tracker, KeyboardController
     );
     HelpController.init( container.querySelector( "#helpSection" ), tracker );
     SystemController.init();

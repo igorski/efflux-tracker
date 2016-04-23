@@ -37,6 +37,9 @@ var Config = require( "../config/Config" );
  * the "seq" Object defines the properties for playback within the
  * Sequencer and defines values in seconds
  *
+ * the "mp" Object is optional and defines an optional parameter
+ * change action on one of the instruments modules
+ *
  * @typedef {{
  *              id: number,
  *              instrument: number,
@@ -50,6 +53,10 @@ var Config = require( "../config/Config" );
  *                  startMeasureOffset: number,
  *                  endMeasure: number,
  *                  length: number
+ *              },
+ *              mp: {
+ *                  module: string,
+ *                  value: number
  *              }
  *          }}
  */
@@ -168,11 +175,11 @@ var PatternFactory = module.exports =
     createAudioEvent : function( instrument )
     {
         return {
-            instrument: ( typeof instrument === "number" ) ? instrument : 0,
-            note: "",
-            octave: 0,
-            action: 0,
-            recording: false,
+            instrument : ( typeof instrument === "number" ) ? instrument : 0,
+            note       : "",
+            octave     : 0,
+            action     : 0,
+            recording  : false,
             seq : {
                 playing            : false,
                 startMeasure       : 0,
@@ -181,6 +188,27 @@ var PatternFactory = module.exports =
                 length             : 0
             }
         };
+    },
+
+    /**
+     * generates a param change event for an instrument module
+     * can be nested inside an AUDIO_EVENT
+     *
+     * @public
+     *
+     * @param {string} module
+     * @param {number} value
+     * @return {{
+     *             module: string,
+     *             value: number
+     *         }}
+     */
+    createModuleParam : function( module, value )
+    {
+        return {
+            module : module,
+            value  : value
+        }
     },
 
     /**

@@ -33,10 +33,9 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var wrapper, container, tracker, editorModel, noteEntryController, keyboardController;
-var activeChannel = 0, maxChannel = 0,
-    minPatternSelect = 0, maxPatternSelect = 0, interactionData = {}, stateModel, selectionModel,
-    patternCopy, positionTitle, stepSelect;
+var wrapper, container, tracker, editorModel, keyboardController;
+var activeChannel = 0, maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
+    stateModel, selectionModel, patternCopy, positionTitle, stepSelect;
 
 var PATTERN_WIDTH = 150; // width of a single track/pattern column
 
@@ -48,14 +47,12 @@ var PatternTrackListController = module.exports =
      * @param containerRef
      * @param trackerRef
      * @param keyboardControllerRef
-     * @param noteEntryControllerRef
      */
-    init : function( containerRef, trackerRef, keyboardControllerRef, noteEntryControllerRef )
+    init : function( containerRef, trackerRef, keyboardControllerRef )
     {
-        tracker             = trackerRef;
-        editorModel         = tracker.EditorModel;
-        keyboardController  = keyboardControllerRef;
-        noteEntryController = noteEntryControllerRef;
+        tracker            = trackerRef;
+        editorModel        = tracker.EditorModel;
+        keyboardController = keyboardControllerRef;
 
         container     = containerRef;
         wrapper       = containerRef.querySelector( ".wrapper" );
@@ -296,6 +293,10 @@ var PatternTrackListController = module.exports =
                     }
                     break;
 
+                case 77: // M
+                    editModuleParamsForStep();
+                    break;
+
                 case 79: // O
 
                     addOffEvent();
@@ -463,7 +464,7 @@ function editStep()
         octave     : ( event ) ? event.octave     : 3
     };
 
-    noteEntryController.open( options, function( data )
+    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, [ options, function( data )
     {
         // restore interest in keyboard controller events
         keyboardController.setListener( PatternTrackListController );
@@ -488,7 +489,22 @@ function editStep()
                 editorModel.activeInstrument = event.instrument; // save last added instrument as default
             }
         }
-    });
+    }]);
+}
+
+function editModuleParamsForStep()
+{
+    var options = {};
+    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, [ options, function( data )
+    {
+        // restore interest in keyboard controller events
+        keyboardController.setListener( PatternTrackListController );
+
+        if ( data )
+        {
+            console.log("got shit?");
+        }
+    }]);
 }
 
 function addOffEvent()

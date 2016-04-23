@@ -70,40 +70,16 @@ var NoteEntryController = module.exports =
         element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
         element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
 
-        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
+        // subscribe to messaging system
+
+        [
+            Messages.OPEN_NOTE_ENTRY_PANEL,
+            Messages.CLOSE_OVERLAYS
+
+        ].forEach( function( msg )
         {
-            if ( payload !== NoteEntryController )
-                handleClose();
+            Pubsub.subscribe( msg, handleBroadcast );
         });
-    },
-
-    /**
-     * open note entry pane
-     *
-     * @param {Object} options
-     * @param {Function} completeCallback
-     */
-    open : function( options, completeCallback )
-    {
-        Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
-
-        data     = options;
-        callback = completeCallback;
-
-        keyboardController.setBlockDefaults( false );
-
-        setSelectedValueInList( noteList, data.note );
-        setSelectedValueInList( octaveList, data.octave );
-
-        selectedNote = data.note;
-        selectedOctave = data.octave;
-
-        Form.setSelectedOption( instrumentSelect, data.instrument );
-
-        keyboardController.setListener( NoteEntryController );
-
-        if ( !element.parentNode )
-            container.appendChild( element );
     },
 
     /* event handlers */
@@ -173,6 +149,51 @@ var NoteEntryController = module.exports =
 };
 
 /* private methods */
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case Messages.OPEN_NOTE_ENTRY_PANEL:
+            handleOpen( payload[ 0 ], payload[ 1 ]);
+            break;
+
+        case Messages.CLOSE_OVERLAYS:
+
+            if ( payload !== NoteEntryController )
+                handleClose();
+            break;
+    }
+}
+
+/**
+ * open note entry pane
+ *
+ * @param {Object} options
+ * @param {Function} completeCallback
+ */
+function handleOpen( options, completeCallback )
+{
+    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
+
+    data     = options;
+    callback = completeCallback;
+
+    keyboardController.setBlockDefaults( false );
+
+    setSelectedValueInList( noteList, data.note );
+    setSelectedValueInList( octaveList, data.octave );
+
+    selectedNote = data.note;
+    selectedOctave = data.octave;
+
+    Form.setSelectedOption( instrumentSelect, data.instrument );
+
+    keyboardController.setListener( NoteEntryController );
+
+    if ( !element.parentNode )
+        container.appendChild( element );
+}
 
 function handleClose()
 {

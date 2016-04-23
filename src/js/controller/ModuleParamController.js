@@ -23,19 +23,17 @@
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Form         = require( "../utils/Form" );
 var Messages     = require( "../definitions/Messages" );
-var Pitch        = require( "../definitions/Pitch" );
 var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var instrumentSelect, noteList, octaveList, data, callback;
-var selectedNote, selectedOctave;
+var callback;
 
-var NoteEntryController = module.exports =
+var ModuleParamController = module.exports =
 {
     /**
-     * initialize NoteEntryController
+     * initialize ModuleParamController
      *
      * @param containerRef
      * @param trackerRef
@@ -49,61 +47,20 @@ var NoteEntryController = module.exports =
 
         element = document.createElement( "div" );
         element.setAttribute( "id", "noteEntry" );
-        element.innerHTML = TemplateUtil.render( "noteEntry" );
+        element.innerHTML = TemplateUtil.render( "moduleParamEntry" );
 
         // grab view elements
 
-        instrumentSelect = element.querySelector( "#instrument" );
+        // subscribe to messaging system
 
-        // initialize keyboard and octave selectors
+        [
+            Messages.OPEN_MODULE_PARAM_PANEL,
+            Messages.CLOSE_OVERLAYS
 
-        var keyboard = element.querySelector( "#keyboardNotes" );
-        noteList     = keyboard.querySelectorAll( "li" );
-        keyboard.addEventListener( "click", handleKeyboardClick );
-
-        var octaves = element.querySelector( "#octaves" );
-        octaveList  = octaves.querySelectorAll( "li" );
-        octaves.addEventListener( "click", handleOctaveClick );
-
-        // add listeners
-
-        element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
-        element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
-
-        Pubsub.subscribe( Messages.CLOSE_OVERLAYS, function( type, payload )
+        ].forEach( function( msg )
         {
-            if ( payload !== NoteEntryController )
-                handleClose();
+            Pubsub.subscribe( msg, handleBroadcast );
         });
-    },
-
-    /**
-     * open note entry pane
-     *
-     * @param {Object} options
-     * @param {Function} completeCallback
-     */
-    open : function( options, completeCallback )
-    {
-        Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
-
-        data     = options;
-        callback = completeCallback;
-
-        keyboardController.setBlockDefaults( false );
-
-        setSelectedValueInList( noteList, data.note );
-        setSelectedValueInList( octaveList, data.octave );
-
-        selectedNote = data.note;
-        selectedOctave = data.octave;
-
-        Form.setSelectedOption( instrumentSelect, data.instrument );
-
-        keyboardController.setListener( NoteEntryController );
-
-        if ( !element.parentNode )
-            container.appendChild( element );
     },
 
     /* event handlers */
@@ -121,58 +78,44 @@ var NoteEntryController = module.exports =
                 case 13: // enter
                     handleReady();
                     break;
-
-                /* notes */
-
-                case 67: // C
-                    selectedNote = ( selectedNote === "C" ) ? "C#" : "C"; // jump between C and C#
-                    setSelectedValueInList( noteList, selectedNote );
-                    break;
-
-                case 68: // D
-                    selectedNote = ( selectedNote === "D" ) ? "D#" : "D"; // jump between D and D#
-                    setSelectedValueInList( noteList, selectedNote );
-                    break;
-
-                case 69: // E
-                    setSelectedValueInList( noteList, selectedNote = "E" );
-                    break;
-
-                case 70: // F
-                    selectedNote = ( selectedNote === "F" ) ? "F#" : "F"; // jump between F and F#
-                    setSelectedValueInList( noteList, selectedNote );
-                    break;
-
-                case 71: // G
-                    selectedNote = ( selectedNote === "G" ) ? "G#" : "G"; // jump between C and C#
-                    setSelectedValueInList( noteList, selectedNote );
-                    break;
-
-                case 65: // A
-                    selectedNote = ( selectedNote === "A" ) ? "A#" : "A"; // jump between A and A#
-                    setSelectedValueInList( noteList, selectedNote );
-                    break;
-
-                case 66: // B
-                    setSelectedValueInList( noteList, selectedNote = "B" );
-                    break;
-
-                /* octaves */
-
-                case 49: setSelectedValueInList( octaveList, 1 ); break;
-                case 50: setSelectedValueInList( octaveList, 2 ); break;
-                case 51: setSelectedValueInList( octaveList, 3 ); break;
-                case 52: setSelectedValueInList( octaveList, 4 ); break;
-                case 53: setSelectedValueInList( octaveList, 5 ); break;
-                case 54: setSelectedValueInList( octaveList, 6 ); break;
-                case 55: setSelectedValueInList( octaveList, 7 ); break;
-                case 56: setSelectedValueInList( octaveList, 8 ); break;
             }
         }
     }
 };
 
 /* private methods */
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case Messages.OPEN_MODULE_PARAM_PANEL:
+            handleOpen( payload[ 0 ], payload[ 1 ]);
+            break;
+
+        case Messages.CLOSE_OVERLAYS:
+
+            if ( payload !== ModuleParamController )
+                handleClose();
+            break;
+    }
+}
+
+/**
+ * open module param entry pane
+ *
+ * @param {Object} options
+ * @param {Function} completeCallback
+ */
+function handleOpen( options, completeCallback )
+{
+    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
+
+    keyboardController.setListener( ModuleParamController );
+
+    if ( !element.parentNode )
+        container.appendChild( element );
+}
 
 function handleClose()
 {
@@ -186,9 +129,9 @@ function handleReady()
 {
     if ( typeof callback === "function" )
     {
-        data.instrument = Form.getSelectedOption( instrumentSelect );
-        data.note       = getSelectedValueFromList( noteList );
-        data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
+        //data.instrument = Form.getSelectedOption( instrumentSelect );
+        //data.note       = getSelectedValueFromList( noteList );
+        //data.octave     = parseFloat( getSelectedValueFromList( octaveList ));
 
         callback( data );
     }
@@ -203,28 +146,6 @@ function dispose()
         element.parentNode.removeChild( element );
     }
     callback = null;
-}
-
-/* note selection */
-
-function handleKeyboardClick( aEvent )
-{
-    var target = aEvent.target;
-    if ( target.nodeName === "LI" ) {
-        selectedNote = target.getAttribute( "data-value" );
-        setSelectedValueInList( noteList, selectedNote );
-    }
-}
-
-/* octave select */
-
-function handleOctaveClick( aEvent )
-{
-    var target = aEvent.target;
-    if ( target.nodeName === "LI" ) {
-        selectedOctave = target.getAttribute( "data-value" );
-        setSelectedValueInList( octaveList, selectedOctave );
-    }
 }
 
 /* list functions */
