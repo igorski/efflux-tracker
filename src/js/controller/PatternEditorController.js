@@ -45,9 +45,10 @@ module.exports =
 
         // grab references to elements
 
-        container.querySelector( ".addNote" ).addEventListener   ( "click", handleNoteAddClick );
-        container.querySelector( ".addOff" ).addEventListener    ( "click", handleNoteOffClick );
-        container.querySelector( ".removeNote" ).addEventListener( "click", handleNoteDeleteClick );
+        container.querySelector( ".addNote" ).addEventListener     ( "click", handleNoteAddClick );
+        container.querySelector( ".addOff" ).addEventListener      ( "click", handleNoteOffClick );
+        container.querySelector( ".removeNote" ).addEventListener  ( "click", handleNoteDeleteClick );
+        container.querySelector( ".moduleParams" ).addEventListener( "click", handleModuleParamsClick );
 
         // setup messaging system
         [
@@ -119,19 +120,24 @@ function handleBroadcast( type, payload )
     }
 }
 
-function handleNoteAddClick(aEvent )
+function handleNoteAddClick( aEvent )
 {
     Pubsub.publish( Messages.EDIT_NOTE_AT_POSITION );
 }
 
-function handleNoteOffClick(aEvent )
+function handleNoteOffClick( aEvent )
 {
     Pubsub.publish( Messages.ADD_OFF_AT_POSITION );
 }
 
-function handleNoteDeleteClick(aEvent )
+function handleNoteDeleteClick( aEvent )
 {
     Pubsub.publish( Messages.REMOVE_NOTE_AT_POSITION );
+}
+
+function handleModuleParamsClick( aEvent )
+{
+    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );
 }
 
 function updateStepAmount( amount )

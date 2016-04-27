@@ -70,8 +70,8 @@ TODO
 
  * Add modulator parameters for: glide (uses duration, pitch should be instantaneously) instrument volume, filter toggle, filter freq, filter q, delay toggle, delay time,feedback,cutoff,offset
  * Move active pattern selectors to transport controls
- * Add Module Param editor button to controls list
  * Add close button to instrument editor
+ * Refactor CSS display: table to use fixed width inline components (set by JS, use scroll wheel for overflowing help text)
  * Implement audio export
  * Create fixtures
 
