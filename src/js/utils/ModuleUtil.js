@@ -106,8 +106,8 @@ var ModuleUtil = module.exports =
  */
 function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, durationInSeconds )
 {
-    var mp = audioEvent.mp, i, j, event, voice;
-    var hasDuration = ( typeof durationInSeconds === "number" && durationInSeconds > 0 );
+    var doGlide = ( typeof durationInSeconds === "number" && durationInSeconds > 0 ),
+        mp = audioEvent.mp, i, j, event, voice;
 
     i = instrumentEvents.length;
 
@@ -134,12 +134,15 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, dura
 
                 var freq = voice.oscillator.frequency;
 
-                if ( !hasDuration ) {
+                if ( !doGlide || !event.glide ) {
                     freq.cancelScheduledValues( startTimeInSeconds );
-                    freq.setValueAtTime(( hasDuration ) ? freq.value : target, startTimeInSeconds );
+                    freq.setValueAtTime(( doGlide ) ? freq.value : target, startTimeInSeconds );
                 }
-                else
+
+                if ( doGlide ) {
                     freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
+                    event.glide = true;
+                }
             }
         }
     }

@@ -29,7 +29,7 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var data, closeCallback,
+var data, selectedModule, closeCallback,
     moduleList, valueControl;
 
 var ModuleParamController = module.exports =
@@ -88,6 +88,20 @@ var ModuleParamController = module.exports =
                     handleReady();
                     break;
 
+                // modules and parameters
+
+                case 71: // G
+                    selectedModule = ( selectedModule === "glideUp" ) ? "glideDown" : "glideUp";
+                    setSelectedValueInList( moduleList, selectedModule );
+                    break;
+
+                case 80: // P
+                    selectedModule = ( selectedModule === "pitchUp" ) ? "pitchDown" : "pitchUp";
+                    setSelectedValueInList( moduleList, selectedModule );
+                    break;
+
+                // module parameter value
+
                 case 48: // 0 through 9
                 case 49:
                 case 50:
@@ -145,7 +159,8 @@ function handleOpen( completeCallback )
 
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
 
-    closeCallback = completeCallback;
+    closeCallback  = completeCallback;
+    selectedModule = data.module;
 
     keyboardController.setBlockDefaults( false );
     keyboardController.setListener( ModuleParamController );
