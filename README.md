@@ -81,7 +81,6 @@ NICE TO HAVES
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  * Add overdrive (npm: wa-overdrive)
  * When selecting notes in noteEntry popup sound note when making changes to note / octave
- * Add setting saying that patterns copied across tracks are assigned to the tracks default instrument
  
 KNOWN BUGS
 ----------
