@@ -23,6 +23,7 @@
 module.exports =
 {
     INSTRUMENT_AMOUNT           : 8,
+    WAVE_TABLE_SIZE             : 512,
 
     DEFAULT_FILTER_FREQ         : 880,
     DEFAULT_FILTER_Q            : 5,

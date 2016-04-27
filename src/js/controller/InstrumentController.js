@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config        = require( "../config/Config" );
 var TemplateUtil  = require( "../utils/TemplateUtil" );
 var Form          = require( "../utils/Form" );
 var Messages      = require( "../definitions/Messages" );
@@ -382,7 +383,7 @@ function cacheOscillatorWaveForm( oscillator )
 
 function updateWaveformSize()
 {
-    var ideal       = 512; // equal to the length of the wave table
+    var ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
     var windowWidth = window.innerWidth;
     var width       = ( windowWidth < ideal ) ? windowWidth *  .9: ideal;
 

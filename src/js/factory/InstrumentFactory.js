@@ -81,8 +81,6 @@ var INSTRUMENT;
  */
 var INSTRUMENT_OSCILLATOR;
 
-var DEFAULT_TABLE_SIZE = 512;
-
 var InstrumentFactory = module.exports =
 {
     /**
@@ -100,9 +98,9 @@ var InstrumentFactory = module.exports =
             id   : aId,
             name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
             oscillators : [
-                InstrumentFactory.createOscillator( true,  DEFAULT_TABLE_SIZE ),
-                InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE ),
-                InstrumentFactory.createOscillator( false, DEFAULT_TABLE_SIZE )
+                InstrumentFactory.createOscillator( true,  Config.WAVE_TABLE_SIZE ),
+                InstrumentFactory.createOscillator( false, Config.WAVE_TABLE_SIZE ),
+                InstrumentFactory.createOscillator( false, Config.WAVE_TABLE_SIZE )
             ],
             volume: 1,
             filter : {
@@ -142,8 +140,9 @@ var InstrumentFactory = module.exports =
             table = aTable.concat();
         }
         else {
+
             if ( typeof aTable !== "number" )
-                aTable = DEFAULT_TABLE_SIZE;
+                aTable = Config.WAVE_TABLE_SIZE;
 
             table = new Array( aTable );
 
