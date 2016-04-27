@@ -40,7 +40,8 @@ module.exports =
         // subscribe to messasing system
 
         [
-            Messages.PATTERN_STEPS_UPDATED
+            Messages.PATTERN_STEPS_UPDATED,
+            Messages.SONG_LOADED
 
         ].forEach( function( msg )
         {
@@ -60,6 +61,7 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.PATTERN_STEPS_UPDATED:
+        case Messages.SONG_LOADED:
             calculateDimensions();
             break;
     }

@@ -77,7 +77,6 @@ TODO
 NICE TO HAVES
 -------------
 
- * Support mouse / touch drag for selection
  * Improve arrow key navigation within patterns
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  * Add overdrive (npm: wa-overdrive)

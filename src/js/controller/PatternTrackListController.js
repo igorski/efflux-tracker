@@ -411,7 +411,13 @@ function handleInteraction( aEvent )
     if ( aEvent.target.nodeName === "LI" )
     {
         var pContainers = wrapper.querySelectorAll( ".pattern" ),
+            selectionChannelStart = editorModel.activeInstrument, selectionStepStart = editorModel.activeStep,
             found = false, pContainer, items;
+
+        if ( selectionModel.hasSelection() ) {
+            selectionChannelStart = selectionModel.firstSelectedChannel;
+            selectionStepStart    = selectionModel.minSelectedStep;
+        }
 
         for ( var i = 0, l = pContainers.length; i < l; ++i ) {
 
@@ -427,8 +433,17 @@ function handleInteraction( aEvent )
 
                     if ( i !== editorModel.activeInstrument ) {
                         editorModel.activeInstrument = i; // when entering a new channel lane, make default instrument match index
-                        editorModel.activeInstrument    = i;
+                        editorModel.activeInstrument = i;
                     }
+
+                    // if shift was held down, we're making a selection
+                    if ( keyboardController.hasShift() ) {
+                        selectionModel.setSelectionChannelRange( selectionChannelStart, i );
+                        selectionModel.setSelection( selectionStepStart, j );
+                    }
+                    else
+                        selectionModel.clearSelection();
+
                     editorModel.activeStep = j;
                     highlightActiveStep();
 

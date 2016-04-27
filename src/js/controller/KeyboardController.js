@@ -23,7 +23,8 @@
 var Messages = require( "../definitions/Messages" );
 var Pubsub   = require( "pubsub-js" );
 
-var tracker, listener, suspended = false, blockDefaults = true, optionDown = false;
+var tracker, listener, suspended = false,
+    blockDefaults = true, optionDown = false, shiftDown = false;
 
 module.exports =
 {
@@ -43,12 +44,22 @@ module.exports =
      * whether the Apple option or a control key is
      * currently held down for the given event
      *
-     * @paran {Event} aEvent
+     * @param {Event} aEvent
      * @returns {boolean}
      */
     hasOption : function( aEvent )
     {
         return ( optionDown === true ) || aEvent.ctrlKey;
+    },
+
+    /**
+     * whether the shift key is currently held down
+     *
+     * @returns {boolean}
+     */
+    hasShift : function()
+    {
+        return ( shiftDown === true );
     },
 
     /**
@@ -97,6 +108,8 @@ function handleKeyDown( aEvent )
 {
     if ( !suspended && listener && listener.handleKey )
     {
+        shiftDown = !!aEvent.shiftKey;
+
         switch ( aEvent.keyCode )
         {
             case 32: // spacebar
@@ -135,6 +148,8 @@ function handleKeyUp( aEvent )
 {
     if ( !suspended && listener && listener.handleKey )
     {
+        shiftDown = false;
+
         if ( optionDown )
         {
             switch ( aEvent.keyCode )
