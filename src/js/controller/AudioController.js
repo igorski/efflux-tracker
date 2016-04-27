@@ -517,7 +517,8 @@ function applyRecordingState()
                 callback : handleRecordingComplete
             });
         }
-        recorder.record();
+        if ( playing )
+            recorder.record();
     }
 }
 
