@@ -26,7 +26,7 @@ var Pubsub   = require( "pubsub-js" );
 
 /* private variables */
 
-var patternContainer, centerWrapper, controlsEditor, helpSection;
+var patternContainer, trackList, patternSection, patternEditor, helpSection;
 
 module.exports =
 {
@@ -71,19 +71,28 @@ function calculateDimensions( aEvent )
     // grab references to DOM elements (we do this lazily)
 
     patternContainer = patternContainer || document.querySelector( "#patternContainer" );
-    centerWrapper    = centerWrapper    || document.querySelector( "#center" );
-    controlsEditor   = controlsEditor   || document.querySelector( "#patternEditor .controls" );
+    patternSection   = patternSection   || document.querySelector( "#patternSection" );
+    patternEditor    = patternEditor    || document.querySelector( "#patternEditor" );
+    trackList        = trackList        || document.querySelector( "#patternTrackList" );
     helpSection      = helpSection      || document.querySelector( "#helpSection" );
 
     var gs = Style.getStyle;
 
-    // unsetting pattern container width allows for accurate centerWrapper calculation
+    // unsetting patternContainer width allows for accurate centerWrapper calculation
 
     patternContainer.style.width = "0px";
+
+    trackList.style.width        =
     patternContainer.style.width = (
 
-        parseFloat( gs( centerWrapper,  "width" )) -
-        parseFloat( gs( controlsEditor, "width" )) -
+        parseFloat( gs( patternSection, "width" )) -
+        parseFloat( gs( patternEditor,  "width" )) -
         parseFloat( gs( helpSection,    "width" ))
+
     ) + "px";
+
+    // side containers should be as tall as the pattern container (help container is scrollable)
+
+    helpSection.style.height   = gs( trackList, "height" );
+    patternEditor.style.height = gs( trackList, "height" );
 }

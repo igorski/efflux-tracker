@@ -1,25 +1,22 @@
 // equal column heights for center section
 
 #center {
-  display: table;
   width: 100%;
   padding-bottom: 1em;
 }
 
 #patternEditor {
-  display: table-cell;
-  width: 14%;
+  width: 70px;
 }
 
 #patternTrackList {
-  display: table-cell;
   width: 51%;
 }
 
 #helpSection {
-  display: table-cell;
   vertical-align: top;
-  width: 35%;
+  width: 285px;
+  overflow: scroll;
 
   .EditorComponent;
   padding: 1em 1.5em;
@@ -31,32 +28,22 @@
   }
 }
 
-@media screen and ( min-width: @app-width )
-{
-  #patternEditor {
-    width: 9%;
-  }
-  #patternTrackList {
-    width: 56%;
-  }
-  #helpSection {
-    width: 35%;
-  }
+#patternEditor,
+#patternTrackList,
+#helpSection {
+  float: left;
 }
 
 @media screen and ( max-width: @tablet-portrait-width )
 {
   #patternEditor {
-    width: 10%;
+    width: 50px;
     .controls li {
-      margin-right: .5em;
+      margin: .25em 0 .3em .25em;
     }
     .indices {
       display: none;
     }
-  }
-  #patternTrackList {
-    width: 90%;
   }
   #helpSection {
     display: none;
