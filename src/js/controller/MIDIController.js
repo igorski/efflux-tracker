@@ -119,7 +119,7 @@ function handleConnectSuccess()
 
 function handleConnectFailure( msg )
 {
-    Pubsub.publish( Messages.SHOW_ERROR, "MIDI Unavailable, zTracker could not connect to MIDI device(s)" );
+    Pubsub.publish( Messages.SHOW_ERROR, "MIDI Unavailable, Efflux could not connect to MIDI device(s)" );
 }
 
 /**

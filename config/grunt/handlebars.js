@@ -2,7 +2,7 @@ module.exports =
 {
   compile: {
     options: {
-      namespace: "ztracker",
+      namespace: "efflux",
       commonjs: true,
       processName: function(filePath) {
         // template name is the filename without the suffix
