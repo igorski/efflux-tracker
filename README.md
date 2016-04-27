@@ -68,7 +68,7 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Add modulator parameters for: instrument volume, filter toggle, filter freq, filter q, delay toggle, delay time,feedback,cutoff,offset
+ * Add modulator parameters for: filter enabled / freq / q, delay enabled / delay time / feedback / cutoff / offset
  * Move active pattern selectors to transport controls
  * Add close button to instrument and settings editor
  * Implement audio export

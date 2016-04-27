@@ -78,6 +78,16 @@ var ModuleUtil = module.exports =
     {
         switch ( audioEvent.mp.module )
         {
+            // gain effects
+            case "volume":
+                applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, 0 );
+                break;
+
+            case "fade":
+                applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, audioEvent.seq.mpLength );
+                break;
+
+            // pitch effects
             case "pitchUp":
             case "pitchDown":
                 applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, 0 );
@@ -93,21 +103,47 @@ var ModuleUtil = module.exports =
 
 /* private methods */
 
-/**
- * apply a module parameter change defined inside an
- * audioEvent during playback
- *
- * @public
- *
- * @param {AUDIO_EVENT} audioEvent
- * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
- * @param {number} startTimeInSeconds
- * @param {number=} durationInSeconds optional duration, when undefined changes occur instantly at given startTimeInSeconds
- */
+function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, durationInSeconds )
+{
+    var doGlide = ( typeof durationInSeconds === "number" && durationInSeconds > 0 ),
+        mp = audioEvent.mp, i, j, event, voice, amp, target;
+
+    i = instrumentEvents.length;
+
+    while ( i-- ) {
+
+        event = instrumentEvents[ i ];
+
+        if ( event ) {
+
+            j = event.length;
+
+            while ( j-- ) {
+
+                voice  = event[ j ];
+                amp    = voice.gain.gain;
+                target = mp.value / 100;
+
+                if ( !doGlide || !event.glide ) {
+                    amp.cancelScheduledValues( startTimeInSeconds );
+                    amp.setValueAtTime(( doGlide ) ? amp.value : target, startTimeInSeconds );
+                }
+
+                if ( doGlide ) {
+                    amp.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
+                    event.glide = true;
+                }
+            }
+        }
+    }
+}
+
 function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, durationInSeconds )
 {
     var doGlide = ( typeof durationInSeconds === "number" && durationInSeconds > 0 ),
-        mp = audioEvent.mp, i, j, event, voice;
+        mp      = audioEvent.mp,
+        goingUp = ( mp.module === "pitchUp" || mp.module === "glideUp" ),
+        i, j, event, voice, freq, tmp, target;
 
     i = instrumentEvents.length;
 
@@ -122,17 +158,15 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, dura
             while ( j-- ) {
 
                 voice = event[ j ];
+                freq  = voice.oscillator.frequency;
 
-                var goingUp = ( mp.module === "pitchUp" || mp.module === "glideUp" );
-                var tmp     = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                var target  = ( tmp * ( mp.value / 100 ));
+                tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
+                target = ( tmp * ( mp.value / 100 ));
 
                 if ( goingUp )
                     target += voice.frequency;
                 else
                     target = voice.frequency - ( target / 2 );
-
-                var freq = voice.oscillator.frequency;
 
                 if ( !doGlide || !event.glide ) {
                     freq.cancelScheduledValues( startTimeInSeconds );

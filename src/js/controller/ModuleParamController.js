@@ -90,6 +90,11 @@ var ModuleParamController = module.exports =
 
                 // modules and parameters
 
+                case 70: // F
+                    selectedModule = "fade";
+                    setSelectedValueInList( moduleList, selectedModule );
+                    break;
+
                 case 71: // G
                     selectedModule = ( selectedModule === "glideUp" ) ? "glideDown" : "glideUp";
                     setSelectedValueInList( moduleList, selectedModule );
@@ -97,6 +102,11 @@ var ModuleParamController = module.exports =
 
                 case 80: // P
                     selectedModule = ( selectedModule === "pitchUp" ) ? "pitchDown" : "pitchUp";
+                    setSelectedValueInList( moduleList, selectedModule );
+                    break;
+
+                case 86: // V
+                    selectedModule = "volume";
                     setSelectedValueInList( moduleList, selectedModule );
                     break;
 
