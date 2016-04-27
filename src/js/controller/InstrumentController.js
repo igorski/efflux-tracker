@@ -129,10 +129,19 @@ var InstrumentController = module.exports =
             control.addEventListener( "input", handleDelayChange );
         });
 
-        [ Messages.CLOSE_OVERLAYS, Messages.TOGGLE_INSTRUMENT_EDITOR ].forEach( function( msg )
+        [
+            Messages.CLOSE_OVERLAYS,
+            Messages.TOGGLE_INSTRUMENT_EDITOR,
+            Messages.WINDOW_RESIZED
+
+        ].forEach( function( msg )
         {
             Pubsub.subscribe( msg, handleBroadcast );
         });
+
+        // initialize
+
+        updateWaveformSize();
     },
 
     update : function()
@@ -227,6 +236,10 @@ function handleBroadcast( type, payload )
                 container.removeChild( view );
                 canvas.removeChild( wtDraw );
             }
+            break;
+
+        case Messages.WINDOW_RESIZED:
+            updateWaveformSize();
             break;
     }
 }
@@ -365,4 +378,16 @@ function cacheOscillatorWaveForm( oscillator )
         Pubsub.publishSync( Messages.SET_CUSTOM_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator.table ]);
     else
         Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator ]);
+}
+
+function updateWaveformSize()
+{
+    var ideal       = 512; // equal to the length of the wave table
+    var windowWidth = window.innerWidth;
+    var width       = ( windowWidth < ideal ) ? windowWidth *  .9: ideal;
+
+    if ( canvas.getWidth() !== width ) {
+        canvas.setDimensions( width, 200 );
+        wtDraw._bounds.width = width;
+    }
 }

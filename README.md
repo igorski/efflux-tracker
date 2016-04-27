@@ -71,10 +71,10 @@ TODO
  * Add modulator parameters for: glide (uses duration, pitch should be instantaneously) instrument volume, filter toggle, filter freq, filter q, delay toggle, delay time,feedback,cutoff,offset
  * Move active pattern selectors to transport controls
  * Add Module Param editor button to controls list
- * Skin range inputs
+ * Add close button to instrument editor
  * Implement audio export
  * Create fixtures
- 
+
 NICE TO HAVES
 -------------
 
@@ -91,3 +91,4 @@ KNOWN BUGS
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * When copy-pasting an existing pattern into a new pattern, the new pattern is silent (has to do with
    start measure and measure offset!)
+   

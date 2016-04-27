@@ -107,13 +107,16 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
                 yDelta    = aEventY - cache.y,
                 xScale    = xDelta / Math.abs( xDelta ),
                 yScale    = yDelta / Math.abs( xDelta ),
-                increment = 0;
+                increment = 0,
+                w         = this._bounds.width,
+                h         = this._bounds.height,
+                l         = this.table.length;
 
-            while( cache.x !== aEventX ) {
+            while ( cache.x !== aEventX ) {
 
-                tableIndex = Math.round(( cache.x / this._bounds.width ) * this.table.length );
-                tableIndex     = Math.min( this.table.length - 1, tableIndex ); // do not exceed max length
-                value      = ( 1 - ( Math.floor(( yScale * increment ) + cache.y )/ this._bounds.height ) * 2 );
+                tableIndex = Math.round(( cache.x / w ) * l );
+                tableIndex     = Math.min( l - 1, tableIndex ); // do not exceed max length
+                value      = ( 1 - ( Math.floor(( yScale * increment ) + cache.y ) / h ) * 2 );
                 this.table[ tableIndex ] = value;
                 cache.x += xScale;
                 ++increment;

@@ -38,7 +38,7 @@
         </select>
     </div>
 
-    <div id="oscillatorEditor">
+    <div id="oscillatorEditor" class="instrument-parameters">
         <h2>Oscillator tuning</h2>
         <div class="wrapper input range">
             <label for="detune">Detune</label>
@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div id="envelopeEditor">
+    <div id="envelopeEditor" class="instrument-parameters">
         <h2>Envelopes</h2>
         <div class="wrapper input range">
             <label for="attack">Attack</label>
@@ -80,12 +80,15 @@
 </section>
 
 <section id="instrumentModulesEditor">
-    <div class="wrapper input range">
-        <label for="instrumentVolume">Output volume</label>
-        <input type="range" id="instrumentVolume" min="0" max="1" step=".01" value="0">
+
+    <div class="instrument-parameters">
+        <div class="wrapper input range">
+            <label for="instrumentVolume">Volume</label>
+            <input type="range" id="instrumentVolume" min="0" max="1" step=".01" value="0">
+        </div>
     </div>
 
-    <div id="filterEditor">
+    <div id="filterEditor" class="instrument-parameters">
         <h2>Filter</h2>
         <select id="filterEnabled">
             <option value="true">Enabled</option>
@@ -126,7 +129,7 @@
         </div>
     </div>
 
-    <div id="delayEditor">
+    <div id="delayEditor" class="instrument-parameters">
         <h2>Delay</h2>
         <select id="delayEnabled">
             <option value="true">Enabled</option>

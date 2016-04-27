@@ -48,39 +48,40 @@ select {
 }
 
 /* specific for range elements, taken from Daniel Sterns post on css-tricks */
-/*
-@track-color: #424242;
-@thumb-color: #555bc8;
+
+@track-color: #333;
+@thumb-color: @color-highlight;
 
 @thumb-radius: 8px;
-@thumb-height: 30px;
-@thumb-width: 30px;
+@thumb-height: 20px;
+@thumb-width: 20px;
+@mobile-thumb-height: 40px;
+@mobile-thumb-width: 35px;
 @thumb-shadow-size: 1px;
-@thumb-shadow-blur: 1px;
+@thumb-shadow-blur: 2px;
 @thumb-shadow-color: #111;
-@thumb-border-width: 1px;
-@thumb-border-color: white;
+@thumb-border-width: 3px;
+@thumb-border-color: darken(@color-highlight,5%);
 
 @track-width: 100%;
-@track-height: 10px;
-@track-shadow-size: 2px;
+@track-height: 5px;
+@track-shadow-size: 0;
 @track-shadow-blur: 2px;
-@track-shadow-color: #222;
-@track-border-width: 1px;
-@track-border-color: black;
+@track-shadow-color: #000;
+@track-border-width: 2px;
+@track-border-color: #000;
 
 @track-radius: 5px;
 @contrast: 5%;
 
 .shadow(@shadow-size,@shadow-blur,@shadow-color) {
-  box-shadow: @shadow-size @shadow-size @shadow-blur @shadow-color, 0px 0px @shadow-size lighten(@shadow-color,5%);
+  box-shadow: @shadow-size @shadow-size @shadow-blur @shadow-color, 0 0 @shadow-size lighten(@shadow-color,5%);
 }
 
 .track() {
   width: @track-width;
   height: @track-height;
   cursor: pointer;
-  animate: 0.2s;
 }
 
 .thumb() {
@@ -161,4 +162,14 @@ input[type=range] {
     background: lighten(@track-color, @contrast);
   }
 }
-*/
+
+@media screen and ( max-width: @mobile-width ) {
+
+  input[type=range] {
+    &::-webkit-slider-thumb {
+      width: @mobile-thumb-width;
+      height: @mobile-thumb-height;
+      margin-top: ((-@track-border-width * 2 + @track-height) / 2) - (@mobile-thumb-height / 2);
+    }
+  }
+}
