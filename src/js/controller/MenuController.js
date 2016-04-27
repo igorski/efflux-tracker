@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config       = require( "../config/Config" );
 var Time         = require( "../utils/Time" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var SongUtil     = require( "../utils/SongUtil" );
@@ -28,7 +29,6 @@ var Messages     = require( "../definitions/Messages" );
 var zMIDI        = require( "zmidi" ).zMIDI;
 
 /* private properties */
-
 
 var header, menu, toggle, tracker, songController;
 var menuOpened = false; // whether menu is opened (mobile hamburger menu)
@@ -198,7 +198,7 @@ function handleImport( aEvent )
 
     var fileBrowser = document.createElement( "input" );
     fileBrowser.setAttribute( "type",   "file" );
-    fileBrowser.setAttribute( "accept", ".ztk" );
+    fileBrowser.setAttribute( "accept", Config.FILE_EXTENSION );
 
     var simulatedEvent = document.createEvent( "MouseEvent" );
     simulatedEvent.initMouseEvent( "click", true, true, window, 1,
@@ -243,7 +243,7 @@ function handleExport( aEvent )
 
         var pom = document.createElement( "a" );
         pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
-        pom.setAttribute( "download", song.meta.title + ".ztk" );
+        pom.setAttribute( "download", song.meta.title + Config.FILE_EXTENSION );
         pom.click();
     }
 }

@@ -1,10 +1,10 @@
-zTracker
-========
+efflex
+======
 
 What is it ?
 ------------
 
-zTracker is a JavaScript-based application that allows users to create music using user defined
+efflex is a JavaScript-based application that allows users to create music using user defined
 WaveTable synthesis, all inside a browser.
 
 Feature list
@@ -20,7 +20,7 @@ Sounds cool, but I don't want to build from source, I just want to tinker with t
 -------------------------------------------------------------------------------------
 
 Of course, it was made to allow for easy composition, so let's cut the chatter!
-You can use the application right now from  your web browser by visiting [this link](http://www.igorski.nl/experiment/ztracker).
+You can use the application right now from  your web browser by visiting [this link](http://www.igorski.nl/experiment/efflex).
 
 Project outline
 ---------------
@@ -38,7 +38,7 @@ The build scripts are defined in _./Gruntfile.js_ and includes snippets defined 
 Build instructions
 ------------------
 
-To build zTracker first resolve all dependencies using Node:
+To build efflex first resolve all dependencies using Node:
 
     npm install
  
@@ -87,6 +87,6 @@ KNOWN BUGS
 
  * When copy-pasting an existing pattern into a new pattern, the new pattern is silent (has to do with
    start measure and measure offset!)
- * Pitch glides don't always work (see glideit2.ztk)
+ * Pitch glides don't always work (see glideit2.xtk)
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
    
