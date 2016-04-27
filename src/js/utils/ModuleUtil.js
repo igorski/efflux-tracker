@@ -73,49 +73,74 @@ var ModuleUtil = module.exports =
      * @param {INSTRUMENT_MODULES} modules
      * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
      * @param {number} startTimeInSeconds
-     * @param {number=} durationInSeconds optional duration, when undefined changes occur instantly at given startTimeInSeconds
      */
-    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds, durationInSeconds )
+    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds )
     {
-        var mp = audioEvent.mp, i, j, event, voice;
-        var hasDuration = ( typeof durationInSeconds === "number" );
+        switch ( audioEvent.mp.module )
+        {
+            case "pitchUp":
+            case "pitchDown":
+                applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, 0 );
+                break;
 
-        i = instrumentEvents.length;
-
-        while ( i-- ) {
-
-            event = instrumentEvents[ i ];
-
-            if ( event ) {
-
-                j = event.length;
-
-                while ( j-- ) {
-
-                    voice = event[ j ];
-
-                    switch ( mp.module )
-                    {
-                        case "pitchUp":
-                        case "pitchDown":
-
-                            var tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                            var target = ( tmp * ( mp.value / 100 ));
-
-                            if ( mp.module === "pitchUp" )
-                                target += voice.frequency;
-
-                            var freq = voice.oscillator.frequency;
-                            freq.cancelScheduledValues( startTimeInSeconds );
-                            freq.setValueAtTime(( hasDuration ) ? freq.value : target, startTimeInSeconds );
-
-                            if ( hasDuration )
-                                freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-
-                            break;
-                    }
-                }
-            }
+            case "glideUp":
+            case "glideDown":
+                applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, audioEvent.seq.mpLength );
+                break;
         }
     }
 };
+
+/* private methods */
+
+/**
+ * apply a module parameter change defined inside an
+ * audioEvent during playback
+ *
+ * @public
+ *
+ * @param {AUDIO_EVENT} audioEvent
+ * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
+ * @param {number} startTimeInSeconds
+ * @param {number=} durationInSeconds optional duration, when undefined changes occur instantly at given startTimeInSeconds
+ */
+function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, durationInSeconds )
+{
+    var mp = audioEvent.mp, i, j, event, voice;
+    var hasDuration = ( typeof durationInSeconds === "number" && durationInSeconds > 0 );
+
+    i = instrumentEvents.length;
+
+    while ( i-- ) {
+
+        event = instrumentEvents[ i ];
+
+        if ( event ) {
+
+            j = event.length;
+
+            while ( j-- ) {
+
+                voice = event[ j ];
+
+                var goingUp = ( mp.module === "pitchUp" || mp.module === "glideUp" );
+                var tmp     = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
+                var target  = ( tmp * ( mp.value / 100 ));
+
+                if ( goingUp )
+                    target += voice.frequency;
+                else
+                    target = voice.frequency - ( target / 2 );
+
+                var freq = voice.oscillator.frequency;
+
+                if ( !hasDuration ) {
+                    freq.cancelScheduledValues( startTimeInSeconds );
+                    freq.setValueAtTime(( hasDuration ) ? freq.value : target, startTimeInSeconds );
+                }
+                else
+                    freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
+            }
+        }
+    }
+}

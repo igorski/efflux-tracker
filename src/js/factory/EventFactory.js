@@ -51,7 +51,8 @@
  *                  startMeasure: number
  *                  startMeasureOffset: number,
  *                  endMeasure: number,
- *                  length: number
+ *                  length: number,
+ *                  mpLength: number
  *              },
  *              mp: {
  *                  module: string,
@@ -85,7 +86,8 @@ var EventFactory = module.exports =
                 startMeasure       : 0,
                 startMeasureOffset : 0,
                 endMeasure         : 0,
-                length             : 0
+                length             : 0,
+                mpLength           : 0
             }
         };
     },

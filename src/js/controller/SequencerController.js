@@ -423,7 +423,8 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
                 break;
         }
     }
-    aEvent.seq.length = duration;
+    aEvent.seq.length   = duration;
+    aEvent.seq.mpLength = patternDuration / patterns[ aEventMeasure ].steps;
 
     // play back the event in the AudioController
 
