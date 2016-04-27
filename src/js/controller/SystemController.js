@@ -37,6 +37,16 @@ module.exports =
         window.addEventListener( "resize", handleEvent );
         window.addEventListener( "scroll", handleEvent );
 
+        // subscribe to messasing system
+
+        [
+            Messages.PATTERN_STEPS_UPDATED
+
+        ].forEach( function( msg )
+        {
+            Pubsub.subscribe( msg, handleBroadcast );
+        });
+
         // ensure that on application start all elements are presented correctly
 
         calculateDimensions();
@@ -44,6 +54,16 @@ module.exports =
 };
 
 /* private methods */
+
+function handleBroadcast( type, payload )
+{
+    switch ( type )
+    {
+        case Messages.PATTERN_STEPS_UPDATED:
+            calculateDimensions();
+            break;
+    }
+}
 
 function handleEvent( aEvent )
 {
