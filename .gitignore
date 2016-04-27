@@ -3,5 +3,6 @@ dist/*
 src/js/handlebars/*
 *.idea
 *.iml
+*.log
 *.DS_Store
 Thumbs.db

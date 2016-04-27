@@ -71,7 +71,6 @@ TODO
  * Add modulator parameters for: filter enabled / freq / q, delay enabled / delay time / feedback / cutoff / offset
  * Move active pattern selectors to transport controls
  * Add close button to instrument and settings editor
- * Implement audio export
  * Create fixtures
 
 NICE TO HAVES
@@ -87,6 +86,5 @@ KNOWN BUGS
 
  * When copy-pasting an existing pattern into a new pattern, the new pattern is silent (has to do with
    start measure and measure offset!)
- * Pitch glides don't always work (see glideit2.xtk)
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
    

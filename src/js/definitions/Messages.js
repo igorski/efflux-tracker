@@ -59,24 +59,25 @@ module.exports =
     RECORDING_COMPLETE         : 23,
     TEMPO_UPDATED              : 24, // payload is Array [ old tempo, new tempo ]
     STEP_POSITION_REACHED      : 25, // payload is Array [ current step position, total step positions (per measure) ]
+    TOGGLE_RECORD_MODE         : 26,
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING   : 26, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME   : 27, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_WAVEFORM : 28, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_INSTRUMENT_VOLUME   : 29, // payload is Array [ instrument index, new volume ]
-    UPDATE_FILTER_SETTINGS     : 30, // payload is Array [ instrument index, filter properties Object ]
-    UPDATE_DELAY_SETTINGS      : 31, // payload is Array [ instrument index, delay properties Object ]
-    EDIT_NOTE_AT_POSITION      : 32,
-    ADD_EVENT_AT_POSITION      : 33, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
-    ADD_OFF_AT_POSITION        : 34,
-    REMOVE_NOTE_AT_POSITION    : 35,
+    ADJUST_OSCILLATOR_TUNING   : 27, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME   : 28, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_WAVEFORM : 29, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_INSTRUMENT_VOLUME   : 30, // payload is Array [ instrument index, new volume ]
+    UPDATE_FILTER_SETTINGS     : 31, // payload is Array [ instrument index, filter properties Object ]
+    UPDATE_DELAY_SETTINGS      : 32, // payload is Array [ instrument index, delay properties Object ]
+    EDIT_NOTE_AT_POSITION      : 33,
+    ADD_EVENT_AT_POSITION      : 34, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
+    ADD_OFF_AT_POSITION        : 35,
+    REMOVE_NOTE_AT_POSITION    : 36,
 
     // MIDI messages
 
-    MIDI_CONNECT_TO_INTERFACE   : 36,
-    MIDI_ADD_LISTENER_TO_DEVICE : 37, // payload is device number (is MIDIInput list number)
+    MIDI_CONNECT_TO_INTERFACE   : 37,
+    MIDI_ADD_LISTENER_TO_DEVICE : 38, // payload is device number (is MIDIInput list number)
     MIDI_RECEIVED_INPUT_DEVICES : 39, // payload is Array.<MIDIInput>
     MIDI_DEVICE_CONNECTED       : 40  // payload is device number (is MIDIInput list number)
 };

@@ -47,8 +47,13 @@ var MenuController = module.exports =
         tracker            = trackerRef;
         songController     = songControllerRef;
 
-        var canImportExport  = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
-        containerRef.innerHTML += TemplateUtil.render( "menuView", { addExport: canImportExport } );
+        var canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
+        var canRecord       = ( "Blob" in window );
+
+        containerRef.innerHTML += TemplateUtil.render( "menuView", {
+            addExport : canImportExport,
+            addSave   : canRecord
+        });
 
         // grab references to elements in the template
 
@@ -61,6 +66,11 @@ var MenuController = module.exports =
 
             containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
             containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+        }
+
+        if ( canRecord ) {
+
+            containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
         }
 
         if ( !zMIDI.isSupported() ) {
@@ -246,4 +256,13 @@ function handleExport( aEvent )
         pom.setAttribute( "download", song.meta.title + Config.FILE_EXTENSION );
         pom.click();
     }
+}
+
+function handleRecord( aEvent )
+{
+    Pubsub.publish( Messages.TOGGLE_RECORD_MODE );
+    Pubsub.publish( Messages.SHOW_FEEDBACK,
+        "Recording of output enabled. When the sequencer stops, the recording will be saved " +
+        "onto to your device"
+    );
 }

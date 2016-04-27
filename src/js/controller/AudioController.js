@@ -28,6 +28,7 @@ var Config         = require( "../config/Config" );
 var Messages       = require( "../definitions/Messages" );
 var Pitch          = require( "../definitions/Pitch" );
 var WaveTables     = require( "../definitions/WaveTables" );
+var Recorder       = require( "recorderjs" );
 var Pubsub         = require( "pubsub-js" );
 
 /* type definitions */
@@ -69,7 +70,8 @@ var INSTRUMENT_MODULES;
 
 /* private properties */
 
-var audioContext, masterBus, compressor, pool, UNIQUE_EVENT_ID = 0;
+var audioContext, masterBus, compressor, pool, UNIQUE_EVENT_ID = 0,
+    playing = false, recording = false, recorder;
 
 /**
  * list that will contain all modules
@@ -146,6 +148,7 @@ var AudioController = module.exports =
         [   Messages.SONG_LOADED,
             Messages.PLAYBACK_STARTED,
             Messages.PLAYBACK_STOPPED,
+            Messages.TOGGLE_RECORD_MODE,
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
             Messages.ADJUST_OSCILLATOR_VOLUME,
@@ -354,11 +357,23 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.PLAYBACK_STARTED:
+            playing = true;
             applyModules();
+            applyRecordingState();
             break;
 
         case Messages.PLAYBACK_STOPPED:
+            playing = false;
             AudioController.reset();
+            if ( recording && recorder ) {
+                recorder.stop();
+                recorder.exportWAV();
+            }
+            break;
+
+        case Messages.TOGGLE_RECORD_MODE:
+            recording = !recording;
+            applyRecordingState();
             break;
 
         case Messages.SONG_LOADED:
@@ -491,4 +506,25 @@ function cacheCustomTables( instruments )
 function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table )
 {
     return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioUtil.createWaveTableFromGraph( audioContext, table );
+}
+
+function applyRecordingState()
+{
+    if ( recording ) {
+        if ( !recorder ) {
+            recorder = new Recorder( masterBus, {
+                workerPath: Config.getWorkerPath(),
+                callback : handleRecordingComplete
+            });
+        }
+        recorder.record();
+    }
+}
+
+function handleRecordingComplete( blob )
+{
+    Recorder.forceDownload( blob, "efflux-output.wav" );
+    recorder.clear();
+    recorder  = null;
+    recording = false;
 }
