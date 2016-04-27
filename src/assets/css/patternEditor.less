@@ -54,7 +54,7 @@
       }
 
       &:hover {
-        background-color: @color-highlight;
+        background-color: @color-1;
       }
     }
   }
@@ -132,13 +132,13 @@
       }
 
       &.active, &:hover {
-        border: 2px solid @color-highlight;
+        border: 2px solid @color-1;
         z-index: 10;
       }
 
       &.selected {
-        background-color: @color-highlight;
-        border-color: @color-highlight;
+        background-color: @color-2;
+        border-color: @color-2;
         color: #000 !important;
 
         span {
@@ -161,36 +161,6 @@
           text-transform: uppercase;
           color: #b6b6b6;
         }
-      }
-
-      // sound types
-
-      &.kick,
-      &.hat,
-      &.snare,
-      &.snare2 {
-        color: #FFF;
-      }
-
-      &.pitfall {
-        color: @color-6;
-      }
-
-      &.square {
-        color: @color-5;
-      }
-
-      &.lead {
-        color: @color-4;
-      }
-
-      &.bass,
-      &.low_bass {
-        color: @color-3;
-      }
-
-      &.saw {
-        color: @color-2;
       }
     }
   }
