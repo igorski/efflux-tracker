@@ -124,14 +124,14 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, 
                 amp    = voice.gain.gain;
                 target = mp.value / 100;
 
-                if ( !doGlide || !event.glide ) {
+                if ( !doGlide || !voice.glide ) {
                     amp.cancelScheduledValues( startTimeInSeconds );
                     amp.setValueAtTime(( doGlide ) ? amp.value : target, startTimeInSeconds );
                 }
 
                 if ( doGlide ) {
                     amp.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-                    event.glide = true;
+                    voice.glide = true;
                 }
             }
         }
@@ -168,14 +168,14 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, dura
                 else
                     target = voice.frequency - ( target / 2 );
 
-                if ( !doGlide || !event.glide ) {
+                if ( !doGlide || !voice.glide ) {
                     freq.cancelScheduledValues( startTimeInSeconds );
                     freq.setValueAtTime(( doGlide ) ? freq.value : target, startTimeInSeconds );
                 }
 
                 if ( doGlide ) {
                     freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-                    event.glide = true;
+                    voice.glide = true;
                 }
             }
         }
