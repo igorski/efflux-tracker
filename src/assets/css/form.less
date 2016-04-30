@@ -56,7 +56,7 @@ select {
 @thumb-height: 20px;
 @thumb-width: 20px;
 @mobile-thumb-height: 40px;
-@mobile-thumb-width: 35px;
+@mobile-thumb-width: 40px;
 @thumb-shadow-size: 1px;
 @thumb-shadow-blur: 2px;
 @thumb-shadow-color: #111;
@@ -170,6 +170,7 @@ input[type=range] {
       width: @mobile-thumb-width;
       height: @mobile-thumb-height;
       margin-top: ((-@track-border-width * 2 + @track-height) / 2) - (@mobile-thumb-height / 2);
+      transform: scale(.5);
     }
   }
 }
