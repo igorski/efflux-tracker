@@ -89,3 +89,4 @@ KNOWN BUGS
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * stopping tracker on Safari while note is playing doesn't kill the note
  * when selecting a single step from a channel other than the first, it doesn't copy/cut!
+ * when editing an existing note/module param with a running sequencer, the mutated contents are added at the current seq. position, not the original pos!

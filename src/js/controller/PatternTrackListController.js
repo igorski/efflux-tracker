@@ -177,6 +177,8 @@ var PatternTrackListController = module.exports =
                         }
                         else
                             editorModel.activeInstrument = maxChannel;
+
+                        Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                     }
                     else if ( editorModel.activeInstrument > 2 )
                        container.scrollLeft = (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH );
@@ -198,6 +200,8 @@ var PatternTrackListController = module.exports =
                         }
                         else
                             editorModel.activeInstrument = 0;
+
+                        Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                     }
                     else if ( editorModel.activeInstrument >= 0 )
                         container.scrollLeft = ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0;

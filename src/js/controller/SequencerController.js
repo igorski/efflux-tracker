@@ -94,6 +94,7 @@ var SequencerController = module.exports =
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
+            Messages.PATTERN_SWITCH,
             Messages.LOAD_SONG,
             Messages.SONG_LOADED
 
@@ -229,6 +230,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.PATTERN_AMOUNT_UPDATED:
+        case Messages.PATTERN_SWITCH:
         case Messages.SONG_LOADED:
             SequencerController.update();
             break;
@@ -269,20 +271,16 @@ function handleMetronomeToggle( e )
 
 function handlePatternNavBack( aEvent )
 {
-    if ( editorModel.activePattern > 0 ) {
-        Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
-        SequencerController.update();
-    }
+    if ( editorModel.activePattern > 0 )
+        Pubsub.publishSync( Messages.PATTERN_SWITCH, --editorModel.activePattern );
 }
 
 function handlePatternNavNext( aEvent )
 {
     var max = tracker.activeSong.patterns.length - 1;
 
-    if ( editorModel.activePattern < max ) {
-        Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
-        SequencerController.update();
-    }
+    if ( editorModel.activePattern < max )
+        Pubsub.publishSync( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
 }
 
 function handleTempoChange( e )
@@ -396,7 +394,6 @@ function step()
             }
         }
         Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
-        SequencerController.update();
     }
     Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
 }
