@@ -73,9 +73,11 @@ TODO
  * Instrument mute / solo
  * Show module parameter value
  * Implement keyboard shortcuts for precise module parameter values
+ * different colours for each channel
+ * better highlighting of current step
  
-NICE TO HAVES
--------------
+ROADMAP
+-------
 
  * Improve arrow key navigation within patterns
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
@@ -85,8 +87,6 @@ NICE TO HAVES
 KNOWN BUGS
 ----------
 
- * When copy-pasting an existing pattern into a new pattern, the new pattern is silent (has to do with
-   start measure and measure offset!)
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * stopping tracker on Safari while note is playing doesn't kill the note
  * when selecting a single step from a channel other than the first, it doesn't copy/cut!

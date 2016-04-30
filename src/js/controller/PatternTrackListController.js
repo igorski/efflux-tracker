@@ -30,6 +30,7 @@ var PatternFactory = require( "../factory/PatternFactory" );
 var Form           = require( "../utils/Form" );
 var EventUtil      = require( "../utils/EventUtil" );
 var ObjectUtil     = require( "../utils/ObjectUtil" );
+var PatternUtil    = require( "../utils/PatternUtil" );
 var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
@@ -502,7 +503,7 @@ function handlePatternCopy( aEvent )
 function handlePatternPaste( aEvent )
 {
     if ( patternCopy ) {
-        PatternFactory.mergePatterns( tracker.activeSong.patterns[ editorModel.activePattern ], patternCopy );
+        PatternFactory.mergePatterns( tracker.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
         PatternTrackListController.update();
     }
 }
@@ -516,13 +517,7 @@ function handlePatternAdd( aEvent )
         Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of " + Config.MAX_PATTERN_AMOUNT + " patterns" );
         return;
     }
-
-    var front = patterns.slice( 0, editorModel.activePattern + 1 );
-    var back  = patterns.slice( editorModel.activePattern + 1 );
-
-    front.push( PatternFactory.createEmptyPattern( editorModel.amountOfSteps ));
-
-    song.patterns = front.concat( back );
+    song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, editorModel.activePattern + 1, editorModel.amountOfSteps );
 
     Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
     Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
@@ -539,7 +534,7 @@ function handlePatternDelete( aEvent )
     }
     else {
 
-        song.patterns.splice( editorModel.activePattern, 1 );
+        song.patterns = PatternUtil.removePatternAtIndex( patterns, editorModel.activePattern );
 
         if ( editorModel.activePattern > 0 )
             Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );

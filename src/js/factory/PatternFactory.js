@@ -61,8 +61,9 @@ var PatternFactory = module.exports =
      * @public
      * @param {PATTERN} targetPattern
      * @param {PATTERN} sourcePattern
+     * @param {number} targetPatternIndex
      */
-    mergePatterns : function( targetPattern, sourcePattern )
+    mergePatterns : function( targetPattern, sourcePattern, targetPatternIndex )
     {
         var targetLength = targetPattern.steps;
         var sourceLength = sourcePattern.steps;
@@ -107,7 +108,7 @@ var PatternFactory = module.exports =
             sourceLength = sourcePattern.steps = targetLength;
         }
 
-        var sourceStep;
+        var sourceStep, orgStartMeasure;
 
         targetPattern.channels.forEach( function( targetChannel, index )
         {
@@ -116,10 +117,21 @@ var PatternFactory = module.exports =
             i = targetLength;
 
             while ( i-- ) {
+
                 sourceStep = sourceChannel[ i ];
 
-                if ( sourceStep && sourceStep.action !== 0 )
+                // copy source content into the target channel (only when it has a note action or module parameter automation)
+
+                if ( sourceStep && ( sourceStep.action !== 0 || sourceStep.mp )) {
+
                     targetChannel[ i ] = sourceStep;
+
+                    // update the start measure of the event
+
+                    orgStartMeasure             = sourceStep.seq.startMeasure;
+                    sourceStep.seq.startMeasure = targetPatternIndex;
+                    sourceStep.seq.endMeasure  += ( targetPatternIndex - orgStartMeasure );
+                }
             }
         });
     },

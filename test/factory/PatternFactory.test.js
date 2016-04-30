@@ -3,6 +3,7 @@
  */
 var chai           = require( "chai" );
 var Config         = require( "../../src/js/config/Config" );
+var EventFactory   = require( "../../src/js/factory/EventFactory" );
 var PatternFactory = require( "../../src/js/factory/PatternFactory" );
 
 describe( "PatternFactory", function()
@@ -82,14 +83,14 @@ describe( "PatternFactory", function()
         var p1channel1 = pattern1.channels[ 0 ];
         var p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 0 ] = { instrument: 1, note: "C#", octave: 4 };
-        var expected2 = p1channel1[ 4 ] = { instrument: 1, note: "D",  octave: 5 };
-        var expected3 = p2channel1[ 2 ] = { instrument: 1, note: "E",  octave: 6 };
-        var expected4 = p2channel1[ 6 ] = { instrument: 1, note: "F",  octave: 7 };
+        var expected1 = p1channel1[ 0 ] = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
+        var expected2 = p1channel1[ 4 ] = EventFactory.createAudioEvent( 1, "D",  5, 1 );
+        var expected3 = p2channel1[ 2 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
+        var expected4 = p2channel1[ 6 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
 
         // merge patterns
 
-        PatternFactory.mergePatterns( pattern1, pattern2 );
+        PatternFactory.mergePatterns( pattern1, pattern2, 0 );
 
         // assert results
 
@@ -118,14 +119,14 @@ describe( "PatternFactory", function()
         var p1channel1 = pattern1.channels[ 0 ];
         var p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 0 ]  = { instrument: 1, note: "C#", octave: 4 };
-        var expected2 = p1channel1[ 4 ]  = { instrument: 1, note: "D",  octave: 5 };
-        var expected3 = p2channel1[ 15 ] = { instrument: 1, note: "E",  octave: 6 };
-        var expected4 = p2channel1[ 29 ] = { instrument: 1, note: "F",  octave: 7 };
+        var expected1 = p1channel1[ 0 ]  = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
+        var expected2 = p1channel1[ 4 ]  = EventFactory.createAudioEvent( 1, "D",  5, 1 );
+        var expected3 = p2channel1[ 15 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
+        var expected4 = p2channel1[ 29 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
 
         // merge patterns
 
-        PatternFactory.mergePatterns( pattern1, pattern2 );
+        PatternFactory.mergePatterns( pattern1, pattern2, 0 );
 
         // assert results
 
@@ -158,14 +159,14 @@ describe( "PatternFactory", function()
         var p1channel1 = pattern1.channels[ 0 ];
         var p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 15 ] = { instrument: 1, note: "E",  octave: 6 };
-        var expected2 = p1channel1[ 29 ] = { instrument: 1, note: "F",  octave: 7 };
-        var expected3 = p2channel1[ 0 ]  = { instrument: 1, note: "C#", octave: 4 };
-        var expected4 = p2channel1[ 4 ]  = { instrument: 1, note: "D",  octave: 5 };
+        var expected1 = p1channel1[ 15 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
+        var expected2 = p1channel1[ 29 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
+        var expected3 = p2channel1[ 0 ]  = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
+        var expected4 = p2channel1[ 4 ]  = EventFactory.createAudioEvent( 1, "D",  5, 1 );
 
         // merge patterns
 
-        PatternFactory.mergePatterns( pattern1, pattern2 );
+        PatternFactory.mergePatterns( pattern1, pattern2, 0 );
 
         // assert results
 
@@ -195,10 +196,10 @@ describe( "PatternFactory", function()
 
         // create some AudioEvents
 
-        var expected1 = pchannel1[ 0 ] = { instrument: 1, note: "E",  octave: 2 };
-        var expected2 = pchannel1[ 1 ] = { instrument: 1, note: "F",  octave: 3 };
-        var expected3 = pchannel2[ 0 ] = { instrument: 1, note: "F#", octave: 4 };
-        var expected4 = pchannel2[ 1 ] = { instrument: 1, note: "G",  octave: 5 };
+        var expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, "E", 2, 1 );
+        var expected2 = pchannel1[ 1 ] = EventFactory.createAudioEvent( 1, "F", 3, 1 );
+        var expected3 = pchannel2[ 0 ] = EventFactory.createAudioEvent( 1, "F#",4, 1 );
+        var expected4 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, "G", 5, 1 );
 
         // start clearing individual events and asserting the results
 

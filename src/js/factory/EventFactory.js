@@ -71,15 +71,18 @@ var EventFactory = module.exports =
      *
      * @param {number=} instrument optional index of the instrument to
      *                  create the AudioEvent for
+     * @param {string=} note optional note
+     * @param {number=} octave optional octave
+     * @param {number=} action optional action
      * @return {AUDIO_EVENT}
      */
-    createAudioEvent : function( instrument )
+    createAudioEvent : function( instrument, note, octave, action )
     {
         return {
             instrument : ( typeof instrument === "number" ) ? instrument : 0,
-            note       : "",
-            octave     : 0,
-            action     : 0,
+            note       : ( typeof note === "string" )       ? note       : "",
+            octave     : ( typeof octave === "number" )     ? octave     : 0,
+            action     : ( typeof action === "number" )     ? action     : 0,
             recording  : false,
             seq : {
                 playing            : false,
