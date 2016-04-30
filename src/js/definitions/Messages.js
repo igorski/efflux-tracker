@@ -70,7 +70,7 @@ module.exports =
     UPDATE_FILTER_SETTINGS     : 31, // payload is Array [ instrument index, filter properties Object ]
     UPDATE_DELAY_SETTINGS      : 32, // payload is Array [ instrument index, delay properties Object ]
     EDIT_NOTE_AT_POSITION      : 33,
-    ADD_EVENT_AT_POSITION      : 34, // payload is AUDIO_EVENT, will be appended at current seq. position (PTLController)
+    ADD_EVENT_AT_POSITION      : 34, // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
     ADD_OFF_AT_POSITION        : 35,
     REMOVE_NOTE_AT_POSITION    : 36,
 

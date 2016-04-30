@@ -195,7 +195,7 @@ function recordEventIntoSong( audioEvent )
         // sequencer isn't playing, add event at current editor step
         // unless it is a noteOff, let the user add it explicitly
         if ( audioEvent.action !== 2 )
-            Pubsub.publishSync( Messages.ADD_EVENT_AT_POSITION, audioEvent );
+            Pubsub.publishSync( Messages.ADD_EVENT_AT_POSITION, [ audioEvent ]);
     }
 }
 

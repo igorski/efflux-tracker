@@ -327,7 +327,6 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.PATTERN_SWITCH:
-            editorModel.activePattern = payload;
             selectionModel.clearSelection();
             PatternTrackListController.update();
             break;
@@ -341,7 +340,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.ADD_EVENT_AT_POSITION:
-            addEventAtCurrentPosition( payload );
+            addEventAtPosition( payload[ 0 ], ( payload.length > 1 ) ? payload[ 1 ] : null );
             break;
 
         case Messages.ADD_OFF_AT_POSITION:
@@ -485,7 +484,7 @@ function addOffEvent()
 {
     var offEvent = EventFactory.createAudioEvent();
     offEvent.action = 2; // noteOff;
-    addEventAtCurrentPosition( offEvent );
+    addEventAtPosition( offEvent );
 }
 
 function handlePatternClear( aEvent )
@@ -606,17 +605,32 @@ function saveState()
  * adds given AudioEvent at the currently highlighted position
  *
  * @param {AUDIO_EVENT} event
+ * @param {Object=} optData optional data with event properties
  */
-function addEventAtCurrentPosition( event )
+function addEventAtPosition( event, optData )
 {
-    var pattern = tracker.activeSong.patterns[ editorModel.activePattern ];
-    var channel = pattern.channels[ editorModel.activeInstrument ];
+    var patternIndex = editorModel.activePattern,
+        channelIndex = editorModel.activeInstrument,
+        step         = editorModel.activeStep;
+
+    // if options Object was given, use those values instead of current sequencer values
+
+    if ( optData )
+    {
+        patternIndex = ( typeof optData.patternIndex === "number" ) ? optData.patternIndex : patternIndex;
+        channelIndex = ( typeof optData.channelIndex === "number" ) ? optData.channelIndex : channelIndex;
+        step         = ( typeof optData.step         === "number" ) ? optData.step         : step;
+    }
+
+    var pattern = tracker.activeSong.patterns[ patternIndex ],
+        channel = pattern.channels[ channelIndex ];
 
     EventUtil.setPosition(
-        event, pattern, editorModel.activePattern, editorModel.activeStep,
+        event, pattern, patternIndex, step,
         tracker.activeSong.meta.tempo
     );
-    channel[ editorModel.activeStep ] = event;
+
+    channel[ step ] = event;
 
     PatternTrackListController.handleKey( "down", 40 ); // proceed to next line
     PatternTrackListController.update();

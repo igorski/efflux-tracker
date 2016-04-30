@@ -156,15 +156,21 @@ function handleBroadcast( type, payload )
  */
 function handleOpen( completeCallback )
 {
-    var editorModel = tracker.EditorModel;
-    var pattern     = tracker.activeSong.patterns[ editorModel.activePattern ];
-    var channel     = pattern.channels[ editorModel.activeInstrument ];
-    var event       = channel[ editorModel.activeStep ];
+    var editorModel  = tracker.EditorModel,
+        patternIndex = editorModel.activePattern,
+        pattern      = tracker.activeSong.patterns[ patternIndex ],
+        channelIndex = editorModel.activeInstrument,
+        channel      = pattern.channels[ channelIndex ],
+        event        = channel[ editorModel.activeStep ];
 
     data =
     {
-        module : ( event && event.mp ) ? event.mp.module : moduleList[ 0 ].getAttribute( "data-value" ),
-        value  : ( event && event.mp ) ? event.mp.value  : 50
+        instrument   : ( event ) ? event.instrument : editorModel.activeInstrument,
+        module       : ( event && event.mp ) ? event.mp.module  : moduleList[ 0 ].getAttribute( "data-value" ),
+        value        : ( event && event.mp ) ? event.mp.value   : 50,
+        patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
+        channelIndex : ( event ) ? event.instrument       : channelIndex,
+        step         : editorModel.activeStep
     };
 
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
@@ -199,18 +205,21 @@ function handleReady()
 
 //    if ( EventUtil.isValid( data )) {
 
-        var editorModel = tracker.EditorModel,
-            pattern     = tracker.activeSong.patterns[ editorModel.activePattern ],
-            channel     = pattern.channels[ editorModel.activeInstrument ],
-            event       = channel[ editorModel.activeStep ];
+        var pattern = tracker.activeSong.patterns[ data.patternIndex ],
+            channel = pattern.channels[ data.channelIndex ],
+            event   = channel[ data.step ];
 
         if ( !event )
             event = EventFactory.createAudioEvent();
 
-        event.mp = data;
-        event.instrument = editorModel.activeInstrument;
+        event.mp         = data;
+        event.instrument = data.instrument;
 
-        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, event );
+        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
+            patternIndex : data.patternIndex,
+            channelIndex : data.channelIndex,
+            step         : data.step
+        } ]);
 //    }
     if ( typeof closeCallback === "function" )
         closeCallback();

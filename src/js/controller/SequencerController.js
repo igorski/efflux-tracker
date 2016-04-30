@@ -393,6 +393,7 @@ function step()
                 firstMeasureStartTime = audioContext.currentTime;
             }
         }
+        editorModel.activePattern = currentMeasure;
         Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
     }
     Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
