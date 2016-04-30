@@ -71,7 +71,6 @@ TODO
  * Add modulator parameters for: filter enabled / freq / q, delay enabled / delay time / feedback / cutoff / offset
  * Create fixtures
  * Instrument mute / solo
- * Show standard waveforms in editor view, when about to draw, activate custom mode
  * Show module parameter value
  * Implement keyboard shortcuts for precise module parameter values
  

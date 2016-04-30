@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config  = require( "../config/Config" );
 var zSprite = require( "zCanvas" ).zSprite;
 
 // create the WaveTableDraw prototype as an extension of zSprite
@@ -50,6 +51,52 @@ module.exports = WaveTableDraw;
 WaveTableDraw.prototype.setTable = function( aTableArray )
 {
     this.table = aTableArray;
+
+    if ( this.canvas )
+        this.canvas.invalidate();   // force re-render
+};
+
+/**
+ * generates the waveform for given function type and
+ * sets it as the currently visible WaveTable
+ *
+ * @public
+ * @param {string} aType
+ */
+WaveTableDraw.prototype.generateAndSetTable = function( aType )
+{
+    var size  = Config.WAVE_TABLE_SIZE,
+        table = new Array( size ),
+        m     = Math.round( size / 2 ),
+        i;
+
+    switch ( aType )
+    {
+        case "TRIANGLE":
+
+            for ( i = 0; i < size; ++i )
+                table[ i ] = ( m - Math.abs( i % ( 2 * m ) - m )) * ( 1 / ( m / 2 ) ) - 1;
+
+            break;
+
+        case "SAW":
+
+            var phase = 0, phaseIncrement = ( 1 / size );
+            for ( i = 0; i < size; ++i ) {
+                table[ i ]  = ( phase < 0 ) ? phase - Math.round( phase - 1 ) : phase - Math.round( phase );
+                table[ i ] *= ( 1 / ( m / 2 )) - 2;
+                phase      += phaseIncrement;
+            }
+            break;
+
+        case "SQUARE":
+
+            for ( i = 0; i < size; ++i )
+                table[ i ] = ( i < m ) ? -1 : 1;
+
+            break;
+    }
+    this.setTable( table );
 };
 
 WaveTableDraw.prototype.draw = function( aCanvasContext )

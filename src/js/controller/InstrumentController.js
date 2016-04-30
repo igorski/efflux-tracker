@@ -93,9 +93,19 @@ var InstrumentController = module.exports =
 
         wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), function( table )
         {
+            var oscillator;
             if ( instrumentRef ) {
-                instrumentRef.oscillators[ activeOscillatorIndex ].table = table;
-                cacheOscillatorWaveForm( instrumentRef.oscillators[ activeOscillatorIndex ] );
+
+                oscillator       = instrumentRef.oscillators[ activeOscillatorIndex ];
+                oscillator.table = table;
+
+                // when drawing, force the oscillator type to transition to custom
+                if ( oscillator.waveform !== "CUSTOM" ) {
+                    Form.setSelectedOption( oscWaveformSelect, "CUSTOM" );
+                    handleOscillatorWaveformChange( null );
+                }
+                else
+                    cacheOscillatorWaveForm( instrumentRef.oscillators[ activeOscillatorIndex ] );
             }
         });
 
@@ -173,7 +183,7 @@ var InstrumentController = module.exports =
 
         var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
         view.querySelector( "h2" ).innerHTML = "Editing " + instrumentRef.name;
-        wtDraw.setTable( oscillator.table );
+        showWaveformForOscillator( oscillator );
         Form.setSelectedOption( oscEnabledSelect,  oscillator.enabled );
         Form.setSelectedOption( oscWaveformSelect, oscillator.waveform );
         Form.setSelectedOption( instrumentSelect,  instrumentRef.id );
@@ -204,8 +214,6 @@ var InstrumentController = module.exports =
         delayFeedbackControl.value = instrumentRef.delay.feedback;
         delayCutoffControl.value   = instrumentRef.delay.cutoff;
         delayOffsetControl.value   = instrumentRef.delay.offset + .5;
-
-        canvas.invalidate();
     },
 
     handleKey : function( type, keyCode, event )
@@ -355,14 +363,15 @@ function handleOscillatorEnabledChange( aEvent )
     cacheOscillatorWaveForm( oscillator );
 }
 
-function handleOscillatorWaveformChange(aEvent )
+function handleOscillatorWaveformChange( aEvent )
 {
     var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     instrumentRef.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
+    showWaveformForOscillator( oscillator );
     cacheOscillatorWaveForm( oscillator );
 }
 
-function handleOscillatorVolumeChange(aEvent )
+function handleOscillatorVolumeChange( aEvent )
 {
     instrumentRef.oscillators[ activeOscillatorIndex ].volume = parseFloat( oscVolumeControl.value );
     Pubsub.publishSync(
@@ -371,12 +380,20 @@ function handleOscillatorVolumeChange(aEvent )
     );
 }
 
-function handleInstrumentVolumeChange(aEvent )
+function handleInstrumentVolumeChange( aEvent )
 {
     instrumentRef.volume = parseFloat( instrumentVolumeControl.value );
     Pubsub.publishSync(
         Messages.ADJUST_INSTRUMENT_VOLUME, [ instrumentId, instrumentRef.volume ]
     );
+}
+
+function showWaveformForOscillator( oscillator )
+{
+    if ( oscillator.waveform !== "CUSTOM" )
+        wtDraw.generateAndSetTable( oscillator.waveform );
+    else
+        wtDraw.setTable( oscillator.table );
 }
 
 function cacheOscillatorWaveForm( oscillator )
