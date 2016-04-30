@@ -56,7 +56,11 @@ var SettingsController = module.exports =
             deviceSelect.addEventListener( "change", handleMIDIDeviceSelect );
         }
 
-        // add message listeners
+        // add event listeners
+
+        container.querySelector( ".close" ).addEventListener( "click", handleClose );
+
+        // subscribe to messages
 
         [
             Messages.OPEN_SETTINGS_PANEL,

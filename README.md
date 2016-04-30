@@ -70,7 +70,6 @@ TODO
 
  * Add modulator parameters for: filter enabled / freq / q, delay enabled / delay time / feedback / cutoff / offset
  * Move active pattern selectors to transport controls
- * Add close button to instrument and settings editor
  * Create fixtures
 
 NICE TO HAVES

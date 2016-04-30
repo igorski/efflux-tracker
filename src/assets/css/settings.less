@@ -1,15 +1,7 @@
 #settings
 {
-  position: fixed;
   .EditorComponent;
-  @width: 500px;
-  @height: 500px;
-  width: @width;
-  height: @height;
-  top: 50%;
-  left: 50%;
-  margin-left: -( @width / 2 );
-  margin-top: -( @height / 2 );
+  .Overlay;
   display: none;
 
   &.active {
@@ -23,5 +15,20 @@
 
   &.enabled {
     display: block;
+  }
+}
+
+@settingsWidth: 500px;
+@settingsHeight: 500px;
+
+@media screen and ( min-width: @settingsWidth) and ( min-height: @settingsHeight )
+{
+  #settings {
+    width: @settingsWidth;
+    height: @settingsHeight;
+    top: 50%;
+    left: 50%;
+    margin-left: -( @settingsWidth / 2 );
+    margin-top: -( @settingsHeight / 2 );
   }
 }

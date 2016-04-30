@@ -101,6 +101,7 @@ var InstrumentController = module.exports =
 
         // add listeners
 
+        view.querySelector( ".close" ).addEventListener( "click", handleClose );
         view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
         instrumentSelect.addEventListener ( "change",  handleInstrumentSelect );
         oscEnabledSelect.addEventListener ( "change",  handleOscillatorEnabledChange );
@@ -243,6 +244,11 @@ function handleBroadcast( type, payload )
             updateWaveformSize();
             break;
     }
+}
+
+function handleClose( aEvent )
+{
+    Pubsub.publish( Messages.CLOSE_OVERLAYS );
 }
 
 function handleOscillatorTabClick( aEvent )
