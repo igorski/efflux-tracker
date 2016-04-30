@@ -31,8 +31,8 @@ var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var tracker, audioController, audioContext, worker;
-var playBTN, recordBTN, tempoSlider, tempoDisplay, metronomeToggle;
+var tracker, audioController, audioContext, worker, editorModel;
+var playBTN, recordBTN, tempoSlider, currentPositionTitle, maxPositionTitle, metronomeToggle, tempoDisplay;
 
 var playing           = false,
     recording         = false,
@@ -60,6 +60,7 @@ var SequencerController = module.exports =
         tracker         = trackerRef;
         audioController = audioControllerRef;
         audioContext    = audioControllerRef.getContext();
+        editorModel     = tracker.EditorModel;
 
         containerRef.innerHTML += TemplateUtil.render( "transport" );
 
@@ -69,11 +70,13 @@ var SequencerController = module.exports =
 
         // cache view elements
 
-        playBTN         = containerRef.querySelector( "#playBTN" );
-        recordBTN       = containerRef.querySelector( "#recordBTN" );
-        tempoDisplay    = containerRef.querySelector( "#songTempoDisplay" );
-        tempoSlider     = containerRef.querySelector( "#songTempo" );
-        metronomeToggle = containerRef.querySelector( ".icon-metronome" );
+        playBTN              = containerRef.querySelector( "#playBTN" );
+        recordBTN            = containerRef.querySelector( "#recordBTN" );
+        tempoDisplay         = containerRef.querySelector( "#songTempoDisplay" );
+        tempoSlider          = containerRef.querySelector( "#songTempo" );
+        metronomeToggle      = containerRef.querySelector( ".icon-metronome" );
+        currentPositionTitle = document.querySelector( "#currentPattern .current" );
+        maxPositionTitle     = document.querySelector( "#currentPattern .total" );
 
         // add event listeners
 
@@ -81,6 +84,8 @@ var SequencerController = module.exports =
         recordBTN.addEventListener      ( "click", handleRecordToggle );
         tempoSlider.addEventListener    ( "input", handleTempoChange );
         metronomeToggle.addEventListener( "click", handleMetronomeToggle );
+        document.querySelector( "#patternBack" ).addEventListener( "click",  handlePatternNavBack );
+        document.querySelector( "#patternNext" ).addEventListener( "click",  handlePatternNavNext );
 
         // setup messaging system
 
@@ -88,6 +93,7 @@ var SequencerController = module.exports =
             Messages.MIDI_DEVICE_CONNECTED,
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
             Messages.SET_SEQUENCER_POSITION,
+            Messages.PATTERN_AMOUNT_UPDATED,
             Messages.LOAD_SONG,
             Messages.SONG_LOADED
 
@@ -198,6 +204,9 @@ var SequencerController = module.exports =
         var meta = tracker.activeSong.meta;
         tempoDisplay.innerHTML = meta.tempo + " BPM";
         measureLength = ( 60.0 / meta.tempo ) * beatAmount;
+
+        currentPositionTitle.innerHTML = ( editorModel.activePattern + 1 ).toString();
+        maxPositionTitle.innerHTML     = tracker.activeSong.patterns.length.toString();
     }
 };
 
@@ -219,6 +228,7 @@ function handleBroadcast( type, payload )
             SequencerController.setPlaying( false );
             break;
 
+        case Messages.PATTERN_AMOUNT_UPDATED:
         case Messages.SONG_LOADED:
             SequencerController.update();
             break;
@@ -255,6 +265,24 @@ function handleMetronomeToggle( e )
         metronomeToggle.classList.remove( "active" );
 
     Metronome.enabled = enabled;
+}
+
+function handlePatternNavBack( aEvent )
+{
+    if ( editorModel.activePattern > 0 ) {
+        Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
+        SequencerController.update();
+    }
+}
+
+function handlePatternNavNext( aEvent )
+{
+    var max = tracker.activeSong.patterns.length - 1;
+
+    if ( editorModel.activePattern < max ) {
+        Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
+        SequencerController.update();
+    }
 }
 
 function handleTempoChange( e )
@@ -368,6 +396,7 @@ function step()
             }
         }
         Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
+        SequencerController.update();
     }
     Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
 }

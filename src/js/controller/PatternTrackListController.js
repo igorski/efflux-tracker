@@ -36,7 +36,7 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 var wrapper, container, tracker, editorModel, keyboardController;
 var maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
-    stateModel, selectionModel, patternCopy, positionTitle, stepSelect;
+    stateModel, selectionModel, patternCopy, stepSelect;
 
 var PATTERN_WIDTH = 150; // width of a single track/pattern column
 
@@ -57,7 +57,6 @@ var PatternTrackListController = module.exports =
 
         container     = containerRef;
         wrapper       = containerRef.querySelector( ".wrapper" );
-        positionTitle = document.querySelector( "#currentPattern" );
         stepSelect    = document.querySelector( "#patternSteps"  );
 
         selectionModel = new SelectionModel();
@@ -78,8 +77,6 @@ var PatternTrackListController = module.exports =
         document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
         document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
         document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
-        document.querySelector( "#patternBack"   ).addEventListener( "click",  handlePatternNavBack );
-        document.querySelector( "#patternNext"   ).addEventListener( "click",  handlePatternNavNext );
 
         stepSelect.addEventListener( "change", handlePatternStepChange );
 
@@ -121,8 +118,6 @@ var PatternTrackListController = module.exports =
             steps   : pattern.steps,
             pattern : pattern
         });
-        positionTitle.querySelector( ".current" ).innerHTML = ( activePattern + 1 ).toString();
-        positionTitle.querySelector( ".total" ).innerHTML   = tracker.activeSong.patterns.length.toString();
         Form.setSelectedOption( stepSelect, pattern.steps );
 
         container.scrollLeft = coordinates.x;
@@ -329,6 +324,7 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_SWITCH:
             editorModel.activePattern = payload;
+            selectionModel.clearSelection();
             PatternTrackListController.update();
             break;
 
@@ -513,8 +509,8 @@ function handlePatternAdd( aEvent )
     var song     = tracker.activeSong,
         patterns = song.patterns;
 
-    if ( patterns.length === 128 ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of 128 patterns" );
+    if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
+        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of " + Config.MAX_PATTERN_AMOUNT + " patterns" );
         return;
     }
 
@@ -524,9 +520,9 @@ function handlePatternAdd( aEvent )
     front.push( PatternFactory.createEmptyPattern( editorModel.amountOfSteps ));
 
     song.patterns = front.concat( back );
-    handlePatternNavNext( null );
 
-    Pubsub.publishSync( Messages.PATTERN_AMOUNT_UPDATED );
+    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
+    Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
 }
 
 function handlePatternDelete( aEvent )
@@ -543,31 +539,11 @@ function handlePatternDelete( aEvent )
         song.patterns.splice( editorModel.activePattern, 1 );
 
         if ( editorModel.activePattern > 0 )
-            handlePatternNavBack( aEvent );
+            Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
         else
             PatternTrackListController.update();
 
-        Pubsub.publishSync( Messages.PATTERN_AMOUNT_UPDATED );
-    }
-}
-
-function handlePatternNavBack( aEvent )
-{
-    if ( editorModel.activePattern > 0 ) {
-        --editorModel.activePattern;
-        selectionModel.clearSelection();
-        PatternTrackListController.update();
-    }
-}
-
-function handlePatternNavNext( aEvent )
-{
-    var max = tracker.activeSong.patterns.length - 1;
-
-    if ( editorModel.activePattern < max ) {
-        ++editorModel.activePattern;
-        selectionModel.clearSelection();
-        PatternTrackListController.update();
+        Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
     }
 }
 

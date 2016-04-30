@@ -121,6 +121,7 @@ function handleBroadcast( type, payload )
 
             if ( song ) {
                 tracker.activeSong = ObjectUtil.clone( song );
+                tracker.EditorModel.reset();
                 tracker.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
                 SongUtil.resetPlayState( tracker.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
                 Pubsub.publishSync( Messages.SONG_LOADED, song );

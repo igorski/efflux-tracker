@@ -82,3 +82,11 @@ function EditorModel()
      */
     this.loopedRecording = true;
 }
+
+EditorModel.prototype.reset = function()
+{
+    this.activeInstrument =
+    this.activePattern    =
+    this.activeStep       = 0;
+    this.recordingInput   = false;
+};

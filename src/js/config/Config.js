@@ -24,6 +24,7 @@ module.exports =
 {
     INSTRUMENT_AMOUNT           : 8,
     WAVE_TABLE_SIZE             : 512,
+    MAX_PATTERN_AMOUNT          : 128,
     FILE_EXTENSION              : ".xtk",
 
     DEFAULT_FILTER_FREQ         : 880,

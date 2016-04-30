@@ -69,8 +69,9 @@ TODO
 ----
 
  * Add modulator parameters for: filter enabled / freq / q, delay enabled / delay time / feedback / cutoff / offset
- * Move active pattern selectors to transport controls
  * Create fixtures
+ * Instrument mute / solo
+ * Show standard waveforms in editor view, when about to draw, activate custom mode
 
 NICE TO HAVES
 -------------
@@ -86,4 +87,5 @@ KNOWN BUGS
  * When copy-pasting an existing pattern into a new pattern, the new pattern is silent (has to do with
    start measure and measure offset!)
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
-   
+ * stopping tracker on Safari while note is playing doesn't kill the note
+ * when selecting a single step from a channel other than the first, it doesn't copy/cut!
