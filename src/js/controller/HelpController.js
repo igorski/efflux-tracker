@@ -28,6 +28,7 @@ var TemplateUtil = require( "../utils/TemplateUtil" );
 
 var container, tracker;
 var contentContainer, currentSection;
+var DELAY = 500, lastHelpRequest = Date.now(), timeout = 0, queuedSection;
 
 var HelpController = module.exports =
 {
@@ -70,13 +71,38 @@ function handleBroadcast( type, payload )
 
             if ( currentSection !== payload )
             {
-                var template = TemplateUtil.render( payload );
+                var now = Date.now();
 
-                if ( template.length > 0 )
-                    contentContainer.innerHTML = template;
+                // we slightly delay showing the new help text
+                // (scenario: user is moving the mouse to helpSection
+                // to scroll its currently displayed help text)
 
-                currentSection = payload;
+                if (( now - lastHelpRequest ) > ( DELAY * 2 )) {
+
+                    if ( timeout === 0 ) {
+                        queuedSection = payload;
+                        timeout = setTimeout( showEnqueuedHelp, DELAY );
+                    }
+                }
+                lastHelpRequest = now;
             }
             break;
     }
+}
+
+function showEnqueuedHelp()
+{
+    clearTimeout( timeout );
+    timeout = 0;
+
+    if ( queuedSection && currentSection !== queuedSection ) {
+
+        var template = TemplateUtil.render( queuedSection );
+
+        if ( template.length > 0 )
+            contentContainer.innerHTML = template;
+
+        currentSection = queuedSection;
+    }
+    queuedSection = null;
 }
