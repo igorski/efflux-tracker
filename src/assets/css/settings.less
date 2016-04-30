@@ -16,6 +16,23 @@
   &.enabled {
     display: block;
   }
+
+  .wrapper {
+    label, select {
+      display: block;
+    }
+    select {
+        width: 100%;
+        overflow:hidden;
+        white-space:nowrap;
+        text-overflow:ellipsis;
+    }
+    select option {
+        width: inherit;
+        text-overflow:ellipsis;
+        overflow:hidden;
+    }
+  }
 }
 
 @settingsWidth: 500px;
