@@ -68,24 +68,24 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Add modulator parameters for: filter enabled / lfo enabled / lfo speed / lfo depth, delay enabled / delay time / feedback / cutoff / offset
+ * Add modulator parameters for: filter enabled / lfo enabled, delay enabled / delay time / feedback / cutoff / offset
  * Create fixtures
- * Instrument mute / solo
  * Show module parameter value
  * Implement keyboard shortcuts for precise module parameter values
- * different colours for each channel
+ * different colours for each channel, implement correct formatting for module params
  * better highlighting of current step
- 
-ROADMAP
--------
 
- * Improve arrow key navigation within patterns
- * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
- * Add overdrive (npm: wa-overdrive)
- * When selecting notes in noteEntry popup sound note when making changes to note / octave
- 
 KNOWN BUGS
 ----------
 
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * when selecting a single step from a channel other than the first, it doesn't copy/cut!
+
+ROADMAP
+-------
+
+ * Improve arrow key navigation within patterns
+ * Instrument mute / solo
+ * Add overdrive (npm: wa-overdrive)
+ * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
+ * When selecting notes in noteEntry popup sound note when making changes to note / octave

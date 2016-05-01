@@ -34,6 +34,8 @@ module.exports =
 
     DEFAULT_FILTER_LFO_SPEED    : .5,
     DEFAULT_FILTER_LFO_DEPTH    : 50,
+    MAX_FILTER_LFO_SPEED        : 25,
+    MAX_FILTER_LFO_DEPTH        : 100,
 
     DEFAULT_DELAY_MIX           : .65,
     DEFAULT_DELAY_FEEDBACK      : 0.0000001,

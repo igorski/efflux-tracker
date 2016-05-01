@@ -93,6 +93,8 @@ var ModuleUtil = module.exports =
             // filter effects
             case "filterFreq":
             case "filterQ":
+            case "filterLFOSpeed":
+            case "filterLFODepth":
                 applyFilter( audioEvent, modules, startTimeInSeconds );
                 break;
         }
@@ -169,7 +171,7 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
 {
     var mp = audioEvent.mp, doGlide = mp.glide,
             durationInSeconds = audioEvent.seq.mpLength,
-            module = modules.filter, target = ( mp.value / 100 ), amp;
+            module = modules.filter, target = ( mp.value / 100 );
 
     switch ( mp.module )
     {
@@ -179,6 +181,17 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
 
         case "filterQ":
             scheduleParameterChange( module.filter.Q, target * Config.MAX_FILTER_Q, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+
+        case "filterLFOSpeed":
+            scheduleParameterChange( module.lfo.frequency, target * Config.MAX_FILTER_LFO_SPEED, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+
+        case "filterLFODepth":
+            scheduleParameterChange( module.lfoAmp.gain,
+                ( target * Config.MAX_FILTER_LFO_DEPTH ) / 100 * module.filter.frequency.value,
+                startTimeInSeconds, durationInSeconds, doGlide
+            );
             break;
     }
 }
