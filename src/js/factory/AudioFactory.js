@@ -77,10 +77,14 @@ var AudioFactory = module.exports =
      */
     stopOscillation : function( aOscillator, aValue )
     {
-        if ( isStandards)
-            aOscillator.stop( aValue );
-        else
-            aOscillator.noteOff( aValue );
+        try {
+
+            if ( isStandards)
+                aOscillator.stop( aValue );
+            else
+                aOscillator.noteOff( aValue );
+        }
+        catch ( e ) {} // likely Safari DOM Exception 11 if oscillator was previously stopped
     },
     
     /**
