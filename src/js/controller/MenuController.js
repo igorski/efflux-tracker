@@ -48,7 +48,9 @@ var MenuController = module.exports =
         songController     = songControllerRef;
 
         var canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
-        var canRecord       = ( "Blob" in window );
+        // on iOS and Safari recording isn't working as expected...
+        var userAgent = window.navigator.userAgent;
+        var canRecord = ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
 
         containerRef.innerHTML += TemplateUtil.render( "menuView", {
             addExport : canImportExport,
