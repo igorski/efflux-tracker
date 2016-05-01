@@ -69,7 +69,6 @@ TODO
 ----
 
  * different colours for each channel
- * better highlighting of current step
  * Create fixtures
  * Implement keyboard shortcuts for precise module parameter value control
 
@@ -84,6 +83,7 @@ KNOWN BUGS
 ROADMAP
 -------
 
+ * Use workerify to inline Workers
  * Add cut/paste icons for touch screen devices
  * Improve arrow key navigation within patterns
  * Instrument mute / solo

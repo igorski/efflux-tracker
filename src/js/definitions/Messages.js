@@ -41,6 +41,7 @@ module.exports =
     OPEN_SETTINGS_PANEL       : "UI:5",
     OPEN_NOTE_ENTRY_PANEL     : "UI:6", // payload is callback Function to be executed on panel close
     OPEN_MODULE_PARAM_PANEL   : "UI:7", // payload is callback Function to be executed on panel close
+    HIGHLIGHT_ACTIVE_STEP     : "UI:8", // payload is number indicating currently active highlight
 
     // song messages
 

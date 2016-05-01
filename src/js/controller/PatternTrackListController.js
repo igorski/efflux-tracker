@@ -35,7 +35,7 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var wrapper, container, tracker, editorModel, keyboardController;
+var wrapper, container, tracker, editorModel, keyboardController, stepHighlight;
 var maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
     stateModel, selectionModel, patternCopy, stepSelect;
 
@@ -59,6 +59,7 @@ var PatternTrackListController = module.exports =
         container     = containerRef;
         wrapper       = containerRef.querySelector( ".wrapper" );
         stepSelect    = document.querySelector( "#patternSteps"  );
+        stepHighlight = containerRef.querySelector( ".highlight" );
 
         selectionModel = new SelectionModel();
         stateModel     = new StateModel();
@@ -93,6 +94,7 @@ var PatternTrackListController = module.exports =
             Messages.REFRESH_SONG,
             Messages.REFRESH_PATTERN_VIEW,
             Messages.PATTERN_SWITCH,
+            Messages.HIGHLIGHT_ACTIVE_STEP,
             Messages.EDIT_NOTE_AT_POSITION,
             Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
@@ -330,6 +332,10 @@ function handleBroadcast( type, payload )
         case Messages.PATTERN_SWITCH:
             selectionModel.clearSelection();
             PatternTrackListController.update();
+            break;
+
+        case Messages.HIGHLIGHT_ACTIVE_STEP:
+            stepHighlight.style.top = ( payload * 32 ) + "px";
             break;
 
         case Messages.REFRESH_PATTERN_VIEW:

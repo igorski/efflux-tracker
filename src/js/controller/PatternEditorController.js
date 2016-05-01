@@ -99,11 +99,14 @@ function handleBroadcast( type, payload )
             {
                 rafPending = false;
 
-                var step = payload[ 0 ], total = payload[ 1 ];
-                var diff = total / stepAmount;
+                var step  = payload[ 0 ],
+                    total = payload[ 1 ],
+                    diff  = total / stepAmount;
 
                 if ( step % diff !== 0 )
                     return;
+
+                Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff )); // PatternTrackListController...
 
                 var i = patternIndices.length, number;
 

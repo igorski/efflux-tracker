@@ -85,6 +85,7 @@
 
 #patternContainer
 {
+  position: relative;
   width: 200px; // will be calculated by JS (see PatternTrackListController)
   overflow-x: scroll;
 
@@ -172,6 +173,16 @@
         }
       }
     }
+  }
+
+  .highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1200px;
+    height: 32px;
+    background-color: @color-2;
+    mix-blend-mode: screen;
   }
 }
 
