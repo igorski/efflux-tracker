@@ -229,6 +229,8 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.LOAD_SONG:
+            if ( looping )
+                handleLoopToggle( null );
             SequencerController.setPlaying( false );
             break;
 
