@@ -91,8 +91,13 @@ var ModuleParamController = module.exports =
 
                 // modules and parameters
 
+                case 68: // D
+                    selectedModule = getNextSelectedModule( [ "delayEnabled", "delayTime", "delayFeedback", "delayCutoff", "delayOffset" ], selectedModule );
+                    setSelectedValueInList( moduleList, selectedModule );
+                    break;
+
                 case 70: // F
-                    selectedModule = getNextSelectedModule( [ "filterFreq", "filterQ", "filterLFOSpeed", "filterLFODepth" ], selectedModule );
+                    selectedModule = getNextSelectedModule( [ "filterEnabled", "filterFreq", "filterQ", "filterLFOSpeed", "filterLFODepth" ], selectedModule );
                     setSelectedValueInList( moduleList, selectedModule );
                     break;
 

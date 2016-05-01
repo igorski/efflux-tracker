@@ -299,7 +299,8 @@ var AudioController = module.exports =
                 aEvent,
                 instrumentModules[ aInstrument.id ],
                 instrumentEvents[ aInstrument.id ],
-                startTimeInSeconds || audioContext.currentTime
+                startTimeInSeconds || audioContext.currentTime,
+                masterBus
             );
         }
     },

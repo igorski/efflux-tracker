@@ -74,8 +74,9 @@ var ModuleUtil = module.exports =
      * @param {INSTRUMENT_MODULES} modules
      * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
      * @param {number} startTimeInSeconds
+     * @param {AudioGainNode} output
      */
-    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds )
+    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds, output )
     {
         switch ( audioEvent.mp.module )
         {
@@ -91,11 +92,29 @@ var ModuleUtil = module.exports =
                 break;
 
             // filter effects
+            case "filterEnabled":
+                modules.filter.filterEnabled = ( audioEvent.mp.value >= 50 );
+                ModuleUtil.applyRouting( modules, output );
+                break;
+
             case "filterFreq":
             case "filterQ":
             case "filterLFOSpeed":
             case "filterLFODepth":
                 applyFilter( audioEvent, modules, startTimeInSeconds );
+                break;
+
+            // delay effects
+            case "delayEnabled":
+                modules.delay.delayEnabled = ( audioEvent.mp.value >= 50 );
+                ModuleUtil.applyRouting( modules, output );
+                break;
+
+            case "delayTime":
+            case "delayFeedback":
+            case "delayCutoff":
+            case "delayOffset":
+                applyDelay( audioEvent, modules, startTimeInSeconds );
                 break;
         }
     }
@@ -192,6 +211,32 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
                 ( target * Config.MAX_FILTER_LFO_DEPTH ) / 100 * module.filter.frequency.value,
                 startTimeInSeconds, durationInSeconds, doGlide
             );
+            break;
+    }
+}
+
+function applyDelay( audioEvent, modules, startTimeInSeconds )
+{
+    var mp = audioEvent.mp, doGlide = mp.glide,
+            durationInSeconds = audioEvent.seq.mpLength,
+            module = modules.delay.delay, target = ( mp.value / 100 );
+
+    switch ( mp.module )
+    {
+        case "delayTime":
+            module.delay = target * Config.MAX_DELAY_TIME;
+            break;
+
+        case "delayFeedback":
+            module.feedback = target * Config.MAX_DELAY_FEEDBACK;
+            break;
+
+        case "delayCutoff":
+            module.cutoff = target * Config.MAX_DELAY_CUTOFF;
+            break;
+
+        case "delayOffset":
+            module.offset = target * Config.MAX_DELAY_OFFSET;
             break;
     }
 }

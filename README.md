@@ -68,18 +68,18 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Add modulator parameters for: filter enabled / lfo enabled, delay enabled / delay time / feedback / cutoff / offset
- * Create fixtures
  * Show module parameter value
- * Implement keyboard shortcuts for precise module parameter values
  * different colours for each channel, implement correct formatting for module params
  * better highlighting of current step
+ * Create fixtures
+ * Implement keyboard shortcuts for precise module parameter values
 
 KNOWN BUGS
 ----------
 
  * When adding a note to a track, by default it should use the instrument of the previous note in the lane
  * when selecting a single step from a channel other than the first, it doesn't copy/cut!
+ * delay module parameter mutations don't glide
 
 ROADMAP
 -------

@@ -161,13 +161,13 @@ var AudioFactory = module.exports =
      * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Filter module
      *
-     * @param {Object} instrumentModule
+     * @param {INSTRUMENT_MODULES} modules
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyFilterConfiguration : function( instrumentModule, props, output )
+    applyFilterConfiguration : function( modules, props, output )
     {
-        var filter        = instrumentModule.filter;
+        var filter        = modules.filter;
         var filterEnabled = ( props.lfoType !== "off" );
 
         filter.filter.frequency.value = props.frequency;
@@ -182,7 +182,7 @@ var AudioFactory = module.exports =
         filter.filter.type   = props.type;
         filter.filterEnabled = props.enabled;
 
-        ModuleUtil.applyRouting( instrumentModule, output );
+        ModuleUtil.applyRouting( modules, output );
 
         if ( filterEnabled )
         {
