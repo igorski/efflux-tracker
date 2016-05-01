@@ -344,10 +344,10 @@ function handleDelayChange( aEvent )
 
     delay.enabled  = ( Form.getSelectedOption( delayEnabledSelect ) === "true" );
     delay.type     = parseFloat( Form.getSelectedOption( delayTypeSelect ));
-    delay.time     = delayTimeControl.value;
-    delay.feedback = delayFeedbackControl.value;
-    delay.cutoff   = delayCutoffControl.value;
-    delay.offset   = delayOffsetControl.value - .5;
+    delay.time     = parseFloat( delayTimeControl.value );
+    delay.feedback = parseFloat( delayFeedbackControl.value );
+    delay.cutoff   = parseFloat( delayCutoffControl.value );
+    delay.offset   = parseFloat( delayOffsetControl.value ) - .5;
 
     Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS, [ instrumentId, delay ]);
 }

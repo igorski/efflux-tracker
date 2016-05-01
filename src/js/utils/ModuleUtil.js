@@ -217,9 +217,7 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
 
 function applyDelay( audioEvent, modules, startTimeInSeconds )
 {
-    var mp = audioEvent.mp, doGlide = mp.glide,
-            durationInSeconds = audioEvent.seq.mpLength,
-            module = modules.delay.delay, target = ( mp.value / 100 );
+    var mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
 
     switch ( mp.module )
     {
