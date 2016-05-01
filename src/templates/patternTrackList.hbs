@@ -14,11 +14,12 @@
                 //// OFF ////
             {{/if}}
         {{else}}
-            ----
+            <span class="note empty">----</span>
+            <span class="instrument"></span>
         {{/if}}
         {{# if this.mp }}
         <span class="moduleParam">
-            {{this.mp.module }} {{ this.mp.value }} {{ this.mp.glide }}
+            {{mparam this.mp}}
         </span>
         {{/if}}
     </li>

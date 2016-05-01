@@ -68,10 +68,10 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * different colours for each channel, implement correct formatting for module params
+ * different colours for each channel
  * better highlighting of current step
  * Create fixtures
- * Implement keyboard shortcuts for precise module parameter values
+ * Implement keyboard shortcuts for precise module parameter value control
 
 KNOWN BUGS
 ----------
@@ -83,6 +83,7 @@ KNOWN BUGS
 ROADMAP
 -------
 
+ * Add cut/paste icons for touch screen devices
  * Improve arrow key navigation within patterns
  * Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)

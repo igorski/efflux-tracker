@@ -133,6 +133,7 @@ var ModuleParamController = module.exports =
 
                     var num = parseFloat( String.fromCharCode( keyCode ));
                     valueControl.value = ( num === 0 ) ? 100 : num * 10;
+                    handleValueChange( null );
                     break;
             }
         }

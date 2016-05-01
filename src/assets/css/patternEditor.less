@@ -150,16 +150,25 @@
         display: inline-block;
         .noEvents;
 
-        &.sound, &.note {
-          width: 45%;
-          &.accent-true {
-            font-style: italic;
+        &.note {
+          width: 35%;
+          text-transform: uppercase;
+          color: @color-5;
+
+          &.empty {
+            color: #b6b6b6;
           }
         }
 
-        &.note {
-          text-transform: uppercase;
-          color: #b6b6b6;
+        &.instrument {
+          width: 10%;
+          color: #FFF;
+        }
+
+        &.moduleParam {
+          width: 48%;
+          color: #DDD;
+          text-align: right;
         }
       }
     }
