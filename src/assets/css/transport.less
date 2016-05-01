@@ -136,3 +136,14 @@
   .icon-metronome:before { content: '\e802'; }
   .icon-settings:before { content: '\e803'; }
 }
+
+/* mobile view */
+
+@media screen and ( max-width: @mobile-width )
+{
+  #transportControls {
+    label {
+      display: none !important;
+    }
+  }
+}

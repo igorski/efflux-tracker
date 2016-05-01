@@ -2,3 +2,19 @@
 {
   .EditorComponent;
 }
+
+/* mobile view */
+
+@media screen and ( max-width: @mobile-width ) {
+  #metaEditor {
+    h2 {
+      display: none;
+    }
+    input, button {
+      display: block;
+      margin: .25em 0;
+      .boxSize;
+      width: 100%;
+    }
+  }
+}

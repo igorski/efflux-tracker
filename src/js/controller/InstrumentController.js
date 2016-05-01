@@ -231,7 +231,9 @@ function handleBroadcast( type, payload )
     {
         case Messages.TOGGLE_INSTRUMENT_EDITOR:
 
-            Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
+            Pubsub.publish( Messages.CLOSE_OVERLAYS, InstrumentController );
+            Pubsub.publish( Messages.SHOW_BLIND );
+
             container.appendChild( view );
             canvas.addChild( wtDraw );
 
@@ -242,7 +244,7 @@ function handleBroadcast( type, payload )
 
         case Messages.CLOSE_OVERLAYS:
 
-            if ( view.parentNode ) {
+            if ( payload !== InstrumentController && view.parentNode ) {
                 container.removeChild( view );
                 canvas.removeChild( wtDraw );
             }

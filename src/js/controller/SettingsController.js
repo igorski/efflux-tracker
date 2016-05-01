@@ -106,12 +106,14 @@ function handleBroadcast( type, payload )
 function handleOpen()
 {
     container.classList.add( "active" );
+    Pubsub.publish( Messages.SHOW_BLIND );
     keyboardController.setListener( SettingsController );
 }
 
 function handleClose()
 {
     container.classList.remove( "active" );
+    Pubsub.publishSync( Messages.HIDE_BLIND );
 }
 
 function handleMIDIConnect( aEvent )

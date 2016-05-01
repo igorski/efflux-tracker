@@ -186,11 +186,12 @@ function handleOpen( completeCallback )
         note         : ( event ) ? event.note       : "C",
         octave       : ( event ) ? event.octave     : 3,
         patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
-        channelIndex : ( event ) ? event.instrument       : channelIndex,
+        channelIndex : channelIndex, // always use channel index (event instrument might be associated w/ different channel lane)
         step         : editorModel.activeStep
     };
 
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
+    Pubsub.publish( Messages.SHOW_BLIND );
 
     closeCallback = completeCallback;
 
@@ -213,6 +214,8 @@ function handleClose()
 {
     if ( typeof closeCallback === "function" )
         closeCallback();
+
+    Pubsub.publishSync( Messages.HIDE_BLIND );
 
     dispose();
 }
@@ -245,10 +248,7 @@ function handleReady()
             step         : data.step
         } ]);
     }
-    if ( typeof closeCallback === "function" )
-        closeCallback();
-
-    dispose();
+    handleClose();
 }
 
 function dispose()

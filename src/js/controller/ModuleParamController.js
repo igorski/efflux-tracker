@@ -30,7 +30,7 @@ var Pubsub       = require( "pubsub-js" );
 
 var container, element, tracker, keyboardController;
 var data, selectedModule, selectedGlide = false, closeCallback,
-    moduleList, glideOptions, valueControl;
+    moduleList, valueDisplay, glideOptions, valueControl;
 
 var ModuleParamController = module.exports =
 {
@@ -54,12 +54,14 @@ var ModuleParamController = module.exports =
         moduleList   = element.querySelectorAll( "#moduleSelect li" );
         glideOptions = element.querySelectorAll( "input[type=radio]" );
         valueControl = element.querySelector( "#moduleValue" );
+        valueDisplay = element.querySelector( "#moduleInputValue" );
 
         // add listeners
 
         element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
         element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
         element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
+        valueControl.addEventListener( "input", handleValueChange );
 
         // subscribe to messaging system
 
@@ -176,11 +178,12 @@ function handleOpen( completeCallback )
         glide        : ( event && event.mp ) ? event.mp.glide   : false,
         value        : ( event && event.mp ) ? event.mp.value   : 50,
         patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
-        channelIndex : ( event ) ? event.instrument       : channelIndex,
+        channelIndex : channelIndex, // always use channel index (event instrument might be associated w/ different channel lane)
         step         : editorModel.activeStep
     };
 
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
+    Pubsub.publish( Messages.SHOW_BLIND );
 
     closeCallback  = completeCallback;
     selectedModule = data.module;
@@ -191,6 +194,7 @@ function handleOpen( completeCallback )
     setSelectedValueInList( moduleList, data.module );
     Form.setCheckedOption( glideOptions, data.glide );
     valueControl.value = data.value;
+    handleValueChange( null ); // shows numerical value
 
     if ( !element.parentNode )
         container.appendChild( element );
@@ -200,6 +204,8 @@ function handleClose()
 {
     if ( typeof closeCallback === "function" )
         closeCallback( null );
+
+    Pubsub.publishSync( Messages.HIDE_BLIND );
 
     dispose();
 }
@@ -230,10 +236,7 @@ function handleReady()
             step         : data.step
         } ]);
 //    }
-    if ( typeof closeCallback === "function" )
-        closeCallback();
-
-    dispose();
+    handleClose();
 }
 
 function dispose()
@@ -254,6 +257,11 @@ function handleModuleClick( aEvent )
     if ( target.nodeName === "LI" ) {
         setSelectedValueInList( moduleList, target.getAttribute( "data-value" ));
     }
+}
+
+function handleValueChange( aEvent )
+{
+    valueDisplay.innerHTML = valueControl.value;
 }
 
 /* list functions */

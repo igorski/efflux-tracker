@@ -24,60 +24,62 @@ module.exports =
 {
     // system messages
 
-    SHOW_ERROR                : 0, // payload is a String message that will be displayed in a popup (NotificationController)
-    SHOW_FEEDBACK             : 1, // payload is a String message that will be displayed in a popup (NotificationController)
-    WINDOW_SCROLLED           : 2,
-    WINDOW_RESIZED            : 3,
+    SHOW_ERROR                : "SYS:0", // payload is a String message that will be displayed in a popup (NotificationController)
+    SHOW_FEEDBACK             : "SYS:1", // payload is a String message that will be displayed in a popup (NotificationController)
+    SHOW_BLIND                : "SYS:2",
+    HIDE_BLIND                : "SYS:3",
+    WINDOW_SCROLLED           : "SYS:4",
+    WINDOW_RESIZED            : "SYS:5",
 
     // UI messages
 
-    DISPLAY_HELP              : 4,
-    CLOSE_OVERLAYS            : 5,
-    TOGGLE_INSTRUMENT_EDITOR  : 6,  // payload consists of number describing selected instrument index
-    SET_CUSTOM_WAVEFORM       : 7,  // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
-    OPEN_SONG_LIST            : 8,
-    OPEN_SETTINGS_PANEL       : 9,
-    OPEN_NOTE_ENTRY_PANEL     : 10, // payload is callback Function to be executed on panel close
-    OPEN_MODULE_PARAM_PANEL   : 11, // payload is callback Function to be executed on panel close
+    DISPLAY_HELP              : "UI:0",
+    CLOSE_OVERLAYS            : "UI:1", // payload consists of optional ViewController (references controller of overlay that should remain unclosed)
+    TOGGLE_INSTRUMENT_EDITOR  : "UI:2", // payload consists of number describing selected instrument index
+    SET_CUSTOM_WAVEFORM       : "UI:3", // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
+    OPEN_SONG_LIST            : "UI:4",
+    OPEN_SETTINGS_PANEL       : "UI:5",
+    OPEN_NOTE_ENTRY_PANEL     : "UI:6", // payload is callback Function to be executed on panel close
+    OPEN_MODULE_PARAM_PANEL   : "UI:7", // payload is callback Function to be executed on panel close
 
     // song messages
 
-    LOAD_SONG                 : 12,  // payload consists of the Song that has been loaded
-    SONG_LOADED               : 13,  // payload consists of the Song that has been loaded
-    REFRESH_SONG              : 14,
-    REFRESH_PATTERN_VIEW      : 15,
-    PATTERN_SWITCH            : 16,  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : 17,
-    PATTERN_STEPS_UPDATED     : 18,  // payload consists of number describing new pattern length
+    LOAD_SONG                 : "SNG:0",  // payload consists of the Song that has been loaded
+    SONG_LOADED               : "SNG:1",  // payload consists of the Song that has been loaded
+    REFRESH_SONG              : "SNG:2",
+    REFRESH_PATTERN_VIEW      : "SNG:3",
+    PATTERN_SWITCH            : "SNG:4",  // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED    : "SNG:5",
+    PATTERN_STEPS_UPDATED     : "SNG:6",  // payload consists of number describing new pattern length
 
     // sequencer messages
 
-    TOGGLE_SEQUENCER_PLAYSTATE : 19,
-    PLAYBACK_STARTED           : 20,
-    PLAYBACK_STOPPED           : 21,
-    SET_SEQUENCER_POSITION     : 22, // payload is number describing new measure position
-    RECORDING_COMPLETE         : 23,
-    TEMPO_UPDATED              : 24, // payload is Array [ old tempo, new tempo ]
-    STEP_POSITION_REACHED      : 25, // payload is Array [ current step position, total step positions (per measure) ]
-    TOGGLE_RECORD_MODE         : 26,
+    TOGGLE_SEQUENCER_PLAYSTATE : "SEQ:0",
+    PLAYBACK_STARTED           : "SEQ:1",
+    PLAYBACK_STOPPED           : "SEQ:2",
+    SET_SEQUENCER_POSITION     : "SEQ:3", // payload is number describing new measure position
+    RECORDING_COMPLETE         : "SEQ:4",
+    TEMPO_UPDATED              : "SEQ:5", // payload is Array [ old tempo, new tempo ]
+    STEP_POSITION_REACHED      : "SEQ:6", // payload is Array [ current step position, total step positions (per measure) ]
+    TOGGLE_RECORD_MODE         : "SEQ:7",
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING   : 27, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME   : 28, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_WAVEFORM : 29, // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_INSTRUMENT_VOLUME   : 30, // payload is Array [ instrument index, new volume ]
-    UPDATE_FILTER_SETTINGS     : 31, // payload is Array [ instrument index, filter properties Object ]
-    UPDATE_DELAY_SETTINGS      : 32, // payload is Array [ instrument index, delay properties Object ]
-    EDIT_NOTE_AT_POSITION      : 33,
-    ADD_EVENT_AT_POSITION      : 34, // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
-    ADD_OFF_AT_POSITION        : 35,
-    REMOVE_NOTE_AT_POSITION    : 36,
+    ADJUST_OSCILLATOR_TUNING   : "ED:0", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME   : "ED:1", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_WAVEFORM : "ED:2", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_INSTRUMENT_VOLUME   : "ED:3", // payload is Array [ instrument index, new volume ]
+    UPDATE_FILTER_SETTINGS     : "ED:4", // payload is Array [ instrument index, filter properties Object ]
+    UPDATE_DELAY_SETTINGS      : "ED:5", // payload is Array [ instrument index, delay properties Object ]
+    EDIT_NOTE_AT_POSITION      : "ED:6",
+    ADD_EVENT_AT_POSITION      : "ED:7", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
+    ADD_OFF_AT_POSITION        : "ED:8",
+    REMOVE_NOTE_AT_POSITION    : "ED:9",
 
     // MIDI messages
 
-    MIDI_CONNECT_TO_INTERFACE   : 37,
-    MIDI_ADD_LISTENER_TO_DEVICE : 38, // payload is device number (is MIDIInput list number)
-    MIDI_RECEIVED_INPUT_DEVICES : 39, // payload is Array.<MIDIInput>
-    MIDI_DEVICE_CONNECTED       : 40  // payload is device number (is MIDIInput list number)
+    MIDI_CONNECT_TO_INTERFACE   : "MID:0",
+    MIDI_ADD_LISTENER_TO_DEVICE : "MID:1", // payload is device number (is MIDIInput list number)
+    MIDI_RECEIVED_INPUT_DEVICES : "MID:2", // payload is Array.<MIDIInput>
+    MIDI_DEVICE_CONNECTED       : "MID:3"  // payload is device number (is MIDIInput list number)
 };

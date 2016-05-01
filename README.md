@@ -68,7 +68,7 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Show module parameter value
+ * loop current pattern-button
  * different colours for each channel, implement correct formatting for module params
  * better highlighting of current step
  * Create fixtures
@@ -77,7 +77,7 @@ TODO
 KNOWN BUGS
 ----------
 
- * When adding a note to a track, by default it should use the instrument of the previous note in the lane
+ * When adding a note or module change to a track, by default it should use the instrument of the previous note in the lane
  * when selecting a single step from a channel other than the first, it doesn't copy/cut!
  * delay module parameter mutations don't glide
 

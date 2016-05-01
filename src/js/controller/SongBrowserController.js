@@ -124,6 +124,8 @@ function handleOpen()
         handler.addEventListener( li.querySelector( ".delete" ), "click", handleSongDeleteClick );
     });
 
+    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, SongBrowserController );
+    Pubsub.publishSync( Messages.SHOW_BLIND );
     container.classList.add( "active" );
 
     keyboardController.setListener( SongBrowserController );
@@ -133,13 +135,14 @@ function handleClose()
 {
     disposeHandler();
     container.classList.remove( "active" );
+    Pubsub.publishSync( Messages.HIDE_BLIND );
 }
 
 function handleSongOpenClick( aEvent )
 {
     var id = aEvent.target.getAttribute( "data-id" );
     Pubsub.publishSync( Messages.LOAD_SONG, id );
-    container.classList.remove( "active" );
+    handleClose();
 }
 
 function handleSongDeleteClick( aEvent )

@@ -165,3 +165,30 @@
     }
   }
 }
+
+/* mobile view */
+
+@media screen and ( max-width: @mobile-width )
+{
+  #patternSection {
+    h2 {
+      display: none;
+    }
+    #patternMenu {
+      display: -webkit-flex;
+      display: flex;
+
+      li {
+        flex-grow: 1;
+        border-right: 1px solid #000;
+      }
+
+      button, select {
+        width: 100%;
+        border-radius: 0;
+        border: 0;
+        margin: 0;
+      }
+    }
+  }
+}

@@ -17,21 +17,29 @@
 
   #moduleSelect {
     position: relative;
-    width: 100%;
-    height: 100px;
-    margin-bottom: 1em;
+
+    ul {
+      list-style-type: none;
+      display: -webkit-flex;
+      display: flex;
+    }
 
     li {
-      display: inline-block;
+      float: left;
       cursor: pointer;
       position: relative;
-      width: 11.111%;
-      height: 100%;
-      background-color: #666;
+      background-color: @color-2;
       vertical-align: top;
+      color: #000;
+      font-weight: bold;
+      padding: .5em 1em;
+      border-right: 1px solid #000;
+      border-bottom: 1px solid #000;
+      flex-grow: 1;
+      font-size: 80%;
 
       &.selected, &:hover {
-        background-color: #FFF;
+        background-color: @color-1;
       }
 
       &:after {
@@ -43,10 +51,30 @@
     }
   }
 
-  .wrapper.range {
-    input {
-      width: 75%;
+  fieldset {
+
+    h2 {
+      padding-left: 0;
     }
+  }
+
+  .wrapper.range {
+    label {
+      display: inline;
+    }
+    input {
+      width: 90%;
+      display: inline;
+      margin-left: .5em;
+    }
+  }
+
+  #moduleInputValue {
+    color: @color-1;
+    font-weight: bold;
+    font-style: italic;
+    display: inline;
+    margin-left: .5em;
   }
 
   .close-button {
@@ -70,7 +98,7 @@
 }
 
 @width: 450px;
-@height: 350px;
+@height: 400px;
 
 @media screen and ( min-width: @width )
 {
@@ -81,5 +109,9 @@
     height: @height;
     margin-left: -( @width / 2 );
     margin-top: -( @height / 2);
+
+    .wrapper.range input {
+      width: 55%;
+    }
   }
 }

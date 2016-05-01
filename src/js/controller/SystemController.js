@@ -26,12 +26,16 @@ var Pubsub   = require( "pubsub-js" );
 
 /* private variables */
 
-var patternContainer, trackList, patternSection, patternEditor, helpSection;
+var patternContainer, trackList, patternSection, patternEditor, helpSection, blind;
 
 module.exports =
 {
     init : function()
     {
+        // create DOM elements
+
+        blind = document.querySelector( "#blind" );
+
         // add listeners to DOM
 
         window.addEventListener( "resize", handleEvent );
@@ -40,6 +44,9 @@ module.exports =
         // subscribe to messasing system
 
         [
+            Messages.SHOW_BLIND,
+            Messages.HIDE_BLIND,
+            Messages.CLOSE_OVERLAYS,
             Messages.PATTERN_STEPS_UPDATED,
             Messages.SONG_LOADED
 
@@ -60,6 +67,15 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
+        case Messages.SHOW_BLIND:
+            blind.classList.add( "active" );
+            break;
+
+        case Messages.HIDE_BLIND:
+        case Messages.CLOSE_OVERLAYS:
+            blind.classList.remove( "active" );
+            break;
+
         case Messages.PATTERN_STEPS_UPDATED:
         case Messages.SONG_LOADED:
             calculateDimensions();
