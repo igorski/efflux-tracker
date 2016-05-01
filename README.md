@@ -68,13 +68,12 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * different colours for each channel
  * Create fixtures
 
 KNOWN BUGS
 ----------
 
- * altering delay time only works from module parameter automation, not the instrument editor...
+ * altering delay time only works from module parameter automation, not when dragging its slider in the instrument editor...
  * When adding a note or module change to a track, by default it should use the instrument of the previous note in the lane
  * when selecting a single step from a channel other than the first, it doesn't copy/cut!
  * delay module parameter mutations don't glide

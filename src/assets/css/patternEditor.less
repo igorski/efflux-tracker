@@ -107,15 +107,47 @@
     padding: 0;
     background-color: #101015;
 
-    &:first-of-type {
+    &:before {
+      position: absolute;
+      content: "";
+      border-right: 1px solid #000;
+      height: 100%;
+      top: 0;
+      right: 0;
+    }
+
+    &:last-of-type {
       &:before {
-        position: absolute;
-        content: "";
-        border-right: 1px solid #000;
-        height: 100%;
-        top: 0;
-        right: 0;
+        border: none;
       }
+    }
+
+    &:nth-child(2) li span.note {
+      color: #b25050;
+    }
+
+    &:nth-child(3) li span.note {
+      color: #b28050;
+    }
+
+    &:nth-child(4) li span.note {
+      color: #a9b250;
+    }
+
+    &:nth-child(5) li span.note {
+      color: #60b250;
+    }
+
+    &:nth-child(6) li span.note {
+      color: #50b292;
+    }
+
+    &:nth-child(7) li span.note {
+      color: #5071b2;
+    }
+
+    &:nth-child(8) li span.note {
+      color: #8850b2;
     }
 
     li {
@@ -181,8 +213,8 @@
     left: 0;
     width: 1200px;
     height: 32px;
-    background-color: #fff;
-    mix-blend-mode: overlay;
+    background-color: @color-5;
+    mix-blend-mode: difference;
   }
 }
 
