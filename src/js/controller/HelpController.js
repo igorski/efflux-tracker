@@ -28,7 +28,7 @@ var TemplateUtil = require( "../utils/TemplateUtil" );
 
 var container, tracker;
 var contentContainer, currentSection;
-var DELAY = 1000, lastHelpRequest = Date.now();
+var DELAY = 1000, lastHelpRequest = 0;
 
 var HelpController = module.exports =
 {
