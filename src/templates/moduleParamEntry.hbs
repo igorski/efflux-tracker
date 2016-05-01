@@ -3,11 +3,15 @@
     <ul id="moduleSelect">
         <li data-value="pitchUp">pitch +8ve</li>
         <li data-value="pitchDown">pitch -8ve</li>
-        <li data-value="glideUp">glide +8ve</li>
-        <li data-value="glideDown">glide -8ve</li>
         <li data-value="volume">volume</li>
-        <li data-value="fade">fade</li>
     </ul>
+    <div class="wrapper input radio">
+        <h2>Glide ?</h2>
+        <label for="glideTrue">On</label>
+        <input type="radio" id="glideTrue" name="glide" value="true">
+        <label for="glideFalse">Off</label>
+        <input type="radio" id="glideFalse" name="glide" value="false">
+    </div>
     <div class="wrapper input range">
         <label for="moduleValue">Module value</label>
         <input type="range" id="moduleValue" min="0" max="100" step="1" value="50">

@@ -22,6 +22,8 @@
  */
 module.exports =
 {
+    /* convenience methods for dealing with Select inputs */
+
     /**
      * convenience method to get the value of the currently
      * selected option for given select input element
@@ -97,5 +99,53 @@ module.exports =
 
             aSelect.appendChild( element );
         });
+    },
+
+    /* convenience methods for working with radio / checkbox groups */
+
+    /**
+     * sets the checked option in given group to the the option
+     * that matches the given value
+     *
+     * @public
+     * @param {Array.<Element>} aGroup
+     * @param {string|number|boolean} aValue
+     */
+    setCheckedOption : function( aGroup, aValue )
+    {
+        var i = aGroup.length, option;
+
+        aValue = aValue.toString();
+
+        while ( i-- )
+        {
+            option = aGroup[ i ];
+
+            if ( option.value === aValue )
+                option.checked = true;
+            else
+                option.checked = false;
+        }
+    },
+
+    /**
+     * gets the value associated with the currently checked
+     * value inside given group
+     *
+     * @public
+     * @param {Array.<Element>} aGroup
+     * @return {string}
+     */
+    getCheckedOption : function( aGroup )
+    {
+        var i = aGroup.length, option;
+
+        while ( i-- )
+        {
+            option = aGroup[ i ];
+            if ( option.checked === true )
+                return option.value;
+        }
+        return "";
     }
 };

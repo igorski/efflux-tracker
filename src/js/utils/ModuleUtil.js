@@ -80,22 +80,13 @@ var ModuleUtil = module.exports =
         {
             // gain effects
             case "volume":
-                applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, 0 );
-                break;
-
-            case "fade":
-                applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, audioEvent.seq.mpLength );
+                applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds );
                 break;
 
             // pitch effects
             case "pitchUp":
             case "pitchDown":
-                applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, 0 );
-                break;
-
-            case "glideUp":
-            case "glideDown":
-                applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, audioEvent.seq.mpLength );
+                applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds );
                 break;
         }
     }
@@ -103,10 +94,11 @@ var ModuleUtil = module.exports =
 
 /* private methods */
 
-function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, durationInSeconds )
+function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 {
-    var doGlide = ( typeof durationInSeconds === "number" && durationInSeconds > 0 ),
-        mp = audioEvent.mp, i, j, event, voice, amp, target;
+    var mp = audioEvent.mp, doGlide = mp.glide,
+        durationInSeconds = audioEvent.seq.mpLength,
+        i, j, event, voice, amp, target;
 
     i = instrumentEvents.length;
 
@@ -124,25 +116,25 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds, 
                 amp    = voice.gain.gain;
                 target = mp.value / 100;
 
-                if ( !doGlide || !voice.glide ) {
+                if ( !doGlide || !voice.gliding ) {
                     amp.cancelScheduledValues( startTimeInSeconds );
                     amp.setValueAtTime(( doGlide ) ? amp.value : target, startTimeInSeconds );
                 }
 
                 if ( doGlide ) {
                     amp.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-                    voice.glide = true;
+                    voice.gliding = true;
                 }
             }
         }
     }
 }
 
-function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, durationInSeconds )
+function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
 {
-    var doGlide = ( typeof durationInSeconds === "number" && durationInSeconds > 0 ),
-        mp      = audioEvent.mp,
-        goingUp = ( mp.module === "pitchUp" || mp.module === "glideUp" ),
+    var mp = audioEvent.mp, doGlide = mp.glide,
+        durationInSeconds = audioEvent.seq.mpLength,
+        goingUp = ( mp.module === "pitchUp" ),
         i, j, event, voice, freq, tmp, target;
 
     i = instrumentEvents.length;
@@ -168,14 +160,14 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds, dura
                 else
                     target = voice.frequency - ( target / 2 );
 
-                if ( !doGlide || !voice.glide ) {
+                if ( !doGlide || !voice.gliding ) {
                     freq.cancelScheduledValues( startTimeInSeconds );
                     freq.setValueAtTime(( doGlide ) ? freq.value : target, startTimeInSeconds );
                 }
 
                 if ( doGlide ) {
                     freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-                    voice.glide = true;
+                    voice.gliding = true;
                 }
             }
         }

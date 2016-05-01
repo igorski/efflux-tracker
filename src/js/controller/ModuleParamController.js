@@ -29,8 +29,8 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var data, selectedModule, closeCallback,
-    moduleList, valueControl;
+var data, selectedModule, selectedGlide = false, closeCallback,
+    moduleList, glideOptions, valueControl;
 
 var ModuleParamController = module.exports =
 {
@@ -52,6 +52,7 @@ var ModuleParamController = module.exports =
         // grab view elements
 
         moduleList   = element.querySelectorAll( "#moduleSelect li" );
+        glideOptions = element.querySelectorAll( "input[type=radio]" );
         valueControl = element.querySelector( "#moduleValue" );
 
         // add listeners
@@ -90,14 +91,9 @@ var ModuleParamController = module.exports =
 
                 // modules and parameters
 
-                case 70: // F
-                    selectedModule = "fade";
-                    setSelectedValueInList( moduleList, selectedModule );
-                    break;
-
                 case 71: // G
-                    selectedModule = ( selectedModule === "glideUp" ) ? "glideDown" : "glideUp";
-                    setSelectedValueInList( moduleList, selectedModule );
+                    selectedGlide = !( Form.getCheckedOption( glideOptions ) === "true" );
+                    Form.setCheckedOption( glideOptions, selectedGlide );
                     break;
 
                 case 80: // P
@@ -167,6 +163,7 @@ function handleOpen( completeCallback )
     {
         instrument   : ( event ) ? event.instrument : editorModel.activeInstrument,
         module       : ( event && event.mp ) ? event.mp.module  : moduleList[ 0 ].getAttribute( "data-value" ),
+        glide        : ( event && event.mp ) ? event.mp.glide   : false,
         value        : ( event && event.mp ) ? event.mp.value   : 50,
         patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
         channelIndex : ( event ) ? event.instrument       : channelIndex,
@@ -182,6 +179,7 @@ function handleOpen( completeCallback )
     keyboardController.setListener( ModuleParamController );
 
     setSelectedValueInList( moduleList, data.module );
+    Form.setCheckedOption( glideOptions, data.glide );
     valueControl.value = data.value;
 
     if ( !element.parentNode )
@@ -200,6 +198,7 @@ function handleReady()
 {
     data.module = getSelectedValueFromList( moduleList );
     data.value  = parseFloat( valueControl.value );
+    data.glide  = ( Form.getCheckedOption( glideOptions ) === "true" );
 
     // update model and view
 

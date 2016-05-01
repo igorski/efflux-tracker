@@ -46,7 +46,7 @@ var Pubsub         = require( "pubsub-js" );
  *              outputNode: AudioParam,
  *              frequency: number,
  *              adsr: Object,
- *              glide: false
+ *              gliding: false
  *          }}
  */
 var EVENT_VOICE;
@@ -285,7 +285,7 @@ var AudioController = module.exports =
                         frequency: frequency,
                         gain: oscillatorGain,
                         outputNode: adsrNode,
-                        glide: false
+                        gliding: false
                     }));
                 }
             });

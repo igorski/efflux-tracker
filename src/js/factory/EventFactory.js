@@ -56,7 +56,8 @@
  *              },
  *              mp: {
  *                  module: string,
- *                  value: number
+ *                  value: number,
+ *                  glide: boolean
  *              }
  *          }}
  */
@@ -104,16 +105,19 @@ var EventFactory = module.exports =
      *
      * @param {string} module
      * @param {number} value
+     * @param {boolean=} glide default to false
      * @return {{
      *             module: string,
-     *             value: number
+     *             value: number,
+     *             glide: boolean
      *         }}
      */
-    createModuleParam : function( module, value )
+    createModuleParam : function( module, value, glide )
     {
         return {
             module : module,
-            value  : value
+            value  : value,
+            glide  : glide || false
         }
     }
 };
