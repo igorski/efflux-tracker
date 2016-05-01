@@ -100,8 +100,13 @@ var InstrumentController = module.exports =
                 oscillator.table = table;
 
                 // when drawing, force the oscillator type to transition to custom
+                // and activate the oscillator (to make changes instantly audible)
                 if ( oscillator.waveform !== "CUSTOM" ) {
                     Form.setSelectedOption( oscWaveformSelect, "CUSTOM" );
+                    if ( !oscillator.enabled ) {
+                        oscillator.enabled = true;
+                        Form.setSelectedOption( oscEnabledSelect, true );
+                    }
                     handleOscillatorWaveformChange( null );
                 }
                 else
