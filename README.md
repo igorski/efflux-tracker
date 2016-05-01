@@ -25,13 +25,17 @@ You can use the application right now from  your web browser by visiting [this l
 Project outline
 ---------------
 
-All sources can be found in the _./src_-folder.
+All source code can be found in the _./src_-folder.
 
  * _./src/assets_ contains all CSS style declarations in .less format as well fonts
  * _./src/js_ contains all JavaScript sourcecode with _main.js_ being the application entry point
  * _./src/workers_ contains all JavaScript Workers (will be served as separate files when requested)
  * _./src/templates_ contains all HMTL snippets used by the application in Handlebars format
  * _./src/public_html_ contains the main HTML page that will link to the source output
+ 
+ * _./fixtures_ can be filled with separate JSON files containing Song data, these will be concatenated into
+   a single file that can be requested via Ajax on the first application start to provide demo content
+   (see FixturesLoader.js)
  
 The build scripts are defined in _./Gruntfile.js_ and includes snippets defined in the _./config_-folder.
  
@@ -64,11 +68,6 @@ Unit tests go in the _./test_-folder. The file name for a unit test must be equa
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
 
 NOTE : Node v 4.0 or higher must be installed for running the tests (these depend on jsdom)
-
-TODO
-----
-
- * Create fixtures
 
 KNOWN BUGS
 ----------

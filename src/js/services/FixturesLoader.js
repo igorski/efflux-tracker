@@ -20,10 +20,30 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config = require( "../config/Config" );
+var Qajax  = require( "qajax" );
+
 module.exports =
 {
     /**
-     * default "factory" songs
+     * convenience method to retrieve demo songs via
+     * Ajax, this overcomes the need to package them along
+     * with the main application script
+     *
+     * @param {!Function} callback will receive parsed JSON Object
      */
-    songs : '[]'
+    load : function( callback )
+    {
+        Qajax( Config.getBasePath() + "/Fixtures.js" )
+            .then( function( response )
+            {
+                var data = response.responseText;
+                try {
+                    var json = JSON.parse( data );
+                    callback( json );
+                }
+                catch( e ) {}
+            }
+        );
+    }
 };

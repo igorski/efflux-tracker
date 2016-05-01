@@ -47,14 +47,14 @@ module.exports =
     MAX_DELAY_OFFSET            : 1,
 
     /**
-     * return the path to the Worker scripts relative from the applications address
-     * as Worker location can differ dependent on the production environment
+     * return the path that Efflux is running in, this can
+     * differ dependent on the production environment
      *
      * @public
      * @return {string}
      */
-    getWorkerPath : function()
+    getBasePath : function()
     {
-        return ( typeof window.workerPath === "string" ) ? window.workerPath : "";
+        return ( typeof window.effluxPath === "string" ) ? window.effluxPath : "";
     }
 };

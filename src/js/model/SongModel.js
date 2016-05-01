@@ -20,9 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config      = require( "../config/Config" );
-var Fixtures    = require( "../definitions/Fixtures" );
-var SongFactory = require( "../factory/SongFactory" );
+var Config         = require( "../config/Config" );
+var SongFactory    = require( "../factory/SongFactory" );
+var FixturesLoader = require( "../services/FixturesLoader" );
 
 module.exports = SongModel;
 
@@ -40,15 +40,23 @@ function SongModel()
 
     var songs = window.localStorage.getItem( 'songs' );
 
-    // no songs available ? load fixtures with "factory content"
+    if ( typeof songs === "string" ) {
 
-    if ( typeof songs !== "string" )
-        songs = Fixtures.songs;
-
-    try {
-        this._songs = JSON.parse( songs );
+        try {
+            this.setSongs( JSON.parse( songs ));
+        }
+        catch ( e ) {}
     }
-    catch ( e ) {}
+    else {
+        // no songs available ? load fixtures with "factory content"
+
+        FixturesLoader.load( function( songs ) {
+
+            this.setSongs( songs );
+            this.persist();
+
+        }.bind( this ));
+    }
 }
 
 /* public methods */
@@ -62,6 +70,15 @@ function SongModel()
 SongModel.prototype.getSongs = function()
 {
     return this._songs;
+};
+
+/**
+ * @public
+ * @param {Object} songs
+ */
+SongModel.prototype.setSongs = function( songs )
+{
+    this._songs = songs;
 };
 
 /**

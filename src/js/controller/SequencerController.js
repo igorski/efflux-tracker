@@ -105,7 +105,7 @@ var SequencerController = module.exports =
             Pubsub.subscribe( msg, handleBroadcast );
         });
 
-        worker = new Worker( Config.getWorkerPath() + "SequencerWorker.js" );
+        worker = new Worker( Config.getBasePath() + "SequencerWorker.js" );
         worker.onmessage = function( msg )
         {
             if ( msg.data.cmd === "collect" )
