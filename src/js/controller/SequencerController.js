@@ -32,9 +32,10 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var tracker, audioController, audioContext, worker, editorModel;
-var playBTN, recordBTN, tempoSlider, currentPositionTitle, maxPositionTitle, metronomeToggle, tempoDisplay;
+var playBTN, loopBTN, recordBTN, tempoSlider, currentPositionTitle, maxPositionTitle, metronomeToggle, tempoDisplay;
 
 var playing           = false,
+    looping           = false,
     recording         = false,
     scheduleAheadTime = .2,
     stepPrecision     = 64,
@@ -71,6 +72,7 @@ var SequencerController = module.exports =
         // cache view elements
 
         playBTN              = containerRef.querySelector( "#playBTN" );
+        loopBTN              = containerRef.querySelector( "#loopBTN" );
         recordBTN            = containerRef.querySelector( "#recordBTN" );
         tempoDisplay         = containerRef.querySelector( "#songTempoDisplay" );
         tempoSlider          = containerRef.querySelector( "#songTempo" );
@@ -81,6 +83,7 @@ var SequencerController = module.exports =
         // add event listeners
 
         playBTN.addEventListener        ( "click", handlePlayToggle );
+        loopBTN.addEventListener        ( "click", handleLoopToggle );
         recordBTN.addEventListener      ( "click", handleRecordToggle );
         tempoSlider.addEventListener    ( "input", handleTempoChange );
         metronomeToggle.addEventListener( "click", handleMetronomeToggle );
@@ -247,6 +250,14 @@ function handlePlayToggle( e )
     SequencerController.setPlaying( !playing );
 }
 
+function handleLoopToggle( e )
+{
+    if ( looping = !looping )
+        loopBTN.classList.add( "active" );
+    else
+        loopBTN.classList.remove( "active" );
+}
+
 function handleRecordToggle( e )
 {
     if ( recording = !recording )
@@ -362,9 +373,9 @@ function step()
     {
         currentStep = 0;
 
-        // advance the measure
+        // advance the measure if the Sequencer wasn't looping
 
-        if ( ++currentMeasure === totalMeasures )
+        if ( !looping && ++currentMeasure === totalMeasures )
         {
             // last measure reached, jump back to first
             currentMeasure = 0;

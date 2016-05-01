@@ -68,7 +68,6 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * loop current pattern-button
  * different colours for each channel, implement correct formatting for module params
  * better highlighting of current step
  * Create fixtures
