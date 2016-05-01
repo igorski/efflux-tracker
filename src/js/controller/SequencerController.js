@@ -406,6 +406,12 @@ function step()
         }
         editorModel.activePattern = currentMeasure;
         Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
+
+        var newSteps = song.patterns[ currentMeasure ].steps;
+        if ( editorModel.amountOfSteps !== newSteps ) {
+            editorModel.amountOfSteps = newSteps;
+            Pubsub.publishSync( Messages.PATTERN_STEPS_UPDATED, newSteps );
+        }
     }
     Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
 }
