@@ -29,7 +29,7 @@ var Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 var container, element, tracker, keyboardController;
-var data, selectedModule, selectedGlide = false, closeCallback,
+var data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, closeCallback,
     moduleList, valueDisplay, glideOptions, valueControl;
 
 var ModuleParamController = module.exports =
@@ -131,9 +131,20 @@ var ModuleParamController = module.exports =
                 case 56:
                 case 57:
 
-                    var num = parseFloat( String.fromCharCode( keyCode ));
-                    valueControl.value = ( num === 0 ) ? 100 : num * 10;
+                    var now   = Date.now();
+                    var num   = parseFloat( String.fromCharCode( keyCode ));
+                    var value = num * 10;
+
+                    // if this character was typed shortly after the previous one, combine
+                    // their numerical values for more precise control
+
+                    if ( now - lastTypeAction < 500 )
+                        value = parseFloat( "" + prevChar + num );
+
+                    valueControl.value = value;
                     handleValueChange( null );
+                    lastTypeAction = now;
+                    prevChar = num;
                     break;
             }
         }

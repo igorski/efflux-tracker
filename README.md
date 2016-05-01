@@ -70,7 +70,6 @@ TODO
 
  * different colours for each channel
  * Create fixtures
- * Implement keyboard shortcuts for precise module parameter value control
 
 KNOWN BUGS
 ----------
