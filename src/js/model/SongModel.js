@@ -38,7 +38,7 @@ function SongModel()
 
     /* upon initialization, get all locally stored songs */
 
-    var songs = window.localStorage.getItem( 'songs' );
+    var songs = window.localStorage.getItem( Config.LOCAL_STORAGE_NAME );
 
     if ( typeof songs === "string" ) {
 
@@ -179,5 +179,5 @@ SongModel.prototype.deleteSong = function( aSong )
  */
 SongModel.prototype.persist = function(  )
 {
-    window.localStorage.setItem( "songs", JSON.stringify( this._songs ));
+    window.localStorage.setItem( Config.LOCAL_STORAGE_NAME, JSON.stringify( this._songs ));
 };

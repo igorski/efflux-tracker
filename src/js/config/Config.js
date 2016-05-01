@@ -22,6 +22,7 @@
  */
 module.exports =
 {
+    LOCAL_STORAGE_NAME          : "effluxData",
     INSTRUMENT_AMOUNT           : 8,
     WAVE_TABLE_SIZE             : 512,
     MAX_PATTERN_AMOUNT          : 128,
