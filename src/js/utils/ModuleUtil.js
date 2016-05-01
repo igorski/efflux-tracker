@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Delay = require( "../third_party/Delay" );
+var Config = require( "../config/Config" );
+var Delay  = require( "../third_party/Delay" );
 
 var ModuleUtil = module.exports =
 {
@@ -88,6 +89,12 @@ var ModuleUtil = module.exports =
             case "pitchDown":
                 applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds );
                 break;
+
+            // filter effects
+            case "filterFreq":
+            case "filterQ":
+                applyFilter( audioEvent, modules, startTimeInSeconds );
+                break;
         }
     }
 };
@@ -98,7 +105,7 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 {
     var mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
-        i, j, event, voice, amp, target;
+        target = ( mp.value / 100 ), i, j, event, voice;
 
     i = instrumentEvents.length;
 
@@ -113,18 +120,10 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
             while ( j-- ) {
 
                 voice  = event[ j ];
-                amp    = voice.gain.gain;
-                target = mp.value / 100;
 
-                if ( !doGlide || !voice.gliding ) {
-                    amp.cancelScheduledValues( startTimeInSeconds );
-                    amp.setValueAtTime(( doGlide ) ? amp.value : target, startTimeInSeconds );
-                }
-
-                if ( doGlide ) {
-                    amp.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-                    voice.gliding = true;
-                }
+                scheduleParameterChange(
+                    voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+                );
             }
         }
     }
@@ -135,7 +134,7 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
     var mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
         goingUp = ( mp.module === "pitchUp" ),
-        i, j, event, voice, freq, tmp, target;
+        i, j, event, voice, tmp, target;
 
     i = instrumentEvents.length;
 
@@ -149,9 +148,7 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
 
             while ( j-- ) {
 
-                voice = event[ j ];
-                freq  = voice.oscillator.frequency;
-
+                voice  = event[ j ];
                 tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
                 target = ( tmp * ( mp.value / 100 ));
 
@@ -160,16 +157,54 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
                 else
                     target = voice.frequency - ( target / 2 );
 
-                if ( !doGlide || !voice.gliding ) {
-                    freq.cancelScheduledValues( startTimeInSeconds );
-                    freq.setValueAtTime(( doGlide ) ? freq.value : target, startTimeInSeconds );
-                }
-
-                if ( doGlide ) {
-                    freq.linearRampToValueAtTime( target, startTimeInSeconds + durationInSeconds );
-                    voice.gliding = true;
-                }
+                scheduleParameterChange(
+                    voice.oscillator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+                );
             }
         }
+    }
+}
+
+function applyFilter( audioEvent, modules, startTimeInSeconds )
+{
+    var mp = audioEvent.mp, doGlide = mp.glide,
+            durationInSeconds = audioEvent.seq.mpLength,
+            module = modules.filter, target = ( mp.value / 100 ), amp;
+
+    switch ( mp.module )
+    {
+        case "filterFreq":
+            scheduleParameterChange( module.filter.frequency, target * Config.MAX_FILTER_FREQ, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+
+        case "filterQ":
+            scheduleParameterChange( module.filter.Q, target * Config.MAX_FILTER_Q, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+    }
+}
+
+/**
+ * @param {AudioParam} param the AudioParam whose value to change
+ * @param {number} value the target value for the AudioParam
+ * @param {number} startTimeInSeconds relative to the currentTime of the AudioContext, when the change should take place
+ * @param {number=} durationInSeconds the total duration of the change (only rqeuired when 'doGlide' is true)
+ * @param {boolean=} doGlide whether to "glide" to the value (linear change), defaults to false for instant change
+ * @param {Object=} data optional data Object to track the status of the scheduled parameter changes (can for instance
+ *                  be EVENT_OBJECT which shouldn't cancel previously scheduled changes upon repeated invocation)
+ */
+function scheduleParameterChange( param, value, startTimeInSeconds, durationInSeconds, doGlide, data )
+{
+    if ( !doGlide || ( data && !data.gliding )) {
+
+        param.cancelScheduledValues( startTimeInSeconds );
+        param.setValueAtTime(( doGlide ) ? param.value : value, startTimeInSeconds );
+    }
+
+    if ( doGlide ) {
+
+        param.linearRampToValueAtTime( value, startTimeInSeconds + durationInSeconds );
+
+        if ( data )
+            data.gliding = true;
     }
 }

@@ -91,13 +91,18 @@ var ModuleParamController = module.exports =
 
                 // modules and parameters
 
+                case 70: // F
+                    selectedModule = getNextSelectedModule( [ "filterFreq", "filterQ" ], selectedModule );
+                    setSelectedValueInList( moduleList, selectedModule );
+                    break;
+
                 case 71: // G
                     selectedGlide = !( Form.getCheckedOption( glideOptions ) === "true" );
                     Form.setCheckedOption( glideOptions, selectedGlide );
                     break;
 
                 case 80: // P
-                    selectedModule = ( selectedModule === "pitchUp" ) ? "pitchDown" : "pitchUp";
+                    selectedModule = getNextSelectedModule([ "pitchUp", "pitchDown" ], selectedModule );
                     setSelectedValueInList( moduleList, selectedModule );
                     break;
 
@@ -274,4 +279,21 @@ function getSelectedValueFromList( list )
             return option.getAttribute( "data-value" );
     }
     return null;
+}
+
+function getNextSelectedModule( list, currentValue )
+{
+    for ( var i = 0, l = list.length, max = l - 1; i <l; ++i )
+    {
+        if ( list[ i ] === currentValue ) {
+
+            // value found, return next value in list (or first if we're at the list end)
+
+            if ( i < max )
+                return list[ i + 1 ];
+            else
+                break;
+        }
+    }
+    return list[ 0 ]; // value not found, return first value in list
 }

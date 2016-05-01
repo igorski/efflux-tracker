@@ -68,7 +68,7 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 TODO
 ----
 
- * Add modulator parameters for: filter enabled / freq / q, delay enabled / delay time / feedback / cutoff / offset
+ * Add modulator parameters for: filter enabled / lfo enabled / lfo speed / lfo depth, delay enabled / delay time / feedback / cutoff / offset
  * Create fixtures
  * Instrument mute / solo
  * Show module parameter value

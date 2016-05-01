@@ -29,6 +29,8 @@ module.exports =
 
     DEFAULT_FILTER_FREQ         : 880,
     DEFAULT_FILTER_Q            : 5,
+    MAX_FILTER_FREQ             : 24000,
+    MAX_FILTER_Q                : 40,
 
     DEFAULT_FILTER_LFO_SPEED    : .5,
     DEFAULT_FILTER_LFO_DEPTH    : 50,
