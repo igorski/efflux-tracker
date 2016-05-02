@@ -286,7 +286,7 @@ function handleMetronomeToggle( e )
 function handlePatternNavBack( aEvent )
 {
     if ( editorModel.activePattern > 0 )
-        switchPattern( --editorModel.activePattern );
+        switchPattern( editorModel.activePattern - 1 );
 }
 
 function handlePatternNavNext( aEvent )
@@ -294,7 +294,7 @@ function handlePatternNavNext( aEvent )
     var max = tracker.activeSong.patterns.length - 1;
 
     if ( editorModel.activePattern < max )
-        switchPattern( ++editorModel.activePattern );
+        switchPattern( editorModel.activePattern + 1 );
 }
 
 function handleTempoChange( e )
