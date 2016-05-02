@@ -148,6 +148,15 @@ describe( "SelectionModel", function()
             "expected both channel contents to be equal but they were not" );
     });
 
+    it( "should treat a single step as 1 unit range", function()
+    {
+        model.setSelectionChannelRange( 0, 1 );
+        model.setSelection( 0 );
+
+        assert.strictEqual( 1, model.getSelectionLength(),
+            "expected model to return 1 for selection of a single step" );
+    });
+
     it( "should know the full length of its selection", function()
     {
         model.setSelectionChannelRange( 0, 1 );
@@ -156,7 +165,7 @@ describe( "SelectionModel", function()
 
         model.setSelection( min, max );
 
-        var expected = max - min;
+        var expected = ( max - min ) + 1; // 1 as a single step is already a selection
 
         assert.strictEqual( expected, model.getSelectionLength(),
             "expected model to return '" + expected + "' for its selection length" );

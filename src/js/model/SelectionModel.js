@@ -118,12 +118,16 @@ SelectionModel.prototype.setSelectionChannelRange = function( firstChannel, last
  * @public
  *
  * @param {number} selectionStart the index of the first step in the selection
- * @param {number} selectionEnd the index of the last step in the selection
+ * @param {number=} selectionEnd the index of the last step in the selection optional,
+ *                  defaults to selectionStart when not given
  */
 SelectionModel.prototype.setSelection = function( selectionStart, selectionEnd )
 {
     //if ( !this.selectedChannels.length > 0 )
         //throw new Error( "cannot set selection range if no selection channel range had been specified" );
+
+    if ( typeof selectionEnd !== "number" )
+        selectionEnd = selectionStart;
 
     // update to new values
 
@@ -206,7 +210,7 @@ SelectionModel.prototype.clearSelection = function()
  */
 SelectionModel.prototype.getSelectionLength = function()
 {
-    return ( this.maxSelectedStep - this.minSelectedStep );
+    return ( this.maxSelectedStep - this.minSelectedStep ) + 1;
 };
 
 /**

@@ -256,9 +256,10 @@ var PatternTrackListController = module.exports =
 
                     if ( keyboardController.hasOption( aEvent ))
                     {
-                        if ( !selectionModel.hasSelection() )
-                            selectionModel.setSelection( editorModel.activeStep, editorModel.activeStep + 1 );
-
+                        if ( !selectionModel.hasSelection() ) {
+                            selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
+                            selectionModel.setSelection( editorModel.activeStep );
+                        }
                         selectionModel.cutSelection( tracker.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
                         PatternTrackListController.update();
@@ -285,7 +286,7 @@ var PatternTrackListController = module.exports =
                     {
                         if ( !selectionModel.hasSelection() ) {
                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
-                            selectionModel.setSelection( editorModel.activeStep, editorModel.activeStep + 1 );
+                            selectionModel.setSelection( editorModel.activeStep );
                         }
                         selectionModel.copySelection( tracker.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
