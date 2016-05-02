@@ -273,7 +273,8 @@ function handleModuleClick( aEvent )
 
 function handleValueChange( aEvent )
 {
-    valueDisplay.innerHTML = valueControl.value;
+    var value = parseFloat( valueControl.value );
+    valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
 }
 
 /* list functions */
