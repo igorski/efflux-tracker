@@ -237,12 +237,13 @@ var PatternTrackListController = module.exports =
                     if ( keyboardController.hasOption( aEvent ))
                     {
                         var state;
+
                         if ( !aEvent.shiftKey )
                             state = stateModel.undo();
                         else
                             state = stateModel.redo();
 
-                        if ( state !== null ) {
+                        if ( state ) {
                             tracker.activeSong = state;
                             PatternTrackListController.update();
                         }
