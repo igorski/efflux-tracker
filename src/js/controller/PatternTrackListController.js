@@ -584,7 +584,7 @@ function handlePatternStepChange( aEvent )
         pattern.channels[ index ] = transformed;
     });
 
-    Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newAmount );
+    Pubsub.publishSync( Messages.PATTERN_STEPS_UPDATED, newAmount );
     PatternTrackListController.update(); // sync with model
 }
 

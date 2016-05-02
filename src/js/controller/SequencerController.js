@@ -87,8 +87,8 @@ var SequencerController = module.exports =
         recordBTN.addEventListener      ( "click", handleRecordToggle );
         tempoSlider.addEventListener    ( "input", handleTempoChange );
         metronomeToggle.addEventListener( "click", handleMetronomeToggle );
-        document.querySelector( "#patternBack" ).addEventListener( "click",  handlePatternNavBack );
-        document.querySelector( "#patternNext" ).addEventListener( "click",  handlePatternNavNext );
+        document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
+        document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
 
         // setup messaging system
 
@@ -285,7 +285,7 @@ function handleMetronomeToggle( e )
 function handlePatternNavBack( aEvent )
 {
     if ( editorModel.activePattern > 0 )
-        Pubsub.publishSync( Messages.PATTERN_SWITCH, --editorModel.activePattern );
+        switchPattern( --editorModel.activePattern );
 }
 
 function handlePatternNavNext( aEvent )
@@ -293,7 +293,7 @@ function handlePatternNavNext( aEvent )
     var max = tracker.activeSong.patterns.length - 1;
 
     if ( editorModel.activePattern < max )
-        Pubsub.publishSync( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
+        switchPattern( ++editorModel.activePattern );
 }
 
 function handleTempoChange( e )
@@ -406,16 +406,21 @@ function step()
                 firstMeasureStartTime = audioContext.currentTime;
             }
         }
-        editorModel.activePattern = currentMeasure;
-        Pubsub.publishSync( Messages.PATTERN_SWITCH, currentMeasure );
-
-        var newSteps = song.patterns[ currentMeasure ].steps;
-        if ( editorModel.amountOfSteps !== newSteps ) {
-            editorModel.amountOfSteps = newSteps;
-            Pubsub.publishSync( Messages.PATTERN_STEPS_UPDATED, newSteps );
-        }
+        switchPattern( currentMeasure );
     }
     Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ currentStep, stepPrecision ]);
+}
+
+function switchPattern( newMeasure )
+{
+    currentMeasure = editorModel.activePattern = newMeasure;
+    Pubsub.publishSync( Messages.PATTERN_SWITCH, newMeasure );
+
+    var newSteps = tracker.activeSong.patterns[ newMeasure ].steps;
+    if ( editorModel.amountOfSteps !== newSteps ) {
+        editorModel.amountOfSteps = newSteps;
+        Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newSteps );
+    }
 }
 
 /**
