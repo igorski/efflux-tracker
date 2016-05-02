@@ -206,6 +206,7 @@ var SequencerController = module.exports =
     update : function()
     {
         var meta = tracker.activeSong.meta;
+        tempoSlider.value      = meta.tempo;
         tempoDisplay.innerHTML = meta.tempo + " BPM";
         measureLength = ( 60.0 / meta.tempo ) * beatAmount;
 
@@ -413,6 +414,9 @@ function step()
 
 function switchPattern( newMeasure )
 {
+    if ( editorModel.activePattern === newMeasure )
+        return;
+
     currentMeasure = editorModel.activePattern = newMeasure;
     Pubsub.publishSync( Messages.PATTERN_SWITCH, newMeasure );
 
