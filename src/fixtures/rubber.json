@@ -2,10 +2,10 @@
   "version": 1,
   "id": "14620245007331865d",
   "meta": {
-    "title": "DEMO - dirty rubber",
+    "title": "DEMO dirty rubber",
     "author": "xtk master",
     "created": 1462024500733,
-    "modified": 1462135768900,
+    "modified": 1462217751613,
     "tempo": 120
   },
   "instruments": [
@@ -12893,7 +12893,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 575
+            "id": 1704
           },
           null,
           {
@@ -12936,7 +12936,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 309,
+            "id": 1427,
             "mp": {
               "instrument": 0,
               "module": "pitchUp",
@@ -12987,7 +12987,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 574,
+            "id": 1703,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -13012,7 +13012,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 576,
+            "id": 1705,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13037,7 +13037,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 577,
+            "id": 1706,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13062,7 +13062,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 578,
+            "id": 1707,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13087,7 +13087,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 581,
+            "id": 1710,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13112,7 +13112,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 582,
+            "id": 1711,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13137,7 +13137,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 583,
+            "id": 1712,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13162,7 +13162,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 584,
+            "id": 1713,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13187,7 +13187,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 300,
+            "id": 1715,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13212,7 +13212,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 301,
+            "id": 1716,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13237,7 +13237,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 302,
+            "id": 1717,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13262,7 +13262,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 303,
+            "id": 1718,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13287,7 +13287,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 306,
+            "id": 1721,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13312,7 +13312,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 307,
+            "id": 1425,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13337,7 +13337,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 308,
+            "id": 1426,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13362,7 +13362,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 310,
+            "id": 1428,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13389,7 +13389,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 573
+            "id": 1702
           },
           {
             "instrument": 0,
@@ -13422,7 +13422,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 580
+            "id": 1709
           },
           {
             "instrument": 2,
@@ -13455,7 +13455,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 299
+            "id": 1714
           },
           {
             "instrument": 2,
@@ -13488,7 +13488,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 305
+            "id": 1720
           },
           {
             "instrument": 2,
@@ -13527,7 +13527,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 579
+            "id": 1708
           },
           {
             "instrument": 3,
@@ -13564,7 +13564,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 304
+            "id": 1719
           },
           {
             "instrument": 3,
@@ -13676,7 +13676,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 313
+            "id": 1431
           },
           null,
           {
@@ -13719,7 +13719,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 334,
+            "id": 1452,
             "mp": {
               "instrument": 0,
               "module": "pitchUp",
@@ -13770,7 +13770,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 312,
+            "id": 1430,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -13795,7 +13795,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 314,
+            "id": 1432,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13820,7 +13820,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 315,
+            "id": 1433,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13845,7 +13845,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 316,
+            "id": 1434,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13870,7 +13870,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 319,
+            "id": 1437,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13895,7 +13895,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 320,
+            "id": 1438,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13920,7 +13920,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 321,
+            "id": 1439,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13945,7 +13945,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 322,
+            "id": 1440,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13970,7 +13970,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 324,
+            "id": 1442,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -13995,7 +13995,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 325,
+            "id": 1443,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14020,7 +14020,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 326,
+            "id": 1444,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14045,7 +14045,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 327,
+            "id": 1445,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14070,7 +14070,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 330,
+            "id": 1448,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14095,7 +14095,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 331,
+            "id": 1449,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14120,7 +14120,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 333,
+            "id": 1451,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14145,7 +14145,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 335
+            "id": 1453
           }
         ],
         [
@@ -14163,7 +14163,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 311
+            "id": 1429
           },
           {
             "instrument": 0,
@@ -14196,7 +14196,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 318
+            "id": 1436
           },
           {
             "instrument": 2,
@@ -14229,7 +14229,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 323
+            "id": 1441
           },
           {
             "instrument": 2,
@@ -14262,7 +14262,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 329
+            "id": 1447
           },
           {
             "instrument": 2,
@@ -14301,7 +14301,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 317
+            "id": 1435
           },
           {
             "instrument": 3,
@@ -14338,7 +14338,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 328
+            "id": 1446
           },
           {
             "instrument": 3,
@@ -14369,7 +14369,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 332,
+            "id": 1450,
             "mp": {
               "instrument": 3,
               "module": "volume",
@@ -14457,7 +14457,7 @@
       ]
     },
     {
-      "steps": 16,
+      "steps": 32,
       "channels": [
         [
           {
@@ -14472,10 +14472,12 @@
               "startMeasureOffset": 0,
               "endMeasure": 2,
               "length": 0.25,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 338
+            "id": 1456
           },
+          null,
+          null,
           null,
           {
             "instrument": 0,
@@ -14488,10 +14490,12 @@
               "startMeasure": 2,
               "startMeasureOffset": 0.25,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
           null,
           {
             "instrument": 0,
@@ -14505,10 +14509,11 @@
               "startMeasureOffset": 0.5,
               "endMeasure": 1,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 345
+            "id": 1463
           },
+          null,
           {
             "instrument": 0,
             "note": "B",
@@ -14520,10 +14525,10 @@
               "startMeasure": 2,
               "startMeasureOffset": 0.625,
               "endMeasure": 1,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.1875,
+              "mpLength": 0.0625
             },
-            "id": 347,
+            "id": 1465,
             "mp": {
               "instrument": 0,
               "module": "pitchUp",
@@ -14534,6 +14539,8 @@
               "step": 5
             }
           },
+          null,
+          null,
           {
             "instrument": 0,
             "note": "",
@@ -14543,10 +14550,10 @@
             "seq": {
               "playing": false,
               "startMeasure": 2,
-              "startMeasureOffset": 0.75,
-              "endMeasure": 1,
-              "length": 0.125,
-              "mpLength": 0.125
+              "startMeasureOffset": 0.8125,
+              "endMeasure": null,
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
           {
@@ -14561,10 +14568,11 @@
               "startMeasureOffset": 0.875,
               "endMeasure": null,
               "length": 0.625,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 350
+            "id": 1468
           },
+          null,
           {
             "instrument": 0,
             "note": "",
@@ -14576,8 +14584,8 @@
               "startMeasure": 2,
               "startMeasureOffset": 1,
               "endMeasure": null,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             },
             "mp": {
               "instrument": 0,
@@ -14592,6 +14600,10 @@
           null,
           null,
           null,
+          null,
+          null,
+          null,
+          null,
           {
             "instrument": 0,
             "note": "",
@@ -14603,10 +14615,12 @@
               "startMeasure": 2,
               "startMeasureOffset": 1.5,
               "endMeasure": null,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
           null,
           {
             "instrument": 0,
@@ -14620,9 +14634,9 @@
               "startMeasureOffset": 1.75,
               "endMeasure": 2,
               "length": 0.25,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 361,
+            "id": 1479,
             "mp": {
               "instrument": 0,
               "module": "pitchUp",
@@ -14633,6 +14647,7 @@
               "step": 14
             }
           },
+          null,
           {
             "instrument": 0,
             "note": "",
@@ -14644,8 +14659,8 @@
               "startMeasure": 2,
               "startMeasureOffset": 1.875,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             },
             "mp": {
               "instrument": 0,
@@ -14656,7 +14671,8 @@
               "channelIndex": 0,
               "step": 15
             }
-          }
+          },
+          null
         ],
         [
           {
@@ -14671,9 +14687,9 @@
               "startMeasureOffset": 0,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 337,
+            "id": 1455,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -14684,6 +14700,7 @@
               "step": 0
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14696,9 +14713,9 @@
               "startMeasureOffset": 0.125,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 339,
+            "id": 1457,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14709,6 +14726,7 @@
               "step": 1
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14721,9 +14739,9 @@
               "startMeasureOffset": 0.25,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 340,
+            "id": 1458,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14734,6 +14752,7 @@
               "step": 2
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14746,9 +14765,9 @@
               "startMeasureOffset": 0.375,
               "endMeasure": 1,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 341,
+            "id": 1459,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14759,6 +14778,7 @@
               "step": 3
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14771,9 +14791,9 @@
               "startMeasureOffset": 0.5,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 344,
+            "id": 1462,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14784,6 +14804,7 @@
               "step": 4
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14796,9 +14817,9 @@
               "startMeasureOffset": 0.625,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 346,
+            "id": 1464,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14809,6 +14830,7 @@
               "step": 5
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14821,9 +14843,9 @@
               "startMeasureOffset": 0.75,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 348,
+            "id": 1466,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14834,6 +14856,7 @@
               "step": 6
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14846,9 +14869,9 @@
               "startMeasureOffset": 0.875,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 349,
+            "id": 1467,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14859,6 +14882,7 @@
               "step": 7
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14871,9 +14895,9 @@
               "startMeasureOffset": 1,
               "endMeasure": 1,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 352,
+            "id": 1470,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14884,6 +14908,7 @@
               "step": 8
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14896,9 +14921,9 @@
               "startMeasureOffset": 1.125,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 353,
+            "id": 1471,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14909,6 +14934,7 @@
               "step": 9
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14921,9 +14947,9 @@
               "startMeasureOffset": 1.25,
               "endMeasure": 1,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 354,
+            "id": 1472,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14934,6 +14960,7 @@
               "step": 10
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14946,9 +14973,9 @@
               "startMeasureOffset": 1.375,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 355,
+            "id": 1473,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14959,6 +14986,7 @@
               "step": 11
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14971,9 +14999,9 @@
               "startMeasureOffset": 1.5,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 358,
+            "id": 1476,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -14984,6 +15012,7 @@
               "step": 12
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -14996,9 +15025,9 @@
               "startMeasureOffset": 1.625,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 359,
+            "id": 1477,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -15009,6 +15038,7 @@
               "step": 13
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -15021,9 +15051,9 @@
               "startMeasureOffset": 1.75,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 360,
+            "id": 1478,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -15034,6 +15064,7 @@
               "step": 14
             }
           },
+          null,
           {
             "instrument": 1,
             "note": "E",
@@ -15046,9 +15077,9 @@
               "startMeasureOffset": 1.875,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 362,
+            "id": 1480,
             "mp": {
               "instrument": 1,
               "module": "volume",
@@ -15058,7 +15089,8 @@
               "channelIndex": 1,
               "step": 15
             }
-          }
+          },
+          null
         ],
         [
           {
@@ -15073,10 +15105,11 @@
               "startMeasureOffset": 0,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 336
+            "id": 1454
           },
+          null,
           {
             "instrument": 0,
             "note": "",
@@ -15088,10 +15121,13 @@
               "startMeasure": 2,
               "startMeasureOffset": 0.125,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
+          null,
           null,
           null,
           {
@@ -15106,10 +15142,11 @@
               "startMeasureOffset": 0.5,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 343
+            "id": 1461
           },
+          null,
           {
             "instrument": 2,
             "note": "",
@@ -15121,10 +15158,13 @@
               "startMeasure": 2,
               "startMeasureOffset": 0.625,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
+          null,
           null,
           null,
           {
@@ -15139,10 +15179,11 @@
               "startMeasureOffset": 1,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 351
+            "id": 1469
           },
+          null,
           {
             "instrument": 2,
             "note": "",
@@ -15154,10 +15195,13 @@
               "startMeasure": 2,
               "startMeasureOffset": 1.125,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
+          null,
           null,
           null,
           {
@@ -15172,10 +15216,11 @@
               "startMeasureOffset": 1.5,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 357
+            "id": 1475
           },
+          null,
           {
             "instrument": 2,
             "note": "",
@@ -15187,10 +15232,13 @@
               "startMeasure": 2,
               "startMeasureOffset": 1.625,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
+          null,
           null,
           null
         ],
@@ -15206,10 +15254,14 @@
               "startMeasure": 2,
               "startMeasureOffset": 0,
               "endMeasure": null,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
+          null,
+          null,
           null,
           null,
           null,
@@ -15225,10 +15277,11 @@
               "startMeasureOffset": 0.5,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 342
+            "id": 1460
           },
+          null,
           {
             "instrument": 3,
             "note": "",
@@ -15240,10 +15293,17 @@
               "startMeasure": 2,
               "startMeasureOffset": 0.625,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
           null,
           null,
           null,
@@ -15262,10 +15322,11 @@
               "startMeasureOffset": 1.5,
               "endMeasure": 2,
               "length": 0.125,
-              "mpLength": 0.125
+              "mpLength": 0.0625
             },
-            "id": 356
+            "id": 1474
           },
+          null,
           {
             "instrument": 3,
             "note": "",
@@ -15277,26 +15338,11 @@
               "startMeasure": 2,
               "startMeasureOffset": 1.625,
               "endMeasure": 2,
-              "length": 0.125,
-              "mpLength": 0.125
+              "length": 0.0625,
+              "mpLength": 0.0625
             }
           },
           null,
-          null
-        ],
-        [
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
-          null,
           null,
           null,
           null,
@@ -15318,9 +15364,7 @@
           null,
           null,
           null,
-          null
-        ],
-        [
+          null,
           null,
           null,
           null,
@@ -15339,6 +15383,90 @@
           null
         ],
         [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
           null,
           null,
           null,
@@ -15376,7 +15504,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 365,
+            "id": 1483,
             "mp": {
               "instrument": 0,
               "module": "volume",
@@ -15441,7 +15569,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 372,
+            "id": 1490,
             "mp": {
               "instrument": 0,
               "module": "volume",
@@ -15496,6 +15624,8 @@
           null,
           null,
           null,
+          null,
+          null,
           {
             "instrument": 0,
             "note": "E",
@@ -15505,12 +15635,12 @@
             "seq": {
               "playing": false,
               "startMeasure": 3,
-              "startMeasureOffset": 1.5,
-              "endMeasure": 3,
-              "length": 0.5,
+              "startMeasureOffset": 1.75,
+              "endMeasure": 4,
+              "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 382,
+            "id": 1500,
             "mp": {
               "instrument": 0,
               "module": "volume",
@@ -15530,7 +15660,7 @@
             "seq": {
               "playing": false,
               "startMeasure": 3,
-              "startMeasureOffset": 1.625,
+              "startMeasureOffset": 1.875,
               "endMeasure": 3,
               "length": 0.125,
               "mpLength": 0.125
@@ -15544,32 +15674,7 @@
               "channelIndex": 0,
               "step": 13
             }
-          },
-          {
-            "instrument": 0,
-            "note": "",
-            "octave": 0,
-            "action": 0,
-            "recording": false,
-            "seq": {
-              "playing": false,
-              "startMeasure": 3,
-              "startMeasureOffset": 1.75,
-              "endMeasure": 3,
-              "length": 0.125,
-              "mpLength": 0.125
-            },
-            "mp": {
-              "instrument": 0,
-              "module": "volume",
-              "glide": true,
-              "value": 50,
-              "patternIndex": 3,
-              "channelIndex": 0,
-              "step": 14
-            }
-          },
-          null
+          }
         ],
         [
           {
@@ -15586,7 +15691,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 364,
+            "id": 1482,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -15611,7 +15716,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 366
+            "id": 1484
           },
           {
             "instrument": 1,
@@ -15627,7 +15732,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 367
+            "id": 1485
           },
           {
             "instrument": 1,
@@ -15643,7 +15748,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 368
+            "id": 1486
           },
           {
             "instrument": 1,
@@ -15659,7 +15764,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 371
+            "id": 1489
           },
           {
             "instrument": 1,
@@ -15675,7 +15780,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 373
+            "id": 1491
           },
           {
             "instrument": 1,
@@ -15691,7 +15796,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 374
+            "id": 1492
           },
           {
             "instrument": 1,
@@ -15707,7 +15812,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 375
+            "id": 1493
           },
           {
             "instrument": 1,
@@ -15723,7 +15828,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 377
+            "id": 1495
           },
           {
             "instrument": 1,
@@ -15739,7 +15844,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 378
+            "id": 1496
           },
           {
             "instrument": 1,
@@ -15755,7 +15860,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 379
+            "id": 1497
           },
           {
             "instrument": 1,
@@ -15771,7 +15876,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 380
+            "id": 1498
           },
           {
             "instrument": 0,
@@ -15807,7 +15912,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 363
+            "id": 1481
           },
           {
             "instrument": 0,
@@ -15840,7 +15945,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 370
+            "id": 1488
           },
           {
             "instrument": 2,
@@ -15873,7 +15978,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 376
+            "id": 1494
           },
           {
             "instrument": 2,
@@ -15903,28 +16008,92 @@
               "startMeasure": 3,
               "startMeasureOffset": 1.5,
               "endMeasure": null,
-              "length": 0.125,
+              "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 381
+            "id": 1499,
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 50,
+              "patternIndex": 3,
+              "channelIndex": 2,
+              "step": 12
+            }
           },
           {
             "instrument": 2,
             "note": "",
             "octave": 0,
-            "action": 2,
+            "action": 0,
             "recording": false,
             "seq": {
               "playing": false,
               "startMeasure": 3,
               "startMeasureOffset": 1.625,
-              "endMeasure": 3,
+              "endMeasure": null,
               "length": 0.125,
               "mpLength": 0.125
+            },
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 40,
+              "patternIndex": 3,
+              "channelIndex": 2,
+              "step": 13
             }
           },
-          null,
-          null
+          {
+            "instrument": 2,
+            "note": "",
+            "octave": 0,
+            "action": 0,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 3,
+              "startMeasureOffset": 1.75,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 30,
+              "patternIndex": 3,
+              "channelIndex": 2,
+              "step": 14
+            }
+          },
+          {
+            "instrument": 2,
+            "note": "",
+            "octave": 0,
+            "action": 0,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 3,
+              "startMeasureOffset": 1.875,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 20,
+              "patternIndex": 3,
+              "channelIndex": 2,
+              "step": 15
+            }
+          }
         ],
         [
           null,
@@ -15945,7 +16114,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 369
+            "id": 1487
           },
           {
             "instrument": 3,
@@ -16065,7 +16234,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 385
+            "id": 1503
           },
           null,
           {
@@ -16082,7 +16251,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 388
+            "id": 1506
           },
           {
             "instrument": 0,
@@ -16098,7 +16267,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 390
+            "id": 1508
           },
           {
             "instrument": 0,
@@ -16114,7 +16283,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 394
+            "id": 1512
           },
           null,
           {
@@ -16156,7 +16325,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 400
+            "id": 1518
           },
           null,
           {
@@ -16173,7 +16342,7 @@
               "length": 0.75,
               "mpLength": 0.125
             },
-            "id": 403
+            "id": 1521
           },
           {
             "instrument": 0,
@@ -16288,7 +16457,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 384,
+            "id": 1502,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -16313,7 +16482,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 386
+            "id": 1504
           },
           {
             "instrument": 1,
@@ -16329,7 +16498,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 387
+            "id": 1505
           },
           {
             "instrument": 1,
@@ -16345,7 +16514,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 389
+            "id": 1507
           },
           {
             "instrument": 1,
@@ -16361,7 +16530,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 393
+            "id": 1511
           },
           {
             "instrument": 1,
@@ -16377,7 +16546,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 395
+            "id": 1513
           },
           {
             "instrument": 1,
@@ -16393,7 +16562,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 396
+            "id": 1514
           },
           {
             "instrument": 1,
@@ -16409,7 +16578,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 397
+            "id": 1515
           },
           {
             "instrument": 1,
@@ -16425,7 +16594,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 399
+            "id": 1517
           },
           {
             "instrument": 1,
@@ -16441,7 +16610,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 401
+            "id": 1519
           },
           {
             "instrument": 1,
@@ -16457,7 +16626,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 402
+            "id": 1520
           },
           {
             "instrument": 1,
@@ -16473,7 +16642,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 404
+            "id": 1522
           },
           {
             "instrument": 1,
@@ -16489,7 +16658,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 407
+            "id": 1525
           },
           {
             "instrument": 1,
@@ -16505,7 +16674,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 408
+            "id": 1526
           },
           {
             "instrument": 1,
@@ -16521,7 +16690,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 409
+            "id": 1527
           },
           {
             "instrument": 1,
@@ -16537,7 +16706,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 410
+            "id": 1528
           }
         ],
         [
@@ -16555,7 +16724,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 383
+            "id": 1501
           },
           {
             "instrument": 0,
@@ -16588,7 +16757,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 392
+            "id": 1510
           },
           {
             "instrument": 2,
@@ -16621,7 +16790,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 398
+            "id": 1516
           },
           {
             "instrument": 2,
@@ -16654,7 +16823,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 406
+            "id": 1524
           },
           {
             "instrument": 2,
@@ -16693,7 +16862,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 391
+            "id": 1509
           },
           {
             "instrument": 3,
@@ -16730,7 +16899,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 405
+            "id": 1523
           },
           {
             "instrument": 3,
@@ -16842,7 +17011,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 413
+            "id": 1531
           },
           null,
           {
@@ -16859,7 +17028,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 416
+            "id": 1534
           },
           {
             "instrument": 0,
@@ -16875,7 +17044,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 418
+            "id": 1536
           },
           {
             "instrument": 0,
@@ -16891,7 +17060,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 422
+            "id": 1540
           },
           null,
           {
@@ -16908,7 +17077,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 425
+            "id": 1543
           },
           null,
           {
@@ -16925,7 +17094,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 429
+            "id": 1547
           },
           null,
           {
@@ -16942,7 +17111,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 432
+            "id": 1550
           },
           null,
           {
@@ -16984,7 +17153,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 436
+            "id": 1554
           },
           null
         ],
@@ -17003,7 +17172,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 412,
+            "id": 1530,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -17028,7 +17197,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 414,
+            "id": 1532,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -17053,7 +17222,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 415,
+            "id": 1533,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -17078,7 +17247,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 417,
+            "id": 1535,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -17103,7 +17272,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 421,
+            "id": 1539,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -17128,7 +17297,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 423
+            "id": 1541
           },
           {
             "instrument": 1,
@@ -17144,7 +17313,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 424,
+            "id": 1542,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -17169,7 +17338,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 426
+            "id": 1544
           },
           {
             "instrument": 1,
@@ -17185,7 +17354,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 428
+            "id": 1546
           },
           {
             "instrument": 1,
@@ -17201,7 +17370,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 430
+            "id": 1548
           },
           {
             "instrument": 1,
@@ -17217,7 +17386,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 431
+            "id": 1549
           },
           {
             "instrument": 1,
@@ -17233,7 +17402,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 433
+            "id": 1551
           },
           {
             "instrument": 0,
@@ -17269,7 +17438,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 411
+            "id": 1529
           },
           {
             "instrument": 2,
@@ -17302,7 +17471,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 420
+            "id": 1538
           },
           {
             "instrument": 2,
@@ -17335,7 +17504,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 427
+            "id": 1545
           },
           {
             "instrument": 2,
@@ -17368,7 +17537,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 435
+            "id": 1553
           },
           {
             "instrument": 2,
@@ -17407,7 +17576,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 419
+            "id": 1537
           },
           {
             "instrument": 3,
@@ -17444,7 +17613,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 434
+            "id": 1552
           },
           {
             "instrument": 3,
@@ -17556,7 +17725,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 438
+            "id": 1556
           },
           null,
           {
@@ -17573,7 +17742,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 439
+            "id": 1557
           },
           {
             "instrument": 0,
@@ -17589,7 +17758,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 440
+            "id": 1558
           },
           {
             "instrument": 0,
@@ -17605,7 +17774,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 443
+            "id": 1561
           },
           null,
           {
@@ -17647,7 +17816,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 445
+            "id": 1563
           },
           null,
           {
@@ -17664,7 +17833,7 @@
               "length": 0.75,
               "mpLength": 0.125
             },
-            "id": 446
+            "id": 1564
           },
           {
             "instrument": 0,
@@ -17820,7 +17989,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 437
+            "id": 1555
           },
           {
             "instrument": 2,
@@ -17853,7 +18022,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 442
+            "id": 1560
           },
           {
             "instrument": 2,
@@ -17886,7 +18055,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 444
+            "id": 1562
           },
           {
             "instrument": 2,
@@ -17919,7 +18088,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 448
+            "id": 1566
           },
           {
             "instrument": 2,
@@ -17958,7 +18127,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 441
+            "id": 1559
           },
           {
             "instrument": 3,
@@ -17995,7 +18164,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 447
+            "id": 1565
           },
           {
             "instrument": 3,
@@ -18107,7 +18276,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 454
+            "id": 1572
           },
           null,
           null,
@@ -18126,7 +18295,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 455
+            "id": 1573
           },
           null,
           {
@@ -18143,7 +18312,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 456
+            "id": 1574
           },
           null,
           {
@@ -18160,7 +18329,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 459
+            "id": 1577
           },
           null,
           null,
@@ -18179,7 +18348,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 460
+            "id": 1578
           },
           null,
           null,
@@ -18198,7 +18367,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 462
+            "id": 1580
           },
           null,
           null,
@@ -18217,7 +18386,7 @@
               "length": 0.75,
               "mpLength": 0.0625
             },
-            "id": 464
+            "id": 1582
           },
           null,
           null,
@@ -18280,7 +18449,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 453
+            "id": 1571
           },
           null,
           {
@@ -18317,7 +18486,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 458
+            "id": 1576
           },
           null,
           {
@@ -18354,7 +18523,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 461
+            "id": 1579
           },
           null,
           {
@@ -18391,7 +18560,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 469
+            "id": 1587
           },
           null,
           {
@@ -18424,7 +18593,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 474,
+            "id": 1592,
             "mp": {
               "instrument": 2,
               "module": "volume",
@@ -18476,7 +18645,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 457
+            "id": 1575
           },
           null,
           {
@@ -18517,7 +18686,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 463
+            "id": 1581
           },
           null,
           {
@@ -18550,7 +18719,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 468
+            "id": 1586
           },
           null,
           {
@@ -18589,7 +18758,7 @@
               "length": 0.625,
               "mpLength": 0.0625
             },
-            "id": 452
+            "id": 1570
           },
           null,
           null,
@@ -18640,7 +18809,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 465
+            "id": 1583
           },
           {
             "instrument": 4,
@@ -18656,7 +18825,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 466
+            "id": 1584
           },
           {
             "instrument": 4,
@@ -18672,7 +18841,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 467
+            "id": 1585
           },
           {
             "instrument": 4,
@@ -18688,7 +18857,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 470
+            "id": 1588
           },
           {
             "instrument": 4,
@@ -18704,7 +18873,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 471
+            "id": 1589
           },
           {
             "instrument": 4,
@@ -18720,7 +18889,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 472
+            "id": 1590
           },
           {
             "instrument": 4,
@@ -18736,7 +18905,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 473
+            "id": 1591
           },
           {
             "instrument": 4,
@@ -18752,7 +18921,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 475
+            "id": 1593
           },
           {
             "instrument": 4,
@@ -18768,7 +18937,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 476
+            "id": 1594
           },
           {
             "instrument": 4,
@@ -18784,7 +18953,7 @@
               "length": 6.0625,
               "mpLength": 0.0625
             },
-            "id": 477
+            "id": 1595
           }
         ],
         [
@@ -18802,7 +18971,7 @@
               "length": 0.875,
               "mpLength": 0.0625
             },
-            "id": 451
+            "id": 1569
           },
           null,
           null,
@@ -18865,7 +19034,7 @@
               "length": 1.125,
               "mpLength": 0.0625
             },
-            "id": 450
+            "id": 1568
           },
           null,
           null,
@@ -18928,7 +19097,7 @@
               "length": 1.375,
               "mpLength": 0.0625
             },
-            "id": 449
+            "id": 1567
           },
           null,
           null,
@@ -18996,7 +19165,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 480
+            "id": 1599
           },
           null,
           {
@@ -19013,7 +19182,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 483
+            "id": 1604
           },
           {
             "instrument": 0,
@@ -19029,7 +19198,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 485
+            "id": 1607
           },
           {
             "instrument": 0,
@@ -19045,7 +19214,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 489
+            "id": 1611
           },
           null,
           {
@@ -19087,7 +19256,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 495
+            "id": 1618
           },
           null,
           {
@@ -19104,7 +19273,7 @@
               "length": 0.75,
               "mpLength": 0.125
             },
-            "id": 498
+            "id": 1622
           },
           {
             "instrument": 0,
@@ -19219,7 +19388,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 479,
+            "id": 1598,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -19244,7 +19413,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 481
+            "id": 1600
           },
           {
             "instrument": 1,
@@ -19260,7 +19429,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 482
+            "id": 1603
           },
           {
             "instrument": 1,
@@ -19276,7 +19445,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 484
+            "id": 1606
           },
           {
             "instrument": 1,
@@ -19292,7 +19461,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 488
+            "id": 1610
           },
           {
             "instrument": 1,
@@ -19308,7 +19477,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 490
+            "id": 1612
           },
           {
             "instrument": 1,
@@ -19324,7 +19493,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 491
+            "id": 1613
           },
           {
             "instrument": 1,
@@ -19340,7 +19509,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 492
+            "id": 1614
           },
           {
             "instrument": 1,
@@ -19356,7 +19525,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 494
+            "id": 1617
           },
           {
             "instrument": 1,
@@ -19372,7 +19541,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 496
+            "id": 1620
           },
           {
             "instrument": 1,
@@ -19388,7 +19557,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 497
+            "id": 1621
           },
           {
             "instrument": 1,
@@ -19404,7 +19573,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 499
+            "id": 1623
           },
           {
             "instrument": 1,
@@ -19420,7 +19589,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 502
+            "id": 1626
           },
           {
             "instrument": 1,
@@ -19436,7 +19605,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 503
+            "id": 1627
           },
           {
             "instrument": 1,
@@ -19452,7 +19621,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 504
+            "id": 1628
           },
           {
             "instrument": 1,
@@ -19468,7 +19637,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 505
+            "id": 1629
           }
         ],
         [
@@ -19486,7 +19655,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 478
+            "id": 1597
           },
           {
             "instrument": 0,
@@ -19503,8 +19672,56 @@
               "mpLength": 0.125
             }
           },
-          null,
-          null,
+          {
+            "instrument": 2,
+            "note": "B",
+            "octave": 3,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 0.25,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1602,
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 20,
+              "patternIndex": 8,
+              "channelIndex": 2,
+              "step": 2
+            }
+          },
+          {
+            "instrument": 2,
+            "note": "B",
+            "octave": 3,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 0.375,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1605,
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 10,
+              "patternIndex": 8,
+              "channelIndex": 2,
+              "step": 3
+            }
+          },
           {
             "instrument": 2,
             "note": "B",
@@ -19515,11 +19732,20 @@
               "playing": false,
               "startMeasure": 8,
               "startMeasureOffset": 0.5,
-              "endMeasure": 8,
+              "endMeasure": null,
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 487
+            "id": 1609,
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 70,
+              "patternIndex": 8,
+              "channelIndex": 2,
+              "step": 4
+            }
           },
           {
             "instrument": 2,
@@ -19552,7 +19778,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 493
+            "id": 1616
           },
           {
             "instrument": 2,
@@ -19585,7 +19811,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 501
+            "id": 1625
           },
           {
             "instrument": 2,
@@ -19606,10 +19832,77 @@
           null
         ],
         [
-          null,
-          null,
-          null,
-          null,
+          {
+            "instrument": 3,
+            "note": "B",
+            "octave": 2,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 0,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1596
+          },
+          {
+            "instrument": 0,
+            "note": "",
+            "octave": 0,
+            "action": 2,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 0.125,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            }
+          },
+          {
+            "instrument": 3,
+            "note": "B",
+            "octave": 2,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 0.25,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1601,
+            "mp": {
+              "instrument": 3,
+              "module": "volume",
+              "glide": true,
+              "value": 30,
+              "patternIndex": 8,
+              "channelIndex": 3,
+              "step": 2
+            }
+          },
+          {
+            "instrument": 0,
+            "note": "",
+            "octave": 0,
+            "action": 2,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 0.375,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            }
+          },
           {
             "instrument": 3,
             "note": "B",
@@ -19624,7 +19917,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 486
+            "id": 1608
           },
           {
             "instrument": 3,
@@ -19643,9 +19936,71 @@
           },
           null,
           null,
-          null,
-          null,
-          null,
+          {
+            "instrument": 3,
+            "note": "B",
+            "octave": 2,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 1,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1615,
+            "mp": {
+              "instrument": 3,
+              "module": "volume",
+              "glide": true,
+              "value": 50,
+              "patternIndex": 8,
+              "channelIndex": 3,
+              "step": 8
+            }
+          },
+          {
+            "instrument": 3,
+            "note": "B",
+            "octave": 2,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 1.125,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1619,
+            "mp": {
+              "instrument": 3,
+              "module": "volume",
+              "glide": true,
+              "value": 90,
+              "patternIndex": 8,
+              "channelIndex": 3,
+              "step": 9
+            }
+          },
+          {
+            "instrument": 0,
+            "note": "",
+            "octave": 0,
+            "action": 2,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 8,
+              "startMeasureOffset": 1.25,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            }
+          },
           null,
           {
             "instrument": 3,
@@ -19661,7 +20016,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 500
+            "id": 1624
           },
           {
             "instrument": 3,
@@ -19773,7 +20128,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 508
+            "id": 1632
           },
           null,
           {
@@ -19790,7 +20145,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 511
+            "id": 1636
           },
           {
             "instrument": 0,
@@ -19806,7 +20161,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 513
+            "id": 1639
           },
           {
             "instrument": 0,
@@ -19822,7 +20177,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 517
+            "id": 1643
           },
           null,
           {
@@ -19839,7 +20194,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 520
+            "id": 1647
           },
           null,
           {
@@ -19856,7 +20211,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 524
+            "id": 1651
           },
           null,
           {
@@ -19873,7 +20228,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 527
+            "id": 1655
           },
           null,
           {
@@ -19915,7 +20270,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 531
+            "id": 1660
           },
           null
         ],
@@ -19934,7 +20289,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 507,
+            "id": 1631,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -19959,7 +20314,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 509,
+            "id": 1634,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -19984,7 +20339,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 510,
+            "id": 1635,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -20009,7 +20364,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 512,
+            "id": 1638,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -20034,7 +20389,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 516,
+            "id": 1642,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -20059,7 +20414,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 518
+            "id": 1644
           },
           {
             "instrument": 1,
@@ -20075,7 +20430,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 519,
+            "id": 1646,
             "mp": {
               "instrument": 1,
               "module": "filterFreq",
@@ -20100,7 +20455,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 521
+            "id": 1648
           },
           {
             "instrument": 1,
@@ -20116,7 +20471,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 523
+            "id": 1650
           },
           {
             "instrument": 1,
@@ -20132,7 +20487,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 525
+            "id": 1652
           },
           {
             "instrument": 1,
@@ -20148,7 +20503,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 526
+            "id": 1654
           },
           {
             "instrument": 1,
@@ -20164,7 +20519,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 528
+            "id": 1657
           },
           {
             "instrument": 0,
@@ -20200,10 +20555,26 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 506
+            "id": 1630
           },
           {
             "instrument": 2,
+            "note": "B",
+            "octave": 3,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 0.125,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1633
+          },
+          {
+            "instrument": 0,
             "note": "",
             "octave": 0,
             "action": 2,
@@ -20211,14 +20582,28 @@
             "seq": {
               "playing": false,
               "startMeasure": 9,
-              "startMeasureOffset": 0.125,
-              "endMeasure": 9,
+              "startMeasureOffset": 0.25,
+              "endMeasure": null,
               "length": 0.125,
               "mpLength": 0.125
             }
           },
-          null,
-          null,
+          {
+            "instrument": 2,
+            "note": "B",
+            "octave": 4,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 0.375,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1637
+          },
           {
             "instrument": 2,
             "note": "B",
@@ -20233,7 +20618,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 515
+            "id": 1641
           },
           {
             "instrument": 2,
@@ -20266,7 +20651,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 522
+            "id": 1649
           },
           {
             "instrument": 2,
@@ -20284,7 +20669,31 @@
             }
           },
           null,
-          null,
+          {
+            "instrument": 2,
+            "note": "B",
+            "octave": 4,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 1.375,
+              "endMeasure": 9,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1656,
+            "mp": {
+              "instrument": 2,
+              "module": "volume",
+              "glide": true,
+              "value": 50,
+              "patternIndex": 9,
+              "channelIndex": 2,
+              "step": 14
+            }
+          },
           {
             "instrument": 2,
             "note": "B",
@@ -20299,7 +20708,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 530
+            "id": 1659
           },
           {
             "instrument": 2,
@@ -20338,7 +20747,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 514
+            "id": 1640
           },
           {
             "instrument": 3,
@@ -20355,12 +20764,70 @@
               "mpLength": 0.125
             }
           },
+          {
+            "instrument": 3,
+            "note": "B",
+            "octave": 3,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 0.75,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1645
+          },
+          {
+            "instrument": 0,
+            "note": "",
+            "octave": 0,
+            "action": 2,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 0.875,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            }
+          },
           null,
           null,
-          null,
-          null,
-          null,
-          null,
+          {
+            "instrument": 3,
+            "note": "B",
+            "octave": 3,
+            "action": 1,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 1.25,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "id": 1653
+          },
+          {
+            "instrument": 0,
+            "note": "",
+            "octave": 0,
+            "action": 2,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 1.375,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            }
+          },
           {
             "instrument": 3,
             "note": "B",
@@ -20371,14 +20838,71 @@
               "playing": false,
               "startMeasure": 9,
               "startMeasureOffset": 1.5,
-              "endMeasure": 9,
-              "length": 0.125,
+              "endMeasure": null,
+              "length": 0.375,
               "mpLength": 0.125
             },
-            "id": 529
+            "id": 1658,
+            "mp": {
+              "instrument": 3,
+              "module": "volume",
+              "glide": true,
+              "value": 50,
+              "patternIndex": 9,
+              "channelIndex": 3,
+              "step": 12
+            }
           },
           {
             "instrument": 3,
+            "note": "",
+            "octave": 0,
+            "action": 0,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 1.625,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "mp": {
+              "instrument": 3,
+              "module": "volume",
+              "glide": true,
+              "value": 30,
+              "patternIndex": 9,
+              "channelIndex": 3,
+              "step": 13
+            }
+          },
+          {
+            "instrument": 3,
+            "note": "",
+            "octave": 0,
+            "action": 0,
+            "recording": false,
+            "seq": {
+              "playing": false,
+              "startMeasure": 9,
+              "startMeasureOffset": 1.75,
+              "endMeasure": null,
+              "length": 0.125,
+              "mpLength": 0.125
+            },
+            "mp": {
+              "instrument": 3,
+              "module": "volume",
+              "glide": true,
+              "value": 20,
+              "patternIndex": 9,
+              "channelIndex": 3,
+              "step": 14
+            }
+          },
+          {
+            "instrument": 0,
             "note": "",
             "octave": 0,
             "action": 2,
@@ -20386,14 +20910,12 @@
             "seq": {
               "playing": false,
               "startMeasure": 9,
-              "startMeasureOffset": 1.625,
-              "endMeasure": 9,
+              "startMeasureOffset": 1.875,
+              "endMeasure": null,
               "length": 0.125,
               "mpLength": 0.125
             }
-          },
-          null,
-          null
+          }
         ],
         [
           null,
@@ -20487,7 +21009,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 533
+            "id": 1662
           },
           null,
           {
@@ -20504,7 +21026,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 534
+            "id": 1663
           },
           {
             "instrument": 0,
@@ -20520,7 +21042,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 535
+            "id": 1664
           },
           {
             "instrument": 0,
@@ -20536,7 +21058,7 @@
               "length": 0.5,
               "mpLength": 0.125
             },
-            "id": 538
+            "id": 1667
           },
           null,
           {
@@ -20578,7 +21100,7 @@
               "length": 0.25,
               "mpLength": 0.125
             },
-            "id": 540
+            "id": 1669
           },
           null,
           {
@@ -20595,7 +21117,7 @@
               "length": 0.75,
               "mpLength": 0.125
             },
-            "id": 541
+            "id": 1670
           },
           {
             "instrument": 0,
@@ -20751,7 +21273,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 532
+            "id": 1661
           },
           {
             "instrument": 2,
@@ -20784,7 +21306,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 537
+            "id": 1666
           },
           {
             "instrument": 2,
@@ -20817,7 +21339,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 539
+            "id": 1668
           },
           {
             "instrument": 2,
@@ -20850,7 +21372,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 543
+            "id": 1672
           },
           {
             "instrument": 2,
@@ -20889,7 +21411,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 536
+            "id": 1665
           },
           {
             "instrument": 3,
@@ -20926,7 +21448,7 @@
               "length": 0.125,
               "mpLength": 0.125
             },
-            "id": 542
+            "id": 1671
           },
           {
             "instrument": 3,
@@ -21038,7 +21560,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 549
+            "id": 1678
           },
           null,
           null,
@@ -21057,7 +21579,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 550
+            "id": 1679
           },
           null,
           {
@@ -21074,7 +21596,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 551
+            "id": 1680
           },
           null,
           {
@@ -21091,7 +21613,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 554
+            "id": 1683
           },
           null,
           null,
@@ -21110,7 +21632,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 555
+            "id": 1684
           },
           null,
           null,
@@ -21129,7 +21651,7 @@
               "length": 0.25,
               "mpLength": 0.0625
             },
-            "id": 557
+            "id": 1686
           },
           null,
           null,
@@ -21148,7 +21670,7 @@
               "length": 0.75,
               "mpLength": 0.0625
             },
-            "id": 559
+            "id": 1688
           },
           null,
           null,
@@ -21211,7 +21733,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 548
+            "id": 1677
           },
           null,
           {
@@ -21248,7 +21770,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 553
+            "id": 1682
           },
           null,
           {
@@ -21285,7 +21807,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 556
+            "id": 1685
           },
           null,
           {
@@ -21322,7 +21844,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 564
+            "id": 1693
           },
           null,
           {
@@ -21355,7 +21877,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 569,
+            "id": 1698,
             "mp": {
               "instrument": 2,
               "module": "volume",
@@ -21407,7 +21929,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 552
+            "id": 1681
           },
           null,
           {
@@ -21448,7 +21970,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 558
+            "id": 1687
           },
           null,
           {
@@ -21481,7 +22003,7 @@
               "length": 0.125,
               "mpLength": 0.0625
             },
-            "id": 563
+            "id": 1692
           },
           null,
           {
@@ -21520,7 +22042,7 @@
               "length": 0.625,
               "mpLength": 0.0625
             },
-            "id": 547
+            "id": 1676
           },
           null,
           null,
@@ -21571,7 +22093,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 560
+            "id": 1689
           },
           {
             "instrument": 4,
@@ -21587,7 +22109,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 561
+            "id": 1690
           },
           {
             "instrument": 4,
@@ -21603,7 +22125,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 562
+            "id": 1691
           },
           {
             "instrument": 4,
@@ -21619,7 +22141,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 565
+            "id": 1694
           },
           {
             "instrument": 4,
@@ -21635,7 +22157,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 566
+            "id": 1695
           },
           {
             "instrument": 4,
@@ -21651,7 +22173,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 567
+            "id": 1696
           },
           {
             "instrument": 4,
@@ -21667,7 +22189,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 568
+            "id": 1697
           },
           {
             "instrument": 4,
@@ -21683,7 +22205,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 570
+            "id": 1699
           },
           {
             "instrument": 4,
@@ -21699,7 +22221,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 571
+            "id": 1700
           },
           {
             "instrument": 4,
@@ -21715,7 +22237,7 @@
               "length": 0.0625,
               "mpLength": 0.0625
             },
-            "id": 572
+            "id": 1701
           }
         ],
         [
@@ -21733,7 +22255,7 @@
               "length": 0.875,
               "mpLength": 0.0625
             },
-            "id": 546
+            "id": 1675
           },
           null,
           null,
@@ -21796,7 +22318,7 @@
               "length": 1.125,
               "mpLength": 0.0625
             },
-            "id": 545
+            "id": 1674
           },
           null,
           null,
@@ -21859,7 +22381,7 @@
               "length": 1.375,
               "mpLength": 0.0625
             },
-            "id": 544
+            "id": 1673
           },
           null,
           null,
