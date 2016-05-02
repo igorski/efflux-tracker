@@ -31,8 +31,11 @@ All source code can be found in the _./src_-folder.
  * _./src/js_ contains all JavaScript sourcecode with _main.js_ being the application entry point
  * _./src/workers_ contains all JavaScript Workers (will be served as separate files when requested)
  * _./src/templates_ contains all HMTL snippets used by the application in Handlebars format
- * _./src/public_html_ contains the main HTML page that will link to the source output
- 
+ * _./src/public_html_ contains the main HTML page that will link to the source output 
+
+Additional folders:
+
+ * _./design_ contains SVG icons that are combined into an icon font (by fontello)
  * _./fixtures_ can be filled with separate JSON files containing Song data, these will be concatenated into
    a single file that can be requested via Ajax on the first application start to provide demo content
    (see FixturesLoader.js)
@@ -80,9 +83,10 @@ KNOWN BUGS
 ROADMAP
 -------
 
- * Use workerify to inline Workers
+ * Use Workerify to inline Workers
+ * Add pattern jump instructions
  * Add cut/paste icons for touch screen devices
- * Improve arrow key navigation within patterns
+ * Improve arrow key navigation within patterns (there are odd jumps when switching direction)
  * Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)
  * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
