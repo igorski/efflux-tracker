@@ -47,16 +47,16 @@ module.exports =
 
     // song messages
 
-    LOAD_SONG                 : "SNG:0",  // payload consists of the Song that has been loaded
-    SONG_LOADED               : "SNG:1",  // payload consists of the Song that has been loaded
-    REFRESH_SONG              : "SNG:2",
-    REFRESH_PATTERN_VIEW      : "SNG:3",
-    PATTERN_SWITCH            : "SNG:4",  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : "SNG:5",
-    PATTERN_STEPS_UPDATED     : "SNG:6",  // payload consists of number describing new pattern length
     VALIDATE_AND_GET_SONG     : "SNGVG",  // payload consists of callback function receiving Song
+    LOAD_SONG                 : "SNGLD",  // payload can be A) string (song id) or B) full Song object
+    SONG_LOADED               : "SNG:0",  // payload consists of the Song that has been loaded
+    REFRESH_SONG              : "SNG:1",
+    REFRESH_PATTERN_VIEW      : "SNG:2",
+    PATTERN_STEPS_UPDATED     : "SNG:5",  // payload consists of number describing new pattern length
 
     // sequencer messages
+    PATTERN_SWITCH            : "SNG:3",  // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED    : "SNG:4",
 
     TOGGLE_SEQUENCER_PLAYSTATE : "SEQ:0",
     PLAYBACK_STARTED           : "SEQ:1",

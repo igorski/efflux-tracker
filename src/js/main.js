@@ -122,9 +122,10 @@ function handleBroadcast( type, payload )
     {
         case Messages.LOAD_SONG:
 
-            var song = efflux.SongModel.getSongById( payload );
+            var song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
 
-            if ( song ) {
+            if ( song && song.meta && song.patterns ) {
+
                 efflux.activeSong = ObjectUtil.clone( song );
                 efflux.EditorModel.reset();
                 efflux.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
