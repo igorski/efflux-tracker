@@ -28,8 +28,8 @@ module.exports =
     SHOW_FEEDBACK             : "SYSFB", // payload is a String message that will be displayed in a popup (NotificationController)
     SHOW_LOADER               : "SYSSL",
     HIDE_LOADER               : "SYSHL",
-    SHOW_BLIND                : "SYS:0",
-    HIDE_BLIND                : "SYS:1",
+    SHOW_BLIND                : "SYSSB",
+    HIDE_BLIND                : "SYSHB",
     WINDOW_SCROLLED           : "SYS:2",
     WINDOW_RESIZED            : "SYS:3",
 
