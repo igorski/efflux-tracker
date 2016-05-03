@@ -94,7 +94,8 @@ var MenuController = module.exports =
 
         [
             Messages.WINDOW_RESIZED,
-            Messages.CLOSE_OVERLAYS
+            Messages.CLOSE_OVERLAYS,
+            Messages.VALIDATE_AND_GET_SONG
 
         ].forEach( function( msg )
         {
@@ -132,6 +133,15 @@ function handleBroadcast( type, payload )
 
             if ( menuOpened )
                 handleToggle( null );
+            break;
+
+        case Messages.VALIDATE_AND_GET_SONG:
+
+            if ( isValid( efflux.activeSong ))
+            {
+                if ( typeof payload === "function" )
+                    payload( efflux.activeSong );
+            }
             break;
     }
 }
@@ -249,7 +259,7 @@ function handleExport( aEvent )
 
         // encode song data
 
-        var data = btoa( JSON.stringify( song ));
+        var data = serializeSong( song );
 
         // download file to disk
 
@@ -267,4 +277,9 @@ function handleRecord( aEvent )
         "Recording of output enabled. When the sequencer stops, the recording will be saved " +
         "onto to your device"
     );
+}
+
+function serializeSong( song )
+{
+    return btoa( JSON.stringify( song ));
 }
