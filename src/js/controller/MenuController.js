@@ -30,7 +30,7 @@ var zMIDI        = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
-var header, menu, toggle, tracker, songController;
+var header, menu, toggle, efflux, songController;
 var menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
 var MenuController = module.exports =
@@ -39,13 +39,13 @@ var MenuController = module.exports =
      * initialize MenuController, attach MenuView template into given container
      *
      * @param containerRef
-     * @param trackerRef
+     * @param effluxRef
      * @param songControllerRef
      */
-    init : function( containerRef, trackerRef, songControllerRef )
+    init : function( containerRef, effluxRef, songControllerRef )
     {
-        tracker            = trackerRef;
-        songController     = songControllerRef;
+        efflux         = effluxRef;
+        songController = songControllerRef;
 
         var canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
         // on iOS and Safari recording isn't working as expected...
@@ -149,10 +149,10 @@ function handleLoad( aEvent )
 
 function handleSave( aEvent )
 {
-    var song = tracker.activeSong;
+    var song = efflux.activeSong;
 
     if ( isValid( song )) {
-        tracker.SongModel.saveSong( song );
+        efflux.SongModel.saveSong( song );
         Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
     }
 }
@@ -161,15 +161,15 @@ function handleSave( aEvent )
 function handleReset( aEvent )
 {
     if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
-        tracker.activeSong = tracker.SongModel.createSong();
+        efflux.activeSong = efflux.SongModel.createSong();
 
-        var editorModel = tracker.EditorModel;
+        var editorModel = efflux.EditorModel;
         editorModel.activeInstrument =
         editorModel.activePattern    =
         editorModel.activeStep       = 0;
-        editorModel.amountOfSteps    = tracker.activeSong.patterns[ 0 ].steps;
+        editorModel.amountOfSteps    = efflux.activeSong.patterns[ 0 ].steps;
 
-        Pubsub.publish( Messages.SONG_LOADED, tracker.activeSong );
+        Pubsub.publish( Messages.SONG_LOADED, efflux.activeSong );
     }
 }
 
@@ -231,8 +231,8 @@ function handleImport( aEvent )
 
             if ( song.meta && song.instruments && song.patterns )
             {
-                tracker.SongModel.saveSong( song );
-                tracker.activeSong = song;
+                efflux.SongModel.saveSong( song );
+                efflux.activeSong = song;
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }
         };
@@ -243,7 +243,7 @@ function handleImport( aEvent )
 
 function handleExport( aEvent )
 {
-    var song = tracker.activeSong;
+    var song = efflux.activeSong;
 
     if ( isValid( song ) ) {
 

@@ -70,7 +70,7 @@ var INSTRUMENT_MODULES;
 
 /* private properties */
 
-var audioContext, masterBus, compressor, pool, UNIQUE_EVENT_ID = 0,
+var efflux, audioContext, masterBus, compressor, pool, UNIQUE_EVENT_ID = 0,
     playing = false, recording = false, recorder;
 
 /**
@@ -108,9 +108,10 @@ var AudioController = module.exports =
      * synthesize audio using the WebAudio API
      *
      * @public
+     * @param effluxRef
      * @param {Array.<INSTRUMENT>} instruments to create WaveTables for
      */
-    init : function( instruments )
+    init : function( effluxRef, instruments )
     {
         if ( typeof AudioContext !== "undefined" ) {
             audioContext = new AudioContext();
@@ -121,6 +122,8 @@ var AudioController = module.exports =
         else {
             throw new Error( "WebAudio API not supported (try 'isSupported()' prior to invoking)" );
         }
+
+        efflux = effluxRef;
 
         AudioUtil.iOSinit( audioContext );
         setupRouting();
@@ -464,7 +467,7 @@ function createModules()
 function applyModules()
 {
     var instrumentModule;
-    tracker.activeSong.instruments.forEach( function( instrument, index ) {
+    efflux.activeSong.instruments.forEach( function( instrument, index ) {
         instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;
         Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);

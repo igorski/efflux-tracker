@@ -30,7 +30,7 @@ var Pubsub        = require( "pubsub-js" );
 
 /* private properties */
 
-var container, tracker, keyboardController, view, canvas, wtDraw,
+var container, efflux, keyboardController, view, canvas, wtDraw,
     instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
@@ -43,10 +43,10 @@ var InstrumentController = module.exports =
 {
     visible : false,
 
-    init : function( containerRef, trackerRef, keyboardControllerRef )
+    init : function( containerRef, effluxRef, keyboardControllerRef )
     {
         container          = containerRef;
-        tracker            = trackerRef;
+        efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
         // prepare view
@@ -163,7 +163,7 @@ var InstrumentController = module.exports =
 
     update : function()
     {
-        var instruments = tracker.activeSong.instruments, i = instruments.length;
+        var instruments = efflux.activeSong.instruments, i = instruments.length;
         instrumentRef = null;
 
         while ( i-- ) {

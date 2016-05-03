@@ -35,7 +35,7 @@ var TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var wrapper, container, tracker, editorModel, keyboardController, stepHighlight;
+var wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
 var maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
     stateModel, selectionModel, patternCopy, stepSelect;
 
@@ -47,13 +47,13 @@ var PatternTrackListController = module.exports =
      * initialize PatternTrackListController
      *
      * @param containerRef
-     * @param trackerRef
+     * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, trackerRef, keyboardControllerRef )
+    init : function( containerRef, effluxRef, keyboardControllerRef )
     {
-        tracker            = trackerRef;
-        editorModel        = tracker.EditorModel;
+        efflux             = effluxRef;
+        editorModel        = efflux.EditorModel;
         keyboardController = keyboardControllerRef;
 
         container     = containerRef;
@@ -110,13 +110,13 @@ var PatternTrackListController = module.exports =
     {
         var activePattern = editorModel.activePattern;
 
-        if ( activePattern >= tracker.activeSong.patterns.length )
-            activePattern = tracker.activeSong.patterns.length - 1;
+        if ( activePattern >= efflux.activeSong.patterns.length )
+            activePattern = efflux.activeSong.patterns.length - 1;
 
         // record the current scroll offset of the container so we can restore it after updating of the HTML
         var coordinates = { x: container.scrollLeft, y: container.scrollTop };
 
-        var pattern = tracker.activeSong.patterns[ activePattern ];
+        var pattern = efflux.activeSong.patterns[ activePattern ];
         wrapper.innerHTML = TemplateUtil.render( "patternTrackList", {
             steps   : pattern.steps,
             pattern : pattern
@@ -156,7 +156,7 @@ var PatternTrackListController = module.exports =
 
                 case 40: // down
 
-                    var maxStep = tracker.activeSong.patterns[ editorModel.activePattern ].steps - 1;
+                    var maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
                     if ( ++editorModel.activeStep > maxStep )
                         editorModel.activeStep = maxStep;
@@ -173,7 +173,7 @@ var PatternTrackListController = module.exports =
                 case 39: // right
 
                     if ( ++editorModel.activeInstrument > maxChannel ) {
-                        if ( editorModel.activePattern < ( tracker.activeSong.patterns.length - 1 )) {
+                        if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
                             ++editorModel.activePattern;
                             editorModel.activeInstrument = 0;
                             PatternTrackListController.update();
@@ -244,7 +244,7 @@ var PatternTrackListController = module.exports =
                             state = stateModel.redo();
 
                         if ( state ) {
-                            tracker.activeSong = state;
+                            efflux.activeSong = state;
                             PatternTrackListController.update();
                         }
                     }
@@ -261,7 +261,7 @@ var PatternTrackListController = module.exports =
                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
                             selectionModel.setSelection( editorModel.activeStep );
                         }
-                        selectionModel.cutSelection( tracker.activeSong, editorModel.activePattern );
+                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
                         PatternTrackListController.update();
                         saveState();
@@ -273,7 +273,7 @@ var PatternTrackListController = module.exports =
                     // paste current selection
                     if ( keyboardController.hasOption( aEvent )) {
                         selectionModel.pasteSelection(
-                            tracker.activeSong, editorModel.activePattern, editorModel.activeInstrument, editorModel.activeStep
+                            efflux.activeSong, editorModel.activePattern, editorModel.activeInstrument, editorModel.activeStep
                         );
                         PatternTrackListController.update();
                         saveState();
@@ -289,7 +289,7 @@ var PatternTrackListController = module.exports =
                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
                             selectionModel.setSelection( editorModel.activeStep );
                         }
-                        selectionModel.copySelection( tracker.activeSong, editorModel.activePattern );
+                        selectionModel.copySelection( efflux.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
                     }
                     break;
@@ -398,9 +398,9 @@ function highlightActiveStep()
 function deleteHighlightedStep()
 {
     if ( selectionModel.hasSelection() )
-        selectionModel.deleteSelection( tracker.activeSong, editorModel.activePattern );
+        selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern );
     else
-        PatternFactory.clearEvent( tracker.activeSong.patterns[ editorModel.activePattern ], editorModel.activeInstrument, editorModel.activeStep );
+        PatternFactory.clearEvent( efflux.activeSong.patterns[ editorModel.activePattern ], editorModel.activeInstrument, editorModel.activeStep );
 
     PatternTrackListController.update(); // sync view with model
     saveState();
@@ -498,27 +498,27 @@ function addOffEvent()
 
 function handlePatternClear( aEvent )
 {
-    tracker.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
+    efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
     selectionModel.clearSelection();
     PatternTrackListController.update();
 }
 
 function handlePatternCopy( aEvent )
 {
-    patternCopy = ObjectUtil.clone( tracker.activeSong.patterns[ editorModel.activePattern ] );
+    patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
 }
 
 function handlePatternPaste( aEvent )
 {
     if ( patternCopy ) {
-        PatternFactory.mergePatterns( tracker.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
+        PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
         PatternTrackListController.update();
     }
 }
 
 function handlePatternAdd( aEvent )
 {
-    var song     = tracker.activeSong,
+    var song     = efflux.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
@@ -533,7 +533,7 @@ function handlePatternAdd( aEvent )
 
 function handlePatternDelete( aEvent )
 {
-    var song     = tracker.activeSong,
+    var song     = efflux.activeSong,
         patterns = song.patterns;
 
     if ( patterns.length === 1 )
@@ -555,7 +555,7 @@ function handlePatternDelete( aEvent )
 
 function handlePatternStepChange( aEvent )
 {
-    var song    = tracker.activeSong,
+    var song    = efflux.activeSong,
         pattern = song.patterns[ editorModel.activePattern ];
 
     var oldAmount = pattern.steps;
@@ -601,7 +601,7 @@ function saveState()
     // song content, however we're not running this in the limited memory space
     // of an Atari 2600 !! this should be just fine and hella fast
 
-    stateModel.store( ObjectUtil.clone( tracker.activeSong ));
+    stateModel.store( ObjectUtil.clone( efflux.activeSong ));
 }
 
 /**
@@ -625,12 +625,12 @@ function addEventAtPosition( event, optData )
         step         = ( typeof optData.step         === "number" ) ? optData.step         : step;
     }
 
-    var pattern = tracker.activeSong.patterns[ patternIndex ],
+    var pattern = efflux.activeSong.patterns[ patternIndex ],
         channel = pattern.channels[ channelIndex ];
 
     EventUtil.setPosition(
         event, pattern, patternIndex, step,
-        tracker.activeSong.meta.tempo
+        efflux.activeSong.meta.tempo
     );
 
     channel[ step ] = event;

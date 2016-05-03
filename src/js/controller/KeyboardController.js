@@ -23,19 +23,16 @@
 var Messages = require( "../definitions/Messages" );
 var Pubsub   = require( "pubsub-js" );
 
-var tracker, listener, suspended = false,
+var listener, suspended = false,
     blockDefaults = true, optionDown = false, shiftDown = false;
 
 module.exports =
 {
     /**
      * initialize KeyboardController
-     *
-     * @param trackerRef
      */
-    init : function( trackerRef )
+    init : function()
     {
-        tracker = trackerRef;
         window.addEventListener( "keydown", handleKeyDown );
         window.addEventListener( "keyup",   handleKeyUp );
     },

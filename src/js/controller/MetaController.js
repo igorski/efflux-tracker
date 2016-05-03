@@ -27,7 +27,7 @@ var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, tracker, keyboardController, editorModel;
+var container, efflux, keyboardController, editorModel;
 var title, author, instrumentEditBtn;
 
 var MetaController = module.exports =
@@ -36,14 +36,14 @@ var MetaController = module.exports =
      * initialize MetaController, attach MetaView template into give container
      *
      * @param containerRef
-     * @param trackerRef
+     * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, trackerRef, keyboardControllerRef )
+    init : function( containerRef, effluxRef, keyboardControllerRef )
     {
         container          = containerRef;
-        tracker            = trackerRef;
-        editorModel        = tracker.EditorModel;
+        efflux             = effluxRef;
+        editorModel        = efflux.EditorModel;
         keyboardController = keyboardControllerRef;
 
         container.innerHTML += TemplateUtil.render( "metaView" );
@@ -79,7 +79,7 @@ var MetaController = module.exports =
      */
     update : function()
     {
-        var meta = tracker.activeSong.meta;
+        var meta = efflux.activeSong.meta;
 
         title.value  = meta.title;
         author.value = meta.author;
@@ -106,7 +106,7 @@ function handleBroadcast( type, payload )
  */
 function handleChange( aEvent )
 {
-    var meta = tracker.activeSong.meta;
+    var meta = efflux.activeSong.meta;
 
     meta.title  = title.value;
     meta.author = author.value;

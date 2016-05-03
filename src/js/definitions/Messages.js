@@ -24,12 +24,12 @@ module.exports =
 {
     // system messages
 
-    SHOW_ERROR                : "SYS:0", // payload is a String message that will be displayed in a popup (NotificationController)
-    SHOW_FEEDBACK             : "SYS:1", // payload is a String message that will be displayed in a popup (NotificationController)
-    SHOW_BLIND                : "SYS:2",
-    HIDE_BLIND                : "SYS:3",
-    WINDOW_SCROLLED           : "SYS:4",
-    WINDOW_RESIZED            : "SYS:5",
+    SHOW_ERROR                : "ERROR", // payload is a String message that will be displayed in a popup (NotificationController)
+    SHOW_FEEDBACK             : "FDBK",  // payload is a String message that will be displayed in a popup (NotificationController)
+    SHOW_BLIND                : "SYS:0",
+    HIDE_BLIND                : "SYS:1",
+    WINDOW_SCROLLED           : "SYS:2",
+    WINDOW_RESIZED            : "SYS:3",
 
     // UI messages
 

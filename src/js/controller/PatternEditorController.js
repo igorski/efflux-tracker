@@ -27,7 +27,7 @@ var DOM          = require( "zjslib" ).DOM;
 
 /* private properties */
 
-var container, indiceContainer, controlContainer;
+var container, efflux, indiceContainer, controlContainer;
 var stepAmount = 0, patternIndices, rafPending = false;
 
 module.exports =
@@ -36,10 +36,12 @@ module.exports =
      * initialize PatternEditorController
      *
      * @param containerRef
+     * @param effluxRef
      */
-    init : function( containerRef )
+    init : function( containerRef, effluxRef )
     {
         container        = containerRef;
+        efflux           = effluxRef;
         controlContainer = container.querySelector( ".controls" );
         indiceContainer  = container.querySelector( ".indices" );
 
@@ -85,7 +87,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.SONG_LOADED:
-            updateStepAmount( tracker.EditorModel.amountOfSteps );
+            updateStepAmount( efflux.EditorModel.amountOfSteps );
             break;
 
         case Messages.STEP_POSITION_REACHED:

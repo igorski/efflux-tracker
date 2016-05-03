@@ -34,14 +34,14 @@ var zMIDILib     = require( "zmidi" ),
 
 /* private properties */
 
-var tracker, audioController, sequencerController;
+var efflux, audioController, sequencerController;
 var currentlyConnectedInput = -1, playingNotes = [];
 
 var MidiController = module.exports =
 {
-    init : function( trackerRef, audioControllerRef, sequencerControllerRef )
+    init : function( effluxRef, audioControllerRef, sequencerControllerRef )
     {
-        tracker             = trackerRef;
+        efflux              = effluxRef;
         audioController     = audioControllerRef;
         sequencerController = sequencerControllerRef;
 
@@ -128,7 +128,7 @@ function handleConnectFailure( msg )
 function handleMIDIMessage( aEvent )
 {
     var noteValue   = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
-        editorModel = tracker.EditorModel,
+        editorModel = efflux.EditorModel,
         audioEvent;
 
     switch ( aEvent.type )
@@ -138,7 +138,7 @@ function handleMIDIMessage( aEvent )
             var pitch = MIDINotes.getPitchByNoteNumber( noteValue );
 
             var instrumentId  = editorModel.activeInstrument;
-            var instrument    = tracker.activeSong.instruments[ instrumentId ];
+            var instrument    = efflux.activeSong.instruments[ instrumentId ];
             audioEvent        = EventFactory.createAudioEvent( instrumentId );
             audioEvent.note   = pitch.note;
             audioEvent.octave = pitch.octave;
@@ -176,8 +176,8 @@ function recordEventIntoSong( audioEvent )
 
         // sequencer is playing, add event at current step
 
-        var editorModel   = tracker.EditorModel;
-        var song          = tracker.activeSong;
+        var editorModel   = efflux.EditorModel;
+        var song          = efflux.activeSong;
         var activePattern = editorModel.activePattern;
         var pattern       = song.patterns[ activePattern ];
         var channel       = pattern.channels[ editorModel.activeInstrument ];
@@ -202,7 +202,7 @@ function recordEventIntoSong( audioEvent )
 function sanitizeRecordedEvents()
 {
     // unflag the recorded state of all the events
-    var patterns = tracker.activeSong.patterns, event, i;
+    var patterns = efflux.activeSong.patterns, event, i;
 
     patterns.forEach( function( pattern )
     {

@@ -28,7 +28,7 @@ var Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, element, tracker, keyboardController;
+var container, element, efflux, keyboardController;
 var data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, closeCallback,
     moduleList, valueDisplay, glideOptions, valueControl;
 
@@ -38,13 +38,13 @@ var ModuleParamController = module.exports =
      * initialize ModuleParamController
      *
      * @param containerRef
-     * @param trackerRef
+     * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, trackerRef, keyboardControllerRef )
+    init : function( containerRef, effluxRef, keyboardControllerRef )
     {
         container          = containerRef;
-        tracker            = trackerRef;
+        efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
         element = TemplateUtil.renderAsElement( "moduleParamEntry" );
@@ -176,9 +176,9 @@ function handleBroadcast( type, payload )
  */
 function handleOpen( completeCallback )
 {
-    var editorModel  = tracker.EditorModel,
+    var editorModel  = efflux.EditorModel,
         patternIndex = editorModel.activePattern,
-        pattern      = tracker.activeSong.patterns[ patternIndex ],
+        pattern      = efflux.activeSong.patterns[ patternIndex ],
         channelIndex = editorModel.activeInstrument,
         channel      = pattern.channels[ channelIndex ],
         event        = channel[ editorModel.activeStep ];
@@ -232,7 +232,7 @@ function handleReady()
 
 //    if ( EventUtil.isValid( data )) {
 
-        var pattern = tracker.activeSong.patterns[ data.patternIndex ],
+        var pattern = efflux.activeSong.patterns[ data.patternIndex ],
             channel = pattern.channels[ data.channelIndex ],
             event   = channel[ data.step ];
 

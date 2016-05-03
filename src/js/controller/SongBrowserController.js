@@ -28,7 +28,7 @@ var EventHandler = require( "zjslib" ).EventHandler;
 
 /* private properties */
 
-var tracker, keyboardController,
+var efflux, keyboardController,
     container, list, closeBtn, handler;
 
 var SongBrowserController = module.exports =
@@ -37,12 +37,12 @@ var SongBrowserController = module.exports =
      * initialize SongBrowserController, attach SongView template into give container
      *
      * @param containerRef
-     * @param trackerRef
+     * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, trackerRef, keyboardControllerRef )
+    init : function( containerRef, effluxRef, keyboardControllerRef )
     {
-        tracker            = trackerRef;
+        efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
         // append SongBrowser template to page, see CSS toggles for visibility
@@ -98,7 +98,7 @@ function handleBroadcast( type, payload )
 
 function handleOpen()
 {
-    var songs = tracker.SongModel.getSongs(), li;
+    var songs = efflux.SongModel.getSongs(), li;
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
@@ -148,7 +148,7 @@ function handleSongOpenClick( aEvent )
 function handleSongDeleteClick( aEvent )
 {
     var id        = aEvent.target.parentNode.getAttribute( "data-id"),
-        songModel = tracker.SongModel,
+        songModel = efflux.SongModel,
         song      = songModel.getSongById( id );
 
     if ( !song )

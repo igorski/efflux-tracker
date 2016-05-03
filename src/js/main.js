@@ -47,7 +47,7 @@ var zMIDI                      = require( "zmidi" ).zMIDI;
 
 /* initialize application */
 
-var tracker;
+var efflux;
 
 (function( ref )
 {
@@ -66,8 +66,9 @@ var tracker;
 
     var songModel = new SongModel();
 
-    tracker = ref.tracker =
+    efflux = ref.efflux =
     {
+        Pubsub      : Pubsub,
         EditorModel : new EditorModel(),
         SongModel   : songModel,
         activeSong  : songModel.createSong() // create new empty song or load last available song
@@ -79,29 +80,29 @@ var tracker;
 
     // initialize application controllers
 
-    AudioController.init( tracker.activeSong.instruments );
-    KeyboardController.init( tracker );
+    KeyboardController.init();
+    AudioController.init( efflux, efflux.activeSong.instruments );
     SettingsController.init( document.body, KeyboardController );
-    MenuController.init( container.querySelector( "#menuSection" ), tracker );
-    InstrumentController.init( container, tracker, KeyboardController );
-    MetaController.init( container.querySelector( "#metaSection" ), tracker, KeyboardController );
-    SequencerController.init( container.querySelector( "#transportSection" ), tracker, AudioController );
-    SongBrowserController.init( document.body, tracker, KeyboardController );
-    NoteEntryController.init( container, tracker, KeyboardController );
-    ModuleParamController.init( container, tracker, KeyboardController );
+    MenuController.init( container.querySelector( "#menuSection" ), efflux );
+    InstrumentController.init( container, efflux, KeyboardController );
+    MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
+    SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
+    SongBrowserController.init( document.body, efflux, KeyboardController );
+    NoteEntryController.init( container, efflux, KeyboardController );
+    ModuleParamController.init( container, efflux, KeyboardController );
     NotificationController.init( container );
-    PatternEditorController.init( container.querySelector( "#patternEditor" ));
+    PatternEditorController.init( container.querySelector( "#patternEditor" ), efflux );
     PatternTrackListController.init(
         container.querySelector( "#patternContainer" ),
-        tracker, KeyboardController
+        efflux, KeyboardController
     );
-    HelpController.init( container.querySelector( "#helpSection" ), tracker );
+    HelpController.init( container.querySelector( "#helpSection" ), efflux );
     SystemController.init();
 
     // MIDI is currently only supported in Chrome
 
     if ( zMIDI.isSupported() )
-        MidiController.init( tracker, AudioController, SequencerController );
+        MidiController.init( efflux, AudioController, SequencerController );
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
@@ -117,13 +118,13 @@ function handleBroadcast( type, payload )
     {
         case Messages.LOAD_SONG:
 
-            var song = tracker.SongModel.getSongById( payload );
+            var song = efflux.SongModel.getSongById( payload );
 
             if ( song ) {
-                tracker.activeSong = ObjectUtil.clone( song );
-                tracker.EditorModel.reset();
-                tracker.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
-                SongUtil.resetPlayState( tracker.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
+                efflux.activeSong = ObjectUtil.clone( song );
+                efflux.EditorModel.reset();
+                efflux.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
+                SongUtil.resetPlayState( efflux.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
             }
             break;
