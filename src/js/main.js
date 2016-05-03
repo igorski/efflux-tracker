@@ -68,10 +68,10 @@ var efflux;
 
     efflux = ref.efflux =
     {
-        Pubsub      : Pubsub,
         EditorModel : new EditorModel(),
         SongModel   : songModel,
-        activeSong  : songModel.createSong() // create new empty song or load last available song
+        Pubsub      : Pubsub,                // expose publishing / subscribe bus
+        activeSong  : songModel.createSong() // create new empty song
     };
 
     // prepare view
@@ -98,6 +98,10 @@ var efflux;
     );
     HelpController.init( container.querySelector( "#helpSection" ), efflux );
     SystemController.init();
+
+    // controllers ready, initialize models
+
+    songModel.init();
 
     // MIDI is currently only supported in Chrome
 

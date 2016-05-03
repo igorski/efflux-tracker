@@ -20,13 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Messages = require( "../definitions/Messages" );
-var Style    = require( "zjslib" ).Style;
-var Pubsub   = require( "pubsub-js" );
+var Messages     = require( "../definitions/Messages" );
+var TemplateUtil = require( "../utils/TemplateUtil" );
+var Style        = require( "zjslib" ).Style;
+var Pubsub       = require( "pubsub-js" );
 
 /* private variables */
 
-var patternContainer, trackList, patternSection, patternEditor, helpSection, blind;
+var patternContainer, trackList, patternSection, patternEditor, helpSection,
+    blind, loader;
 
 module.exports =
 {
@@ -46,6 +48,8 @@ module.exports =
         [
             Messages.SHOW_BLIND,
             Messages.HIDE_BLIND,
+            Messages.SHOW_LOADER,
+            Messages.HIDE_LOADER,
             Messages.CLOSE_OVERLAYS,
             Messages.PATTERN_STEPS_UPDATED,
             Messages.SONG_LOADED
@@ -74,6 +78,24 @@ function handleBroadcast( type, payload )
         case Messages.HIDE_BLIND:
         case Messages.CLOSE_OVERLAYS:
             blind.classList.remove( "active" );
+            break;
+
+        case Messages.SHOW_LOADER:
+
+            if ( !loader ) {
+                Pubsub.publish( Messages.SHOW_BLIND );
+                loader = TemplateUtil.renderAsElement( "loader" );
+                document.body.appendChild( loader );
+            }
+            break;
+
+        case Messages.HIDE_LOADER:
+
+            if ( loader ) {
+                Pubsub.publish( Messages.HIDE_BLIND );
+                loader.parentNode.removeChild( loader );
+                loader = null;
+            }
             break;
 
         case Messages.PATTERN_STEPS_UPDATED:

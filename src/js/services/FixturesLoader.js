@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config = require( "../config/Config" );
-var Qajax  = require( "qajax" );
+var Config   = require( "../config/Config" );
+var Messages = require( "../definitions/Messages" );
+var Pubsub   = require( "pubsub-js" );
+var Qajax    = require( "qajax" );
 
 module.exports =
 {
@@ -34,15 +36,25 @@ module.exports =
      */
     load : function( callback )
     {
+        Pubsub.publish( Messages.SHOW_LOADER );
+
         Qajax( Config.getBasePath() + "/Fixtures.js" )
-            .then( function( response )
+            .then( function( success )
             {
-                var data = response.responseText;
-                try {
-                    var json = JSON.parse( data );
-                    callback( json );
+                Pubsub.publish( Messages.HIDE_LOADER );
+
+                if ( success ) {
+                    var data = success.responseText;
+                    try {
+                        var json = JSON.parse( data );
+                        callback( json );
+                    }
+                    catch( e ) {}
                 }
-                catch( e ) {}
+            },
+            function( error )
+            {
+                Pubsub.publish( Messages.HIDE_LOADER );
             }
         );
     }

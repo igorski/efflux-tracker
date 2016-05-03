@@ -35,7 +35,15 @@ function SongModel()
      * @type {Array.<Object>}
      */
     this._songs = [];
+}
 
+/* public methods */
+
+/**
+ * @public
+ */
+SongModel.prototype.init = function()
+{
     /* upon initialization, get all locally stored songs */
 
     var songs = window.localStorage.getItem( Config.LOCAL_STORAGE_NAME );
@@ -57,9 +65,7 @@ function SongModel()
 
         }.bind( this ));
     }
-}
-
-/* public methods */
+};
 
 /**
  * get all songs stored in the model
