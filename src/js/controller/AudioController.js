@@ -476,8 +476,7 @@ function applyModules()
 }
 
 /**
- * cache the custom WaveTables that are
- * available to the instruments
+ * cache the custom WaveTables that are available to the instruments
  *
  * @private
  * @param {Array.<INSTRUMENT>} instruments
@@ -489,9 +488,12 @@ function cacheCustomTables( instruments )
         pool.CUSTOM[ instrumentIndex ] = new Array( instrument.oscillators.length );
 
         instrument.oscillators.forEach( function( oscillator, oscillatorIndex ) {
-            pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createTableFromCustomGraph(
-                instrumentIndex, oscillatorIndex, oscillator.table
-            );
+
+            if ( oscillator.table ) {
+                pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createTableFromCustomGraph(
+                 instrumentIndex, oscillatorIndex, oscillator.table
+                );
+            }
         });
     });
 }

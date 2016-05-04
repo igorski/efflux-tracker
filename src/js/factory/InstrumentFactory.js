@@ -98,9 +98,9 @@ var InstrumentFactory = module.exports =
             id   : aId,
             name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
             oscillators : [
-                InstrumentFactory.createOscillator( true,  Config.WAVE_TABLE_SIZE ),
-                InstrumentFactory.createOscillator( false, Config.WAVE_TABLE_SIZE ),
-                InstrumentFactory.createOscillator( false, Config.WAVE_TABLE_SIZE )
+                InstrumentFactory.createOscillator( true  ),
+                InstrumentFactory.createOscillator( false ),
+                InstrumentFactory.createOscillator( false )
             ],
             volume: 1,
             filter : {
@@ -127,33 +127,14 @@ var InstrumentFactory = module.exports =
      * @public
      *
      * @param {boolean} aEnabled
-     * @param {number|Array.<number>} aTable either number or Array
-     *        when number aTable defines the table size, when Array
-     *        it defines a list of number defining the table content (will be cloned)
      * @return {INSTRUMENT_OSCILLATOR}
      */
-    createOscillator : function( aEnabled, aTable )
+    createOscillator : function( aEnabled )
     {
-        var table;
-
-        if ( aTable instanceof Array ) {
-            table = aTable.concat();
-        }
-        else {
-
-            if ( typeof aTable !== "number" )
-                aTable = Config.WAVE_TABLE_SIZE;
-
-            table = new Array( aTable );
-
-            for ( var i = 0; i < aTable; ++i )
-                table[ i ] = 0;
-        }
-
         return {
             enabled     : aEnabled,
             waveform    : "SAW",
-            table       : table,
+            table       : 0, // created when CUSTOM waveform is used
             volume      : 1,
             detune      : 0,
             octaveShift : 0,
@@ -165,5 +146,28 @@ var InstrumentFactory = module.exports =
                 release : 0
             }
         };
+    },
+
+    /**
+     * lazily retrieve the custom WaveTable for given oscillator, if
+     * it wasn't created yet, it is created here
+     *
+     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {number=} size optional WaveTable size, defaults to Config value
+     * @return {Array.<number>}
+     */
+    getTableForOscillator : function( oscillator, size  )
+    {
+        if ( !oscillator.table ) {
+
+            if ( typeof size !== "number" )
+                size = Config.WAVE_TABLE_SIZE;
+
+            oscillator.table = new Array( size );
+
+            while ( size-- )
+                oscillator.table[ size ] = 0;
+        }
+        return oscillator.table;
     }
 };

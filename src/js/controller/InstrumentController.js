@@ -20,13 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config        = require( "../config/Config" );
-var TemplateUtil  = require( "../utils/TemplateUtil" );
-var Form          = require( "../utils/Form" );
-var Messages      = require( "../definitions/Messages" );
-var zCanvas       = require( "zCanvas" ).zCanvas;
-var WaveTableDraw = require( "../components/WaveTableDraw" );
-var Pubsub        = require( "pubsub-js" );
+var Config            = require( "../config/Config" );
+var WaveTableDraw     = require( "../components/WaveTableDraw" );
+var Messages          = require( "../definitions/Messages" );
+var InstrumentFactory = require( "../factory/InstrumentFactory" );
+var Form              = require( "../utils/Form" );
+var TemplateUtil      = require( "../utils/TemplateUtil" );
+var zCanvas           = require( "zCanvas" ).zCanvas;
+var Pubsub            = require( "pubsub-js" );
 
 /* private properties */
 
@@ -118,10 +119,10 @@ var InstrumentController = module.exports =
 
         view.querySelector( ".close" ).addEventListener( "click", handleClose );
         view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
-        instrumentSelect.addEventListener ( "change",  handleInstrumentSelect );
-        oscEnabledSelect.addEventListener ( "change",  handleOscillatorEnabledChange );
-        oscWaveformSelect.addEventListener( "change",  handleOscillatorWaveformChange );
-        oscVolumeControl.addEventListener ( "input",   handleOscillatorVolumeChange );
+        instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
+        oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
+        oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
+        oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
 
         [ detuneControl, octaveShiftControl, fineShiftControl ].forEach( function( control ) {
             control.addEventListener( "input", handleTuningChange );
@@ -142,7 +143,7 @@ var InstrumentController = module.exports =
 
         delayEnabledSelect.addEventListener( "change", handleDelayChange );
         delayTypeSelect.addEventListener   ( "change", handleDelayChange );
-        [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( function(control ) {
+        [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( function( control ) {
             control.addEventListener( "input", handleDelayChange );
         });
 
@@ -400,7 +401,7 @@ function showWaveformForOscillator( oscillator )
     if ( oscillator.waveform !== "CUSTOM" )
         wtDraw.generateAndSetTable( oscillator.waveform );
     else
-        wtDraw.setTable( oscillator.table );
+        wtDraw.setTable( InstrumentFactory.getTableForOscillator( oscillator ));
 }
 
 function cacheOscillatorWaveForm( oscillator )

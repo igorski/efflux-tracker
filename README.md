@@ -88,5 +88,4 @@ ROADMAP
  * Improve arrow key navigation within patterns (there are odd jumps when switching direction)
  * Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)
- * When saving songs, don't save empty custom waveforms (add an empty check, not an "was enabled"-check!)
  * When selecting notes in noteEntry popup sound note when making changes to note / octave
