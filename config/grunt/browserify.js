@@ -2,7 +2,8 @@ module.exports = {
     dev: {
         options: {
             browserifyOptions: {
-                debug: true
+                debug: true,
+                transform: "workerify"
             }
         },
         files: {
@@ -12,7 +13,8 @@ module.exports = {
     prod: {
         options: {
             browserifyOptions: {
-                debug: false
+                debug: false,
+                transform: "workerify"
             }
         },
         files: {

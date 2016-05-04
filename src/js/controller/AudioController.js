@@ -519,7 +519,6 @@ function applyRecordingState()
     if ( recording ) {
         if ( !recorder ) {
             recorder = new Recorder( masterBus, {
-                workerPath: Config.getBasePath(),
                 callback : handleRecordingComplete
             });
         }
