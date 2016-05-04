@@ -167,15 +167,17 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
         out.push( new Array( amountOfSteps ));
 
-    if ( addEmptyPatternStep !== true )
-        return out;
-
     out.forEach( function( channel )
     {
         i = amountOfSteps;
 
-        while ( i-- )
-            channel[ i ] = EventFactory.createAudioEvent();
+        while ( i-- ) {
+
+            if ( addEmptyPatternStep === true )
+                channel[ i ] = EventFactory.createAudioEvent();
+            else
+                channel[ i ] = 0; // stringifies nicely in JSON save
+        }
     });
     return out;
 }
