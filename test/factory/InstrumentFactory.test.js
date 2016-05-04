@@ -54,7 +54,7 @@ describe( "InstrumentFactory", function()
     it( "should be able to lazily create a WaveTable for an oscillator", function()
     {
         var oscillator = InstrumentFactory.createOscillator();
-        table          = InstrumentFactory.getTableForOscillator( oscillator );
+        var table      = InstrumentFactory.getTableForOscillator( oscillator );
 
         assert.ok( table instanceof Array,
             "expected InstrumentFactory to have generated a WaveTable unchanged" );
