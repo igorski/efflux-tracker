@@ -23,6 +23,7 @@
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var EventFactory = require( "../factory/EventFactory" );
 var Form         = require( "../utils/Form" );
+var Manual       = require( "../definitions/Manual" );
 var Messages     = require( "../definitions/Messages" );
 var Pubsub       = require( "pubsub-js" );
 
@@ -59,6 +60,7 @@ var ModuleParamController = module.exports =
         // add listeners
 
         element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+        element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
         element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
         element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
         valueControl.addEventListener( "input", handleValueChange );
@@ -220,6 +222,11 @@ function handleClose()
     Pubsub.publishSync( Messages.HIDE_BLIND );
 
     dispose();
+}
+
+function handleHelp( aEvent )
+{
+    window.open( Manual.PARAM_ENTRY_HELP, "_blank" );
 }
 
 function handleReady()
