@@ -58,7 +58,7 @@ var SettingsController = module.exports =
 
         // add event listeners
 
-        container.querySelector( ".close" ).addEventListener( "click", handleClose );
+        container.querySelector( ".close-button" ).addEventListener( "click", handleClose );
 
         // subscribe to messages
 

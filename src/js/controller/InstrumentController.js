@@ -22,6 +22,7 @@
  */
 var Config            = require( "../config/Config" );
 var WaveTableDraw     = require( "../components/WaveTableDraw" );
+var Manual            = require( "../definitions/Manual" );
 var Messages          = require( "../definitions/Messages" );
 var InstrumentFactory = require( "../factory/InstrumentFactory" );
 var Form              = require( "../utils/Form" );
@@ -117,7 +118,8 @@ var InstrumentController = module.exports =
 
         // add listeners
 
-        view.querySelector( ".close" ).addEventListener( "click", handleClose );
+        view.querySelector( ".close-button" ).addEventListener( "click", handleClose );
+        view.querySelector( ".help-button" ).addEventListener ( "click", handleHelp );
         view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
         instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
         oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
@@ -265,6 +267,11 @@ function handleBroadcast( type, payload )
 function handleClose( aEvent )
 {
     Pubsub.publish( Messages.CLOSE_OVERLAYS );
+}
+
+function handleHelp( aEvent )
+{
+    window.open( Manual.INSTRUMENT_EDITOR_HELP, "_blank" );
 }
 
 function handleOscillatorTabClick( aEvent )

@@ -24,6 +24,7 @@ var TemplateUtil = require( "../utils/TemplateUtil" );
 var EventUtil    = require( "../utils/EventUtil" );
 var EventFactory = require( "../factory/EventFactory" );
 var Form         = require( "../utils/Form" );
+var Manual       = require( "../definitions/Manual" );
 var Messages     = require( "../definitions/Messages" );
 var Pitch        = require( "../definitions/Pitch" );
 var Pubsub       = require( "pubsub-js" );
@@ -68,6 +69,7 @@ var NoteEntryController = module.exports =
         // add listeners
 
         element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+        element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
         element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
 
         // subscribe to messaging system
@@ -218,6 +220,11 @@ function handleClose()
     Pubsub.publishSync( Messages.HIDE_BLIND );
 
     dispose();
+}
+
+function handleHelp( aEvent )
+{
+    window.open( Manual.NOTE_ENTRY_HELP, "_blank" );
 }
 
 function handleReady()

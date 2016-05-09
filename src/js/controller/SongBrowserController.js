@@ -51,7 +51,7 @@ var SongBrowserController = module.exports =
 
         container = containerRef.querySelector( "#songBrowser" );
         list      = container.querySelector   ( ".songList" );
-        closeBtn  = container.querySelector   ( ".close" );
+        closeBtn  = container.querySelector   ( ".close-button" );
 
         // add event listeners
 
