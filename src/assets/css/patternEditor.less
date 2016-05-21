@@ -80,7 +80,6 @@
       }
     }
   }
-
 }
 
 #patternContainer
@@ -216,6 +215,16 @@
     background-color: rgba(255,255,255,.35);
     mix-blend-mode: screen;
     .noEvents;
+  }
+}
+
+/* ideal view */
+
+@media screen and ( min-width: @ideal-width )
+{
+  #patternContainer {
+    overflow-x: hidden; // no need to show scroll
+    padding-bottom: 15px;
   }
 }
 
