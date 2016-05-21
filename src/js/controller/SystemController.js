@@ -27,7 +27,7 @@ var Pubsub       = require( "pubsub-js" );
 
 /* private variables */
 
-var patternContainer, trackList, patternSection, patternEditor, helpSection,
+var patternContainer, trackList, transportSection, patternEditor, helpSection,
     blind, loader;
 
 module.exports =
@@ -131,7 +131,7 @@ function calculateDimensions( aEvent )
     // grab references to DOM elements (we do this lazily)
 
     patternContainer = patternContainer || document.querySelector( "#patternContainer" );
-    patternSection   = patternSection   || document.querySelector( "#patternSection" );
+    transportSection = transportSection || document.querySelector( "#transportSection" );
     patternEditor    = patternEditor    || document.querySelector( "#patternEditor" );
     trackList        = trackList        || document.querySelector( "#patternTrackList" );
     helpSection      = helpSection      || document.querySelector( "#helpSection" );
@@ -145,7 +145,7 @@ function calculateDimensions( aEvent )
     trackList.style.width        =
     patternContainer.style.width = (
 
-        parseFloat( gs( patternSection, "width" )) -
+        parseFloat( gs( transportSection, "width" )) -
         parseFloat( gs( patternEditor,  "width" )) -
         parseFloat( gs( helpSection,    "width" ))
 
