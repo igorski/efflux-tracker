@@ -57,6 +57,18 @@ var InstrumentUtil = module.exports =
     },
 
     /**
+     * get a buffer playback speed in the -1 to +1 range
+     * for given oscillator tuning
+     *
+     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @return {number}
+     */
+    tuneBufferPlayback : function( oscillator )
+    {
+        return 1 + ( oscillator.detune / 50 );
+    },
+
+    /**
      * alter the frequency of currently playing events to match changes
      * made to the tuning of given oscillator
      *
@@ -69,7 +81,7 @@ var InstrumentUtil = module.exports =
     adjustEventTunings : function( events, oscillatorIndex, oscillator )
     {
         var i = events.length,
-            event, voice;
+            event, voice, generator;
 
         while ( i-- )
         {
@@ -77,8 +89,14 @@ var InstrumentUtil = module.exports =
 
                 if ( event.length > oscillatorIndex ) {
 
-                    voice = event[ oscillatorIndex ];
-                    voice.oscillator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator );
+                    voice     = event[ oscillatorIndex ];
+                    generator = voice.generator;
+
+                    if ( generator instanceof OscillatorNode )
+                        generator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator )
+
+                    else if ( generator instanceof AudioBufferSourceNode )
+                        generator.playbackRate.value = InstrumentUtil.tuneBufferPlayback( oscillator );
                 }
             }
         }
@@ -124,7 +142,10 @@ var InstrumentUtil = module.exports =
      */
     adjustEventWaveForms : function( events, oscillatorIndex, table )
     {
-        var i = events.length, event;
+        if ( !( table instanceof PeriodicWave ))
+            return;
+
+        var i = events.length, event, generator;
 
         while ( i-- )
         {
@@ -132,7 +153,8 @@ var InstrumentUtil = module.exports =
 
                 if ( event.length > oscillatorIndex ) {
 
-                    event[ oscillatorIndex ].oscillator.setPeriodicWave( table );
+                    if (( generator = event[ oscillatorIndex].generator ) instanceof OscillatorNode )
+                        generator.setPeriodicWave( table );
                 }
             }
         }

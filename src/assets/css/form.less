@@ -55,6 +55,7 @@ fieldset {
 
 @track-color: #333;
 @thumb-color: @color-1;
+@thumb-color-disabled: #666;
 
 @thumb-radius: 8px;
 @thumb-height: 20px;
@@ -164,6 +165,23 @@ input[type=range] {
   }
   &:focus::-ms-fill-upper {
     background: lighten(@track-color, @contrast);
+  }
+
+  // disabled state
+
+  &:disabled {
+    &::-webkit-slider-thumb {
+      background: @thumb-color-disabled;
+      border-color: @thumb-color-disabled;
+    }
+    &::-moz-range-thumb {
+      background: @thumb-color-disabled;
+      border-color: @thumb-color-disabled;
+    }
+    &::-ms-thumb {
+      background: @thumb-color-disabled;
+      border-color: @thumb-color-disabled;
+    }
   }
 }
 

@@ -40,7 +40,7 @@ var Pubsub         = require( "pubsub-js" );
  * which are bundled for a single event in an EVENT_OBJECT
  *
  * @typedef {{
- *              oscillator: OscillatorNode,
+ *              generator: OscillatorNode|AudioBufferSourceNode,
  *              envelope: AudioParam,
  *              gain: AudioParam,
  *              outputNode: AudioParam,
@@ -128,7 +128,7 @@ var AudioController = module.exports =
         AudioUtil.iOSinit( audioContext );
         setupRouting();
 
-        // initialize the WaveTable pool
+        // initialize the WaveTable / AudioBuffer pool
 
         pool = {
             SAW: audioContext.createPeriodicWave(
@@ -140,8 +140,13 @@ var AudioController = module.exports =
             SQUARE: audioContext.createPeriodicWave(
                 new Float32Array( WaveTables.SQUARE.real ), new Float32Array( WaveTables.SQUARE.imag )
             ),
+            NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
             CUSTOM: [] // created and maintained by "cacheCustomTables()"
         };
+
+        var noiseChannel = pool.NOISE.getChannelData( 0 );
+        for ( var i = 0, l = noiseChannel.length; i < l; ++i )
+          noiseChannel[ i ] = Math.random() * 2 - 1;
 
         AudioController.reset();
         cacheCustomTables( instruments );
@@ -184,7 +189,7 @@ var AudioController = module.exports =
 
                 if ( event ) {
                     event.forEach( function( voice, oscillatorIndex ) {
-                        AudioFactory.stopOscillation( voice.oscillator );
+                        AudioFactory.stopOscillation( voice.generator );
                     });
                 }
             }
@@ -237,23 +242,39 @@ var AudioController = module.exports =
                 if ( oscillatorVO.enabled ) {
 
                     voice = aInstrument.oscillators[ oscillatorIndex ];
-                    var oscillator = audioContext.createOscillator(), table;
 
-                    // get WaveTable from pool
+                    var generatorNode;
 
-                    if ( oscillatorVO.waveform !== "CUSTOM" )
-                        table = pool[ oscillatorVO.waveform ];
-                    else
-                        table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
+                    // buffer source ? assign it to the oscillator
 
-                    if ( !table ) // no table ? that's a bit of a problem. what did you break!?
-                        return;
+                    if ( oscillatorVO.waveform === "NOISE" ) {
 
-                    oscillator.setPeriodicWave( table );
+                        generatorNode = audioContext.createBufferSource();
+                        generatorNode.buffer = pool.NOISE;
+                        generatorNode.loop = true;
+                        generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback( voice );
+                    }
+                    else {
 
-                    // tune event frequency to oscillator tuning
+                        // oscillator source, get WaveTable from pool
 
-                    oscillator.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
+                        generatorNode = audioContext.createOscillator();
+                        var table;
+
+                        if ( oscillatorVO.waveform !== "CUSTOM" )
+                            table = pool[ oscillatorVO.waveform ];
+                        else
+                            table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
+
+                        if ( !table ) // no table ? that's a bit of a problem. what did you break!?
+                            return;
+
+                        generatorNode.setPeriodicWave( table );
+
+                        // tune event frequency to oscillator tuning
+
+                        generatorNode.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
+                    }
 
                     // apply amplitude envelopes
 
@@ -273,16 +294,16 @@ var AudioController = module.exports =
 
                     var oscillatorGain = AudioFactory.createGainNode( audioContext );
                     oscillatorGain.gain.value = oscillatorVO.volume;
-                    oscillator.connect( oscillatorGain );
+                    generatorNode.connect( oscillatorGain );
                     oscillatorGain.connect( adsrNode );
                     adsrNode.connect( modules.output );
 
                     // start playback
 
-                    AudioFactory.startOscillation( oscillator, startTimeInSeconds );
+                    AudioFactory.startOscillation( generatorNode, startTimeInSeconds );
 
                     oscillators.push( /** @type {EVENT_VOICE} */ ({
-                        oscillator: oscillator,
+                        generator: generatorNode,
                         adsr: ADSR,
                         envelope: envelope,
                         frequency: frequency,
@@ -326,7 +347,7 @@ var AudioController = module.exports =
 
             eventObject.forEach( function( event )
             {
-                var oscillator = event.oscillator,
+                var oscillator = event.generator,
                     envelope   = event.envelope,
                     ADSR       = event.adsr;
 

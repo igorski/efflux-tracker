@@ -155,7 +155,7 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
     var mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
         goingUp = ( mp.module === "pitchUp" ),
-        i, j, event, voice, tmp, target;
+        i, j, event, voice, generator, tmp, target;
 
     i = instrumentEvents.length;
 
@@ -169,18 +169,32 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
 
             while ( j-- ) {
 
-                voice  = event[ j ];
-                tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                target = ( tmp * ( mp.value / 100 ));
+                voice = event[ j ];
+                generator = voice.generator;
 
-                if ( goingUp )
-                    target += voice.frequency;
-                else
-                    target = voice.frequency - ( target / 2 );
+                if ( generator instanceof OscillatorNode ) {
 
-                scheduleParameterChange(
-                    voice.oscillator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-                );
+                    tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
+                    target = ( tmp * ( mp.value / 100 ));
+
+                    if ( goingUp )
+                        target += voice.frequency;
+                    else
+                        target = voice.frequency - ( target / 2 );
+
+                    scheduleParameterChange(
+                        generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+                    );
+
+                }
+                else if ( generator instanceof AudioBufferSourceNode ) {
+
+                    tmp    = ( mp.value / 100 );
+                    target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
+                    scheduleParameterChange(
+                        generator.playbackRate, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+                    );
+                }
             }
         }
     }

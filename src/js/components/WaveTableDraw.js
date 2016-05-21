@@ -95,6 +95,12 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
                 table[ i ] = ( i < m ) ? -1 : 1;
 
             break;
+
+        case "NOISE":
+
+            for ( i = 0; i < size; ++i )
+                table[ i ] = Math.random() * 2 - 1;
+            break;
     }
     this.setTable( table );
 };

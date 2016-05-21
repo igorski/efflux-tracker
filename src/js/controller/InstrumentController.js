@@ -384,6 +384,11 @@ function handleOscillatorWaveformChange( aEvent )
     instrumentRef.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
     showWaveformForOscillator( oscillator );
     cacheOscillatorWaveForm( oscillator );
+
+    if ( !oscillator.enabled ) {
+        Form.setSelectedOption( oscEnabledSelect, true );
+        oscillator.enabled = true;
+    }
 }
 
 function handleOscillatorVolumeChange( aEvent )
@@ -409,6 +414,8 @@ function showWaveformForOscillator( oscillator )
         wtDraw.generateAndSetTable( oscillator.waveform );
     else
         wtDraw.setTable( InstrumentFactory.getTableForOscillator( oscillator ));
+
+    togglePitchSliders( oscillator.waveform !== "NOISE" ); // no pitch shifting for noise buffer
 }
 
 function cacheOscillatorWaveForm( oscillator )
@@ -429,4 +436,15 @@ function updateWaveformSize()
         canvas.setDimensions( width, 200 );
         wtDraw._bounds.width = width;
     }
+}
+
+function togglePitchSliders( enabled )
+{
+    [ octaveShiftControl, fineShiftControl ].forEach( function( slider )
+    {
+        if ( enabled )
+            slider.removeAttribute( "disabled" );
+        else
+            slider.setAttribute( "disabled", "disabled" );
+    });
 }
