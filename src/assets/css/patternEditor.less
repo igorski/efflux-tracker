@@ -233,6 +233,7 @@
 @media screen and ( max-width: @mobile-width )
 {
   #patternSection {
+    display: none; // only visible when settings mode is active
     h2 {
       display: none;
     }
@@ -253,4 +254,12 @@
       }
     }
   }
+
+  // settings mode enabled ? show all hidden stuff
+
+   .settings-mode {
+     #patternSection {
+       display: block;
+     }
+   }
 }

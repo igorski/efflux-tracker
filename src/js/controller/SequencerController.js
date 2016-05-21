@@ -77,6 +77,7 @@ var SequencerController = module.exports =
         tempoDisplay         = containerRef.querySelector( "#songTempoDisplay" );
         tempoSlider          = containerRef.querySelector( "#songTempo" );
         metronomeToggle      = containerRef.querySelector( ".icon-metronome" );
+        settingsToggle       = containerRef.querySelector( ".icon-settings" ); // mobile view only
         currentPositionTitle = document.querySelector( "#currentPattern .current" );
         maxPositionTitle     = document.querySelector( "#currentPattern .total" );
 
@@ -87,6 +88,7 @@ var SequencerController = module.exports =
         recordBTN.addEventListener      ( "click", handleRecordToggle );
         tempoSlider.addEventListener    ( "input", handleTempoChange );
         metronomeToggle.addEventListener( "click", handleMetronomeToggle );
+        settingsToggle.addEventListener ( "click", handleSettingsToggle );
         document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
         document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
 
@@ -281,6 +283,20 @@ function handleMetronomeToggle( e )
         metronomeToggle.classList.remove( "active" );
 
     Metronome.enabled = enabled;
+}
+
+function handleSettingsToggle( e )
+{
+    var body     = document.body,
+        cssClass = "settings-mode",
+        enabled  = !body.classList.contains( cssClass );
+
+    if ( enabled )
+        e.target.classList.add( "active" );
+    else
+        e.target.classList.remove( "active" );
+
+    body.classList.toggle( cssClass );
 }
 
 function handlePatternNavBack( aEvent )

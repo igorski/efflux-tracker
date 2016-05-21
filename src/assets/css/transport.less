@@ -64,6 +64,10 @@
     }
 
     &.icon-settings {
+      display: none; // mobile only (see below)
+    }
+
+    &.icon-settings {
       padding: 0 .25em;
     }
 
@@ -74,7 +78,7 @@
 
   // tempo control
 
-  .wrapper.range {
+  #tempoControl {
     padding: .5em 0 0 .5em;
     display: inline;
 
@@ -153,11 +157,30 @@
 @media screen and ( max-width: @mobile-width )
 {
   #transportControls {
+    border-radius: 0;
+    margin: 0;
+
     label {
       display: none !important;
     }
     #currentPattern {
       width: auto;
+    }
+    #tempoControl {
+      display: none;
+    }
+    li.icon-settings {
+      display: inline;
+    }
+  }
+
+  // settings mode enabled ? show all hidden stuff
+
+  .settings-mode {
+    #transportControls {
+      #tempoControl {
+        display: inline;
+      }
     }
   }
 }
