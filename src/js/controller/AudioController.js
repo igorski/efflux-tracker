@@ -70,7 +70,7 @@ var INSTRUMENT_MODULES;
 
 /* private properties */
 
-var efflux, audioContext, masterBus, compressor, pool, UNIQUE_EVENT_ID = 0,
+var efflux, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
     playing = false, recording = false, recorder;
 
 /**
@@ -446,8 +446,12 @@ function handleBroadcast( type, payload )
 function setupRouting()
 {
     masterBus  = AudioFactory.createGainNode( audioContext );
+    eq         = audioContext.createBiquadFilter();
+    eq.type    = "highpass";
+    eq.frequency.value = 30;
     compressor = audioContext.createDynamicsCompressor();
-    masterBus.connect( compressor );
+    masterBus.connect( eq );
+    eq.connect( compressor );
     compressor.connect( audioContext.destination );
 }
 
