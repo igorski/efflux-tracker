@@ -40,8 +40,9 @@ module.exports =
 
         // add listeners to DOM
 
-        window.addEventListener( "resize", handleEvent );
-        window.addEventListener( "scroll", handleEvent );
+        window.addEventListener( "resize",       handleEvent );
+        window.addEventListener( "scroll",       handleEvent );
+        window.addEventListener( "beforeunload", handleEvent );
 
         // subscribe to messasing system
 
@@ -117,6 +118,9 @@ function handleEvent( aEvent )
         case "scroll":
             Pubsub.publish( Messages.WINDOW_SCROLLED );
             break;
+
+        case "beforeunload":
+            return "Are you sure you want to leave this page ? All unsaved changes will be lost.";
     }
 }
 
