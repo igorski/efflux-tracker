@@ -84,6 +84,7 @@ ROADMAP
 
  * Add pattern jump instructions
  * Add cut/paste icons for touch screen devices
+ * Add EQ for each individual instrument for mix balancing
  * Improve arrow key navigation within patterns (there are odd jumps when switching direction)
  * Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)
