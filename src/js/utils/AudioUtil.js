@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var AudioFactory = require( "../factory/AudioFactory" );
+var Bowser       = require( "bowser" );
 
 module.exports =
 {
@@ -118,10 +119,7 @@ module.exports =
      */
     iOSinit : function( audioContext )
     {
-        // not an actual iOS check, but we're omitting this if no touch events are available
-        // as we'll silently start the engine on the very first touch interaction
-
-        if ( !( "ontouchstart" in window ))
+        if ( !Bowser.ios )
             return;
 
         var handler = function( e )
