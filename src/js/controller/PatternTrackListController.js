@@ -522,7 +522,7 @@ function handlePatternAdd( aEvent )
         patterns = song.patterns;
 
     if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Cannot exceed the allowed maximum of " + Config.MAX_PATTERN_AMOUNT + " patterns" );
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_MAX_PATTERNS", Config.MAX_PATTERN_AMOUNT ));
         return;
     }
     song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, editorModel.activePattern + 1, editorModel.amountOfSteps );

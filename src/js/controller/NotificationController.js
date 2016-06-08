@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Copy         = require( "../i18n/Copy" );
 var Pubsub       = require( "pubsub-js" );
 var Messages     = require( "../definitions/Messages" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
@@ -61,15 +62,15 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.SONG_LOADED:
-            openWindow( "Song loaded", "Loaded song '" + payload.meta.title + "'" );
+            openWindow( Copy.get( "SONG_LOADED_TITLE" ), Copy.get( "SONG_LOADED", payload.meta.title ));
             break;
 
         case Messages.SHOW_ERROR:
-            openWindow( "Error", payload );
+            openWindow( Copy.get( "ERROR_TITLE" ), payload );
             break;
 
         case Messages.SHOW_FEEDBACK:
-            openWindow( "Operation completed", payload );
+            openWindow( Copy.get( "SUCCESS_TITLE" ), payload );
             break;
     }
 }

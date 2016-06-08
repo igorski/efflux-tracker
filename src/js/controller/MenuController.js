@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var Config       = require( "../config/Config" );
+var Copy         = require( "../i18n/Copy" );
 var Time         = require( "../utils/Time" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var SongUtil     = require( "../utils/SongUtil" );
@@ -163,14 +164,14 @@ function handleSave( aEvent )
 
     if ( isValid( song )) {
         efflux.SongModel.saveSong( song );
-        Pubsub.publish( Messages.SHOW_FEEDBACK, "Song '" + song.meta.title + "' saved" );
+        Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "SONG_SAVED", song.meta.title ));
     }
 }
 
 
 function handleReset( aEvent )
 {
-    if ( confirm( "Are you sure you want to reset, you will lose all changes and undo history" )) {
+    if ( confirm( Copy.get( "WARNING_SONG_RESET" ) )) {
         efflux.activeSong = efflux.SongModel.createSong();
 
         var editorModel = efflux.EditorModel;
@@ -201,7 +202,7 @@ function isValid( song )
     var hasContent = SongUtil.hasContent( song );
 
     if ( !hasContent ) {
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has no pattern content!" );
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_EMPTY_SONG" ) );
         return false;
     }
 
@@ -209,7 +210,7 @@ function isValid( song )
         hasContent = false;
 
     if ( !hasContent )
-        Pubsub.publish( Messages.SHOW_ERROR, "Song has no title or author name, take pride in your work!" );
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_NO_META" ));
 
     return hasContent;
 }
@@ -273,10 +274,7 @@ function handleExport( aEvent )
 function handleRecord( aEvent )
 {
     Pubsub.publish( Messages.TOGGLE_RECORD_MODE );
-    Pubsub.publish( Messages.SHOW_FEEDBACK,
-        "Recording of output enabled. When the sequencer stops, the recording will be saved " +
-        "onto to your device"
-    );
+    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_ENABLED" ));
 }
 
 function serializeSong( song )

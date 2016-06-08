@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Copy         = require( "../i18n/Copy" );
 var Time         = require( "../utils/Time" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var EventUtil    = require( "../utils/EventUtil" );
@@ -101,9 +102,7 @@ function addMIDIListener( aPortNumber )
 
     var device = zMIDI.getInChannels()[ aPortNumber ];
     Pubsub.publish( Messages.MIDI_DEVICE_CONNECTED, aPortNumber );
-    Pubsub.publish( Messages.SHOW_FEEDBACK,
-        "Listening to MIDI messages coming from " + device.manufacturer + " " + device.name
-    );
+    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "MIDI_ENABLED", device.manufacturer + " " + device.name ));
 }
 
 /* event handlers */
@@ -113,13 +112,13 @@ function handleConnectSuccess()
     if ( zMIDI.getInChannels().length === 0 )
         return handleConnectFailure( "" );
 
-    Pubsub.publish( Messages.SHOW_FEEDBACK, "MIDI Connection established successfully" );
+    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "MIDI_CONNECTED" ));
     Pubsub.publish( Messages.MIDI_RECEIVED_INPUT_DEVICES, zMIDI.getInChannels() );
 }
 
 function handleConnectFailure( msg )
 {
-    Pubsub.publish( Messages.SHOW_ERROR, "MIDI Unavailable, Efflux could not connect to MIDI device(s)" );
+    Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "MIDI_FAILURE" ));
 }
 
 /**

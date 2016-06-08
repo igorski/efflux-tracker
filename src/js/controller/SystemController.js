@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 var Config       = require( "../config/Config" );
+var Copy         = require( "../i18n/Copy" );
 var Messages     = require( "../definitions/Messages" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Style        = require( "zjslib" ).Style;
@@ -141,7 +142,7 @@ function handleEvent( aEvent )
 
 function handleUnload( aEvent )
 {
-    return "Are you sure you want to leave this page ? All unsaved changes will be lost.";
+    return Copy.get( "WARNING_UNLOAD" );
 }
 
 /**

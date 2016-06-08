@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Copy         = require( "../i18n/Copy" );
 var Time         = require( "../utils/Time" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Messages     = require( "../definitions/Messages" );
@@ -102,7 +103,7 @@ function handleOpen()
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
-        Pubsub.publishSync( Messages.SHOW_ERROR, "There are currently no songs available to load. Why not create one?" );
+        Pubsub.publishSync( Messages.SHOW_ERROR, Copy.get( "ERROR_NO_SONGS" ));
         return;
     }
 
