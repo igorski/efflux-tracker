@@ -24,6 +24,7 @@ var Messages     = require( "../definitions/Messages" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Style        = require( "zjslib" ).Style;
 var Pubsub       = require( "pubsub-js" );
+var Bowser       = require( "bowser" );
 
 /* private variables */
 
@@ -40,9 +41,23 @@ module.exports =
 
         // add listeners to DOM
 
-        window.addEventListener( "resize",       handleEvent );
-        window.addEventListener( "scroll",       handleEvent );
-        window.addEventListener( "beforeunload", handleEvent );
+        window.addEventListener( "resize", handleEvent );
+        window.addEventListener( "scroll", handleEvent );
+
+        // listen to window unload when user navigates away
+
+        if ( Bowser.ios ) {
+            window.addEventListener( "popstate", handleUnload );
+        }
+        else {
+            var prevBeforeUnload = window.onbeforeunload;
+            window.onbeforeunload = function( aEvent ) {
+                if ( prevBeforeUnload ) {
+                    prevBeforeUnload( aEvent );
+                }
+                return handleUnload( aEvent );
+            };
+        }
 
         // subscribe to messasing system
 
@@ -118,10 +133,12 @@ function handleEvent( aEvent )
         case "scroll":
             Pubsub.publish( Messages.WINDOW_SCROLLED );
             break;
-
-        case "beforeunload":
-            return "Are you sure you want to leave this page ? All unsaved changes will be lost.";
     }
+}
+
+function handleUnload( aEvent )
+{
+    return "Are you sure you want to leave this page ? All unsaved changes will be lost.";
 }
 
 /**
