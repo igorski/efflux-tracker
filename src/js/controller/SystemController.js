@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+var Config       = require( "../config/Config" );
 var Messages     = require( "../definitions/Messages" );
 var TemplateUtil = require( "../utils/TemplateUtil" );
 var Style        = require( "zjslib" ).Style;
@@ -46,17 +47,19 @@ module.exports =
 
         // listen to window unload when user navigates away
 
-        if ( Bowser.ios ) {
-            window.addEventListener( "popstate", handleUnload );
-        }
-        else {
-            var prevBeforeUnload = window.onbeforeunload;
-            window.onbeforeunload = function( aEvent ) {
-                if ( prevBeforeUnload ) {
-                    prevBeforeUnload( aEvent );
-                }
-                return handleUnload( aEvent );
-            };
+        if ( !Config.isDevMode() ) {
+            if ( Bowser.ios ) {
+                window.addEventListener( "popstate", handleUnload );
+            }
+            else {
+                var prevBeforeUnload = window.onbeforeunload;
+                window.onbeforeunload = function( aEvent ) {
+                    if ( prevBeforeUnload ) {
+                        prevBeforeUnload( aEvent );
+                    }
+                    return handleUnload( aEvent );
+                };
+            }
         }
 
         // subscribe to messasing system

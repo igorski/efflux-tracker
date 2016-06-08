@@ -57,5 +57,17 @@ module.exports =
     getBasePath : function()
     {
         return ( typeof window.effluxPath === "string" ) ? window.effluxPath : "";
+    },
+
+    /**
+     * whether the application is running in local development mode
+     *
+     * @public
+     * @return {boolean}
+     */
+    isDevMode : function()
+    {
+        // simple check whether we're running through the connect plugin
+        return ( window.location.hostname === "localhost" || window.location.port === "3000" );
     }
 };
