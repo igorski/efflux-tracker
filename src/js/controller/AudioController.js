@@ -322,6 +322,7 @@ var AudioController = module.exports =
             ModuleUtil.applyModuleParamChange(
                 aEvent,
                 instrumentModules[ aInstrument.id ],
+                efflux.activeSong.instruments[ aInstrument.id ],
                 instrumentEvents[ aInstrument.id ],
                 startTimeInSeconds || audioContext.currentTime,
                 masterBus

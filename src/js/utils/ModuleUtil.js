@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config = require( "../config/Config" );
-var Delay  = require( "../third_party/Delay" );
+var Config   = require( "../config/Config" );
+var Delay    = require( "../third_party/Delay" );
+var Messages = require( "../definitions/Messages" );
+var Pubsub   = require( "pubsub-js" );
 
 var ModuleUtil = module.exports =
 {
@@ -72,11 +74,12 @@ var ModuleUtil = module.exports =
      *
      * @param {AUDIO_EVENT} audioEvent
      * @param {INSTRUMENT_MODULES} modules
+     * @param {INSTRUMENT} instrument
      * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
      * @param {number} startTimeInSeconds
      * @param {AudioGainNode} output
      */
-    applyModuleParamChange : function( audioEvent, modules, instrumentEvents, startTimeInSeconds, output )
+    applyModuleParamChange : function( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output )
     {
         switch ( audioEvent.mp.module )
         {
@@ -95,6 +98,11 @@ var ModuleUtil = module.exports =
             case "filterEnabled":
                 modules.filter.filterEnabled = ( audioEvent.mp.value >= 50 );
                 ModuleUtil.applyRouting( modules, output );
+                break;
+
+            case "filterLFOEnabled":
+                instrument.filter.lfoType = [ "off", "sine", "square", "sawtooth", "triangle" ][ Math.round( audioEvent.mp.value / 25 )];
+                Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
                 break;
 
             case "filterFreq":

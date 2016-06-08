@@ -101,7 +101,7 @@ var ModuleParamController = module.exports =
                     break;
 
                 case 70: // F
-                    selectedModule = getNextSelectedModule( [ "filterEnabled", "filterFreq", "filterQ", "filterLFOSpeed", "filterLFODepth" ], selectedModule );
+                    selectedModule = getNextSelectedModule( [ "filterEnabled", "filterFreq", "filterQ", "filterLFOEnabled", "filterLFOSpeed", "filterLFODepth" ], selectedModule );
                     setSelectedValueInList( moduleList, selectedModule );
                     break;
 
