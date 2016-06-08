@@ -20,10 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config   = require( "../config/Config" );
-var Delay    = require( "../third_party/Delay" );
-var Messages = require( "../definitions/Messages" );
-var Pubsub   = require( "pubsub-js" );
+var Config    = require( "../config/Config" );
+var Delay     = require( "../third_party/Delay" );
+var ArrayUtil = require( "../utils/ArrayUtil" );
+var Messages  = require( "../definitions/Messages" );
+var Pubsub    = require( "pubsub-js" );
 
 var ModuleUtil = module.exports =
 {
@@ -101,7 +102,7 @@ var ModuleUtil = module.exports =
                 break;
 
             case "filterLFOEnabled":
-                instrument.filter.lfoType = [ "off", "sine", "square", "sawtooth", "triangle" ][ Math.round( audioEvent.mp.value / 25 )];
+                instrument.filter.lfoType = ArrayUtil.rangeToIndex([ "off", "sine", "square", "sawtooth", "triangle" ], audioEvent.mp.value );
                 Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
                 break;
 
