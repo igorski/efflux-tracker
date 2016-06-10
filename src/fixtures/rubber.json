@@ -5,7 +5,7 @@
 		"title": "DEMO dirty rubber",
 		"author": "xtk master",
 		"created": 1462024500733,
-		"modified": 1462217751613,
+		"modified": 1465572621274,
 		"tempo": 120
 	},
 	"instruments": [{
@@ -64,7 +64,7 @@
 			"lfoType": "square"
 		},
 		"delay": {
-			"enabled": false,
+			"enabled": true,
 			"type": 0,
 			"time": 0.5,
 			"feedback": 0.5,
@@ -177,7 +177,7 @@
 				"release": 0
 			}
 		}],
-		"volume": 1,
+		"volume": 0.56,
 		"filter": {
 			"enabled": true,
 			"frequency": 2695.96,
@@ -444,9 +444,9 @@
 		"name": "Instrument 7",
 		"oscillators": [{
 			"enabled": true,
-			"waveform": "SAW",
+			"waveform": "NOISE",
 			"volume": 1,
-			"detune": 0,
+			"detune": -45.8,
 			"octaveShift": 0,
 			"fineShift": 0,
 			"adsr": {
@@ -484,17 +484,17 @@
 		}],
 		"volume": 1,
 		"filter": {
-			"enabled": false,
-			"frequency": 880,
+			"enabled": true,
+			"frequency": 1586.78,
 			"q": 5,
 			"speed": 0.5,
-			"depth": 50,
+			"depth": "50",
 			"type": "lowpass",
 			"lfoType": "off"
 		},
 		"delay": {
-			"enabled": false,
-			"type": 0,
+			"enabled": true,
+			"type": 1,
 			"time": 0.5,
 			"feedback": 0.5,
 			"cutoff": 880,
@@ -518,7 +518,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1704
+				"id": 463
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -533,7 +533,30 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				}
-			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
+			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
+				"instrument": 0,
+				"note": "",
+				"octave": 0,
+				"action": 0,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 0,
+					"startMeasureOffset": 1.625,
+					"endMeasure": null,
+					"length": 0.125,
+					"mpLength": 0.125
+				},
+				"mp": {
+					"instrument": 0,
+					"module": "delayEnabled",
+					"glide": false,
+					"value": 0,
+					"patternIndex": 0,
+					"channelIndex": 0,
+					"step": 13
+				}
+			}, {
 				"instrument": 0,
 				"note": "D",
 				"octave": 1,
@@ -547,7 +570,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1427,
+				"id": 756,
 				"mp": {
 					"instrument": 0,
 					"module": "pitchUp",
@@ -595,7 +618,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1703,
+				"id": 462,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -619,7 +642,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1705,
+				"id": 464,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -643,7 +666,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1706,
+				"id": 465,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -667,7 +690,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1707,
+				"id": 466,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -691,7 +714,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1710,
+				"id": 469,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -715,7 +738,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1711,
+				"id": 470,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -739,7 +762,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1712,
+				"id": 471,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -763,7 +786,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1713,
+				"id": 472,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -787,7 +810,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1715,
+				"id": 474,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -811,7 +834,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1716,
+				"id": 475,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -835,7 +858,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1717,
+				"id": 477,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -859,7 +882,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1718,
+				"id": 478,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -883,7 +906,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1721,
+				"id": 753,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -907,7 +930,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1425,
+				"id": 754,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -931,7 +954,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1426,
+				"id": 755,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -955,7 +978,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1428,
+				"id": 757,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -980,7 +1003,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1702
+				"id": 461
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -1009,7 +1032,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1709
+				"id": 468
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -1038,7 +1061,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1714
+				"id": 473
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -1067,7 +1090,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1720
+				"id": 752
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -1097,7 +1120,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1708
+				"id": 467
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -1126,7 +1149,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1719
+				"id": 751
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -1145,7 +1168,83 @@
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			[{
+				"instrument": 7,
+				"note": "C",
+				"octave": 3,
+				"action": 1,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 0,
+					"startMeasureOffset": 0,
+					"endMeasure": null,
+					"length": 0.375,
+					"mpLength": 0.125
+				},
+				"id": 460,
+				"mp": {
+					"instrument": 7,
+					"module": "pitchDown",
+					"glide": true,
+					"value": 90,
+					"patternIndex": 0,
+					"channelIndex": 7,
+					"step": 0
+				}
+			}, null, 0, {
+				"instrument": 0,
+				"note": "",
+				"octave": 0,
+				"action": 2,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 0,
+					"startMeasureOffset": 0.375,
+					"endMeasure": null,
+					"length": 0.125,
+					"mpLength": 0.125
+				}
+			}, 0, 0, 0, 0, 0, 0, {
+				"instrument": 7,
+				"note": "C",
+				"octave": 3,
+				"action": 1,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 0,
+					"startMeasureOffset": 1.25,
+					"endMeasure": 0,
+					"length": 0.125,
+					"mpLength": 0.125
+				},
+				"id": 476,
+				"mp": {
+					"instrument": 7,
+					"module": "pitchUp",
+					"glide": false,
+					"value": 99,
+					"patternIndex": 3,
+					"channelIndex": 7,
+					"step": 8
+				}
+			}, {
+				"instrument": 7,
+				"note": "",
+				"octave": 0,
+				"action": 2,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 0,
+					"startMeasureOffset": 1.375,
+					"endMeasure": 0,
+					"length": 0.125,
+					"mpLength": 0.125
+				}
+			}, 0, 0, 0, 0]
 		]
 	}, {
 		"steps": 16,
@@ -1164,7 +1263,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1431
+				"id": 760
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -1193,7 +1292,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1452,
+				"id": 781,
 				"mp": {
 					"instrument": 0,
 					"module": "pitchUp",
@@ -1241,7 +1340,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1430,
+				"id": 759,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -1265,7 +1364,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1432,
+				"id": 761,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1289,7 +1388,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1433,
+				"id": 762,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1313,7 +1412,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1434,
+				"id": 763,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1337,7 +1436,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1437,
+				"id": 766,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1361,7 +1460,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1438,
+				"id": 767,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1385,7 +1484,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1439,
+				"id": 768,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1409,7 +1508,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1440,
+				"id": 769,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1433,7 +1532,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1442,
+				"id": 771,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1457,7 +1556,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1443,
+				"id": 772,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1481,7 +1580,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1444,
+				"id": 773,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1505,7 +1604,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1445,
+				"id": 774,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1529,7 +1628,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1448,
+				"id": 777,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1553,7 +1652,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1449,
+				"id": 778,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1577,7 +1676,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1451,
+				"id": 780,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -1601,7 +1700,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1453
+				"id": 782
 			}],
 			[{
 				"instrument": 2,
@@ -1617,7 +1716,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1429
+				"id": 758
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -1646,7 +1745,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1436
+				"id": 765
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -1675,7 +1774,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1441
+				"id": 770
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -1704,7 +1803,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1447
+				"id": 776
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -1734,7 +1833,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1435
+				"id": 764
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -1763,7 +1862,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1446
+				"id": 775
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -1792,7 +1891,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1450,
+				"id": 779,
 				"mp": {
 					"instrument": 3,
 					"module": "volume",
@@ -1825,7 +1924,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1456
+				"id": 785
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -1854,7 +1953,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1463
+				"id": 792
 			}, 0, {
 				"instrument": 0,
 				"note": "B",
@@ -1869,7 +1968,7 @@
 					"length": 0.1875,
 					"mpLength": 0.0625
 				},
-				"id": 1465,
+				"id": 794,
 				"mp": {
 					"instrument": 0,
 					"module": "pitchUp",
@@ -1907,7 +2006,7 @@
 					"length": 0.625,
 					"mpLength": 0.0625
 				},
-				"id": 1468
+				"id": 798
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -1959,7 +2058,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1479,
+				"id": 809,
 				"mp": {
 					"instrument": 0,
 					"module": "pitchUp",
@@ -2007,7 +2106,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1455,
+				"id": 784,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -2031,7 +2130,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1457,
+				"id": 786,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2055,7 +2154,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1458,
+				"id": 787,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2079,7 +2178,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1459,
+				"id": 788,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2103,7 +2202,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1462,
+				"id": 791,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2127,7 +2226,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1464,
+				"id": 793,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2151,7 +2250,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1466,
+				"id": 796,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2175,7 +2274,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1467,
+				"id": 797,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2199,7 +2298,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1470,
+				"id": 800,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2223,7 +2322,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1471,
+				"id": 801,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2247,7 +2346,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1472,
+				"id": 802,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2271,7 +2370,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1473,
+				"id": 803,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2295,7 +2394,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1476,
+				"id": 806,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2319,7 +2418,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1477,
+				"id": 807,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2343,7 +2442,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1478,
+				"id": 808,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2367,7 +2466,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1480,
+				"id": 810,
 				"mp": {
 					"instrument": 1,
 					"module": "volume",
@@ -2392,7 +2491,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1454
+				"id": 783
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -2421,7 +2520,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1461
+				"id": 790
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -2450,7 +2549,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1469
+				"id": 799
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -2479,7 +2578,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1475
+				"id": 805
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -2523,7 +2622,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1460
+				"id": 789
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -2552,7 +2651,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1474
+				"id": 804
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -2571,7 +2670,45 @@
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
+				"instrument": 7,
+				"note": "C",
+				"octave": 3,
+				"action": 1,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 2,
+					"startMeasureOffset": 0.75,
+					"endMeasure": null,
+					"length": 0.1875,
+					"mpLength": 0.0625
+				},
+				"id": 795,
+				"mp": {
+					"instrument": 7,
+					"module": "pitchDown",
+					"glide": true,
+					"value": 10,
+					"patternIndex": 2,
+					"channelIndex": 7,
+					"step": 12
+				}
+			}, 0, 0, {
+				"instrument": 0,
+				"note": "",
+				"octave": 0,
+				"action": 2,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 2,
+					"startMeasureOffset": 0.9375,
+					"endMeasure": null,
+					"length": 0.0625,
+					"mpLength": 0.0625
+				}
+			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 		]
 	}, {
 		"steps": 16,
@@ -2590,7 +2727,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1483,
+				"id": 814,
 				"mp": {
 					"instrument": 0,
 					"module": "volume",
@@ -2651,7 +2788,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1490,
+				"id": 821,
 				"mp": {
 					"instrument": 0,
 					"module": "volume",
@@ -2712,7 +2849,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1500,
+				"id": 832,
 				"mp": {
 					"instrument": 0,
 					"module": "volume",
@@ -2760,7 +2897,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1482,
+				"id": 813,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -2784,7 +2921,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1484
+				"id": 815
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2799,7 +2936,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1485
+				"id": 816
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2814,7 +2951,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1486
+				"id": 817
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2829,7 +2966,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1489
+				"id": 820
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2844,7 +2981,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1491
+				"id": 822
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2859,7 +2996,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1492
+				"id": 823
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2874,7 +3011,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1493
+				"id": 824
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2889,7 +3026,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1495
+				"id": 826
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2904,7 +3041,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1496
+				"id": 827
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2919,7 +3056,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1497
+				"id": 829
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -2934,7 +3071,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1498
+				"id": 830
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -2964,7 +3101,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1481
+				"id": 812
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -2993,7 +3130,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1488
+				"id": 819
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -3022,7 +3159,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1494
+				"id": 825
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -3051,7 +3188,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1499,
+				"id": 831,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -3145,7 +3282,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1487
+				"id": 818
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -3164,7 +3301,74 @@
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+			[{
+				"instrument": 7,
+				"note": "C",
+				"octave": 3,
+				"action": 1,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 3,
+					"startMeasureOffset": 0,
+					"endMeasure": null,
+					"length": 0.375,
+					"mpLength": 0.125
+				},
+				"id": 811
+			}, 0, 0, {
+				"instrument": 0,
+				"note": "",
+				"octave": 0,
+				"action": 2,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 3,
+					"startMeasureOffset": 0.375,
+					"endMeasure": null,
+					"length": 0.125,
+					"mpLength": 0.125
+				}
+			}, 0, 0, 0, 0, null, null, {
+				"instrument": 7,
+				"note": "C",
+				"octave": 3,
+				"action": 1,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 3,
+					"startMeasureOffset": 1.25,
+					"endMeasure": 3,
+					"length": 0.125,
+					"mpLength": 0.125
+				},
+				"id": 828,
+				"mp": {
+					"instrument": 7,
+					"module": "pitchUp",
+					"glide": false,
+					"value": 99,
+					"patternIndex": 3,
+					"channelIndex": 7,
+					"step": 8
+				}
+			}, {
+				"instrument": 7,
+				"note": "",
+				"octave": 0,
+				"action": 2,
+				"recording": false,
+				"seq": {
+					"playing": false,
+					"startMeasure": 3,
+					"startMeasureOffset": 1.375,
+					"endMeasure": 3,
+					"length": 0.125,
+					"mpLength": 0.125
+				}
+			}, 0, 0, 0, 0]
 		]
 	}, {
 		"steps": 16,
@@ -3183,7 +3387,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1503
+				"id": 835
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -3198,7 +3402,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1506
+				"id": 838
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -3213,7 +3417,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1508
+				"id": 840
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -3228,7 +3432,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1512
+				"id": 844
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -3266,7 +3470,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1518
+				"id": 850
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -3281,7 +3485,7 @@
 					"length": 0.75,
 					"mpLength": 0.125
 				},
-				"id": 1521
+				"id": 853
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -3389,7 +3593,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1502,
+				"id": 834,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -3413,7 +3617,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1504
+				"id": 836
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3428,7 +3632,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1505
+				"id": 837
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3443,7 +3647,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1507
+				"id": 839
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3458,7 +3662,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1511
+				"id": 843
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3473,7 +3677,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1513
+				"id": 845
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3488,7 +3692,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1514
+				"id": 846
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3503,7 +3707,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1515
+				"id": 847
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3518,7 +3722,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1517
+				"id": 849
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3533,7 +3737,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1519
+				"id": 851
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3548,7 +3752,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1520
+				"id": 852
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3563,7 +3767,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1522
+				"id": 854
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3578,7 +3782,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1525
+				"id": 857
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3593,7 +3797,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1526
+				"id": 858
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3608,7 +3812,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1527
+				"id": 859
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -3623,7 +3827,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1528
+				"id": 860
 			}],
 			[{
 				"instrument": 2,
@@ -3639,7 +3843,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1501
+				"id": 833
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -3668,7 +3872,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1510
+				"id": 842
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -3697,7 +3901,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1516
+				"id": 848
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -3726,7 +3930,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1524
+				"id": 856
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -3756,7 +3960,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1509
+				"id": 841
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -3785,7 +3989,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1523
+				"id": 855
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -3823,7 +4027,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1531
+				"id": 289
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -3838,7 +4042,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1534
+				"id": 292
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -3853,7 +4057,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1536
+				"id": 294
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -3868,7 +4072,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1540
+				"id": 298
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -3883,7 +4087,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1543
+				"id": 301
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -3898,7 +4102,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1547
+				"id": 305
 			}, 0, {
 				"instrument": 0,
 				"note": "D",
@@ -3913,7 +4117,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1550
+				"id": 308
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -3951,7 +4155,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1554
+				"id": 312
 			}, 0],
 			[{
 				"instrument": 1,
@@ -3967,7 +4171,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1530,
+				"id": 288,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -3991,7 +4195,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1532,
+				"id": 290,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -4015,7 +4219,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1533,
+				"id": 291,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -4039,7 +4243,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1535,
+				"id": 293,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -4063,7 +4267,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1539,
+				"id": 297,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -4087,7 +4291,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1541
+				"id": 299
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -4102,7 +4306,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1542,
+				"id": 300,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -4122,11 +4326,20 @@
 					"playing": false,
 					"startMeasure": 5,
 					"startMeasureOffset": 0.875,
-					"endMeasure": 5,
+					"endMeasure": null,
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1544
+				"id": 302,
+				"mp": {
+					"instrument": 1,
+					"module": "volume",
+					"glide": true,
+					"value": 50,
+					"patternIndex": 5,
+					"channelIndex": 1,
+					"step": 7
+				}
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -4137,11 +4350,20 @@
 					"playing": false,
 					"startMeasure": 5,
 					"startMeasureOffset": 1,
-					"endMeasure": 5,
+					"endMeasure": null,
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1546
+				"id": 304,
+				"mp": {
+					"instrument": 1,
+					"module": "volume",
+					"glide": true,
+					"value": 30,
+					"patternIndex": 5,
+					"channelIndex": 1,
+					"step": 8
+				}
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -4156,7 +4378,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1548
+				"id": 306
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -4171,7 +4393,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1549
+				"id": 307
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -4186,7 +4408,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1551
+				"id": 309
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -4216,7 +4438,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1529
+				"id": 287
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4245,7 +4467,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1538
+				"id": 296
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4274,7 +4496,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1545
+				"id": 303
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4303,7 +4525,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1553
+				"id": 311
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4333,7 +4555,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1537
+				"id": 295
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -4362,7 +4584,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1552
+				"id": 310
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -4400,7 +4622,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1556
+				"id": 314
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4415,7 +4637,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1557
+				"id": 315
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -4430,7 +4652,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1558
+				"id": 316
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -4445,7 +4667,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1561
+				"id": 319
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -4483,7 +4705,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1563
+				"id": 321
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4498,7 +4720,7 @@
 					"length": 0.75,
 					"mpLength": 0.125
 				},
-				"id": 1564
+				"id": 322
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -4630,7 +4852,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1555
+				"id": 313
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4659,7 +4881,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1560
+				"id": 318
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4688,7 +4910,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1562
+				"id": 320
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4717,7 +4939,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1566
+				"id": 324
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -4747,7 +4969,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1559
+				"id": 317
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -4776,7 +4998,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1565
+				"id": 323
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -4814,7 +5036,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1572
+				"id": 330
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4829,7 +5051,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1573
+				"id": 331
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4844,7 +5066,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1574
+				"id": 332
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4859,7 +5081,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1577
+				"id": 335
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4874,7 +5096,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1578
+				"id": 336
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4889,7 +5111,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1580
+				"id": 338
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -4904,7 +5126,7 @@
 					"length": 0.75,
 					"mpLength": 0.0625
 				},
-				"id": 1582
+				"id": 340
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[{
@@ -4921,7 +5143,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1571
+				"id": 329
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -4950,7 +5172,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1576
+				"id": 334
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -4979,7 +5201,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1579
+				"id": 337
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -5008,7 +5230,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1587
+				"id": 345
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -5037,7 +5259,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1592,
+				"id": 350,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -5076,7 +5298,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1575
+				"id": 333
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -5105,7 +5327,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1581
+				"id": 339
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -5134,7 +5356,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1586
+				"id": 344
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -5164,7 +5386,7 @@
 					"length": 0.625,
 					"mpLength": 0.0625
 				},
-				"id": 1570
+				"id": 328
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -5193,7 +5415,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1583
+				"id": 341
 			}, {
 				"instrument": 4,
 				"note": "F#",
@@ -5208,7 +5430,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1584
+				"id": 342
 			}, {
 				"instrument": 4,
 				"note": "G",
@@ -5223,7 +5445,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1585
+				"id": 343
 			}, {
 				"instrument": 4,
 				"note": "B",
@@ -5238,7 +5460,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1588
+				"id": 346
 			}, {
 				"instrument": 4,
 				"note": "D",
@@ -5253,7 +5475,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1589
+				"id": 347
 			}, {
 				"instrument": 4,
 				"note": "E",
@@ -5268,7 +5490,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1590
+				"id": 348
 			}, {
 				"instrument": 4,
 				"note": "F#",
@@ -5283,7 +5505,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1591
+				"id": 349
 			}, {
 				"instrument": 4,
 				"note": "G",
@@ -5298,7 +5520,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1593
+				"id": 351
 			}, {
 				"instrument": 4,
 				"note": "A",
@@ -5313,7 +5535,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1594
+				"id": 352
 			}, {
 				"instrument": 4,
 				"note": "B",
@@ -5328,7 +5550,7 @@
 					"length": 6.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1595
+				"id": 353
 			}],
 			[{
 				"instrument": 4,
@@ -5344,7 +5566,7 @@
 					"length": 0.875,
 					"mpLength": 0.0625
 				},
-				"id": 1569
+				"id": 327
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -5374,7 +5596,7 @@
 					"length": 1.125,
 					"mpLength": 0.0625
 				},
-				"id": 1568
+				"id": 326
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -5404,7 +5626,7 @@
 					"length": 1.375,
 					"mpLength": 0.0625
 				},
-				"id": 1567
+				"id": 325
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -5438,7 +5660,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1599
+				"id": 357
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -5453,7 +5675,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1604
+				"id": 362
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -5468,7 +5690,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1607
+				"id": 365
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -5483,7 +5705,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1611
+				"id": 369
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -5521,7 +5743,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1618
+				"id": 376
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -5536,7 +5758,7 @@
 					"length": 0.75,
 					"mpLength": 0.125
 				},
-				"id": 1622
+				"id": 380
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -5644,7 +5866,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1598,
+				"id": 356,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -5668,7 +5890,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1600
+				"id": 358
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5683,7 +5905,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1603
+				"id": 361
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5698,7 +5920,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1606
+				"id": 364
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5713,7 +5935,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1610
+				"id": 368
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5728,7 +5950,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1612
+				"id": 370
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5743,7 +5965,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1613
+				"id": 371
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5758,7 +5980,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1614
+				"id": 372
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5773,7 +5995,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1617
+				"id": 375
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5788,7 +6010,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1620
+				"id": 378
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5803,7 +6025,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1621
+				"id": 379
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5818,7 +6040,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1623
+				"id": 381
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5833,7 +6055,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1626
+				"id": 384
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5848,7 +6070,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1627
+				"id": 385
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5863,7 +6085,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1628
+				"id": 386
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -5878,7 +6100,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1629
+				"id": 387
 			}],
 			[{
 				"instrument": 2,
@@ -5894,7 +6116,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1597
+				"id": 355
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -5923,7 +6145,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1602,
+				"id": 360,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -5947,7 +6169,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1605,
+				"id": 363,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -5971,7 +6193,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1609,
+				"id": 367,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -6009,7 +6231,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1616
+				"id": 374
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -6038,7 +6260,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1625
+				"id": 383
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -6068,7 +6290,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1596
+				"id": 354
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -6097,7 +6319,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1601,
+				"id": 359,
 				"mp": {
 					"instrument": 3,
 					"module": "volume",
@@ -6135,7 +6357,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1608
+				"id": 366
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -6164,7 +6386,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1615,
+				"id": 373,
 				"mp": {
 					"instrument": 3,
 					"module": "volume",
@@ -6188,7 +6410,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1619,
+				"id": 377,
 				"mp": {
 					"instrument": 3,
 					"module": "volume",
@@ -6226,7 +6448,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1624
+				"id": 382
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -6253,18 +6475,27 @@
 			[{
 				"instrument": 0,
 				"note": "E",
-				"octave": 5,
+				"octave": 4,
 				"action": 1,
 				"recording": false,
 				"seq": {
 					"playing": false,
 					"startMeasure": 9,
 					"startMeasureOffset": 0,
-					"endMeasure": 8,
+					"endMeasure": null,
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1632
+				"id": 390,
+				"mp": {
+					"instrument": 0,
+					"module": "volume",
+					"glide": true,
+					"value": 50,
+					"patternIndex": 9,
+					"channelIndex": 0,
+					"step": 0
+				}
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -6279,7 +6510,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1636
+				"id": 394
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -6294,22 +6525,22 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1639
+				"id": 397
 			}, {
 				"instrument": 0,
-				"note": "E",
-				"octave": 4,
+				"note": "D",
+				"octave": 3,
 				"action": 1,
 				"recording": false,
 				"seq": {
 					"playing": false,
 					"startMeasure": 9,
 					"startMeasureOffset": 0.5,
-					"endMeasure": 8,
+					"endMeasure": null,
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1643
+				"id": 401
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -6324,7 +6555,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1647
+				"id": 405
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -6339,7 +6570,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1651
+				"id": 409
 			}, 0, {
 				"instrument": 0,
 				"note": "D",
@@ -6354,7 +6585,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1655
+				"id": 413
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -6392,7 +6623,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1660
+				"id": 418
 			}, 0],
 			[{
 				"instrument": 1,
@@ -6408,7 +6639,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1631,
+				"id": 389,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -6432,7 +6663,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1634,
+				"id": 392,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -6456,7 +6687,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1635,
+				"id": 393,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
@@ -6476,17 +6707,17 @@
 					"playing": false,
 					"startMeasure": 9,
 					"startMeasureOffset": 0.375,
-					"endMeasure": 8,
+					"endMeasure": null,
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1638,
+				"id": 396,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
 					"glide": true,
-					"value": 22,
-					"patternIndex": 1,
+					"value": 13,
+					"patternIndex": 9,
 					"channelIndex": 1,
 					"step": 3
 				}
@@ -6500,17 +6731,17 @@
 					"playing": false,
 					"startMeasure": 9,
 					"startMeasureOffset": 0.5,
-					"endMeasure": 8,
+					"endMeasure": null,
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1642,
+				"id": 400,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
 					"glide": true,
-					"value": 25,
-					"patternIndex": 1,
+					"value": 8,
+					"patternIndex": 9,
 					"channelIndex": 1,
 					"step": 4
 				}
@@ -6528,7 +6759,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1644
+				"id": 402
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -6539,17 +6770,17 @@
 					"playing": false,
 					"startMeasure": 9,
 					"startMeasureOffset": 0.75,
-					"endMeasure": 8,
+					"endMeasure": null,
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1646,
+				"id": 404,
 				"mp": {
 					"instrument": 1,
 					"module": "filterFreq",
 					"glide": true,
-					"value": 10,
-					"patternIndex": 1,
+					"value": 6,
+					"patternIndex": 9,
 					"channelIndex": 1,
 					"step": 6
 				}
@@ -6567,7 +6798,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1648
+				"id": 406
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -6582,7 +6813,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1650
+				"id": 408
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -6593,11 +6824,20 @@
 					"playing": false,
 					"startMeasure": 9,
 					"startMeasureOffset": 1.125,
-					"endMeasure": 9,
+					"endMeasure": null,
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1652
+				"id": 410,
+				"mp": {
+					"instrument": 1,
+					"module": "filterFreq",
+					"glide": true,
+					"value": 4,
+					"patternIndex": 9,
+					"channelIndex": 1,
+					"step": 9
+				}
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -6612,7 +6852,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1654
+				"id": 412
 			}, {
 				"instrument": 1,
 				"note": "E",
@@ -6627,7 +6867,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1657
+				"id": 415
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -6657,7 +6897,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1630
+				"id": 388
 			}, {
 				"instrument": 2,
 				"note": "B",
@@ -6672,7 +6912,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1633
+				"id": 391
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -6701,7 +6941,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1637
+				"id": 395
 			}, {
 				"instrument": 2,
 				"note": "B",
@@ -6716,7 +6956,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1641
+				"id": 399
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -6745,7 +6985,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1649
+				"id": 407
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -6774,7 +7014,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1656,
+				"id": 414,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -6798,7 +7038,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1659
+				"id": 417
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -6828,7 +7068,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1640
+				"id": 398
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -6857,7 +7097,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1645
+				"id": 403
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -6886,7 +7126,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1653
+				"id": 411
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -6915,7 +7155,7 @@
 					"length": 0.375,
 					"mpLength": 0.125
 				},
-				"id": 1658,
+				"id": 416,
 				"mp": {
 					"instrument": 3,
 					"module": "volume",
@@ -7008,7 +7248,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1662
+				"id": 420
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7023,7 +7263,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1663
+				"id": 421
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -7038,7 +7278,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1664
+				"id": 422
 			}, {
 				"instrument": 0,
 				"note": "E",
@@ -7053,7 +7293,7 @@
 					"length": 0.5,
 					"mpLength": 0.125
 				},
-				"id": 1667
+				"id": 425
 			}, 0, {
 				"instrument": 0,
 				"note": "",
@@ -7091,7 +7331,7 @@
 					"length": 0.25,
 					"mpLength": 0.125
 				},
-				"id": 1669
+				"id": 427
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7106,7 +7346,7 @@
 					"length": 0.75,
 					"mpLength": 0.125
 				},
-				"id": 1670
+				"id": 428
 			}, {
 				"instrument": 0,
 				"note": "",
@@ -7238,7 +7478,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1661
+				"id": 419
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -7267,7 +7507,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1666
+				"id": 424
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -7296,7 +7536,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1668
+				"id": 426
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -7325,7 +7565,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1672
+				"id": 430
 			}, {
 				"instrument": 2,
 				"note": "",
@@ -7355,7 +7595,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1665
+				"id": 423
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -7384,7 +7624,7 @@
 					"length": 0.125,
 					"mpLength": 0.125
 				},
-				"id": 1671
+				"id": 429
 			}, {
 				"instrument": 3,
 				"note": "",
@@ -7418,11 +7658,20 @@
 					"playing": false,
 					"startMeasure": 11,
 					"startMeasureOffset": 0,
-					"endMeasure": 10,
+					"endMeasure": null,
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1678
+				"id": 436,
+				"mp": {
+					"instrument": 0,
+					"module": "delayEnabled",
+					"glide": false,
+					"value": 99,
+					"patternIndex": 11,
+					"channelIndex": 0,
+					"step": 0
+				}
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7437,7 +7686,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1679
+				"id": 437
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7452,7 +7701,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1680
+				"id": 438
 			}, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7467,7 +7716,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1683
+				"id": 441
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7482,7 +7731,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1684
+				"id": 442
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7497,7 +7746,7 @@
 					"length": 0.25,
 					"mpLength": 0.0625
 				},
-				"id": 1686
+				"id": 444
 			}, 0, 0, 0, {
 				"instrument": 0,
 				"note": "E",
@@ -7512,7 +7761,7 @@
 					"length": 0.75,
 					"mpLength": 0.0625
 				},
-				"id": 1688
+				"id": 446
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 			[{
@@ -7529,7 +7778,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1677
+				"id": 435
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -7558,7 +7807,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1682
+				"id": 440
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -7587,7 +7836,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1685
+				"id": 443
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -7616,7 +7865,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1693
+				"id": 451
 			}, 0, {
 				"instrument": 2,
 				"note": "",
@@ -7645,7 +7894,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1698,
+				"id": 456,
 				"mp": {
 					"instrument": 2,
 					"module": "volume",
@@ -7684,7 +7933,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1681
+				"id": 439
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -7713,7 +7962,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1687
+				"id": 445
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -7742,7 +7991,7 @@
 					"length": 0.125,
 					"mpLength": 0.0625
 				},
-				"id": 1692
+				"id": 450
 			}, 0, {
 				"instrument": 3,
 				"note": "",
@@ -7772,7 +8021,7 @@
 					"length": 0.625,
 					"mpLength": 0.0625
 				},
-				"id": 1676
+				"id": 434
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -7801,7 +8050,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1689
+				"id": 447
 			}, {
 				"instrument": 4,
 				"note": "F#",
@@ -7816,7 +8065,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1690
+				"id": 448
 			}, {
 				"instrument": 4,
 				"note": "G",
@@ -7831,7 +8080,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1691
+				"id": 449
 			}, {
 				"instrument": 4,
 				"note": "B",
@@ -7846,7 +8095,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1694
+				"id": 452
 			}, {
 				"instrument": 4,
 				"note": "D",
@@ -7861,7 +8110,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1695
+				"id": 453
 			}, {
 				"instrument": 4,
 				"note": "E",
@@ -7876,7 +8125,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1696
+				"id": 454
 			}, {
 				"instrument": 4,
 				"note": "F#",
@@ -7891,7 +8140,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1697
+				"id": 455
 			}, {
 				"instrument": 4,
 				"note": "G",
@@ -7906,7 +8155,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1699
+				"id": 457
 			}, {
 				"instrument": 4,
 				"note": "A",
@@ -7921,7 +8170,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1700
+				"id": 458
 			}, {
 				"instrument": 4,
 				"note": "B",
@@ -7936,7 +8185,7 @@
 					"length": 0.0625,
 					"mpLength": 0.0625
 				},
-				"id": 1701
+				"id": 459
 			}],
 			[{
 				"instrument": 4,
@@ -7952,7 +8201,7 @@
 					"length": 0.875,
 					"mpLength": 0.0625
 				},
-				"id": 1675
+				"id": 433
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -7982,7 +8231,7 @@
 					"length": 1.125,
 					"mpLength": 0.0625
 				},
-				"id": 1674
+				"id": 432
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
@@ -8012,7 +8261,7 @@
 					"length": 1.375,
 					"mpLength": 0.0625
 				},
-				"id": 1673
+				"id": 431
 			}, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, {
 				"instrument": 0,
 				"note": "",
