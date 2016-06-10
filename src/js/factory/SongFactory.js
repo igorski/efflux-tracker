@@ -29,7 +29,7 @@ const FACTORY_VERSION = 1;
 
 module.exports =
 {
-    createSong : function( amountOfInstruments )
+    createSong( amountOfInstruments )
     {
         let song = {
 

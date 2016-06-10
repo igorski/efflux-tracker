@@ -40,7 +40,7 @@ const ModuleUtil = module.exports =
      * @param {INSTRUMENT_MODULES} modules
      * @param {AudioParam} output
      */
-    applyRouting : function( modules, output )
+    applyRouting( modules, output )
     {
         const moduleOutput = modules.output,
               filter       = modules.filter.filter,
@@ -82,7 +82,7 @@ const ModuleUtil = module.exports =
      * @param {number} startTimeInSeconds
      * @param {AudioGainNode} output
      */
-    applyModuleParamChange : function( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output )
+    applyModuleParamChange( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output )
     {
         switch ( audioEvent.mp.module )
         {

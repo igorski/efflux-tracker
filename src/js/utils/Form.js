@@ -33,7 +33,7 @@ module.exports =
      * @param {Element} aSelect
      * @return {string}
      */
-    getSelectedOption : function( aSelect )
+    getSelectedOption( aSelect )
     {
         if ( aSelect.options && aSelect.options.length > 0 )
             return aSelect.options[ aSelect.selectedIndex ].value;
@@ -48,7 +48,7 @@ module.exports =
      * @param {Element} aSelect
      * @param {string|number|boolean} aValue
      */
-    setSelectedOption : function( aSelect, aValue )
+    setSelectedOption( aSelect, aValue )
     {
         const options = aSelect.options;
 
@@ -82,7 +82,7 @@ module.exports =
      *            value: *
      *        }>} aOptions
      */
-    setOptions : function( aSelect, aOptions )
+    setOptions( aSelect, aOptions )
     {
         const children = aSelect.childNodes;
         let i = children.length;
@@ -113,7 +113,7 @@ module.exports =
      * @param {Array.<Element>} aGroup
      * @param {string|number|boolean} aValue
      */
-    setCheckedOption : function( aGroup, aValue )
+    setCheckedOption( aGroup, aValue )
     {
         let i = aGroup.length, option;
 
@@ -138,7 +138,7 @@ module.exports =
      * @param {Array.<Element>} aGroup
      * @return {string}
      */
-    getCheckedOption : function( aGroup )
+    getCheckedOption( aGroup )
     {
         let i = aGroup.length, option;
 

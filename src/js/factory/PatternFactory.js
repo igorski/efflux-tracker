@@ -44,7 +44,7 @@ const PatternFactory = module.exports =
      *
      * @return {PATTERN}
      */
-    createEmptyPattern : function( amountOfSteps )
+    createEmptyPattern( amountOfSteps )
     {
         amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
 
@@ -65,7 +65,7 @@ const PatternFactory = module.exports =
      * @param {PATTERN} sourcePattern
      * @param {number} targetPatternIndex
      */
-    mergePatterns : function( targetPattern, sourcePattern, targetPatternIndex )
+    mergePatterns( targetPattern, sourcePattern, targetPatternIndex )
     {
         let targetLength = targetPattern.steps;
         let sourceLength = sourcePattern.steps;
@@ -147,7 +147,7 @@ const PatternFactory = module.exports =
      * @param {number} channelNum
      * @param {number} step
      */
-    clearEvent : function( pattern, channelNum, step )
+    clearEvent( pattern, channelNum, step )
     {
         const channel = pattern.channels[ channelNum ];
         delete channel[ step ];

@@ -36,7 +36,7 @@ module.exports =
      *
      * @param {!Function} callback will receive parsed JSON Object
      */
-    load : function( callback )
+    load( callback )
     {
         Pubsub.publish( Messages.SHOW_LOADER );
 

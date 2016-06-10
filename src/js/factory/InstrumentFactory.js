@@ -94,7 +94,7 @@ const InstrumentFactory = module.exports =
      * @param {string=} aName optional name to use
      * @return {INSTRUMENT}
      */
-    createInstrument : function( aId, aName )
+    createInstrument( aId, aName )
     {
         return {
             id   : aId,
@@ -131,7 +131,7 @@ const InstrumentFactory = module.exports =
      * @param {boolean} aEnabled
      * @return {INSTRUMENT_OSCILLATOR}
      */
-    createOscillator : function( aEnabled )
+    createOscillator( aEnabled )
     {
         return {
             enabled     : aEnabled,
@@ -158,7 +158,7 @@ const InstrumentFactory = module.exports =
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array.<number>}
      */
-    getTableForOscillator : function( oscillator, size  )
+    getTableForOscillator( oscillator, size  )
     {
         if ( !oscillator.table ) {
 

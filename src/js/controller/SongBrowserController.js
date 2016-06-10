@@ -43,7 +43,7 @@ const SongBrowserController = module.exports =
      * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
         efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
@@ -72,7 +72,7 @@ const SongBrowserController = module.exports =
         });
     },
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         if ( type === "down" && keyCode === 27 )
         {

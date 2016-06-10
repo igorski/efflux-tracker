@@ -37,7 +37,7 @@ let patternContainer, trackList, transportSection, patternEditor, helpSection,
 
 module.exports =
 {
-    init : function()
+    init()
     {
         // create DOM elements
 

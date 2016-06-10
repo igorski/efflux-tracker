@@ -33,7 +33,7 @@ const InstrumentUtil = module.exports =
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @return {number} tuned frequency in Hz
      */
-    tuneToOscillator : function( frequency, oscillator )
+    tuneToOscillator( frequency, oscillator )
     {
         // tune event frequency to oscillator tuning
 
@@ -65,7 +65,7 @@ const InstrumentUtil = module.exports =
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @return {number}
      */
-    tuneBufferPlayback : function( oscillator )
+    tuneBufferPlayback( oscillator )
     {
         return 1 + ( oscillator.detune / 50 );
     },
@@ -80,7 +80,7 @@ const InstrumentUtil = module.exports =
      * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
-    adjustEventTunings : function( events, oscillatorIndex, oscillator )
+    adjustEventTunings( events, oscillatorIndex, oscillator )
     {
         let i = events.length,
             event, voice, generator;
@@ -114,7 +114,7 @@ const InstrumentUtil = module.exports =
      * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
-    adjustEventVolume : function( events, oscillatorIndex, oscillator )
+    adjustEventVolume( events, oscillatorIndex, oscillator )
     {
         let i = events.length,
             event, voice;
@@ -142,7 +142,7 @@ const InstrumentUtil = module.exports =
      * @param {number} oscillatorIndex
      * @param {PeriodicWave} table
      */
-    adjustEventWaveForms : function( events, oscillatorIndex, table )
+    adjustEventWaveForms( events, oscillatorIndex, table )
     {
         if ( !( table instanceof PeriodicWave ))
             return;

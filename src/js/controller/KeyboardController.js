@@ -33,7 +33,7 @@ module.exports =
     /**
      * initialize KeyboardController
      */
-    init : function()
+    init()
     {
         window.addEventListener( "keydown", handleKeyDown );
         window.addEventListener( "keyup",   handleKeyUp );
@@ -46,7 +46,7 @@ module.exports =
      * @param {Event} aEvent
      * @returns {boolean}
      */
-    hasOption : function( aEvent )
+    hasOption( aEvent )
     {
         return ( optionDown === true ) || aEvent.ctrlKey;
     },
@@ -56,7 +56,7 @@ module.exports =
      *
      * @returns {boolean}
      */
-    hasShift : function()
+    hasShift()
     {
         return ( shiftDown === true );
     },
@@ -74,7 +74,7 @@ module.exports =
      *
      * @param {Object|Function} listenerRef
      */
-    setListener : function( listenerRef )
+    setListener( listenerRef )
     {
         listener = listenerRef;
     },
@@ -85,7 +85,7 @@ module.exports =
      *
      * @param {boolean} value
      */
-    setSuspended : function( value )
+    setSuspended( value )
     {
         suspended = value;
     },
@@ -95,7 +95,7 @@ module.exports =
      *
      * @param value
      */
-    setBlockDefaults : function( value )
+    setBlockDefaults( value )
     {
         blockDefaults = value;
     }

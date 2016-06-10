@@ -33,7 +33,7 @@ module.exports =
      * @param {number} value in the 0 - 100 range
      * @return {*} associated array item to scaled value
      */
-    rangeToIndex : function( array, value )
+    rangeToIndex( array, value )
     {
         return array[ Math.round( value / ( 100 / ( array.length - 1 ))) ];
     }

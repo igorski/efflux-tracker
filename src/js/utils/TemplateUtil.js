@@ -90,7 +90,7 @@ const TemplateUtil = module.exports =
      *
      * @return {string} HTML template data
      */
-    render : function( templateName, data )
+    render( templateName, data )
     {
         if ( typeof templates[ templateName ] === "function" )
             return templates[ templateName ]( data );
@@ -106,7 +106,7 @@ const TemplateUtil = module.exports =
      *
      * @return {Element}
      */
-    renderAsElement : function( templateName, data )
+    renderAsElement( templateName, data )
     {
         let html    = TemplateUtil.render( templateName, data );
         let element = document.createElement( "div" );

@@ -44,7 +44,7 @@ module.exports =
      * @param {number} time
      * @param {AudioContext} audioContext
      */
-    play : function( resolution, currentStep, maxStep, time, audioContext )
+    play( resolution, currentStep, maxStep, time, audioContext )
     {
         if (( resolution === 1 ) && ( currentStep % ( maxStep / 8 )))
             return; // we're not playing non-8th 16th notes

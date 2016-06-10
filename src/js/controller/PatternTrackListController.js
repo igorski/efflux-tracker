@@ -52,7 +52,7 @@ const PatternTrackListController = module.exports =
      * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
         efflux             = effluxRef;
         editorModel        = efflux.EditorModel;
@@ -108,7 +108,7 @@ const PatternTrackListController = module.exports =
         });
     },
 
-    update : function()
+    update()
     {
         let activePattern = editorModel.activePattern;
 
@@ -133,7 +133,7 @@ const PatternTrackListController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( type, keyCode, aEvent )
+    handleKey( type, keyCode, aEvent )
     {
         if ( type === "down" )
         {

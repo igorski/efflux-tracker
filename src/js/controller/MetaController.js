@@ -41,7 +41,7 @@ const MetaController = module.exports =
      * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
         container          = containerRef;
         efflux             = effluxRef;
@@ -79,7 +79,7 @@ const MetaController = module.exports =
      * synchronize MetaView contents with
      * the current state of the model
      */
-    update : function()
+    update()
     {
         const meta = efflux.activeSong.meta;
 

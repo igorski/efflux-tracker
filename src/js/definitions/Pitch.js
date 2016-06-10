@@ -50,7 +50,7 @@ const Pitch = module.exports =
      * @param {number} aOctave - the octave to return ( accepted range 0 - 9 )
      * @return {number} containing exact frequency in Hz for requested note
      */
-    getFrequency : function( aNote, aOctave )
+    getFrequency( aNote, aOctave )
     {
         let freq;
         let enharmonic = 0;
@@ -100,7 +100,7 @@ const Pitch = module.exports =
      *             cents: number
      *         }}
     */
-    getPitchByFrequency : function( frequency )
+    getPitchByFrequency( frequency )
     {
         let theNote;
 
@@ -147,7 +147,7 @@ const Pitch = module.exports =
      * @param {number=} aEnharmonic optional, defaults to 0 ( 0, -1 for flat, 1 for sharp )
      * @return {number}
      */
-    getOctaveIndex : function( aNote, aEnharmonic )
+    getOctaveIndex( aNote, aEnharmonic )
     {
         if ( typeof aEnharmonic !== "number" )
             aEnharmonic = 0;

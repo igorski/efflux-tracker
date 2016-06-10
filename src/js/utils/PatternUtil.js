@@ -36,7 +36,7 @@ module.exports =
      * @param {number} amountOfSteps the amount of steps in the pattern to generate
      * @return {Array.<PATTERN>} updated list
      */
-    addEmptyPatternAtIndex : function( patterns, index, amountOfSteps )
+    addEmptyPatternAtIndex( patterns, index, amountOfSteps )
     {
         let front = patterns.slice( 0, index );
         let back  = patterns.slice( index );
@@ -68,7 +68,7 @@ module.exports =
      * @param {number} index where the generated pattern will be added
      * @return {Array.<PATTERN>} updated list
      */
-    removePatternAtIndex : function( patterns, index )
+    removePatternAtIndex( patterns, index )
     {
         patterns.splice( index, 1 );
 

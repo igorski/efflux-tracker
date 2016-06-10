@@ -47,7 +47,7 @@ const InstrumentController = module.exports =
 {
     visible : false,
 
-    init : function( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
         container          = containerRef;
         efflux             = effluxRef;
@@ -166,7 +166,7 @@ const InstrumentController = module.exports =
         updateWaveformSize();
     },
 
-    update : function()
+    update()
     {
         const instruments = efflux.activeSong.instruments;
         let i = instruments.length;
@@ -229,7 +229,7 @@ const InstrumentController = module.exports =
         delayOffsetControl.value   = instrumentRef.delay.offset + .5;
     },
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         if ( type === "down" && keyCode === 27 )
             Pubsub.publishSync( Messages.CLOSE_OVERLAYS );

@@ -99,7 +99,7 @@ const AudioController = module.exports =
      *
      * @return {boolean}
      */
-    isSupported : function()
+    isSupported()
     {
         return ( typeof AudioContext !== "undefined" ||
                  typeof webkitAudioContext !== "undefined" );
@@ -113,7 +113,7 @@ const AudioController = module.exports =
      * @param effluxRef
      * @param {Array.<INSTRUMENT>} instruments to create WaveTables for
      */
-    init : function( effluxRef, instruments )
+    init( effluxRef, instruments )
     {
         if ( typeof AudioContext !== "undefined" ) {
             audioContext = new AudioContext();
@@ -176,7 +176,7 @@ const AudioController = module.exports =
      * halts all playing audio, flushed events and
      * resets unique event id counter
      */
-    reset : function()
+    reset()
     {
         instrumentEvents.forEach( function( events, instrumentIndex )
         {
@@ -208,7 +208,7 @@ const AudioController = module.exports =
      *
      * @return {AudioContext}
      */
-    getContext : function()
+    getContext()
     {
         return audioContext;
     },
@@ -220,7 +220,7 @@ const AudioController = module.exports =
      * @param {INSTRUMENT} aInstrument to playback the event
      * @param {number=} startTimeInSeconds optional, defaults to current time
      */
-    noteOn : function( aEvent, aInstrument, startTimeInSeconds )
+    noteOn( aEvent, aInstrument, startTimeInSeconds )
     {
         if ( aEvent.action === 1 ) // noteOn
         {
@@ -335,7 +335,7 @@ const AudioController = module.exports =
      * @param {AUDIO_EVENT} aEvent
      * @param {INSTRUMENT} aInstrument playing back the event
      */
-    noteOff : function( aEvent, aInstrument )
+    noteOff( aEvent, aInstrument )
     {
         const eventObject = instrumentEvents[ aInstrument.id ][ aEvent.id ];
 

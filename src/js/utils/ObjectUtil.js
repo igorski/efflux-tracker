@@ -31,7 +31,7 @@ module.exports =
      * @param {Object} aObject
      * @return {Object}
      */
-    clone : function( aObject )
+    clone( aObject )
     {
         return JSON.parse( JSON.stringify( aObject ));
     }

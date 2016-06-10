@@ -33,7 +33,7 @@ module.exports =
      * @param {Object} song
      * @return {boolean}
      */
-    hasContent : function( song )
+    hasContent( song )
     {
         let hasContent = false;
 
@@ -60,7 +60,7 @@ module.exports =
      * @param {Array.<PATTERN>} patterns the Songs patterns
      * @param {number} ratio by which to update the existing values
      */
-    updateEventOffsets : function( patterns, ratio )
+    updateEventOffsets( patterns, ratio )
     {
         // reverse looping for speed
         let i, j, k, songPattern, channel, pattern;
@@ -95,7 +95,7 @@ module.exports =
      * @public
      * @param {Array.<PATTERN>} patterns
      */
-    resetPlayState : function( patterns )
+    resetPlayState( patterns )
     {
         patterns.forEach( function( pattern )
         {

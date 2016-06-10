@@ -37,7 +37,7 @@ let container;
  */
 const NotificationController = module.exports =
 {
-    init : function( containerRef )
+    init( containerRef )
     {
         container = document.createElement( "div" );
         container.setAttribute( "id", "notifications" );

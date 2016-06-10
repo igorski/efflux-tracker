@@ -45,7 +45,7 @@ const MenuController = module.exports =
      * @param effluxRef
      * @param songControllerRef
      */
-    init : function( containerRef, effluxRef, songControllerRef )
+    init( containerRef, effluxRef, songControllerRef )
     {
         efflux         = effluxRef;
         songController = songControllerRef;

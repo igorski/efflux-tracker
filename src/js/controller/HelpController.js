@@ -41,7 +41,7 @@ const HelpController = module.exports =
      * @param containerRef
      * @param effluxRef
      */
-    init : function( containerRef, effluxRef )
+    init( containerRef, effluxRef )
     {
         container = containerRef;
         efflux    = effluxRef;

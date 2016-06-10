@@ -36,7 +36,7 @@ module.exports =
      * @param {number=} length optional duration (in seconds) of the audioEvent, defaults to
      *                  the smallest unit available for given patterns length
      */
-    setPosition : function( audioEvent, pattern, patternNum, patternStep, tempo, length )
+    setPosition( audioEvent, pattern, patternNum, patternStep, tempo, length )
     {
         const measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
@@ -54,7 +54,7 @@ module.exports =
      * @param {AUDIO_EVENT} audioEvent
      * @return {boolean}
      */
-    isValid : function( audioEvent )
+    isValid( audioEvent )
     {
         return (
             typeof audioEvent.instrument === "number" && audioEvent.instrument  >= 0 &&

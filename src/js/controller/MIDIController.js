@@ -42,7 +42,7 @@ let currentlyConnectedInput = -1, playingNotes = [];
 
 const MidiController = module.exports =
 {
-    init : function( effluxRef, audioControllerRef, sequencerControllerRef )
+    init( effluxRef, audioControllerRef, sequencerControllerRef )
     {
         efflux              = effluxRef;
         audioController     = audioControllerRef;

@@ -33,7 +33,7 @@ module.exports =
      *        key "{0}" that optionally exists in the retrieved copy
      * @return {string}
      */
-    get : function( aCopyKey, aReplacement )
+    get( aCopyKey, aReplacement )
     {
         const out = EN[ aCopyKey ] || "_i18n" + aCopyKey;
         return out.replace( "{0}", aReplacement || "" );

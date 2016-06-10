@@ -38,7 +38,7 @@ module.exports =
      * @param {Array.<number>} graphPoints
      * @return {PeriodicWave}
      */
-    createWaveTableFromGraph : function( audioContext, graphPoints )
+    createWaveTableFromGraph( audioContext, graphPoints )
     {
         // DFT provided by dsp.js
 
@@ -59,7 +59,7 @@ module.exports =
      * @param {!Function} callback function to execute
      * @return {Oscillator}
      */
-    createTimer : function( audioContext, time, callback )
+    createTimer( audioContext, time, callback )
     {
         let timer = audioContext.createOscillator();
 
@@ -88,7 +88,7 @@ module.exports =
      *
      * @return {Oscillator} created Oscillator
      */
-    beep : function( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
+    beep( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
     {
         let oscillator = audioContext.createOscillator();
         oscillator.connect( audioContext.destination );
@@ -119,7 +119,7 @@ module.exports =
      *
      * @param {AudioContext} audioContext
      */
-    iOSinit : function( audioContext )
+    iOSinit( audioContext )
     {
         if ( !Bowser.ios )
             return;

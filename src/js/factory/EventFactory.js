@@ -78,7 +78,7 @@ const EventFactory = module.exports =
      * @param {number=} action optional action
      * @return {AUDIO_EVENT}
      */
-    createAudioEvent : function( instrument, note, octave, action )
+    createAudioEvent( instrument, note, octave, action )
     {
         return {
             instrument : ( typeof instrument === "number" ) ? instrument : 0,
@@ -113,7 +113,7 @@ const EventFactory = module.exports =
      *             glide: boolean
      *         }}
      */
-    createModuleParam : function( module, value, glide )
+    createModuleParam( module, value, glide )
     {
         return {
             module : module,

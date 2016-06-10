@@ -38,7 +38,7 @@ let deviceSelect;
 
 const SettingsController = module.exports =
 {
-    init : function( containerRef, keyboardControllerRef )
+    init( containerRef, keyboardControllerRef )
     {
         keyboardController = keyboardControllerRef;
 
@@ -75,7 +75,7 @@ const SettingsController = module.exports =
         });
     },
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         if ( type === "down" && keyCode === 27 )
         {

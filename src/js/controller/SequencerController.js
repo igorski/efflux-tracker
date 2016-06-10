@@ -59,7 +59,7 @@ const SequencerController = module.exports =
      * @param {Object} effluxRef
      * @param {AudioController} audioControllerRef
      */
-    init : function( containerRef, effluxRef, audioControllerRef )
+    init( containerRef, effluxRef, audioControllerRef )
     {
         efflux          = effluxRef;
         audioController = audioControllerRef;
@@ -122,7 +122,7 @@ const SequencerController = module.exports =
      * query whether the Sequencer is currently playing
      * @return {boolean}
      */
-    getPlaying : function()
+    getPlaying()
     {
         return playing;
     },
@@ -131,7 +131,7 @@ const SequencerController = module.exports =
      * start / stop the Sequencer
      * @param {boolean} value
      */
-    setPlaying : function( value )
+    setPlaying( value )
     {
         playing = value;
         let cl  = playBTN.classList;
@@ -176,7 +176,7 @@ const SequencerController = module.exports =
      * @param {number=} currentTime optional time to sync given measure to
      *        this will default to the currentTime of the AudioContext for instant enqueuing
      */
-    setPosition : function( measure, currentTime )
+    setPosition( measure, currentTime )
     {
         let song = efflux.activeSong;
         if ( measure >= song.patterns.length )
@@ -196,7 +196,7 @@ const SequencerController = module.exports =
         channels = efflux.activeSong.patterns[ currentMeasure ].channels;
     },
 
-    getPosition : function()
+    getPosition()
     {
         return {
             measure: currentMeasure,
@@ -208,7 +208,7 @@ const SequencerController = module.exports =
      * synchronize Transport contents with
      * the current state of the model
      */
-    update : function()
+    update()
     {
         let meta = efflux.activeSong.meta;
         tempoSlider.value      = meta.tempo;

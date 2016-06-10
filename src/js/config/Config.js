@@ -56,7 +56,7 @@ module.exports =
      * @public
      * @return {string}
      */
-    getBasePath : function()
+    getBasePath()
     {
         return ( typeof window.effluxPath === "string" ) ? window.effluxPath : "";
     },
@@ -67,7 +67,7 @@ module.exports =
      * @public
      * @return {boolean}
      */
-    isDevMode : function()
+    isDevMode()
     {
         // simple check whether we're running through the connect plugin
         return ( window.location.hostname === "localhost" || window.location.port === "3000" );

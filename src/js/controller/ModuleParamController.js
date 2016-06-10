@@ -44,7 +44,7 @@ const ModuleParamController = module.exports =
      * @param effluxRef
      * @param keyboardControllerRef
      */
-    init : function( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
         container          = containerRef;
         efflux             = effluxRef;
@@ -81,7 +81,7 @@ const ModuleParamController = module.exports =
 
     /* event handlers */
 
-    handleKey : function( type, keyCode, event )
+    handleKey( type, keyCode, event )
     {
         if ( type === "down" )
         {

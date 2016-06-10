@@ -31,7 +31,7 @@ module.exports =
      * @param {number} aTimestamp
      * @return {string}
      */
-    timestampToDate : function( aTimestamp )
+    timestampToDate( aTimestamp )
     {
         const a      = new Date( aTimestamp );
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];

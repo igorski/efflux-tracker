@@ -63,7 +63,7 @@ const AudioFactory = module.exports =
      * @param {OscillatorNode} aOscillator
      * @param {number} aValue time value when to start
      */
-    startOscillation : function( aOscillator, aValue )
+    startOscillation( aOscillator, aValue )
     {
         if ( isStandards )
             aOscillator.start( aValue );
@@ -77,7 +77,7 @@ const AudioFactory = module.exports =
      * @param {OscillatorNode} aOscillator
      * @param {number} aValue time value when to stop
      */
-    stopOscillation : function( aOscillator, aValue )
+    stopOscillation( aOscillator, aValue )
     {
         try {
 
@@ -95,7 +95,7 @@ const AudioFactory = module.exports =
      * @param {webkitAudioContext|AudioContext} aContext
      * @return {AudioGainNode}
      */
-    createGainNode : function( aContext )
+    createGainNode( aContext )
     {
         if ( isStandards )
             return aContext.createGain();
@@ -111,7 +111,7 @@ const AudioFactory = module.exports =
      *
      * @return {DelayNode}
      */
-    createDelayNode : function( aContext, aMaxDelayTime )
+    createDelayNode( aContext, aMaxDelayTime )
     {
         let delay;
 
@@ -135,7 +135,7 @@ const AudioFactory = module.exports =
      * @param {AudioContext} audioContext
      * @return {FILTER_MODULE}
      */
-    createFilter : function( audioContext )
+    createFilter( audioContext )
     {
         const filter = audioContext.createBiquadFilter();
         const lfo    = audioContext.createOscillator();
@@ -167,7 +167,7 @@ const AudioFactory = module.exports =
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyFilterConfiguration : function( modules, props, output )
+    applyFilterConfiguration( modules, props, output )
     {
         const filter        = modules.filter;
         const filterEnabled = ( props.lfoType !== "off" );
@@ -208,7 +208,7 @@ const AudioFactory = module.exports =
      * @param {AudioContext} audioContext
      * @return {DELAY_MODULE}
      */
-    createDelay : function( audioContext )
+    createDelay( audioContext )
     {
         const delay = new Delay( audioContext,
         {
@@ -233,7 +233,7 @@ const AudioFactory = module.exports =
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyDelayConfiguration : function( instrumentModule, props, output )
+    applyDelayConfiguration( instrumentModule, props, output )
     {
         const delay = instrumentModule.delay.delay;
 
