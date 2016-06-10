@@ -78,6 +78,7 @@ NOTE : Node v 4.0 or higher must be installed for running the tests (these depen
 KNOWN BUGS
 ----------
 
+ * cutting a selection removes rows from the pattern track list (happened in ES5-ES6 migration)
  * pitch down automation works in reverse...
  * altering delay time only works from module parameter automation, not when dragging its slider in the instrument editor...
  * When adding a note or module change to a track, by default it should use the instrument of the previous note in the lane
