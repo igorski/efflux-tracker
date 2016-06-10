@@ -123,7 +123,7 @@ module.exports =
         if ( !Bowser.ios )
             return;
 
-        const handler = touchEvent =>
+        const handler = ( touchEvent ) =>
         {
             document.removeEventListener( "touchstart", handler, false );
 

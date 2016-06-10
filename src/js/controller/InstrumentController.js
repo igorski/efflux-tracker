@@ -95,7 +95,7 @@ const InstrumentController = module.exports =
         canvas.setBackgroundColor( "#000000" );
         canvas.insertInPage( view.querySelector( "#canvasContainer" ));
 
-        wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), table =>
+        wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), ( table ) =>
         {
             let oscillator;
             if ( instrumentRef ) {
@@ -442,7 +442,7 @@ function updateWaveformSize()
 
 function togglePitchSliders( enabled )
 {
-    [ octaveShiftControl, fineShiftControl ].forEach( slider =>
+    [ octaveShiftControl, fineShiftControl ].forEach(( slider ) =>
     {
         if ( enabled )
             slider.removeAttribute( "disabled" );

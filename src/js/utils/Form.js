@@ -93,7 +93,7 @@ module.exports =
 
         let element;
 
-        aOptions.forEach( option =>
+        aOptions.forEach(( option ) =>
         {
             element           = document.createElement( "option" );
             element.value     = option.value;

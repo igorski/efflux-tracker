@@ -205,9 +205,9 @@ function sanitizeRecordedEvents()
     const patterns = efflux.activeSong.patterns;
     let event, i;
 
-    patterns.forEach( pattern =>
+    patterns.forEach(( pattern ) =>
     {
-        pattern.channels.forEach( events =>
+        pattern.channels.forEach(( events ) =>
         {
             i = events.length;
             while ( i-- )

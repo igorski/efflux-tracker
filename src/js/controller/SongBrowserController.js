@@ -111,7 +111,7 @@ function handleOpen()
     disposeHandler();
     handler = new EventHandler();
 
-    songs.forEach( song =>
+    songs.forEach(( song ) =>
     {
         li = document.createElement( "li" );
         li.setAttribute( "data-id", song.id );

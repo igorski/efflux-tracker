@@ -62,7 +62,7 @@ const MetaController = module.exports =
 
         // add listeners
 
-        [ title, author ].forEach( element =>
+        [ title, author ].forEach(( element ) =>
         {
             element.addEventListener( "change", handleChange );
             element.addEventListener( "focus",  handleFocusIn );

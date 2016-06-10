@@ -169,7 +169,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
         out.push( new Array( amountOfSteps ));
 
-    out.forEach( channel =>
+    out.forEach(( channel ) =>
     {
         i = amountOfSteps;
 

@@ -228,11 +228,11 @@ function handleImport( aEvent )
                                    false, false, false, 0, null );
 
     fileBrowser.dispatchEvent( simulatedEvent );
-    fileBrowser.addEventListener( "change", aEvent =>
+    fileBrowser.addEventListener( "change", ( fileBrowserEvent ) =>
     {
         const reader = new FileReader();
 
-        reader.onload = readerEvent =>
+        reader.onload = ( readerEvent ) =>
         {
             const fileData = readerEvent.target.result;
             const song     = JSON.parse( atob( fileData ));
@@ -247,7 +247,7 @@ function handleImport( aEvent )
             }
         };
         // start reading file contents
-        reader.readAsText( aEvent.target.files[ 0 ] );
+        reader.readAsText( fileBrowserEvent.target.files[ 0 ] );
     });
 }
 

@@ -341,7 +341,7 @@ const AudioController = module.exports =
 
             const modules = instrumentModules[ aInstrument.id ];
 
-            eventObject.forEach( event =>
+            eventObject.forEach(( event ) =>
             {
                 const oscillator = event.generator,
                       envelope   = event.envelope,
