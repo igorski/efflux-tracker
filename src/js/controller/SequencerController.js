@@ -20,21 +20,24 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config       = require( "../config/Config" );
-var AudioUtil    = require( "../utils/AudioUtil" );
-var SongUtil     = require( "../utils/SongUtil" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var Messages     = require( "../definitions/Messages" );
-var Metronome    = require( "../components/Metronome" );
-var AudioFactory = require( "../factory/AudioFactory" );
-var Pubsub       = require( "pubsub-js" );
+"use strict";
+
+const Config       = require( "../config/Config" );
+const AudioUtil    = require( "../utils/AudioUtil" );
+const SongUtil     = require( "../utils/SongUtil" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const Messages     = require( "../definitions/Messages" );
+const Metronome    = require( "../components/Metronome" );
+const AudioFactory = require( "../factory/AudioFactory" );
+const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var efflux, audioController, audioContext, worker, editorModel;
-var playBTN, loopBTN, recordBTN, tempoSlider, currentPositionTitle, maxPositionTitle, metronomeToggle, tempoDisplay;
+let efflux, audioController, audioContext, worker, editorModel,
+    playBTN, loopBTN, recordBTN, settingsToggle, tempoSlider, currentPositionTitle,
+    maxPositionTitle, metronomeToggle, tempoDisplay;
 
-var playing           = false,
+let playing           = false,
     looping           = false,
     recording         = false,
     scheduleAheadTime = .2,
@@ -42,10 +45,10 @@ var playing           = false,
     beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
     beatUnit          = 4;
 
-var currentMeasure, measureStartTime, firstMeasureStartTime,
+let currentMeasure, measureStartTime, firstMeasureStartTime,
     currentStep, nextNoteTime, channels, measureLength = 2, queueHandlers = [];
 
-var SequencerController = module.exports =
+const SequencerController = module.exports =
 {
     /**
      * initialize the SequencerController, attach view into
@@ -131,7 +134,7 @@ var SequencerController = module.exports =
     setPlaying : function( value )
     {
         playing = value;
-        var cl  = playBTN.classList;
+        let cl  = playBTN.classList;
 
         if ( playing ) {
 
@@ -175,7 +178,7 @@ var SequencerController = module.exports =
      */
     setPosition : function( measure, currentTime )
     {
-        var song = efflux.activeSong;
+        let song = efflux.activeSong;
         if ( measure >= song.patterns.length )
             measure = song.patterns.length - 1;
 
@@ -207,7 +210,7 @@ var SequencerController = module.exports =
      */
     update : function()
     {
-        var meta = efflux.activeSong.meta;
+        let meta = efflux.activeSong.meta;
         tempoSlider.value      = meta.tempo;
         tempoDisplay.innerHTML = meta.tempo + " BPM";
         measureLength = ( 60.0 / meta.tempo ) * beatAmount;
@@ -275,7 +278,7 @@ function handleRecordToggle( e )
 
 function handleMetronomeToggle( e )
 {
-    var enabled = !Metronome.enabled;
+    let enabled = !Metronome.enabled;
 
     if ( enabled )
         metronomeToggle.classList.add( "active" );
@@ -287,7 +290,7 @@ function handleMetronomeToggle( e )
 
 function handleSettingsToggle( e )
 {
-    var body     = document.body,
+    let body     = document.body,
         cssClass = "settings-mode",
         enabled  = !body.classList.contains( cssClass );
 
@@ -307,7 +310,7 @@ function handlePatternNavBack( aEvent )
 
 function handlePatternNavNext( aEvent )
 {
-    var max = efflux.activeSong.patterns.length - 1;
+    let max = efflux.activeSong.patterns.length - 1;
 
     if ( editorModel.activePattern < max )
         switchPattern( editorModel.activePattern + 1 );
@@ -315,10 +318,10 @@ function handlePatternNavNext( aEvent )
 
 function handleTempoChange( e )
 {
-    var meta = efflux.activeSong.meta;
+    let meta = efflux.activeSong.meta;
 
-    var oldTempo = meta.tempo;
-    var newTempo = parseFloat( e.target.value );
+    let oldTempo = meta.tempo;
+    let newTempo = parseFloat( e.target.value );
     meta.tempo   = newTempo;
 
     // update existing event offsets by the tempo ratio
@@ -333,8 +336,8 @@ function collect()
 {
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
 
-    var sequenceEvents = !( recording && Metronome.countIn && !Metronome.countInComplete );
-    var i, j, channel, event, compareTime;
+    let sequenceEvents = !( recording && Metronome.countIn && !Metronome.countInComplete );
+    let i, j, channel, event, compareTime;
 
     while ( nextNoteTime < ( audioContext.currentTime + scheduleAheadTime ))
     {
@@ -380,8 +383,8 @@ function collect()
  */
 function step()
 {
-    var song          = efflux.activeSong;
-    var totalMeasures = song.patterns.length;
+    let song          = efflux.activeSong;
+    let totalMeasures = song.patterns.length;
 
     // Advance current note and time by the given subdivision...
     nextNoteTime += (( 60 / song.meta.tempo ) * 4 ) / stepPrecision;
@@ -436,7 +439,7 @@ function switchPattern( newMeasure )
     currentMeasure = editorModel.activePattern = newMeasure;
     Pubsub.publishSync( Messages.PATTERN_SWITCH, newMeasure );
 
-    var newSteps = efflux.activeSong.patterns[ newMeasure ].steps;
+    let newSteps = efflux.activeSong.patterns[ newMeasure ].steps;
     if ( editorModel.amountOfSteps !== newSteps ) {
         editorModel.amountOfSteps = newSteps;
         Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newSteps );
@@ -457,15 +460,15 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 
     // calculate the total duration for the event
 
-    var patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
-    var patterns        = efflux.activeSong.patterns;
-    var duration        = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
+    let patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
+    let patterns        = efflux.activeSong.patterns;
+    let duration        = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
 
     if ( aEvent.action === 1 ) // but only for "noteOn" events
     {
-        var foundEvent = false, foundEnd = false, compareEvent, channel, j, jl;
+        let foundEvent = false, foundEnd = false, compareEvent, channel, j, jl;
 
-        for ( var i = aEventMeasure, l = patterns.length; i < l; ++i )
+        for ( let i = aEventMeasure, l = patterns.length; i < l; ++i )
         {
             channel = patterns[ i ].channels[ aEventChannel ];
 
@@ -517,7 +520,7 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
  */
 function dequeueEvent( aEvent, aTime )
 {
-    var clock = AudioUtil.createTimer( audioContext, aTime, function( e )
+    let clock = AudioUtil.createTimer( audioContext, aTime, function( e )
     {
         aEvent.seq.playing = false;
         audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);
@@ -532,7 +535,7 @@ function clearPending()
 {
     SongUtil.resetPlayState( efflux.activeSong.patterns ); // unset playing state of existing events
 
-    var i = queueHandlers.length;
+    let i = queueHandlers.length;
     while ( i-- )
         freeHandler( queueHandlers[ i ]);
 }
@@ -550,7 +553,7 @@ function freeHandler( aNode )
     aNode.disconnect();
     aNode.onended = null;
 
-    var i = queueHandlers.indexOf( aNode );
+    let i = queueHandlers.indexOf( aNode );
     if ( i !== -1 )
         queueHandlers.splice( i, 1 );
 }

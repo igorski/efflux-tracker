@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports =
 {
     /* convenience methods for dealing with Select inputs */
@@ -48,12 +50,12 @@ module.exports =
      */
     setSelectedOption : function( aSelect, aValue )
     {
-        var options = aSelect.options;
+        const options = aSelect.options;
 
         if ( !options )
             return;
 
-        var i = options.length, option;
+        let i = options.length, option;
 
         aValue = aValue.toString();
 
@@ -82,14 +84,14 @@ module.exports =
      */
     setOptions : function( aSelect, aOptions )
     {
-        var children = aSelect.childNodes;
-        var i = children.length;
+        const children = aSelect.childNodes;
+        let i = children.length;
 
         while ( i-- ) {
-            aSelect.removeChild( aSelect.childNodes[ i ]);
+            aSelect.removeChild( children[ i ]);
         }
 
-        var element;
+        let element;
 
         aOptions.forEach( function( option )
         {
@@ -113,7 +115,7 @@ module.exports =
      */
     setCheckedOption : function( aGroup, aValue )
     {
-        var i = aGroup.length, option;
+        let i = aGroup.length, option;
 
         aValue = aValue.toString();
 
@@ -138,7 +140,7 @@ module.exports =
      */
     getCheckedOption : function( aGroup )
     {
-        var i = aGroup.length, option;
+        let i = aGroup.length, option;
 
         while ( i-- )
         {

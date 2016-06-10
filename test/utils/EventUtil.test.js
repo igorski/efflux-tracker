@@ -1,25 +1,27 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai         = require( "chai" );
-var EventUtil    = require( "../../src/js/utils/EventUtil" );
-var MockBrowser  = require( "mock-browser" ).mocks.MockBrowser;
-var EventFactory = require( "../../src/js/factory/EventFactory" );
-var SongModel    = require( "../../src/js/model/SongModel" );
+"use strict";
+
+const chai         = require( "chai" );
+const EventUtil    = require( "../../src/js/utils/EventUtil" );
+const MockBrowser  = require( "mock-browser" ).mocks.MockBrowser;
+const EventFactory = require( "../../src/js/factory/EventFactory" );
+const SongModel    = require( "../../src/js/model/SongModel" );
 
 describe( "EventUtil", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     // executed before the tests start running
 
     before( function()
     {
-        var browser   = new MockBrowser();
+        const browser = new MockBrowser();
         global.window = browser.getWindow();
     });
 
@@ -48,17 +50,17 @@ describe( "EventUtil", function()
 
     it( "should, when no length is given, calculate the duration as the minimum unit relative to the patterns length", function()
     {
-        var model       = new SongModel();
-        var song        = model.createSong();
-        var pattern     = song.patterns[ 0 ];
+        const model       = new SongModel();
+        const song        = model.createSong();
+        const pattern     = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
 
-        var measureLength  = ( 60 / song.meta.tempo ) * 4;
-        var expectedLength = ( 1 / pattern.steps ) * measureLength;
+        const measureLength  = ( 60 / song.meta.tempo ) * 4;
+        let expectedLength = ( 1 / pattern.steps ) * measureLength;
 
         assert.strictEqual( expectedLength, audioEvent.seq.length,
             "expected event duration to be " + expectedLength + " seconds" );
@@ -76,17 +78,17 @@ describe( "EventUtil", function()
 
     it( "should be able to update the position of a AudioEvent", function()
     {
-        var model       = new SongModel();
-        var song        = model.createSong();
-        var pattern     = song.patterns[ 0 ];
+        const model       = new SongModel();
+        const song        = model.createSong();
+        const pattern     = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        var expectedStartMeasure       = 0;
-        var expectedStartMeasureOffset = 1; // half in measure (measure lasts 2s at 120 BPM)
-        var expectedEndMeasure         = 0;
-        var expectedLength             = .5;
+        const expectedStartMeasure       = 0;
+        const expectedStartMeasureOffset = 1; // half in measure (measure lasts 2s at 120 BPM)
+        const expectedEndMeasure         = 0;
+        const expectedLength             = .5;
 
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 2, song.meta.tempo, expectedLength );
 
@@ -105,17 +107,17 @@ describe( "EventUtil", function()
 
     it( "should be able to update the position of a AudioEvent that spans several measures in duration", function()
     {
-        var model       = new SongModel();
-        var song        = model.createSong();
-        var pattern     = song.patterns[ 0 ];
+        const model       = new SongModel();
+        const song        = model.createSong();
+        const pattern     = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        var expectedStartMeasure       = 0;
-        var expectedStartMeasureOffset = .5; // a quarter note into measure (measure lasts 2s at 120 BPM)
-        var expectedLength             = 4;  // duration is 4 seconds (2 measures at 120 BPM)
-        var expectedEndMeasure         = 2;  // events duration exceeds 2 measures (each at 2s at 120 BPM)
+        const expectedStartMeasure       = 0;
+        const expectedStartMeasureOffset = .5; // a quarter note into measure (measure lasts 2s at 120 BPM)
+        const expectedLength             = 4;  // duration is 4 seconds (2 measures at 120 BPM)
+        const expectedEndMeasure         = 2;  // events duration exceeds 2 measures (each at 2s at 120 BPM)
 
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo, expectedLength );
 
@@ -134,14 +136,14 @@ describe( "EventUtil", function()
 
     it( "should not validate empty AudioEvents", function()
     {
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
         assert.notOk( EventUtil.isValid( audioEvent ),
             "expected empty AudioEvent not be valid" );
     });
 
     it( "should not validate AudioEvents with invalid data types", function()
     {
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
 
         audioEvent.instrument = "foo";
 
@@ -163,7 +165,7 @@ describe( "EventUtil", function()
 
     it( "should not validate AudioEvents with out of range data types", function()
     {
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
 
         audioEvent.instrument = 0;
         audioEvent.note       = "C";
@@ -180,7 +182,7 @@ describe( "EventUtil", function()
 
     it( "should validate AudioEvents with correct note data", function()
     {
-        var audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.createAudioEvent();
 
         audioEvent.instrument = 0;
         audioEvent.note       = "C";

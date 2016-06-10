@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports =
 {
     /**
@@ -36,8 +38,8 @@ module.exports =
      */
     setPosition : function( audioEvent, pattern, patternNum, patternStep, tempo, length )
     {
-        var measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
-        var eventOffset   = ( patternStep / pattern.steps ) * measureLength;
+        const measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
+        const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
         audioEvent.seq.length             = ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength;
         audioEvent.seq.startMeasure       = patternNum;

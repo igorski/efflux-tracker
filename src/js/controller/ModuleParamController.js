@@ -20,20 +20,22 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var EventFactory = require( "../factory/EventFactory" );
-var Form         = require( "../utils/Form" );
-var Manual       = require( "../definitions/Manual" );
-var Messages     = require( "../definitions/Messages" );
-var Pubsub       = require( "pubsub-js" );
+"use strict";
+
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const EventFactory = require( "../factory/EventFactory" );
+const Form         = require( "../utils/Form" );
+const Manual       = require( "../definitions/Manual" );
+const Messages     = require( "../definitions/Messages" );
+const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, element, efflux, keyboardController;
-var data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, closeCallback,
+let container, element, efflux, keyboardController;
+let data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, closeCallback,
     moduleList, valueDisplay, glideOptions, valueControl;
 
-var ModuleParamController = module.exports =
+const ModuleParamController = module.exports =
 {
     /**
      * initialize ModuleParamController
@@ -133,9 +135,9 @@ var ModuleParamController = module.exports =
                 case 56:
                 case 57:
 
-                    var now   = Date.now();
-                    var num   = parseFloat( String.fromCharCode( keyCode ));
-                    var value = num * 10;
+                    const now   = Date.now();
+                    const num   = parseFloat( String.fromCharCode( keyCode ));
+                    let value = num * 10;
 
                     // if this character was typed shortly after the previous one, combine
                     // their numerical values for more precise control
@@ -178,12 +180,12 @@ function handleBroadcast( type, payload )
  */
 function handleOpen( completeCallback )
 {
-    var editorModel  = efflux.EditorModel,
-        patternIndex = editorModel.activePattern,
-        pattern      = efflux.activeSong.patterns[ patternIndex ],
-        channelIndex = editorModel.activeInstrument,
-        channel      = pattern.channels[ channelIndex ],
-        event        = channel[ editorModel.activeStep ];
+    const editorModel  = efflux.EditorModel,
+          patternIndex = editorModel.activePattern,
+          pattern      = efflux.activeSong.patterns[ patternIndex ],
+          channelIndex = editorModel.activeInstrument,
+          channel      = pattern.channels[ channelIndex ],
+          event        = channel[ editorModel.activeStep ];
 
     data =
     {
@@ -239,9 +241,10 @@ function handleReady()
 
 //    if ( EventUtil.isValid( data )) {
 
-        var pattern = efflux.activeSong.patterns[ data.patternIndex ],
-            channel = pattern.channels[ data.channelIndex ],
-            event   = channel[ data.step ];
+        const pattern = efflux.activeSong.patterns[ data.patternIndex ],
+             channel = pattern.channels[ data.channelIndex ];
+
+        let event = channel[ data.step ];
 
         if ( !event )
             event = EventFactory.createAudioEvent();
@@ -272,7 +275,7 @@ function dispose()
 
 function handleModuleClick( aEvent )
 {
-    var target = aEvent.target;
+    const target = aEvent.target;
     if ( target.nodeName === "LI" ) {
         setSelectedValueInList( moduleList, target.getAttribute( "data-value" ));
     }
@@ -280,7 +283,7 @@ function handleModuleClick( aEvent )
 
 function handleValueChange( aEvent )
 {
-    var value = parseFloat( valueControl.value );
+    const value = parseFloat( valueControl.value );
     valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
 }
 
@@ -289,7 +292,7 @@ function handleValueChange( aEvent )
 function setSelectedValueInList( list, value )
 {
     value = value.toString();
-    var i = list.length, option;
+    let i = list.length, option;
 
     while ( i-- )
     {
@@ -304,7 +307,7 @@ function setSelectedValueInList( list, value )
 
 function getSelectedValueFromList( list )
 {
-    var i = list.length, option;
+    let i = list.length, option;
     while ( i-- )
     {
         option = list[ i ];
@@ -316,7 +319,7 @@ function getSelectedValueFromList( list )
 
 function getNextSelectedModule( list, currentValue )
 {
-    for ( var i = 0, l = list.length, max = l - 1; i <l; ++i )
+    for ( let i = 0, l = list.length, max = l - 1; i <l; ++i )
     {
         if ( list[ i ] === currentValue ) {
 

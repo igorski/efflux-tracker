@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pitch = module.exports =
+"use strict";
+
+const Pitch = module.exports =
 {
     /**
      * order of note names within a single octave
@@ -50,11 +52,11 @@ var Pitch = module.exports =
      */
     getFrequency : function( aNote, aOctave )
     {
-        var freq;
-        var enharmonic = 0;
+        let freq;
+        let enharmonic = 0;
 
         // detect flat enharmonic
-        var i = aNote.indexOf( "b" );
+        let i = aNote.indexOf( "b" );
         if ( i > -1 ) {
             aNote = aNote.substr( i - 1, 1 );
             enharmonic = -1;
@@ -76,8 +78,8 @@ var Pitch = module.exports =
         {
             // translate the pitches to the requested octave
 
-            var d = aOctave - 4;
-            var j = Math.abs( d );
+            let d = aOctave - 4;
+            let j = Math.abs( d );
 
             for ( i = 0; i < j; ++i )
                 ( d > 0 ) ? freq *= 2 : freq *= .5;
@@ -100,41 +102,38 @@ var Pitch = module.exports =
     */
     getPitchByFrequency : function( frequency )
     {
-       var theNote;
+        let theNote;
 
-       var lnote       = ( Math.log ( frequency ) - Math.log( 261.626 )) / Math.log( 2 ) + 4.0;
-       var oct         = lnote|0; // fast fooring of positive values
-       var theCents    = 1200 * ( lnote - oct );
+        const lnote       = ( Math.log ( frequency ) - Math.log( 261.626 )) / Math.log( 2 ) + 4.0;
+        let oct         = lnote|0; // fast flooring of positive values
+        let theCents    = 1200 * ( lnote - oct );
 
-       var note_table  = "C C#D D#E F F#G G#A A#B";
-       var offset      = 50.0;
-       var x           = 2;
+        const note_table = "C C#D D#E F F#G G#A A#B";
+        let offset       = 50.0;
+        let x            = 2;
 
-       if ( theCents < 50 )
-       {
-           theNote = "C ";
-       }
-       else if ( theCents >= 1150 )
-       {
-           theNote = "C ";
-           theCents -= 1200;
-           ++oct;
-       }
-       else
-       {
-           for ( var j = 1; j <= 11 ; ++j )
-           {
-               if ( theCents >= offset && theCents < ( offset + 100 ))
-               {
-                   theNote = note_table.charAt( x ) + note_table.charAt( x + 1 );
-                   theCents -= ( j * 100 );
-                   break;
-               }
-               offset += 100;
-               x += 2;
-           }
-       }
-       return { "note" : theNote, "octave" : oct, "cents" : theCents };
+        if ( theCents < 50 ) {
+            theNote = "C ";
+        }
+        else if ( theCents >= 1150 ) {
+            theNote = "C ";
+            theCents -= 1200;
+            ++oct;
+        }
+        else {
+            for ( let j = 1; j <= 11 ; ++j )
+            {
+                if ( theCents >= offset && theCents < ( offset + 100 ))
+                {
+                    theNote = note_table.charAt( x ) + note_table.charAt( x + 1 );
+                    theCents -= ( j * 100 );
+                    break;
+                }
+                offset += 100;
+                x += 2;
+            }
+        }
+        return { "note" : theNote, "octave" : oct, "cents" : theCents };
     },
 
     /**
@@ -153,14 +152,14 @@ var Pitch = module.exports =
         if ( typeof aEnharmonic !== "number" )
             aEnharmonic = 0;
 
-        var octave = Pitch.OCTAVE;
-        var scale  = Pitch.OCTAVE_SCALE;
+        const octave = Pitch.OCTAVE;
+        const scale  = Pitch.OCTAVE_SCALE;
 
-        for ( var i = 0, j = octave.length; i < j; ++i )
+        for ( let i = 0, j = octave.length; i < j; ++i )
         {
             if ( scale[ i ] === aNote )
             {
-                var k = i + aEnharmonic;
+                let k = i + aEnharmonic;
 
                 if ( k > j )
                     return octave[ 0 ];

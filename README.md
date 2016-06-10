@@ -25,7 +25,7 @@ You can use the application right now from  your web browser by visiting [this l
 Project outline
 ---------------
 
-All source code can be found in the _./src_-folder.
+All source code can be found in the _./src_-folder and is written in ES6 (transpiled to ES5 for use in the browser)
 
  * _./src/assets_ contains all CSS style declarations in .less format as well fonts
  * _./src/js_ contains all JavaScript sourcecode with _main.js_ being the application entry point
@@ -44,6 +44,9 @@ The build scripts are defined in _./Gruntfile.js_ and includes snippets defined 
  
 Build instructions
 ------------------
+
+You will need Node.js in order to run the build scripts and resolve the dependencies. The build script is
+run using Grunt.
 
 To build efflux first resolve all dependencies using Node:
 

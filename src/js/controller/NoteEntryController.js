@@ -20,22 +20,24 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var EventUtil    = require( "../utils/EventUtil" );
-var EventFactory = require( "../factory/EventFactory" );
-var Form         = require( "../utils/Form" );
-var Manual       = require( "../definitions/Manual" );
-var Messages     = require( "../definitions/Messages" );
-var Pitch        = require( "../definitions/Pitch" );
-var Pubsub       = require( "pubsub-js" );
+"use strict";
+
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const EventUtil    = require( "../utils/EventUtil" );
+const EventFactory = require( "../factory/EventFactory" );
+const Form         = require( "../utils/Form" );
+const Manual       = require( "../definitions/Manual" );
+const Messages     = require( "../definitions/Messages" );
+const Pitch        = require( "../definitions/Pitch" );
+const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, element, efflux, keyboardController;
-var instrumentSelect, noteList, octaveList, data, closeCallback;
-var selectedNote, selectedOctave;
+let container, element, efflux, keyboardController;
+let instrumentSelect, noteList, octaveList, data, closeCallback;
+let selectedNote, selectedOctave;
 
-var NoteEntryController = module.exports =
+const NoteEntryController = module.exports =
 {
     /**
      * initialize NoteEntryController
@@ -58,12 +60,12 @@ var NoteEntryController = module.exports =
 
         // initialize keyboard and octave selectors
 
-        var keyboard = element.querySelector( "#keyboardNotes" );
-        noteList     = keyboard.querySelectorAll( "li" );
+        const keyboard = element.querySelector( "#keyboardNotes" );
+        noteList       = keyboard.querySelectorAll( "li" );
         keyboard.addEventListener( "click", handleKeyboardClick );
 
-        var octaves = element.querySelector( "#octaves" );
-        octaveList  = octaves.querySelectorAll( "li" );
+        const octaves = element.querySelector( "#octaves" );
+        octaveList    = octaves.querySelectorAll( "li" );
         octaves.addEventListener( "click", handleOctaveClick );
 
         // add listeners
@@ -175,12 +177,12 @@ function handleBroadcast( type, payload )
  */
 function handleOpen( completeCallback )
 {
-    var editorModel  = efflux.EditorModel,
-        patternIndex = editorModel.activePattern,
-        pattern      = efflux.activeSong.patterns[ patternIndex ],
-        channelIndex = editorModel.activeInstrument,
-        channel      = pattern.channels[ channelIndex ],
-        event        = channel[ editorModel.activeStep ];
+    const editorModel  = efflux.EditorModel,
+          patternIndex = editorModel.activePattern,
+          pattern      = efflux.activeSong.patterns[ patternIndex ],
+          channelIndex = editorModel.activeInstrument,
+          channel      = pattern.channels[ channelIndex ],
+          event        = channel[ editorModel.activeStep ];
 
     data =
     {
@@ -237,9 +239,10 @@ function handleReady()
 
     if ( EventUtil.isValid( data )) {
 
-        var pattern = efflux.activeSong.patterns[ data.patternIndex ],
-            channel = pattern.channels[ data.channelIndex ],
-            event   = channel[ data.step ];
+        const pattern = efflux.activeSong.patterns[ data.patternIndex ],
+              channel = pattern.channels[ data.channelIndex ];
+
+        let event = channel[ data.step ];
 
         if ( !event )
             event = EventFactory.createAudioEvent();
@@ -272,7 +275,7 @@ function dispose()
 
 function handleKeyboardClick( aEvent )
 {
-    var target = aEvent.target;
+    const target = aEvent.target;
     if ( target.nodeName === "LI" ) {
         selectedNote = target.getAttribute( "data-value" );
         setSelectedValueInList( noteList, selectedNote );
@@ -283,7 +286,7 @@ function handleKeyboardClick( aEvent )
 
 function handleOctaveClick( aEvent )
 {
-    var target = aEvent.target;
+    const target = aEvent.target;
     if ( target.nodeName === "LI" ) {
         selectedOctave = target.getAttribute( "data-value" );
         setSelectedValueInList( octaveList, selectedOctave );
@@ -295,7 +298,7 @@ function handleOctaveClick( aEvent )
 function setSelectedValueInList( list, value )
 {
     value = value.toString();
-    var i = list.length, option;
+    let i = list.length, option;
 
     while ( i-- )
     {
@@ -310,7 +313,7 @@ function setSelectedValueInList( list, value )
 
 function getSelectedValueFromList( list )
 {
-    var i = list.length, option;
+    let i = list.length, option;
     while ( i-- )
     {
         option = list[ i ];

@@ -20,15 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var DOM          = require( "zjslib" ).DOM;
+"use strict";
+
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const DOM          = require( "zjslib" ).DOM;
 
 /* private properties */
 
-var container, efflux, indiceContainer, controlContainer;
-var stepAmount = 0, patternIndices, rafPending = false;
+let container, efflux, indiceContainer, controlContainer;
+let stepAmount = 0, patternIndices, rafPending = false;
 
 module.exports =
 {
@@ -76,8 +78,8 @@ function handleBroadcast( type, payload )
 
             // ensure the controlContainer is always visible regardless of scroll offset
             // threshold defines when to offset the containers top, the last number defines the fixed header height
-            var scrollY   = window.scrollY;
-            var threshold = DOM.getElementCoordinates( container, true ).y - 45;
+            const scrollY   = window.scrollY;
+            const threshold = DOM.getElementCoordinates( container, true ).y - 45;
 
             controlContainer.style.marginTop = (( scrollY > threshold ) ? scrollY - threshold : 0 ) + "px";
             break;
@@ -101,16 +103,16 @@ function handleBroadcast( type, payload )
             {
                 rafPending = false;
 
-                var step  = payload[ 0 ],
-                    total = payload[ 1 ],
-                    diff  = total / stepAmount;
+                const step  = payload[ 0 ],
+                      total = payload[ 1 ],
+                      diff  = total / stepAmount;
 
                 if ( step % diff !== 0 )
                     return;
 
                 Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff )); // PatternTrackListController...
 
-                var i = patternIndices.length, number;
+                let i = patternIndices.length, number;
 
                 while ( i-- )
                 {

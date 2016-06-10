@@ -20,9 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config         = require( "../config/Config" );
-var SongFactory    = require( "../factory/SongFactory" );
-var FixturesLoader = require( "../services/FixturesLoader" );
+"use strict";
+
+const Config         = require( "../config/Config" );
+const SongFactory    = require( "../factory/SongFactory" );
+const FixturesLoader = require( "../services/FixturesLoader" );
 
 module.exports = SongModel;
 
@@ -46,7 +48,7 @@ SongModel.prototype.init = function()
 {
     /* upon initialization, get all locally stored songs */
 
-    var songs = window.localStorage.getItem( Config.LOCAL_STORAGE_NAME );
+    let songs = window.localStorage.getItem( Config.LOCAL_STORAGE_NAME );
 
     if ( typeof songs === "string" ) {
 
@@ -95,7 +97,7 @@ SongModel.prototype.setSongs = function( songs )
  */
 SongModel.prototype.getSongById = function( id )
 {
-    var i = this._songs.length, song;
+    let i = this._songs.length, song;
 
     while ( i-- )
     {
@@ -145,8 +147,8 @@ SongModel.prototype.saveSong = function( aSong )
  */
 SongModel.prototype.deleteSong = function( aSong )
 {
-    var deleted = false;
-    var i = this._songs.length, song;
+    let deleted = false;
+    let i = this._songs.length, song;
 
     // remove duplicate song if existed
 

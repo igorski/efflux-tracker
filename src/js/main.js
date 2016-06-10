@@ -20,40 +20,40 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var EditorModel                = require( "./model/EditorModel" );
-var SongModel                  = require( "./model/SongModel" );
-var AudioController            = require( "./controller/AudioController" );
-var HelpController             = require( "./controller/HelpController" );
-var InstrumentController       = require( "./controller/InstrumentController" );
-var KeyboardController         = require( "./controller/KeyboardController" );
-var MenuController             = require( "./controller/MenuController" );
-var MetaController             = require( "./controller/MetaController" );
-var MidiController             = require( "./controller/MidiController" );
-var ModuleParamController      = require( "./controller/ModuleParamController" );
-var NoteEntryController        = require( "./controller/NoteEntryController" );
-var NotificationController     = require( "./controller/NotificationController" );
-var PatternEditorController    = require( "./controller/PatternEditorController" );
-var PatternTrackListController = require( "./controller/PatternTrackListController" );
-var SequencerController        = require( "./controller/SequencerController" );
-var SettingsController         = require( "./controller/SettingsController" );
-var SongBrowserController      = require( "./controller/SongBrowserController" );
-var SystemController           = require( "./controller/SystemController" );
-var ObjectUtil                 = require( "./utils/ObjectUtil" );
-var SongUtil                   = require( "./utils/SongUtil" );
-var TemplateUtil               = require( "./utils/TemplateUtil" );
-var Messages                   = require( "./definitions/Messages" );
-var Pubsub                     = require( "pubsub-js" );
-var zMIDI                      = require( "zmidi" ).zMIDI;
+"use strict";
+
+const EditorModel                = require( "./model/EditorModel" );
+const SongModel                  = require( "./model/SongModel" );
+const AudioController            = require( "./controller/AudioController" );
+const HelpController             = require( "./controller/HelpController" );
+const InstrumentController       = require( "./controller/InstrumentController" );
+const KeyboardController         = require( "./controller/KeyboardController" );
+const MenuController             = require( "./controller/MenuController" );
+const MetaController             = require( "./controller/MetaController" );
+const MidiController             = require( "./controller/MidiController" );
+const ModuleParamController      = require( "./controller/ModuleParamController" );
+const NoteEntryController        = require( "./controller/NoteEntryController" );
+const NotificationController     = require( "./controller/NotificationController" );
+const PatternEditorController    = require( "./controller/PatternEditorController" );
+const PatternTrackListController = require( "./controller/PatternTrackListController" );
+const SequencerController        = require( "./controller/SequencerController" );
+const SettingsController         = require( "./controller/SettingsController" );
+const SongBrowserController      = require( "./controller/SongBrowserController" );
+const SystemController           = require( "./controller/SystemController" );
+const ObjectUtil                 = require( "./utils/ObjectUtil" );
+const SongUtil                   = require( "./utils/SongUtil" );
+const TemplateUtil               = require( "./utils/TemplateUtil" );
+const Messages                   = require( "./definitions/Messages" );
+const Pubsub                     = require( "pubsub-js" );
+const zMIDI                      = require( "zmidi" ).zMIDI;
 
 /* initialize application */
-
-var efflux;
 
 (function( ref )
 {
     // grab reference to application container in template
 
-    var container = document.querySelector( "#application" );
+    let container = document.querySelector( "#application" );
 
     // WebAudio API not supported ? halt application start
 
@@ -64,9 +64,9 @@ var efflux;
 
     // prepare application model
 
-    var songModel = new SongModel();
+    let songModel = new SongModel();
 
-    efflux = ref.efflux =
+    const efflux = ref.efflux =
     {
         EditorModel : new EditorModel(),
         SongModel   : songModel,
@@ -122,7 +122,7 @@ function handleBroadcast( type, payload )
     {
         case Messages.LOAD_SONG:
 
-            var song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
+            let song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
 
             if ( song && song.meta && song.patterns ) {
 

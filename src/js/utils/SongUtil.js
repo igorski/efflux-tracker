@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory = require( "../factory/PatternFactory" );
+"use strict";
+
+const PatternFactory = require( "../factory/PatternFactory" );
 
 module.exports =
 {
@@ -33,7 +35,7 @@ module.exports =
      */
     hasContent : function( song )
     {
-        var hasContent = false;
+        let hasContent = false;
 
         song.patterns.forEach( function( songPattern )
         {
@@ -61,7 +63,7 @@ module.exports =
     updateEventOffsets : function( patterns, ratio )
     {
         // reverse looping for speed
-        var i, j, k, songPattern, channel, pattern;
+        let i, j, k, songPattern, channel, pattern;
 
         i = patterns.length;
         while ( i-- )

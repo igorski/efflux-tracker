@@ -20,21 +20,23 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Form             = require( "../utils/Form" );
-var Time             = require( "../utils/Time" );
-var TemplateUtil     = require( "../utils/TemplateUtil" );
-var SongUtil         = require( "../utils/SongUtil" );
-var Pubsub           = require( "pubsub-js" );
-var Messages         = require( "../definitions/Messages" );
-var zMIDILib         = require( "zmidi" ),
-    zMIDI            = zMIDILib.zMIDI;
+"use strict";
+
+const Form             = require( "../utils/Form" );
+const Time             = require( "../utils/Time" );
+const TemplateUtil     = require( "../utils/TemplateUtil" );
+const SongUtil         = require( "../utils/SongUtil" );
+const Pubsub           = require( "pubsub-js" );
+const Messages         = require( "../definitions/Messages" );
+const zMIDILib         = require( "zmidi" ),
+      zMIDI            = zMIDILib.zMIDI;
 
 /* private properties */
 
-var container, keyboardController;
-var deviceSelect;
+let container, keyboardController;
+let deviceSelect;
 
-var SettingsController = module.exports =
+const SettingsController = module.exports =
 {
     init : function( containerRef, keyboardControllerRef )
     {
@@ -128,9 +130,9 @@ function handleMIDIDeviceSelect( aEvent )
 
 function showAvailableMIDIDevices( aInputs )
 {
-    var options = [], option, input;
+    let options = [], option, input;
 
-    for ( var i = 0, l = aInputs.length; i < l; ++i )
+    for ( let i = 0, l = aInputs.length; i < l; ++i )
     {
         input  = aInputs[ i ];
         option = {

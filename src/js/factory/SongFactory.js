@@ -20,16 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory    = require( "./PatternFactory" );
-var InstrumentFactory = require( "./InstrumentFactory" );
+"use strict";
 
-var FACTORY_VERSION = 1;
+const PatternFactory    = require( "./PatternFactory" );
+const InstrumentFactory = require( "./InstrumentFactory" );
+
+const FACTORY_VERSION = 1;
 
 module.exports =
 {
     createSong : function( amountOfInstruments )
     {
-        var song = {
+        let song = {
 
             version: FACTORY_VERSION, // allows backwards compatibility when updating Song Object signature
 
@@ -63,7 +65,7 @@ module.exports =
             ]
         };
 
-        for ( var i = 0; i < amountOfInstruments; ++i )
+        for ( let i = 0; i < amountOfInstruments; ++i )
             song.instruments[ i ] = InstrumentFactory.createInstrument( i );
 
         return song;

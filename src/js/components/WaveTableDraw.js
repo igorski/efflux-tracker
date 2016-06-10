@@ -20,14 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config  = require( "../config/Config" );
-var zSprite = require( "zCanvas" ).zSprite;
+"use strict";
+
+const Config  = require( "../config/Config" );
+const zSprite = require( "zCanvas" ).zSprite;
 
 // create the WaveTableDraw prototype as an extension of zSprite
 
 function WaveTableDraw( width, height, updateHandler )
 {
-    this.super( this, 0, 0, width, height );
+    WaveTableDraw.super( this, "constructor", 0, 0, width, height );
     this.setDraggable( true );
 
     /* instance properties */
@@ -65,7 +67,7 @@ WaveTableDraw.prototype.setTable = function( aTableArray )
  */
 WaveTableDraw.prototype.generateAndSetTable = function( aType )
 {
-    var size  = Config.WAVE_TABLE_SIZE,
+    let size  = Config.WAVE_TABLE_SIZE,
         table = new Array( size ),
         m     = Math.round( size / 2 ),
         i;
@@ -81,7 +83,7 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
 
         case "SAW":
 
-            var phase = 0, phaseIncrement = ( 1 / size );
+            let phase = 0, phaseIncrement = ( 1 / size );
             for ( i = 0; i < size; ++i ) {
                 table[ i ]  = ( phase < 0 ) ? phase - Math.round( phase - 1 ) : phase - Math.round( phase );
                 table[ i ] *= ( 1 / ( m / 2 )) - 2;
@@ -111,7 +113,7 @@ WaveTableDraw.prototype.draw = function( aCanvasContext )
     aCanvasContext.lineWidth = 5;
     aCanvasContext.beginPath();
 
-    var h = this._bounds.height,
+    let h = this._bounds.height,
         x = this._bounds.left,
         y = this._bounds.top + h,
         l = this.table.length,
@@ -140,12 +142,12 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
 
         // translate pointer position to a table value
 
-        var tableIndex = Math.round(( aEventX / this._bounds.width ) * this.table.length );
+        let tableIndex = Math.round(( aEventX / this._bounds.width ) * this.table.length );
         tableIndex     = Math.min( this.table.length - 1, tableIndex ); // do not exceed max length
-        var value      = ( 1 - ( aEventY / this._bounds.height ) * 2 );
+        let value      = ( 1 - ( aEventY / this._bounds.height ) * 2 );
         this.table[ tableIndex ] = value;
 
-        var cache = this.interactionCache;
+        const cache = this.interactionCache;
 
         // these have been observed to be floating point on Chrome for Android
 
@@ -156,7 +158,7 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
 
         if ( cache.x > -1 )
         {
-            var xDelta    = aEventX - cache.x,
+            let xDelta    = aEventX - cache.x,
                 yDelta    = aEventY - cache.y,
                 xScale    = xDelta / Math.abs( xDelta ),
                 yScale    = yDelta / Math.abs( xDelta ),

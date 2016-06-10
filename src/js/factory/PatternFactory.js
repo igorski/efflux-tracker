@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config       = require( "../config/Config" ),
-    EventFactory = require( "./EventFactory" );
+"use strict";
+
+const Config       = require( "../config/Config" ),
+      EventFactory = require( "./EventFactory" );
 
 /**
  * type definition for a pattern list
@@ -31,9 +33,9 @@ var Config       = require( "../config/Config" ),
  *              channels: Array.<Array.<AUDIO_EVENT>>
  *          }}
  */
-var PATTERN;
+let PATTERN;
 
-var PatternFactory = module.exports =
+const PatternFactory = module.exports =
 {
     /**
      * @public
@@ -65,13 +67,13 @@ var PatternFactory = module.exports =
      */
     mergePatterns : function( targetPattern, sourcePattern, targetPatternIndex )
     {
-        var targetLength = targetPattern.steps;
-        var sourceLength = sourcePattern.steps;
-        var sourceChannel, i, j;
+        let targetLength = targetPattern.steps;
+        let sourceLength = sourcePattern.steps;
+        let sourceChannel, i, j;
 
         // equalize the pattern lengths
 
-        var replacement, increment;
+        let replacement, increment;
 
         if ( sourceLength > targetLength )
         {
@@ -108,7 +110,7 @@ var PatternFactory = module.exports =
             sourceLength = sourcePattern.steps = targetLength;
         }
 
-        var sourceStep, orgStartMeasure;
+        let sourceStep, orgStartMeasure;
 
         targetPattern.channels.forEach( function( targetChannel, index )
         {
@@ -147,7 +149,7 @@ var PatternFactory = module.exports =
      */
     clearEvent : function( pattern, channelNum, step )
     {
-        var channel = pattern.channels[ channelNum ];
+        const channel = pattern.channels[ channelNum ];
         delete channel[ step ];
     }
 };
@@ -162,7 +164,7 @@ var PatternFactory = module.exports =
  */
 function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
 {
-    var out = [], i;
+    let out = [], i;
 
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
         out.push( new Array( amountOfSteps ));

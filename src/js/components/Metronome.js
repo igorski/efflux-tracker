@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var AudioUtil = require( "../utils/AudioUtil" );
+"use strict";
+
+const AudioUtil = require( "../utils/AudioUtil" );
 
 /**
  * Metronome is a component of SequencerController
@@ -50,7 +52,7 @@ module.exports =
         if (( resolution == 2 ) && ( currentStep % ( maxStep / 4 ) ))
             return; // we're not playing non-quarter 8th notes
 
-        var pitch = 220; // default note has low pitch, except for:
+        let pitch = 220; // default note has low pitch, except for:
 
         if ( !( currentStep % maxStep ))
             pitch = 440; // beat 0 == medium pitch

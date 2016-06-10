@@ -20,8 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Handlebars = require( "handlebars/dist/handlebars.runtime.min.js" );
-var templates  = require( "../handlebars/templates" )( Handlebars );
+"use strict";
+
+const Handlebars   = require( "handlebars/dist/handlebars.runtime.min.js" );
+const templateFile = require( "../handlebars/templates" );
+const templates    = new templateFile( Handlebars );
 
 /* register Handlebars helpers */
 
@@ -43,9 +46,9 @@ Handlebars.registerHelper( "toLowerCase", function( string )
  */
 Handlebars.registerHelper( "loop", function( n, block )
 {
-    var out = "";
+    let out = "";
 
-    for( var i = 0; i < n; ++i )
+    for( let i = 0; i < n; ++i )
         out += block.fn( i );
 
     return out;
@@ -59,7 +62,7 @@ Handlebars.registerHelper( "loop", function( n, block )
  */
 Handlebars.registerHelper( "mparam", function( data )
 {
-    var out = "";
+    let out = "";
 
     if ( data ) {
 
@@ -76,7 +79,7 @@ Handlebars.registerHelper( "mparam", function( data )
     return out;
 });
 
-var TemplateUtil = module.exports =
+const TemplateUtil = module.exports =
 {
     /**
      * render a template using Handlebars
@@ -105,8 +108,8 @@ var TemplateUtil = module.exports =
      */
     renderAsElement : function( templateName, data )
     {
-        var html    = TemplateUtil.render( templateName, data );
-        var element = document.createElement( "div" );
+        let html    = TemplateUtil.render( templateName, data );
+        let element = document.createElement( "div" );
         element.setAttribute( "class", templateName + "-wrapper" );
 
         if ( html.length > 0 )

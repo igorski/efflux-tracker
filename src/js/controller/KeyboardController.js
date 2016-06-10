@@ -20,10 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Messages = require( "../definitions/Messages" );
-var Pubsub   = require( "pubsub-js" );
+"use strict";
 
-var listener, suspended = false,
+const Messages = require( "../definitions/Messages" );
+const Pubsub   = require( "pubsub-js" );
+
+let listener, suspended = false,
     blockDefaults = true, optionDown = false, shiftDown = false;
 
 module.exports =

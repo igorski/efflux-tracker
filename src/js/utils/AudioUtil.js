@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var AudioFactory = require( "../factory/AudioFactory" );
-var Bowser       = require( "bowser" );
+"use strict";
+
+const AudioFactory = require( "../factory/AudioFactory" );
+const Bowser       = require( "bowser" );
 
 module.exports =
 {
@@ -40,7 +42,7 @@ module.exports =
     {
         // DFT provided by dsp.js
 
-        var ft = new DFT( graphPoints.length );
+        let ft = new DFT( graphPoints.length );
         ft.forward( graphPoints );
 
         return audioContext.createPeriodicWave( ft.real, ft.imag );
@@ -59,11 +61,11 @@ module.exports =
      */
     createTimer : function( audioContext, time, callback )
     {
-        var timer = audioContext.createOscillator();
+        let timer = audioContext.createOscillator();
 
         timer.onended = callback;
 
-        var noGain = AudioFactory.createGainNode( audioContext );
+        let noGain = AudioFactory.createGainNode( audioContext );
         timer.connect( noGain );
         noGain.gain.value = 0;
         noGain.connect( audioContext.destination );
@@ -88,7 +90,7 @@ module.exports =
      */
     beep : function( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
     {
-        var oscillator = audioContext.createOscillator();
+        let oscillator = audioContext.createOscillator();
         oscillator.connect( audioContext.destination );
 
         oscillator.frequency.value = frequencyInHertz;
@@ -122,15 +124,15 @@ module.exports =
         if ( !Bowser.ios )
             return;
 
-        var handler = function( e )
+        const handler = function( e )
         {
             document.removeEventListener( "touchstart", handler, false );
 
-            var source  = audioContext.createOscillator();
-            source.type = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
+            const source  = audioContext.createOscillator();
+            source.type   = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
 
             // no need to HEAR it, though ;-)
-            var noGain = AudioFactory.createGainNode( audioContext );
+            const noGain = AudioFactory.createGainNode( audioContext );
             source.connect( noGain );
             noGain.gain.value = 0;
 

@@ -20,28 +20,30 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub         = require( "pubsub-js" );
-var Config         = require( "../config/Config" );
-var Messages       = require( "../definitions/Messages" );
-var SelectionModel = require( "../model/SelectionModel" );
-var StateModel     = require( "../model/StateModel" );
-var EventFactory   = require( "../factory/EventFactory" );
-var PatternFactory = require( "../factory/PatternFactory" );
-var Form           = require( "../utils/Form" );
-var EventUtil      = require( "../utils/EventUtil" );
-var ObjectUtil     = require( "../utils/ObjectUtil" );
-var PatternUtil    = require( "../utils/PatternUtil" );
-var TemplateUtil   = require( "../utils/TemplateUtil" );
+"use strict";
+
+const Pubsub         = require( "pubsub-js" );
+const Config         = require( "../config/Config" );
+const Messages       = require( "../definitions/Messages" );
+const SelectionModel = require( "../model/SelectionModel" );
+const StateModel     = require( "../model/StateModel" );
+const EventFactory   = require( "../factory/EventFactory" );
+const PatternFactory = require( "../factory/PatternFactory" );
+const Form           = require( "../utils/Form" );
+const EventUtil      = require( "../utils/EventUtil" );
+const ObjectUtil     = require( "../utils/ObjectUtil" );
+const PatternUtil    = require( "../utils/PatternUtil" );
+const TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
-var maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
+let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
+let maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
     stateModel, selectionModel, patternCopy, stepSelect;
 
-var PATTERN_WIDTH = 150; // width of a single track/pattern column
+let PATTERN_WIDTH = 150; // width of a single track/pattern column
 
-var PatternTrackListController = module.exports =
+const PatternTrackListController = module.exports =
 {
     /**
      * initialize PatternTrackListController
@@ -82,7 +84,7 @@ var PatternTrackListController = module.exports =
 
         stepSelect.addEventListener( "change", handlePatternStepChange );
 
-        var pSection = document.querySelector( "#patternSection" );
+        const pSection = document.querySelector( "#patternSection" );
         pSection.addEventListener( "mouseover", handleMouseOver );
 
         maxChannel = Config.INSTRUMENT_AMOUNT - 1;
@@ -108,15 +110,15 @@ var PatternTrackListController = module.exports =
 
     update : function()
     {
-        var activePattern = editorModel.activePattern;
+        let activePattern = editorModel.activePattern;
 
         if ( activePattern >= efflux.activeSong.patterns.length )
             activePattern = efflux.activeSong.patterns.length - 1;
 
         // record the current scroll offset of the container so we can restore it after updating of the HTML
-        var coordinates = { x: container.scrollLeft, y: container.scrollTop };
+        const coordinates = { x: container.scrollLeft, y: container.scrollTop };
 
-        var pattern = efflux.activeSong.patterns[ activePattern ];
+        const pattern = efflux.activeSong.patterns[ activePattern ];
         wrapper.innerHTML = TemplateUtil.render( "patternTrackList", {
             steps   : pattern.steps,
             pattern : pattern
@@ -135,8 +137,8 @@ var PatternTrackListController = module.exports =
     {
         if ( type === "down" )
         {
-            var curStep    = editorModel.activeStep,
-                curChannel = editorModel.activeInstrument; // the current step position and channel within the pattern
+            const curStep    = editorModel.activeStep,
+                  curChannel = editorModel.activeInstrument; // the current step position and channel within the pattern
 
             switch ( keyCode )
             {
@@ -156,7 +158,7 @@ var PatternTrackListController = module.exports =
 
                 case 40: // down
 
-                    var maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
+                    const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
                     if ( ++editorModel.activeStep > maxStep )
                         editorModel.activeStep = maxStep;
@@ -236,7 +238,7 @@ var PatternTrackListController = module.exports =
 
                     if ( keyboardController.hasOption( aEvent ))
                     {
-                        var state;
+                        let state;
 
                         if ( !aEvent.shiftKey )
                             state = stateModel.undo();
@@ -364,18 +366,19 @@ function handleBroadcast( type, payload )
 
 function highlightActiveStep()
 {
-    var pContainers = wrapper.querySelectorAll( ".pattern" ),
-        activeStyle = "active", selectedStyle = "selected",
-        activeStep = editorModel.activeStep,
-        selection, pContainer, items, item;
+    const pContainers = wrapper.querySelectorAll( ".pattern" ),
+          activeStyle = "active", selectedStyle = "selected",
+          activeStep = editorModel.activeStep;
 
-    for ( var i = 0, l = pContainers.length; i < l; ++i )
+    let selection, pContainer, items, item;
+
+    for ( let i = 0, l = pContainers.length; i < l; ++i )
     {
         pContainer = pContainers[ i ];
         selection  = selectionModel.selectedChannels[ i ];
         items      = pContainer.querySelectorAll( "li" );
 
-        var j = items.length;
+        let j = items.length;
         while ( j-- )
         {
             item = items[ j ].classList;
@@ -418,23 +421,23 @@ function handleInteraction( aEvent )
 
     if ( aEvent.target.nodeName === "LI" )
     {
-        var pContainers = wrapper.querySelectorAll( ".pattern" ),
-            selectionChannelStart = editorModel.activeInstrument, selectionStepStart = editorModel.activeStep,
-            found = false, pContainer, items;
+        const pContainers = wrapper.querySelectorAll( ".pattern" );
+        let selectionChannelStart = editorModel.activeInstrument, selectionStepStart = editorModel.activeStep;
+        let found = false, pContainer, items;
 
         if ( selectionModel.hasSelection() ) {
             selectionChannelStart = selectionModel.firstSelectedChannel;
             selectionStepStart    = selectionModel.minSelectedStep;
         }
 
-        for ( var i = 0, l = pContainers.length; i < l; ++i ) {
+        for ( let i = 0, l = pContainers.length; i < l; ++i ) {
 
             if ( found ) break;
 
             pContainer = pContainers[ i ];
             items = pContainer.querySelectorAll( "li" );
 
-            var j = items.length;
+            let j = items.length;
             while ( j-- )
             {
                 if ( items[ j ] === aEvent.target ) {
@@ -491,7 +494,7 @@ function editModuleParamsForStep()
 
 function addOffEvent()
 {
-    var offEvent = EventFactory.createAudioEvent();
+    const offEvent = EventFactory.createAudioEvent();
     offEvent.action = 2; // noteOff;
     addEventAtPosition( offEvent );
 }
@@ -518,8 +521,8 @@ function handlePatternPaste( aEvent )
 
 function handlePatternAdd( aEvent )
 {
-    var song     = efflux.activeSong,
-        patterns = song.patterns;
+    const song     = efflux.activeSong,
+          patterns = song.patterns;
 
     if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
         Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_MAX_PATTERNS", Config.MAX_PATTERN_AMOUNT ));
@@ -533,8 +536,8 @@ function handlePatternAdd( aEvent )
 
 function handlePatternDelete( aEvent )
 {
-    var song     = efflux.activeSong,
-        patterns = song.patterns;
+    const song     = efflux.activeSong,
+          patterns = song.patterns;
 
     if ( patterns.length === 1 )
     {
@@ -555,18 +558,18 @@ function handlePatternDelete( aEvent )
 
 function handlePatternStepChange( aEvent )
 {
-    var song    = efflux.activeSong,
-        pattern = song.patterns[ editorModel.activePattern ];
+    const song    = efflux.activeSong,
+          pattern = song.patterns[ editorModel.activePattern ];
 
-    var oldAmount = pattern.steps;
-    var newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
+    const oldAmount = pattern.steps;
+    const newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
 
     // update model values
     pattern.steps = editorModel.amountOfSteps = newAmount;
 
     pattern.channels.forEach( function( channel, index )
     {
-        var transformed = new Array( newAmount), i, j, increment;
+        let transformed = new Array( newAmount ), i, j, increment;
 
         if ( newAmount < oldAmount )
         {
@@ -612,7 +615,7 @@ function saveState()
  */
 function addEventAtPosition( event, optData )
 {
-    var patternIndex = editorModel.activePattern,
+    let patternIndex = editorModel.activePattern,
         channelIndex = editorModel.activeInstrument,
         step         = editorModel.activeStep;
 
@@ -625,8 +628,8 @@ function addEventAtPosition( event, optData )
         step         = ( typeof optData.step         === "number" ) ? optData.step         : step;
     }
 
-    var pattern = efflux.activeSong.patterns[ patternIndex ],
-        channel = pattern.channels[ channelIndex ];
+    const pattern = efflux.activeSong.patterns[ patternIndex ],
+          channel = pattern.channels[ channelIndex ];
 
     EventUtil.setPosition(
         event, pattern, patternIndex, step,

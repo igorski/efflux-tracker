@@ -1,16 +1,18 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai              = require( "chai" );
-var InstrumentFactory = require( "../../src/js/factory/InstrumentFactory" );
+"use strict";
+
+const chai              = require( "chai" );
+const InstrumentFactory = require( "../../src/js/factory/InstrumentFactory" );
 
 describe( "InstrumentFactory", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     // executed before the tests start running
 
@@ -44,8 +46,8 @@ describe( "InstrumentFactory", function()
 
     it( "should be able to retrieve an existing WaveTable for an oscillator", function()
     {
-        var oscillator = InstrumentFactory.createOscillator();
-        var table      = oscillator.table = [];
+        const oscillator = InstrumentFactory.createOscillator();
+        const table      = oscillator.table = [];
 
         assert.strictEqual( table, InstrumentFactory.getTableForOscillator( oscillator ),
             "expected InstrumentFactory to have returned set WaveTable unchanged" );
@@ -53,22 +55,22 @@ describe( "InstrumentFactory", function()
 
     it( "should be able to lazily create a WaveTable for an oscillator", function()
     {
-        var oscillator = InstrumentFactory.createOscillator();
-        var table      = InstrumentFactory.getTableForOscillator( oscillator );
+        const oscillator = InstrumentFactory.createOscillator();
+        const table      = InstrumentFactory.getTableForOscillator( oscillator );
 
         assert.ok( table instanceof Array,
             "expected InstrumentFactory to have generated a WaveTable unchanged" );
 
-        var i = table.length;
+        let i = table.length;
         while ( i-- )
             assert.strictEqual( 0, table[ i ], "expected generated WaveTable to contain silence" );
     });
 
     it( "should be able to generate a WaveTable for an oscillator at any given size", function()
     {
-        var oscillator = InstrumentFactory.createOscillator();
-        var size       = Math.round( Math.random() * 500 ) + 1;
-        var table      = InstrumentFactory.getTableForOscillator( oscillator, size );
+        const oscillator = InstrumentFactory.createOscillator();
+        const size       = Math.round( Math.random() * 500 ) + 1;
+        const table      = InstrumentFactory.getTableForOscillator( oscillator, size );
 
         assert.strictEqual( size, table.length,
             "expected InstrumentFactory to have generated a WaveTable of requested size" );

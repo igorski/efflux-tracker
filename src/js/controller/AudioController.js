@@ -20,16 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var AudioFactory   = require( "../factory/AudioFactory" );
-var AudioUtil      = require( "../utils/AudioUtil" );
-var ModuleUtil     = require( "../utils/ModuleUtil" );
-var InstrumentUtil = require( "../utils/InstrumentUtil" );
-var Config         = require( "../config/Config" );
-var Messages       = require( "../definitions/Messages" );
-var Pitch          = require( "../definitions/Pitch" );
-var WaveTables     = require( "../definitions/WaveTables" );
-var Recorder       = require( "recorderjs" );
-var Pubsub         = require( "pubsub-js" );
+"use strict";
+
+const AudioFactory   = require( "../factory/AudioFactory" );
+const AudioUtil      = require( "../utils/AudioUtil" );
+const ModuleUtil     = require( "../utils/ModuleUtil" );
+const InstrumentUtil = require( "../utils/InstrumentUtil" );
+const Config         = require( "../config/Config" );
+const Messages       = require( "../definitions/Messages" );
+const Pitch          = require( "../definitions/Pitch" );
+const WaveTables     = require( "../definitions/WaveTables" );
+const Recorder       = require( "recorderjs" );
+const Pubsub         = require( "pubsub-js" );
 
 /* type definitions */
 
@@ -49,7 +51,7 @@ var Pubsub         = require( "pubsub-js" );
  *              gliding: false
  *          }}
  */
-var EVENT_VOICE;
+let EVENT_VOICE;
 
 /**
  * a single noteOn / noteOff event (can contain
@@ -57,7 +59,7 @@ var EVENT_VOICE;
  *
  * @typedef {Array.<EVENT_VOICE>}
  */
-var EVENT_OBJECT;
+let EVENT_OBJECT;
 
 /**
  * @typedef {{
@@ -66,11 +68,11 @@ var EVENT_OBJECT;
  *              output: AudioParam
  *          }}
  */
-var INSTRUMENT_MODULES;
+let INSTRUMENT_MODULES;
 
 /* private properties */
 
-var efflux, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
+let efflux, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
     playing = false, recording = false, recorder;
 
 /**
@@ -79,7 +81,7 @@ var efflux, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
  *
  * @type {Array.<INSTRUMENT_MODULES>}
  */
-var instrumentModules;
+let instrumentModules;
 
 /**
  * list that will contain all EVENT_OBJECTs
@@ -87,9 +89,9 @@ var instrumentModules;
  *
  * @type {Array.<Array.<EVENT_OBJECT>>}
  */
-var instrumentEvents = [];
+let instrumentEvents = [];
 
-var AudioController = module.exports =
+const AudioController = module.exports =
 {
     /**
      * query whether we can actually use the WebAudio API in
@@ -144,8 +146,8 @@ var AudioController = module.exports =
             CUSTOM: [] // created and maintained by "cacheCustomTables()"
         };
 
-        var noiseChannel = pool.NOISE.getChannelData( 0 );
-        for ( var i = 0, l = noiseChannel.length; i < l; ++i )
+        const noiseChannel = pool.NOISE.getChannelData( 0 );
+        for ( let i = 0, l = noiseChannel.length; i < l; ++i )
           noiseChannel[ i ] = Math.random() * 2 - 1;
 
         AudioController.reset();
@@ -176,12 +178,9 @@ var AudioController = module.exports =
      */
     reset : function()
     {
-        var event;
-
         instrumentEvents.forEach( function( events, instrumentIndex )
         {
-            var i = events.length,
-                event;
+            let i = events.length, event;
 
             while ( i-- )
             {
@@ -196,7 +195,7 @@ var AudioController = module.exports =
         });
 
         instrumentEvents = new Array( Config.INSTRUMENT_AMOUNT );
-        for ( var i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
             instrumentEvents[ i ] = [];
 
         createModules();
@@ -229,13 +228,13 @@ var AudioController = module.exports =
 
             //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
 
-            var frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
+            const frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
 
             if ( typeof startTimeInSeconds !== "number" )
                 startTimeInSeconds = audioContext.currentTime;
 
-            var oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
-            var modules     = instrumentModules[ aInstrument.id ];
+            let oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
+            const modules   = instrumentModules[ aInstrument.id ];
 
             aInstrument.oscillators.forEach( function( oscillatorVO, oscillatorIndex )
             {
@@ -243,7 +242,7 @@ var AudioController = module.exports =
 
                     voice = aInstrument.oscillators[ oscillatorIndex ];
 
-                    var generatorNode;
+                    let generatorNode;
 
                     // buffer source ? assign it to the oscillator
 
@@ -259,7 +258,7 @@ var AudioController = module.exports =
                         // oscillator source, get WaveTable from pool
 
                         generatorNode = audioContext.createOscillator();
-                        var table;
+                        let table;
 
                         if ( oscillatorVO.waveform !== "CUSTOM" )
                             table = pool[ oscillatorVO.waveform ];
@@ -278,12 +277,12 @@ var AudioController = module.exports =
 
                     // apply amplitude envelopes
 
-                    var adsrNode = AudioFactory.createGainNode( audioContext ),
-                        envelope = adsrNode.gain;
+                    const adsrNode = AudioFactory.createGainNode( audioContext ),
+                          envelope = adsrNode.gain;
 
-                    var ADSR      = oscillatorVO.adsr,
-                        attackEnd = startTimeInSeconds + ADSR.attack,
-                        decayEnd  = attackEnd + ADSR.decay;
+                    const ADSR      = oscillatorVO.adsr,
+                          attackEnd = startTimeInSeconds + ADSR.attack,
+                          decayEnd  = attackEnd + ADSR.decay;
 
                     envelope.cancelScheduledValues( startTimeInSeconds );
                     envelope.setValueAtTime( 0.0, startTimeInSeconds );         // envelope start value
@@ -292,7 +291,7 @@ var AudioController = module.exports =
 
                     // route oscillator to track gain > envelope gain > instrument gain
 
-                    var oscillatorGain = AudioFactory.createGainNode( audioContext );
+                    const oscillatorGain = AudioFactory.createGainNode( audioContext );
                     oscillatorGain.gain.value = oscillatorVO.volume;
                     generatorNode.connect( oscillatorGain );
                     oscillatorGain.connect( adsrNode );
@@ -338,19 +337,19 @@ var AudioController = module.exports =
      */
     noteOff : function( aEvent, aInstrument )
     {
-        var eventObject = instrumentEvents[ aInstrument.id ][ aEvent.id ];
+        const eventObject = instrumentEvents[ aInstrument.id ][ aEvent.id ];
 
         //console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
 
         if ( eventObject ) {
 
-            var modules = instrumentModules[ aInstrument.id ];
+            const modules = instrumentModules[ aInstrument.id ];
 
             eventObject.forEach( function( event )
             {
-                var oscillator = event.generator,
-                    envelope   = event.envelope,
-                    ADSR       = event.adsr;
+                const oscillator = event.generator,
+                      envelope   = event.envelope,
+                      ADSR       = event.adsr;
 
                 // apply release envelope
 
@@ -408,7 +407,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.SET_CUSTOM_WAVEFORM:
-            var table = createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
+            const table = createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
             InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
             break;
 
@@ -458,7 +457,7 @@ function setupRouting()
 
 function createModules()
 {
-    var i, module;
+    let i, module;
 
     // clean up and disconnect old modules (if existed)
     if ( instrumentModules && instrumentModules.length > 0 )
@@ -492,7 +491,7 @@ function createModules()
  */
 function applyModules()
 {
-    var instrumentModule;
+    let instrumentModule;
     efflux.activeSong.instruments.forEach( function( instrument, index ) {
         instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;

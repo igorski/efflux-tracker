@@ -1,18 +1,20 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var PatternUtil    = require( "../../src/js/utils/PatternUtil" );
-var EventFactory   = require( "../../src/js/factory/EventFactory" );
-var PatternFactory = require( "../../src/js/factory/PatternFactory" );
-var chai           = require( "chai" );
+"use strict";
+
+const PatternUtil    = require( "../../src/js/utils/PatternUtil" );
+const EventFactory   = require( "../../src/js/factory/EventFactory" );
+const PatternFactory = require( "../../src/js/factory/PatternFactory" );
+const chai           = require( "chai" );
 
 describe( "PatternUtil", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     // executed before the tests start running
 
@@ -46,15 +48,13 @@ describe( "PatternUtil", function()
 
     it( "should be able to add a new pattern at the given insertion index", function()
     {
-        var amount   = 10,
-            steps    = 16,
-            patterns = new Array( amount ),
-            temp     = new Array( amount );
+        const amount = 10, steps = 16, temp = new Array( amount );
+        let patterns = new Array( amount );
 
-        for ( var i = 0; i < amount; ++i )
+        for ( let i = 0; i < amount; ++i )
             patterns[ i ] = temp[ i ] = PatternFactory.createEmptyPattern( steps );
 
-        var insertion = 5;
+        const insertion = 5;
         patterns = PatternUtil.addEmptyPatternAtIndex( patterns, insertion, steps );
 
         assert.ok( amount + 1, patterns.length,
@@ -72,20 +72,18 @@ describe( "PatternUtil", function()
 
     it( "should update the start indices of all events present in the patterns after the insertion point", function()
     {
-        var amount   = 3,
-            steps    = 16,
-            patterns = new Array( amount),
-            i;
+        const amount = 3, steps = 16, patterns = new Array( amount);
+        let i;
 
         for ( i = 0; i < amount; ++i )
             patterns[ i ] = PatternFactory.createEmptyPattern( steps );
 
         // generate some events
 
-        var insertion = 1;
+        const insertion = 1;
 
-        var event1 = EventFactory.createAudioEvent();
-        var event2 = EventFactory.createAudioEvent();
+        const event1 = EventFactory.createAudioEvent();
+        const event2 = EventFactory.createAudioEvent();
 
         event1.seq.startMeasure = 0;
         event1.seq.endMeasure   = 0;
@@ -112,11 +110,8 @@ describe( "PatternUtil", function()
 
     it( "should be able to add a new pattern with a unique amount of steps different to the existing pattern step amounts", function()
     {
-        var amount   = 10,
-            steps    = 16,
-            patterns = new Array( amount),
-            newSteps = 32,
-            insertion = 5, i;
+        const amount = 10, steps = 16, newSteps = 32, insertion = 5;
+        let patterns = new Array( amount ), i;
 
         for ( i = 0; i < amount; ++i )
             patterns[ i ] = PatternFactory.createEmptyPattern( steps );
@@ -138,14 +133,13 @@ describe( "PatternUtil", function()
 
     it( "should be able to remove a pattern from the given deletion index", function()
     {
-        var amount   = 10,
-            patterns = new Array( amount ),
-            temp     = new Array( amount );
+        const amount = 10, temp = new Array( amount );
+        let patterns = new Array( amount );
 
-        for ( var i = 0; i < amount; ++i )
+        for ( let i = 0; i < amount; ++i )
             patterns[ i ] = temp[ i ] = PatternFactory.createEmptyPattern( 16 );
 
-        var deletion = 5;
+        const deletion = 5;
         patterns = PatternUtil.removePatternAtIndex( patterns, deletion );
 
         assert.ok( amount - 1, patterns.length,
@@ -160,19 +154,18 @@ describe( "PatternUtil", function()
 
     it( "should update the start indices of all events present in the patterns after the deletion index", function()
     {
-        var amount   = 3,
-            patterns = new Array( amount),
-            i;
+        const amount = 3, patterns = new Array( amount );
+        let i;
 
         for ( i = 0; i < amount; ++i )
             patterns[ i ] = PatternFactory.createEmptyPattern( 16 );
 
         // generate some events
 
-        var deletion = 1;
+        const deletion = 1;
 
-        var event1 = EventFactory.createAudioEvent();
-        var event2 = EventFactory.createAudioEvent();
+        const event1 = EventFactory.createAudioEvent();
+        const event2 = EventFactory.createAudioEvent();
 
         event1.seq.startMeasure = 0;
         event1.seq.endMeasure   = 0;

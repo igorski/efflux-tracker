@@ -1,19 +1,21 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai        = require( "chai" );
-var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
-var SongModel   = require( "../../src/js/model/SongModel" );
+"use strict";
+
+const chai        = require( "chai" );
+const MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
+const SongModel   = require( "../../src/js/model/SongModel" );
 
 describe( "SongModel", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
-    var browser, model;
+    let browser, model;
 
     // executed before the tests start running
 
@@ -49,7 +51,7 @@ describe( "SongModel", function()
 
     it( "should be able to create songs", function()
     {
-        var song = model.createSong();
+        const song = model.createSong();
 
         assert.ok( typeof song.id === "string",
             "expected created Object to have an identifier property" );
@@ -63,9 +65,9 @@ describe( "SongModel", function()
         assert.ok( song.patterns instanceof Array,
             "expected created Object to have a patterns Array" );
 
-        var compare;
+        let compare;
 
-        for ( var i = 0; i < 1024; ++i ) {
+        for ( let i = 0; i < 1024; ++i ) {
             compare = model.createSong();
 
             assert.notStrictEqual( song.id, compare.id,
@@ -75,7 +77,7 @@ describe( "SongModel", function()
 
     it( "should be able to save songs in storage", function()
     {
-        var song = model.createSong();
+        const song = model.createSong();
 
         assert.strictEqual( 0, model.getSongs().length,
             "expected no songs in model prior to saving" );
@@ -85,13 +87,13 @@ describe( "SongModel", function()
         assert.strictEqual( 1, model.getSongs().length,
             "expected 1 song in model after saving" );
 
-        var song2 = model.createSong();
+        const song2 = model.createSong();
         model.saveSong( song2 );
 
         assert.strictEqual( 2, model.getSongs().length,
             "expected 2 songs in model after saving" );
 
-        var songs = model.getSongs();
+        const songs = model.getSongs();
 
         assert.strictEqual( song,  songs[ 0 ]);
         assert.strictEqual( song2, songs[ 1 ]);
@@ -99,8 +101,8 @@ describe( "SongModel", function()
 
     it( "should update the modified timestamp when saving a song", function( done )
     {
-        var song = model.createSong();
-        var org  = song.meta.modified;
+        const song = model.createSong();
+        const org  = song.meta.modified;
 
         assert.strictEqual( song.meta.created, song.meta.modified,
             "expected creation and modified date to be equal for a newly created song" );
@@ -124,8 +126,8 @@ describe( "SongModel", function()
 
     it( "should be able to delete songs from storage", function()
     {
-        var song  = model.createSong();
-        var song2 = model.createSong();
+        const song  = model.createSong();
+        const song2 = model.createSong();
 
         model.saveSong( song );
         model.saveSong( song2 );
@@ -146,13 +148,13 @@ describe( "SongModel", function()
 
     it( "should be able to retrieve individual songs by their id", function()
     {
-        var song  = model.createSong();
-        var song2 = model.createSong();
+        const song  = model.createSong();
+        const song2 = model.createSong();
 
         model.saveSong( song );
         model.saveSong( song2 );
 
-        var retrieved = model.getSongById( song.id );
+        let retrieved = model.getSongById( song.id );
         assert.strictEqual( song, retrieved,
             "expected to have retrieved song by its id" );
 

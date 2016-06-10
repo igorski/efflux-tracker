@@ -1,20 +1,22 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai           = require( "chai" );
-var SelectionModel = require( "../../src/js/model/SelectionModel" );
-var SongModel      = require( "../../src/js/model/SongModel" );
-var MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
+"use strict";
+
+const chai           = require( "chai" );
+const SelectionModel = require( "../../src/js/model/SelectionModel" );
+const SongModel      = require( "../../src/js/model/SongModel" );
+const MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
 
 describe( "SelectionModel", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
-    var browser, model;
+    let browser, model;
 
     // executed before the tests start running
 
@@ -70,7 +72,8 @@ describe( "SelectionModel", function()
 
     it( "should add indices to its current selection", function()
     {
-        var min = 0, max = 16, i;
+        let min = 0, i;
+        const max = 16;
 
         model.setSelectionChannelRange( 0 ); // select a single channel
         model.setSelection( min, max );
@@ -86,15 +89,15 @@ describe( "SelectionModel", function()
     {
         model.setSelectionChannelRange( 0 ); // select a single channel
 
-        var min = 0;
-        var max = 16;
+        let min = 0;
+        const max = 16;
 
         model.setSelection( min, max );
 
         assert.strictEqual( 0, model.minSelectedStep,
             "expected model to return '" + 0 + "' for its minimum selection value" );
 
-        var expected = max;
+        const expected = max;
 
         assert.strictEqual( expected, model.maxSelectedStep,
             "expected model to return '" + expected + "' for its maximum selection value" );
@@ -102,7 +105,7 @@ describe( "SelectionModel", function()
 
     it( "should add not add the same index twice to its current selection", function()
     {
-        var activeChannel = 0, max = 1;
+        const activeChannel = 0, max = 1;
 
         model.setSelectionChannelRange( activeChannel, max );
         model.setSelection( 0, max );
@@ -136,9 +139,9 @@ describe( "SelectionModel", function()
     {
         model.setSelectionChannelRange( 0, 3 );
 
-        var activeChannel = 0;
-        var otherChannel  = 1;
-        var max           = 4;
+        const activeChannel = 0;
+        const otherChannel  = 1;
+        const max           = 4;
 
         model.setSelection( 0, max );
         model.equalizeSelection();
@@ -160,12 +163,12 @@ describe( "SelectionModel", function()
     it( "should know the full length of its selection", function()
     {
         model.setSelectionChannelRange( 0, 1 );
-        var min = 0;
-        var max = 16;
+        const min = 0;
+        const max = 16;
 
         model.setSelection( min, max );
 
-        var expected = ( max - min ) + 1; // 1 as a single step is already a selection
+        const expected = ( max - min ) + 1; // 1 as a single step is already a selection
 
         assert.strictEqual( expected, model.getSelectionLength(),
             "expected model to return '" + expected + "' for its selection length" );
@@ -185,9 +188,9 @@ describe( "SelectionModel", function()
 
     it( "should be able to expand and shrink its selection when starting key selection to the right", function()
     {
-        var keyCode       = 39; // right
-        var activeChannel = Math.round( Math.random() * 3 ) + 1;
-        var activeStep    = 1;
+        let keyCode         = 39; // right
+        const activeChannel = Math.round( Math.random() * 3 ) + 1;
+        const activeStep    = 1;
 
         // test 1. expand
         
@@ -226,9 +229,9 @@ describe( "SelectionModel", function()
 
     it( "should be able to expand and shrink its selection when starting key selection to the left", function()
     {
-        var keyCode       = 37; // left
-        var activeChannel = Math.round( Math.random() * 3 ) + 1;
-        var activeStep    = 1;
+        let keyCode         = 37; // left
+        const activeChannel = Math.round( Math.random() * 3 ) + 1;
+        const activeStep    = 1;
 
         // test 1. expand
 

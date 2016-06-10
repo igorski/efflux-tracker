@@ -20,28 +20,30 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config            = require( "../config/Config" );
-var WaveTableDraw     = require( "../components/WaveTableDraw" );
-var Manual            = require( "../definitions/Manual" );
-var Messages          = require( "../definitions/Messages" );
-var InstrumentFactory = require( "../factory/InstrumentFactory" );
-var Form              = require( "../utils/Form" );
-var TemplateUtil      = require( "../utils/TemplateUtil" );
-var zCanvas           = require( "zCanvas" ).zCanvas;
-var Pubsub            = require( "pubsub-js" );
+"use strict";
+
+const Config            = require( "../config/Config" );
+const WaveTableDraw     = require( "../components/WaveTableDraw" );
+const Manual            = require( "../definitions/Manual" );
+const Messages          = require( "../definitions/Messages" );
+const InstrumentFactory = require( "../factory/InstrumentFactory" );
+const Form              = require( "../utils/Form" );
+const TemplateUtil      = require( "../utils/TemplateUtil" );
+const zCanvas           = require( "zCanvas" ).zCanvas;
+const Pubsub            = require( "pubsub-js" );
 
 /* private properties */
 
-var container, efflux, keyboardController, view, canvas, wtDraw,
+let container, efflux, keyboardController, view, canvas, wtDraw,
     instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
     delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
-var activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
+let activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
 
-var InstrumentController = module.exports =
+const InstrumentController = module.exports =
 {
     visible : false,
 
@@ -95,7 +97,7 @@ var InstrumentController = module.exports =
 
         wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), function( table )
         {
-            var oscillator;
+            let oscillator;
             if ( instrumentRef ) {
 
                 oscillator       = instrumentRef.oscillators[ activeOscillatorIndex ];
@@ -166,7 +168,8 @@ var InstrumentController = module.exports =
 
     update : function()
     {
-        var instruments = efflux.activeSong.instruments, i = instruments.length;
+        const instruments = efflux.activeSong.instruments;
+        let i = instruments.length;
         instrumentRef = null;
 
         while ( i-- ) {
@@ -179,7 +182,9 @@ var InstrumentController = module.exports =
         if ( !instrumentRef )
             return;
 
-        var tabs = view.querySelectorAll( "#oscillatorTabs li" ), tab;
+        const tabs = view.querySelectorAll( "#oscillatorTabs li" );
+        let tab;
+
         i = tabs.length;
         while ( i-- ) {
             tab = tabs[ i ].classList;
@@ -189,7 +194,7 @@ var InstrumentController = module.exports =
             tab.remove( "active" );
         }
 
-        var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
+        const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
         view.querySelector( "h2" ).innerHTML = "Editing " + instrumentRef.name;
         showWaveformForOscillator( oscillator );
         Form.setSelectedOption( oscEnabledSelect,  oscillator.enabled );
@@ -276,10 +281,10 @@ function handleHelp( aEvent )
 
 function handleOscillatorTabClick( aEvent )
 {
-    var element = aEvent.target;
+    const element = aEvent.target;
     if ( element.nodeName === "LI" ) {
 
-        var value = parseFloat( element.getAttribute( "data-oscillator" ));
+        const value = parseFloat( element.getAttribute( "data-oscillator" ));
         if ( !isNaN( value )) {
             activeOscillatorIndex = value - 1;
             InstrumentController.update();
@@ -289,9 +294,9 @@ function handleOscillatorTabClick( aEvent )
 
 function handleTuningChange( aEvent )
 {
-    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
-        target     = aEvent.target,
-        value      = parseFloat( target.value );
+    const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
+          target     = aEvent.target,
+          value      = parseFloat( target.value );
 
     switch ( target )
     {
@@ -312,9 +317,9 @@ function handleTuningChange( aEvent )
 
 function handleEnvelopeChange( aEvent )
 {
-    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
-        target     = aEvent.target,
-        value      = parseFloat( target.value );
+    const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
+          target     = aEvent.target,
+          value      = parseFloat( target.value );
 
     switch ( target )
     {
@@ -338,7 +343,7 @@ function handleEnvelopeChange( aEvent )
 
 function handleFilterChange( aEvent )
 {
-    var filter = instrumentRef.filter;
+    const filter = instrumentRef.filter;
 
     filter.frequency = parseFloat( frequencyControl.value );
     filter.q         = parseFloat( qControl.value );
@@ -353,7 +358,7 @@ function handleFilterChange( aEvent )
 
 function handleDelayChange( aEvent )
 {
-    var delay = instrumentRef.delay;
+    const delay = instrumentRef.delay;
 
     delay.enabled  = ( Form.getSelectedOption( delayEnabledSelect ) === "true" );
     delay.type     = parseFloat( Form.getSelectedOption( delayTypeSelect ));
@@ -373,14 +378,14 @@ function handleInstrumentSelect( aEvent )
 
 function handleOscillatorEnabledChange( aEvent )
 {
-    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
+    const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     oscillator.enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
     cacheOscillatorWaveForm( oscillator );
 }
 
 function handleOscillatorWaveformChange( aEvent )
 {
-    var oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
+    const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     instrumentRef.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
     showWaveformForOscillator( oscillator );
     cacheOscillatorWaveForm( oscillator );
@@ -428,9 +433,9 @@ function cacheOscillatorWaveForm( oscillator )
 
 function updateWaveformSize()
 {
-    var ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
-    var windowWidth = window.innerWidth;
-    var width       = ( windowWidth < ideal ) ? windowWidth *  .9: ideal;
+    const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
+    const windowWidth = window.innerWidth;
+    const width       = ( windowWidth < ideal ) ? windowWidth *  .9: ideal;
 
     if ( canvas.getWidth() !== width ) {
         canvas.setDimensions( width, 200 );

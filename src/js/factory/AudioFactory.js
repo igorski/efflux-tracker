@@ -20,9 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config     = require( "../config/Config" );
-var Delay      = require( "../third_party/Delay" );
-var ModuleUtil = require( "../utils/ModuleUtil" );
+"use strict";
+
+const Config     = require( "../config/Config" );
+const Delay      = require( "../third_party/Delay" );
+const ModuleUtil = require( "../utils/ModuleUtil" );
 
 /* type definitions */
 
@@ -35,7 +37,7 @@ var ModuleUtil = require( "../utils/ModuleUtil" );
  *              filterEnabled: boolean
  *          }}
  */
-var FILTER_MODULE;
+let FILTER_MODULE;
 
 /**
  * @typedef {{
@@ -43,17 +45,17 @@ var FILTER_MODULE;
  *              delayEnabled: boolean
  *          }}
  */
-var DELAY_MODULE;
+let DELAY_MODULE;
 
 /* private properties */
 
-var isStandards = !!( "AudioContext" in window );
+const isStandards = !!( "AudioContext" in window );
 
 /**
  * AudioFactory provides wrapper methods to overcome
  * differences in AudioContext implementations across browsers
  */
-var AudioFactory = module.exports =
+const AudioFactory = module.exports =
 {
     /**
      * @public
@@ -111,7 +113,7 @@ var AudioFactory = module.exports =
      */
     createDelayNode : function( aContext, aMaxDelayTime )
     {
-        var delay;
+        let delay;
 
         if ( isStandards)
             delay = aContext.createDelay();
@@ -135,9 +137,9 @@ var AudioFactory = module.exports =
      */
     createFilter : function( audioContext )
     {
-        var filter = audioContext.createBiquadFilter();
-        var lfo    = audioContext.createOscillator();
-        var lfoAmp = AudioFactory.createGainNode( audioContext );
+        const filter = audioContext.createBiquadFilter();
+        const lfo    = audioContext.createOscillator();
+        const lfoAmp = AudioFactory.createGainNode( audioContext );
 
         AudioFactory.startOscillation( lfo, audioContext.currentTime );
         lfoAmp.connect( filter.frequency );
@@ -167,8 +169,8 @@ var AudioFactory = module.exports =
      */
     applyFilterConfiguration : function( modules, props, output )
     {
-        var filter        = modules.filter;
-        var filterEnabled = ( props.lfoType !== "off" );
+        const filter        = modules.filter;
+        const filterEnabled = ( props.lfoType !== "off" );
 
         filter.filter.frequency.value = props.frequency;
         filter.filter.Q.value         = props.q;
@@ -208,7 +210,7 @@ var AudioFactory = module.exports =
      */
     createDelay : function( audioContext )
     {
-        var delay = new Delay( audioContext,
+        const delay = new Delay( audioContext,
         {
             type: 0,
             delay: 0.5,
@@ -233,7 +235,7 @@ var AudioFactory = module.exports =
      */
     applyDelayConfiguration : function( instrumentModule, props, output )
     {
-        var delay = instrumentModule.delay.delay;
+        const delay = instrumentModule.delay.delay;
 
         delay.type     = props.type;
         delay.delay    = props.time;

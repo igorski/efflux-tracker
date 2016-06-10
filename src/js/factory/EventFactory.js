@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
 
 /**
  * type definition for a single AudioEvent
@@ -61,9 +62,9 @@
  *              }
  *          }}
  */
-var AUDIO_EVENT;
+let AUDIO_EVENT;
 
-var EventFactory = module.exports =
+const EventFactory = module.exports =
 {
     /**
      * generates the (empty) content for a single Audio Event

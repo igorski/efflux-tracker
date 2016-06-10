@@ -20,17 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var SongUtil     = require( "../utils/SongUtil" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var Messages     = require( "../definitions/Messages" );
-var Pubsub       = require( "pubsub-js" );
+"use strict";
+
+const SongUtil     = require( "../utils/SongUtil" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const Messages     = require( "../definitions/Messages" );
+const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-var container, efflux, keyboardController, editorModel;
-var title, author, instrumentEditBtn;
+let container, efflux, keyboardController, editorModel;
+let title, author, instrumentEditBtn;
 
-var MetaController = module.exports =
+const MetaController = module.exports =
 {
     /**
      * initialize MetaController, attach MetaView template into give container
@@ -79,7 +81,7 @@ var MetaController = module.exports =
      */
     update : function()
     {
-        var meta = efflux.activeSong.meta;
+        const meta = efflux.activeSong.meta;
 
         title.value  = meta.title;
         author.value = meta.author;
@@ -106,7 +108,7 @@ function handleBroadcast( type, payload )
  */
 function handleChange( aEvent )
 {
-    var meta = efflux.activeSong.meta;
+    const meta = efflux.activeSong.meta;
 
     meta.title  = title.value;
     meta.author = author.value;

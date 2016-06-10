@@ -20,17 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
+"use strict";
+
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
-var container, efflux;
-var contentContainer, currentSection;
-var DELAY = 1000, lastHelpRequest = 0;
+let container, efflux;
+let contentContainer, currentSection;
+const DELAY = 1000;
+let lastHelpRequest = 0;
 
-var HelpController = module.exports =
+const HelpController = module.exports =
 {
     /**
      * initialize HelpController, attach HelpView template into give container
@@ -71,7 +74,7 @@ function handleBroadcast( type, payload )
 
             if ( currentSection !== payload )
             {
-                var now = Date.now();
+                const now = Date.now();
 
                 // we slightly delay showing the new help text
                 // (scenario: user is moving the mouse to helpSection
@@ -79,7 +82,7 @@ function handleBroadcast( type, payload )
 
                 if (( now - lastHelpRequest ) > DELAY ) {
 
-                    var template = TemplateUtil.render( payload );
+                    const template = TemplateUtil.render( payload );
 
                     if ( template.length > 0 )
                         contentContainer.innerHTML = template;

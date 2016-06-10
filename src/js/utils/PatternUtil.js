@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var PatternFactory = require( "../factory/PatternFactory" );
+"use strict";
+
+const PatternFactory = require( "../factory/PatternFactory" );
 
 module.exports =
 {
@@ -36,8 +38,8 @@ module.exports =
      */
     addEmptyPatternAtIndex : function( patterns, index, amountOfSteps )
     {
-        var front = patterns.slice( 0, index );
-        var back  = patterns.slice( index );
+        let front = patterns.slice( 0, index );
+        let back  = patterns.slice( index );
 
         front.push( PatternFactory.createEmptyPattern( amountOfSteps ));
 
@@ -70,8 +72,8 @@ module.exports =
     {
         patterns.splice( index, 1 );
 
-        var front = patterns.slice( 0, index);
-        var back  = patterns.slice( index );
+        let front = patterns.slice( 0, index);
+        let back  = patterns.slice( index );
 
         // update event offset for back pattern (as it has now shifted)
 

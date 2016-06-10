@@ -20,17 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config       = require( "../config/Config" );
-var Copy         = require( "../i18n/Copy" );
-var Messages     = require( "../definitions/Messages" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var Style        = require( "zjslib" ).Style;
-var Pubsub       = require( "pubsub-js" );
-var Bowser       = require( "bowser" );
+"use strict";
+
+const Config       = require( "../config/Config" );
+const Copy         = require( "../i18n/Copy" );
+const Messages     = require( "../definitions/Messages" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const Style        = require( "zjslib" ).Style;
+const Pubsub       = require( "pubsub-js" );
+const Bowser       = require( "bowser" );
 
 /* private variables */
 
-var patternContainer, trackList, transportSection, patternEditor, helpSection,
+let patternContainer, trackList, transportSection, patternEditor, helpSection,
     blind, loader;
 
 module.exports =
@@ -53,7 +55,7 @@ module.exports =
                 window.addEventListener( "popstate", handleUnload );
             }
             else {
-                var prevBeforeUnload = window.onbeforeunload;
+                const prevBeforeUnload = window.onbeforeunload;
                 window.onbeforeunload = function( aEvent ) {
                     if ( prevBeforeUnload ) {
                         prevBeforeUnload( aEvent );
@@ -161,7 +163,7 @@ function calculateDimensions( aEvent )
     trackList        = trackList        || document.querySelector( "#patternTrackList" );
     helpSection      = helpSection      || document.querySelector( "#helpSection" );
 
-    var gs = Style.getStyle;
+    const gs = Style.getStyle;
 
     // unsetting patternContainer width allows for accurate centerWrapper calculation
 

@@ -1,18 +1,20 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai       = require( "chai" );
-var StateModel = require( "../../src/js/model/StateModel" );
+"use strict";
+
+const chai       = require( "chai" );
+const StateModel = require( "../../src/js/model/StateModel" );
 
 describe( "StateModel", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
-    var maxStates, model;
+    let maxStates, model;
 
     // executed before the tests start running
 
@@ -50,7 +52,7 @@ describe( "StateModel", function()
         assert.strictEqual( 0, model.getAmountOfStates(),
             "expected 0 states to be stored after model instantiation" );
 
-        var i, state, amountStored;
+        let i, state, amountStored;
 
         for ( i = 0; i < maxStates; ++i )
         {
@@ -77,7 +79,8 @@ describe( "StateModel", function()
 
     it( "should be able to return to the last stored state", function()
     {
-        var states = [], state, i;
+        const states = [];
+        let state, i;
 
         // record states
 
@@ -104,7 +107,8 @@ describe( "StateModel", function()
 
     it( "should be able to go back and forth in state history", function()
     {
-        var states = [], state, i;
+        const states = [];
+        let state, i;
 
         // record states
 
@@ -118,7 +122,7 @@ describe( "StateModel", function()
 
         // restore some states
 
-        var mid = Math.round( maxStates / 2 );
+        let mid = Math.round( maxStates / 2 );
 
         i = mid;
         while ( i-- )
@@ -148,7 +152,7 @@ describe( "StateModel", function()
 function generateState( value )
 {
     // just some random data Object
-    var out = { foo: Math.random() * Date.now() };
+    const out = { foo: Math.random() * Date.now() };
 
     if ( typeof value === "string" || typeof value === "number" )
         out.id = value;

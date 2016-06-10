@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config = require( "../config/Config" );
+"use strict";
+
+const Config = require( "../config/Config" );
 
 /**
  * type definition for an instrument
@@ -49,7 +51,7 @@ var Config = require( "../config/Config" );
  *              }
  *          }}
  */
-var INSTRUMENT;
+let INSTRUMENT;
 
 /**
  * type definition for an instruments oscillator
@@ -79,9 +81,9 @@ var INSTRUMENT;
  *     }
  * }}
  */
-var INSTRUMENT_OSCILLATOR;
+let INSTRUMENT_OSCILLATOR;
 
-var InstrumentFactory = module.exports =
+const InstrumentFactory = module.exports =
 {
     /**
      * create a new instrument Object

@@ -20,13 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config    = require( "../config/Config" );
-var Delay     = require( "../third_party/Delay" );
-var ArrayUtil = require( "../utils/ArrayUtil" );
-var Messages  = require( "../definitions/Messages" );
-var Pubsub    = require( "pubsub-js" );
+"use strict";
 
-var ModuleUtil = module.exports =
+const Config    = require( "../config/Config" );
+const Delay     = require( "../third_party/Delay" );
+const ArrayUtil = require( "../utils/ArrayUtil" );
+const Messages  = require( "../definitions/Messages" );
+const Pubsub    = require( "pubsub-js" );
+
+const ModuleUtil = module.exports =
 {
     /**
      * apply the routing for the given instrument modules
@@ -40,15 +42,15 @@ var ModuleUtil = module.exports =
      */
     applyRouting : function( modules, output )
     {
-        var moduleOutput = modules.output,
-            filter       = modules.filter.filter,
-            delay        = modules.delay.delay;
+        const moduleOutput = modules.output,
+              filter       = modules.filter.filter,
+              delay        = modules.delay.delay;
 
         moduleOutput.disconnect();
         filter.disconnect();
         delay.output.disconnect();
 
-        var route = [], lastModule = moduleOutput;
+        let route = [], lastModule = moduleOutput;
 
         if ( modules.filter.filterEnabled )
             route.push( filter );
@@ -58,7 +60,7 @@ var ModuleUtil = module.exports =
 
         route.push( output );
 
-        var input;
+        let input;
         route.forEach( function( mod )
         {
             input = ( mod instanceof Delay ) ? mod.input : mod; // Delay is special
@@ -133,9 +135,11 @@ var ModuleUtil = module.exports =
 
 function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 {
-    var mp = audioEvent.mp, doGlide = mp.glide,
-        durationInSeconds = audioEvent.seq.mpLength,
-        target = ( mp.value / 100 ), i, j, event, voice;
+    const mp = audioEvent.mp, doGlide = mp.glide,
+          durationInSeconds = audioEvent.seq.mpLength,
+          target = ( mp.value / 100 );
+
+    let i, j, event, voice;
 
     i = instrumentEvents.length;
 
@@ -161,10 +165,11 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 
 function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
 {
-    var mp = audioEvent.mp, doGlide = mp.glide,
+    const mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
-        goingUp = ( mp.module === "pitchUp" ),
-        i, j, event, voice, generator, tmp, target;
+        goingUp = ( mp.module === "pitchUp" );
+
+    let i, j, event, voice, generator, tmp, target;
 
     i = instrumentEvents.length;
 
@@ -211,9 +216,9 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
 
 function applyFilter( audioEvent, modules, startTimeInSeconds )
 {
-    var mp = audioEvent.mp, doGlide = mp.glide,
-            durationInSeconds = audioEvent.seq.mpLength,
-            module = modules.filter, target = ( mp.value / 100 );
+    const mp = audioEvent.mp, doGlide = mp.glide,
+          durationInSeconds = audioEvent.seq.mpLength,
+          module = modules.filter, target = ( mp.value / 100 );
 
     switch ( mp.module )
     {
@@ -240,7 +245,7 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
 
 function applyDelay( audioEvent, modules, startTimeInSeconds )
 {
-    var mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
+    const mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
 
     switch ( mp.module )
     {

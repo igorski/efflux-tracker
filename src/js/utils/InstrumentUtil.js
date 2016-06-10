@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var InstrumentUtil = module.exports =
+"use strict";
+
+const InstrumentUtil = module.exports =
 {
     /**
      * tune given frequency to given oscillators tuning
@@ -35,8 +37,8 @@ var InstrumentUtil = module.exports =
     {
         // tune event frequency to oscillator tuning
 
-        var tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
-        var outFreq = tmpFreq;
+        const tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
+        let outFreq = tmpFreq;
 
         if ( oscillator.octaveShift !== 0 )
         {
@@ -46,7 +48,7 @@ var InstrumentUtil = module.exports =
                 outFreq += ( tmpFreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
         }
 
-        var fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
+        const fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
 
         if ( oscillator.fineShift < 0 )
             outFreq -= fineShift;
@@ -80,7 +82,7 @@ var InstrumentUtil = module.exports =
      */
     adjustEventTunings : function( events, oscillatorIndex, oscillator )
     {
-        var i = events.length,
+        let i = events.length,
             event, voice, generator;
 
         while ( i-- )
@@ -114,7 +116,7 @@ var InstrumentUtil = module.exports =
      */
     adjustEventVolume : function( events, oscillatorIndex, oscillator )
     {
-        var i = events.length,
+        let i = events.length,
             event, voice;
 
         while ( i-- )
@@ -145,7 +147,7 @@ var InstrumentUtil = module.exports =
         if ( !( table instanceof PeriodicWave ))
             return;
 
-        var i = events.length, event, generator;
+        let i = events.length, event, generator;
 
         while ( i-- )
         {

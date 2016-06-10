@@ -1,26 +1,28 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai           = require( "chai" );
-var MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
-var SongModel      = require( "../../src/js/model/SongModel" );
-var EventFactory   = require( "../../src/js/factory/EventFactory" );
-var PatternFactory = require( "../../src/js/factory/PatternFactory" );
-var SongUtil       = require( "../../src/js/utils/SongUtil" );
+"use strict";
+
+const chai           = require( "chai" );
+const MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
+const SongModel      = require( "../../src/js/model/SongModel" );
+const EventFactory   = require( "../../src/js/factory/EventFactory" );
+const PatternFactory = require( "../../src/js/factory/PatternFactory" );
+const SongUtil       = require( "../../src/js/utils/SongUtil" );
 
 describe( "SongUtil", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     // executed before the tests start running
 
     before( function()
     {
-        var browser   = new MockBrowser();
+        const browser = new MockBrowser();
         global.window = browser.getWindow();
     });
 
@@ -49,8 +51,8 @@ describe( "SongUtil", function()
 
     it( "should know whether or not a song has content", function()
     {
-        var model = new SongModel();
-        var song  = model.createSong();
+        const model = new SongModel();
+        const song  = model.createSong();
 
         assert.notOk( SongUtil.hasContent( song ),
             "expected song not to have content as no events with an action were defined in any pattern" );
@@ -58,7 +60,7 @@ describe( "SongUtil", function()
         // add a note to the first available slot in the firs
         // available channel of the first available pattern
 
-        var firstEvent    = EventFactory.createAudioEvent();
+        const firstEvent    = EventFactory.createAudioEvent();
         firstEvent.action = 1;
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
@@ -68,12 +70,12 @@ describe( "SongUtil", function()
 
     it( "should be able to update existing Audio Event offsets recursively", function()
     {
-        var model = new SongModel();
-        var song  = model.createSong();
+        const model = new SongModel();
+        const song  = model.createSong();
 
         // generate a random multiplication ratio
 
-        var ratio = Math.random();
+        const ratio = Math.random();
 
         // add some extra channels
 
@@ -81,21 +83,21 @@ describe( "SongUtil", function()
 
         // generate some events
 
-        var firstEvent    = EventFactory.createAudioEvent();
+        const firstEvent  = EventFactory.createAudioEvent();
         firstEvent.action = 1;
         firstEvent.seq.startMeasureOffset = 10;
         firstEvent.seq.length             = 2.5;
 
-        var expectedOffset1 = firstEvent.seq.startMeasureOffset * ratio;
-        var expectedLength1 = firstEvent.seq.length * ratio;
+        const expectedOffset1 = firstEvent.seq.startMeasureOffset * ratio;
+        const expectedLength1 = firstEvent.seq.length * ratio;
 
-        var secondEvent    = EventFactory.createAudioEvent();
+        const secondEvent  = EventFactory.createAudioEvent();
         secondEvent.action = 1;
         secondEvent.seq.startMeasureOffset = 5;
         secondEvent.seq.length             = 1.5;
 
-        var expectedOffset2 = secondEvent.seq.startMeasureOffset * ratio;
-        var expectedLength2 = secondEvent.seq.length * ratio;
+        const expectedOffset2 = secondEvent.seq.startMeasureOffset * ratio;
+        const expectedLength2 = secondEvent.seq.length * ratio;
 
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
         song.patterns[ 1 ].channels[ 1 ][ 8 ] = secondEvent;

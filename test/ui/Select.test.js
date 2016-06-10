@@ -1,19 +1,21 @@
 /**
  * Created by igorzinken on 18-03-16.
  */
-var chai        = require( "chai" );
-var MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
-var Select      = require( "../../src/js/ui/Select" );
+"use strict";
+
+const chai        = require( "chai" );
+const MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
+const Select      = require( "../../src/js/ui/Select" );
 
 describe( "Select", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
-    var browser, options, element;
+    let browser, options, element;
 
     // executed before the tests start running
 
@@ -57,7 +59,7 @@ describe( "Select", function()
 
     it( "should construct without supplying options", function()
     {
-        var select = new Select( element );
+        const select = new Select( element );
 
         assert.notOk( select.hasOptions(),
             "expected Select not to have options if none were passed during construction" );
@@ -65,7 +67,7 @@ describe( "Select", function()
 
     it( "should construct without supplying options", function()
     {
-        var select = new Select( element, null, options );
+        const select = new Select( element, null, options );
 
         assert.ok( select.hasOptions(),
             "expected Select to have options as these were supplied during construction" );
@@ -73,7 +75,7 @@ describe( "Select", function()
 
     it( "should be able to update its options after construction", function()
     {
-        var select = new Select( element );
+        const select = new Select( element );
 
         select.setOptions( options );
 
@@ -83,7 +85,7 @@ describe( "Select", function()
 
     it( "should by default select the first available option after setting options", function()
     {
-        var select = new Select( element );
+        const select = new Select( element );
 
         select.setOptions( options );
 
@@ -93,7 +95,7 @@ describe( "Select", function()
 
     it( "should be able to update its selected value", function()
     {
-        var select = new Select( element );
+        const select = new Select( element );
 
         select.setOptions( options );
         select.setValue( options[1].value );
@@ -110,7 +112,7 @@ describe( "Select", function()
 
     it( "should be able to update its selected value by the first character of the value", function()
     {
-        var select = new Select( element, null, options );
+        const select = new Select( element, null, options );
 
         // expect second option "bar"
         select.setValueByFirstLetter( "b" );
@@ -139,17 +141,17 @@ describe( "Select", function()
 
     it( "should invoke its complete handler upon changing its values", function( done )
     {
-        var select = new Select( element, done, options );
+        const select = new Select( element, done, options );
         select.setValue( options[1].value );
     });
 
     it( "should be able to collect values if it is constructed for an existing HTML template", function()
     {
-        var html             = "<ul><li data-value='foo'>foo</li><li data-value='bar'>bar</li></ul>";
-        var templatedElement = global.document.createElement( "div" );
+        const html             = "<ul><li data-value='foo'>foo</li><li data-value='bar'>bar</li></ul>";
+        const templatedElement = global.document.createElement( "div" );
         templatedElement.innerHTML = html;
 
-        var select = new Select( templatedElement );
+        const select = new Select( templatedElement );
 
         assert.ok( select.hasOptions(),
             "expected Select to have options if it is constructed with an HTML template" );
@@ -160,7 +162,7 @@ describe( "Select", function()
 
     it( "should be able to know its enabled state", function()
     {
-        var select = new Select( element, null, options );
+        const select = new Select( element, null, options );
 
         assert.ok( select.isEnabled(),
             "expected Select to be enabled after construction" );
@@ -178,7 +180,7 @@ describe( "Select", function()
 
     it( "should be able to know set and unset its focus", function()
     {
-        var select = new Select( element, null, options );
+        const select = new Select( element, null, options );
 
         assert.notOk( select.isFocused(),
             "expected Select not to be focused after construction" );
@@ -196,7 +198,7 @@ describe( "Select", function()
 
     it( "should be able to know whether it is opened or closed", function()
     {
-        var select = new Select( element, null, options );
+        const select = new Select( element, null, options );
 
         assert.notOk( select.isOpen(),
             "expected Select not to be opened after construction" );

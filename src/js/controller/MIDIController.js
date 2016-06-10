@@ -20,25 +20,27 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Copy         = require( "../i18n/Copy" );
-var Time         = require( "../utils/Time" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var EventUtil    = require( "../utils/EventUtil" );
-var SongUtil     = require( "../utils/SongUtil" );
-var EventFactory = require( "../factory/EventFactory" );
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
-var zMIDILib     = require( "zmidi" ),
-    zMIDI        = zMIDILib.zMIDI,
-    zMIDIEvent   = zMIDILib.zMIDIEvent,
-    MIDINotes    = zMIDILib.MIDINotes;
+"use strict";
+
+const Copy         = require( "../i18n/Copy" );
+const Time         = require( "../utils/Time" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const EventUtil    = require( "../utils/EventUtil" );
+const SongUtil     = require( "../utils/SongUtil" );
+const EventFactory = require( "../factory/EventFactory" );
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+const zMIDILib     = require( "zmidi" ),
+      zMIDI        = zMIDILib.zMIDI,
+      zMIDIEvent   = zMIDILib.zMIDIEvent,
+      MIDINotes    = zMIDILib.MIDINotes;
 
 /* private properties */
 
-var efflux, audioController, sequencerController;
-var currentlyConnectedInput = -1, playingNotes = [];
+let efflux, audioController, sequencerController;
+let currentlyConnectedInput = -1, playingNotes = [];
 
-var MidiController = module.exports =
+const MidiController = module.exports =
 {
     init : function( effluxRef, audioControllerRef, sequencerControllerRef )
     {
@@ -92,7 +94,7 @@ function connectToMIDIInterface()
 function addMIDIListener( aPortNumber )
 {
     // first clean up all old listeners
-    var amountOfPorts = zMIDI.getInChannels().length;
+    let amountOfPorts = zMIDI.getInChannels().length;
 
     while ( amountOfPorts-- )
         zMIDI.removeMessageListener( amountOfPorts );
@@ -100,7 +102,7 @@ function addMIDIListener( aPortNumber )
     zMIDI.addMessageListener( aPortNumber, handleMIDIMessage );
     currentlyConnectedInput = aPortNumber;
 
-    var device = zMIDI.getInChannels()[ aPortNumber ];
+    const device = zMIDI.getInChannels()[ aPortNumber ];
     Pubsub.publish( Messages.MIDI_DEVICE_CONNECTED, aPortNumber );
     Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "MIDI_ENABLED", device.manufacturer + " " + device.name ));
 }
@@ -126,22 +128,23 @@ function handleConnectFailure( msg )
  */
 function handleMIDIMessage( aEvent )
 {
-    var noteValue   = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
-        editorModel = efflux.EditorModel,
-        audioEvent;
+    const noteValue   = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
+          editorModel = efflux.EditorModel;
+
+    let audioEvent;
 
     switch ( aEvent.type )
     {
         case zMIDIEvent.NOTE_ON:
 
-            var pitch = MIDINotes.getPitchByNoteNumber( noteValue );
+            const pitch = MIDINotes.getPitchByNoteNumber( noteValue );
 
-            var instrumentId  = editorModel.activeInstrument;
-            var instrument    = efflux.activeSong.instruments[ instrumentId ];
-            audioEvent        = EventFactory.createAudioEvent( instrumentId );
-            audioEvent.note   = pitch.note;
-            audioEvent.octave = pitch.octave;
-            audioEvent.action = 1; // noteOn
+            const instrumentId  = editorModel.activeInstrument;
+            const instrument    = efflux.activeSong.instruments[ instrumentId ];
+            audioEvent          = EventFactory.createAudioEvent( instrumentId );
+            audioEvent.note     = pitch.note;
+            audioEvent.octave   = pitch.octave;
+            audioEvent.action   = 1; // noteOn
 
             playingNotes[ noteValue ] = { event: audioEvent, instrument: instrument };
             audioController.noteOn( audioEvent, instrument );
@@ -159,7 +162,7 @@ function handleMIDIMessage( aEvent )
                 audioController.noteOff( audioEvent.event, audioEvent.instrument );
 
                 if ( editorModel.recordingInput ) {
-                    var offEvent = EventFactory.createAudioEvent( audioEvent.instrument.id );
+                    const offEvent = EventFactory.createAudioEvent( audioEvent.instrument.id );
                     offEvent.action = 2; // noteOff
                     recordEventIntoSong( offEvent );
                 }
@@ -175,12 +178,12 @@ function recordEventIntoSong( audioEvent )
 
         // sequencer is playing, add event at current step
 
-        var editorModel   = efflux.EditorModel;
-        var song          = efflux.activeSong;
-        var activePattern = editorModel.activePattern;
-        var pattern       = song.patterns[ activePattern ];
-        var channel       = pattern.channels[ editorModel.activeInstrument ];
-        var step          = Math.round( sequencerController.getPosition().step / 64 * editorModel.amountOfSteps );
+        const editorModel   = efflux.EditorModel;
+        const song          = efflux.activeSong;
+        const activePattern = editorModel.activePattern;
+        const pattern       = song.patterns[ activePattern ];
+        const channel       = pattern.channels[ editorModel.activeInstrument ];
+        const step          = Math.round( sequencerController.getPosition().step / 64 * editorModel.amountOfSteps );
 
         EventUtil.setPosition(
             audioEvent, pattern, activePattern, step, song.meta.tempo
@@ -201,7 +204,8 @@ function recordEventIntoSong( audioEvent )
 function sanitizeRecordedEvents()
 {
     // unflag the recorded state of all the events
-    var patterns = efflux.activeSong.patterns, event, i;
+    const patterns = efflux.activeSong.patterns;
+    let event, i;
 
     patterns.forEach( function( pattern )
     {

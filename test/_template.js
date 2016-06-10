@@ -1,15 +1,17 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai = require( "chai" );
+"use strict";
+
+const chai = require( "chai" );
 
 describe( "namespace.Function", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     // executed before the tests start running
 

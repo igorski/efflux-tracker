@@ -20,19 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Copy         = require( "../i18n/Copy" );
-var Time         = require( "../utils/Time" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var Messages     = require( "../definitions/Messages" );
-var Pubsub       = require( "pubsub-js" );
-var EventHandler = require( "zjslib" ).EventHandler;
+"use strict";
+
+const Copy         = require( "../i18n/Copy" );
+const Time         = require( "../utils/Time" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const Messages     = require( "../definitions/Messages" );
+const Pubsub       = require( "pubsub-js" );
+const EventHandler = require( "zjslib" ).EventHandler;
 
 /* private properties */
 
-var efflux, keyboardController,
+let efflux, keyboardController,
     container, list, closeBtn, handler;
 
-var SongBrowserController = module.exports =
+const SongBrowserController = module.exports =
 {
     /**
      * initialize SongBrowserController, attach SongView template into give container
@@ -99,7 +101,8 @@ function handleBroadcast( type, payload )
 
 function handleOpen()
 {
-    var songs = efflux.SongModel.getSongs(), li;
+    const songs = efflux.SongModel.getSongs();
+    let li;
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
@@ -141,21 +144,21 @@ function handleClose()
 
 function handleSongOpenClick( aEvent )
 {
-    var id = aEvent.target.getAttribute( "data-id" );
+    const id = aEvent.target.getAttribute( "data-id" );
     Pubsub.publishSync( Messages.LOAD_SONG, id );
     handleClose();
 }
 
 function handleSongDeleteClick( aEvent )
 {
-    var id        = aEvent.target.parentNode.getAttribute( "data-id"),
-        songModel = efflux.SongModel,
-        song      = songModel.getSongById( id );
+    const id        = aEvent.target.parentNode.getAttribute( "data-id"),
+          songModel = efflux.SongModel,
+          song      = songModel.getSongById( id );
 
     if ( !song )
         return;
 
-    var doDelete = confirm( "Are you sure you want to delete song '" + song.meta.title + "' ? This operation cannot be undone." );
+    const doDelete = confirm( Copy.get( "SONG_DELETE_CONFIRM", song.meta.title ));
 
     if ( doDelete ) {
         songModel.deleteSong( song );

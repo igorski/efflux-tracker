@@ -3,7 +3,12 @@ module.exports = {
         options: {
             browserifyOptions: {
                 debug: true,
-                transform: "workerify"
+                transform: [
+                    ["babelify", {
+                        loose: "all"
+                    }],
+                    "workerify"
+                ]
             }
         },
         files: {
@@ -14,7 +19,12 @@ module.exports = {
         options: {
             browserifyOptions: {
                 debug: false,
-                transform: "workerify"
+                transform: [
+                    ["babelify", {
+                        loose: "all"
+                    }],
+                    "workerify"
+                ]
             }
         },
         files: {

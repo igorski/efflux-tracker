@@ -6,6 +6,8 @@
  *
  * contains: SAW, TRIANGLE, SQUARE
  */
+"use strict";
+
 module.exports =
 {
     SAW: {

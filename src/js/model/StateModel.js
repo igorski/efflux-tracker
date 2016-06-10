@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+"use strict";
+
 module.exports = StateModel;
 
 /**
@@ -68,8 +70,8 @@ function StateModel( statesToSave )
  */
 StateModel.prototype.store = function( data )
 {
-    var amountOfStates = this.getAmountOfStates();
-    var maxIndex       = amountOfStates - 1;
+    let amountOfStates = this.getAmountOfStates();
+    let maxIndex       = amountOfStates - 1;
 
     // in case we're storing a new action midway in history, remove the end of
     // history beyond this store point

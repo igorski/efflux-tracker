@@ -20,21 +20,23 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-var Config       = require( "../config/Config" );
-var Copy         = require( "../i18n/Copy" );
-var Time         = require( "../utils/Time" );
-var TemplateUtil = require( "../utils/TemplateUtil" );
-var SongUtil     = require( "../utils/SongUtil" );
-var Pubsub       = require( "pubsub-js" );
-var Messages     = require( "../definitions/Messages" );
-var zMIDI        = require( "zmidi" ).zMIDI;
+"use strict";
+
+const Config       = require( "../config/Config" );
+const Copy         = require( "../i18n/Copy" );
+const Time         = require( "../utils/Time" );
+const TemplateUtil = require( "../utils/TemplateUtil" );
+const SongUtil     = require( "../utils/SongUtil" );
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+const zMIDI        = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
-var header, menu, toggle, efflux, songController;
-var menuOpened = false; // whether menu is opened (mobile hamburger menu)
+let header, menu, toggle, efflux, songController;
+let menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
-var MenuController = module.exports =
+const MenuController = module.exports =
 {
     /**
      * initialize MenuController, attach MenuView template into given container
@@ -48,10 +50,10 @@ var MenuController = module.exports =
         efflux         = effluxRef;
         songController = songControllerRef;
 
-        var canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
+        const canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
         // on iOS and Safari recording isn't working as expected...
-        var userAgent = window.navigator.userAgent;
-        var canRecord = ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
+        const userAgent = window.navigator.userAgent;
+        const canRecord = ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
 
         containerRef.innerHTML += TemplateUtil.render( "menuView", {
             addExport : canImportExport,
@@ -160,7 +162,7 @@ function handleLoad( aEvent )
 
 function handleSave( aEvent )
 {
-    var song = efflux.activeSong;
+    const song = efflux.activeSong;
 
     if ( isValid( song )) {
         efflux.SongModel.saveSong( song );
@@ -174,7 +176,7 @@ function handleReset( aEvent )
     if ( confirm( Copy.get( "WARNING_SONG_RESET" ) )) {
         efflux.activeSong = efflux.SongModel.createSong();
 
-        var editorModel = efflux.EditorModel;
+        const editorModel = efflux.EditorModel;
         editorModel.activeInstrument =
         editorModel.activePattern    =
         editorModel.activeStep       = 0;
@@ -199,7 +201,7 @@ function handleSettings( aEvent )
  */
 function isValid( song )
 {
-    var hasContent = SongUtil.hasContent( song );
+    let hasContent = SongUtil.hasContent( song );
 
     if ( !hasContent ) {
         Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_EMPTY_SONG" ) );
@@ -219,11 +221,11 @@ function handleImport( aEvent )
 {
     // inline handler to overcome blocking of the file select popup by the browser
 
-    var fileBrowser = document.createElement( "input" );
+    const fileBrowser = document.createElement( "input" );
     fileBrowser.setAttribute( "type",   "file" );
     fileBrowser.setAttribute( "accept", Config.FILE_EXTENSION );
 
-    var simulatedEvent = document.createEvent( "MouseEvent" );
+    const simulatedEvent = document.createEvent( "MouseEvent" );
     simulatedEvent.initMouseEvent( "click", true, true, window, 1,
                                    0, 0, 0, 0, false,
                                    false, false, false, 0, null );
@@ -231,12 +233,12 @@ function handleImport( aEvent )
     fileBrowser.dispatchEvent( simulatedEvent );
     fileBrowser.addEventListener( "change", function( aEvent )
     {
-        var reader = new FileReader();
+        const reader = new FileReader();
 
         reader.onload = function( e )
         {
-            var fileData = e.target.result;
-            var song     = JSON.parse( atob( fileData ));
+            const fileData = e.target.result;
+            const song     = JSON.parse( atob( fileData ));
 
             // rudimentary check if we're dealing with a valid song
 
@@ -254,17 +256,17 @@ function handleImport( aEvent )
 
 function handleExport( aEvent )
 {
-    var song = efflux.activeSong;
+    const song = efflux.activeSong;
 
     if ( isValid( song ) ) {
 
         // encode song data
 
-        var data = serializeSong( song );
+        const data = serializeSong( song );
 
         // download file to disk
 
-        var pom = document.createElement( "a" );
+        const pom = document.createElement( "a" );
         pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
         pom.setAttribute( "download", song.meta.title + Config.FILE_EXTENSION );
         pom.click();

@@ -1,18 +1,20 @@
 /**
  * Created by igorzinken on 26-07-15.
  */
-var chai           = require( "chai" );
-var Config         = require( "../../src/js/config/Config" );
-var EventFactory   = require( "../../src/js/factory/EventFactory" );
-var PatternFactory = require( "../../src/js/factory/PatternFactory" );
+"use strict";
+
+const chai           = require( "chai" );
+const Config         = require( "../../src/js/config/Config" );
+const EventFactory   = require( "../../src/js/factory/EventFactory" );
+const PatternFactory = require( "../../src/js/factory/PatternFactory" );
 
 describe( "PatternFactory", function()
 {
     /* setup */
 
     // use Chai assertion library
-    var assert = chai.assert,
-        expect = chai.expect;
+    const assert = chai.assert,
+          expect = chai.expect;
 
     // executed before the tests start running
 
@@ -46,8 +48,8 @@ describe( "PatternFactory", function()
 
     it( "should be able to generate an empty pattern template for any requested step amount", function()
     {
-        var steps   = Math.round( 1 + ( Math.random() * 32 ));
-        var pattern = PatternFactory.createEmptyPattern( steps );
+        const steps   = Math.round( 1 + ( Math.random() * 32 ));
+        const pattern = PatternFactory.createEmptyPattern( steps );
 
         assert.ok( typeof pattern === "object",
             "expected PatternFactory to have generated a pattern Object, got " + typeof pattern + " instead" );
@@ -67,7 +69,7 @@ describe( "PatternFactory", function()
 
     it( "should by default generate an empty pattern template for a 16 step sequence", function()
     {
-        var pattern = PatternFactory.createEmptyPattern();
+        const pattern = PatternFactory.createEmptyPattern();
 
         assert.strictEqual( 16, pattern.steps,
             "expected PatternFactory to have generated a pattern Object of 16 steps in length" );
@@ -75,18 +77,18 @@ describe( "PatternFactory", function()
 
     it( "should be able to merge equal length patterns", function()
     {
-        var pattern1 = PatternFactory.createEmptyPattern();
-        var pattern2 = PatternFactory.createEmptyPattern();
+        const pattern1 = PatternFactory.createEmptyPattern();
+        const pattern2 = PatternFactory.createEmptyPattern();
 
         // generate some note content
 
-        var p1channel1 = pattern1.channels[ 0 ];
-        var p2channel1 = pattern2.channels[ 0 ];
+        let p1channel1 = pattern1.channels[ 0 ];
+        let p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 0 ] = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
-        var expected2 = p1channel1[ 4 ] = EventFactory.createAudioEvent( 1, "D",  5, 1 );
-        var expected3 = p2channel1[ 2 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
-        var expected4 = p2channel1[ 6 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
+        const expected1 = p1channel1[ 0 ] = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
+        const expected2 = p1channel1[ 4 ] = EventFactory.createAudioEvent( 1, "D",  5, 1 );
+        const expected3 = p2channel1[ 2 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
+        const expected4 = p2channel1[ 6 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
 
         // merge patterns
 
@@ -111,18 +113,18 @@ describe( "PatternFactory", function()
 
     it( "should be able to merge unequal length patterns when source is larger than target", function()
     {
-        var pattern1 = PatternFactory.createEmptyPattern( 16 );
-        var pattern2 = PatternFactory.createEmptyPattern( 32 );
+        const pattern1 = PatternFactory.createEmptyPattern( 16 );
+        const pattern2 = PatternFactory.createEmptyPattern( 32 );
 
         // generate some note content
 
-        var p1channel1 = pattern1.channels[ 0 ];
-        var p2channel1 = pattern2.channels[ 0 ];
+        let p1channel1 = pattern1.channels[ 0 ];
+        let p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 0 ]  = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
-        var expected2 = p1channel1[ 4 ]  = EventFactory.createAudioEvent( 1, "D",  5, 1 );
-        var expected3 = p2channel1[ 15 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
-        var expected4 = p2channel1[ 29 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
+        const expected1 = p1channel1[ 0 ]  = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
+        const expected2 = p1channel1[ 4 ]  = EventFactory.createAudioEvent( 1, "D",  5, 1 );
+        const expected3 = p2channel1[ 15 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
+        const expected4 = p2channel1[ 29 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
 
         // merge patterns
 
@@ -151,18 +153,18 @@ describe( "PatternFactory", function()
 
     it( "should be able to merge unequal length patterns when target is larger than the source", function()
     {
-        var pattern1 = PatternFactory.createEmptyPattern( 32 );
-        var pattern2 = PatternFactory.createEmptyPattern( 16 );
+        const pattern1 = PatternFactory.createEmptyPattern( 32 );
+        const pattern2 = PatternFactory.createEmptyPattern( 16 );
 
         // generate some note content
 
-        var p1channel1 = pattern1.channels[ 0 ];
-        var p2channel1 = pattern2.channels[ 0 ];
+        let p1channel1 = pattern1.channels[ 0 ];
+        let p2channel1 = pattern2.channels[ 0 ];
 
-        var expected1 = p1channel1[ 15 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
-        var expected2 = p1channel1[ 29 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
-        var expected3 = p2channel1[ 0 ]  = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
-        var expected4 = p2channel1[ 4 ]  = EventFactory.createAudioEvent( 1, "D",  5, 1 );
+        const expected1 = p1channel1[ 15 ] = EventFactory.createAudioEvent( 1, "E",  6, 1 );
+        const expected2 = p1channel1[ 29 ] = EventFactory.createAudioEvent( 1, "F",  7, 1 );
+        const expected3 = p2channel1[ 0 ]  = EventFactory.createAudioEvent( 1, "C#", 4, 1 );
+        const expected4 = p2channel1[ 4 ]  = EventFactory.createAudioEvent( 1, "D",  5, 1 );
 
         // merge patterns
 
@@ -187,19 +189,19 @@ describe( "PatternFactory", function()
 
     it( "should be able to clear the AudioEvent content for any requested step position", function()
     {
-        var pattern = PatternFactory.createEmptyPattern();
+        const pattern = PatternFactory.createEmptyPattern();
 
         // generate some note content
 
-        var pchannel1 = pattern.channels[ 0 ];
-        var pchannel2 = pattern.channels[ 1 ];
+        const pchannel1 = pattern.channels[ 0 ];
+        const pchannel2 = pattern.channels[ 1 ];
 
         // create some AudioEvents
 
-        var expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, "E", 2, 1 );
-        var expected2 = pchannel1[ 1 ] = EventFactory.createAudioEvent( 1, "F", 3, 1 );
-        var expected3 = pchannel2[ 0 ] = EventFactory.createAudioEvent( 1, "F#",4, 1 );
-        var expected4 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, "G", 5, 1 );
+        const expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, "E", 2, 1 );
+        const expected2 = pchannel1[ 1 ] = EventFactory.createAudioEvent( 1, "F", 3, 1 );
+        const expected3 = pchannel2[ 0 ] = EventFactory.createAudioEvent( 1, "F#",4, 1 );
+        const expected4 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, "G", 5, 1 );
 
         // start clearing individual events and asserting the results
 
