@@ -118,9 +118,7 @@ SelectList.prototype.focus = function( selectIndex, force )
         nextFocused = this._selects[ selectIndex ];
 
     if ( nextFocused ) {
-        this._selects.forEach( function( select ) {
-            select.blur();
-        });
+        this._selects.forEach(( select ) => select.blur() );
         this.focusOnSelect( nextFocused );
     }
 };

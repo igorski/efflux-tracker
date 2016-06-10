@@ -106,12 +106,10 @@ const SequencerController = module.exports =
             Messages.LOAD_SONG,
             Messages.SONG_LOADED
 
-        ].forEach( function( msg ) {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
         worker = new Worker( "../../workers/SequencerWorker.js" );
-        worker.onmessage = function( msg )
+        worker.onmessage = ( msg ) =>
         {
             if ( msg.data.cmd === "collect" )
                 collect();
@@ -520,7 +518,7 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
  */
 function dequeueEvent( aEvent, aTime )
 {
-    let clock = AudioUtil.createTimer( audioContext, aTime, function( e )
+    let clock = AudioUtil.createTimer( audioContext, aTime, aTimerEvent =>
     {
         aEvent.seq.playing = false;
         audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);

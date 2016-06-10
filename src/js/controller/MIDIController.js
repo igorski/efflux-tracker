@@ -55,9 +55,7 @@ const MidiController = module.exports =
             Messages.MIDI_ADD_LISTENER_TO_DEVICE,
             Messages.PLAYBACK_STOPPED
 
-        ].forEach( function( msg ) {
-            Pubsub.subscribe( msg, handleBroadcast );
-        })
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     }
 };
 
@@ -207,9 +205,9 @@ function sanitizeRecordedEvents()
     const patterns = efflux.activeSong.patterns;
     let event, i;
 
-    patterns.forEach( function( pattern )
+    patterns.forEach( pattern =>
     {
-        pattern.channels.forEach( function( events )
+        pattern.channels.forEach( events =>
         {
             i = events.length;
             while ( i-- )

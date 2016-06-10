@@ -184,7 +184,7 @@ Select.prototype.setOptions = function( aOptions )
     }
 
     let option;
-    aOptions.forEach( function( aOption, index )
+    aOptions.forEach(( aOption, index ) =>
     {
         option = document.createElement( "li" );
         option.innerHTML = aOption.title;

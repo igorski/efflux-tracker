@@ -51,9 +51,7 @@ const NotificationController = module.exports =
             Messages.SHOW_ERROR,
             Messages.SHOW_FEEDBACK
 
-        ].forEach( function( msg ) {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     }
 };
 

@@ -80,10 +80,7 @@ const NoteEntryController = module.exports =
             Messages.OPEN_NOTE_ENTRY_PANEL,
             Messages.CLOSE_OVERLAYS
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /* event handlers */

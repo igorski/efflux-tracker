@@ -66,10 +66,7 @@ const SongBrowserController = module.exports =
             Messages.CLOSE_OVERLAYS,
             Messages.OPEN_SONG_LIST
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     handleKey( type, keyCode, event )
@@ -114,7 +111,7 @@ function handleOpen()
     disposeHandler();
     handler = new EventHandler();
 
-    songs.forEach( function( song )
+    songs.forEach( song =>
     {
         li = document.createElement( "li" );
         li.setAttribute( "data-id", song.id );

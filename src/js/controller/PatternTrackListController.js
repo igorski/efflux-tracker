@@ -102,10 +102,7 @@ const PatternTrackListController = module.exports =
             Messages.ADD_OFF_AT_POSITION,
             Messages.REMOVE_NOTE_AT_POSITION
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     update()
@@ -567,7 +564,7 @@ function handlePatternStepChange( aEvent )
     // update model values
     pattern.steps = editorModel.amountOfSteps = newAmount;
 
-    pattern.channels.forEach( function( channel, index )
+    pattern.channels.forEach(( channel, index ) =>
     {
         let transformed = new Array( newAmount ), i, j, increment;
 

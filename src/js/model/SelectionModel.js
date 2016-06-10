@@ -167,7 +167,7 @@ SelectionModel.prototype.equalizeSelection = function( minSelect, maxSelect )
     for ( i = this.firstSelectedChannel; i < this.lastSelectedChannel; ++i )
     {
         currentChannel = selection[ i ];
-        currentChannel.forEach( function( pattern, index )
+        currentChannel.forEach(( pattern, index ) =>
         {
             for ( j = minSelect; j < maxSelect; ++j )
             {
@@ -442,7 +442,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
         {
             targetPattern = target.channels[ i ];
 
-            this._copySelection[ j ].forEach( function( event, index )
+            this._copySelection[ j ].forEach(( event, index ) =>
             {
                 writeIndex = activeStep + index;
 

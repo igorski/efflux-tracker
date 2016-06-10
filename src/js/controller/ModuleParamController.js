@@ -73,10 +73,7 @@ const ModuleParamController = module.exports =
             Messages.OPEN_MODULE_PARAM_PANEL,
             Messages.CLOSE_OVERLAYS
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /* event handlers */

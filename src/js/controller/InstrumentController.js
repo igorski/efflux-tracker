@@ -95,7 +95,7 @@ const InstrumentController = module.exports =
         canvas.setBackgroundColor( "#000000" );
         canvas.insertInPage( view.querySelector( "#canvasContainer" ));
 
-        wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), function( table )
+        wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), table =>
         {
             let oscillator;
             if ( instrumentRef ) {
@@ -128,11 +128,11 @@ const InstrumentController = module.exports =
         oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
         oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
 
-        [ detuneControl, octaveShiftControl, fineShiftControl ].forEach( function( control ) {
+        [ detuneControl, octaveShiftControl, fineShiftControl ].forEach(( control ) => {
             control.addEventListener( "input", handleTuningChange );
         });
 
-        [ attackControl, decayControl, sustainControl, releaseControl ].forEach( function( control ) {
+        [ attackControl, decayControl, sustainControl, releaseControl ].forEach(( control ) => {
             control.addEventListener( "input", handleEnvelopeChange );
         });
 
@@ -141,13 +141,13 @@ const InstrumentController = module.exports =
         filterEnabledSelect.addEventListener( "change", handleFilterChange );
         lfoSelect.addEventListener          ( "change", handleFilterChange );
         filterSelect.addEventListener       ( "change", handleFilterChange );
-        [ frequencyControl, qControl, speedControl, depthControl ].forEach( function( control ) {
+        [ frequencyControl, qControl, speedControl, depthControl ].forEach(( control ) => {
             control.addEventListener( "input", handleFilterChange );
         });
 
         delayEnabledSelect.addEventListener( "change", handleDelayChange );
         delayTypeSelect.addEventListener   ( "change", handleDelayChange );
-        [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( function( control ) {
+        [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( ( control ) => {
             control.addEventListener( "input", handleDelayChange );
         });
 
@@ -156,10 +156,7 @@ const InstrumentController = module.exports =
             Messages.TOGGLE_INSTRUMENT_EDITOR,
             Messages.WINDOW_RESIZED
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
         // initialize
 
@@ -445,7 +442,7 @@ function updateWaveformSize()
 
 function togglePitchSliders( enabled )
 {
-    [ octaveShiftControl, fineShiftControl ].forEach( function( slider )
+    [ octaveShiftControl, fineShiftControl ].forEach( slider =>
     {
         if ( enabled )
             slider.removeAttribute( "disabled" );

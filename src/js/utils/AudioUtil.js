@@ -103,9 +103,8 @@ module.exports =
 
         // oscillator will start, stop and can be garbage collected after going out of scope
 
-        oscillator.onended = function() {
-            oscillator.disconnect();
-        };
+        oscillator.onended = ( oscillatorEvent ) => oscillator.disconnect();
+
         AudioFactory.startOscillation( oscillator, startTimeInSeconds );
         AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
 
@@ -124,7 +123,7 @@ module.exports =
         if ( !Bowser.ios )
             return;
 
-        const handler = function( e )
+        const handler = touchEvent =>
         {
             document.removeEventListener( "touchstart", handler, false );
 

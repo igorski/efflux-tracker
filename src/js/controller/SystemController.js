@@ -56,7 +56,7 @@ module.exports =
             }
             else {
                 const prevBeforeUnload = window.onbeforeunload;
-                window.onbeforeunload = function( aEvent ) {
+                window.onbeforeunload = ( aEvent ) => {
                     if ( prevBeforeUnload ) {
                         prevBeforeUnload( aEvent );
                     }
@@ -76,10 +76,7 @@ module.exports =
             Messages.PATTERN_STEPS_UPDATED,
             Messages.SONG_LOADED
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
         // ensure that on application start all elements are presented correctly
 

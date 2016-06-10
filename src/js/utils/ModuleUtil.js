@@ -61,8 +61,7 @@ const ModuleUtil = module.exports =
         route.push( output );
 
         let input;
-        route.forEach( function( mod )
-        {
+        route.forEach(( mod ) => {
             input = ( mod instanceof Delay ) ? mod.input : mod; // Delay is special
             lastModule.connect( input );
             lastModule = ( mod instanceof Delay ) ? mod.output : mod;

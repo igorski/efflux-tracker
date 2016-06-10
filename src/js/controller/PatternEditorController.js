@@ -61,9 +61,7 @@ module.exports =
             Messages.STEP_POSITION_REACHED,
             Messages.SONG_LOADED
 
-        ].forEach( function( msg ) {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
         // initialize
         updateStepAmount( 16 );

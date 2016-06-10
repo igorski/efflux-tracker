@@ -41,7 +41,7 @@ module.exports =
         Pubsub.publish( Messages.SHOW_LOADER );
 
         Qajax( Config.getBasePath() + "/Fixtures.js" )
-            .then( function( success )
+            .then(( success ) =>
             {
                 Pubsub.publish( Messages.HIDE_LOADER );
 
@@ -54,10 +54,7 @@ module.exports =
                     catch( e ) {}
                 }
             },
-            function( error )
-            {
-                Pubsub.publish( Messages.HIDE_LOADER );
-            }
+            ( error ) => Pubsub.publish( Messages.HIDE_LOADER )
         );
     }
 };

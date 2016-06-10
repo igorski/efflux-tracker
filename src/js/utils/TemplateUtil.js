@@ -32,7 +32,7 @@ const templates    = new templateFile( Handlebars );
  * use in template like:
  * {{toLowerCase propertyName}}
  */
-Handlebars.registerHelper( "toLowerCase", function( string )
+Handlebars.registerHelper( "toLowerCase", ( string ) =>
 {
     if ( typeof string === "string" )
         return string.toLowerCase();
@@ -44,7 +44,7 @@ Handlebars.registerHelper( "toLowerCase", function( string )
  * use in template like:
  * {{loop 10}}
  */
-Handlebars.registerHelper( "loop", function( n, block )
+Handlebars.registerHelper( "loop", ( n, block ) =>
 {
     let out = "";
 
@@ -60,7 +60,7 @@ Handlebars.registerHelper( "loop", function( n, block )
  * use in template like:
  * {{mparam event.mp}}
  */
-Handlebars.registerHelper( "mparam", function( data )
+Handlebars.registerHelper( "mparam", ( data ) =>
 {
     let out = "";
 

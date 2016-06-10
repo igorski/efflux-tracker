@@ -37,11 +37,11 @@ module.exports =
     {
         let hasContent = false;
 
-        song.patterns.forEach( function( songPattern )
+        song.patterns.forEach(( songPattern ) =>
         {
-            songPattern.channels.forEach( function( channel )
+            songPattern.channels.forEach(( channel ) =>
             {
-                channel.forEach( function( pattern )
+                channel.forEach(( pattern ) =>
                 {
                     if ( pattern && pattern.action !== 0 ) {
                         hasContent = true;
@@ -97,11 +97,11 @@ module.exports =
      */
     resetPlayState( patterns )
     {
-        patterns.forEach( function( pattern )
+        patterns.forEach(( pattern ) =>
         {
-            pattern.channels.forEach( function( channel )
+            pattern.channels.forEach(( channel ) =>
             {
-                channel.forEach( function( event )
+                channel.forEach(( event ) =>
                 {
                     if ( event )
                         event.seq.playing = false;

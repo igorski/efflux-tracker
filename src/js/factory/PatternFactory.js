@@ -83,7 +83,7 @@ const PatternFactory = module.exports =
             replacement = generateEmptyChannelPatterns( sourceLength );
             increment   = Math.round( sourceLength / targetLength );
 
-            replacement.forEach( function( channel, index )
+            replacement.forEach(( channel, index ) =>
             {
                 for ( i = 0, j = 0; i < targetLength; ++i, j += increment )
                     channel[ j ] = targetPattern.channels[ index ][ i ];
@@ -100,7 +100,7 @@ const PatternFactory = module.exports =
             replacement = generateEmptyChannelPatterns( targetLength );
             increment   = Math.round( targetLength / sourceLength );
 
-            replacement.forEach( function( channel, index )
+            replacement.forEach(( channel, index ) =>
             {
                 for ( i = 0, j = 0; i < sourceLength; ++i, j += increment )
                     channel[ j ] = sourcePattern.channels[ index ][ i ];
@@ -112,7 +112,7 @@ const PatternFactory = module.exports =
 
         let sourceStep, orgStartMeasure;
 
-        targetPattern.channels.forEach( function( targetChannel, index )
+        targetPattern.channels.forEach(( targetChannel, index ) =>
         {
             sourceChannel = sourcePattern.channels[ index ];
 
@@ -169,7 +169,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
         out.push( new Array( amountOfSteps ));
 
-    out.forEach( function( channel )
+    out.forEach( channel =>
     {
         i = amountOfSteps;
 

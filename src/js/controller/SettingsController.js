@@ -69,10 +69,7 @@ const SettingsController = module.exports =
             Messages.CLOSE_OVERLAYS,
             Messages.MIDI_RECEIVED_INPUT_DEVICES
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     handleKey( type, keyCode, event )

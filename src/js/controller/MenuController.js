@@ -100,10 +100,7 @@ const MenuController = module.exports =
             Messages.CLOSE_OVERLAYS,
             Messages.VALIDATE_AND_GET_SONG
 
-        ].forEach( function( msg )
-        {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     }
 };
 
@@ -231,13 +228,13 @@ function handleImport( aEvent )
                                    false, false, false, 0, null );
 
     fileBrowser.dispatchEvent( simulatedEvent );
-    fileBrowser.addEventListener( "change", function( aEvent )
+    fileBrowser.addEventListener( "change", aEvent =>
     {
         const reader = new FileReader();
 
-        reader.onload = function( e )
+        reader.onload = readerEvent =>
         {
-            const fileData = e.target.result;
+            const fileData = readerEvent.target.result;
             const song     = JSON.parse( atob( fileData ));
 
             // rudimentary check if we're dealing with a valid song

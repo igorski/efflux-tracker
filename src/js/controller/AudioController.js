@@ -167,9 +167,7 @@ const AudioController = module.exports =
             Messages.UPDATE_FILTER_SETTINGS,
             Messages.UPDATE_DELAY_SETTINGS
 
-        ].forEach( function( msg ) {
-            Pubsub.subscribe( msg, handleBroadcast );
-        });
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /**
@@ -187,9 +185,7 @@ const AudioController = module.exports =
                 event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
 
                 if ( event ) {
-                    event.forEach( function( voice, oscillatorIndex ) {
-                        AudioFactory.stopOscillation( voice.generator );
-                    });
+                    event.forEach(( voice, oscillatorIndex ) => AudioFactory.stopOscillation( voice.generator ));
                 }
             }
         });
@@ -236,7 +232,7 @@ const AudioController = module.exports =
             let oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
             const modules   = instrumentModules[ aInstrument.id ];
 
-            aInstrument.oscillators.forEach( function( oscillatorVO, oscillatorIndex )
+            aInstrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) =>
             {
                 if ( oscillatorVO.enabled ) {
 
@@ -345,7 +341,7 @@ const AudioController = module.exports =
 
             const modules = instrumentModules[ aInstrument.id ];
 
-            eventObject.forEach( function( event )
+            eventObject.forEach( event =>
             {
                 const oscillator = event.generator,
                       envelope   = event.envelope,
@@ -492,7 +488,7 @@ function createModules()
 function applyModules()
 {
     let instrumentModule;
-    efflux.activeSong.instruments.forEach( function( instrument, index ) {
+    efflux.activeSong.instruments.forEach(( instrument, index ) => {
         instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;
         Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
@@ -508,11 +504,11 @@ function applyModules()
  */
 function cacheCustomTables( instruments )
 {
-    instruments.forEach( function( instrument, instrumentIndex )
+    instruments.forEach(( instrument, instrumentIndex ) =>
     {
         pool.CUSTOM[ instrumentIndex ] = new Array( instrument.oscillators.length );
 
-        instrument.oscillators.forEach( function( oscillator, oscillatorIndex ) {
+        instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
 
             if ( oscillator.table ) {
                 pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createTableFromCustomGraph(
