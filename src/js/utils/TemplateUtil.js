@@ -108,8 +108,8 @@ const TemplateUtil = module.exports =
      */
     renderAsElement( templateName, data )
     {
-        let html    = TemplateUtil.render( templateName, data );
-        let element = document.createElement( "div" );
+        const html    = TemplateUtil.render( templateName, data );
+        const element = document.createElement( "div" );
         element.setAttribute( "class", templateName + "-wrapper" );
 
         if ( html.length > 0 )
