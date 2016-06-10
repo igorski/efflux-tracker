@@ -472,10 +472,6 @@ SelectionModel.prototype.sort = function()
     while ( i-- ) {
         channel = this.selectedChannels[ i ];
         if ( channel )
-            channel.sort( sortMethod );
+            channel.sort(( a, b ) => a - b );
     }
 };
-
-function sortMethod( a, b ) {
-    return a - b;
-}

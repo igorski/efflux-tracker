@@ -38,7 +38,7 @@ const TemplateUtil   = require( "../utils/TemplateUtil" );
 /* private properties */
 
 let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
-let maxChannel = 0, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
+let maxChannel, minPatternSelect = 0, maxPatternSelect = 0, interactionData = {},
     stateModel, selectionModel, patternCopy, stepSelect;
 
 let PATTERN_WIDTH = 150; // width of a single track/pattern column
