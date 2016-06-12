@@ -45,7 +45,8 @@ module.exports =
     OPEN_SETTINGS_PANEL       : "UI:5",
     OPEN_NOTE_ENTRY_PANEL     : "UI:6", // payload is callback Function to be executed on panel close
     OPEN_MODULE_PARAM_PANEL   : "UI:7", // payload is callback Function to be executed on panel close
-    HIGHLIGHT_ACTIVE_STEP     : "UI:8", // payload is number indicating currently active highlight
+    HIGHLIGHT_ACTIVE_STEP     : "UI:8", // payload is optional number indicating currently active highlight (otherwise defaults to last active step)
+    PATTERN_SET_HOR_SCROLL    : "UI:9", // payload is number indiciating pattern track list view horizontal scroll offset
 
     // song messages
 
@@ -81,6 +82,9 @@ module.exports =
     ADD_EVENT_AT_POSITION      : "ED:7", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
     ADD_OFF_AT_POSITION        : "ED:8",
     REMOVE_NOTE_AT_POSITION    : "ED:9",
+    SAVE_STATE                 : "ED:10",
+    EDIT_MOD_PARAMS_FOR_STEP   : "ED:11",
+    EDIT_NOTE_FOR_STEP         : "ED:12",
 
     // MIDI messages
 

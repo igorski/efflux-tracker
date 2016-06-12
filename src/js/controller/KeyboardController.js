@@ -22,19 +22,29 @@
  */
 "use strict";
 
+const Config   = require( "../config/Config" );
 const Messages = require( "../definitions/Messages" );
 const Pubsub   = require( "pubsub-js" );
 
-let listener, suspended = false,
-    blockDefaults = true, optionDown = false, shiftDown = false;
+let editorModel, stateModel, selectionModel, listener, suspended = false,
+    blockDefaults = true, optionDown = false, shiftDown = false,
+    minSelect = 0, maxSelect = 0;
 
-module.exports =
+const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
+      MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
+      PATTERN_WIDTH   = 150; // width of a single track/pattern column TODO : move somewhere more applicable
+
+const KeyboardController = module.exports =
 {
     /**
      * initialize KeyboardController
      */
-    init()
+    init( efflux )
     {
+        editorModel    = efflux.EditorModel;
+        stateModel     = efflux.StateModel;
+        selectionModel = efflux.SelectionModel;
+
         window.addEventListener( "keydown", handleKeyDown );
         window.addEventListener( "keyup",   handleKeyUp );
     },
@@ -105,42 +115,205 @@ module.exports =
 
 function handleKeyDown( aEvent )
 {
-    if ( !suspended && listener && listener.handleKey )
+    if ( !suspended )
     {
+        const keyCode    = aEvent.keyCode,
+              curStep    = editorModel.activeStep,
+              curChannel = editorModel.activeInstrument; // the current step position and channel within the pattern
+
         shiftDown = !!aEvent.shiftKey;
 
-        switch ( aEvent.keyCode )
-        {
-            case 32: // spacebar
-                if ( blockDefaults )
-                    aEvent.preventDefault();
+        // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
 
-                Pubsub.publish( Messages.TOGGLE_SEQUENCER_PLAYSTATE );
-                break;
+        if ( blockDefaults && DEFAULT_BLOCKED.indexOf( keyCode ) > -1 )
+            aEvent.preventDefault();
 
-            // prevent defaults when using the arrows, space (prevents page jumps)
-            // and backspace (prevents navigating back in history)
-
-            case 8:
-            case 37:
-            case 38:
-            case 39:
-            case 40:
-                if ( blockDefaults )
-                    aEvent.preventDefault();
-                break;
-
-            // capture the apple key here as it is not recognized as a modifier
-
-            case 224:   // Firefox
-            case 17:    // Opera
-            case 91:    // WebKit left key
-            case 93:    // Webkit right key
-                optionDown = true;
-                break;
+        if ( listener && listener.handleKey ) {
+            listener.handleKey( "up", keyCode, aEvent );
         }
-        listener.handleKey( "up", aEvent.keyCode, aEvent );
-    }
+        else {
+            switch ( aEvent.keyCode )
+            {
+                case 32: // spacebar
+                    Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_PLAYSTATE );
+                    break;
+
+                // capture the apple key here as it is not recognized as a modifier
+
+                case 224:   // Firefox
+                case 17:    // Opera
+                case 91:    // WebKit left key
+                case 93:    // Webkit right key
+                    optionDown = true;
+                    break;
+
+                case 38: // up
+
+                    if ( --editorModel.activeStep < 0 )
+                        editorModel.activeStep = 0;
+
+                    // when holding down shift make a selection, otherwise clear selection
+
+                    if ( aEvent && aEvent.shiftKey )
+                        selectionModel.handleVerticalKeySelectAction( keyCode, editorModel.activeInstrument, curStep, editorModel.activeStep );
+                    else
+                        selectionModel.clearSelection();
+
+                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    break;
+
+                case 40: // down
+
+                    const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
+
+                    if ( ++editorModel.activeStep > maxStep )
+                        editorModel.activeStep = maxStep;
+
+                    // when holding down shift make a selection, otherwise clear existing selection
+
+                    if ( aEvent && aEvent.shiftKey )
+                        selectionModel.handleVerticalKeySelectAction( keyCode, editorModel.activeInstrument, curStep, editorModel.activeStep );
+                    else
+                        selectionModel.clearSelection();
+
+                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    break;
+
+                case 39: // right
+
+                    if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
+                        if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
+                            ++editorModel.activePattern;
+                            editorModel.activeInstrument = 0;
+                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        }
+                        else
+                            editorModel.activeInstrument = MAX_CHANNEL;
+
+                        Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                    }
+                    else if ( editorModel.activeInstrument > 2 )
+                        Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
+
+                    if ( aEvent.shiftKey )
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
+                    else
+                        selectionModel.clearSelection();
+
+                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    break;
+
+                case 37: // left
+
+                    if ( --editorModel.activeInstrument < 0 ) {
+                        if ( editorModel.activePattern > 0 ) {
+                            --editorModel.activePattern;
+                            editorModel.activeInstrument = 1;
+                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        }
+                        else
+                            editorModel.activeInstrument = 0;
+
+                        Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                    }
+                    else if ( editorModel.activeInstrument >= 0 )
+                        Pubsub.publishSync(( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
+
+                    if ( aEvent.shiftKey ) {
+                        minSelect = Math.max( --maxSelect, 0 );
+                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
+                    }
+                    else
+                        selectionModel.clearSelection();
+
+                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    break;
+
+                case 13: // enter
+                    if ( KeyboardController.hasOption( aEvent ))
+                        Pubsub.publishSync( Messages.EDIT_MOD_PARAMS_FOR_STEP );
+                    else
+                        Pubsub.publishSync( Messages.EDIT_NOTE_FOR_STEP );
+                    break;
+
+                case 8:  // backspace
+                    Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
+                    handleKeyUp({ keyCode: 38, preventDefault: function() {} }); // move up to previous slot
+                    break;
+
+                case 46: // delete
+                    Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
+                    handleKeyUp({ keyCode: 40, preventDefault: function() {} }); // move down to next slot
+                    break;
+
+                case 90: // Z
+
+                    if ( KeyboardController.hasOption( aEvent ))
+                    {
+                        let state;
+
+                        if ( !aEvent.shiftKey )
+                            state = stateModel.undo();
+                        else
+                            state = stateModel.redo();
+
+                        if ( state ) {
+                            efflux.activeSong = state;
+                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        }
+                    }
+
+                    break;
+
+                case 88: // X
+
+                    // cut current selection
+
+                    if ( KeyboardController.hasOption( aEvent ))
+                    {
+                        if ( !selectionModel.hasSelection() ) {
+                            selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
+                            selectionModel.setSelection( editorModel.activeStep );
+                        }
+                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern );
+                        selectionModel.clearSelection();
+                        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        Pubsub.publishSync( Messages.SAVE_STATE );
+                    }
+                    break;
+
+                case 86: // V
+
+                    // paste current selection
+                    if ( KeyboardController.hasOption( aEvent )) {
+                        selectionModel.pasteSelection(
+                            efflux.activeSong, editorModel.activePattern, editorModel.activeInstrument, editorModel.activeStep
+                        );
+                        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        Pubsub.publishSync( Messages.SAVE_STATE );
+                    }
+                    break;
+
+                case 67: // C
+
+                    // copy current selection
+                    if ( KeyboardController.hasOption( aEvent ))
+                    {
+                        if ( !selectionModel.hasSelection() ) {
+                            selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
+                            selectionModel.setSelection( editorModel.activeStep );
+                        }
+                        selectionModel.copySelection( efflux.activeSong, editorModel.activePattern );
+                        selectionModel.clearSelection();
+                    }
+                    break;
+
+                case 79: // O
+                    Pubsub.publishSync( Messages.ADD_OFF_AT_POSITION );
+                    break;
+            }
+        }
+   }
 }
 
 function handleKeyUp( aEvent )
@@ -158,6 +331,10 @@ function handleKeyUp( aEvent )
                 case 91:    // WebKit left key
                 case 93:    // Webkit right key
                     optionDown = false;
+                    break;
+
+                case 16:
+                    selectionModel.actionCache.stepOnSelection = -1;
                     break;
             }
         }

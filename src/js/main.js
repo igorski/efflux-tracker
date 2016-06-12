@@ -23,7 +23,9 @@
 "use strict";
 
 const EditorModel                = require( "./model/EditorModel" );
+const SelectionModel             = require( "./model/SelectionModel" );
 const SongModel                  = require( "./model/SongModel" );
+const StateModel                 = require( "./model/StateModel" );
 const AudioController            = require( "./controller/AudioController" );
 const HelpController             = require( "./controller/HelpController" );
 const InstrumentController       = require( "./controller/InstrumentController" );
@@ -49,29 +51,28 @@ const zMIDI                      = require( "zmidi" ).zMIDI;
 
 /* initialize application */
 
-(function( ref )
-{
-    // grab reference to application container in template
+// grab reference to application container in template
 
-    let container = document.querySelector( "#application" );
+let container = document.querySelector( "#application" );
 
-    // WebAudio API not supported ? halt application start
+// WebAudio API not supported ? halt application start
 
-    if ( !AudioController.isSupported() ) {
-        container.innerHTML = TemplateUtil.render( "notSupported" );
-        return;
-    }
-
+if ( !AudioController.isSupported() ) {
+    container.innerHTML = TemplateUtil.render( "notSupported" );
+}
+else {
     // prepare application model
 
     let songModel = new SongModel();
 
-    const efflux = ref.efflux =
+    const efflux = window.efflux =
     {
-        EditorModel : new EditorModel(),
-        SongModel   : songModel,
-        Pubsub      : Pubsub,                // expose publishing / subscribe bus
-        activeSong  : songModel.createSong() // create new empty song
+        EditorModel    : new EditorModel(),
+        SelectionModel : new SelectionModel(),
+        SongModel      : songModel,
+        StateModel     : new StateModel(),
+        Pubsub         : Pubsub,                // expose publishing / subscribe bus
+        activeSong     : songModel.createSong() // create new empty song
     };
 
     // prepare view
@@ -80,7 +81,7 @@ const zMIDI                      = require( "zmidi" ).zMIDI;
 
     // initialize application controllers
 
-    KeyboardController.init();
+    KeyboardController.init( efflux );
     AudioController.init( efflux, efflux.activeSong.instruments );
     SettingsController.init( document.body, KeyboardController );
     MenuController.init( container.querySelector( "#menuSection" ), efflux );
@@ -110,9 +111,12 @@ const zMIDI                      = require( "zmidi" ).zMIDI;
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
-    Pubsub.subscribe( Messages.LOAD_SONG, handleBroadcast );
+    [
+        Messages.LOAD_SONG,
+        Messages.SAVE_STATE
 
-})( self );
+    ].forEach(( msg ) => handleBroadcast );
+}
 
 /* private methods */
 
@@ -131,7 +135,18 @@ function handleBroadcast( type, payload )
                 efflux.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
                 SongUtil.resetPlayState( efflux.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
+                efflux.StateModel.flush();
+                efflux.StateModel.store();
             }
+            break;
+
+        case Messages.SAVE_STATE:
+
+            // you might argue its wasteful to store full clones of the current
+            // song content, however we're not running this in the limited memory space
+            // of an Atari 2600 !! this should be just fine and hella fast
+
+            efflux.StateModel.store( ObjectUtil.clone( efflux.activeSong ));
             break;
     }
 }
