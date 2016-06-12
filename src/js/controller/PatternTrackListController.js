@@ -218,7 +218,10 @@ const PatternTrackListController = module.exports =
                     break;
 
                 case 13: // enter
-                    editNoteForStep();
+                    if ( keyboardController.hasOption( aEvent ))
+                        editModuleParamsForStep();
+                    else
+                        editNoteForStep();
                     break;
 
                 case 8:  // backspace
@@ -291,10 +294,6 @@ const PatternTrackListController = module.exports =
                         selectionModel.copySelection( efflux.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
                     }
-                    break;
-
-                case 77: // M
-                    editModuleParamsForStep();
                     break;
 
                 case 79: // O

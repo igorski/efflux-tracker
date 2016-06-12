@@ -130,7 +130,7 @@ function handleKeyDown( aEvent )
                     aEvent.preventDefault();
                 break;
 
-            // capture the apple key here as it not recognized as a modifier
+            // capture the apple key here as it is not recognized as a modifier
 
             case 224:   // Firefox
             case 17:    // Opera
