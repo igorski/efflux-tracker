@@ -217,7 +217,7 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                     }
                     else if ( editorModel.activeInstrument >= 0 )
-                        Pubsub.publishSync(( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
+                        Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
 
                     if ( aEvent.shiftKey ) {
                         minSelect = Math.max( --maxSelect, 0 );
