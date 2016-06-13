@@ -127,7 +127,7 @@ function handleBroadcast( type, payload )
         case Messages.LOAD_SONG:
 
             let song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
-
+            debugger;
             if ( song && song.meta && song.patterns ) {
 
                 efflux.activeSong = ObjectUtil.clone( song );

@@ -65,7 +65,6 @@ const PatternTrackListController = module.exports =
 
         // add listeners
 
-        keyboardController.setListener( PatternTrackListController );
         wrapper.addEventListener( "click",      handleInteraction );
         wrapper.addEventListener( "touchstart", handleInteraction );
         wrapper.addEventListener( "touchend",   handleInteraction );
@@ -95,7 +94,8 @@ const PatternTrackListController = module.exports =
             Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
             Messages.REMOVE_NOTE_AT_POSITION,
-            Messages.EDIT_MOD_PARAMS_FOR_STEP
+            Messages.EDIT_MOD_PARAMS_FOR_STEP,
+            Messages.EDIT_NOTE_FOR_STEP
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -299,19 +299,15 @@ function handleInteraction( aEvent )
 
 function editNoteForStep()
 {
-    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, function()
-    {
-        // restore interest in keyboard controller events
-        keyboardController.setListener( PatternTrackListController );
+    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, function() {
+        keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
     });
 }
 
 function editModuleParamsForStep()
 {
-    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function()
-    {
-        // restore interest in keyboard controller events
-        keyboardController.setListener( PatternTrackListController );
+    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function() {
+        keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
     });
 }
 

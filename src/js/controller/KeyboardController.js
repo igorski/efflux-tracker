@@ -318,26 +318,25 @@ function handleKeyDown( aEvent )
 
 function handleKeyUp( aEvent )
 {
-    if ( !suspended && listener && listener.handleKey )
+    shiftDown = false;
+
+    if ( optionDown )
     {
-        shiftDown = false;
-
-        if ( optionDown )
+        switch ( aEvent.keyCode )
         {
-            switch ( aEvent.keyCode )
-            {
-                case 224:   // Firefox
-                case 17:    // Opera
-                case 91:    // WebKit left key
-                case 93:    // Webkit right key
-                    optionDown = false;
-                    break;
+            case 224:   // Firefox
+            case 17:    // Opera
+            case 91:    // WebKit left key
+            case 93:    // Webkit right key
+                optionDown = false;
+                break;
 
-                case 16:
-                    selectionModel.actionCache.stepOnSelection = -1;
-                    break;
-            }
+            case 16:
+                selectionModel.actionCache.stepOnSelection = -1;
+                break;
         }
-        listener.handleKey( "down", aEvent.keyCode, aEvent );
     }
+
+    if ( !suspended && listener && listener.handleKey )
+        listener.handleKey( "down", aEvent.keyCode, aEvent );
 }
