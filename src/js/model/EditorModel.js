@@ -83,6 +83,20 @@ function EditorModel()
      * @type {boolean}
      */
     this.loopedRecording = true;
+
+    /**
+     * the root octave of the lower keyboard note range
+     *
+     * @type {number}
+     */
+    this.higherKeyboardOctave = 4;
+
+    /**
+     * the root octave of the lower keyboard note range
+     *
+     * @type {number}
+     */
+    this.lowerKeyboardOctave = 2;
 }
 
 EditorModel.prototype.reset = function()

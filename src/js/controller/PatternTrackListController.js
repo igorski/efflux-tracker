@@ -448,7 +448,7 @@ function addEventAtPosition( event, optData )
 
     channel[ step ] = event;
 
-    // TODO: duplicate from KeyboardController !!
+    // TODO: duplicate from KeyboardController !! (this moves to the next step in the track)
     const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
     if ( ++editorModel.activeStep > maxStep )

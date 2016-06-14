@@ -22,17 +22,26 @@
  */
 "use strict";
 
-const Config   = require( "../config/Config" );
-const Messages = require( "../definitions/Messages" );
-const Pubsub   = require( "pubsub-js" );
+const Config       = require( "../config/Config" );
+const Messages     = require( "../definitions/Messages" );
+const EventFactory = require( "../factory/EventFactory" );
+const Pubsub       = require( "pubsub-js" );
 
-let editorModel, stateModel, selectionModel, listener, suspended = false,
-    blockDefaults = true, optionDown = false, shiftDown = false,
-    minSelect = 0, maxSelect = 0;
+let editorModel, stateModel, selectionModel, listener,
+    suspended = false, blockDefaults = true, optionDown = false, shiftDown = false, minSelect = 0, maxSelect = 0;
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
       MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
       PATTERN_WIDTH   = 150; // width of a single track/pattern column TODO : move somewhere more applicable
+
+// High notes:  2 3   5 6 7   9 0
+//             Q W E R T Y U I O P
+const HIGHER_KEYS = [ 81, 50, 87, 51, 69, 82, 53, 84, 54, 89, 55, 85, 73, 57, 79, 48, 80 ];
+
+// Low notes:  S D   G H J   L ;
+//            Z X C V B N M , . /
+const LOWER_KEYS    = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190, 186, 191 ];
+const KEY_NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E" ];
 
 const KeyboardController = module.exports =
 {
@@ -139,7 +148,13 @@ function handleKeyDown( aEvent )
             listener.handleKey( "down", keyCode, aEvent );
         }
         else {
-            switch ( aEvent.keyCode )
+
+            const hasOption = KeyboardController.hasOption( aEvent );
+
+            if ( !hasOption && !aEvent.shiftKey )
+                createEventOnNoteKey( keyCode );
+
+            switch ( keyCode )
             {
                 case 32: // spacebar
                     Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_PLAYSTATE );
@@ -236,16 +251,16 @@ function handleKeyDown( aEvent )
                     Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
                     break;
 
-                case 13: // enter
-                    if ( KeyboardController.hasOption( aEvent ))
-                        Pubsub.publishSync( Messages.EDIT_MOD_PARAMS_FOR_STEP );
-                    else
-                        Pubsub.publishSync( Messages.EDIT_NOTE_FOR_STEP );
-                    break;
-
                 case 8:  // backspace
                     Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
                     handleKeyUp({ keyCode: 38, preventDefault: function() {} }); // move up to previous slot
+                    break;
+
+                case 13: // enter
+                    if ( hasOption )
+                        Pubsub.publishSync( Messages.EDIT_NOTE_FOR_STEP );
+                    else
+                        Pubsub.publishSync( Messages.EDIT_MOD_PARAMS_FOR_STEP );
                     break;
 
                 case 46: // delete
@@ -253,40 +268,22 @@ function handleKeyDown( aEvent )
                     handleKeyUp({ keyCode: 40, preventDefault: function() {} }); // move down to next slot
                     break;
 
-                case 90: // Z
+                case 67: // C
 
-                    if ( KeyboardController.hasOption( aEvent ))
-                    {
-                        let state;
+                     // copy current selection
+                     if ( hasOption )
+                     {
+                         if ( !selectionModel.hasSelection() ) {
+                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
+                             selectionModel.setSelection( editorModel.activeStep );
+                         }
+                         selectionModel.copySelection( efflux.activeSong, editorModel.activePattern );
+                         selectionModel.clearSelection();
+                     }
+                     break;
 
-                        if ( !aEvent.shiftKey )
-                            state = stateModel.undo();
-                        else
-                            state = stateModel.redo();
-
-                        if ( state ) {
-                            efflux.activeSong = state;
-                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-                        }
-                    }
-
-                    break;
-
-                case 88: // X
-
-                    // cut current selection
-
-                    if ( KeyboardController.hasOption( aEvent ))
-                    {
-                        if ( !selectionModel.hasSelection() ) {
-                            selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
-                            selectionModel.setSelection( editorModel.activeStep );
-                        }
-                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern );
-                        selectionModel.clearSelection();
-                        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-                        Pubsub.publishSync( Messages.SAVE_STATE );
-                    }
+                case 75: // K
+                    Pubsub.publishSync( Messages.ADD_OFF_AT_POSITION );
                     break;
 
                 case 86: // V
@@ -301,22 +298,55 @@ function handleKeyDown( aEvent )
                     }
                     break;
 
-                case 67: // C
+                case 88: // X
 
-                    // copy current selection
-                    if ( KeyboardController.hasOption( aEvent ))
+                    // cut current selection
+
+                    if ( hasOption )
                     {
                         if ( !selectionModel.hasSelection() ) {
                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
                             selectionModel.setSelection( editorModel.activeStep );
                         }
-                        selectionModel.copySelection( efflux.activeSong, editorModel.activePattern );
+                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern );
                         selectionModel.clearSelection();
+                        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        Pubsub.publishSync( Messages.SAVE_STATE );
                     }
                     break;
 
-                case 79: // O
-                    Pubsub.publishSync( Messages.ADD_OFF_AT_POSITION );
+                case 90: // Z
+
+                    if ( hasOption )
+                    {
+                        let state;
+
+                        if ( !aEvent.shiftKey )
+                            state = stateModel.undo();
+                        else
+                            state = stateModel.redo();
+
+                        if ( state ) {
+                            efflux.activeSong = state;
+                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        }
+                    }
+                    break;
+
+                case 189: // +
+                    editorModel.higherKeyboardOctave = Math.max( editorModel.higherKeyboardOctave - 1, 1 );
+                    break;
+
+                case 187: // -
+                    editorModel.higherKeyboardOctave = Math.min( editorModel.higherKeyboardOctave + 1, Config.MAX_OCTAVE );
+                    break;
+
+                case 219: // [
+                    editorModel.lowerKeyboardOctave = Math.max( editorModel.lowerKeyboardOctave - 1, 1 );
+                    break;
+
+                case 221: // ]
+                    editorModel.lowerKeyboardOctave = Math.min( editorModel.lowerKeyboardOctave + 1, Config.MAX_OCTAVE );
                     break;
             }
         }
@@ -346,4 +376,26 @@ function handleKeyUp( aEvent )
 
     if ( !suspended && listener && listener.handleKey )
         listener.handleKey( "up", aEvent.keyCode, aEvent );
+}
+
+function createEventOnNoteKey( keyCode )
+{
+    const higherIndex = HIGHER_KEYS.indexOf( keyCode );
+    const lowerIndex  = LOWER_KEYS.indexOf( keyCode );
+
+    let noteName, octave;
+
+    if ( higherIndex > -1 ) {
+        noteName = KEY_NOTE_LIST[ higherIndex ];
+        octave   = editorModel.higherKeyboardOctave;
+    }
+    else if ( lowerIndex > -1 ) {
+        noteName = KEY_NOTE_LIST[ lowerIndex ];
+        octave   = editorModel.lowerKeyboardOctave;
+    }
+    else
+        return;
+
+    const audioEvent = EventFactory.createAudioEvent( editorModel.activeInstrument, noteName, octave, 1 );
+    Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ audioEvent ]);
 }
