@@ -154,7 +154,7 @@ function handleMouseOver( aEvent )
 function handleLoad( aEvent )
 {
     Pubsub.publish( Messages.CLOSE_OVERLAYS, MenuController ); // close open overlays
-    Pubsub.publish( Messages.OPEN_SONG_LIST );
+    Pubsub.publish( Messages.OPEN_SONG_BROWSER );
 }
 
 function handleSave( aEvent )

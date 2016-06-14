@@ -241,8 +241,8 @@ function handleBroadcast( type, payload )
     {
         case Messages.TOGGLE_INSTRUMENT_EDITOR:
 
-            Pubsub.publish( Messages.CLOSE_OVERLAYS, InstrumentController );
-            Pubsub.publish( Messages.SHOW_BLIND );
+            Pubsub.publishSync( Messages.CLOSE_OVERLAYS, InstrumentController );
+            Pubsub.publishSync( Messages.SHOW_BLIND );
 
             container.appendChild( view );
             canvas.addChild( wtDraw );
@@ -268,7 +268,8 @@ function handleBroadcast( type, payload )
 
 function handleClose( aEvent )
 {
-    Pubsub.publish( Messages.CLOSE_OVERLAYS );
+    Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
+    keyboardController.reset();
 }
 
 function handleHelp( aEvent )

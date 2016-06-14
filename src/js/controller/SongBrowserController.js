@@ -64,7 +64,7 @@ const SongBrowserController = module.exports =
 
         [
             Messages.CLOSE_OVERLAYS,
-            Messages.OPEN_SONG_LIST
+            Messages.OPEN_SONG_BROWSER
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -90,7 +90,7 @@ function handleBroadcast( type, payload )
                 handleClose();
             break;
 
-        case Messages.OPEN_SONG_LIST:
+        case Messages.OPEN_SONG_BROWSER:
             handleOpen();
             break;
     }
@@ -159,7 +159,7 @@ function handleSongDeleteClick( aEvent )
 
     if ( doDelete ) {
         songModel.deleteSong( song );
-        Pubsub.publishSync( Messages.OPEN_SONG_LIST ); // refresh list
+        Pubsub.publishSync( Messages.OPEN_SONG_BROWSER ); // refreshes view
     }
 }
 
@@ -173,4 +173,6 @@ function disposeHandler()
         handler.dispose();
         handler = null;
     }
+    keyboardController.setListener( null );
+    keyboardController.setBlockDefaults( true );
 }

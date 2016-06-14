@@ -41,7 +41,7 @@ module.exports =
     CLOSE_OVERLAYS            : "UI:1", // payload consists of optional ViewController (references controller of overlay that should remain unclosed)
     TOGGLE_INSTRUMENT_EDITOR  : "UI:2", // payload consists of number describing selected instrument index
     SET_CUSTOM_WAVEFORM       : "UI:3", // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
-    OPEN_SONG_LIST            : "UI:4",
+    OPEN_SONG_BROWSER         : "UI:4",
     OPEN_SETTINGS_PANEL       : "UI:5",
     OPEN_NOTE_ENTRY_PANEL     : "UI:6", // payload is callback Function to be executed on panel close
     OPEN_MODULE_PARAM_PANEL   : "UI:7", // payload is callback Function to be executed on panel close

@@ -53,7 +53,7 @@ const zMIDI                      = require( "zmidi" ).zMIDI;
 
 // grab reference to application container in template
 
-let container = document.querySelector( "#application" );
+const container = document.querySelector( "#application" );
 
 // WebAudio API not supported ? halt application start
 
@@ -115,7 +115,7 @@ else {
         Messages.LOAD_SONG,
         Messages.SAVE_STATE
 
-    ].forEach(( msg ) => handleBroadcast );
+    ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 }
 
 /* private methods */
@@ -126,8 +126,8 @@ function handleBroadcast( type, payload )
     {
         case Messages.LOAD_SONG:
 
-            let song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
-            debugger;
+            const song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
+
             if ( song && song.meta && song.patterns ) {
 
                 efflux.activeSong = ObjectUtil.clone( song );

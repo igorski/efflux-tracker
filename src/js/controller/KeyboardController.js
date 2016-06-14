@@ -108,6 +108,13 @@ const KeyboardController = module.exports =
     setBlockDefaults( value )
     {
         blockDefaults = value;
+    },
+
+    reset : function()
+    {
+        KeyboardController.setListener( null );
+        KeyboardController.setSuspended( false );
+        KeyboardController.setBlockDefaults( true );
     }
 };
 
@@ -129,7 +136,7 @@ function handleKeyDown( aEvent )
             aEvent.preventDefault();
 
         if ( listener && listener.handleKey ) {
-            listener.handleKey( "up", keyCode, aEvent );
+            listener.handleKey( "down", keyCode, aEvent );
         }
         else {
             switch ( aEvent.keyCode )
@@ -338,5 +345,5 @@ function handleKeyUp( aEvent )
     }
 
     if ( !suspended && listener && listener.handleKey )
-        listener.handleKey( "down", aEvent.keyCode, aEvent );
+        listener.handleKey( "up", aEvent.keyCode, aEvent );
 }

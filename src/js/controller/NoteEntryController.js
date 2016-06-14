@@ -260,7 +260,7 @@ function handleReady()
 
 function dispose()
 {
-    keyboardController.setBlockDefaults( true );
+    keyboardController.reset();
 
     if ( element.parentNode ) {
         element.parentNode.removeChild( element );

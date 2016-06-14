@@ -113,6 +113,7 @@ function handleClose()
 {
     container.classList.remove( "active" );
     Pubsub.publishSync( Messages.HIDE_BLIND );
+    keyboardController.reset();
 }
 
 function handleMIDIConnect( aEvent )
