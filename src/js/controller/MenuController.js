@@ -243,6 +243,7 @@ function handleImport( aEvent )
             {
                 efflux.SongModel.saveSong( song );
                 efflux.activeSong = song;
+                Pubsub.publish( Messages.SONG_IMPORTED, song );
                 Pubsub.publish( Messages.SONG_LOADED, song );
             }
         };
@@ -267,6 +268,8 @@ function handleExport( aEvent )
         pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
         pom.setAttribute( "download", song.meta.title + Config.FILE_EXTENSION );
         pom.click();
+
+        Pubsub.publish( Messages.SONG_EXPORTED, song );
     }
 }
 

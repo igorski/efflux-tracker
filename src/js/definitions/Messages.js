@@ -53,8 +53,10 @@ module.exports =
     VALIDATE_AND_GET_SONG     : "SNGVG",  // payload consists of callback function receiving Song
     LOAD_SONG                 : "SNGLD",  // payload can be A) string (song id) or B) full Song object
     SONG_LOADED               : "SNG:0",  // payload consists of the Song that has been loaded
-    REFRESH_SONG              : "SNG:1",
-    REFRESH_PATTERN_VIEW      : "SNG:2",
+    SONG_IMPORTED             : "SNG:1",
+    SONG_EXPORTED             : "SNG:2",
+    REFRESH_SONG              : "SNG:3",
+    REFRESH_PATTERN_VIEW      : "SNG:4",
     PATTERN_STEPS_UPDATED     : "SNG:5",  // payload consists of number describing new pattern length
 
     // sequencer messages
