@@ -33,15 +33,12 @@ const zMIDILib         = require( "zmidi" ),
 
 /* private properties */
 
-let container, keyboardController;
-let deviceSelect;
+let container, deviceSelect;
 
 const SettingsController = module.exports =
 {
-    init( containerRef, keyboardControllerRef )
+    init( containerRef )
     {
-        keyboardController = keyboardControllerRef;
-
         // create a list container to show the songs when loading
 
         container = document.createElement( "div" );
@@ -70,15 +67,6 @@ const SettingsController = module.exports =
             Messages.MIDI_RECEIVED_INPUT_DEVICES
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-    },
-
-    handleKey( type, keyCode, event )
-    {
-        if ( type === "down" && keyCode === 27 )
-        {
-            // close on escape key
-            handleClose();
-        }
     }
 };
 
@@ -106,14 +94,12 @@ function handleOpen()
 {
     container.classList.add( "active" );
     Pubsub.publish( Messages.SHOW_BLIND );
-    keyboardController.setListener( SettingsController );
 }
 
 function handleClose()
 {
     container.classList.remove( "active" );
     Pubsub.publishSync( Messages.HIDE_BLIND );
-    keyboardController.reset();
 }
 
 function handleMIDIConnect( aEvent )

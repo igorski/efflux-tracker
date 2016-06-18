@@ -46,7 +46,7 @@ module.exports =
     OPEN_NOTE_ENTRY_PANEL     : "UI:6", // payload is callback Function to be executed on panel close
     OPEN_MODULE_PARAM_PANEL   : "UI:7", // payload is callback Function to be executed on panel close
     HIGHLIGHT_ACTIVE_STEP     : "UI:8", // payload is optional number indicating currently active highlight (otherwise defaults to last active step)
-    PATTERN_SET_HOR_SCROLL    : "UI:9", // payload is number indiciating pattern track list view horizontal scroll offset
+    PATTERN_SET_HOR_SCROLL    : "UI:9", // payload is number indicating pattern track list view horizontal scroll offset
 
     // song messages
 
@@ -71,6 +71,8 @@ module.exports =
     TEMPO_UPDATED              : "SEQ:5", // payload is Array [ old tempo, new tempo ]
     STEP_POSITION_REACHED      : "SEQ:6", // payload is Array [ current step position, total step positions (per measure) ]
     TOGGLE_RECORD_MODE         : "SEQ:7",
+    NOTE_ON                    : "SEQ:8", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
+    NOTE_OFF                   : "SEQ:9", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
 
     // editor messages
 

@@ -31,8 +31,7 @@ const EventHandler = require( "zjslib" ).EventHandler;
 
 /* private properties */
 
-let efflux, keyboardController,
-    container, list, closeBtn, handler;
+let efflux, container, list, closeBtn, handler;
 
 const SongBrowserController = module.exports =
 {
@@ -41,12 +40,10 @@ const SongBrowserController = module.exports =
      *
      * @param containerRef
      * @param effluxRef
-     * @param keyboardControllerRef
      */
-    init( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef )
     {
-        efflux             = effluxRef;
-        keyboardController = keyboardControllerRef;
+        efflux = effluxRef;
 
         // append SongBrowser template to page, see CSS toggles for visibility
 
@@ -67,15 +64,6 @@ const SongBrowserController = module.exports =
             Messages.OPEN_SONG_BROWSER
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-    },
-
-    handleKey( type, keyCode, event )
-    {
-        if ( type === "down" && keyCode === 27 )
-        {
-            // close on escape key
-            handleClose();
-        }
     }
 };
 
@@ -128,8 +116,6 @@ function handleOpen()
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS, SongBrowserController );
     Pubsub.publishSync( Messages.SHOW_BLIND );
     container.classList.add( "active" );
-
-    keyboardController.setListener( SongBrowserController );
 }
 
 function handleClose()
@@ -173,6 +159,4 @@ function disposeHandler()
         handler.dispose();
         handler = null;
     }
-    keyboardController.setListener( null );
-    keyboardController.setBlockDefaults( true );
 }

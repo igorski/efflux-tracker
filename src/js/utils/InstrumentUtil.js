@@ -22,6 +22,13 @@
  */
 "use strict";
 
+const EventFactory = require( "../factory/EventFactory" );
+const EventUtil    = require( "./EventUtil" );
+const Pubsub       = require( "pubsub-js" );
+const Messages     = require( "../definitions/Messages" );
+
+let playingNotes = {};
+
 const InstrumentUtil = module.exports =
 {
     /**
@@ -160,5 +167,95 @@ const InstrumentUtil = module.exports =
                 }
             }
         }
+    },
+
+    /**
+     * @public
+     *
+     * @param {{ note: string, octave: number }} pitch
+     * @param {INSTRUMENT} instrument to play back the note on
+     * @param {boolean=} record whether to record the note into given instruments pattern list
+     * @param {SequencerController} sequencerController
+     * @return {AUDIO_EVENT|null}
+     */
+    noteOn( pitch, instrument, record, sequencerController )
+    {
+        const id = pitchToUniqueId( pitch );
+
+        if ( playingNotes[ id ])
+            return null; // note already playing
+
+        const audioEvent  = EventFactory.createAudioEvent( instrument.id );
+        audioEvent.note   = pitch.note;
+        audioEvent.octave = pitch.octave;
+        audioEvent.action = 1; // noteOn
+
+        playingNotes[ id ] = { event: audioEvent, instrument: instrument, recording: ( record === true )};
+        Pubsub.publishSync( Messages.NOTE_ON, [ audioEvent, instrument ]);
+
+        if ( record )
+            recordEventIntoSong( audioEvent, sequencerController );
+
+        return audioEvent;
+    },
+
+    /**
+     * @public
+     * @param {{ note: string, octave: number }} pitch
+     * @param {SequencerController} sequencerController
+    */
+    noteOff( pitch, sequencerController )
+    {
+        const id         = pitchToUniqueId( pitch );
+        const audioEvent = playingNotes[ id ];
+
+        if ( audioEvent ) {
+            Pubsub.publishSync( Messages.NOTE_OFF, [ audioEvent.event, audioEvent.instrument ]);
+
+            if ( audioEvent.recording ) {
+                const offEvent = EventFactory.createAudioEvent( audioEvent.instrument.id );
+                offEvent.action = 2; // noteOff
+                recordEventIntoSong( offEvent, sequencerController );
+            }
+            audioEvent.event.recording   = false;
+           // audioEvent.event.seq.playing = false;
+        }
+        delete playingNotes[ id ];
     }
 };
+
+/* private methods */
+
+function pitchToUniqueId( pitch )
+{
+    return pitch.note + pitch.octave;
+}
+
+function recordEventIntoSong( audioEvent, sequencerController )
+{
+    if ( sequencerController.getPlaying() ) {
+
+        // sequencer is playing, add event at current step
+
+        const editorModel   = efflux.EditorModel;
+        const song          = efflux.activeSong;
+        const activePattern = editorModel.activePattern;
+        const pattern       = song.patterns[ activePattern ];
+        const channel       = pattern.channels[ editorModel.activeInstrument ];
+        const step          = Math.round( sequencerController.getPosition().step / 64 * editorModel.amountOfSteps );
+
+        EventUtil.setPosition(
+            audioEvent, pattern, activePattern, step, song.meta.tempo
+        );
+        audioEvent.recording = true;
+        channel[ step ]      = audioEvent;
+
+        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW ); // ensure we can see the note being added
+    }
+    else {
+        // sequencer isn't playing, add event at current editor step
+        // unless it is a noteOff, let the user add it explicitly
+        if ( audioEvent.action !== 2 )
+            Pubsub.publishSync( Messages.ADD_EVENT_AT_POSITION, [ audioEvent ]);
+    }
+}
