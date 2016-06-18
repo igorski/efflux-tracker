@@ -98,7 +98,6 @@ const SequencerController = module.exports =
         // setup messaging system
 
         [
-            Messages.MIDI_DEVICE_CONNECTED,
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
@@ -243,11 +242,6 @@ function handleBroadcast( type, payload )
         case Messages.SONG_LOADED:
             SequencerController.update();
             break;
-
-        // when a MIDI device is connected, we allow recording from MIDI input
-        case Messages.MIDI_DEVICE_CONNECTED:
-            recordBTN.classList.add( "enabled" );
-            break;
     }
 }
 
@@ -266,11 +260,33 @@ function handleLoopToggle( e )
 
 function handleRecordToggle( e )
 {
-    if ( recording = !recording )
+    const wasRecording = recording;
+
+    if ( recording = !wasRecording )
         recordBTN.classList.add( "active" );
     else
         recordBTN.classList.remove( "active" );
 
+    if ( wasRecording ) {
+
+        // unflag the recorded state of all the events
+        const patterns = efflux.activeSong.patterns;
+        let event, i;
+
+        patterns.forEach(( pattern ) =>
+        {
+            pattern.channels.forEach(( events ) =>
+            {
+                i = events.length;
+                while ( i-- )
+                {
+                    event = events[ i ];
+                    if ( event )
+                        event.recording = false;
+                }
+            });
+        });
+    }
     efflux.EditorModel.recordingInput = recording;
 }
 

@@ -81,7 +81,7 @@ else {
 
     // initialize application controllers
 
-    KeyboardController.init( efflux );
+    KeyboardController.init( efflux, SequencerController );
     AudioController.init( efflux, efflux.activeSong.instruments );
     SettingsController.init( document.body, KeyboardController );
     MenuController.init( container.querySelector( "#menuSection" ), efflux );

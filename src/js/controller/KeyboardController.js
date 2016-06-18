@@ -22,12 +22,13 @@
  */
 "use strict";
 
-const Config       = require( "../config/Config" );
-const Messages     = require( "../definitions/Messages" );
-const EventFactory = require( "../factory/EventFactory" );
-const Pubsub       = require( "pubsub-js" );
+const Config         = require( "../config/Config" );
+const Messages       = require( "../definitions/Messages" );
+const EventFactory   = require( "../factory/EventFactory" );
+const InstrumentUtil = require( "../utils/InstrumentUtil" );
+const Pubsub         = require( "pubsub-js" );
 
-let editorModel, stateModel, selectionModel, listener,
+let editorModel, sequencerController, stateModel, selectionModel, listener,
     suspended = false, blockDefaults = true, optionDown = false, shiftDown = false, minSelect = 0, maxSelect = 0;
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
@@ -48,11 +49,12 @@ const KeyboardController = module.exports =
     /**
      * initialize KeyboardController
      */
-    init( efflux )
+    init( efflux, aSequencerController )
     {
-        editorModel    = efflux.EditorModel;
-        stateModel     = efflux.StateModel;
-        selectionModel = efflux.SelectionModel;
+        editorModel         = efflux.EditorModel;
+        stateModel          = efflux.StateModel;
+        selectionModel      = efflux.SelectionModel;
+        sequencerController = aSequencerController;
 
         window.addEventListener( "keydown", handleKeyDown );
         window.addEventListener( "keyup",   handleKeyUp );
@@ -152,7 +154,7 @@ function handleKeyDown( aEvent )
             const hasOption = KeyboardController.hasOption( aEvent );
 
             if ( !hasOption && !aEvent.shiftKey )
-                createEventOnNoteKey( keyCode );
+                createNoteOnEvent( keyCode );
 
             switch ( keyCode )
             {
@@ -374,11 +376,43 @@ function handleKeyUp( aEvent )
         }
     }
 
-    if ( !suspended && listener && listener.handleKey )
-        listener.handleKey( "up", aEvent.keyCode, aEvent );
+    if ( !suspended ) {
+
+        if ( listener && listener.handleKey )
+            listener.handleKey( "up", aEvent.keyCode, aEvent );
+        else if ( !KeyboardController.hasOption( aEvent ) && !aEvent.shiftKey )
+            createNoteOffEvent( aEvent.keyCode );
+    }
 }
 
-function createEventOnNoteKey( keyCode )
+function createNoteOnEvent( keyCode )
+{
+    const note = getNoteForKey( keyCode );
+    if ( note !== null ) {
+        InstrumentUtil.noteOn(
+            note,
+            efflux.activeSong.instruments[ editorModel.activeInstrument ],
+            editorModel.recordingInput,
+            sequencerController
+        );
+    }
+}
+
+function createNoteOffEvent( keyCode )
+{
+    const note = getNoteForKey( keyCode );
+    if ( note !== null )
+        InstrumentUtil.noteOff( note, sequencerController );
+}
+
+/**
+ * translates a key code to a note
+ * if the key code didn't belong to the keys associated with notes, null is returned
+ *
+ * @param keyCode
+ * @return {{ note: string, octave: number }|null}
+ */
+function getNoteForKey( keyCode )
 {
     const higherIndex = HIGHER_KEYS.indexOf( keyCode );
     const lowerIndex  = LOWER_KEYS.indexOf( keyCode );
@@ -394,8 +428,10 @@ function createEventOnNoteKey( keyCode )
         octave   = editorModel.lowerKeyboardOctave;
     }
     else
-        return;
+        return null;
 
-    const audioEvent = EventFactory.createAudioEvent( editorModel.activeInstrument, noteName, octave, 1 );
-    Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ audioEvent ]);
+    return {
+        note: noteName,
+        octave: octave
+    };
 }

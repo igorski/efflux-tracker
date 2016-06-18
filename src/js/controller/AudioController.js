@@ -165,7 +165,9 @@ const AudioController = module.exports =
             Messages.ADJUST_OSCILLATOR_WAVEFORM,
             Messages.ADJUST_INSTRUMENT_VOLUME,
             Messages.UPDATE_FILTER_SETTINGS,
-            Messages.UPDATE_DELAY_SETTINGS
+            Messages.UPDATE_DELAY_SETTINGS,
+            Messages.NOTE_ON,
+            Messages.NOTE_OFF
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -435,6 +437,14 @@ function handleBroadcast( type, payload )
                 instrumentModules[ payload[ 0 ]],
                 payload[ 1 ], masterBus
             );
+            break;
+
+        case Messages.NOTE_ON:
+            AudioController.noteOn( payload[ 0 ], payload[ 1 ]);
+            break;
+
+        case Messages.NOTE_OFF:
+            AudioController.noteOff( payload[ 0 ], payload[ 1 ]);
             break;
     }
 }
