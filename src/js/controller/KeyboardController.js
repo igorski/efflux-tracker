@@ -158,6 +158,10 @@ function handleKeyDown( aEvent )
 
             switch ( keyCode )
             {
+                case 27: // escape
+                    Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
+                    break;
+
                 case 32: // spacebar
                     Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_PLAYSTATE );
                     break;
@@ -363,6 +367,7 @@ function handleKeyUp( aEvent )
     {
         switch ( aEvent.keyCode )
         {
+            // Apple key
             case 224:   // Firefox
             case 17:    // Opera
             case 91:    // WebKit left key

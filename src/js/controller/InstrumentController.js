@@ -34,7 +34,7 @@ const Pubsub            = require( "pubsub-js" );
 
 /* private properties */
 
-let container, efflux, keyboardController, view, canvas, wtDraw,
+let container, efflux, view, canvas, wtDraw,
     instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
@@ -47,11 +47,10 @@ const InstrumentController = module.exports =
 {
     visible : false,
 
-    init( containerRef, effluxRef, keyboardControllerRef )
+    init( containerRef, effluxRef )
     {
-        container          = containerRef;
-        efflux             = effluxRef;
-        keyboardController = keyboardControllerRef;
+        container = containerRef;
+        efflux    = effluxRef;
 
         // prepare view
 
@@ -224,12 +223,6 @@ const InstrumentController = module.exports =
         delayFeedbackControl.value = instrumentRef.delay.feedback;
         delayCutoffControl.value   = instrumentRef.delay.cutoff;
         delayOffsetControl.value   = instrumentRef.delay.offset + .5;
-    },
-
-    handleKey( type, keyCode, event )
-    {
-        if ( type === "down" && keyCode === 27 )
-            Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
     }
 };
 
@@ -247,7 +240,6 @@ function handleBroadcast( type, payload )
             container.appendChild( view );
             canvas.addChild( wtDraw );
 
-            keyboardController.setListener( InstrumentController );
             instrumentId = payload;
             InstrumentController.update(); // sync with model
             break;
@@ -269,7 +261,6 @@ function handleBroadcast( type, payload )
 function handleClose( aEvent )
 {
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
-    keyboardController.reset();
 }
 
 function handleHelp( aEvent )

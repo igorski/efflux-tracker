@@ -83,12 +83,12 @@ else {
 
     KeyboardController.init( efflux, SequencerController );
     AudioController.init( efflux, efflux.activeSong.instruments );
-    SettingsController.init( document.body, KeyboardController );
+    SettingsController.init( document.body );
     MenuController.init( container.querySelector( "#menuSection" ), efflux );
-    InstrumentController.init( container, efflux, KeyboardController );
+    InstrumentController.init( container, efflux );
     MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
     SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
-    SongBrowserController.init( document.body, efflux, KeyboardController );
+    SongBrowserController.init( document.body, efflux );
     NoteEntryController.init( container, efflux, KeyboardController );
     ModuleParamController.init( container, efflux, KeyboardController );
     NotificationController.init( container );
