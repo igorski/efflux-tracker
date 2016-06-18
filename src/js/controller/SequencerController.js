@@ -29,6 +29,7 @@ const TemplateUtil = require( "../utils/TemplateUtil" );
 const Messages     = require( "../definitions/Messages" );
 const Metronome    = require( "../components/Metronome" );
 const AudioFactory = require( "../factory/AudioFactory" );
+const Bowser       = require( "bowser" );
 const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
@@ -95,9 +96,16 @@ const SequencerController = module.exports =
         document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
         document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
 
+        // for desktop/laptop devices we enable record mode (for keyboard input)
+        // if a MIDI device is connected on a mobile device, it is enabled again
+
+        if ( !Bowser.ios && !Bowser.android )
+            recordBTN.classList.remove( "disabled" );
+
         // setup messaging system
 
         [
+            Messages.MIDI_DEVICE_CONNECTED,
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
@@ -241,6 +249,11 @@ function handleBroadcast( type, payload )
         case Messages.PATTERN_SWITCH:
         case Messages.SONG_LOADED:
             SequencerController.update();
+            break;
+
+        // when a MIDI device is connected, we allow recording from MIDI input
+        case Messages.MIDI_DEVICE_CONNECTED:
+            recordBTN.classList.remove( "disabled" );
             break;
     }
 }
