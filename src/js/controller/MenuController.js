@@ -270,10 +270,12 @@ function handleExport( aEvent )
 
         const pom = document.createElement( "a" );
         pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
+        pom.setAttribute( "target", "_blank" ); // helps for Safari (opens content in window...)
         pom.setAttribute( "download", song.meta.title + Config.FILE_EXTENSION );
         pom.click();
 
         Pubsub.publish( Messages.SONG_EXPORTED, song );
+        Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "SONG_EXPORTED", song.meta.title ));
     }
 }
 
