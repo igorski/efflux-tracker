@@ -25,11 +25,14 @@
 const Config         = require( "../config/Config" );
 const SongFactory    = require( "../factory/SongFactory" );
 const FixturesLoader = require( "../services/FixturesLoader" );
+const StorageUtil    = require( "../utils/StorageUtil" );
 
 module.exports = SongModel;
 
 function SongModel()
 {
+    StorageUtil.init();
+
     /* instance properties */
 
     /**
@@ -47,26 +50,29 @@ function SongModel()
 SongModel.prototype.init = function()
 {
     /* upon initialization, get all locally stored songs */
+    const self = this;
+    StorageUtil.getItem( Config.LOCAL_STORAGE_NAME ).then(
+        ( result ) => {
 
-    let songs = window.localStorage.getItem( Config.LOCAL_STORAGE_NAME );
+            if ( typeof result === "string" ) {
 
-    if ( typeof songs === "string" ) {
+                try {
+                    self.setSongs( JSON.parse( result ));
+                }
+                catch ( e ) {}
+            }
+            else {
+                // no songs available ? load fixtures with "factory content"
 
-        try {
-            this.setSongs( JSON.parse( songs ));
-        }
-        catch ( e ) {}
-    }
-    else {
-        // no songs available ? load fixtures with "factory content"
+                FixturesLoader.load(( songs ) => {
 
-        FixturesLoader.load( function( songs ) {
-
-            this.setSongs( songs );
-            this.persist();
-
-        }.bind( this ));
-    }
+                    self.setSongs( songs );
+                    self.persist();
+                });
+            }
+        },
+        ( error ) => {}
+    );
 };
 
 /**
@@ -185,7 +191,7 @@ SongModel.prototype.deleteSong = function( aSong )
  *
  * @private
  */
-SongModel.prototype.persist = function(  )
+SongModel.prototype.persist = function()
 {
-    window.localStorage.setItem( Config.LOCAL_STORAGE_NAME, JSON.stringify( this._songs ));
+    StorageUtil.setItem( Config.LOCAL_STORAGE_NAME, JSON.stringify( this._songs ));
 };
