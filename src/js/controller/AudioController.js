@@ -30,6 +30,7 @@ const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
 const Pitch          = require( "../definitions/Pitch" );
 const WaveTables     = require( "../definitions/WaveTables" );
+const Copy           = require( "../i18n/Copy" );
 const Recorder       = require( "recorderjs" );
 const Pubsub         = require( "pubsub-js" );
 
@@ -564,4 +565,6 @@ function handleRecordingComplete( blob )
     recorder.clear();
     recorder  = null;
     recording = false;
+
+    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_SAVED" ));
 }

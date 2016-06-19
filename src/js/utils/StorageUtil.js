@@ -70,7 +70,11 @@ const StorageUtil = module.exports =
                 reject( Error( "Storage not available" ));
             }
             else if ( !isChromeStorage ) {
-                resolve( storage.getItem( key ));
+                const data = storage.getItem( key );
+                if ( data )
+                    resolve( storage.getItem( key ));
+                else
+                    reject( Error( "Data for '" + key + "' not found" ));
             }
             else {
                 storage.get( key, ( data ) =>

@@ -60,5 +60,6 @@ const EN =
     MIDI_CONNECTED      : "MIDI Connection established successfully",
     MIDI_FAILURE        : "MIDI Unavailable, Efflux could not connect to MIDI device(s)",
     RECORDING_ENABLED   : "Recording of output enabled. When the sequencer stops, the recording will be saved " +
-                          "onto to your device"
+                          "onto to your device",
+    RECORDING_SAVED     : "Recording saved to your download folder."
 };

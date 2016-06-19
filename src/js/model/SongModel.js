@@ -61,17 +61,17 @@ SongModel.prototype.init = function()
                 }
                 catch ( e ) {}
             }
-            else {
-                // no songs available ? load fixtures with "factory content"
-
-                FixturesLoader.load(( songs ) => {
-
-                    self.setSongs( songs );
-                    self.persist();
-                });
-            }
         },
-        ( error ) => {}
+        ( error ) => {
+
+            // no songs available ? load fixtures with "factory content"
+
+            FixturesLoader.load(( songs ) => {
+
+                self.setSongs( songs );
+                self.persist();
+            });
+        }
     );
 };
 
