@@ -55,13 +55,15 @@ module.exports =
                 window.addEventListener( "popstate", handleUnload );
             }
             else {
-                const prevBeforeUnload = window.onbeforeunload;
-                window.onbeforeunload = ( aEvent ) => {
-                    if ( prevBeforeUnload ) {
-                        prevBeforeUnload( aEvent );
-                    }
-                    return handleUnload( aEvent );
-                };
+                if ( typeof window.onbeforeunload !== "undefined" ) { // unavailable to Chrome apps
+                    const prevBeforeUnload = window.onbeforeunload;
+                    window.onbeforeunload = ( aEvent ) => {
+                        if ( prevBeforeUnload ) {
+                            prevBeforeUnload( aEvent );
+                        }
+                        return handleUnload( aEvent );
+                    };
+                }
             }
         }
 

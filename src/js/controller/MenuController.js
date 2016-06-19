@@ -170,7 +170,11 @@ function handleSave( aEvent )
 
 function handleReset( aEvent )
 {
-    if ( confirm( Copy.get( "WARNING_SONG_RESET" ) )) {
+    // confirm unavailable to Chrome app
+    // TODO: create inline confirmation popup
+    const confirmed = ( window.chrome && chrome.app && chrome.app.runtime ) ? true : confirm( Copy.get( "WARNING_SONG_RESET" ));
+
+    if ( confirmed ) {
         efflux.activeSong = efflux.SongModel.createSong();
 
         const editorModel = efflux.EditorModel;

@@ -73,7 +73,7 @@ const StorageUtil = module.exports =
                 resolve( storage.getItem( key ));
             }
             else {
-                resolve( storage.get( key, ( data ) =>
+                storage.get( key, ( data ) =>
                 {
                     // we keep the API the same as with regular storage mechanisms
 
@@ -81,7 +81,7 @@ const StorageUtil = module.exports =
                         reject( Error( "Data for '" + key + "' not found" ) );
                     else
                         resolve( data[ key ] );
-                }));
+                });
             }
         });
     },
@@ -106,7 +106,7 @@ const StorageUtil = module.exports =
             else {
                 const insert  = {};
                 insert[ key ] = data;
-                resolve( storage.set( insert, resolve ));
+                storage.set( insert, resolve );
             }
         });
     }
