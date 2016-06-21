@@ -141,12 +141,16 @@ function handleSongDeleteClick( aEvent )
     if ( !song )
         return;
 
-    const doDelete = confirm( Copy.get( "SONG_DELETE_CONFIRM", song.meta.title ));
-
-    if ( doDelete ) {
-        songModel.deleteSong( song );
-        Pubsub.publishSync( Messages.OPEN_SONG_BROWSER ); // refreshes view
-    }
+    Pubsub.publish( Messages.CONFIRM, {
+        message:  Copy.get( "SONG_DELETE_CONFIRM", song.meta.title ),
+        confirm : function() {
+            songModel.deleteSong( song );
+            Pubsub.publishSync( Messages.OPEN_SONG_BROWSER ); // refreshes view
+        },
+        cancel : function() {
+            Pubsub.publishSync( Messages.OPEN_SONG_BROWSER ); // refreshes view
+        }
+    });
 }
 
 /**

@@ -32,6 +32,7 @@ module.exports =
     HIDE_LOADER               : "SYSHL",
     SHOW_BLIND                : "SYSSB",
     HIDE_BLIND                : "SYSHB",
+    CONFIRM                   : "SYSCF", // payload is a Object {{ message: string, confirm: Function, cancel: Function }}
     WINDOW_SCROLLED           : "SYS:2",
     WINDOW_RESIZED            : "SYS:3",
 

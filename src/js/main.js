@@ -27,6 +27,7 @@ const SelectionModel             = require( "./model/SelectionModel" );
 const SongModel                  = require( "./model/SongModel" );
 const StateModel                 = require( "./model/StateModel" );
 const AudioController            = require( "./controller/AudioController" );
+const ConfirmController          = require( "./controller/ConfirmController" );
 const HelpController             = require( "./controller/HelpController" );
 const InstrumentController       = require( "./controller/InstrumentController" );
 const KeyboardController         = require( "./controller/KeyboardController" );
@@ -98,6 +99,7 @@ else {
         efflux, KeyboardController
     );
     HelpController.init( container.querySelector( "#helpSection" ), efflux );
+    ConfirmController.init( container );
     SystemController.init();
 
     // controllers ready, initialize models

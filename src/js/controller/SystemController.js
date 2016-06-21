@@ -67,7 +67,7 @@ module.exports =
             }
         }
 
-        // subscribe to messasing system
+        // subscribe to messaging system
 
         [
             Messages.SHOW_BLIND,

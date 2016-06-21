@@ -170,21 +170,21 @@ function handleSave( aEvent )
 
 function handleReset( aEvent )
 {
-    // confirm unavailable to Chrome app
-    // TODO: create inline confirmation popup
-    const confirmed = ( window.chrome && chrome.app && chrome.app.runtime ) ? true : confirm( Copy.get( "WARNING_SONG_RESET" ));
+    Pubsub.publish( Messages.CONFIRM,
+    {
+        message: Copy.get( "WARNING_SONG_RESET" ),
+        confirm: function() {
+            efflux.activeSong = efflux.SongModel.createSong();
 
-    if ( confirmed ) {
-        efflux.activeSong = efflux.SongModel.createSong();
+            const editorModel = efflux.EditorModel;
+            editorModel.activeInstrument =
+            editorModel.activePattern    =
+            editorModel.activeStep       = 0;
+            editorModel.amountOfSteps    = efflux.activeSong.patterns[ 0 ].steps;
 
-        const editorModel = efflux.EditorModel;
-        editorModel.activeInstrument =
-        editorModel.activePattern    =
-        editorModel.activeStep       = 0;
-        editorModel.amountOfSteps    = efflux.activeSong.patterns[ 0 ].steps;
-
-        Pubsub.publish( Messages.SONG_LOADED, efflux.activeSong );
-    }
+            Pubsub.publish( Messages.SONG_LOADED, efflux.activeSong );
+        }
+    });
 }
 
 function handleSettings( aEvent )
