@@ -111,7 +111,6 @@ const SequencerController = module.exports =
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
             Messages.PATTERN_SWITCH,
-            Messages.LOAD_SONG,
             Messages.SONG_LOADED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -244,15 +243,17 @@ function handleBroadcast( type, payload )
             SequencerController.setPosition( payload );
             break;
 
-        case Messages.LOAD_SONG:
-            if ( looping )
-                handleLoopToggle( null );
-            SequencerController.setPlaying( false );
-            break;
-
         case Messages.PATTERN_AMOUNT_UPDATED:
         case Messages.PATTERN_SWITCH:
+            SequencerController.update();
+            break;
+
         case Messages.SONG_LOADED:
+
+            if ( looping )
+                handleLoopToggle( null );
+
+            SequencerController.setPlaying( false );
             SequencerController.update();
             break;
 
