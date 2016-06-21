@@ -281,7 +281,7 @@ function handleExport( aEvent )
 
 function handleRecord( aEvent )
 {
-    Pubsub.publish( Messages.TOGGLE_RECORD_MODE );
+    Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
     Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_ENABLED" ));
 }
 

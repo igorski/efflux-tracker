@@ -159,7 +159,7 @@ const AudioController = module.exports =
         [   Messages.SONG_LOADED,
             Messages.PLAYBACK_STARTED,
             Messages.PLAYBACK_STOPPED,
-            Messages.TOGGLE_RECORD_MODE,
+            Messages.TOGGLE_OUTPUT_RECORDING,
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
             Messages.ADJUST_OSCILLATOR_VOLUME,
@@ -395,7 +395,7 @@ function handleBroadcast( type, payload )
             }
             break;
 
-        case Messages.TOGGLE_RECORD_MODE:
+        case Messages.TOGGLE_OUTPUT_RECORDING:
             recording = !recording;
             applyRecordingState();
             break;

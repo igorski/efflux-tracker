@@ -107,6 +107,7 @@ const SequencerController = module.exports =
         [
             Messages.MIDI_DEVICE_CONNECTED,
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
+            Messages.TOGGLE_INPUT_RECORDING,
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
             Messages.PATTERN_SWITCH,
@@ -233,6 +234,10 @@ function handleBroadcast( type, payload )
     {
         case Messages.TOGGLE_SEQUENCER_PLAYSTATE:
             SequencerController.setPlaying( !playing );
+            break;
+
+        case Messages.TOGGLE_INPUT_RECORDING:
+            handleRecordToggle();
             break;
 
         case Messages.SET_SEQUENCER_POSITION:

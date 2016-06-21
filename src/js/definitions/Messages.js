@@ -70,9 +70,10 @@ module.exports =
     RECORDING_COMPLETE         : "SEQ:4",
     TEMPO_UPDATED              : "SEQ:5", // payload is Array [ old tempo, new tempo ]
     STEP_POSITION_REACHED      : "SEQ:6", // payload is Array [ current step position, total step positions (per measure) ]
-    TOGGLE_RECORD_MODE         : "SEQ:7",
-    NOTE_ON                    : "SEQ:8", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    NOTE_OFF                   : "SEQ:9", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
+    TOGGLE_OUTPUT_RECORDING    : "SEQ:7",
+    TOGGLE_INPUT_RECORDING     : "SEQ:8",
+    NOTE_ON                    : "SEQ:9",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
+    NOTE_OFF                   : "SEQ:10", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
 
     // editor messages
 
