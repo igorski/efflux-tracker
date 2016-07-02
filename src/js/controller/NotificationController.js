@@ -22,10 +22,9 @@
  */
 "use strict";
 
-const Copy         = require( "../i18n/Copy" );
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
+const Copy     = require( "../i18n/Copy" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
 
 /* variables */
 
@@ -79,7 +78,7 @@ function openWindow( title, body )
 {
     const dialog     = document.createElement( "div" );
     dialog.className = "notificationWindow";
-    dialog.innerHTML = TemplateUtil.render( "notificationView", { title: title, content: body });
+    efflux.TemplateService.render( "notificationView", dialog, { title: title, content: body });
     container.appendChild( dialog );
     dialog.classList.add( "visible" );
 

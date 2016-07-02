@@ -25,7 +25,6 @@
 const Config       = require( "../config/Config" );
 const AudioUtil    = require( "../utils/AudioUtil" );
 const SongUtil     = require( "../utils/SongUtil" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
 const Messages     = require( "../definitions/Messages" );
 const Metronome    = require( "../components/Metronome" );
 const AudioFactory = require( "../factory/AudioFactory" );
@@ -67,40 +66,42 @@ const SequencerController = module.exports =
         audioContext    = audioControllerRef.getContext();
         editorModel     = efflux.EditorModel;
 
-        containerRef.innerHTML += TemplateUtil.render( "transport" );
+        efflux.TemplateService.render( "transport", containerRef, null, true ).then(() => {
 
-        // initialization
+            // initialization
 
-        SequencerController.setPosition( 0 );
+            SequencerController.setPosition( 0 );
 
-        // cache view elements
+            // cache view elements
 
-        playBTN              = containerRef.querySelector( "#playBTN" );
-        loopBTN              = containerRef.querySelector( "#loopBTN" );
-        recordBTN            = containerRef.querySelector( "#recordBTN" );
-        tempoDisplay         = containerRef.querySelector( "#songTempoDisplay" );
-        tempoSlider          = containerRef.querySelector( "#songTempo" );
-        metronomeToggle      = containerRef.querySelector( ".icon-metronome" );
-        settingsToggle       = containerRef.querySelector( ".icon-settings" ); // mobile view only
-        currentPositionTitle = document.querySelector( "#currentPattern .current" );
-        maxPositionTitle     = document.querySelector( "#currentPattern .total" );
+            playBTN              = containerRef.querySelector( "#playBTN" );
+            loopBTN              = containerRef.querySelector( "#loopBTN" );
+            recordBTN            = containerRef.querySelector( "#recordBTN" );
+            tempoDisplay         = containerRef.querySelector( "#songTempoDisplay" );
+            tempoSlider          = containerRef.querySelector( "#songTempo" );
+            metronomeToggle      = containerRef.querySelector( ".icon-metronome" );
+            settingsToggle       = containerRef.querySelector( ".icon-settings" ); // mobile view only
+            currentPositionTitle = document.querySelector( "#currentPattern .current" );
+            maxPositionTitle     = document.querySelector( "#currentPattern .total" );
 
-        // add event listeners
+            // add event listeners
 
-        playBTN.addEventListener        ( "click", handlePlayToggle );
-        loopBTN.addEventListener        ( "click", handleLoopToggle );
-        recordBTN.addEventListener      ( "click", handleRecordToggle );
-        tempoSlider.addEventListener    ( "input", handleTempoChange );
-        metronomeToggle.addEventListener( "click", handleMetronomeToggle );
-        settingsToggle.addEventListener ( "click", handleSettingsToggle );
-        document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
-        document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
+            playBTN.addEventListener        ( "click", handlePlayToggle );
+            loopBTN.addEventListener        ( "click", handleLoopToggle );
+            recordBTN.addEventListener      ( "click", handleRecordToggle );
+            tempoSlider.addEventListener    ( "input", handleTempoChange );
+            metronomeToggle.addEventListener( "click", handleMetronomeToggle );
+            settingsToggle.addEventListener ( "click", handleSettingsToggle );
+            document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
+            document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
 
-        // for desktop/laptop devices we enable record mode (for keyboard input)
-        // if a MIDI device is connected on a mobile device, it is enabled again
+            // for desktop/laptop devices we enable record mode (for keyboard input)
+            // if a MIDI device is connected on a mobile device, it is enabled again
 
-        if ( !Bowser.ios && !Bowser.android )
-            recordBTN.classList.remove( "disabled" );
+            if ( !Bowser.ios && !Bowser.android )
+                recordBTN.classList.remove( "disabled" );
+        });
+
 
         // setup messaging system
 

@@ -22,10 +22,9 @@
  */
 "use strict";
 
-const SongUtil     = require( "../utils/SongUtil" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const Messages     = require( "../definitions/Messages" );
-const Pubsub       = require( "pubsub-js" );
+const SongUtil = require( "../utils/SongUtil" );
+const Messages = require( "../definitions/Messages" );
+const Pubsub   = require( "pubsub-js" );
 
 /* private properties */
 
@@ -48,29 +47,30 @@ const MetaController = module.exports =
         editorModel        = efflux.EditorModel;
         keyboardController = keyboardControllerRef;
 
-        container.innerHTML += TemplateUtil.render( "metaView" );
+        efflux.TemplateService.render( "metaView", container, null, true ).then(() => {
 
-        // cache view elements
+            // cache view elements
 
-        title             = container.querySelector( "#songTitle" );
-        author            = container.querySelector( "#songAuthor" );
-        instrumentEditBtn = container.querySelector( "#instrumentEditBtn" );
+            title             = container.querySelector( "#songTitle" );
+            author            = container.querySelector( "#songAuthor" );
+            instrumentEditBtn = container.querySelector( "#instrumentEditBtn" );
 
-        // synchronize with model
+            // synchronize with model
 
-        MetaController.update();
+            MetaController.update();
 
-        // add listeners
+            // add listeners
 
-        [ title, author ].forEach(( element ) =>
-        {
-            element.addEventListener( "change", handleChange );
-            element.addEventListener( "focus",  handleFocusIn );
-            element.addEventListener( "blur",   handleFocusOut );
+            [ title, author ].forEach(( element ) =>
+            {
+                element.addEventListener( "change", handleChange );
+                element.addEventListener( "focus",  handleFocusIn );
+                element.addEventListener( "blur",   handleFocusOut );
+            });
+
+            instrumentEditBtn.addEventListener( "click", handleInstrumentSelect );
+            container.addEventListener( "mouseover", handleMouseOver );
         });
-
-        instrumentEditBtn.addEventListener( "click", handleInstrumentSelect );
-        container.addEventListener( "mouseover", handleMouseOver );
 
         Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );
     },

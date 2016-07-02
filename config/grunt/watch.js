@@ -13,6 +13,6 @@ module.exports = {
     },
     templates: {
         files: "<%= config.project.templates %>**/*",
-        tasks: [ "handlebars" ]
+        tasks: [ "handlebars", "concat:handlebars" ]
     }
 };

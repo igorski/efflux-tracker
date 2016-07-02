@@ -22,14 +22,12 @@
  */
 "use strict";
 
-const Form             = require( "../utils/Form" );
-const Time             = require( "../utils/Time" );
-const TemplateUtil     = require( "../utils/TemplateUtil" );
-const SongUtil         = require( "../utils/SongUtil" );
-const Pubsub           = require( "pubsub-js" );
-const Messages         = require( "../definitions/Messages" );
-const zMIDILib         = require( "zmidi" ),
-      zMIDI            = zMIDILib.zMIDI;
+const Form     = require( "../utils/Form" );
+const SongUtil = require( "../utils/SongUtil" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
+const zMIDILib = require( "zmidi" ),
+      zMIDI    = zMIDILib.zMIDI;
 
 /* private properties */
 
@@ -43,21 +41,23 @@ const SettingsController = module.exports =
 
         container = document.createElement( "div" );
         container.setAttribute( "id", "settings" );
-        container.innerHTML = TemplateUtil.render( "settingsView" );
-        containerRef.appendChild( container ); // see CSS for visibility toggles
+        efflux.TemplateService.render( "settingsView", container).then(() => {
 
-        // grab reference to DOM elements
+            containerRef.appendChild( container ); // see CSS for visibility toggles
 
-        if ( zMIDI.isSupported() )  {
-            container.querySelector( "#midiSetup" ).classList.add( "enabled" );
-            container.querySelector( "#midiConnect" ).addEventListener( "click", handleMIDIConnect );
-            deviceSelect = container.querySelector( "#midiDevices" );
-            deviceSelect.addEventListener( "change", handleMIDIDeviceSelect );
-        }
+            // grab reference to DOM elements
 
-        // add event listeners
+            if ( zMIDI.isSupported() )  {
+                container.querySelector( "#midiSetup" ).classList.add( "enabled" );
+                container.querySelector( "#midiConnect" ).addEventListener( "click", handleMIDIConnect );
+                deviceSelect = container.querySelector( "#midiDevices" );
+                deviceSelect.addEventListener( "change", handleMIDIDeviceSelect );
+            }
 
-        container.querySelector( ".close-button" ).addEventListener( "click", handleClose );
+            // add event listeners
+
+            container.querySelector( ".close-button" ).addEventListener( "click", handleClose );
+        });
 
         // subscribe to messages
 

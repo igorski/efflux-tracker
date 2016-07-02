@@ -24,7 +24,6 @@
 
 const Copy         = require( "../i18n/Copy" );
 const Time         = require( "../utils/Time" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
 const Messages     = require( "../definitions/Messages" );
 const Pubsub       = require( "pubsub-js" );
 const EventHandler = require( "zjslib" ).EventHandler;
@@ -47,17 +46,20 @@ const SongBrowserController = module.exports =
 
         // append SongBrowser template to page, see CSS toggles for visibility
 
-        containerRef.appendChild( TemplateUtil.renderAsElement( "songBrowser" ));
+        efflux.TemplateService.renderAsElement( "songBrowser" ).then(( template ) => {
 
-        container = containerRef.querySelector( "#songBrowser" );
-        list      = container.querySelector   ( ".songList" );
-        closeBtn  = container.querySelector   ( ".close-button" );
+            containerRef.appendChild( template );
 
-        // add event listeners
+            container = containerRef.querySelector( "#songBrowser" );
+            list      = container.querySelector   ( ".songList" );
+            closeBtn  = container.querySelector   ( ".close-button" );
 
-        closeBtn.addEventListener( "click", handleClose );
+            // add event listeners
 
-        // add message listeners
+            closeBtn.addEventListener( "click", handleClose );
+        });
+
+        // subscribe to messaging system
 
         [
             Messages.CLOSE_OVERLAYS,

@@ -45,7 +45,7 @@ const SongBrowserController      = require( "./controller/SongBrowserController"
 const SystemController           = require( "./controller/SystemController" );
 const ObjectUtil                 = require( "./utils/ObjectUtil" );
 const SongUtil                   = require( "./utils/SongUtil" );
-const TemplateUtil               = require( "./utils/TemplateUtil" );
+const TemplateService            = require( "./services/TemplateService" );
 const Messages                   = require( "./definitions/Messages" );
 const Pubsub                     = require( "pubsub-js" );
 const zMIDI                      = require( "zmidi" ).zMIDI;
@@ -56,60 +56,63 @@ const zMIDI                      = require( "zmidi" ).zMIDI;
 
 const container = document.querySelector( "#application" );
 
+// prepare application model
+
+let songModel = new SongModel();
+
+const efflux = window.efflux =
+{
+    EditorModel     : new EditorModel(),
+    SelectionModel  : new SelectionModel(),
+    SongModel       : songModel,
+    StateModel      : new StateModel(),
+    TemplateService : new TemplateService(),
+    Pubsub          : Pubsub,                // expose publishing / subscribe bus
+    activeSong      : songModel.createSong() // create new empty song
+};
+
 // WebAudio API not supported ? halt application start
 
 if ( !AudioController.isSupported() ) {
-    container.innerHTML = TemplateUtil.render( "notSupported" );
+    efflux.TemplateService.render( "notSupported", container );
 }
 else {
-    // prepare application model
-
-    let songModel = new SongModel();
-
-    const efflux = window.efflux =
-    {
-        EditorModel    : new EditorModel(),
-        SelectionModel : new SelectionModel(),
-        SongModel      : songModel,
-        StateModel     : new StateModel(),
-        Pubsub         : Pubsub,                // expose publishing / subscribe bus
-        activeSong     : songModel.createSong() // create new empty song
-    };
 
     // prepare view
 
-    container.innerHTML += TemplateUtil.render( "index" );
+    efflux.TemplateService.render( "index", container, null, true ).then(() => {
 
-    // initialize application controllers
+        // initialize application controllers
 
-    KeyboardController.init( efflux, SequencerController );
-    AudioController.init( efflux, efflux.activeSong.instruments );
-    SettingsController.init( document.body );
-    MenuController.init( container.querySelector( "#menuSection" ), efflux );
-    InstrumentController.init( container, efflux );
-    MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
-    SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
-    SongBrowserController.init( document.body, efflux );
-    NoteEntryController.init( container, efflux, KeyboardController );
-    ModuleParamController.init( container, efflux, KeyboardController );
-    NotificationController.init( container );
-    PatternEditorController.init( container.querySelector( "#patternEditor" ), efflux );
-    PatternTrackListController.init(
-        container.querySelector( "#patternContainer" ),
-        efflux, KeyboardController
-    );
-    HelpController.init( container.querySelector( "#helpSection" ), efflux );
-    ConfirmController.init( container );
-    SystemController.init();
+        KeyboardController.init( efflux, SequencerController );
+        AudioController.init( efflux, efflux.activeSong.instruments );
+        SettingsController.init( document.body );
+        MenuController.init( container.querySelector( "#menuSection" ), efflux );
+        InstrumentController.init( container, efflux );
+        MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
+        SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
+        SongBrowserController.init( document.body, efflux );
+        NoteEntryController.init( container, efflux, KeyboardController );
+        ModuleParamController.init( container, efflux, KeyboardController );
+        NotificationController.init( container );
+        PatternEditorController.init( container.querySelector( "#patternEditor" ), efflux );
+        PatternTrackListController.init(
+            container.querySelector( "#patternContainer" ),
+            efflux, KeyboardController
+        );
+        HelpController.init( container.querySelector( "#helpSection" ), efflux );
+        ConfirmController.init( container, efflux );
+        SystemController.init();
 
-    // controllers ready, initialize models
+        // controllers ready, initialize models
 
-    songModel.init();
+        songModel.init();
 
-    // MIDI is currently only supported in Chrome
+        // MIDI is currently only supported in Chrome
 
-    if ( zMIDI.isSupported() )
-        MidiController.init( efflux, AudioController, SequencerController );
+        if ( zMIDI.isSupported() )
+            MidiController.init( efflux, AudioController, SequencerController );
+    });
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 

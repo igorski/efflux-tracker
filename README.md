@@ -86,6 +86,8 @@ KNOWN BUGS
 ROADMAP
 -------
 
+ * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
+ * Minimize vendor libraries
  * Add pattern jump instructions
  * Migrate to Handlebars 4 (currently v4+ creates a bug where cutting a selection removes cut rows from the list template)
  * Add cut/paste icons for touch screen devices

@@ -2,10 +2,19 @@ module.exports =
 {
     // copy third party libraries
 
-    vendor :
-    {
+    vendor : {
         src : [ "<%= config.project.modules %>/dspjs/dsp.js" ],
         dest : "<%= config.target.env %>/vendor/vendor.js"
+    },
+
+    // copy handlebars runtime and templates
+
+    handlebars : {
+        src: [
+            "<%= config.project.modules %>/handlebars/dist/handlebars.runtime.min.js",
+            "<%= config.target.env %>/handlebars/templates.js"
+        ],
+        dest: "<%= config.target.env %>/handlebars/handlebars.js"
     },
 
     // copy fixtures

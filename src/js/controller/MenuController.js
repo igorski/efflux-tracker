@@ -22,14 +22,13 @@
  */
 "use strict";
 
-const Config       = require( "../config/Config" );
-const Copy         = require( "../i18n/Copy" );
-const Time         = require( "../utils/Time" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const SongUtil     = require( "../utils/SongUtil" );
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
-const zMIDI        = require( "zmidi" ).zMIDI;
+const Config   = require( "../config/Config" );
+const Copy     = require( "../i18n/Copy" );
+const Time     = require( "../utils/Time" );
+const SongUtil = require( "../utils/SongUtil" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
+const zMIDI    = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
@@ -55,45 +54,50 @@ const MenuController = module.exports =
         const userAgent = window.navigator.userAgent;
         const canRecord = ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
 
-        containerRef.innerHTML += TemplateUtil.render( "menuView", {
+        efflux.TemplateService.render( "menuView", containerRef, {
+
             addExport : canImportExport,
             addSave   : canRecord
+
+        }).then(() => {
+
+            // grab references to elements in the template
+
+            containerRef.querySelector( "#songLoad"  ).addEventListener( "click",   handleLoad );
+            containerRef.querySelector( "#songSave"  ).addEventListener( "click",   handleSave );
+            containerRef.querySelector( "#songReset" ).addEventListener( "click",   handleReset );
+            containerRef.querySelector( "#settingsBtn" ).addEventListener( "click", handleSettings );
+
+            if ( canImportExport ) {
+
+                containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
+                containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+            }
+
+            if ( canRecord ) {
+
+                containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
+            }
+
+            if ( !zMIDI.isSupported() ) {
+                // a bit cheap, the only setting we (for now) support is related to MIDI, if
+                // no MIDI is supported, hide the settings button
+                containerRef.querySelector( "#settingsBtn" ).style.display = "none";
+            }
+
+            // get reference to DOM elements
+
+            menu   = document.getElementById( "menu" );
+            header = document.getElementById( "header" );
+            toggle = menu.querySelector( ".toggle" );
+
+            // add event listeners
+
+            toggle.addEventListener( "click",     handleToggle );
+            menu.addEventListener  ( "mouseover", handleMouseOver );
         });
 
-        // grab references to elements in the template
-
-        containerRef.querySelector( "#songLoad"  ).addEventListener( "click",   handleLoad );
-        containerRef.querySelector( "#songSave"  ).addEventListener( "click",   handleSave );
-        containerRef.querySelector( "#songReset" ).addEventListener( "click",   handleReset );
-        containerRef.querySelector( "#settingsBtn" ).addEventListener( "click", handleSettings );
-
-        if ( canImportExport ) {
-
-            containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
-            containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
-        }
-
-        if ( canRecord ) {
-
-            containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
-        }
-
-        if ( !zMIDI.isSupported() ) {
-            // a bit cheap, the only setting we (for now) support is related to MIDI, if
-            // no MIDI is supported, hide the settings button
-            containerRef.querySelector( "#settingsBtn" ).style.display = "none";
-        }
-
-        // get reference to DOM elements
-
-        menu   = document.getElementById( "menu" );
-        header = document.getElementById( "header" );
-        toggle = menu.querySelector( ".toggle" );
-
-        // add event listeners
-
-        toggle.addEventListener( "click",     handleToggle );
-        menu.addEventListener  ( "mouseover", handleMouseOver );
+        // subscribe to pubsub messaging system
 
         [
             Messages.WINDOW_RESIZED,

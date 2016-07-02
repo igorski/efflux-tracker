@@ -22,9 +22,8 @@
  */
 "use strict";
 
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
 
 /* private properties */
 
@@ -46,19 +45,14 @@ const HelpController = module.exports =
         container = containerRef;
         efflux    = effluxRef;
 
-        container.innerHTML += TemplateUtil.render( "helpView" );
+        efflux.TemplateService.render( "helpView", container, null, true ).then(() => {
 
-        // cache view elements
+            contentContainer = container.querySelector( ".content" );
+            Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicGeneral" ); // show default content
+        });
 
-        contentContainer = container.querySelector( ".content" );
-
-        // add listeners
-
+        // subscribe to messaging system
         Pubsub.subscribe( Messages.DISPLAY_HELP, handleBroadcast );
-
-        // show default content
-
-        Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicGeneral" );
     }
 };
 
@@ -82,12 +76,13 @@ function handleBroadcast( type, payload )
 
                 if (( now - lastHelpRequest ) > DELAY ) {
 
-                    const template = TemplateUtil.render( payload );
+                    efflux.TemplateService.render( payload, contentContainer, payload, null, false, false ).then(( template ) => {
 
-                    if ( template.length > 0 )
-                        contentContainer.innerHTML = template;
+                        if ( template.length > 0 )
+                            contentContainer.innerHTML = template;
 
-                    currentSection = payload;
+                        currentSection = payload;
+                    });
                 }
                 lastHelpRequest = now;
             }

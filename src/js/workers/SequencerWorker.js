@@ -1,4 +1,4 @@
-var timer, interval = 25;
+var timer, interval = 25, data;
 
 /**
  * SequencerWorker leverages the intervallic polling
@@ -6,7 +6,7 @@ var timer, interval = 25;
  */
 self.addEventListener( "message", function( aEvent )
 {
-    var data = aEvent.data;
+    data = aEvent.data;
 
     if ( data !== undefined )
     {
@@ -28,4 +28,4 @@ self.addEventListener( "message", function( aEvent )
                 break;
         }
     }
-});
+}, false );

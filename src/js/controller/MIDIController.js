@@ -25,7 +25,6 @@
 const Copy           = require( "../i18n/Copy" );
 const Time           = require( "../utils/Time" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );
-const TemplateUtil   = require( "../utils/TemplateUtil" );
 const EventUtil      = require( "../utils/EventUtil" );
 const SongUtil       = require( "../utils/SongUtil" );
 const Pubsub         = require( "pubsub-js" );

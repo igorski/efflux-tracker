@@ -22,10 +22,9 @@
  */
 "use strict";
 
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const DOM          = require( "zjslib" ).DOM;
+const Pubsub   = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
+const DOM      = require( "zjslib" ).DOM;
 
 /* private properties */
 
@@ -148,8 +147,9 @@ function handleModuleParamsClick( aEvent )
 function updateStepAmount( amount )
 {
     stepAmount = amount;
-    indiceContainer.innerHTML = TemplateUtil.render(
-        "patternEditorIndices", { amount: amount }
-    );
-    patternIndices = indiceContainer.querySelectorAll( "li" );
+    efflux.TemplateService.render(
+        "patternEditorIndices", indiceContainer, { amount: amount }
+    ).then(() => {
+        patternIndices = indiceContainer.querySelectorAll( "li" );
+    });
 }

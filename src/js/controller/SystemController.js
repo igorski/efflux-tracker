@@ -22,13 +22,12 @@
  */
 "use strict";
 
-const Config       = require( "../config/Config" );
-const Copy         = require( "../i18n/Copy" );
-const Messages     = require( "../definitions/Messages" );
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const Style        = require( "zjslib" ).Style;
-const Pubsub       = require( "pubsub-js" );
-const Bowser       = require( "bowser" );
+const Config   = require( "../config/Config" );
+const Copy     = require( "../i18n/Copy" );
+const Messages = require( "../definitions/Messages" );
+const Style    = require( "zjslib" ).Style;
+const Pubsub   = require( "pubsub-js" );
+const Bowser   = require( "bowser" );
 
 /* private variables */
 
@@ -76,6 +75,7 @@ module.exports =
             Messages.HIDE_LOADER,
             Messages.CLOSE_OVERLAYS,
             Messages.PATTERN_STEPS_UPDATED,
+            Messages.DISPLAY_HELP,
             Messages.SONG_LOADED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -105,8 +105,10 @@ function handleBroadcast( type, payload )
 
             if ( !loader ) {
                 Pubsub.publish( Messages.SHOW_BLIND );
-                loader = TemplateUtil.renderAsElement( "loader" );
-                document.body.appendChild( loader );
+                efflux.TemplateService.renderAsElement( "loader" ).then(( template ) => {
+                    loader = template;
+                    document.body.appendChild( loader );
+                });
             }
             break;
 
@@ -120,6 +122,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.PATTERN_STEPS_UPDATED:
+        case Messages.DISPLAY_HELP:
         case Messages.SONG_LOADED:
             calculateDimensions();
             break;

@@ -22,7 +22,6 @@
  */
 "use strict";
 
-const TemplateUtil = require( "../utils/TemplateUtil" );
 const EventFactory = require( "../factory/EventFactory" );
 const Form         = require( "../utils/Form" );
 const Manual       = require( "../definitions/Manual" );
@@ -50,22 +49,25 @@ const ModuleParamController = module.exports =
         efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
-        element = TemplateUtil.renderAsElement( "moduleParamEntry" );
+        efflux.TemplateService.renderAsElement( "moduleParamEntry").then(( template ) => {
 
-        // grab view elements
+            element = template;
 
-        moduleList   = element.querySelectorAll( "#moduleSelect li" );
-        glideOptions = element.querySelectorAll( "input[type=radio]" );
-        valueControl = element.querySelector( "#moduleValue" );
-        valueDisplay = element.querySelector( "#moduleInputValue" );
+            // grab view elements
 
-        // add listeners
+            moduleList   = element.querySelectorAll( "#moduleSelect li" );
+            glideOptions = element.querySelectorAll( "input[type=radio]" );
+            valueControl = element.querySelector( "#moduleValue" );
+            valueDisplay = element.querySelector( "#moduleInputValue" );
 
-        element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
-        element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
-        element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
-        element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
-        valueControl.addEventListener( "input", handleValueChange );
+            // add listeners
+
+            element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+            element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
+            element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
+            element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
+            valueControl.addEventListener( "input", handleValueChange );
+        });
 
         // subscribe to messaging system
 

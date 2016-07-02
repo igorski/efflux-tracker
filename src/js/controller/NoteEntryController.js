@@ -22,7 +22,6 @@
  */
 "use strict";
 
-const TemplateUtil = require( "../utils/TemplateUtil" );
 const EventUtil    = require( "../utils/EventUtil" );
 const EventFactory = require( "../factory/EventFactory" );
 const Form         = require( "../utils/Form" );
@@ -52,27 +51,30 @@ const NoteEntryController = module.exports =
         efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
-        element = TemplateUtil.renderAsElement( "noteEntry" );
+        efflux.TemplateService.renderAsElement( "noteEntry" ).then(( template ) => {
 
-        // grab view elements
+            element = template;
 
-        instrumentSelect = element.querySelector( "#instrument" );
+            // grab view elements
 
-        // initialize keyboard and octave selectors
+            instrumentSelect = element.querySelector( "#instrument" );
 
-        const keyboard = element.querySelector( "#keyboardNotes" );
-        noteList       = keyboard.querySelectorAll( "li" );
-        keyboard.addEventListener( "click", handleKeyboardClick );
+            // initialize keyboard and octave selectors
 
-        const octaves = element.querySelector( "#octaves" );
-        octaveList    = octaves.querySelectorAll( "li" );
-        octaves.addEventListener( "click", handleOctaveClick );
+            const keyboard = element.querySelector( "#keyboardNotes" );
+            noteList       = keyboard.querySelectorAll( "li" );
+            keyboard.addEventListener( "click", handleKeyboardClick );
 
-        // add listeners
+            const octaves = element.querySelector( "#octaves" );
+            octaveList    = octaves.querySelectorAll( "li" );
+            octaves.addEventListener( "click", handleOctaveClick );
 
-        element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
-        element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
-        element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
+            // add listeners
+
+            element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+            element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
+            element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
+        });
 
         // subscribe to messaging system
 

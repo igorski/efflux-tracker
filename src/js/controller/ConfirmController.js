@@ -22,36 +22,39 @@
  */
 "use strict";
 
-const TemplateUtil = require( "../utils/TemplateUtil" );
-const Messages     = require( "../definitions/Messages" );
-const Copy         = require( "../i18n/Copy" );
-const Pubsub       = require( "pubsub-js" );
+const Messages = require( "../definitions/Messages" );
+const Copy     = require( "../i18n/Copy" );
+const Pubsub   = require( "pubsub-js" );
 
 let container, confirm, message, confirmHandler, cancelHandler;
 
 const ConfirmController = module.exports =
 {
-    init( containerRef )
+    init( containerRef, effluxRef )
     {
         container = containerRef;
 
         // create DOM elements
 
-        confirm = TemplateUtil.renderAsElement( "confirmWindow", {
+        effluxRef.TemplateService.renderAsElement( "confirmWindow", {
             title: Copy.get( "CONFIRM_TITLE" ),
             message: "",
             confirm: Copy.get( "BUTTON_OK" ),
             cancel: Copy.get( "BUTTON_CANCEL" )
+
+        }).then(( template ) => {
+
+            confirm = template;
+
+            message = confirm.querySelector( ".message" );
+
+            // add listeners to DOM
+
+            confirm.querySelector( ".confirm-button" ).addEventListener( "click", handleConfirm );
+            confirm.querySelector( ".cancel-button" ).addEventListener( "click", handleCancel );
         });
 
-        message = confirm.querySelector( ".message" );
-
-        // add listeners to DOM
-
-        confirm.querySelector( ".confirm-button" ).addEventListener( "click", handleConfirm );
-        confirm.querySelector( ".cancel-button" ).addEventListener( "click", handleCancel );
-
-        // subscribe to messasing system
+        // subscribe to messaging system
 
         [
             Messages.CONFIRM,

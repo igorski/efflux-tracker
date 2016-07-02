@@ -31,7 +31,6 @@ const Form           = require( "../utils/Form" );
 const EventUtil      = require( "../utils/EventUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
 const PatternUtil    = require( "../utils/PatternUtil" );
-const TemplateUtil   = require( "../utils/TemplateUtil" );
 
 /* private properties */
 
@@ -111,16 +110,16 @@ const PatternTrackListController = module.exports =
         const coordinates = { x: container.scrollLeft, y: container.scrollTop };
 
         const pattern = efflux.activeSong.patterns[ activePattern ];
-        wrapper.innerHTML = TemplateUtil.render( "patternTrackList", {
+        efflux.TemplateService.render( "patternTrackList", wrapper, {
+
             steps   : pattern.steps,
             pattern : pattern
-        });
-        Form.setSelectedOption( stepSelect, pattern.steps );
 
+        }).then( highlightActiveStep );
+
+        Form.setSelectedOption( stepSelect, pattern.steps );
         container.scrollLeft = coordinates.x;
         container.scrollTop  = coordinates.y;
-
-        highlightActiveStep();
     }
 };
 

@@ -59,7 +59,7 @@ module.exports =
      */
     getBasePath()
     {
-        return ( typeof window.effluxPath === "string" ) ? window.effluxPath : "";
+        return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
     },
 
     /**

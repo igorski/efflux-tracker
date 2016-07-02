@@ -28,7 +28,6 @@ const Manual            = require( "../definitions/Manual" );
 const Messages          = require( "../definitions/Messages" );
 const InstrumentFactory = require( "../factory/InstrumentFactory" );
 const Form              = require( "../utils/Form" );
-const TemplateUtil      = require( "../utils/TemplateUtil" );
 const zCanvas           = require( "zCanvas" ).zCanvas;
 const Pubsub            = require( "pubsub-js" );
 
@@ -56,99 +55,105 @@ const InstrumentController = module.exports =
 
         view = document.createElement( "div" );
         view.setAttribute( "id", "instrumentEditor" );
-        view.innerHTML = TemplateUtil.render( "instrumentEditor" );
 
-        instrumentSelect        = view.querySelector( "#instrumentSelect" );
-        oscEnabledSelect        = view.querySelector( "#oscillatorEnabled" );
-        oscWaveformSelect       = view.querySelector( "#oscillatorWaveformSelect" );
-        oscVolumeControl        = view.querySelector( "#volume" );
-        instrumentVolumeControl = view.querySelector( "#instrumentVolume" );
+        efflux.TemplateService.render( "instrumentEditor", view ).then(() => {
 
-        // oscillator tuning
-        detuneControl           = view.querySelector( "#detune" );
-        octaveShiftControl      = view.querySelector( "#octaveShift" );
-        fineShiftControl        = view.querySelector( "#fineShift" );
-        attackControl           = view.querySelector( "#attack" );
-        decayControl            = view.querySelector( "#decay" );
-        sustainControl          = view.querySelector( "#sustain" );
-        releaseControl          = view.querySelector( "#release" );
+            instrumentSelect        = view.querySelector( "#instrumentSelect" );
+            oscEnabledSelect        = view.querySelector( "#oscillatorEnabled" );
+            oscWaveformSelect       = view.querySelector( "#oscillatorWaveformSelect" );
+            oscVolumeControl        = view.querySelector( "#volume" );
+            instrumentVolumeControl = view.querySelector( "#instrumentVolume" );
 
-        // filter
-        filterEnabledSelect     = view.querySelector( "#filterEnabled" );
-        frequencyControl        = view.querySelector( "#filterFrequency" );
-        qControl                = view.querySelector( "#filterQ" );
-        lfoSelect               = view.querySelector( "#filterLFO" );
-        filterSelect            = view.querySelector( "#filterType" );
-        speedControl            = view.querySelector( "#filterSpeed" );
-        depthControl            = view.querySelector( "#filterDepth" );
+            // oscillator tuning
+            detuneControl           = view.querySelector( "#detune" );
+            octaveShiftControl      = view.querySelector( "#octaveShift" );
+            fineShiftControl        = view.querySelector( "#fineShift" );
+            attackControl           = view.querySelector( "#attack" );
+            decayControl            = view.querySelector( "#decay" );
+            sustainControl          = view.querySelector( "#sustain" );
+            releaseControl          = view.querySelector( "#release" );
 
-        // delay
-        delayEnabledSelect   = view.querySelector( "#delayEnabled" );
-        delayTypeSelect      = view.querySelector( "#delayType" );
-        delayTimeControl     = view.querySelector( "#delayTime" );
-        delayFeedbackControl = view.querySelector( "#delayFeedback" );
-        delayCutoffControl   = view.querySelector( "#delayCutoff" );
-        delayOffsetControl   = view.querySelector( "#delayOffset" );
+            // filter
+            filterEnabledSelect     = view.querySelector( "#filterEnabled" );
+            frequencyControl        = view.querySelector( "#filterFrequency" );
+            qControl                = view.querySelector( "#filterQ" );
+            lfoSelect               = view.querySelector( "#filterLFO" );
+            filterSelect            = view.querySelector( "#filterType" );
+            speedControl            = view.querySelector( "#filterSpeed" );
+            depthControl            = view.querySelector( "#filterDepth" );
 
-        canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
-        canvas.setBackgroundColor( "#000000" );
-        canvas.insertInPage( view.querySelector( "#canvasContainer" ));
+            // delay
+            delayEnabledSelect   = view.querySelector( "#delayEnabled" );
+            delayTypeSelect      = view.querySelector( "#delayType" );
+            delayTimeControl     = view.querySelector( "#delayTime" );
+            delayFeedbackControl = view.querySelector( "#delayFeedback" );
+            delayCutoffControl   = view.querySelector( "#delayCutoff" );
+            delayOffsetControl   = view.querySelector( "#delayOffset" );
 
-        wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), ( table ) =>
-        {
-            let oscillator;
-            if ( instrumentRef ) {
+            canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
+            canvas.setBackgroundColor( "#000000" );
+            canvas.insertInPage( view.querySelector( "#canvasContainer" ));
 
-                oscillator       = instrumentRef.oscillators[ activeOscillatorIndex ];
-                oscillator.table = table;
+            wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), ( table ) =>
+            {
+                let oscillator;
+                if ( instrumentRef ) {
 
-                // when drawing, force the oscillator type to transition to custom
-                // and activate the oscillator (to make changes instantly audible)
-                if ( oscillator.waveform !== "CUSTOM" ) {
-                    Form.setSelectedOption( oscWaveformSelect, "CUSTOM" );
-                    if ( !oscillator.enabled ) {
-                        oscillator.enabled = true;
-                        Form.setSelectedOption( oscEnabledSelect, true );
+                    oscillator       = instrumentRef.oscillators[ activeOscillatorIndex ];
+                    oscillator.table = table;
+
+                    // when drawing, force the oscillator type to transition to custom
+                    // and activate the oscillator (to make changes instantly audible)
+                    if ( oscillator.waveform !== "CUSTOM" ) {
+                        Form.setSelectedOption( oscWaveformSelect, "CUSTOM" );
+                        if ( !oscillator.enabled ) {
+                            oscillator.enabled = true;
+                            Form.setSelectedOption( oscEnabledSelect, true );
+                        }
+                        handleOscillatorWaveformChange( null );
                     }
-                    handleOscillatorWaveformChange( null );
+                    else
+                        cacheOscillatorWaveForm( instrumentRef.oscillators[ activeOscillatorIndex ] );
                 }
-                else
-                    cacheOscillatorWaveForm( instrumentRef.oscillators[ activeOscillatorIndex ] );
-            }
+            });
+
+            // add listeners
+
+            view.querySelector( ".close-button" ).addEventListener( "click", handleClose );
+            view.querySelector( ".help-button" ).addEventListener ( "click", handleHelp );
+            view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
+            instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
+            oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
+            oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
+            oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
+
+            [ detuneControl, octaveShiftControl, fineShiftControl ].forEach(( control ) => {
+                control.addEventListener( "input", handleTuningChange );
+            });
+
+            [ attackControl, decayControl, sustainControl, releaseControl ].forEach(( control ) => {
+                control.addEventListener( "input", handleEnvelopeChange );
+            });
+
+            instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
+
+            filterEnabledSelect.addEventListener( "change", handleFilterChange );
+            lfoSelect.addEventListener          ( "change", handleFilterChange );
+            filterSelect.addEventListener       ( "change", handleFilterChange );
+            [ frequencyControl, qControl, speedControl, depthControl ].forEach(( control ) => {
+                control.addEventListener( "input", handleFilterChange );
+            });
+
+            delayEnabledSelect.addEventListener( "change", handleDelayChange );
+            delayTypeSelect.addEventListener   ( "change", handleDelayChange );
+            [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( ( control ) => {
+                control.addEventListener( "input", handleDelayChange );
+            });
+
+            updateWaveformSize();
         });
 
-        // add listeners
-
-        view.querySelector( ".close-button" ).addEventListener( "click", handleClose );
-        view.querySelector( ".help-button" ).addEventListener ( "click", handleHelp );
-        view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
-        instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
-        oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
-        oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
-        oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
-
-        [ detuneControl, octaveShiftControl, fineShiftControl ].forEach(( control ) => {
-            control.addEventListener( "input", handleTuningChange );
-        });
-
-        [ attackControl, decayControl, sustainControl, releaseControl ].forEach(( control ) => {
-            control.addEventListener( "input", handleEnvelopeChange );
-        });
-
-        instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
-
-        filterEnabledSelect.addEventListener( "change", handleFilterChange );
-        lfoSelect.addEventListener          ( "change", handleFilterChange );
-        filterSelect.addEventListener       ( "change", handleFilterChange );
-        [ frequencyControl, qControl, speedControl, depthControl ].forEach(( control ) => {
-            control.addEventListener( "input", handleFilterChange );
-        });
-
-        delayEnabledSelect.addEventListener( "change", handleDelayChange );
-        delayTypeSelect.addEventListener   ( "change", handleDelayChange );
-        [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( ( control ) => {
-            control.addEventListener( "input", handleDelayChange );
-        });
+        // subscribe to Pubsub system
 
         [
             Messages.CLOSE_OVERLAYS,
@@ -156,10 +161,6 @@ const InstrumentController = module.exports =
             Messages.WINDOW_RESIZED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-
-        // initialize
-
-        updateWaveformSize();
     },
 
     update()
