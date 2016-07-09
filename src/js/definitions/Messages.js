@@ -62,8 +62,6 @@ module.exports =
     PATTERN_STEPS_UPDATED     : "SNG:5",  // payload consists of number describing new pattern length
 
     // sequencer messages
-    PATTERN_SWITCH            : "SNG:3",  // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED    : "SNG:4",
 
     TOGGLE_SEQUENCER_PLAYSTATE : "SEQ:0",
     PLAYBACK_STARTED           : "SEQ:1",
@@ -76,6 +74,10 @@ module.exports =
     TOGGLE_INPUT_RECORDING     : "SEQ:8",
     NOTE_ON                    : "SEQ:9",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
     NOTE_OFF                   : "SEQ:10", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
+    PATTERN_SWITCH             : "SEQ:11",  // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED     : "SEQ:12",
+    PATTERN_JUMP_PREV          : "SEQ:13",
+    PATTERN_JUMP_NEXT          : "SEQ:14",
 
     // editor messages
 

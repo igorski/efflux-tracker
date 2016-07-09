@@ -46,7 +46,7 @@ let playing           = false,
     beatUnit          = 4;
 
 let currentMeasure, measureStartTime, firstMeasureStartTime,
-    currentStep, nextNoteTime, channels, measureLength = 2, queueHandlers = [];
+    currentStep, nextNoteTime, channels, queueHandlers = [];
 
 const SequencerController = module.exports =
 {
@@ -112,6 +112,8 @@ const SequencerController = module.exports =
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
             Messages.PATTERN_SWITCH,
+            Messages.PATTERN_JUMP_PREV,
+            Messages.PATTERN_JUMP_NEXT,
             Messages.SONG_LOADED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -216,10 +218,9 @@ const SequencerController = module.exports =
      */
     update()
     {
-        let meta = efflux.activeSong.meta;
+        const meta = efflux.activeSong.meta;
         tempoSlider.value      = meta.tempo;
         tempoDisplay.innerHTML = meta.tempo + " BPM";
-        measureLength = ( 60.0 / meta.tempo ) * beatAmount;
 
         currentPositionTitle.innerHTML = ( editorModel.activePattern + 1 ).toString();
         maxPositionTitle.innerHTML     = efflux.activeSong.patterns.length.toString();
@@ -247,6 +248,14 @@ function handleBroadcast( type, payload )
         case Messages.PATTERN_AMOUNT_UPDATED:
         case Messages.PATTERN_SWITCH:
             SequencerController.update();
+            break;
+
+        case Messages.PATTERN_JUMP_PREV:
+            handlePatternNavBack( null );
+            break;
+
+        case Messages.PATTERN_JUMP_NEXT:
+            handlePatternNavNext( null );
             break;
 
         case Messages.SONG_LOADED:

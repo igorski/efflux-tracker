@@ -209,52 +209,62 @@ function handleKeyDown( aEvent )
 
                 case 39: // right
 
-                    if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
-                        if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
-                            ++editorModel.activePattern;
-                            editorModel.activeInstrument = 0;
-                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-                        }
-                        else
-                            editorModel.activeInstrument = MAX_CHANNEL;
-
-                        Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                    if ( hasOption ) {
+                        Pubsub.publishSync( Messages.PATTERN_JUMP_NEXT );
                     }
-                    else if ( editorModel.activeInstrument > 2 )
-                        Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
+                    else {
+                        if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
+                            if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
+                                ++editorModel.activePattern;
+                                editorModel.activeInstrument = 0;
+                                Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                            }
+                            else
+                                editorModel.activeInstrument = MAX_CHANNEL;
 
-                    if ( aEvent.shiftKey )
-                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
-                    else
-                        selectionModel.clearSelection();
+                            Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                        }
+                        else if ( editorModel.activeInstrument > 2 )
+                            Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
 
-                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                        if ( aEvent.shiftKey )
+                            selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
+                        else
+                            selectionModel.clearSelection();
+
+                        Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    }
                     break;
 
                 case 37: // left
 
-                    if ( --editorModel.activeInstrument < 0 ) {
-                        if ( editorModel.activePattern > 0 ) {
-                            --editorModel.activePattern;
-                            editorModel.activeInstrument = 1;
-                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                    if ( hasOption ) {
+                        Pubsub.publishSync( Messages.PATTERN_JUMP_PREV );
+                    }
+                    else {
+                        if ( --editorModel.activeInstrument < 0 ) {
+                            if ( editorModel.activePattern > 0 ) {
+                                --editorModel.activePattern;
+                                editorModel.activeInstrument = 1;
+                                Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                            }
+                            else
+                                editorModel.activeInstrument = 0;
+
+                            Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                        }
+                        else if ( editorModel.activeInstrument >= 0 )
+                            Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
+
+                        if ( aEvent.shiftKey ) {
+                            minSelect = Math.max( --maxSelect, 0 );
+                            selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
                         }
                         else
-                            editorModel.activeInstrument = 0;
+                            selectionModel.clearSelection();
 
-                        Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                        Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
                     }
-                    else if ( editorModel.activeInstrument >= 0 )
-                        Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
-
-                    if ( aEvent.shiftKey ) {
-                        minSelect = Math.max( --maxSelect, 0 );
-                        selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
-                    }
-                    else
-                        selectionModel.clearSelection();
-
-                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
                     break;
 
                 case 8:  // backspace
@@ -293,19 +303,23 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 82: // R
-                    if ( KeyboardController.hasOption( aEvent ))
+                    if ( hasOption ) {
                         Pubsub.publishSync( Messages.TOGGLE_INPUT_RECORDING );
+                        aEvent.preventDefault();
+                    }
                     break;
 
                 case 83: // S
-                    if ( KeyboardController.hasOption( aEvent ))
+                    if ( hasOption ) {
                         Pubsub.publishSync( Messages.SAVE_SONG );
+                        aEvent.preventDefault();
+                    }
                     break;
 
                 case 86: // V
 
                     // paste current selection
-                    if ( KeyboardController.hasOption( aEvent )) {
+                    if ( hasOption ) {
                         selectionModel.pasteSelection(
                             efflux.activeSong, editorModel.activePattern, editorModel.activeInstrument, editorModel.activeStep
                         );
