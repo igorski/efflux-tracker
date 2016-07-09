@@ -369,7 +369,7 @@ function disassemblePatterns( xtk, patterns ) {
 
                 if ( event ) {
 
-                    xtkEvent = xtkChannel[ eIndex ] = {};
+                    xtkEvent = {};
 
                     xtkEvent[ EVENT_ID ]         = event.id;
                     xtkEvent[ EVENT_ACTION ]     = event.action;
@@ -386,6 +386,10 @@ function disassemblePatterns( xtk, patterns ) {
                         xtkAutomation[ EVENT_MODULE_GLIDE ] = event.mp.glide;
                     }
                 }
+                else {
+                    xtkEvent = 0; // "0" is 3 bytes smaller than "null" ;)
+                }
+                xtkChannel[ eIndex ] = xtkEvent;
             });
         });
     });

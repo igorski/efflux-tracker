@@ -89,10 +89,8 @@ ROADMAP
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Minimize vendor libraries
  * Add pattern jump instructions
- * Migrate to Handlebars 4 (currently v4+ creates a bug where cutting a selection removes cut rows from the list template)
  * Add cut/paste icons for touch screen devices
  * Add EQ for each individual instrument for mix balancing
  * Improve arrow key navigation within patterns (there are odd jumps when switching direction)
- * Instrument mute / solo
+ * Implement Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)
- * When selecting notes in noteEntry popup sound note when making changes to note / octave
