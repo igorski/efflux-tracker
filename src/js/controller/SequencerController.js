@@ -344,7 +344,7 @@ function handlePatternNavBack( aEvent )
 
 function handlePatternNavNext( aEvent )
 {
-    let max = efflux.activeSong.patterns.length - 1;
+    const max = efflux.activeSong.patterns.length - 1;
 
     if ( editorModel.activePattern < max )
         switchPattern( editorModel.activePattern + 1 );
@@ -352,11 +352,11 @@ function handlePatternNavNext( aEvent )
 
 function handleTempoChange( e )
 {
-    let meta = efflux.activeSong.meta;
+    const meta     = efflux.activeSong.meta;
+    const oldTempo = meta.tempo;
+    const newTempo = parseFloat( e.target.value );
 
-    let oldTempo = meta.tempo;
-    let newTempo = parseFloat( e.target.value );
-    meta.tempo   = newTempo;
+    meta.tempo = newTempo;
 
     // update existing event offsets by the tempo ratio
 
@@ -370,7 +370,7 @@ function collect()
 {
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
 
-    let sequenceEvents = !( recording && Metronome.countIn && !Metronome.countInComplete );
+    const sequenceEvents = !( recording && Metronome.countIn && !Metronome.countInComplete );
     let i, j, channel, event, compareTime;
 
     while ( nextNoteTime < ( audioContext.currentTime + scheduleAheadTime ))
@@ -417,8 +417,8 @@ function collect()
  */
 function step()
 {
-    let song          = efflux.activeSong;
-    let totalMeasures = song.patterns.length;
+    const song          = efflux.activeSong;
+    const totalMeasures = song.patterns.length;
 
     // Advance current note and time by the given subdivision...
     nextNoteTime += (( 60 / song.meta.tempo ) * 4 ) / stepPrecision;
@@ -473,7 +473,7 @@ function switchPattern( newMeasure )
     currentMeasure = editorModel.activePattern = newMeasure;
     Pubsub.publishSync( Messages.PATTERN_SWITCH, newMeasure );
 
-    let newSteps = efflux.activeSong.patterns[ newMeasure ].steps;
+    const newSteps = efflux.activeSong.patterns[ newMeasure ].steps;
     if ( editorModel.amountOfSteps !== newSteps ) {
         editorModel.amountOfSteps = newSteps;
         Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newSteps );
@@ -494,9 +494,9 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 
     // calculate the total duration for the event
 
-    let patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
-    let patterns        = efflux.activeSong.patterns;
-    let duration        = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
+    const patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
+    const patterns        = efflux.activeSong.patterns;
+    let duration          = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
 
     if ( aEvent.action === 1 ) // but only for "noteOn" events
     {
@@ -587,7 +587,7 @@ function freeHandler( aNode )
     aNode.disconnect();
     aNode.onended = null;
 
-    let i = queueHandlers.indexOf( aNode );
+    const i = queueHandlers.indexOf( aNode );
     if ( i !== -1 )
         queueHandlers.splice( i, 1 );
 }

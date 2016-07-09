@@ -297,6 +297,11 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.TOGGLE_INPUT_RECORDING );
                     break;
 
+                case 83: // S
+                    if ( KeyboardController.hasOption( aEvent ))
+                        Pubsub.publishSync( Messages.SAVE_SONG );
+                    break;
+
                 case 86: // V
 
                     // paste current selection

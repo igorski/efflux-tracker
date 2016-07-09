@@ -102,6 +102,7 @@ const MenuController = module.exports =
         [
             Messages.WINDOW_RESIZED,
             Messages.CLOSE_OVERLAYS,
+            Messages.SAVE_SONG,
             Messages.VALIDATE_AND_GET_SONG
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -137,6 +138,10 @@ function handleBroadcast( type, payload )
 
             if ( menuOpened )
                 handleToggle( null );
+            break;
+
+        case Messages.SAVE_SONG:
+            handleSave( null );
             break;
 
         case Messages.VALIDATE_AND_GET_SONG:

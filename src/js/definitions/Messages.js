@@ -54,6 +54,7 @@ module.exports =
     VALIDATE_AND_GET_SONG     : "SNGVG",  // payload consists of callback function receiving Song
     LOAD_SONG                 : "SNGLD",  // payload can be A) string (song id) or B) full Song object
     SONG_LOADED               : "SNG:0",  // payload consists of the Song that has been loaded
+    SAVE_SONG                 : "SNGSV",
     SONG_IMPORTED             : "SNG:1",
     SONG_EXPORTED             : "SNG:2",
     REFRESH_SONG              : "SNG:3",
