@@ -3,10 +3,11 @@
  */
 "use strict";
 
-const chai           = require( "chai" );
-const Config         = require( "../../src/js/config/Config" );
-const EventFactory   = require( "../../src/js/factory/EventFactory" );
-const PatternFactory = require( "../../src/js/factory/PatternFactory" );
+const chai             = require( "chai" );
+const Config           = require( "../../../src/js/config/Config" );
+const EventFactory     = require( "../../../src/js/model/factory/EventFactory" );
+const PatternFactory   = require( "../../../src/js/model/factory/PatternFactory" );
+const PatternValidator = require( "../../../src/js/model/validators/PatternValidator" );
 
 describe( "PatternFactory", function()
 {
@@ -45,6 +46,15 @@ describe( "PatternFactory", function()
     });
 
     /* actual unit tests */
+
+    it( "should be able to generate a valid pattern", function()
+    {
+        const steps   = Math.round( 1 + ( Math.random() * 32 ));
+        const pattern = PatternFactory.createEmptyPattern( steps );
+
+        assert.ok( PatternValidator.isValid( pattern ),
+            "expected PatternFactory to have generated a valid Pattern, but it didn't pass validation" );
+    });
 
     it( "should be able to generate an empty pattern template for any requested step amount", function()
     {

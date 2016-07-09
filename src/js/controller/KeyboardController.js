@@ -24,7 +24,7 @@
 
 const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
-const EventFactory   = require( "../factory/EventFactory" );
+const EventFactory   = require( "../model/factory/EventFactory" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );
 const Pubsub         = require( "pubsub-js" );
 

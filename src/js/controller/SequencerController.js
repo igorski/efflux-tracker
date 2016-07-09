@@ -27,7 +27,7 @@ const AudioUtil    = require( "../utils/AudioUtil" );
 const SongUtil     = require( "../utils/SongUtil" );
 const Messages     = require( "../definitions/Messages" );
 const Metronome    = require( "../components/Metronome" );
-const AudioFactory = require( "../factory/AudioFactory" );
+const AudioFactory = require( "../model/factory/AudioFactory" );
 const Bowser       = require( "bowser" );
 const Pubsub       = require( "pubsub-js" );
 

@@ -6,7 +6,7 @@
 const chai         = require( "chai" );
 const EventUtil    = require( "../../src/js/utils/EventUtil" );
 const MockBrowser  = require( "mock-browser" ).mocks.MockBrowser;
-const EventFactory = require( "../../src/js/factory/EventFactory" );
+const EventFactory = require( "../../src/js/model/factory/EventFactory" );
 const SongModel    = require( "../../src/js/model/SongModel" );
 
 describe( "EventUtil", function()

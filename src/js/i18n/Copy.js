@@ -54,6 +54,8 @@ const EN =
     CONFIRM_TITLE       : "Confirm",
     BUTTON_OK           : "Yes",
     BUTTON_CANCEL       : "No",
+    ERROR_IMPORT        : "Could not import song, file was possibly not a valid .XTK file, or made by an incompatible version of Efflux",
+    ERROR_FILE_LOAD     : "Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.",
     ERROR_EMPTY_SONG    : "Song has no pattern content!",
     ERROR_NO_META       : "Song has no title or author name, take pride in your work!",
     ERROR_MAX_PATTERNS  : "Cannot exceed the allowed maximum of {0} patterns",

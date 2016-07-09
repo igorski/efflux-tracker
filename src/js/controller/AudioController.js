@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const AudioFactory   = require( "../factory/AudioFactory" );
+const AudioFactory   = require( "../model/factory/AudioFactory" );
 const AudioUtil      = require( "../utils/AudioUtil" );
 const ModuleUtil     = require( "../utils/ModuleUtil" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );

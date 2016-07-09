@@ -4,8 +4,8 @@
 "use strict";
 
 const PatternUtil    = require( "../../src/js/utils/PatternUtil" );
-const EventFactory   = require( "../../src/js/factory/EventFactory" );
-const PatternFactory = require( "../../src/js/factory/PatternFactory" );
+const EventFactory   = require( "../../src/js/model/factory/EventFactory" );
+const PatternFactory = require( "../../src/js/model/factory/PatternFactory" );
 const chai           = require( "chai" );
 
 describe( "PatternUtil", function()

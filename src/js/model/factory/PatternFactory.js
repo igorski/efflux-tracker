@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const Config       = require( "../config/Config" ),
+const Config       = require( "../../config/Config" ),
       EventFactory = require( "./EventFactory" );
 
 /**
@@ -32,6 +32,8 @@ const Config       = require( "../config/Config" ),
  *              steps: number,
  *              channels: Array.<Array.<AUDIO_EVENT>>
  *          }}
+ *
+ * @see PatternValidator
  */
 let PATTERN;
 

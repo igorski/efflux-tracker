@@ -6,8 +6,8 @@
 const chai           = require( "chai" );
 const MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
 const SongModel      = require( "../../src/js/model/SongModel" );
-const EventFactory   = require( "../../src/js/factory/EventFactory" );
-const PatternFactory = require( "../../src/js/factory/PatternFactory" );
+const EventFactory   = require( "../../src/js/model/factory/EventFactory" );
+const PatternFactory = require( "../../src/js/model/factory/PatternFactory" );
 const SongUtil       = require( "../../src/js/utils/SongUtil" );
 
 describe( "SongUtil", function()

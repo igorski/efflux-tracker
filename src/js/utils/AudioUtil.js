@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const AudioFactory = require( "../factory/AudioFactory" );
+const AudioFactory = require( "../model/factory/AudioFactory" );
 const Bowser       = require( "bowser" );
 
 module.exports =

@@ -3,8 +3,9 @@
  */
 "use strict";
 
-const chai              = require( "chai" );
-const InstrumentFactory = require( "../../src/js/factory/InstrumentFactory" );
+const chai                = require( "chai" );
+const InstrumentFactory   = require( "../../../src/js/model/factory/InstrumentFactory" );
+const InstrumentValidator = require( "../../../src/js/model/validators/InstrumentValidator" );
 
 describe( "InstrumentFactory", function()
 {
@@ -43,6 +44,14 @@ describe( "InstrumentFactory", function()
     });
 
     /* actual unit tests */
+
+    it( "should be able to create a valid Instrument", function()
+    {
+        const instrument = InstrumentFactory.createInstrument( 0, "foo" );
+
+        assert.ok( InstrumentValidator.isValid( instrument ),
+            "expected InstrumentFactory to have generated a valid instrument, but it didn't pass validation" );
+    });
 
     it( "should be able to retrieve an existing WaveTable for an oscillator", function()
     {

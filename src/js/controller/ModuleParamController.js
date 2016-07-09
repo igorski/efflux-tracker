@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const EventFactory = require( "../factory/EventFactory" );
+const EventFactory = require( "../model/factory/EventFactory" );
 const Form         = require( "../utils/Form" );
 const Manual       = require( "../definitions/Manual" );
 const Messages     = require( "../definitions/Messages" );

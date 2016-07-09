@@ -61,6 +61,8 @@
  *                  glide: boolean
  *              }
  *          }}
+ *
+ * @see EventValidator
  */
 let AUDIO_EVENT;
 

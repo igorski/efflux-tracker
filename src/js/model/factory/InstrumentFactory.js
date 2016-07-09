@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const Config = require( "../config/Config" );
+const Config = require( "../../config/Config" );
 
 /**
  * type definition for an instrument
@@ -50,6 +50,8 @@ const Config = require( "../config/Config" );
  *                  offset   : number
  *              }
  *          }}
+ *
+ * @see InstrumentValidator
  */
 let INSTRUMENT;
 
@@ -80,6 +82,8 @@ let INSTRUMENT;
  *         release: number
  *     }
  * }}
+ *
+ * @see InstrumentValidator
  */
 let INSTRUMENT_OSCILLATOR;
 

@@ -22,13 +22,15 @@
  */
 "use strict";
 
-const Config   = require( "../config/Config" );
-const Copy     = require( "../i18n/Copy" );
-const Time     = require( "../utils/Time" );
-const SongUtil = require( "../utils/SongUtil" );
-const Pubsub   = require( "pubsub-js" );
-const Messages = require( "../definitions/Messages" );
-const zMIDI    = require( "zmidi" ).zMIDI;
+const Config              = require( "../config/Config" );
+const SongValidator       = require( "../model/validators/SongValidator" );
+const Copy                = require( "../i18n/Copy" );
+const Time                = require( "../utils/Time" );
+const SongUtil            = require( "../utils/SongUtil" );
+const SongAssemblyService = require( "../services/SongAssemblyService" );
+const Pubsub              = require( "pubsub-js" );
+const Messages            = require( "../definitions/Messages" );
+const zMIDI               = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
@@ -245,19 +247,27 @@ function handleImport( aEvent )
     {
         const reader = new FileReader();
 
+        reader.onerror = ( readerEvent ) =>
+        {
+            Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_FILE_LOAD" ));
+        };
+
         reader.onload = ( readerEvent ) =>
         {
             const fileData = readerEvent.target.result;
-            const song     = JSON.parse( atob( fileData ));
+            const song     = SongAssemblyService.assemble( atob( fileData ));
 
             // rudimentary check if we're dealing with a valid song
 
-            if ( song.meta && song.instruments && song.patterns )
+            if ( SongValidator.isValid( song ))
             {
                 efflux.SongModel.saveSong( song );
                 efflux.activeSong = song;
                 Pubsub.publish( Messages.SONG_IMPORTED, song );
                 Pubsub.publish( Messages.SONG_LOADED, song );
+            }
+            else {
+                Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_IMPORT" ));
             }
         };
         // start reading file contents
@@ -296,5 +306,5 @@ function handleRecord( aEvent )
 
 function serializeSong( song )
 {
-    return btoa( JSON.stringify( song ));
+    return btoa( SongAssemblyService.disassemble( song ));
 }

@@ -22,52 +22,28 @@
  */
 "use strict";
 
-const PatternFactory    = require( "./PatternFactory" );
-const InstrumentFactory = require( "./InstrumentFactory" );
-
-const FACTORY_VERSION = 1;
-
 module.exports =
 {
-    createSong( amountOfInstruments )
+    /**
+     * queries whether given Object is a valid song. NOTE: this is
+     * NOT a deep check of all properties, but a basic check of the
+     * songs outline
+     *
+     * @see SongFactory
+     *
+     * @public
+     * @param {Object} song
+     * @return {boolean}
+     */
+    isValid( song )
     {
-        let song = {
+        if ( !song )
+            return false;
 
-            version: FACTORY_VERSION, // allows backwards compatibility when updating Song Object signature
-
-            // unique identifier
-
-            id : Date.now() + Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 ),
-
-            // outline of meta data
-
-            meta : {
-                title    : "",
-                author   : "",
-                created  : Date.now(),
-                modified : Date.now(),
-                tempo    : 120.0
-            },
-
-            // instruments
-
-            instruments : [],
-
-            // data lists
-
-            /**
-             * this type definition states what a pattern Object looks like
-             *
-             * @typedef {Array.<PATTERN>}
-             */
-            patterns : [
-                PatternFactory.createEmptyPattern( 16 )
-            ]
-        };
-
-        for ( let i = 0; i < amountOfInstruments; ++i )
-            song.instruments[ i ] = InstrumentFactory.createInstrument( i );
-
-        return song;
+        return typeof song.id      === "string"    &&
+               typeof song.version === "number"    &&
+               typeof song.meta    !== "undefined" &&
+               Array.isArray( song.instruments )   &&
+               Array.isArray( song.patterns );
     }
 };

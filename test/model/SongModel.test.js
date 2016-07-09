@@ -3,9 +3,10 @@
  */
 "use strict";
 
-const chai        = require( "chai" );
-const MockBrowser = require( "mock-browser" ).mocks.MockBrowser;
-const SongModel   = require( "../../src/js/model/SongModel" );
+const chai          = require( "chai" );
+const MockBrowser   = require( "mock-browser" ).mocks.MockBrowser;
+const SongModel     = require( "../../src/js/model/SongModel" );
+const SongValidator = require( "../../src/js/model/validators/SongValidator" );
 
 describe( "SongModel", function()
 {
@@ -53,17 +54,8 @@ describe( "SongModel", function()
     {
         const song = model.createSong();
 
-        assert.ok( typeof song.id === "string",
-            "expected created Object to have an identifier property" );
-
-        assert.ok( typeof song.meta === "object",
-            "expected created Object to have a meta property Object" );
-
-        assert.ok( typeof song.meta.tempo === "number",
-            "expected created Object to have a numerical tempo property" );
-
-        assert.ok( song.patterns instanceof Array,
-            "expected created Object to have a patterns Array" );
+        assert.ok( SongValidator.isValid( song ),
+            "expected Model to have created a valid Song type, but it didn't pass validation" );
 
         let compare;
 

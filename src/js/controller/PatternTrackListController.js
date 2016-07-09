@@ -25,8 +25,8 @@
 const Pubsub         = require( "pubsub-js" );
 const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
-const EventFactory   = require( "../factory/EventFactory" );
-const PatternFactory = require( "../factory/PatternFactory" );
+const EventFactory   = require( "../model/factory/EventFactory" );
+const PatternFactory = require( "../model/factory/PatternFactory" );
 const Form           = require( "../utils/Form" );
 const EventUtil      = require( "../utils/EventUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );

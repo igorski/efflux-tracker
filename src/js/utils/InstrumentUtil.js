@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const EventFactory = require( "../factory/EventFactory" );
+const EventFactory = require( "../model/factory/EventFactory" );
 const EventUtil    = require( "./EventUtil" );
 const Pubsub       = require( "pubsub-js" );
 const Messages     = require( "../definitions/Messages" );

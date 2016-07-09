@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const PatternFactory = require( "../factory/PatternFactory" );
+const PatternFactory = require( "../model/factory/PatternFactory" );
 
 module.exports =
 {

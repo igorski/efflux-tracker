@@ -22,9 +22,9 @@
  */
 "use strict";
 
-const Config     = require( "../config/Config" );
-const Delay      = require( "../third_party/Delay" );
-const ModuleUtil = require( "../utils/ModuleUtil" );
+const Config     = require( "../../config/Config" );
+const Delay      = require( "../../third_party/Delay" );
+const ModuleUtil = require( "../../utils/ModuleUtil" );
 
 /* type definitions */
 

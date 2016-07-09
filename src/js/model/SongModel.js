@@ -22,10 +22,11 @@
  */
 "use strict";
 
-const Config         = require( "../config/Config" );
-const SongFactory    = require( "../factory/SongFactory" );
-const FixturesLoader = require( "../services/FixturesLoader" );
-const StorageUtil    = require( "../utils/StorageUtil" );
+const Config              = require( "../config/Config" );
+const SongFactory         = require( "../model/factory/SongFactory" );
+const FixturesLoader      = require( "../services/FixturesLoader" );
+const SongAssemblyService = require( "../services/SongAssemblyService" );
+const StorageUtil         = require( "../utils/StorageUtil" );
 
 module.exports = SongModel;
 
@@ -88,10 +89,15 @@ SongModel.prototype.getSongs = function()
 
 /**
  * @public
- * @param {Object} songs
+ * @param {Object} xtkSongs (in XTK format)
  */
-SongModel.prototype.setSongs = function( songs )
+SongModel.prototype.setSongs = function( xtkSongs )
 {
+    // convert XTK songs into Song Objects
+    const songs = new Array( xtkSongs.length );
+    xtkSongs.forEach( function( xtk, index ) {
+        songs[ index ] = SongAssemblyService.assemble( xtk );
+    });
     this._songs = songs;
 };
 
@@ -135,11 +141,9 @@ SongModel.prototype.createSong = function()
  */
 SongModel.prototype.saveSong = function( aSong )
 {
-    this.deleteSong( aSong );         // remove duplicate song if existed
+    this.deleteSong( aSong, false );  // remove duplicate song if existed
     aSong.meta.modified = Date.now(); // update timestamp
-
     this._songs.push( aSong );
-
     this.persist();
 };
 
@@ -148,13 +152,18 @@ SongModel.prototype.saveSong = function( aSong )
  *
  * @public
  * @param {Object} aSong
+ * @param {boolean=} aPersist optional, whether to persist changes (defaults to true)
+ *                   can be false if subsequent model operations will occur (prevents
+ *                   unnecessary duplicate assembly which is an expensive process)
  *
  * @return {boolean} whether song was deleted
  */
-SongModel.prototype.deleteSong = function( aSong )
+SongModel.prototype.deleteSong = function( aSong, aPersist )
 {
     let deleted = false;
     let i = this._songs.length, song;
+
+    aPersist = ( typeof aPersist === "boolean" ) ? aPersist : true;
 
     // remove duplicate song if existed
 
@@ -178,7 +187,7 @@ SongModel.prototype.deleteSong = function( aSong )
         }
     }
 
-    if ( deleted )
+    if ( deleted && aPersist )
         this.persist();
 
     return deleted;
@@ -193,5 +202,10 @@ SongModel.prototype.deleteSong = function( aSong )
  */
 SongModel.prototype.persist = function()
 {
-    StorageUtil.setItem( Config.LOCAL_STORAGE_NAME, JSON.stringify( this._songs ));
+    // convert all Songs into XTK format (uses less storage)
+    const xtkSongs = new Array( this._songs.length );
+    this._songs.forEach( function( song, index ) {
+        xtkSongs[ index ] = SongAssemblyService.disassemble( song );
+    });
+    StorageUtil.setItem( Config.LOCAL_STORAGE_NAME, JSON.stringify( xtkSongs ));
 };

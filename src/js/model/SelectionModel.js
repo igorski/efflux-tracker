@@ -25,7 +25,7 @@
 module.exports = SelectionModel;
 
 const Config         = require( "../config/Config" );
-const PatternFactory = require( "../factory/PatternFactory" );
+const PatternFactory = require( "../model/factory/PatternFactory" );
 const EventUtil      = require( "../utils/EventUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
 
