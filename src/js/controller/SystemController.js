@@ -123,8 +123,11 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_STEPS_UPDATED:
         case Messages.DISPLAY_HELP:
-        case Messages.SONG_LOADED:
             calculateDimensions();
+            break;
+
+        case Messages.SONG_LOADED:
+            setTimeout( calculateDimensions, 10 ); // poor mans hack to let the pattern template render first...
             break;
     }
 }

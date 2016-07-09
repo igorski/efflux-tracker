@@ -97,6 +97,8 @@ const MenuController = module.exports =
 
             toggle.addEventListener( "click",     handleToggle );
             menu.addEventListener  ( "mouseover", handleMouseOver );
+
+            Pubsub.publish( Messages.MENU_INITIALIZED );
         });
 
         // subscribe to pubsub messaging system
