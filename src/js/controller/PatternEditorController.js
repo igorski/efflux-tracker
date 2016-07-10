@@ -29,7 +29,7 @@ const DOM      = require( "zjslib" ).DOM;
 /* private properties */
 
 let container, efflux, indiceContainer, controlContainer;
-let stepAmount = 0, patternIndices, rafPending = false;
+let stepAmount = 0, patternIndices, rafPending = false, controlOffsetY = 0;
 
 module.exports =
 {
@@ -56,6 +56,7 @@ module.exports =
         // setup messaging system
         [
             Messages.WINDOW_SCROLLED,
+            Messages.WINDOW_RESIZED,
             Messages.PATTERN_STEPS_UPDATED,
             Messages.STEP_POSITION_REACHED,
             Messages.SONG_LOADED
@@ -76,9 +77,16 @@ function handleBroadcast( type, payload )
             // ensure the controlContainer is always visible regardless of scroll offset
             // threshold defines when to offset the containers top, the last number defines the fixed header height
             const scrollY   = window.scrollY;
-            const threshold = DOM.getElementCoordinates( container, true ).y - 45;
+            const threshold = ( controlOffsetY = controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
 
-            controlContainer.style.marginTop = (( scrollY > threshold ) ? scrollY - threshold : 0 ) + "px";
+            if ( scrollY > threshold )
+                controlContainer.classList.add( "fixed" );
+            else
+                controlContainer.classList.remove( "fixed" );
+            break;
+
+        case Messages.WINDOW_RESIZED:
+            controlOffsetY = 0; // flush cache
             break;
 
         case Messages.PATTERN_STEPS_UPDATED:

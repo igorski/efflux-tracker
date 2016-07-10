@@ -1,7 +1,13 @@
 {{#each pattern.channels}}
 <ul class="pattern">
     {{#each this}}
-    <li class="{{toLowerCase this.instrument}}">
+        {{#if (and
+            (eq @index ../../activeStep)
+            (eq @../index ../../activeChannel))}}
+        <li class="active">
+    {{else}}
+        <li>
+    {{/if}}
         {{#if this.action}}
             {{# if this.note}}
             <span class="note">

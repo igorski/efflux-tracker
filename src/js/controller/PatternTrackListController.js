@@ -36,7 +36,7 @@ const PatternUtil    = require( "../utils/PatternUtil" );
 
 let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
 let interactionData = {},
-    selectionModel, patternCopy, stepSelect;
+    selectionModel, patternCopy, stepSelect, pContainers, pContainerSteps;
 
 const PatternTrackListController = module.exports =
 {
@@ -110,12 +110,21 @@ const PatternTrackListController = module.exports =
         const coordinates = { x: container.scrollLeft, y: container.scrollTop };
 
         const pattern = efflux.activeSong.patterns[ activePattern ];
+
+        // render the currently active pattern on screen
+
         efflux.TemplateService.render( "patternTrackList", wrapper, {
 
-            steps   : pattern.steps,
-            pattern : pattern
+            steps         : pattern.steps,
+            pattern       : pattern,
+            activeChannel : editorModel.activeInstrument,
+            activeStep    : editorModel.activeStep
 
-        }).then( highlightActiveStep );
+        }).then(() => {
+            // clear cached containers after render
+            pContainers = null;
+            pContainerSteps = [];
+        });
 
         Form.setSelectedOption( stepSelect, pattern.steps );
         container.scrollLeft = coordinates.x;
@@ -188,8 +197,8 @@ function handleBroadcast( type, payload )
 
 function highlightActiveStep()
 {
-    const pContainers = wrapper.querySelectorAll( ".pattern" ),
-          activeStyle = "active", selectedStyle = "selected",
+    grabPatternContainersFromTemplate();
+    const activeStyle = "active", selectedStyle = "selected",
           activeStep = editorModel.activeStep;
 
     let selection, pContainer, items, item;
@@ -198,7 +207,8 @@ function highlightActiveStep()
     {
         pContainer = pContainers[ i ];
         selection  = selectionModel.selectedChannels[ i ];
-        items      = pContainer.querySelectorAll( "li" );
+        items      = grabPatternContainerStepFromTemplate( i );
+        pContainer.querySelectorAll( "li" );
 
         let j = items.length;
         while ( j-- )
@@ -243,7 +253,7 @@ function handleInteraction( aEvent )
 
     if ( aEvent.target.nodeName === "LI" )
     {
-        const pContainers = wrapper.querySelectorAll( ".pattern" );
+        grabPatternContainersFromTemplate();
         let selectionChannelStart = editorModel.activeInstrument, selectionStepStart = editorModel.activeStep;
         let found = false, pContainer, items;
 
@@ -257,7 +267,7 @@ function handleInteraction( aEvent )
             if ( found ) break;
 
             pContainer = pContainers[ i ];
-            items = pContainer.querySelectorAll( "li" );
+            items = grabPatternContainerStepFromTemplate( i );
 
             let j = items.length;
             while ( j-- )
@@ -460,4 +470,18 @@ function addEventAtPosition( event, optData )
 
     PatternTrackListController.update();
     Pubsub.publish( Messages.SAVE_STATE );
+}
+
+/**
+ * function to retrieve and cache the currently available DOM containers
+ * inside the pattern template
+ *
+ * @private
+ */
+function grabPatternContainersFromTemplate() {
+    pContainers = pContainers || wrapper.querySelectorAll( ".pattern" );
+}
+
+function grabPatternContainerStepFromTemplate( i ) {
+    return ( pContainerSteps[ i ] = pContainerSteps[ i ] || pContainers[ i ].querySelectorAll( "li" ));
 }
