@@ -22,6 +22,7 @@
  */
 "use strict";
 
+const Config                     = require( "./config/Config" );
 const EditorModel                = require( "./model/EditorModel" );
 const SelectionModel             = require( "./model/SelectionModel" );
 const SongModel                  = require( "./model/SongModel" );
@@ -45,6 +46,7 @@ const SongBrowserController      = require( "./controller/SongBrowserController"
 const SystemController           = require( "./controller/SystemController" );
 const ObjectUtil                 = require( "./utils/ObjectUtil" );
 const SongUtil                   = require( "./utils/SongUtil" );
+const LinkedList                 = require( "./utils/LinkedList" );
 const TemplateService            = require( "./services/TemplateService" );
 const Messages                   = require( "./definitions/Messages" );
 const Pubsub                     = require( "pubsub-js" );
@@ -67,8 +69,9 @@ const efflux = window.efflux =
     SongModel       : songModel,
     StateModel      : new StateModel(),
     TemplateService : new TemplateService(),
-    Pubsub          : Pubsub,                // expose publishing / subscribe bus
-    activeSong      : songModel.createSong() // create new empty song
+    Pubsub          : Pubsub,                 // expose publishing / subscribe bus
+    activeSong      : songModel.createSong(), // create new empty song
+    eventList       : new Array( Config.INSTRUMENT_AMOUNT )
 };
 
 // WebAudio API not supported ? halt application start
@@ -81,6 +84,11 @@ else {
     // prepare view
 
     efflux.TemplateService.render( "index", container, null, true ).then(() => {
+
+        // prepare linked audio event list
+
+        for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+            efflux.eventList[ i ] = new LinkedList();
 
         // initialize application controllers
 
@@ -142,6 +150,11 @@ function handleBroadcast( type, payload )
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
                 efflux.StateModel.flush();
                 efflux.StateModel.store();
+
+                for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+                    efflux.eventList[ i ].flush();
+
+                // TODO: generate linked list from saved file
             }
             break;
 

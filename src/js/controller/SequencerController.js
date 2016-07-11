@@ -505,51 +505,23 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 
     const patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
     const patterns        = efflux.activeSong.patterns;
-    let duration          = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
 
-    if ( aEvent.action === 1 ) // but only for "noteOn" events
-    {
-        let foundEvent = false, foundEnd = false, compareEvent, channel, j, jl;
-
-        for ( let i = aEventMeasure, l = patterns.length; i < l; ++i )
-        {
-            channel = patterns[ i ].channels[ aEventChannel ];
-
-            for ( j = 0, jl = channel.length; j < jl; ++j )
-            {
-                compareEvent = channel[ j ];
-
-                if ( !foundEvent )
-                {
-                    if ( compareEvent === aEvent )
-                        foundEvent = true;
-                }
-                else if ( !foundEnd )
-                {
-                    // the next event (any event with an action) will
-                    // halt the playback of the given event
-
-                    if ( compareEvent && compareEvent.action > 0 ) {
-                        foundEnd = true;
-                        break;
-                    }
-                    duration += ( 1 / channel.length ) * patternDuration; // keep incrementing duration until event is found
-                }
-            }
-            if ( foundEnd )
-                break;
-        }
-    }
-    aEvent.seq.length   = duration;
     aEvent.seq.mpLength = patternDuration / patterns[ aEventMeasure ].steps;
 
     // play back the event in the AudioController
 
     audioController.noteOn( aEvent, efflux.activeSong.instruments[ aEvent.instrument ], aTime );
 
-    // noteOff will be triggered by the Sequencer
+    // execute noteOff for previously playing note
 
-    dequeueEvent( aEvent, aTime + aEvent.seq.length );
+    const list = efflux.eventList[ aEventChannel ];
+    const node = list.getNodeByData( aEvent ); // TODO store node/event map somewhere (out of state model bounds ;)
+    if ( node && node.previous && node.previous.action !== 0 )
+        dequeueEvent( node.previous.data, aTime );
+    else if ( node === list.head )
+        dequeueEvent( list.tail.data, aTime );
+    else if ( node === list.tail )
+        dequeueEvent( list.head.data, aTime );
 }
 
 /**
@@ -563,8 +535,14 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
  */
 function dequeueEvent( aEvent, aTime )
 {
-    let clock = AudioUtil.createTimer( audioContext, aTime, aTimerEvent =>
+    console.warn("dequeue me: " + aEvent.note + aEvent.octave + " at " + aTime + " playing: " + aEvent.seq.playing);
+
+    if ( !aEvent.seq.playing )
+        return;
+
+    let clock = AudioUtil.createTimer( audioContext, aTime, ( aTimerEvent ) =>
     {
+        console.warn("note me off>" + aEvent.note + aEvent.octave);
         aEvent.seq.playing = false;
         audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);
         freeHandler( clock ); // clear reference to this timed event
