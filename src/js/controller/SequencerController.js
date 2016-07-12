@@ -513,9 +513,14 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
     audioController.noteOn( aEvent, efflux.activeSong.instruments[ aEvent.instrument ], aTime );
 
     // execute noteOff for previously playing note
+    // unless this event is a module parameter automation only
+
+    if ( aEvent.action === 0 )
+        return;
 
     const list = efflux.eventList[ aEventChannel ];
     const node = list.getNodeByData( aEvent ); // TODO store node/event map somewhere (out of state model bounds ;)
+
     if ( node && node.previous && node.previous.action !== 0 )
         dequeueEvent( node.previous.data, aTime );
     else if ( node === list.head )

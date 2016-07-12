@@ -458,7 +458,7 @@ function addEventAtPosition( event, optData )
     channel[ step ] = event;
 
     // update linked list for AudioEvents
-
+    // TODO if event existed, call remove() from its referenced node
     efflux.eventList[ channelIndex ].remove( event );
     efflux.eventList[ channelIndex ].add( event );
 

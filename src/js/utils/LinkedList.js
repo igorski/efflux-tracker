@@ -71,19 +71,32 @@ LinkedList.prototype.add = function( value ) {
         this.tail      = node;
     }
     ++this._length;
+
+    return node;
 };
 
-LinkedList.prototype.remove = function( position ) {
+/**
+ * Remove a node from the LinkedList
+ *
+ * @public
+ * @param {Node|number|Object} object either a Node Object (fastest),
+ *        numerical index of the Node or a reference to the Nodes data
+ */
+LinkedList.prototype.remove = function( object ) {
 
-    let currentNode = this.head;
+    if ( object instanceof Node ) {
 
-    if ( typeof position === "number" ) {
+        object.remove();
+    }
+    else if ( typeof object === "number" ) {
 
-        if ( this._length === 0 || position < 0 || position > this._length )
+        let currentNode = this.head;
+
+        if ( this._length === 0 || object < 0 || object > this._length )
             return;
 
         // 2nd use-case: the first node is removed
-        if ( position === 0 ) {
+        if ( object === 0 ) {
 
             this.head = currentNode.next;
 
@@ -93,7 +106,7 @@ LinkedList.prototype.remove = function( position ) {
                 this.tail = currentNode;
 
         }
-        else if ( position === ( this._length - 1 )) {
+        else if ( object === ( this._length - 1 )) {
 
             this.tail = this.tail.previous;
             this.tail.next = null;
@@ -101,7 +114,7 @@ LinkedList.prototype.remove = function( position ) {
         else {
 
             let count = 0;
-            while ( count < position ) {
+            while ( count < object ) {
                 currentNode = currentNode.next;
                 ++count;
             }
@@ -113,9 +126,9 @@ LinkedList.prototype.remove = function( position ) {
         }
         --this._length;
     }
-    else if ( typeof position === "object" ) {
+    else if ( typeof object === "object" ) {
 
-        currentNode = this.getNodeByData( position );
+        const currentNode = this.getNodeByData( object );
 
         if ( currentNode )
             currentNode.remove();
