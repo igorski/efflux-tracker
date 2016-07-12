@@ -26,6 +26,7 @@ const Config       = require( "../config/Config" );
 const AudioUtil    = require( "../utils/AudioUtil" );
 const EventUtil    = require( "../utils/EventUtil" );
 const SongUtil     = require( "../utils/SongUtil" );
+const LinkedList   = require( "../utils/LinkedList" );
 const Messages     = require( "../definitions/Messages" );
 const Metronome    = require( "../components/Metronome" );
 const AudioFactory = require( "../model/factory/AudioFactory" );
@@ -68,7 +69,12 @@ const SequencerController = module.exports =
         audioContext    = audioControllerRef.getContext();
         editorModel     = efflux.EditorModel;
 
-        clearPending(); // resets queues
+        // create LinkedLists to store all currently playing events for all channels
+
+        for ( let i = 0; i < channelQueue.length; ++i )
+            channelQueue[ i ] = new LinkedList();
+
+        // render the transport controls in the DOM
 
         efflux.TemplateService.render( "transport", containerRef, null, true ).then(() => {
 
@@ -206,6 +212,19 @@ const SequencerController = module.exports =
         firstMeasureStartTime = currentTime - ( measure * ( 60.0 / song.meta.tempo * beatAmount ));
 
         channels = efflux.activeSong.patterns[ currentMeasure ].channels;
+
+        // when going to the first measure we should stop playing all currently sounding notes
+
+        if ( currentMeasure === 0 ) {
+            channelQueue.forEach( function( list, index ) {
+                let q = list.head;
+                while ( q ) {
+                    dequeueEvent(q.data, currentTime );
+                    q.remove();
+                    q = list.head;
+                }
+            });
+        }
     },
 
     getPosition()
@@ -525,11 +544,12 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
     if ( aEvent.action !== 0 ) {
 
         // all non-module parameter change events kill previously playing notes
-        let prev = queue.shift();
+        let playing = queue.head;
 
-        while ( prev ) {
-            dequeueEvent( prev, aTime );
-            prev = queue.shift();
+        while ( playing ) {
+            dequeueEvent( playing.data, aTime );
+            playing.remove();
+            playing = queue.head;
         }
     }
 
@@ -540,7 +560,7 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
     if ( !isNoteOn )
         dequeueEvent( aEvent, aTime + aEvent.seq.mpLength );
     else
-        queue.push( aEvent );
+        queue.add( aEvent );
 }
 
 /**
@@ -579,7 +599,7 @@ function clearPending()
         freeHandler( queueHandlers[ i ]);
 
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-        channelQueue[ i ] = [];
+        channelQueue[ i ].flush();
 }
 
 /**
