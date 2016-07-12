@@ -25,9 +25,9 @@
 module.exports = LinkedList;
 
 function LinkedList() {
-    this.head    = null;
-    this.tail    = null;
-    this._length = 0;
+    this.head     = null;
+    this.tail     = null;
+    this._length  = 0;
 }
 
 function Node( list, data ) {
@@ -57,9 +57,9 @@ Node.prototype.remove = function() {
 
 /* public methods */
 
-LinkedList.prototype.add = function( value ) {
+LinkedList.prototype.add = function( data ) {
 
-    const node = new Node( this, value );
+    const node = new Node( this, data );
 
     if ( this._length === 0 ) {
         this.head = node;
@@ -108,7 +108,7 @@ LinkedList.prototype.remove = function( object ) {
         }
         else if ( object === ( this._length - 1 )) {
 
-            this.tail = this.tail.previous;
+            this.tail      = this.tail.previous;
             this.tail.next = null;
         }
         else {
@@ -136,6 +136,10 @@ LinkedList.prototype.remove = function( object ) {
 };
 
 LinkedList.prototype.getNodeByData = function( data ) {
+
+    // this iteration actually performs higher
+    // than using an indexOf() of on an Array referencing all
+    // added data Objects (note: DATA, not Nodes)
 
     let currentNode = this.head;
     while ( currentNode ) {

@@ -256,7 +256,7 @@ describe( "LinkedList", function()
         const obj2     = { title: "bar" };
         const obj2node = list.add( obj2 );
         const obj3     = { title: "baz" };
-        const obj3node = list.add( obj2 );
+        const obj3node = list.add( obj3 );
 
         obj2node.remove();
 
