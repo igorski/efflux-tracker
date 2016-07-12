@@ -321,7 +321,8 @@ function handleKeyDown( aEvent )
                     // paste current selection
                     if ( hasOption ) {
                         selectionModel.pasteSelection(
-                            efflux.activeSong, editorModel.activePattern, editorModel.activeInstrument, editorModel.activeStep
+                            efflux.activeSong, editorModel.activePattern,
+                            editorModel.activeInstrument, editorModel.activeStep, efflux.eventList
                         );
                         Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                         Pubsub.publishSync( Messages.SAVE_STATE );
@@ -338,7 +339,7 @@ function handleKeyDown( aEvent )
                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
                             selectionModel.setSelection( editorModel.activeStep );
                         }
-                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern );
+                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
                         selectionModel.clearSelection();
                         Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                         Pubsub.publishSync( Messages.SAVE_STATE );

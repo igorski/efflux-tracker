@@ -51,7 +51,7 @@ Node.prototype.remove = function() {
     if ( this._list.tail === this )
         this._list.tail = this.previous;
 
-    --this._list.length;
+    --this._list._length;
     this._list = null; // break reference
 };
 
@@ -75,6 +75,44 @@ LinkedList.prototype.add = function( data ) {
     return node;
 };
 
+LinkedList.prototype.addBefore = function( existing, data ) {
+
+    const existingNode = ( existing instanceof Node ) ? existing : this.getNodeByData( existing );
+    const insertedNode = new Node( this, data );
+
+    if ( existingNode === this.head ) {
+        this.head = insertedNode;
+    }
+    else {
+        const existingPreviousNode = existingNode.previous;
+        existingPreviousNode.next  = insertedNode;
+        insertedNode.previous      = existingPreviousNode;
+    }
+    insertedNode.next     = existingNode;
+    existingNode.previous = insertedNode;
+
+    return insertedNode;
+};
+
+LinkedList.prototype.addAfter = function( existing, data ) {
+
+    const existingNode = ( existing instanceof Node ) ? Node : this.getNodeByData( existing );
+    const insertedNode = new Node( this, data );
+
+    if ( existingNode === this.tail ) {
+        this.tail = insertedNode;
+    }
+    else {
+        const existingNextNode    = existingNode.next;
+        existingNextNode.previous = insertedNode;
+        insertedNode.next         = existingNextNode;
+    }
+    insertedNode.previous = existingNode;
+    existingNode.next     = insertedNode;
+
+    return insertedNode;
+};
+
 /**
  * Remove a node from the LinkedList
  *
@@ -95,7 +133,6 @@ LinkedList.prototype.remove = function( object ) {
         if ( this._length === 0 || object < 0 || object > this._length )
             return;
 
-        // 2nd use-case: the first node is removed
         if ( object === 0 ) {
 
             this.head = currentNode.next;
@@ -154,7 +191,7 @@ LinkedList.prototype.getNodeByData = function( data ) {
 
 LinkedList.prototype.flush = function() {
 
-    let node;
-    while ( node = this.tail )
-        node.remove();
+    this.head    =
+    this.tail    = null;
+    this._length = 0;
 };

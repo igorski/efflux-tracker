@@ -3,11 +3,13 @@
  */
 "use strict";
 
-const chai         = require( "chai" );
-const EventUtil    = require( "../../src/js/utils/EventUtil" );
-const MockBrowser  = require( "mock-browser" ).mocks.MockBrowser;
-const EventFactory = require( "../../src/js/model/factory/EventFactory" );
-const SongModel    = require( "../../src/js/model/SongModel" );
+const chai           = require( "chai" );
+const EventUtil      = require( "../../src/js/utils/EventUtil" );
+const LinkedList     = require( "../../src/js/utils/LinkedList" );
+const MockBrowser    = require( "mock-browser" ).mocks.MockBrowser;
+const EventFactory   = require( "../../src/js/model/factory/EventFactory" );
+const PatternFactory = require( "../../src/js/model/factory/PatternFactory" );
+const SongModel      = require( "../../src/js/model/SongModel" );
 
 describe( "EventUtil", function()
 {
@@ -105,7 +107,7 @@ describe( "EventUtil", function()
             "expected event duration to be " + expectedLength + " seconds" );
     });
 
-    it( "should be able to update the position of a AudioEvent that spans several measures in duration", function()
+    it( "should be able to update the position of an AudioEvent that spans several measures in duration", function()
     {
         const model       = new SongModel();
         const song        = model.createSong();
@@ -134,61 +136,66 @@ describe( "EventUtil", function()
             "expected event duration to be " + expectedLength + " seconds" );
     });
 
-    it( "should not validate empty AudioEvents", function()
+    it( "should be able to clear the AudioEvent content for any requested step position", function()
     {
-        const audioEvent = EventFactory.createAudioEvent();
-        assert.notOk( EventUtil.isValid( audioEvent ),
-            "expected empty AudioEvent not be valid" );
+        const pattern = PatternFactory.createEmptyPattern();
+
+        // generate some note content
+
+        const pchannel1 = pattern.channels[ 0 ];
+        const pchannel2 = pattern.channels[ 1 ];
+
+        // create some AudioEvents
+
+        const expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, "E", 2, 1 );
+        const expected2 = pchannel1[ 1 ] = EventFactory.createAudioEvent( 1, "F", 3, 1 );
+        const expected3 = pchannel2[ 0 ] = EventFactory.createAudioEvent( 1, "F#",4, 1 );
+        const expected4 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, "G", 5, 1 );
+
+        // start clearing individual events and asserting the results
+
+        EventUtil.clearEvent( pattern, 0, 0 );
+
+        assert.notStrictEqual( expected1, pchannel1[ 0 ]);
+
+        EventUtil.clearEvent( pattern, 1, 0 );
+
+        assert.notStrictEqual( expected3, pchannel2[ 0 ]);
+
+        // assert remaining events are still existent
+
+        assert.strictEqual( expected2, pchannel1[ 1 ]);
+        assert.strictEqual( expected4, pchannel2[ 1 ]);
     });
 
-    it( "should not validate AudioEvents with invalid data types", function()
+    it( "should be able to remove the AudioEvent from the cached LinkedList when clearing the event", function()
     {
-        const audioEvent = EventFactory.createAudioEvent();
+        const pattern = PatternFactory.createEmptyPattern();
 
-        audioEvent.instrument = "foo";
+        // generate some note content
 
-        assert.notOk( EventUtil.isValid( audioEvent ),
-            "expected AudioEvent not be valid as instrument was not of numeric type" );
+        const pchannel1 = pattern.channels[ 0 ];
+        const pchannel2 = pattern.channels[ 1 ];
 
-        audioEvent.instrument = 1;
-        audioEvent.note       = 2;
+        // create some AudioEvents
 
-        assert.notOk( EventUtil.isValid( audioEvent ),
-            "expected AudioEvent not be valid as note was not of string type" );
+        const expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, "E", 2, 1 );
+        const expected2 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, "F", 3, 1 );
 
-        audioEvent.note   = "C";
-        audioEvent.octave = "bar";
+        const list = new LinkedList();
 
-        assert.notOk( EventUtil.isValid( audioEvent ),
-            "expected AudioEvent not be valid as octave was not of number type" );
-    });
+        const expected1node = list.add( expected1 );
+        const expected2node = list.add( expected2 );
 
-    it( "should not validate AudioEvents with out of range data types", function()
-    {
-        const audioEvent = EventFactory.createAudioEvent();
+        EventUtil.clearEvent( pattern, 0, 0, list );
+        assert.strictEqual( null, list.getNodeByData( expected1 ),
+            "expected Node to have been removed after clearing of event" );
 
-        audioEvent.instrument = 0;
-        audioEvent.note       = "C";
-        audioEvent.octave     = 0;
+        assert.strictEqual( expected2node, list.getNodeByData( expected2 ),
+            "expected other Node to not have been removed after clearing of event" );
 
-        assert.notOk( EventUtil.isValid( audioEvent ),
-            "expected AudioEvent not be valid as octave was below allowed threshold" );
-
-        audioEvent.octave = 9;
-
-        assert.notOk( EventUtil.isValid( audioEvent ),
-            "expected AudioEvent not be valid as octave was above allowed threshold" );
-    });
-
-    it( "should validate AudioEvents with correct note data", function()
-    {
-        const audioEvent = EventFactory.createAudioEvent();
-
-        audioEvent.instrument = 0;
-        audioEvent.note       = "C";
-        audioEvent.octave     = 3;
-
-        assert.ok( EventUtil.isValid( audioEvent ),
-            "expected AudioEvent to contain valid note data" );
+        EventUtil.clearEvent( pattern, 1, 1, list );
+        assert.strictEqual( null, list.getNodeByData( expected2 ),
+            "expected Node to have been removed after clearing of event" );
     });
 });

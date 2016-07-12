@@ -238,7 +238,7 @@ function handleReady()
 
     // update model and view
 
-//    if ( EventUtil.isValid( data )) {
+//    if ( EventValidator.hasContent( data )) {
 
         const pattern = efflux.activeSong.patterns[ data.patternIndex ],
              channel = pattern.channels[ data.channelIndex ];

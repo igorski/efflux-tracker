@@ -63,5 +63,21 @@ module.exports =
                    typeof event.seq.length       === "number"  &&
                    typeof event.seq.mpLength     === "number"
                );
+    },
+
+    /**
+     * verify whether given AudioEvent has content
+     *
+     * @public
+     * @param {AUDIO_EVENT} audioEvent
+     * @return {boolean}
+     */
+    hasContent( audioEvent )
+    {
+        return (
+            typeof audioEvent.instrument === "number" && audioEvent.instrument  >= 0 &&
+            typeof audioEvent.note       === "string" && audioEvent.note.length > 0 &&
+            typeof audioEvent.octave     === "number" && audioEvent.octave > 0 && audioEvent.octave <= 8
+        );
     }
 };

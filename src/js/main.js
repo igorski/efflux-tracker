@@ -150,11 +150,6 @@ function handleBroadcast( type, payload )
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
                 efflux.StateModel.flush();
                 efflux.StateModel.store();
-
-                for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-                    efflux.eventList[ i ].flush();
-
-                // TODO: generate linked list from saved file
             }
             break;
 

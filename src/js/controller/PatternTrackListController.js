@@ -182,7 +182,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.REMOVE_NOTE_AT_POSITION:
-            deleteHighlightedStep();
+            removeEventAtHighlightedStep();
             break;
 
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
@@ -230,12 +230,17 @@ function highlightActiveStep()
     }
 }
 
-function deleteHighlightedStep()
+function removeEventAtHighlightedStep()
 {
     if ( selectionModel.hasSelection() )
-        selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern );
+        selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
     else
-        PatternFactory.clearEvent( efflux.activeSong.patterns[ editorModel.activePattern ], editorModel.activeInstrument, editorModel.activeStep );
+        EventUtil.clearEvent(
+            efflux.activeSong.patterns[ editorModel.activePattern ],
+            editorModel.activeInstrument,
+            editorModel.activeStep,
+            efflux.eventList[ editorModel.activeInstrument ]
+        );
 
     PatternTrackListController.update(); // sync view with model
     Pubsub.publish( Messages.SAVE_STATE );
@@ -458,11 +463,9 @@ function addEventAtPosition( event, optData )
     channel[ step ] = event;
 
     // update linked list for AudioEvents
-    // TODO if event existed, call remove() from its referenced node
-    efflux.eventList[ channelIndex ].remove( event );
-    efflux.eventList[ channelIndex ].add( event );
+    EventUtil.linkEvent( event, channelIndex, efflux.activeSong.patterns, efflux.eventList );
 
-    // TODO: duplicate from KeyboardController !! (this moves to the next step in the track)
+    // TODO: this is a duplicate from KeyboardController !! (this moves to the next step in the track)
     const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
     if ( ++editorModel.activeStep > maxStep )

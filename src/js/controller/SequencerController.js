@@ -24,6 +24,7 @@
 
 const Config       = require( "../config/Config" );
 const AudioUtil    = require( "../utils/AudioUtil" );
+const EventUtil    = require( "../utils/EventUtil" );
 const SongUtil     = require( "../utils/SongUtil" );
 const Messages     = require( "../definitions/Messages" );
 const Metronome    = require( "../components/Metronome" );
@@ -45,8 +46,9 @@ let playing           = false,
     beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
     beatUnit          = 4;
 
-let currentMeasure, measureStartTime, firstMeasureStartTime,
-    currentStep, nextNoteTime, channels, queueHandlers = [];
+let queueHandlers = [], channelQueue = new Array( Config.INSTRUMENT_AMOUNT ),
+    currentMeasure, measureStartTime, firstMeasureStartTime,
+    currentStep, nextNoteTime, channels;
 
 const SequencerController = module.exports =
 {
@@ -65,6 +67,8 @@ const SequencerController = module.exports =
         audioController = audioControllerRef;
         audioContext    = audioControllerRef.getContext();
         editorModel     = efflux.EditorModel;
+
+        clearPending(); // resets queues
 
         efflux.TemplateService.render( "transport", containerRef, null, true ).then(() => {
 
@@ -265,6 +269,7 @@ function handleBroadcast( type, payload )
 
             SequencerController.setPlaying( false );
             SequencerController.update();
+            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
             break;
 
         // when a MIDI device is connected, we allow recording from MIDI input
@@ -512,21 +517,30 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 
     audioController.noteOn( aEvent, efflux.activeSong.instruments[ aEvent.instrument ], aTime );
 
-    // execute noteOff for previously playing note
-    // unless this event is a module parameter automation only
+    // events must also be dequeued (as they have a fixed duration)
 
-    if ( aEvent.action === 0 )
-        return;
+    const isNoteOn = ( aEvent.action === 1 );
+    const queue    = channelQueue[ aEventChannel ];
 
-    const list = efflux.eventList[ aEventChannel ];
-    const node = list.getNodeByData( aEvent ); // TODO store node/event map somewhere (out of state model bounds ;)
+    if ( aEvent.action !== 0 ) {
 
-    if ( node && node.previous && node.previous.action !== 0 )
-        dequeueEvent( node.previous.data, aTime );
-    else if ( node === list.head )
-        dequeueEvent( list.tail.data, aTime );
-    else if ( node === list.tail )
-        dequeueEvent( list.head.data, aTime );
+        // all non-module parameter change events kill previously playing notes
+        let prev = queue.shift();
+
+        while ( prev ) {
+            dequeueEvent( prev, aTime );
+            prev = queue.shift();
+        }
+    }
+
+    // non-noteOn events are dequeued after a single sequencer tick, noteOn
+    // events are pushed in a queued and dequeued when a new noteOn/noteOff event
+    // is enqueued for this events channel
+
+    if ( !isNoteOn )
+        dequeueEvent( aEvent, aTime + aEvent.seq.mpLength );
+    else
+        queue.push( aEvent );
 }
 
 /**
@@ -540,14 +554,13 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
  */
 function dequeueEvent( aEvent, aTime )
 {
-    console.warn("dequeue me: " + aEvent.note + aEvent.octave + " at " + aTime + " playing: " + aEvent.seq.playing);
+//    console.warn("dequeue me: " + aEvent.note + aEvent.octave + " at " + aTime + " playing: " + aEvent.seq.playing);
 
     if ( !aEvent.seq.playing )
         return;
 
     let clock = AudioUtil.createTimer( audioContext, aTime, ( aTimerEvent ) =>
     {
-        console.warn("note me off>" + aEvent.note + aEvent.octave);
         aEvent.seq.playing = false;
         audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);
         freeHandler( clock ); // clear reference to this timed event
@@ -564,6 +577,9 @@ function clearPending()
     let i = queueHandlers.length;
     while ( i-- )
         freeHandler( queueHandlers[ i ]);
+
+    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        channelQueue[ i ] = [];
 }
 
 /**

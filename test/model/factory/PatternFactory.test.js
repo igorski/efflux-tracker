@@ -196,36 +196,4 @@ describe( "PatternFactory", function()
         assert.strictEqual( expected4, p1channel1[ 8 ],
             "expected audio event at slot 8 to have merged at the expected step after pattern size mutation" );
     });
-
-    it( "should be able to clear the AudioEvent content for any requested step position", function()
-    {
-        const pattern = PatternFactory.createEmptyPattern();
-
-        // generate some note content
-
-        const pchannel1 = pattern.channels[ 0 ];
-        const pchannel2 = pattern.channels[ 1 ];
-
-        // create some AudioEvents
-
-        const expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, "E", 2, 1 );
-        const expected2 = pchannel1[ 1 ] = EventFactory.createAudioEvent( 1, "F", 3, 1 );
-        const expected3 = pchannel2[ 0 ] = EventFactory.createAudioEvent( 1, "F#",4, 1 );
-        const expected4 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, "G", 5, 1 );
-
-        // start clearing individual events and asserting the results
-
-        PatternFactory.clearEvent( pattern, 0, 0 );
-
-        assert.notStrictEqual( expected1, pchannel1[ 0 ]);
-
-        PatternFactory.clearEvent( pattern, 1, 0 );
-
-        assert.notStrictEqual( expected3, pchannel2[ 0 ]);
-
-        // assert remaining events are still existent
-
-        assert.strictEqual( expected2, pchannel1[ 1 ]);
-        assert.strictEqual( expected4, pchannel2[ 1 ]);
-    });
 });

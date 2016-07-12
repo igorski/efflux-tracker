@@ -250,6 +250,9 @@ function recordEventIntoSong( audioEvent, sequencerController )
         audioEvent.recording = true;
         channel[ step ]      = audioEvent;
 
+        // update linked list for AudioEvents
+        EventUtil.linkEvent( audioEvent, editorModel.activeInstrument, efflux.activeSong.patterns, efflux.eventList );
+
         Pubsub.publish( Messages.REFRESH_PATTERN_VIEW ); // ensure we can see the note being added
     }
     else {

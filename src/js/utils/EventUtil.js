@@ -36,30 +36,111 @@ module.exports =
      * @param {number=} length optional duration (in seconds) of the audioEvent, defaults to
      *                  the smallest unit available for given patterns length
      */
-    setPosition( audioEvent, pattern, patternNum, patternStep, tempo, length )
+    setPosition( event, pattern, patternNum, patternStep, tempo, length )
     {
         const measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
-        audioEvent.seq.length             = ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength;
-        audioEvent.seq.startMeasure       = patternNum;
-        audioEvent.seq.startMeasureOffset = eventOffset;
-        audioEvent.seq.endMeasure         = patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));
+        event.seq.length             = ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength;
+        event.seq.startMeasure       = patternNum;
+        event.seq.startMeasureOffset = eventOffset;
+        event.seq.endMeasure         = patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));
     },
 
     /**
-     * verify whether given AudioEvent is valid (e.g. has content)
+     * add a (new) event at the correct position within the
+     * LinkedList queried by the SequencerController
+     *
+     * @param {AUDIO_EVENT} event
+     * @param {number} channelIndex index of the channel the event belongs to
+     * @param {Array.<PATTERN>} patterns
+     * @param {Array.<LinkedList>} lists
+     */
+    linkEvent( event, channelIndex, patterns, lists )
+    {
+        const list    = lists[ channelIndex ];
+        const existed = list.getNodeByData( event );
+
+        if ( existed )
+            list.remove( existed );
+
+        // find previous event through the pattern list
+
+        let foundEvent = false, compareEvent, channel, i, l, j, jl;
+
+        for ( i = event.seq.startMeasure, l = patterns.length; i < l; ++i )
+        {
+            channel = patterns[ i ].channels[ channelIndex ];
+
+            for ( j = 0, jl = channel.length; j < jl; ++j )
+            {
+                compareEvent = channel[ j ];
+
+                if ( !foundEvent ) {
+
+                    if ( compareEvent === event )
+                        foundEvent = true;
+                }
+                else {
+
+                    // any event (with an action) beyond this point is
+                    // the "next" event in the list for given event
+
+                    if ( compareEvent && compareEvent.action > 0 )
+                        return list.addBefore( compareEvent, event );
+                }
+            }
+        }
+        list.add( event ); // is new tail
+    },
+
+    /**
+     * create LinkedLists for all events present in given
+     * pattern lists. The SequencerController will read
+     * from the LinkedList for a better performance
      *
      * @public
-     * @param {AUDIO_EVENT} audioEvent
-     * @return {boolean}
+     * @param {Array.<PATTERN>} patterns
+     * @param {Array.<LinkedList>} lists
      */
-    isValid( audioEvent )
+    linkEvents( patterns, lists )
     {
-        return (
-            typeof audioEvent.instrument === "number" && audioEvent.instrument  >= 0 &&
-            typeof audioEvent.note       === "string" && audioEvent.note.length > 0 &&
-            typeof audioEvent.octave     === "number" && audioEvent.octave > 0 && audioEvent.octave <= 8
-        );
+        lists.forEach(( list, channelIndex ) => {
+
+            // clear existing list contents
+            list.flush();
+
+            patterns.forEach(( pattern ) => {
+                pattern.channels[ channelIndex ].forEach(( event ) => {
+
+                    if ( event )
+                        list.add( event );
+                });
+            });
+        });
+    },
+
+    /**
+     * clears the AudioEvent at requested step position in
+     * the given channel for the given pattern
+     *
+     * @public
+     * @param {PATTERN} pattern
+     * @param {number} channelNum
+     * @param {number} step
+     * @param {LinkedList=} list
+     */
+    clearEvent( pattern, channelNum, step, list )
+    {
+        const channel  = pattern.channels[ channelNum ];
+
+        if ( list ) {
+
+            const listNode = list.getNodeByData( channel[ step ]);
+
+            if ( listNode )
+                listNode.remove();
+        }
+        delete channel[ step ];
     }
 };

@@ -22,13 +22,14 @@
  */
 "use strict";
 
-const EventUtil    = require( "../utils/EventUtil" );
-const EventFactory = require( "../model/factory/EventFactory" );
-const Form         = require( "../utils/Form" );
-const Manual       = require( "../definitions/Manual" );
-const Messages     = require( "../definitions/Messages" );
-const Pitch        = require( "../definitions/Pitch" );
-const Pubsub       = require( "pubsub-js" );
+const EventUtil      = require( "../utils/EventUtil" );
+const EventFactory   = require( "../model/factory/EventFactory" );
+const EventValidator = require( "../model/validators/EventValidator" );
+const Form           = require( "../utils/Form" );
+const Manual         = require( "../definitions/Manual" );
+const Messages       = require( "../definitions/Messages" );
+const Pitch          = require( "../definitions/Pitch" );
+const Pubsub         = require( "pubsub-js" );
 
 /* private properties */
 
@@ -236,7 +237,7 @@ function handleReady()
 
     // update model and view
 
-    if ( EventUtil.isValid( data )) {
+    if ( EventValidator.hasContent( data )) {
 
         const pattern = efflux.activeSong.patterns[ data.patternIndex ],
               channel = pattern.channels[ data.channelIndex ];

@@ -63,7 +63,7 @@ describe( "LinkedList", function()
         const obj1node = list.add( obj1 );
 
         assert.strictEqual( obj1node, list.head,
-            "expected list to have the added Object as its head" );
+            "expected list to have the added Object as its head Node" );
 
         assert.strictEqual( obj1node, list.tail,
             "expected list to have the added Object as its tail when the list has a length of 1" );
@@ -96,7 +96,7 @@ describe( "LinkedList", function()
         const obj2node = list.add( obj2 );
 
         assert.strictEqual( obj1node, list.head,
-            "expected list to have the first added Object as its head" );
+            "expected list to have the first added Object as its head Node" );
 
         assert.strictEqual( obj2node, list.tail,
             "expected list to have the last added Object as its tail" );
@@ -117,7 +117,7 @@ describe( "LinkedList", function()
         const obj3node = list.add( obj3 );
 
         assert.strictEqual( obj1node, list.head,
-            "expected list to have the first added Object as its head" );
+            "expected list to have the first added Object as its head Node" );
 
         assert.strictEqual( obj3node, list.tail,
             "expected list to have the last added Object as its tail" );
@@ -127,6 +127,92 @@ describe( "LinkedList", function()
 
         assert.strictEqual( obj2node, obj3node.previous,
             "expect the last node to have the second added node as its next property" );
+    });
+
+    it( "should be able to add an Object before an existing one", function()
+    {
+        const list = new LinkedList();
+        const obj1 = { title: "foo" };
+        const obj2 = { title: "bar" };
+        const obj3 = { title: "baz" };
+        const obj4 = { title: "qux" };
+
+        const obj1node = list.add( obj1 ); // index 0
+        const obj2node = list.add( obj2 ); // index 1
+
+        const obj3node = list.addBefore( obj2, obj3 ); // index 1 (obj2node is now index 2 )
+
+        assert.strictEqual( obj3node, obj1node.next,
+            "expected added Object to be the next property of the first added Node" );
+
+        assert.strictEqual( obj3node, obj2node.previous,
+            "expected added Object to be the previous property of the second added Node" );
+
+        assert.strictEqual( obj2node, obj3node.next,
+            "expected second added Node to be the next property of the added Node" );
+
+        assert.strictEqual( obj1node, obj3node.previous,
+            "expected first added Node to be the previous property of the added Node" );
+
+        const obj4node = list.addBefore( obj1, obj4 ); // index 0 (obj1node is now #1, obj3node #2, obj2node #3)
+
+        assert.strictEqual( obj4node, list.head,
+            "expected last added Object to be the new list head Node" );
+
+        assert.strictEqual( obj1node, obj4node.next,
+            "expected first added Object to be the next property of the new head Node" );
+
+        assert.strictEqual( obj4node, obj1node.previous,
+            "expected new head to be the previous property of the first added Object" );
+
+        assert.strictEqual( obj1node, obj4node.next,
+            "expected first added Node to be the next property of the newly added head Node" );
+
+        assert.strictEqual( null, obj4node.previous,
+            "expected newly added head not to have a previous Node" );
+    });
+
+    it( "should be able to add an Object after an existing one", function()
+    {
+        const list = new LinkedList();
+        const obj1 = { title: "foo" };
+        const obj2 = { title: "bar" };
+        const obj3 = { title: "baz" };
+        const obj4 = { title: "qux" };
+
+        const obj1node = list.add( obj1 ); // index 0
+        const obj2node = list.add( obj2 ); // index 1
+
+        const obj3node = list.addAfter( obj1, obj3 ); // index 1 (obj2node is now index 2 )
+
+        assert.strictEqual( obj3node, obj1node.next,
+            "expected added Object to be the next property of the first added Node" );
+
+        assert.strictEqual( obj3node, obj2node.previous,
+            "expected added Object to be the previous property of the second added Node" );
+
+        assert.strictEqual( obj2node, obj3node.next,
+            "expected second added Node to be the next property of the added Node" );
+
+        assert.strictEqual( obj1node, obj3node.previous,
+            "expected first added Node to be the previous property of the added Node" );
+
+        const obj4node = list.addAfter( obj2, obj4 ); // index 3 (obj1node is now #0, obj3node #1, obj2node #2)
+
+        assert.strictEqual( obj4node, list.tail,
+            "expected last added Object to be the new list tail" );
+
+        assert.strictEqual( obj2node, obj4node.previous,
+            "expected second added Object to be the previous property of the new tail" );
+
+        assert.strictEqual( obj4node, obj2node.next,
+            "expected new head to be the next property of the second added Object" );
+
+        assert.strictEqual( null, obj4node.next,
+            "expected newly added tail not to have a next Node" );
+
+        assert.strictEqual( obj2node, obj4node.previous,
+            "expected second added Node to be the previous property of the new tail" );
     });
 
     it( "should be able to remove Objects from its internal list", function()
@@ -143,7 +229,7 @@ describe( "LinkedList", function()
         list.remove( obj2node );
 
         assert.strictEqual( obj1node, list.head,
-            "expected list to have the first added Object as its head" );
+            "expected list to have the first added Object as its head Node" );
 
         assert.strictEqual( obj3node, list.tail,
             "expected list to have the last added Object as its tail" );
@@ -157,7 +243,7 @@ describe( "LinkedList", function()
         list.remove( obj1node );
 
         assert.strictEqual( obj3node, list.head,
-            "expected list to have the last added Object as its head" );
+            "expected list to have the last added Object as its head Node" );
 
         assert.strictEqual( obj3node, list.tail,
             "expected list to have the last added Object as its tail" );
@@ -266,6 +352,9 @@ describe( "LinkedList", function()
         assert.strictEqual( obj3node, list.tail,
             "expected list to have 3rd Object as tail after removal of 2nd Node" );
 
+        assert.strictEqual( 2, list._length,
+            "expected list length to be 2 after removal of 2nd Node" );
+
         obj1node.remove();
 
         assert.strictEqual( obj3node, list.head,
@@ -274,6 +363,9 @@ describe( "LinkedList", function()
         assert.strictEqual( obj3node, list.tail,
             "expected list to have 3rd Object as tail after removal of 1st Node" );
 
+        assert.strictEqual( 1, list._length,
+                    "expected list length to be 1 after removal of 1st Node" );
+
         obj3node.remove();
 
         assert.ok( list.head === null,
@@ -281,6 +373,9 @@ describe( "LinkedList", function()
 
         assert.ok( list.tail === null,
             "expected list to have no tail after removal of all Nodes" );
+
+        assert.strictEqual( 0, list._length,
+            "expected list length to be 0 after removal of all Nodes" );
     });
 
     it( "should be able to retrieve Node wrappers by their content", function()
