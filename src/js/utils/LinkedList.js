@@ -25,9 +25,9 @@
 module.exports = LinkedList;
 
 function LinkedList() {
-    this._length = 0;
     this.head    = null;
     this.tail    = null;
+    this._length = 0;
 }
 
 function Node( list, data ) {
