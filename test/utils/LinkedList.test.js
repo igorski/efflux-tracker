@@ -174,7 +174,7 @@ describe( "LinkedList", function()
             "expected list to have no head after removing all its nodes" );
 
         assert.ok( list.tail === null,
-            "expected list to have no head after removing all its nodes" );
+            "expected list to have no tail after removing all its nodes" );
     });
 
     it( "should be able to flush all Objects from its internal list at once", function()
@@ -211,7 +211,7 @@ describe( "LinkedList", function()
             "expected list to have 2nd Object as head after removal of 1ast Node" );
 
         assert.strictEqual( obj2node, list.tail,
-            "expected list to have 2nd Object as head after removal of 1ast Node" );
+            "expected list to have 2nd Object as tail after removal of 1ast Node" );
     });
 
     it( "should be able to remove Objects by their list index", function()
@@ -228,7 +228,7 @@ describe( "LinkedList", function()
             "expected list to have 1st Object as head after removal of 1ast Node by its index" );
 
         assert.strictEqual( obj1node, list.tail,
-            "expected list to have 1st Object as head after removal of 1ast Node by its index" );
+            "expected list to have 1st Object as tail after removal of 1ast Node by its index" );
     });
 
     it( "should be able to remove Objects by their content", function()
@@ -245,6 +245,60 @@ describe( "LinkedList", function()
             "expected list to have 1st Object as head after removal of 1ast Node by its data" );
 
         assert.strictEqual( obj1node, list.tail,
-            "expected list to have 1st Object as head after removal of 1ast Node by its data" );
+            "expected list to have 1st Object as tail after removal of 1ast Node by its data" );
+    });
+
+    it( "should be able to remove Objects directly from their Node", function()
+    {
+        const list     = new LinkedList();
+        const obj1     = { title: "foo" };
+        const obj1node = list.add( obj1 );
+        const obj2     = { title: "bar" };
+        const obj2node = list.add( obj2 );
+        const obj3     = { title: "baz" };
+        const obj3node = list.add( obj2 );
+
+        obj2node.remove();
+
+        assert.strictEqual( obj1node, list.head,
+            "expected list to have 2nd Object as head after removal of 2nd Node" );
+
+        assert.strictEqual( obj3node, list.tail,
+            "expected list to have 3rd Object as tail after removal of 2nd Node" );
+
+        obj1node.remove();
+
+        assert.strictEqual( obj3node, list.head,
+            "expected list to have 3rd Object as head after removal of 1st Node" );
+
+        assert.strictEqual( obj3node, list.tail,
+            "expected list to have 3rd Object as tail after removal of 1st Node" );
+
+        obj3node.remove();
+
+        assert.ok( list.head === null,
+            "expected list to have no head after removal of all Nodes" );
+
+        assert.ok( list.tail === null,
+            "expected list to have no tail after removal of all Nodes" );
+    });
+
+    it( "should be able to retrieve Node wrappers by their content", function()
+    {
+        const list     = new LinkedList();
+        const obj1     = { title: "foo" };
+        const obj1node = list.add( obj1 );
+        const obj2     = { title: "bar" };
+        const obj2node = list.add( obj2 );
+
+        let retrievedNode = list.getNodeByData( obj2 );
+
+        assert.strictEqual( obj2node, retrievedNode,
+            "expected list to have retrieved the last Node by the last Nodes data" );
+
+        retrievedNode = list.getNodeByData( obj1 );
+
+        assert.strictEqual( obj1node, retrievedNode,
+            "expected list to have retrieved the first Node by the last Nodes data" );
     });
 });
