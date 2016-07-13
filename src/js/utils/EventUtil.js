@@ -28,7 +28,7 @@ module.exports =
      * update the position properties of given AudioEvent
      *
      * @public
-     * @param {AUDIO_EVENT} audioEvent
+     * @param {AUDIO_EVENT} event
      * @param {PATTERN} pattern
      * @param {number} patternNum index of the pattern within the entire Song (e.g. "measure")
      * @param {number} patternStep index of the audioEvent within the pattern
@@ -142,5 +142,25 @@ module.exports =
                 listNode.remove();
         }
         delete channel[ step ];
+    },
+
+    /**
+     * retrieve the first AudioEvent available before
+     * given step in given channel event list
+     *
+     * @public
+     * @param {Array.<AUDIO_EVENT|null>} channelEvents
+     * @param {number} step
+     * @return {AUDIO_EVENT|null}
+     */
+    getFirstEventBeforeStep( channelEvents, step )
+    {
+        let previousEvent;
+        for ( let i = step - 1; i >= 0; --i ) {
+            previousEvent = channelEvents[ i ];
+            if ( previousEvent )
+                return previousEvent;
+        }
+        return null;
     }
 };

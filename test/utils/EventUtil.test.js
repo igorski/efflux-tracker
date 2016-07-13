@@ -198,4 +198,23 @@ describe( "EventUtil", function()
         assert.strictEqual( null, list.getNodeByData( expected2 ),
             "expected Node to have been removed after clearing of event" );
     });
+
+    it( "should be able to retrieve the first event before the given event", function()
+    {
+        const channelEvents = [];
+
+        const event1 = EventFactory.createAudioEvent();
+        const event2 = EventFactory.createAudioEvent();
+        const event3 = EventFactory.createAudioEvent();
+
+        channelEvents.push( event1 ); // step 0
+        channelEvents.push( null );   // step 1
+        channelEvents.push( event2 ); // step 2
+        channelEvents.push( event3 ); // step 3
+
+        assert.strictEqual( event2, EventUtil.getFirstEventBeforeStep( channelEvents, 3 ));
+        assert.strictEqual( event1, EventUtil.getFirstEventBeforeStep( channelEvents, 2 ));
+        assert.strictEqual( event1, EventUtil.getFirstEventBeforeStep( channelEvents, 1 ));
+        assert.strictEqual( null,   EventUtil.getFirstEventBeforeStep( channelEvents, 0 ));
+    });
 });

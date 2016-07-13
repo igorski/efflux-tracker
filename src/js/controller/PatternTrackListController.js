@@ -174,7 +174,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.ADD_EVENT_AT_POSITION:
-            addEventAtPosition( payload[ 0 ], ( payload.length > 1 ) ? payload[ 1 ] : null );
+            addEventAtPosition.apply( this, payload );
             break;
 
         case Messages.ADD_OFF_AT_POSITION:
@@ -464,6 +464,20 @@ function addEventAtPosition( event, optData )
 
     // update linked list for AudioEvents
     EventUtil.linkEvent( event, channelIndex, efflux.activeSong.patterns, efflux.eventList );
+
+    if ( optData && optData.newEvent === true ) {
+
+        // new events by default take the instrument of the previously declared note in
+        // the current patterns event channel
+
+        const prevEvent = efflux.eventList[ channelIndex ].getNodeByData( event ).previous;
+        if ( prevEvent && prevEvent.data.seq.startMeasure === event.seq.startMeasure &&
+             prevEvent.instrument !== editorModel.activeInstrument &&
+             event.instrument     === editorModel.activeInstrument ) {
+
+            event.instrument = prevEvent.data.instrument;
+        }
+    }
 
     // TODO: this is a duplicate from KeyboardController !! (this moves to the next step in the track)
     const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
