@@ -44,6 +44,7 @@ const SequencerController        = require( "./controller/SequencerController" )
 const SettingsController         = require( "./controller/SettingsController" );
 const SongBrowserController      = require( "./controller/SongBrowserController" );
 const SystemController           = require( "./controller/SystemController" );
+const EventUtil                  = require( "./utils/EventUtil" );
 const ObjectUtil                 = require( "./utils/ObjectUtil" );
 const SongUtil                   = require( "./utils/SongUtil" );
 const LinkedList                 = require( "./utils/LinkedList" );
@@ -160,6 +161,13 @@ function handleBroadcast( type, payload )
             // of an Atari 2600 !! this should be just fine and hella fast
 
             efflux.StateModel.store( ObjectUtil.clone( efflux.activeSong ));
+
+            // this however is very wasteful :D
+            // instead of storing the full Song Object and replacing it on undo/redo
+            // store state Value Objects which we can use to more elegantly link/unlink mutated events with
+
+            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
+
             break;
     }
 }

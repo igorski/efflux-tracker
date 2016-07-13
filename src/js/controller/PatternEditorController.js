@@ -29,7 +29,7 @@ const DOM      = require( "zjslib" ).DOM;
 /* private properties */
 
 let container, efflux, indiceContainer, controlContainer;
-let stepAmount = 0, patternIndices, rafPending = false, controlOffsetY = 0;
+let stepAmount = 0, patternIndices, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
 
 module.exports =
 {
@@ -77,12 +77,17 @@ function handleBroadcast( type, payload )
             // ensure the controlContainer is always visible regardless of scroll offset
             // threshold defines when to offset the containers top, the last number defines the fixed header height
             const scrollY   = window.scrollY;
-            const threshold = ( controlOffsetY = controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
 
-            if ( scrollY > threshold )
-                controlContainer.classList.add( "fixed" );
-            else
-                controlContainer.classList.remove( "fixed" );
+            if ( scrollY !== lastWindowScrollY ) {
+                const threshold = ( controlOffsetY = controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
+
+                if ( scrollY > threshold )
+                    controlContainer.classList.add( "fixed" );
+                else
+                    controlContainer.classList.remove( "fixed" );
+
+                lastWindowScrollY = scrollY;
+            }
             break;
 
         case Messages.WINDOW_RESIZED:
