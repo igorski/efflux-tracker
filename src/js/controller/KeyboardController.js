@@ -25,6 +25,7 @@
 const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
 const EventFactory   = require( "../model/factory/EventFactory" );
+const EventUtil      = require( "../utils/EventUtil" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );
 const Pubsub         = require( "pubsub-js" );
 
@@ -360,6 +361,9 @@ function handleKeyDown( aEvent )
                         if ( state ) {
                             efflux.activeSong = state;
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+
+                            // this is wasteful, can we do this more elegantly?
+                            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
                         }
                     }
                     break;
