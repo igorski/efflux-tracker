@@ -25,6 +25,7 @@
 const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
 const EventFactory   = require( "../model/factory/EventFactory" );
+const EventUtil      = require( "../utils/EventUtil" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );
 const Pubsub         = require( "pubsub-js" );
 
@@ -321,7 +322,8 @@ function handleKeyDown( aEvent )
                     // paste current selection
                     if ( hasOption ) {
                         selectionModel.pasteSelection(
-                            efflux.activeSong, editorModel.activePattern, editorModel.activeInstrument, editorModel.activeStep
+                            efflux.activeSong, editorModel.activePattern,
+                            editorModel.activeInstrument, editorModel.activeStep, efflux.eventList
                         );
                         Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                         Pubsub.publishSync( Messages.SAVE_STATE );
@@ -338,7 +340,7 @@ function handleKeyDown( aEvent )
                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
                             selectionModel.setSelection( editorModel.activeStep );
                         }
-                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern );
+                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
                         selectionModel.clearSelection();
                         Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                         Pubsub.publishSync( Messages.SAVE_STATE );
@@ -359,6 +361,9 @@ function handleKeyDown( aEvent )
                         if ( state ) {
                             efflux.activeSong = state;
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+
+                            // this is wasteful, can we do this more elegantly?
+                            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
                         }
                     }
                     break;

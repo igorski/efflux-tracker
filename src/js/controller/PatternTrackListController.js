@@ -174,7 +174,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.ADD_EVENT_AT_POSITION:
-            addEventAtPosition( payload[ 0 ], ( payload.length > 1 ) ? payload[ 1 ] : null );
+            addEventAtPosition.apply( this, payload );
             break;
 
         case Messages.ADD_OFF_AT_POSITION:
@@ -182,7 +182,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.REMOVE_NOTE_AT_POSITION:
-            deleteHighlightedStep();
+            removeEventAtHighlightedStep();
             break;
 
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
@@ -230,12 +230,17 @@ function highlightActiveStep()
     }
 }
 
-function deleteHighlightedStep()
+function removeEventAtHighlightedStep()
 {
     if ( selectionModel.hasSelection() )
-        selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern );
+        selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
     else
-        PatternFactory.clearEvent( efflux.activeSong.patterns[ editorModel.activePattern ], editorModel.activeInstrument, editorModel.activeStep );
+        EventUtil.clearEvent(
+            efflux.activeSong.patterns[ editorModel.activePattern ],
+            editorModel.activeInstrument,
+            editorModel.activeStep,
+            efflux.eventList[ editorModel.activeInstrument ]
+        );
 
     PatternTrackListController.update(); // sync view with model
     Pubsub.publish( Messages.SAVE_STATE );
@@ -457,7 +462,24 @@ function addEventAtPosition( event, optData )
 
     channel[ step ] = event;
 
-    // TODO: duplicate from KeyboardController !! (this moves to the next step in the track)
+    // update linked list for AudioEvents
+    EventUtil.linkEvent( event, channelIndex, efflux.activeSong.patterns, efflux.eventList );
+
+    if ( optData && optData.newEvent === true ) {
+
+        // new events by default take the instrument of the previously declared note in
+        // the current patterns event channel
+
+        const prevEvent = efflux.eventList[ channelIndex ].getNodeByData( event ).previous;
+        if ( prevEvent && prevEvent.data.seq.startMeasure === event.seq.startMeasure &&
+             prevEvent.instrument !== editorModel.activeInstrument &&
+             event.instrument     === editorModel.activeInstrument ) {
+
+            event.instrument = prevEvent.data.instrument;
+        }
+    }
+
+    // TODO: this is a duplicate from KeyboardController !! (this moves to the next step in the track)
     const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
     if ( ++editorModel.activeStep > maxStep )

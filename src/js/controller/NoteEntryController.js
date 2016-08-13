@@ -22,13 +22,14 @@
  */
 "use strict";
 
-const EventUtil    = require( "../utils/EventUtil" );
-const EventFactory = require( "../model/factory/EventFactory" );
-const Form         = require( "../utils/Form" );
-const Manual       = require( "../definitions/Manual" );
-const Messages     = require( "../definitions/Messages" );
-const Pitch        = require( "../definitions/Pitch" );
-const Pubsub       = require( "pubsub-js" );
+const EventUtil      = require( "../utils/EventUtil" );
+const EventFactory   = require( "../model/factory/EventFactory" );
+const EventValidator = require( "../model/validators/EventValidator" );
+const Form           = require( "../utils/Form" );
+const Manual         = require( "../definitions/Manual" );
+const Messages       = require( "../definitions/Messages" );
+const Pitch          = require( "../definitions/Pitch" );
+const Pubsub         = require( "pubsub-js" );
 
 /* private properties */
 
@@ -183,9 +184,15 @@ function handleOpen( completeCallback )
           channel      = pattern.channels[ channelIndex ],
           event        = channel[ editorModel.activeStep ];
 
+    // by default take the previously declared events instrument as the target instrument for the new event
+    // otherwise take the active instrument as the target instrument
+
+    const previousEvent     = EventUtil.getFirstEventBeforeStep( channel, editorModel.activeStep );
+    const defaultInstrument = ( previousEvent ) ? previousEvent.instrument : editorModel.activeInstrument;
+
     data =
     {
-        instrument   : ( event ) ? event.instrument : editorModel.activeInstrument,
+        instrument   : ( event ) ? event.instrument : defaultInstrument,
         note         : ( event ) ? event.note       : "C",
         octave       : ( event ) ? event.octave     : 3,
         patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
@@ -236,14 +243,15 @@ function handleReady()
 
     // update model and view
 
-    if ( EventUtil.isValid( data )) {
+    if ( EventValidator.hasContent( data )) {
 
         const pattern = efflux.activeSong.patterns[ data.patternIndex ],
               channel = pattern.channels[ data.channelIndex ];
 
-        let event = channel[ data.step ];
+        let event        = channel[ data.step ];
+        const isNewEvent = !event;
 
-        if ( !event )
+        if ( isNewEvent )
             event = EventFactory.createAudioEvent();
 
         event.action     = 1; // noteOn
@@ -254,7 +262,8 @@ function handleReady()
         Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
             patternIndex : data.patternIndex,
             channelIndex : data.channelIndex,
-            step         : data.step
+            step         : data.step,
+            newEvent     : isNewEvent
         } ]);
     }
     handleClose();

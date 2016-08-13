@@ -384,8 +384,9 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
  *
  * @param {Object} song
  * @param {number} activePattern
+ * @param {Array.<LinkedList>} lists
  */
-SelectionModel.prototype.cutSelection = function( song, activePattern )
+SelectionModel.prototype.cutSelection = function( song, activePattern, lists )
 {
     if ( this.getSelectionLength() === 0 )
         return;
@@ -394,7 +395,7 @@ SelectionModel.prototype.cutSelection = function( song, activePattern )
     this.copySelection( song, activePattern );
 
     // delete second
-    this.deleteSelection( song, activePattern );
+    this.deleteSelection( song, activePattern, lists );
 };
 
 /**
@@ -404,20 +405,27 @@ SelectionModel.prototype.cutSelection = function( song, activePattern )
  *
  * @param {Object} song
  * @param {number} activePattern
+ * @param {Array.<LinkedList>} lists
  */
-SelectionModel.prototype.deleteSelection = function( song, activePattern )
+SelectionModel.prototype.deleteSelection = function( song, activePattern, lists )
 {
     if ( this.getSelectionLength() === 0 )
         return;
 
-    let pattern = song.patterns[ activePattern ];
+    let pattern = song.patterns[ activePattern], event;
 
-    for ( let i = this.firstSelectedChannel; i <= this.lastSelectedChannel; ++i )
+    for ( let cIndex = this.firstSelectedChannel; cIndex <= this.lastSelectedChannel; ++cIndex )
     {
-        if ( this.selectedChannels[ i ].length > 0 )
+        if ( this.selectedChannels[ cIndex ].length > 0 )
         {
-            for ( let j = this.minSelectedStep, l = this.maxSelectedStep; j <= l; ++j )
-                delete pattern.channels[ i ][ j ];
+            for ( let sIndex = this.minSelectedStep, l = this.maxSelectedStep; sIndex <= l; ++sIndex ) {
+
+                event = pattern.channels[ cIndex ][ sIndex ];
+                if ( event )
+                    lists[ cIndex ].remove( event );
+
+                delete pattern.channels[ cIndex ][ sIndex ];
+            }
         }
     }
 };
@@ -429,8 +437,9 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern )
  * @param {number} activePattern
  * @param {number} activeChannel
  * @param {number} activeStep
+ * @param {Array.<LinkedList>} lists
  */
-SelectionModel.prototype.pasteSelection = function( song, activePattern, activeChannel, activeStep )
+SelectionModel.prototype.pasteSelection = function( song, activePattern, activeChannel, activeStep, lists )
 {
     if ( this._copySelection !== null )
     {
@@ -438,9 +447,9 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
         let targetPattern, writeIndex, clone;
         let selectionLength = this._copySelection.length;
 
-        for ( let i = activeChannel, max = target.channels.length, j = 0; i < max && j < selectionLength; ++i, ++j )
+        for ( let cIndex = activeChannel, max = target.channels.length, j = 0; cIndex < max && j < selectionLength; ++cIndex, ++j )
         {
-            targetPattern = target.channels[ i ];
+            targetPattern = target.channels[ cIndex ];
 
             this._copySelection[ j ].forEach(( event, index ) =>
             {
@@ -451,10 +460,11 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
                     if ( event && ( event.action !== 0 || event.mp )) {
 
                         clone = ObjectUtil.clone( event );
-                        clone.instrument  = i;
+                        clone.instrument  = cIndex;
                         clone.seq.playing = false;
                         EventUtil.setPosition( clone, target, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
                         targetPattern[ writeIndex ] = clone;
+                        EventUtil.linkEvent( clone, cIndex, song.patterns, lists );
                     }
                 }
             });

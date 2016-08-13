@@ -138,21 +138,6 @@ const PatternFactory = module.exports =
                 }
             }
         });
-    },
-
-    /**
-     * clears the AudioEvent at requested step position in
-     * the given channel for the given pattern
-     *
-     * @public
-     * @param {PATTERN} pattern
-     * @param {number} channelNum
-     * @param {number} step
-     */
-    clearEvent( pattern, channelNum, step )
-    {
-        const channel = pattern.channels[ channelNum ];
-        delete channel[ step ];
     }
 };
 

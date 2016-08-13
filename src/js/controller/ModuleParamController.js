@@ -238,14 +238,15 @@ function handleReady()
 
     // update model and view
 
-//    if ( EventUtil.isValid( data )) {
+//    if ( EventValidator.hasContent( data )) {
 
         const pattern = efflux.activeSong.patterns[ data.patternIndex ],
              channel = pattern.channels[ data.channelIndex ];
 
-        let event = channel[ data.step ];
+        let event        = channel[ data.step ];
+        const isNewEvent = !event;
 
-        if ( !event )
+        if ( isNewEvent )
             event = EventFactory.createAudioEvent();
 
         event.mp         = data;
@@ -254,7 +255,8 @@ function handleReady()
         Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
             patternIndex : data.patternIndex,
             channelIndex : data.channelIndex,
-            step         : data.step
+            step         : data.step,
+            newEvent     : isNewEvent
         } ]);
 //    }
     handleClose();

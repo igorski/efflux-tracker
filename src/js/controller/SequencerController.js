@@ -24,7 +24,9 @@
 
 const Config       = require( "../config/Config" );
 const AudioUtil    = require( "../utils/AudioUtil" );
+const EventUtil    = require( "../utils/EventUtil" );
 const SongUtil     = require( "../utils/SongUtil" );
+const LinkedList   = require( "../utils/LinkedList" );
 const Messages     = require( "../definitions/Messages" );
 const Metronome    = require( "../components/Metronome" );
 const AudioFactory = require( "../model/factory/AudioFactory" );
@@ -45,8 +47,9 @@ let playing           = false,
     beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
     beatUnit          = 4;
 
-let currentMeasure, measureStartTime, firstMeasureStartTime,
-    currentStep, nextNoteTime, channels, queueHandlers = [];
+let queueHandlers = [], channelQueue = new Array( Config.INSTRUMENT_AMOUNT ),
+    currentMeasure, measureStartTime, firstMeasureStartTime,
+    currentStep, nextNoteTime, channels;
 
 const SequencerController = module.exports =
 {
@@ -65,6 +68,13 @@ const SequencerController = module.exports =
         audioController = audioControllerRef;
         audioContext    = audioControllerRef.getContext();
         editorModel     = efflux.EditorModel;
+
+        // create LinkedLists to store all currently playing events for all channels
+
+        for ( let i = 0; i < channelQueue.length; ++i )
+            channelQueue[ i ] = new LinkedList();
+
+        // render the transport controls in the DOM
 
         efflux.TemplateService.render( "transport", containerRef, null, true ).then(() => {
 
@@ -202,6 +212,19 @@ const SequencerController = module.exports =
         firstMeasureStartTime = currentTime - ( measure * ( 60.0 / song.meta.tempo * beatAmount ));
 
         channels = efflux.activeSong.patterns[ currentMeasure ].channels;
+
+        // when going to the first measure we should stop playing all currently sounding notes
+
+        if ( currentMeasure === 0 ) {
+            channelQueue.forEach( function( list, index ) {
+                let q = list.head;
+                while ( q ) {
+                    dequeueEvent(q.data, currentTime );
+                    q.remove();
+                    q = list.head;
+                }
+            });
+        }
     },
 
     getPosition()
@@ -265,6 +288,7 @@ function handleBroadcast( type, payload )
 
             SequencerController.setPlaying( false );
             SequencerController.update();
+            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
             break;
 
         // when a MIDI device is connected, we allow recording from MIDI input
@@ -505,51 +529,38 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 
     const patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
     const patterns        = efflux.activeSong.patterns;
-    let duration          = ( 1 / patterns[ aEventMeasure ].channels[ aEventChannel ].length ) * patternDuration;
 
-    if ( aEvent.action === 1 ) // but only for "noteOn" events
-    {
-        let foundEvent = false, foundEnd = false, compareEvent, channel, j, jl;
-
-        for ( let i = aEventMeasure, l = patterns.length; i < l; ++i )
-        {
-            channel = patterns[ i ].channels[ aEventChannel ];
-
-            for ( j = 0, jl = channel.length; j < jl; ++j )
-            {
-                compareEvent = channel[ j ];
-
-                if ( !foundEvent )
-                {
-                    if ( compareEvent === aEvent )
-                        foundEvent = true;
-                }
-                else if ( !foundEnd )
-                {
-                    // the next event (any event with an action) will
-                    // halt the playback of the given event
-
-                    if ( compareEvent && compareEvent.action > 0 ) {
-                        foundEnd = true;
-                        break;
-                    }
-                    duration += ( 1 / channel.length ) * patternDuration; // keep incrementing duration until event is found
-                }
-            }
-            if ( foundEnd )
-                break;
-        }
-    }
-    aEvent.seq.length   = duration;
     aEvent.seq.mpLength = patternDuration / patterns[ aEventMeasure ].steps;
 
     // play back the event in the AudioController
 
     audioController.noteOn( aEvent, efflux.activeSong.instruments[ aEvent.instrument ], aTime );
 
-    // noteOff will be triggered by the Sequencer
+    // events must also be dequeued (as they have a fixed duration)
 
-    dequeueEvent( aEvent, aTime + aEvent.seq.length );
+    const isNoteOn = ( aEvent.action === 1 );
+    const queue    = channelQueue[ aEventChannel ];
+
+    if ( aEvent.action !== 0 ) {
+
+        // all non-module parameter change events kill previously playing notes
+        let playing = queue.head;
+
+        while ( playing ) {
+            dequeueEvent( playing.data, aTime );
+            playing.remove();
+            playing = queue.head;
+        }
+    }
+
+    // non-noteOn events are dequeued after a single sequencer tick, noteOn
+    // events are pushed in a queued and dequeued when a new noteOn/noteOff event
+    // is enqueued for this events channel
+
+    if ( !isNoteOn )
+        dequeueEvent( aEvent, aTime + aEvent.seq.mpLength );
+    else
+        queue.add( aEvent );
 }
 
 /**
@@ -563,7 +574,12 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
  */
 function dequeueEvent( aEvent, aTime )
 {
-    let clock = AudioUtil.createTimer( audioContext, aTime, aTimerEvent =>
+//    console.warn("dequeue me: " + aEvent.note + aEvent.octave + " at " + aTime + " playing: " + aEvent.seq.playing);
+
+    if ( !aEvent.seq.playing )
+        return;
+
+    let clock = AudioUtil.createTimer( audioContext, aTime, ( aTimerEvent ) =>
     {
         aEvent.seq.playing = false;
         audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);
@@ -581,6 +597,9 @@ function clearPending()
     let i = queueHandlers.length;
     while ( i-- )
         freeHandler( queueHandlers[ i ]);
+
+    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        channelQueue[ i ].flush();
 }
 
 /**
