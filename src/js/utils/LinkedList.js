@@ -80,16 +80,18 @@ LinkedList.prototype.addBefore = function( existing, data ) {
     const existingNode = ( existing instanceof Node ) ? existing : this.getNodeByData( existing );
     const insertedNode = new Node( this, data );
 
-    if ( existingNode === this.head ) {
-        this.head = insertedNode;
+    if ( existingNode ) {
+        if ( existingNode === this.head ) {
+            this.head = insertedNode;
+        }
+        else {
+            const existingPreviousNode = existingNode.previous;
+            existingPreviousNode.next  = insertedNode;
+            insertedNode.previous      = existingPreviousNode;
+        }
+        existingNode.previous = insertedNode;
     }
-    else {
-        const existingPreviousNode = existingNode.previous;
-        existingPreviousNode.next  = insertedNode;
-        insertedNode.previous      = existingPreviousNode;
-    }
-    insertedNode.next     = existingNode;
-    existingNode.previous = insertedNode;
+    insertedNode.next = existingNode;
 
     return insertedNode;
 };

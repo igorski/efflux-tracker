@@ -470,7 +470,9 @@ function addEventAtPosition( event, optData )
         // new events by default take the instrument of the previously declared note in
         // the current patterns event channel
 
-        const prevEvent = efflux.eventList[ channelIndex ].getNodeByData( event ).previous;
+        const node = efflux.eventList[ channelIndex ].getNodeByData( event );
+        const prevEvent = ( node ) ? node.previous : null;
+
         if ( prevEvent && prevEvent.data.seq.startMeasure === event.seq.startMeasure &&
              prevEvent.instrument !== editorModel.activeInstrument &&
              event.instrument     === editorModel.activeInstrument ) {
