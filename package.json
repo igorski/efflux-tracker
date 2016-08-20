@@ -28,6 +28,7 @@
     "chai": "^1.9.2",
     "mocha": "^2.2.5",
     "mock-browser": "^0.91.34",
+    "lz-string": "^1.4.4",
     "dspjs": "^1.0.0",
     "recorderjs": "^1.0.1",
     "zjslib": "^0.1.4",

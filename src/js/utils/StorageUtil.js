@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const LZString = require( "lz-string" );
+
 let isChromeStorage, storage;
 
 const StorageUtil = module.exports =
@@ -72,7 +74,7 @@ const StorageUtil = module.exports =
             else if ( !isChromeStorage ) {
                 const data = storage.getItem( key );
                 if ( data )
-                    resolve( storage.getItem( key ));
+                    resolve( decompress( data ));
                 else
                     reject( Error( "Data for '" + key + "' not found" ));
             }
@@ -84,7 +86,7 @@ const StorageUtil = module.exports =
                     if ( data === null || Object.keys( data ).length === 0 || !data[ key ] )
                         reject( Error( "Data for '" + key + "' not found" ) );
                     else
-                        resolve( data[ key ] );
+                        resolve( decompress( data[ key ] ));
                 });
             }
         });
@@ -99,19 +101,61 @@ const StorageUtil = module.exports =
      */
     setItem( key, data )
     {
+        const compressedData = compress( data );
+
         return new Promise(( resolve, reject ) =>
         {
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
             }
             else if ( !isChromeStorage ) {
-                resolve( storage.setItem( key, data ));
+                resolve( storage.setItem( key, compressedData ));
             }
             else {
                 const insert  = {};
-                insert[ key ] = data;
+                insert[ key ] = compressedData;
                 storage.set( insert, resolve );
             }
         });
     }
 };
+
+// by compressing the stringified Objects we can maximize
+// the amount data we can save in the applications quota in LocalStorage
+
+function compress( string ) {
+
+    let compressedString;
+    try {
+        compressedString = LZString.compressToUTF16( string );
+    }
+    catch ( e ) {
+        return string;
+    }
+
+    console.log(
+        "Compressed " + string.length + " to " + compressedString.length + " (" +
+        (( compressedString.length / string.length ) * 100 ).toFixed( 2 ) + "% of original size)"
+    );
+    return compressedString;
+}
+
+function decompress( string ) {
+
+    let decompressedString;
+
+    try {
+        decompressedString = LZString.decompressFromUTF16( string );
+    }
+    catch ( e ) {
+        return string;
+    }
+
+    // smaller length implies that given string could not be decompressed
+    // properly, meaning it was likely not compressed in the first place
+
+    if ( !decompressedString || decompressedString.length < string.length )
+        return string;
+    else
+        return decompressedString;
+}
