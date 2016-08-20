@@ -52,7 +52,13 @@ Node.prototype.remove = function() {
         this._list.tail = this.previous;
 
     --this._list._length;
-    this._list = null; // break reference
+
+    // break references
+
+    this.data    = null;
+    this.prevous = null;
+    this.next    = null;
+    this._list   = null;
 };
 
 /* public methods */
@@ -71,7 +77,6 @@ LinkedList.prototype.add = function( data ) {
         this.tail      = node;
     }
     ++this._length;
-
     return node;
 };
 
@@ -92,6 +97,7 @@ LinkedList.prototype.addBefore = function( existing, data ) {
         existingNode.previous = insertedNode;
     }
     insertedNode.next = existingNode;
+    ++this._length;
 
     return insertedNode;
 };
@@ -111,6 +117,7 @@ LinkedList.prototype.addAfter = function( existing, data ) {
     }
     insertedNode.previous = existingNode;
     existingNode.next     = insertedNode;
+    ++this._length;
 
     return insertedNode;
 };

@@ -236,7 +236,8 @@ function removeEventAtHighlightedStep()
         selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
     else
         EventUtil.clearEvent(
-            efflux.activeSong.patterns[ editorModel.activePattern ],
+            efflux.activeSong,
+            editorModel.activePattern,
             editorModel.activeInstrument,
             editorModel.activeStep,
             efflux.eventList[ editorModel.activeInstrument ]
@@ -337,6 +338,7 @@ function handlePatternClear( aEvent )
     efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
     selectionModel.clearSelection();
     PatternTrackListController.update();
+    Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
 }
 
 function handlePatternCopy( aEvent )
@@ -349,6 +351,7 @@ function handlePatternPaste( aEvent )
     if ( patternCopy ) {
         PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
         PatternTrackListController.update();
+        Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
     }
 }
 
@@ -460,10 +463,15 @@ function addEventAtPosition( event, optData )
         efflux.activeSong.meta.tempo
     );
 
+    // remove previous event if one existed at the insertion point
+
+    if ( channel[ step ])
+        EventUtil.clearEvent( efflux.activeSong, patternIndex, channelIndex, step, efflux.eventList[ patternIndex ]);
+
     channel[ step ] = event;
 
     // update linked list for AudioEvents
-    EventUtil.linkEvent( event, channelIndex, efflux.activeSong.patterns, efflux.eventList );
+    EventUtil.linkEvent( event, channelIndex, efflux.activeSong, efflux.eventList );
 
     if ( optData && optData.newEvent === true ) {
 

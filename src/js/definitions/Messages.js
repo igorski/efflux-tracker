@@ -61,6 +61,7 @@ module.exports =
     REFRESH_SONG              : "SNG:3",
     REFRESH_PATTERN_VIEW      : "SNG:4",
     PATTERN_STEPS_UPDATED     : "SNG:5",  // payload consists of number describing new pattern length
+    CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
 
     // sequencer messages
 

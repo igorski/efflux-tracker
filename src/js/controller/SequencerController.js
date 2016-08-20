@@ -288,7 +288,6 @@ function handleBroadcast( type, payload )
 
             SequencerController.setPlaying( false );
             SequencerController.update();
-            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
             break;
 
         // when a MIDI device is connected, we allow recording from MIDI input
@@ -579,7 +578,7 @@ function dequeueEvent( aEvent, aTime )
     if ( !aEvent.seq.playing )
         return;
 
-    let clock = AudioUtil.createTimer( audioContext, aTime, ( aTimerEvent ) =>
+    const clock = AudioUtil.createTimer( audioContext, aTime, ( aTimerEvent ) =>
     {
         aEvent.seq.playing = false;
         audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);

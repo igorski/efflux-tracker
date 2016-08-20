@@ -11,7 +11,7 @@ const EventFactory   = require( "../../src/js/model/factory/EventFactory" );
 const PatternFactory = require( "../../src/js/model/factory/PatternFactory" );
 const SongModel      = require( "../../src/js/model/SongModel" );
 
-describe( "EventUtil", function()
+describe( "EventUtil", () =>
 {
     /* setup */
 
@@ -21,7 +21,7 @@ describe( "EventUtil", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
         const browser = new MockBrowser();
         global.window = browser.getWindow();
@@ -29,28 +29,28 @@ describe( "EventUtil", function()
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
 
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should, when no length is given, calculate the duration as the minimum unit relative to the patterns length", function()
+    it( "should, when no length is given, calculate the duration as the minimum unit relative to the patterns length", () =>
     {
         const model       = new SongModel();
         const song        = model.createSong();
@@ -78,7 +78,7 @@ describe( "EventUtil", function()
             "expected event duration to be " + expectedLength + " seconds" );
     });
 
-    it( "should be able to update the position of a AudioEvent", function()
+    it( "should be able to update the position of a AudioEvent", () =>
     {
         const model       = new SongModel();
         const song        = model.createSong();
@@ -107,7 +107,7 @@ describe( "EventUtil", function()
             "expected event duration to be " + expectedLength + " seconds" );
     });
 
-    it( "should be able to update the position of an AudioEvent that spans several measures in duration", function()
+    it( "should be able to update the position of an AudioEvent that spans several measures in duration", () =>
     {
         const model       = new SongModel();
         const song        = model.createSong();
@@ -136,9 +136,11 @@ describe( "EventUtil", function()
             "expected event duration to be " + expectedLength + " seconds" );
     });
 
-    it( "should be able to clear the AudioEvent content for any requested step position", function()
+    it( "should be able to clear the AudioEvent content for any requested step position", () =>
     {
-        const pattern = PatternFactory.createEmptyPattern();
+        const song         = new SongModel().createSong();
+        const patternIndex = 0;
+        const pattern      = song.patterns[ patternIndex ];
 
         // generate some note content
 
@@ -154,11 +156,11 @@ describe( "EventUtil", function()
 
         // start clearing individual events and asserting the results
 
-        EventUtil.clearEvent( pattern, 0, 0 );
+        EventUtil.clearEvent( song, patternIndex, 0, 0 );
 
         assert.notStrictEqual( expected1, pchannel1[ 0 ]);
 
-        EventUtil.clearEvent( pattern, 1, 0 );
+        EventUtil.clearEvent( song, patternIndex, 1, 0 );
 
         assert.notStrictEqual( expected3, pchannel2[ 0 ]);
 
@@ -168,9 +170,11 @@ describe( "EventUtil", function()
         assert.strictEqual( expected4, pchannel2[ 1 ]);
     });
 
-    it( "should be able to remove the AudioEvent from the cached LinkedList when clearing the event", function()
+    it( "should be able to remove the AudioEvent from the cached LinkedList when clearing the event", () =>
     {
-        const pattern = PatternFactory.createEmptyPattern();
+        const song         = new SongModel().createSong();
+        const patternIndex = 0;
+        const pattern      = song.patterns[ patternIndex ];
 
         // generate some note content
 
@@ -187,19 +191,19 @@ describe( "EventUtil", function()
         const expected1node = list.add( expected1 );
         const expected2node = list.add( expected2 );
 
-        EventUtil.clearEvent( pattern, 0, 0, list );
+        EventUtil.clearEvent( song, patternIndex, 0, 0, list );
         assert.strictEqual( null, list.getNodeByData( expected1 ),
             "expected Node to have been removed after clearing of event" );
 
         assert.strictEqual( expected2node, list.getNodeByData( expected2 ),
             "expected other Node to not have been removed after clearing of event" );
 
-        EventUtil.clearEvent( pattern, 1, 1, list );
+        EventUtil.clearEvent( song, patternIndex, 1, 1, list );
         assert.strictEqual( null, list.getNodeByData( expected2 ),
             "expected Node to have been removed after clearing of event" );
     });
 
-    it( "should be able to retrieve the first event before the given event", function()
+    it( "should be able to retrieve the first event before the given event", () =>
     {
         const channelEvents = [];
 
@@ -217,4 +221,104 @@ describe( "EventUtil", function()
         assert.strictEqual( event1, EventUtil.getFirstEventBeforeStep( channelEvents, 1 ));
         assert.strictEqual( null,   EventUtil.getFirstEventBeforeStep( channelEvents, 0 ));
     });
+
+    it( "should update the sequence length of the previous event when linking a new event in the linked event list", () => {
+
+        const song          = new SongModel().createSong();
+        const patternIndex  = 0;
+        const channelIndex  = 0;
+        const lists         = [ new LinkedList() ]; // just a single list (we'll test on channel 0)
+        song.meta.tempo     = 120; // 120 BPM means each measure lasts for 2 seconds
+
+        const event1step = 0; // step 0 is at start offset of 0 seconds
+        const event2step = 8; // step 8 is at start offset of 1 second (half a 16 step measure at 120 BPM)
+
+        const event1 = createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
+        const event2 = createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
+
+        assert.strictEqual( 1, event1.seq.length,
+            "expected event 1 sequence length to have been updated to match" );
+
+        // insert new event in between
+
+        const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
+        const event3 = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
+
+        assert.strictEqual( .5, event1.seq.length,
+            "expected event 1 sequence length to have been updated to match insertion before previous next Node" );
+    });
+
+    it( "should update the sequence length of the previous event when linking a new event in another measure " +
+        "in the linked event list", () => {
+
+        const song          = new SongModel().createSong();
+        const pattern1Index = 0;
+        const pattern2Index = 2;
+        const patternAmount = pattern2Index + 1;
+        const channelIndex  = 0;
+        const lists         = [ new LinkedList() ]; // we'll operate on a single channel (0)
+
+        for ( let i = 0; i < patternAmount; ++i )
+            song.patterns[ i ] = PatternFactory.createEmptyPattern( 16 );
+
+        song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
+
+        const event1step = 0; // step 0 is at start offset of 0 seconds
+        const event2step = 4; // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM)
+                              // HOWEVER we will add this event at a different pattern index (pattern 2 == the 3rd
+                              // pattern, meaning we expect two full measures between event1 and event2 (4 seconds at 120 BPM)
+
+        const event1 = createNoteOnEvent( event1step, song, pattern1Index, channelIndex, lists );
+        const event2 = createNoteOnEvent( event2step, song, pattern2Index, channelIndex, lists );
+
+        assert.strictEqual( 4.5, event1.seq.length,
+            "expected event 1 sequence length to stretch across several measures" );
+
+        // insert new event in between
+
+        const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
+        const event3 = createNoteOnEvent( event3step, song, pattern1Index, channelIndex, lists );
+
+        assert.strictEqual( .5, event1.seq.length,
+            "expected event 1 sequence length to have been updated to match insertion before previous next Node" );
+    });
+
+    it( "should update the sequence length of the previous event when clearing a event in the linked event list", () => {
+
+        const song         = new SongModel().createSong();
+        const patternIndex = 0;
+        const channelIndex = 0;
+        const lists        = [ new LinkedList() ]; // just a single list (we'll test on channel 0)
+        song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
+
+        const event1step = 0;  // step 0 is at start offset of 0 seconds
+        const event2step = 4;  // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM))
+        const event3step = 12; // step 12 is at start offset of 1.5 second (three quarters of a 16 step measure at 120 BPM)
+
+        const event1 = createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
+        const event2 = createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
+        const event3 = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
+
+        assert.strictEqual( 0.5, event1.seq.length );
+
+        // remove middle event
+
+        EventUtil.clearEvent( song, patternIndex, channelIndex, event2step, lists[ channelIndex ] );
+
+        assert.strictEqual( 1.5, event1.seq.length,
+            "expected event 1 sequence length to have updated after removal of its next event" );
+    });
 });
+
+function createNoteOnEvent( step, song, patternIndex, channelIndex, lists ) {
+
+    const event   = EventFactory.createAudioEvent( 0, "C", 3, 1 );
+    const pattern = song.patterns[ patternIndex ];
+
+    pattern.channels[ channelIndex ][ step ] = event;
+
+    EventUtil.setPosition( event, pattern, patternIndex, step, song.meta.tempo );
+    EventUtil.linkEvent( event, channelIndex, song, lists );
+
+    return event;
+}

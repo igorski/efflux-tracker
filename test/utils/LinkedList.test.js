@@ -60,7 +60,13 @@ describe( "LinkedList", function()
         const list = new LinkedList();
         const obj1 = { title: "foo" };
 
+        assert.strictEqual( 0, list._length,
+            "expected list length to be 0 after construction" );
+
         const obj1node = list.add( obj1 );
+
+        assert.strictEqual( 1, list._length,
+            "expected list length to be 1 after addition of an Object" );
 
         assert.strictEqual( obj1node, list.head,
             "expected list to have the added Object as its head Node" );
@@ -75,7 +81,7 @@ describe( "LinkedList", function()
             "expected added node to not have a next node reference" );
     });
 
-    it( "should be able wrap added Objects into a Node Object", function()
+    it( "should be able to wrap added Objects into a Node Object", function()
     {
         const list = new LinkedList();
         const obj1 = { title: "foo" };
@@ -127,6 +133,9 @@ describe( "LinkedList", function()
 
         assert.strictEqual( obj2node, obj3node.previous,
             "expect the last node to have the second added node as its next property" );
+
+        assert.strictEqual( 3, list._length,
+            "expected list length to be 3 after addition of 3 Objects" );
     });
 
     it( "should be able to add an Object before an existing one", function()
@@ -170,6 +179,9 @@ describe( "LinkedList", function()
 
         assert.strictEqual( null, obj4node.previous,
             "expected newly added head not to have a previous Node" );
+
+        assert.strictEqual( 4, list._length,
+            "expected list length to be 4 after addition of 4 Objects" );
     });
 
     it( "should be able to add an Object after an existing one", function()
@@ -213,6 +225,9 @@ describe( "LinkedList", function()
 
         assert.strictEqual( obj2node, obj4node.previous,
             "expected second added Node to be the previous property of the new tail" );
+
+        assert.strictEqual( 4, list._length,
+            "expected list length to be 4 after addition of 4 Objects" );
     });
 
     it( "should be able to remove Objects from its internal list", function()

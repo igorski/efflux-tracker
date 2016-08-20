@@ -38,7 +38,7 @@ module.exports =
      */
     setPosition( event, pattern, patternNum, patternStep, tempo, length )
     {
-        const measureLength = ( 60 / tempo ) * 4; // TODO: the 4 is implying 4/4 time
+        const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
         event.seq.length             = ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength;
@@ -53,20 +53,21 @@ module.exports =
      *
      * @param {AUDIO_EVENT} event
      * @param {number} channelIndex index of the channel the event belongs to
-     * @param {Array.<PATTERN>} patterns
+     * @param {Object} song
      * @param {Array.<LinkedList>} lists
      */
-    linkEvent( event, channelIndex, patterns, lists )
+    linkEvent( event, channelIndex, song, lists )
     {
-        const list    = lists[ channelIndex ];
-        const existed = list.getNodeByData( event );
+        const list     = lists[ channelIndex ];
+        const existed  = list.getNodeByData( event );
+        const patterns = song.patterns;
 
         if ( existed )
             list.remove( existed );
 
         // find previous event through the pattern list
 
-        let foundEvent = false, compareEvent, channel, i, l, j, jl;
+        let foundEvent = false, compareEvent, channel, i, l, j, jl, insertedNode;
 
         for ( i = event.seq.startMeasure, l = patterns.length; i < l; ++i )
         {
@@ -86,12 +87,19 @@ module.exports =
                     // any event (with an action) beyond this point is
                     // the "next" event in the list for given event
 
-                    if ( compareEvent && compareEvent.action > 0 )
-                        return list.addBefore( compareEvent, event );
+                    if ( compareEvent && compareEvent.action > 0 ) {
+
+                        insertedNode = list.addBefore( compareEvent, event );
+                        updatePreviousEventLength( insertedNode, song.meta.tempo );
+                        return insertedNode;
+                    }
                 }
             }
         }
-        list.add( event ); // is new tail
+        insertedNode = list.add( event ); // is new tail
+        updatePreviousEventLength( insertedNode, song.meta.tempo );
+
+        return insertedNode;
     },
 
     /**
@@ -125,21 +133,29 @@ module.exports =
      * the given channel for the given pattern
      *
      * @public
-     * @param {PATTERN} pattern
+     * @param {Object} song
+     * @param {number} patternIndex
      * @param {number} channelNum
      * @param {number} step
      * @param {LinkedList=} list
      */
-    clearEvent( pattern, channelNum, step, list )
+    clearEvent( song, patternIndex, channelNum, step, list )
     {
-        const channel  = pattern.channels[ channelNum ];
+        const pattern = song.patterns[ patternIndex ];
+        const channel = pattern.channels[ channelNum ];
 
         if ( list ) {
 
             const listNode = list.getNodeByData( channel[ step ]);
 
-            if ( listNode )
+            if ( listNode ) {
+
+                const next = listNode.next;
                 listNode.remove();
+
+                if ( next )
+                    updatePreviousEventLength( next, song.meta.tempo );
+            }
         }
         delete channel[ step ];
     },
@@ -164,3 +180,41 @@ module.exports =
         return null;
     }
 };
+
+function updatePreviousEventLength( eventListNode, songTempo ) {
+
+    if ( eventListNode.previous ) {
+
+        const event     = eventListNode.data;
+        const prevEvent = eventListNode.previous.data;
+
+        if ( prevEvent.seq.startMeasure === event.seq.startMeasure ) {
+            prevEvent.seq.length = (
+                ( event.seq.startMeasureOffset - prevEvent.seq.startMeasureOffset )
+            );
+        }
+        else {
+
+            const currentStartMeasure = event.seq.startMeasure;
+            const measureLength       = calculateMeasureLength( songTempo );
+            let previousStartMeasure  = prevEvent.seq.startMeasure;
+            let length = measureLength - prevEvent.seq.startMeasureOffset;
+            let i = 0;
+
+            while ( previousStartMeasure < currentStartMeasure ) {
+
+                if ( i > 0 )
+                    length += measureLength;
+
+                ++previousStartMeasure;
+                ++i;
+            }
+            prevEvent.seq.length = length + event.seq.startMeasureOffset;
+        }
+    }
+}
+
+function calculateMeasureLength( tempo ) {
+
+    return ( 60 / tempo ) * 4; // TODO: the 4 is implying all songs will be in 4/4 time
+}

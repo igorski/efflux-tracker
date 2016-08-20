@@ -412,19 +412,26 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern, lists 
     if ( this.getSelectionLength() === 0 )
         return;
 
-    let pattern = song.patterns[ activePattern], event;
+    const pattern = song.patterns[ activePattern ];
+    let event;
 
-    for ( let cIndex = this.firstSelectedChannel; cIndex <= this.lastSelectedChannel; ++cIndex )
+    for ( let channelIndex = this.firstSelectedChannel; channelIndex <= this.lastSelectedChannel; ++channelIndex )
     {
-        if ( this.selectedChannels[ cIndex ].length > 0 )
+        if ( this.selectedChannels[ channelIndex ].length > 0 )
         {
             for ( let sIndex = this.minSelectedStep, l = this.maxSelectedStep; sIndex <= l; ++sIndex ) {
 
-                event = pattern.channels[ cIndex ][ sIndex ];
-                if ( event )
-                    lists[ cIndex ].remove( event );
+                event = pattern.channels[ channelIndex ][ sIndex ];
 
-                delete pattern.channels[ cIndex ][ sIndex ];
+                EventUtil.clearEvent(
+                    song,
+                    activePattern,
+                    channelIndex,
+                    sIndex,
+                    lists[ activePattern ]
+                );
+
+                delete pattern.channels[ channelIndex ][ sIndex ];
             }
         }
     }

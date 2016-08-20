@@ -45,6 +45,7 @@ const SettingsController         = require( "./controller/SettingsController" );
 const SongBrowserController      = require( "./controller/SongBrowserController" );
 const SystemController           = require( "./controller/SystemController" );
 const ObjectUtil                 = require( "./utils/ObjectUtil" );
+const EventUtil                  = require( "./utils/EventUtil" );
 const SongUtil                   = require( "./utils/SongUtil" );
 const LinkedList                 = require( "./utils/LinkedList" );
 const TemplateService            = require( "./services/TemplateService" );
@@ -126,6 +127,7 @@ else {
 
     [
         Messages.LOAD_SONG,
+        Messages.CREATE_LINKED_LISTS,
         Messages.SAVE_STATE
 
     ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -148,9 +150,14 @@ function handleBroadcast( type, payload )
                 efflux.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
                 SongUtil.resetPlayState( efflux.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
+                Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
                 efflux.StateModel.flush();
                 efflux.StateModel.store();
             }
+            break;
+
+        case Messages.CREATE_LINKED_LISTS:
+            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
             break;
 
         case Messages.SAVE_STATE:
