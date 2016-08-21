@@ -55,10 +55,10 @@ Node.prototype.remove = function() {
 
     // break references
 
-    this.data    = null;
-    this.prevous = null;
-    this.next    = null;
-    this._list   = null;
+    this.data     = null;
+    this.previous = null;
+    this.next     = null;
+    this._list    = null;
 };
 
 /* public methods */
