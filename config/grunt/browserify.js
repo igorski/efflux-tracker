@@ -22,8 +22,7 @@ module.exports = {
                 debug: false,
                 transform: [
                     ["babelify", {
-                        loose: "all",
-                        ignore: /WaveTables/
+                        loose: "all"
                     }],
                     "workerify"
                 ]

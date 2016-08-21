@@ -471,7 +471,7 @@ SelectionModel.prototype.pasteSelection = function( song, activePattern, activeC
                         clone.seq.playing = false;
                         EventUtil.setPosition( clone, target, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
                         targetPattern[ writeIndex ] = clone;
-                        EventUtil.linkEvent( clone, cIndex, song.patterns, lists );
+                        EventUtil.linkEvent( clone, cIndex, song, lists );
                     }
                 }
             });
