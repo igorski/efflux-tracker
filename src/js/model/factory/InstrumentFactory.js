@@ -30,6 +30,7 @@ const Config = require( "../../config/Config" );
  * @typedef {{
  *              id: number,
  *              name: string,
+ *              presetName: string,
  *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
  *              volume: number,
  *              filter : {
@@ -103,6 +104,7 @@ const InstrumentFactory = module.exports =
         return {
             id   : aId,
             name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
+            presetName: null,
             oscillators : [
                 InstrumentFactory.createOscillator( true  ),
                 InstrumentFactory.createOscillator( false ),

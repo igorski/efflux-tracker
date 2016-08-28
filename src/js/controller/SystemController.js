@@ -32,7 +32,7 @@ const Bowser   = require( "bowser" );
 /* private variables */
 
 let patternContainer, trackList, transportSection, patternEditor, helpSection,
-    blind, loader;
+    blind, loader, loadRequests = 0;
 
 module.exports =
 {
@@ -103,7 +103,7 @@ function handleBroadcast( type, payload )
 
         case Messages.SHOW_LOADER:
 
-            if ( !loader ) {
+            if ( ++loadRequests === 1 && !loader ) {
                 Pubsub.publish( Messages.SHOW_BLIND );
                 efflux.TemplateService.renderAsElement( "loader" ).then(( template ) => {
                     loader = template;
@@ -113,8 +113,9 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.HIDE_LOADER:
+            loadRequests = Math.max( 0, loadRequests - 1 );
 
-            if ( loader ) {
+            if ( loadRequests === 0 && loader ) {
                 Pubsub.publish( Messages.HIDE_BLIND );
                 loader.parentNode.removeChild( loader );
                 loader = null;

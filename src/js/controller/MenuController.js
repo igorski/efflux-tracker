@@ -22,15 +22,14 @@
  */
 "use strict";
 
-const Config              = require( "../config/Config" );
-const SongValidator       = require( "../model/validators/SongValidator" );
-const Copy                = require( "../i18n/Copy" );
-const Time                = require( "../utils/Time" );
-const SongUtil            = require( "../utils/SongUtil" );
-const SongAssemblyService = require( "../services/SongAssemblyService" );
-const Pubsub              = require( "pubsub-js" );
-const Messages            = require( "../definitions/Messages" );
-const zMIDI               = require( "zmidi" ).zMIDI;
+const Config     = require( "../config/Config" );
+const Copy       = require( "../i18n/Copy" );
+const Time       = require( "../utils/Time" );
+const ExportUtil = require( "../utils/ExportUtil" );
+const SongUtil   = require( "../utils/SongUtil" );
+const Pubsub     = require( "pubsub-js" );
+const Messages   = require( "../definitions/Messages" );
+const zMIDI      = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
@@ -72,14 +71,20 @@ const MenuController = module.exports =
 
             if ( canImportExport ) {
 
-                containerRef.querySelector( "#songImport" ).addEventListener( "click", handleImport );
-                containerRef.querySelector( "#songExport" ).addEventListener( "click", handleExport );
+                containerRef.querySelector( "#songImport" ).addEventListener( "click", ExportUtil.importSong );
+                containerRef.querySelector( "#songExport" ).addEventListener( "click", ( aEvent ) => {
+                    const song = efflux.activeSong;
+                    if ( isValid( song ))
+                        ExportUtil.exportSong( song );
+                } );
+                containerRef.querySelector( "#instrumentImport" ).addEventListener( "click", ExportUtil.importInstrument );
+                containerRef.querySelector( "#instrumentExport" ).addEventListener( "click", ( aEvent ) => {
+                    ExportUtil.exportInstruments( efflux.InstrumentModel.getInstruments() );
+                });
             }
 
-            if ( canRecord ) {
-
+            if ( canRecord )
                 containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
-            }
 
             if ( !zMIDI.isSupported() ) {
                 // a bit cheap, the only setting we (for now) support is related to MIDI, if
@@ -180,7 +185,6 @@ function handleSave( aEvent )
     }
 }
 
-
 function handleReset( aEvent )
 {
     Pubsub.publish( Messages.CONFIRM,
@@ -231,82 +235,8 @@ function isValid( song )
     return hasContent;
 }
 
-function handleImport( aEvent )
-{
-    // inline handler to overcome blocking of the file select popup by the browser
-
-    const fileBrowser = document.createElement( "input" );
-    fileBrowser.setAttribute( "type",   "file" );
-    fileBrowser.setAttribute( "accept", Config.FILE_EXTENSION );
-
-    const simulatedEvent = document.createEvent( "MouseEvent" );
-    simulatedEvent.initMouseEvent( "click", true, true, window, 1,
-                                   0, 0, 0, 0, false,
-                                   false, false, false, 0, null );
-
-    fileBrowser.dispatchEvent( simulatedEvent );
-    fileBrowser.addEventListener( "change", ( fileBrowserEvent ) =>
-    {
-        const reader = new FileReader();
-
-        reader.onerror = ( readerEvent ) =>
-        {
-            Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_FILE_LOAD" ));
-        };
-
-        reader.onload = ( readerEvent ) =>
-        {
-            const fileData = readerEvent.target.result;
-            const song     = SongAssemblyService.assemble( atob( fileData ));
-
-            // rudimentary check if we're dealing with a valid song
-
-            if ( SongValidator.isValid( song ))
-            {
-                efflux.SongModel.saveSong( song );
-                efflux.activeSong = song;
-                Pubsub.publish( Messages.SONG_IMPORTED, song );
-                Pubsub.publish( Messages.SONG_LOADED, song );
-            }
-            else {
-                Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_IMPORT" ));
-            }
-        };
-        // start reading file contents
-        reader.readAsText( fileBrowserEvent.target.files[ 0 ] );
-    });
-}
-
-function handleExport( aEvent )
-{
-    const song = efflux.activeSong;
-
-    if ( isValid( song ) ) {
-
-        // encode song data
-
-        const data = serializeSong( song );
-
-        // download file to disk
-
-        const pom = document.createElement( "a" );
-        pom.setAttribute( "href", "data:application/json;charset=utf-8," + encodeURIComponent( data ));
-        pom.setAttribute( "target", "_blank" ); // helps for Safari (opens content in window...)
-        pom.setAttribute( "download", song.meta.title + Config.FILE_EXTENSION );
-        pom.click();
-
-        Pubsub.publish( Messages.SONG_EXPORTED, song );
-        Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "SONG_EXPORTED", song.meta.title ));
-    }
-}
-
 function handleRecord( aEvent )
 {
     Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
     Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_ENABLED" ));
-}
-
-function serializeSong( song )
-{
-    return btoa( SongAssemblyService.disassemble( song ));
 }

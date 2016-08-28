@@ -113,6 +113,7 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENTS                 = "ins",
       INSTRUMENT_ID               = "i",
       INSTRUMENT_NAME             = "n",
+      INSTRUMENT_PRESET_NAME      = "pn",
       INSTRUMENT_VOLUME           = "v",
       INSTRUMENT_DELAY            = "d",
       INSTRUMENT_DELAY_ENABLED    = "e",
@@ -196,6 +197,7 @@ function assembleInstruments( song, xtkInstruments ) {
         song.instruments[ index ] = {
             id         : xtkInstrument[ INSTRUMENT_ID ],
             name       : xtkInstrument[ INSTRUMENT_NAME ],
+            presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
             delay      : {
                 enabled  : xtkDelay[ INSTRUMENT_DELAY_ENABLED ],
@@ -252,6 +254,7 @@ function disassembleInstruments( xtk, instruments ) {
 
         xtkInstrument[ INSTRUMENT_ID ]          = instrument.id;
         xtkInstrument[ INSTRUMENT_NAME ]        = instrument.name;
+        xtkInstrument[ INSTRUMENT_PRESET_NAME ] = instrument.presetName;
         xtkInstrument[ INSTRUMENT_VOLUME ]      = instrument.volume;
 
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ]  = {};

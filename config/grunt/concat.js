@@ -19,7 +19,7 @@ module.exports =
 
     // copy fixtures
 
-    fixtures :
+    fixturesSongs :
     {
         // add Array braces to encapsulate all files
         options: {
@@ -27,7 +27,19 @@ module.exports =
             footer: ']',
             separator: ','
         },
-        src : [ "<%= config.project.root %>/fixtures/**/*.json" ],
-        dest : "<%= config.target.env %>/Fixtures.js"
+        src : [ "<%= config.project.root %>/fixtures/songs/**/*.json" ],
+        dest : "<%= config.target.env %>/Songs.js"
+    },
+
+    fixturesInstruments :
+    {
+        // add Array braces to encapsulate all files
+        options: {
+            banner: '[',
+            footer: ']',
+            separator: ','
+        },
+        src : [ "<%= config.project.root %>/fixtures/instruments/**/*.json" ],
+        dest : "<%= config.target.env %>/Instruments.js"
     }
 };

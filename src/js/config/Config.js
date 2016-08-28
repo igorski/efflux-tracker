@@ -24,12 +24,14 @@
 
 module.exports =
 {
-    LOCAL_STORAGE_NAME          : "effluxData",
+    LOCAL_STORAGE_SONGS         : "effluxData",
+    LOCAL_STORAGE_INSTRUMENTS   : "effluxInstruments",
     INSTRUMENT_AMOUNT           : 8,
     WAVE_TABLE_SIZE             : 512,
     MAX_PATTERN_AMOUNT          : 128,
     MAX_OCTAVE                  : 8,
-    FILE_EXTENSION              : ".xtk",
+    SONG_FILE_EXTENSION         : ".xtk",
+    INSTRUMENT_FILE_EXTENSION   : ".xit",
 
     DEFAULT_FILTER_FREQ         : 880,
     DEFAULT_FILTER_Q            : 5,

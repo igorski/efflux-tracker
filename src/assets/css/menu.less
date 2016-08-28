@@ -33,14 +33,14 @@
     margin: 0;
 
     li {
-      display: inline;
+      display: inline-block;
       padding: 0 .5em 0 0;
       margin: 0;
       font-family: Montserrat, Helvetica, Verdana;
       cursor: pointer;
 
-      &:hover {
-        color: #FFF;
+      ul {
+        list-style: none;
       }
     }
   }
@@ -108,13 +108,45 @@
   }
 }
 
-@media screen and ( min-width: @app-width )
+/* tablet / desktop (everything larger than a phone) */
+
+@media screen and ( min-width: @mobile-width )
 {
   #menu {
     min-width: 100%;
     max-width: @ideal-width;
     margin: 0 auto;
     padding-left: 1em;
+  }
+  #header ul li {
+
+    &:hover {
+      color: #FFF;
+
+      ul {
+        display: block;
+      }
+    }
+
+    ul {
+      display: none;
+      position: absolute;
+      box-shadow: 0 0 5px rgba(0,0,0,.5);
+      padding: .5em;
+      .boxSize;
+      background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
+      background-repeat: repeat-x;
+
+      li {
+        display: block;
+        color: #b6b6b6;
+        padding: .25em .5em;
+
+        &:hover {
+          color: #FFF;
+        }
+      }
+    }
   }
 }
 
@@ -137,8 +169,6 @@
     ul {
       display: block;
       width: 100%;
-      background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
-      background-repeat: repeat-x;
 
       padding: 0;
 
@@ -149,13 +179,10 @@
         a {
           width: 100%;
         }
-
-        &:hover {
-          background-color: @color-1;
-        }
       }
     }
   }
+
   #menu {
     position: fixed;
     overflow-x: hidden;
@@ -171,10 +198,6 @@
 
     ul
     {
-      position: absolute;
-      top: @menu-height;
-      display: none;
-
       h1 {
         display: none;
       }
@@ -203,10 +226,26 @@
       }
     }
 
+    #menuList {
+      position: absolute;
+      top: @menu-height;
+      background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
+      background-repeat: repeat-x;
+      display: none;
+
+      .title {
+        display: none;
+      }
+    }
+
+    #fileMenu li {
+      padding-left: 0;
+    }
+
     &.opened {
       //height: 100%;
       position: absolute;
-      ul {
+      #menuList {
         display: block;
         height: 100%;
       }

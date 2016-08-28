@@ -57,7 +57,7 @@ module.exports =
 
         let i = options.length, option;
 
-        aValue = aValue.toString();
+        aValue = ( aValue !== undefined && aValue !== null ) ? aValue.toString() : "";
 
         while ( i-- )
         {
