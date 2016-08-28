@@ -201,19 +201,19 @@ function assembleInstruments( song, xtkInstruments ) {
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
             delay      : {
                 enabled  : xtkDelay[ INSTRUMENT_DELAY_ENABLED ],
-                cutoff   : xtkDelay[ INSTRUMENT_DELAY_CUTOFF ],
-                feedback : xtkDelay[ INSTRUMENT_DELAY_FEEDBACK ],
-                offset   : xtkDelay[ INSTRUMENT_DELAY_OFFSET ],
-                time     : xtkDelay[ INSTRUMENT_DELAY_TIME ],
-                type     : xtkDelay[ INSTRUMENT_DELAY_TYPE ]
+                type     : xtkDelay[ INSTRUMENT_DELAY_TYPE ],
+                cutoff   : parseFloat( xtkDelay[ INSTRUMENT_DELAY_CUTOFF ]),
+                feedback : parseFloat( xtkDelay[ INSTRUMENT_DELAY_FEEDBACK ]),
+                offset   : parseFloat( xtkDelay[ INSTRUMENT_DELAY_OFFSET ]),
+                time     : parseFloat( xtkDelay[ INSTRUMENT_DELAY_TIME ])
             },
             filter     : {
                 enabled   : xtkFilter[ INSTRUMENT_FILTER_ENABLED ],
-                depth     : xtkFilter[ INSTRUMENT_FILTER_DEPTH ],
-                frequency : xtkFilter[ INSTRUMENT_FILTER_FREQUENCY ],
+                depth     : parseFloat( xtkFilter[ INSTRUMENT_FILTER_DEPTH ]),
+                frequency : parseFloat( xtkFilter[ INSTRUMENT_FILTER_FREQUENCY ]),
+                q         : parseFloat( xtkFilter[ INSTRUMENT_FILTER_Q ] ),
+                speed     : parseFloat( xtkFilter[ INSTRUMENT_FILTER_SPEED ]),
                 lfoType   : xtkFilter[ INSTRUMENT_FILTER_LFO_TYPE ],
-                q         : xtkFilter[ INSTRUMENT_FILTER_Q ],
-                speed     : xtkFilter[ INSTRUMENT_FILTER_SPEED ],
                 type      : xtkFilter[ INSTRUMENT_FILTER_TYPE ]
             },
             oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )

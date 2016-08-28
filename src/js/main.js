@@ -103,7 +103,7 @@ else {
         AudioController.init( efflux, efflux.activeSong.instruments );
         SettingsController.init( document.body );
         MenuController.init( container.querySelector( "#menuSection" ), efflux );
-        InstrumentController.init( container, efflux );
+        InstrumentController.init( container, efflux, KeyboardController );
         MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
         SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
         SongBrowserController.init( document.body, efflux );

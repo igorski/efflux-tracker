@@ -35,7 +35,7 @@ const Pubsub            = require( "pubsub-js" );
 
 /* private properties */
 
-let container, efflux, view, canvas, wtDraw,
+let container, efflux, keyboardController, view, canvas, wtDraw,
     instrumentSelect, presetSelect, presetSave, presetName,
     oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
@@ -51,10 +51,11 @@ const InstrumentController = module.exports =
 {
     visible : false,
 
-    init( containerRef, effluxRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
-        container = containerRef;
-        efflux    = effluxRef;
+        container          = containerRef;
+        efflux             = effluxRef;
+        keyboardController = keyboardControllerRef;
 
         // prepare view
 
@@ -135,6 +136,8 @@ const InstrumentController = module.exports =
             instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
             presetSelect.addEventListener     ( "change", handlePresetSelect );
             presetSave.addEventListener       ( "click",  handlePresetSave );
+            presetName.addEventListener       ( "focus",  handlePresetFocus );
+            presetName.addEventListener       ( "blur",   handlePresetBlur );
             oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
             oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
             oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
@@ -425,6 +428,14 @@ function handlePresetSave( aEvent ) {
     }
 }
 
+function handlePresetFocus( aEvent ) {
+    keyboardController.setSuspended( true );
+}
+
+function handlePresetBlur( aEvent ) {
+    keyboardController.setSuspended( false );
+}
+
 function handleOscillatorEnabledChange( aEvent ) {
     const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     oscillator.enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
@@ -523,7 +534,7 @@ function updatePresetList() {
     Form.setOptions( presetSelect, list );
     Form.setSelectedOption( presetSelect, activeInstrument.presetName );
 
-    presetName.value = ( activeInstrument.presetName !== null ) ? activeInstrument.presetName : "";
+    presetName.value = ( typeof activeInstrument.presetName === "string" ) ? activeInstrument.presetName : "";
 }
 
 function invalidatePreset() {
