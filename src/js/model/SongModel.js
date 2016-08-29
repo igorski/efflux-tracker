@@ -52,7 +52,7 @@ SongModel.prototype.init = function()
 {
     /* upon initialization, get all locally stored songs */
     const self = this;
-    StorageUtil.getItem( Config.LOCAL_STORAGE_NAME ).then(
+    StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then(
         ( result ) => {
 
             if ( typeof result === "string" ) {
@@ -71,7 +71,8 @@ SongModel.prototype.init = function()
 
                 self.setSongs( songs );
                 self.persist();
-            });
+
+            }, "Songs.js" );
         }
     );
 };
@@ -207,5 +208,5 @@ SongModel.prototype.persist = function()
     this._songs.forEach( function( song, index ) {
         xtkSongs[ index ] = SongAssemblyService.disassemble( song );
     });
-    StorageUtil.setItem( Config.LOCAL_STORAGE_NAME, JSON.stringify( xtkSongs ));
+    StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( xtkSongs ));
 };

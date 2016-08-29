@@ -23,18 +23,21 @@
 "use strict";
 
 const Config            = require( "../config/Config" );
+const Copy              = require( "../i18n/Copy" );
 const WaveTableDraw     = require( "../components/WaveTableDraw" );
 const Manual            = require( "../definitions/Manual" );
 const Messages          = require( "../definitions/Messages" );
 const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
 const Form              = require( "../utils/Form" );
+const ObjectUtil        = require( "../utils/ObjectUtil" );
 const zCanvas           = require( "zCanvas" ).zCanvas;
 const Pubsub            = require( "pubsub-js" );
 
 /* private properties */
 
-let container, efflux, view, canvas, wtDraw,
-    instrumentSelect, oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
+let container, efflux, keyboardController, view, canvas, wtDraw,
+    instrumentSelect, presetSelect, presetSave, presetName,
+    oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
     attackControl, decayControl, sustainControl, releaseControl,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
@@ -42,14 +45,17 @@ let container, efflux, view, canvas, wtDraw,
 
 let activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
 
+const EMPTY_PRESET_VALUE = "null";
+
 const InstrumentController = module.exports =
 {
     visible : false,
 
-    init( containerRef, effluxRef )
+    init( containerRef, effluxRef, keyboardControllerRef )
     {
-        container = containerRef;
-        efflux    = effluxRef;
+        container          = containerRef;
+        efflux             = effluxRef;
+        keyboardController = keyboardControllerRef;
 
         // prepare view
 
@@ -59,6 +65,9 @@ const InstrumentController = module.exports =
         efflux.TemplateService.render( "instrumentEditor", view ).then(() => {
 
             instrumentSelect        = view.querySelector( "#instrumentSelect" );
+            presetSelect            = view.querySelector( "#presetSelect" );
+            presetSave              = view.querySelector( "#presetSave" );
+            presetName              = view.querySelector( "#presetName" );
             oscEnabledSelect        = view.querySelector( "#oscillatorEnabled" );
             oscWaveformSelect       = view.querySelector( "#oscillatorWaveformSelect" );
             oscVolumeControl        = view.querySelector( "#volume" );
@@ -114,6 +123,8 @@ const InstrumentController = module.exports =
                     }
                     else
                         cacheOscillatorWaveForm( instrumentRef.oscillators[ activeOscillatorIndex ] );
+
+                    invalidatePreset();
                 }
             });
 
@@ -123,6 +134,10 @@ const InstrumentController = module.exports =
             view.querySelector( ".help-button" ).addEventListener ( "click", handleHelp );
             view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
             instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
+            presetSelect.addEventListener     ( "change", handlePresetSelect );
+            presetSave.addEventListener       ( "click",  handlePresetSave );
+            presetName.addEventListener       ( "focus",  handlePresetFocus );
+            presetName.addEventListener       ( "blur",   handlePresetBlur );
             oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
             oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
             oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
@@ -151,6 +166,7 @@ const InstrumentController = module.exports =
             });
 
             updateWaveformSize();
+            updatePresetList();
         });
 
         // subscribe to Pubsub system
@@ -158,6 +174,7 @@ const InstrumentController = module.exports =
         [
             Messages.CLOSE_OVERLAYS,
             Messages.TOGGLE_INSTRUMENT_EDITOR,
+            Messages.SONG_LOADED,
             Messages.WINDOW_RESIZED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -224,6 +241,8 @@ const InstrumentController = module.exports =
         delayFeedbackControl.value = instrumentRef.delay.feedback;
         delayCutoffControl.value   = instrumentRef.delay.cutoff;
         delayOffsetControl.value   = instrumentRef.delay.offset + .5;
+
+        updatePresetList();
     }
 };
 
@@ -255,6 +274,10 @@ function handleBroadcast( type, payload )
 
         case Messages.WINDOW_RESIZED:
             updateWaveformSize();
+            break;
+
+        case Messages.SONG_LOADED:
+            updatePresetList();
             break;
     }
 }
@@ -303,6 +326,7 @@ function handleTuningChange( aEvent )
             break;
     }
     Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_TUNING, [ instrumentId, activeOscillatorIndex, oscillator ]);
+    invalidatePreset();
 }
 
 function handleEnvelopeChange( aEvent )
@@ -329,6 +353,7 @@ function handleEnvelopeChange( aEvent )
             oscillator.adsr.release = value;
             break;
     }
+    invalidatePreset();
 }
 
 function handleFilterChange( aEvent )
@@ -338,16 +363,17 @@ function handleFilterChange( aEvent )
     filter.frequency = parseFloat( frequencyControl.value );
     filter.q         = parseFloat( qControl.value );
     filter.speed     = parseFloat( speedControl.value );
-    filter.depth     = depthControl.value;
+    filter.depth     = parseFloat( depthControl.value );
     filter.lfoType   = Form.getSelectedOption( lfoSelect );
     filter.type      = Form.getSelectedOption( filterSelect );
     filter.enabled   = ( Form.getSelectedOption( filterEnabledSelect ) === "true" );
 
     Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrumentId, filter ]);
+    invalidatePreset();
 }
 
-function handleDelayChange( aEvent )
-{
+function handleDelayChange( aEvent ) {
+
     const delay = instrumentRef.delay;
 
     delay.enabled  = ( Form.getSelectedOption( delayEnabledSelect ) === "true" );
@@ -358,23 +384,66 @@ function handleDelayChange( aEvent )
     delay.offset   = parseFloat( delayOffsetControl.value ) - .5;
 
     Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS, [ instrumentId, delay ]);
+    invalidatePreset();
 }
 
-function handleInstrumentSelect( aEvent )
-{
+function handleInstrumentSelect( aEvent ) {
     instrumentId = parseFloat( Form.getSelectedOption( instrumentSelect ));
     InstrumentController.update();
 }
 
-function handleOscillatorEnabledChange( aEvent )
-{
+function handlePresetSelect( aEvent ) {
+
+    const selectedPresetName = Form.getSelectedOption( presetSelect );
+    if ( selectedPresetName !== EMPTY_PRESET_VALUE ) {
+
+        if ( instrumentRef && instrumentRef.presetName !== selectedPresetName ) {
+            let instrumentPreset = efflux.InstrumentModel.getInstrumentByPresetName( selectedPresetName );
+
+            if ( instrumentPreset ) {
+                const newInstrument = ObjectUtil.clone( instrumentPreset );
+                newInstrument.id = instrumentId;
+                newInstrument.name = instrumentRef.name;
+                instrumentRef = efflux.activeSong.instruments[ instrumentId ] = newInstrument;
+
+                InstrumentController.update();
+                cacheAllOscillators();
+            }
+        }
+    }
+}
+
+function handlePresetSave( aEvent ) {
+
+    const newPresetName = presetName.value.replace( "*", "" );
+    if ( newPresetName.trim().length === 0 ) {
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_NO_INS_NAME" ));
+    }
+    else {
+        instrumentRef.presetName = newPresetName;
+        if ( efflux.InstrumentModel.saveInstrument( ObjectUtil.clone( instrumentRef ) )) {
+            Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "INSTRUMENT_SAVED", newPresetName ));
+            updatePresetList();
+        }
+    }
+}
+
+function handlePresetFocus( aEvent ) {
+    keyboardController.setSuspended( true );
+}
+
+function handlePresetBlur( aEvent ) {
+    keyboardController.setSuspended( false );
+}
+
+function handleOscillatorEnabledChange( aEvent ) {
     const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     oscillator.enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
     cacheOscillatorWaveForm( oscillator );
+    invalidatePreset();
 }
 
-function handleOscillatorWaveformChange( aEvent )
-{
+function handleOscillatorWaveformChange( aEvent ) {
     const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ];
     instrumentRef.oscillators[ activeOscillatorIndex ].waveform = Form.getSelectedOption( oscWaveformSelect );
     showWaveformForOscillator( oscillator );
@@ -384,27 +453,27 @@ function handleOscillatorWaveformChange( aEvent )
         Form.setSelectedOption( oscEnabledSelect, true );
         oscillator.enabled = true;
     }
+    invalidatePreset();
 }
 
-function handleOscillatorVolumeChange( aEvent )
-{
+function handleOscillatorVolumeChange( aEvent ) {
     instrumentRef.oscillators[ activeOscillatorIndex ].volume = parseFloat( oscVolumeControl.value );
     Pubsub.publishSync(
         Messages.ADJUST_OSCILLATOR_VOLUME,
         [ instrumentId, activeOscillatorIndex, instrumentRef.oscillators[ activeOscillatorIndex ] ]
     );
+    invalidatePreset();
 }
 
-function handleInstrumentVolumeChange( aEvent )
-{
+function handleInstrumentVolumeChange( aEvent ) {
     instrumentRef.volume = parseFloat( instrumentVolumeControl.value );
     Pubsub.publishSync(
         Messages.ADJUST_INSTRUMENT_VOLUME, [ instrumentId, instrumentRef.volume ]
     );
+    invalidatePreset();
 }
 
-function showWaveformForOscillator( oscillator )
-{
+function showWaveformForOscillator( oscillator ) {
     if ( oscillator.waveform !== "CUSTOM" )
         wtDraw.generateAndSetTable( oscillator.waveform );
     else
@@ -413,16 +482,20 @@ function showWaveformForOscillator( oscillator )
     togglePitchSliders( oscillator.waveform !== "NOISE" ); // no pitch shifting for noise buffer
 }
 
-function cacheOscillatorWaveForm( oscillator )
-{
+function cacheAllOscillators() {
+    instrumentRef.oscillators.forEach(( oscillator ) => {
+        cacheOscillatorWaveForm( oscillator );
+    });
+}
+
+function cacheOscillatorWaveForm( oscillator ) {
     if ( oscillator.enabled && oscillator.waveform === "CUSTOM" )
         Pubsub.publishSync( Messages.SET_CUSTOM_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator.table ]);
     else
         Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_WAVEFORM, [ instrumentId, activeOscillatorIndex, oscillator ]);
 }
 
-function updateWaveformSize()
-{
+function updateWaveformSize() {
     const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
     const windowWidth = window.innerWidth;
     const width       = ( windowWidth < ideal ) ? windowWidth *  .9: ideal;
@@ -433,8 +506,7 @@ function updateWaveformSize()
     }
 }
 
-function togglePitchSliders( enabled )
-{
+function togglePitchSliders( enabled ) {
     [ octaveShiftControl, fineShiftControl ].forEach(( slider ) =>
     {
         if ( enabled )
@@ -442,4 +514,31 @@ function togglePitchSliders( enabled )
         else
             slider.setAttribute( "disabled", "disabled" );
     });
+}
+
+function updatePresetList() {
+
+    const activeInstrument = efflux.activeSong.instruments[ instrumentId ];
+    const presets = efflux.InstrumentModel.getInstruments();
+    const list    = [];
+
+    list.push({ title: Copy.get( "INPUT_PRESET" ), value: EMPTY_PRESET_VALUE });
+    presets.forEach(( preset ) => {
+        list.push({ title: preset.presetName, value: preset.presetName });
+    });
+    presets.sort(( a, b ) => {
+        if( a.presetName < b.presetName ) return -1;
+        if( a.presetName > b.presetName ) return 1;
+        return 0;
+    });
+    Form.setOptions( presetSelect, list );
+    Form.setSelectedOption( presetSelect, activeInstrument.presetName );
+
+    presetName.value = ( typeof activeInstrument.presetName === "string" ) ? activeInstrument.presetName : "";
+}
+
+function invalidatePreset() {
+
+    if ( instrumentRef.presetName !== null && presetName.value.indexOf("*") === -1 )
+        presetName.value += "*";
 }

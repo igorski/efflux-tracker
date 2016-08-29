@@ -35,15 +35,15 @@ module.exports =
      * with the main application script
      *
      * @param {!Function} callback will receive parsed JSON Object
+     * @param {string} filename to load
      */
-    load( callback )
+    load( callback, filename )
     {
-        Pubsub.publish( Messages.SHOW_LOADER );
-
-        Qajax( Config.getBasePath() + "/Fixtures.js" )
+        showLoader();
+        Qajax( Config.getBasePath() + "/" + filename )
             .then(( success ) =>
             {
-                Pubsub.publish( Messages.HIDE_LOADER );
+                hideLoader();
 
                 if ( success ) {
                     const data = success.responseText;
@@ -54,7 +54,15 @@ module.exports =
                     catch( e ) {}
                 }
             },
-            ( error ) => Pubsub.publish( Messages.HIDE_LOADER )
+            ( error ) => hideLoader
         );
     }
 };
+
+function showLoader() {
+    Pubsub.publish( Messages.SHOW_LOADER );
+}
+
+function hideLoader() {
+    Pubsub.publish( Messages.HIDE_LOADER );
+}

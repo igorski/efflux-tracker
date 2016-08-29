@@ -24,6 +24,7 @@
 
 const Config                     = require( "./config/Config" );
 const EditorModel                = require( "./model/EditorModel" );
+const InstrumentModel            = require( "./model/InstrumentModel" );
 const SelectionModel             = require( "./model/SelectionModel" );
 const SongModel                  = require( "./model/SongModel" );
 const StateModel                 = require( "./model/StateModel" );
@@ -61,17 +62,16 @@ const container = document.querySelector( "#application" );
 
 // prepare application model
 
-let songModel = new SongModel();
-
 const efflux = window.efflux =
 {
     EditorModel     : new EditorModel(),
+    InstrumentModel : new InstrumentModel(),
     SelectionModel  : new SelectionModel(),
-    SongModel       : songModel,
+    SongModel       : new SongModel(),
     StateModel      : new StateModel(),
     TemplateService : new TemplateService(),
-    Pubsub          : Pubsub,                 // expose publishing / subscribe bus
-    activeSong      : songModel.createSong(), // create new empty song
+    Pubsub          : Pubsub, // expose publishing / subscribe bus
+    activeSong      : null,   // create new empty song
     eventList       : new Array( Config.INSTRUMENT_AMOUNT )
 };
 
@@ -91,13 +91,19 @@ else {
         for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
             efflux.eventList[ i ] = new LinkedList();
 
+        // controllers ready, application models
+
+        efflux.InstrumentModel.init();
+        efflux.SongModel.init();
+        efflux.activeSong = efflux.SongModel.createSong();
+
         // initialize application controllers
 
         KeyboardController.init( efflux, SequencerController );
         AudioController.init( efflux, efflux.activeSong.instruments );
         SettingsController.init( document.body );
         MenuController.init( container.querySelector( "#menuSection" ), efflux );
-        InstrumentController.init( container, efflux );
+        InstrumentController.init( container, efflux, KeyboardController );
         MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
         SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
         SongBrowserController.init( document.body, efflux );
@@ -112,10 +118,6 @@ else {
         HelpController.init( container.querySelector( "#helpSection" ), efflux );
         ConfirmController.init( container, efflux );
         SystemController.init();
-
-        // controllers ready, initialize models
-
-        songModel.init();
 
         // MIDI is currently only supported in Chrome
 

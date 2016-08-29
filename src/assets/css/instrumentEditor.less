@@ -1,10 +1,12 @@
 @idealInstrumentEditorWidth: ( @app-width * .9 );
-@idealInstrumentEditorHeight: 540px;
+@idealInstrumentEditorHeight: 580px;
 
 #instrumentEditor
 {
   .EditorComponent;
   .Overlay;
+
+  height: auto;
 
   canvas {
     border-radius: 7px;
@@ -45,8 +47,7 @@
 
 #oscillatorTabs {
 
-  float: left;
-  clear: left;
+  display: inline-block;
   margin: .5em 0 0;
 
   li {
@@ -84,8 +85,7 @@
   }
 
   #oscillatorEditor {
-    clear: left;
-    float: left;
+    display: inline-block;
   }
 }
 
@@ -124,20 +124,27 @@
   margin: 1em 0;
 }
 
+#instrumentPresets {
+  display: inline-block;
+  width: 100%;
+
+  .save {
+    float: right;
+  }
+}
+
 @media screen and ( min-width: @idealInstrumentEditorWidth )
 {
   #instrumentEditor {
-
     top: 50%;
     left: 50%;
     width: @idealInstrumentEditorWidth;
-    height: @idealInstrumentEditorHeight;
     margin-left: -@idealInstrumentEditorWidth / 2;
     margin-top: -@idealInstrumentEditorHeight / 2;
   }
 
   #instrumentOscillatorEditor {
-    float: left;
+    display: inline-block;
     width: 66%;
     padding: 1em;
     border: 2px solid #666;
@@ -147,17 +154,16 @@
   }
 
   #instrumentModulesEditor {
-    float: right;
+    display: inline-block;
     width: 33%;
   }
 }
 
-@media screen and ( max-width: @mobile-width )
+@media screen and ( max-width: @idealInstrumentEditorWidth )
 {
   #instrumentEditor {
 
     position: absolute;
-    height: auto;
 
     .instrument-parameters {
       width: 100%;

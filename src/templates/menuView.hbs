@@ -1,13 +1,22 @@
-<ul id="songButtons">
-    <li id="songLoad">Load</li>
-    <li id="songSave">Save</li>
+<ul id="menuList">
+    <li>
+        <span class="title">File</span>
+        <ul id="fileMenu">
+            <li id="songLoad">Load song</li>
+            <li id="songSave">Save song</li>
 {{#if addExport}}
-    <li id="songImport">Import</li>
-    <li id="songExport">Export</li>
+            <li id="songImport">Import song</li>
+            <li id="songExport">Export song</li>
 {{/if}}
-    <li id="songReset">Reset</li>
+            <li id="songReset">Reset song</li>
+{{#if addExport}}
+            <li id="instrumentImport">Import instrument presets</li>
+            <li id="instrumentExport">Export instrument presets</li>
+{{/if}}
+        </ul>
+    </li>
+    <li id="settingsBtn">Settings</li>
     {{#if addSave}}
         <li id="audioRecord">Record output</li>
     {{/if}}
-    <li id="settingsBtn">Settings</li>
 </ul>
