@@ -22,6 +22,7 @@
  */
 "use strict";
 
+const Config   = require( "../config/Config" );
 const SongUtil = require( "../utils/SongUtil" );
 const Messages = require( "../definitions/Messages" );
 const Pubsub   = require( "pubsub-js" );
@@ -69,7 +70,9 @@ const MetaController = module.exports =
             });
 
             instrumentEditBtn.addEventListener( "click", handleInstrumentSelect );
-            container.addEventListener( "mouseover", handleMouseOver );
+
+            if ( Config.canHover() )
+                container.addEventListener( "mouseover", handleMouseOver );
         });
 
         Pubsub.subscribe( Messages.SONG_LOADED, handleBroadcast );

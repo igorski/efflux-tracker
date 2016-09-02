@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const Bowser = require( "bowser" );
+
 module.exports =
 {
     LOCAL_STORAGE_SONGS         : "effluxData",
@@ -59,8 +61,7 @@ module.exports =
      * @public
      * @return {string}
      */
-    getBasePath()
-    {
+    getBasePath(){
         return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
     },
 
@@ -70,9 +71,20 @@ module.exports =
      * @public
      * @return {boolean}
      */
-    isDevMode()
-    {
+    isDevMode(){
         // simple check whether we're running through the connect plugin
         return ( window.location.hostname === "localhost" || window.location.port === "3000" );
+    },
+
+    /**
+     * queries whether hover states (for help topics) are
+     * supported in the current environment
+     *
+     * @return {boolean}
+     */
+    canHover() {
+        // no hover on iOS as it ensures we have weird behaviour where you have
+        // to click links and buttons twice (once for hover/focus, second for click)
+        return !Bowser.ios;
     }
 };

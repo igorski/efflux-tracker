@@ -77,8 +77,10 @@ const PatternTrackListController = module.exports =
 
         stepSelect.addEventListener( "change", handlePatternStepChange );
 
-        const pSection = document.querySelector( "#patternSection" );
-        pSection.addEventListener( "mouseover", handleMouseOver );
+        if ( Config.canHover() ) {
+            const pSection = document.querySelector( "#patternSection" );
+            pSection.addEventListener( "mouseover", handleMouseOver );
+        }
 
         // subscribe to pubsub messaging
 

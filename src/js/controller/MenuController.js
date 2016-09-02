@@ -101,7 +101,9 @@ const MenuController = module.exports =
             // add event listeners
 
             toggle.addEventListener( "click",     handleToggle );
-            menu.addEventListener  ( "mouseover", handleMouseOver );
+
+            if ( Config.canHover() )
+                menu.addEventListener( "mouseover", handleMouseOver );
 
             Pubsub.publish( Messages.MENU_INITIALIZED );
         });
