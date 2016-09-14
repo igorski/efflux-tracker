@@ -156,14 +156,16 @@ function handleClose() {
 
 function handleConfirm() {
 
-    const firstPatternValue = num( firstPattern );
-    const lastPatternValue  = num( lastPattern );
-    const firstChannelValue = num( firstChannel );
-    const lastChannelValue  = num( lastChannel );
-    const pastePatternValue = num( pastePattern ) + 1; // insert after this pattern index
+    const song            = efflux.activeSong;
+    const patterns        = song.patterns;
+    const maxPatternValue = patterns.length - 1;
+    const maxChannelValue = song.instruments.length - 1;
 
-    const song         = efflux.activeSong;
-    const patterns     = song.patterns;
+    const firstPatternValue = Math.min( maxPatternValue, num( firstPattern ));
+    const lastPatternValue  = Math.min( maxPatternValue, num( lastPattern ));
+    const firstChannelValue = Math.min( maxChannelValue, num( firstChannel ));
+    const lastChannelValue  = Math.min( maxChannelValue, num( lastChannel ));
+    const pastePatternValue = Math.min( maxPatternValue, num( pastePattern ) + 1 ); // +1 as we insert after this index
 
     const patternsToClone = patterns.slice( firstPatternValue, lastPatternValue + 1 );
 
