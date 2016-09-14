@@ -165,7 +165,7 @@ function handleConfirm() {
     const lastPatternValue  = Math.min( maxPatternValue, num( lastPattern ));
     const firstChannelValue = Math.min( maxChannelValue, num( firstChannel ));
     const lastChannelValue  = Math.min( maxChannelValue, num( lastChannel ));
-    const pastePatternValue = Math.min( maxPatternValue, num( pastePattern ) + 1 ); // +1 as we insert after this index
+    const pastePatternValue = Math.min( maxPatternValue, num( pastePattern )) + 1; // +1 as we insert after this index
 
     const patternsToClone = patterns.slice( firstPatternValue, lastPatternValue + 1 );
 
