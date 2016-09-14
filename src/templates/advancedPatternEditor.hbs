@@ -1,0 +1,27 @@
+<div id="advancedPatternEditor">
+    <div class="header">
+        <button class="close-button">x</button>
+    </div>
+    <h4>Advanced pattern editor</h4>
+    <fieldset>
+        <div class="wrapper input">
+            <label for="startPattern">Copy pattern range:</label>
+            <input type="number" id="apeFirstPattern" min="1" max="1" value="1">
+            <input type="number" id="apeLastPattern" min="1" max="1" value="1">
+        </div>
+    </fieldset>
+    <fieldset>
+        <div class="wrapper input">
+            <label for="startPattern">Copy channel range:</label>
+            <input type="number" id="apeFirstChannel" min="1" max="8" value="1">
+            <input type="number" id="apeLastChannel" min="1" max="8" value="8">
+        </div>
+    </fieldset>
+    <fieldset>
+        <div class="wrapper input">
+            <label for="advPastePattern">Insert after pattern:</label>
+            <input type="number" id="apePastePattern" min="1" max="1" value="1">
+        </div>
+    </fieldset>
+    <button class="confirm-button">Copy content</button>
+</div>

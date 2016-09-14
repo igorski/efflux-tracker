@@ -149,5 +149,19 @@ module.exports =
                 return option.value;
         }
         return "";
+    },
+
+    /**
+     * sets focus on the given element
+     *
+     * @public
+     * @param {Element} aElement
+     */
+    focus( aElement ) {
+
+        if ( aElement && typeof aElement.focus === "function" ) {
+
+            setTimeout(() => aElement.focus(), 250 );
+        }
     }
 };

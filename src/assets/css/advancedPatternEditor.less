@@ -1,0 +1,58 @@
+#advancedPatternEditor {
+
+  .EditorComponent;
+  .Overlay;
+  .noSelect;
+  padding: .25em 1em;
+  border-radius: 7px;
+  box-shadow: 0 0 25px rgba(0,0,0,.5);
+
+  h4 {
+    margin: .75em 0;
+  }
+
+  fieldset {
+
+    h2 {
+      padding-left: 0;
+    }
+  }
+
+  .wrapper.input {
+
+    label {
+      width: 50%;
+      display: inline-block;
+    }
+    input {
+      display: inline-block;
+    }
+  }
+
+  .confirm-button {
+    width: 100%;
+    padding: .5em 1em;
+  }
+}
+
+@media screen and ( max-width: @mobile-width )
+{
+  #advancedPatternEditor {
+    border-radius: 0;
+  }
+}
+
+@apeWidth: 450px;
+@apeHeight: 240px;
+
+@media screen and ( min-width: @apeWidth )
+{
+  #advancedPatternEditor {
+    top: 50%;
+    left: 50%;
+    width: @apeWidth;
+    height: @apeHeight;
+    margin-left: -( @apeWidth / 2 );
+    margin-top: -( @apeHeight / 2);
+  }
+}

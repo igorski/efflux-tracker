@@ -22,37 +22,38 @@
  */
 "use strict";
 
-const Config                     = require( "./config/Config" );
-const EditorModel                = require( "./model/EditorModel" );
-const InstrumentModel            = require( "./model/InstrumentModel" );
-const SelectionModel             = require( "./model/SelectionModel" );
-const SongModel                  = require( "./model/SongModel" );
-const StateModel                 = require( "./model/StateModel" );
-const AudioController            = require( "./controller/AudioController" );
-const ConfirmController          = require( "./controller/ConfirmController" );
-const HelpController             = require( "./controller/HelpController" );
-const InstrumentController       = require( "./controller/InstrumentController" );
-const KeyboardController         = require( "./controller/KeyboardController" );
-const MenuController             = require( "./controller/MenuController" );
-const MetaController             = require( "./controller/MetaController" );
-const MidiController             = require( "./controller/MidiController" );
-const ModuleParamController      = require( "./controller/ModuleParamController" );
-const NoteEntryController        = require( "./controller/NoteEntryController" );
-const NotificationController     = require( "./controller/NotificationController" );
-const PatternEditorController    = require( "./controller/PatternEditorController" );
-const PatternTrackListController = require( "./controller/PatternTrackListController" );
-const SequencerController        = require( "./controller/SequencerController" );
-const SettingsController         = require( "./controller/SettingsController" );
-const SongBrowserController      = require( "./controller/SongBrowserController" );
-const SystemController           = require( "./controller/SystemController" );
-const ObjectUtil                 = require( "./utils/ObjectUtil" );
-const EventUtil                  = require( "./utils/EventUtil" );
-const SongUtil                   = require( "./utils/SongUtil" );
-const LinkedList                 = require( "./utils/LinkedList" );
-const TemplateService            = require( "./services/TemplateService" );
-const Messages                   = require( "./definitions/Messages" );
-const Pubsub                     = require( "pubsub-js" );
-const zMIDI                      = require( "zmidi" ).zMIDI;
+const Config                          = require( "./config/Config" );
+const EditorModel                     = require( "./model/EditorModel" );
+const InstrumentModel                 = require( "./model/InstrumentModel" );
+const SelectionModel                  = require( "./model/SelectionModel" );
+const SongModel                       = require( "./model/SongModel" );
+const StateModel                      = require( "./model/StateModel" );
+const AudioController                 = require( "./controller/AudioController" );
+const ConfirmController               = require( "./controller/ConfirmController" );
+const HelpController                  = require( "./controller/HelpController" );
+const InstrumentController            = require( "./controller/InstrumentController" );
+const KeyboardController              = require( "./controller/KeyboardController" );
+const MenuController                  = require( "./controller/MenuController" );
+const MetaController                  = require( "./controller/MetaController" );
+const MidiController                  = require( "./controller/MidiController" );
+const ModuleParamController           = require( "./controller/ModuleParamController" );
+const NoteEntryController             = require( "./controller/NoteEntryController" );
+const NotificationController          = require( "./controller/NotificationController" );
+const PatternEditorController         = require( "./controller/PatternEditorController" );
+const PatternTrackListController      = require( "./controller/PatternTrackListController" );
+const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
+const SequencerController             = require( "./controller/SequencerController" );
+const SettingsController              = require( "./controller/SettingsController" );
+const SongBrowserController           = require( "./controller/SongBrowserController" );
+const SystemController                = require( "./controller/SystemController" );
+const ObjectUtil                      = require( "./utils/ObjectUtil" );
+const EventUtil                       = require( "./utils/EventUtil" );
+const SongUtil                        = require( "./utils/SongUtil" );
+const LinkedList                      = require( "./utils/LinkedList" );
+const TemplateService                 = require( "./services/TemplateService" );
+const Messages                        = require( "./definitions/Messages" );
+const Pubsub                          = require( "pubsub-js" );
+const zMIDI                           = require( "zmidi" ).zMIDI;
 
 /* initialize application */
 
@@ -115,6 +116,7 @@ else {
             container.querySelector( "#patternContainer" ),
             efflux, KeyboardController
         );
+        AdvancedPatternEditorController.init( container, efflux, KeyboardController );
         HelpController.init( container.querySelector( "#helpSection" ), efflux );
         ConfirmController.init( container, efflux );
         SystemController.init();

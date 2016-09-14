@@ -74,6 +74,7 @@ const PatternTrackListController = module.exports =
         document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
         document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
         document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
+        document.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
 
         stepSelect.addEventListener( "change", handlePatternStepChange );
 
@@ -392,6 +393,10 @@ function handlePatternDelete( aEvent )
 
         Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
     }
+}
+
+function handlePatternAdvanced( aEvent ) {
+    Pubsub.publish( Messages.OPEN_ADVANCED_PATTERN_EDITOR );
 }
 
 function handlePatternStepChange( aEvent )

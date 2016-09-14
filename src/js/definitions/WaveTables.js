@@ -2,7 +2,7 @@
  * ready-made wave tables which can be fed as a periodic waveform
  * into OscillatorNodes
  *
- * taken from: http://chromium.googlecode.com/svn/trunk/samples/audio/wave-tables/
+ * taken from: https://github.com/ehsan/chromium-audio-samples/tree/mozilla/wave-tables
  *
  * contains: SAW, TRIANGLE, SQUARE
  */

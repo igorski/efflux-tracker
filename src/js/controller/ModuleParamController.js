@@ -222,7 +222,12 @@ function handleClose()
 
     Pubsub.publishSync( Messages.HIDE_BLIND );
 
-    dispose();
+    keyboardController.reset();
+
+    if ( element.parentNode ) {
+        element.parentNode.removeChild( element );
+    }
+    closeCallback = null;
 }
 
 function handleHelp( aEvent )
@@ -260,16 +265,6 @@ function handleReady()
         } ]);
 //    }
     handleClose();
-}
-
-function dispose()
-{
-    keyboardController.reset();
-
-    if ( element.parentNode ) {
-        element.parentNode.removeChild( element );
-    }
-    closeCallback = null;
 }
 
 /* module selection */

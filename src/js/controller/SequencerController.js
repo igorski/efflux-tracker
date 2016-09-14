@@ -528,8 +528,10 @@ function enqueueEvent( aEvent, aTime, aEventMeasure, aEventChannel )
 
     const patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
     const patterns        = efflux.activeSong.patterns;
+    const eventPattern    = patterns[ aEventMeasure ];
 
-    aEvent.seq.mpLength = patternDuration / patterns[ aEventMeasure ].steps;
+    if ( eventPattern )
+        aEvent.seq.mpLength = patternDuration / eventPattern.steps;
 
     // play back the event in the AudioController
 

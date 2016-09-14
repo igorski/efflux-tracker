@@ -85,6 +85,7 @@ KNOWN BUGS
 ROADMAP
 -------
 
+ * Separate PatternMenu from PatternTrackListController
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Minimize vendor libraries
