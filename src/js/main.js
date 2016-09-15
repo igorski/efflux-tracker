@@ -106,7 +106,7 @@ else {
         MenuController.init( container.querySelector( "#menuSection" ), efflux );
         InstrumentController.init( container, efflux, KeyboardController );
         MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
-        SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController );
+        SequencerController.init( container.querySelector( "#transportSection" ), efflux, AudioController, KeyboardController );
         SongBrowserController.init( document.body, efflux );
         NoteEntryController.init( container, efflux, KeyboardController );
         ModuleParamController.init( container, efflux, KeyboardController );

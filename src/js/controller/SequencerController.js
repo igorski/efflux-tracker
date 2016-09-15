@@ -23,6 +23,7 @@
 "use strict";
 
 const Config       = require( "../config/Config" );
+const Form         = require( "../utils/Form" );
 const AudioUtil    = require( "../utils/AudioUtil" );
 const EventUtil    = require( "../utils/EventUtil" );
 const SongUtil     = require( "../utils/SongUtil" );
@@ -35,8 +36,8 @@ const Pubsub       = require( "pubsub-js" );
 
 /* private properties */
 
-let efflux, audioController, audioContext, worker, editorModel,
-    playBTN, loopBTN, recordBTN, settingsToggle, tempoSlider, currentPositionTitle,
+let efflux, audioController, keyboardController, audioContext, worker, editorModel,
+    playBTN, loopBTN, recordBTN, settingsToggle, tempoSlider, currentPositionInput,
     maxPositionTitle, metronomeToggle, tempoDisplay;
 
 let playing           = false,
@@ -61,13 +62,15 @@ const SequencerController = module.exports =
      * @param {Element} containerRef
      * @param {Object} effluxRef
      * @param {AudioController} audioControllerRef
+     * @param {KeyboardController} keyboardControllerRef
      */
-    init( containerRef, effluxRef, audioControllerRef )
+    init( containerRef, effluxRef, audioControllerRef, keyboardControllerRef )
     {
-        efflux          = effluxRef;
-        audioController = audioControllerRef;
-        audioContext    = audioControllerRef.getContext();
-        editorModel     = efflux.EditorModel;
+        efflux             = effluxRef;
+        audioController    = audioControllerRef;
+        keyboardController = keyboardControllerRef;
+        audioContext       = audioControllerRef.getContext();
+        editorModel        = efflux.EditorModel;
 
         // create LinkedLists to store all currently playing events for all channels
 
@@ -91,7 +94,7 @@ const SequencerController = module.exports =
             tempoSlider          = containerRef.querySelector( "#songTempo" );
             metronomeToggle      = containerRef.querySelector( ".icon-metronome" );
             settingsToggle       = containerRef.querySelector( ".icon-settings" ); // mobile view only
-            currentPositionTitle = document.querySelector( "#currentPattern .current" );
+            currentPositionInput = document.querySelector( "#currentPattern .current" );
             maxPositionTitle     = document.querySelector( "#currentPattern .total" );
 
             // add event listeners
@@ -102,6 +105,9 @@ const SequencerController = module.exports =
             tempoSlider.addEventListener    ( "input", handleTempoChange );
             metronomeToggle.addEventListener( "click", handleMetronomeToggle );
             settingsToggle.addEventListener ( "click", handleSettingsToggle );
+            currentPositionInput.addEventListener( "focus",  handleCurrentPositionInteraction );
+            currentPositionInput.addEventListener( "change", handleCurrentPositionInteraction );
+            currentPositionInput.addEventListener( "blur",   handleCurrentPositionInteraction );
             document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
             document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
 
@@ -245,8 +251,8 @@ const SequencerController = module.exports =
         tempoSlider.value      = meta.tempo;
         tempoDisplay.innerHTML = meta.tempo + " BPM";
 
-        currentPositionTitle.innerHTML = ( editorModel.activePattern + 1 ).toString();
-        maxPositionTitle.innerHTML     = efflux.activeSong.patterns.length.toString();
+        currentPositionInput.value = ( editorModel.activePattern + 1 ).toString();
+        maxPositionTitle.innerHTML = efflux.activeSong.patterns.length.toString();
     }
 };
 
@@ -366,6 +372,38 @@ function handleSettingsToggle( e )
         e.target.classList.remove( "active" );
 
     body.classList.toggle( cssClass );
+}
+
+function handleCurrentPositionInteraction( e ) {
+
+    const element = e.target;
+    switch ( e.type ) {
+
+        case "focus":
+            keyboardController.setSuspended( true );
+            break;
+
+        case "blur":
+            keyboardController.setSuspended( false );
+            break;
+
+        case "change":
+
+            let value = Math.min( parseInt( element.value, 10 ), efflux.activeSong.patterns.length );
+
+            if ( isNaN( value ))
+                value = currentMeasure + 1;
+
+            element.value = value;
+            --value; // normalize to Array indices (0 == first, not 1)
+
+            if ( value !== currentMeasure ) {
+                currentMeasure = editorModel.activePattern = value;
+                Pubsub.publish( Messages.PATTERN_SWITCH, value );
+            }
+            Form.blur( element );
+            break;
+    }
 }
 
 function handlePatternNavBack( aEvent )

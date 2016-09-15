@@ -161,7 +161,21 @@ module.exports =
 
         if ( aElement && typeof aElement.focus === "function" ) {
 
-            setTimeout(() => aElement.focus(), 250 );
+            setTimeout(() => aElement.focus(), 100 );
+        }
+    },
+
+    /**
+     * unsets focus on the given element
+     *
+     * @public
+     * @param {Element} aElement
+     */
+    blur( aElement ) {
+
+        if ( aElement && typeof aElement.blur === "function" ) {
+
+            setTimeout(() => aElement.blur(), 100 );
         }
     }
 };

@@ -79,19 +79,20 @@ KNOWN BUGS
 ----------
 
  * pitch down automation works in reverse...
- * altering delay time only works from module parameter automation, not when dragging its slider in the instrument editor...
  * delay module parameter mutations don't glide
+ * delay time is clamped to 0 - 1 yet the application uses a different range
 
 ROADMAP
 -------
 
  * Separate PatternMenu from PatternTrackListController
+ * Separate view logic from controllers
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Minimize vendor libraries
  * Add pattern jump instructions
  * Add cut/paste icons for touch screen devices
  * Add EQ for each individual instrument for mix balancing
- * Improve arrow key navigation within patterns (there are odd jumps when switching direction)
+ * Improve arrow key navigation within patterns (there are odd visual jumps when switching direction)
  * Implement Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)

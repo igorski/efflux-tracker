@@ -48,10 +48,30 @@
 
     // measure indicator
     &#currentPattern {
-      display: inline-block;
-      width: 65px;
-      text-align: center;
+      display: inline-flex;
+      width: 95px;
       color: #FFF;
+
+      span {
+        flex-grow: 1;
+        margin-top: 2px;
+      }
+
+      .current {
+        width: 28px; // fits "333"
+        height: 15px;
+        border: 1px solid #b7babe;
+        font-weight: bold;
+        margin-right: .5em;
+        color: #FFF;
+        background-color: transparent;
+        text-align: center;
+      }
+    }
+
+    // pattern jump buttons
+    &#patternNext {
+      padding-left: 0;
     }
 
     &.icon-metronome {
