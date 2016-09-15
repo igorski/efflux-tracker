@@ -1,0 +1,70 @@
+{
+  "id": 0,
+  "name": "Instrument 0",
+  "volume": 0.71,
+  "delay": {
+    "enabled": false,
+    "type": 0,
+    "cutoff": 880,
+    "feedback": 0.5,
+    "offset": 0,
+    "time": 0.5
+  },
+  "filter": {
+    "enabled": true,
+    "depth": 50,
+    "frequency": 1032.2,
+    "q": 5,
+    "speed": 0.5,
+    "lfoType": "off",
+    "type": "lowpass"
+  },
+  "oscillators": [
+    {
+      "enabled": true,
+      "adsr": {
+        "attack": 0,
+        "decay": 0.36,
+        "sustain": 0.08,
+        "release": 0.02
+      },
+      "detune": -45.8,
+      "fineShift": 0,
+      "octaveShift": 0,
+      "volume": 1,
+      "waveform": "NOISE",
+      "table": 0
+    },
+    {
+      "enabled": false,
+      "adsr": {
+        "attack": 0,
+        "decay": 0,
+        "sustain": 0.75,
+        "release": 0
+      },
+      "detune": 0,
+      "fineShift": 0,
+      "octaveShift": 0,
+      "volume": 1,
+      "waveform": "SAW",
+      "table": 0
+    },
+    {
+      "enabled": false,
+      "adsr": {
+        "attack": 0,
+        "decay": 0,
+        "sustain": 0.75,
+        "release": 0
+      },
+      "detune": 0,
+      "fineShift": 0,
+      "octaveShift": 0,
+      "volume": 1,
+      "waveform": "SAW",
+      "table": 0
+    }
+  ],
+  "presetName": "FACTORY drum kick"
+}
