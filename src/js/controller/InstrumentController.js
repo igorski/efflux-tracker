@@ -408,6 +408,7 @@ function handlePresetSelect( aEvent ) {
 
                 InstrumentController.update();
                 cacheAllOscillators();
+                Pubsub.publishSync( Messages.APPLY_INSTRUMENT_MODULES );
             }
         }
     }

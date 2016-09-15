@@ -159,6 +159,7 @@ const AudioController = module.exports =
         [   Messages.SONG_LOADED,
             Messages.PLAYBACK_STARTED,
             Messages.PLAYBACK_STOPPED,
+            Messages.APPLY_INSTRUMENT_MODULES,
             Messages.TOGGLE_OUTPUT_RECORDING,
             Messages.SET_CUSTOM_WAVEFORM,
             Messages.ADJUST_OSCILLATOR_TUNING,
@@ -384,6 +385,10 @@ function handleBroadcast( type, payload )
             playing = true;
             applyModules();
             applyRecordingState();
+            break;
+
+        case Messages.APPLY_INSTRUMENT_MODULES:
+            applyModules();
             break;
 
         case Messages.PLAYBACK_STOPPED:

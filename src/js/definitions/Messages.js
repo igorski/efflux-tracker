@@ -63,6 +63,7 @@ module.exports =
     REFRESH_PATTERN_VIEW      : "SNG:4",
     PATTERN_STEPS_UPDATED     : "SNG:5",  // payload consists of number describing new pattern length
     CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
+    APPLY_INSTRUMENT_MODULES  : "SNG:7",
 
     // sequencer messages
 
@@ -77,7 +78,7 @@ module.exports =
     TOGGLE_INPUT_RECORDING     : "SEQ:8",
     NOTE_ON                    : "SEQ:9",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
     NOTE_OFF                   : "SEQ:10", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    PATTERN_SWITCH             : "SEQ:11",  // payload consists of number describing new pattern index
+    PATTERN_SWITCH             : "SEQ:11", // payload consists of number describing new pattern index
     PATTERN_AMOUNT_UPDATED     : "SEQ:12",
     PATTERN_JUMP_PREV          : "SEQ:13",
     PATTERN_JUMP_NEXT          : "SEQ:14",
