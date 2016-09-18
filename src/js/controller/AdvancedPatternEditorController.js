@@ -23,7 +23,6 @@
 "use strict";
 
 const Messages       = require( "../definitions/Messages" );
-const EventFactory   = require( "../model/factory/EventFactory" );
 const PatternFactory = require( "../model/factory/PatternFactory" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
 const Form           = require( "../utils/Form" );

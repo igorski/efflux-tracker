@@ -162,7 +162,7 @@ function invokeWorker( serviceRef, aTemplateName, aData, aCallback )
             }
         }
     };
-    if ( typeof aTemplateName !== "string")debugger;
+
     serviceRef._worker.addEventListener( "message", handler );
     serviceRef._worker.postMessage({
         cmd: "render",
