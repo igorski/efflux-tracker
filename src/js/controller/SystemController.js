@@ -206,6 +206,8 @@ function calculateDimensions( aEvent )
     trackList.style.width        = targetWidth;
     patternContainer.style.width = targetWidth;
 
+    // TODO : can we do this with proper flexbox usage ?
+
     // side containers should be as tall as the pattern container (help container is scrollable)
 
     requestAnimationFrame(() => {

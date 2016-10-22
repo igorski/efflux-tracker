@@ -3,6 +3,8 @@
 #center {
   width: 100%;
   padding-bottom: 1em;
+  display: -webkit-flex;
+  display: flex;
 }
 
 #patternEditor {
@@ -16,7 +18,8 @@
 #patternEditor,
 #patternTrackList,
 #helpSection {
-  float: left;
+  display: -webkit-inline-flex;
+  display: inline-flex;
 }
 
 @media screen and ( max-width: @tablet-portrait-width )
