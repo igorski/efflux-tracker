@@ -37,6 +37,7 @@ function WaveTableDraw( width, height, updateHandler )
     this.table            = [];
     this.updateHandler    = updateHandler;
     this.interactionCache = { x: -1, y: -1 };
+    this.updateRequested  = false;
 }
 zSprite.extend( WaveTableDraw );
 
@@ -182,7 +183,16 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
 
         aEvent.preventDefault();
 
-        this.updateHandler( this.table );
+        // don't hog the CPU by firing the callback instantly
+
+        if ( !this.updateRequested ) {
+            this.updateRequested = true;
+            const self = this;
+            requestAnimationFrame(() => {
+                self.updateHandler( self.table );
+                self.updateRequested = false;
+            });
+        }
     }
     else if ( aEvent.type === "touchstart" ||
               aEvent.type === "mousedown" )

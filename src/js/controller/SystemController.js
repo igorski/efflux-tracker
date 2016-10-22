@@ -32,7 +32,10 @@ const Bowser   = require( "bowser" );
 /* private variables */
 
 let patternContainer, trackList, transportSection, patternEditor, helpSection,
-    blind, loader, loadRequests = 0;
+    blind, loader, calculationPending = false, scrollPending = false, loadRequests = 0;
+
+const getStyle = Style.getStyle;
+let transportWidth, patternEditorWidth, helpSectionWidth, trackListHeight;
 
 module.exports =
 {
@@ -124,7 +127,14 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_STEPS_UPDATED:
         case Messages.DISPLAY_HELP:
-            calculateDimensions();
+
+            if ( !calculationPending ) {
+                calculationPending = true;
+                requestAnimationFrame(() => {
+                    calculateDimensions();
+                    calculationPending = false;
+                });
+            }
             break;
 
         case Messages.SONG_LOADED:
@@ -143,7 +153,17 @@ function handleEvent( aEvent )
             break;
 
         case "scroll":
-            Pubsub.publish( Messages.WINDOW_SCROLLED );
+
+            // only fire this event on RAF to avoid
+            // DOM thrashing by the subscribed listeners
+
+            if ( !scrollPending ) {
+                scrollPending = true;
+                requestAnimationFrame(() => {
+                    Pubsub.publish( Messages.WINDOW_SCROLLED );
+                    scrollPending = false;
+                });
+            }
             break;
     }
 }
@@ -169,23 +189,28 @@ function calculateDimensions( aEvent )
     trackList        = trackList        || document.querySelector( "#patternTrackList" );
     helpSection      = helpSection      || document.querySelector( "#helpSection" );
 
-    const gs = Style.getStyle;
+    // avoid thrashing by reading styles first
 
-    // unsetting patternContainer width allows for accurate centerWrapper calculation
+    transportWidth     = getStyle( transportSection, "width" );
+    patternEditorWidth = getStyle( patternEditor,    "width" );
+    helpSectionWidth   = getStyle( helpSection,      "width" );
 
-    patternContainer.style.width = "0px";
+    const targetWidth = (
 
-    trackList.style.width        =
-    patternContainer.style.width = (
-
-        parseFloat( gs( transportSection, "width" )) -
-        parseFloat( gs( patternEditor,  "width" )) -
-        parseFloat( gs( helpSection,    "width" ))
+        parseFloat( transportWidth ) -
+        parseFloat( patternEditorWidth ) -
+        parseFloat( helpSectionWidth )
 
     ) + "px";
 
+    trackList.style.width        = targetWidth;
+    patternContainer.style.width = targetWidth;
+
     // side containers should be as tall as the pattern container (help container is scrollable)
 
-    helpSection.style.height   = gs( trackList, "height" );
-    patternEditor.style.height = gs( trackList, "height" );
+    requestAnimationFrame(() => {
+        trackListHeight = getStyle( trackList, "height" );
+        helpSection.style.height   = trackListHeight;
+        patternEditor.style.height = trackListHeight;
+    });
 }

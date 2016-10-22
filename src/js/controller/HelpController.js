@@ -76,7 +76,7 @@ function handleBroadcast( type, payload )
 
                 if (( now - lastHelpRequest ) > DELAY ) {
 
-                    efflux.TemplateService.render( payload, contentContainer, payload, null, false, false ).then(( template ) => {
+                    efflux.TemplateService.render( payload, contentContainer, payload, false, false ).then(( template ) => {
 
                         if ( template.length > 0 )
                             contentContainer.innerHTML = template;

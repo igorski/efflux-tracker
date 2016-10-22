@@ -145,10 +145,10 @@ function handleOpen() {
 
 function handleClose() {
 
-    Pubsub.publishSync( Messages.HIDE_BLIND );
-    keyboardController.reset();
-
     if ( element.parentNode ) {
+
+        Pubsub.publishSync( Messages.HIDE_BLIND );
+        keyboardController.reset();
         element.parentNode.removeChild( element );
     }
 }

@@ -29,7 +29,7 @@ const DOM      = require( "zjslib" ).DOM;
 /* private properties */
 
 let container, efflux, indiceContainer, controlContainer;
-let stepAmount = 0, patternIndices, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
+let stepAmount = 0, activeIndex = 0, patternIndices, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
 
 module.exports =
 {
@@ -109,7 +109,7 @@ function handleBroadcast( type, payload )
 
             rafPending = true;
 
-            requestAnimationFrame( function()
+            requestAnimationFrame(() =>
             {
                 rafPending = false;
 
@@ -124,13 +124,20 @@ function handleBroadcast( type, payload )
 
                 let i = patternIndices.length, number;
 
+                // remove current active class
+
+                number = patternIndices[ activeIndex ];
+                if ( number ) {
+                    number.classList.remove( "active" );
+                }
+
                 while ( i-- )
                 {
                     number = patternIndices[ i ];
-                    if ( i * diff === step )
+                    if ( i * diff === step ) {
                         number.classList.add( "active" );
-                    else
-                        number.classList.remove( "active" );
+                        activeIndex = i;
+                    }
                 }
             });
             break;

@@ -156,13 +156,16 @@ function invokeWorker( serviceRef, aTemplateName, aData, aCallback )
         const data = msg.data;
         if ( data && data.cmd === "ready" ) {
             if ( data.template === aTemplateName ) {
-                serviceRef.applyTemplate( data.template, data.html );
+
                 serviceRef._worker.removeEventListener( "message", handler );
-                aCallback( data.html );
+
+                requestAnimationFrame(() => {
+                    serviceRef.applyTemplate( data.template, data.html );
+                    aCallback( data.html );
+                });
             }
         }
     };
-
     serviceRef._worker.addEventListener( "message", handler );
     serviceRef._worker.postMessage({
         cmd: "render",

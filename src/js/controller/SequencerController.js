@@ -248,11 +248,15 @@ const SequencerController = module.exports =
     update()
     {
         const meta = efflux.activeSong.meta;
-        tempoSlider.value      = meta.tempo;
-        tempoDisplay.innerHTML = meta.tempo + " BPM";
 
-        currentPositionInput.value = ( editorModel.activePattern + 1 ).toString();
-        maxPositionTitle.innerHTML = efflux.activeSong.patterns.length.toString();
+        requestAnimationFrame(() => {
+
+            tempoSlider.value      = meta.tempo;
+            tempoDisplay.innerHTML = meta.tempo + " BPM";
+
+            currentPositionInput.value = ( editorModel.activePattern + 1 ).toString();
+            maxPositionTitle.innerHTML = efflux.activeSong.patterns.length.toString();
+        });
     }
 };
 
