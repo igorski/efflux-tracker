@@ -78,7 +78,7 @@ module.exports =
             Messages.HIDE_LOADER,
             Messages.CLOSE_OVERLAYS,
             Messages.PATTERN_STEPS_UPDATED,
-            Messages.DISPLAY_HELP,
+            Messages.HELP_SECTION_UPDATED,
             Messages.SONG_LOADED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -96,12 +96,12 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.SHOW_BLIND:
-            blind.classList.add( "active" );
+            document.body.classList.add( "blind" );
             break;
 
         case Messages.HIDE_BLIND:
         case Messages.CLOSE_OVERLAYS:
-            blind.classList.remove( "active" );
+            document.body.classList.remove( "blind" );
             break;
 
         case Messages.SHOW_LOADER:
@@ -126,7 +126,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.PATTERN_STEPS_UPDATED:
-        case Messages.DISPLAY_HELP:
+        case Messages.HELP_SECTION_UPDATED:
 
             if ( !calculationPending ) {
                 calculationPending = true;
@@ -206,13 +206,13 @@ function calculateDimensions( aEvent )
     trackList.style.width        = targetWidth;
     patternContainer.style.width = targetWidth;
 
-    // TODO : can we do this with proper flexbox usage ?
-
     // side containers should be as tall as the pattern container (help container is scrollable)
 
     requestAnimationFrame(() => {
-        trackListHeight = getStyle( trackList, "height" );
-        helpSection.style.height   = trackListHeight;
-        patternEditor.style.height = trackListHeight;
+
+        // TODO : can we not do this at all with proper flexbox usage ?
+
+        trackList.style.height = "auto"; // force Flexbox calculation
+        helpSection.style.maxHeight = getStyle( trackList, "height" );
     });
 }

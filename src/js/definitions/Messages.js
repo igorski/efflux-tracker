@@ -50,6 +50,7 @@ module.exports =
     PATTERN_SET_HOR_SCROLL       : "UI:9", // payload is number indicating pattern track list view horizontal scroll offset
     OPEN_ADVANCED_PATTERN_EDITOR : "UI:10",
     MENU_INITIALIZED             : "UI:MI",
+    HELP_SECTION_UPDATED         : "UI:11",
 
     // song messages
 

@@ -82,6 +82,8 @@ function handleBroadcast( type, payload )
                             contentContainer.innerHTML = template;
 
                         currentSection = payload;
+
+                        Pubsub.publishSync( Messages.HELP_SECTION_UPDATED );
                     });
                 }
                 lastHelpRequest = now;

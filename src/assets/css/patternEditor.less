@@ -26,8 +26,6 @@
 
   .controls {
 
-    float: left;
-
     &.fixed {
       position: fixed;
       top: @menu-height;
@@ -65,8 +63,10 @@
   }
 
   .indices {
-    float: right;
+
+    position: absolute;
     width: 20px;
+    left: 50px;
 
     li {
       display: block;
@@ -243,8 +243,7 @@
       display: none;
     }
     #patternMenu {
-      display: -webkit-flex;
-      display: flex;
+      .Flex;
 
       li {
         flex-grow: 1;
