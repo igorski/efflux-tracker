@@ -23,19 +23,17 @@
   background-color: #000;
   vertical-align: top;
   position: relative;
+  min-width: 54px;
 
   .controls {
 
-    &.fixed {
-      position: fixed;
-      top: @menu-height;
-    }
+    z-index: 10;
 
     li {
 
       width: 40px;
       height: 40px;
-      margin: .5em 0 .5em .5em;
+      margin: .5em;
       border-radius: 50%;
       background-color: #FFF;
       background-repeat: no-repeat;
@@ -85,6 +83,14 @@
       }
     }
   }
+
+
+  &.fixed {
+    .controls {
+      position: fixed;
+      top: @menu-height;
+    }
+  }
 }
 
 #patternContainer
@@ -92,6 +98,7 @@
   position: relative;
   width: 200px; // will be calculated by JS (see PatternTrackListController)
   overflow-x: scroll;
+  overflow-y: hidden;
 
   .wrapper {
     width: ( 8 * @patternWidth );
@@ -230,6 +237,33 @@
   #patternContainer {
     overflow-x: hidden; // no need to show scroll
     padding-bottom: 15px;
+  }
+}
+
+@media screen and ( max-width: 1250px )
+{
+  #patternEditor {
+    .indices {
+      display: none;
+    }
+  }
+}
+
+/* app view */
+
+@media screen and ( min-width: 1250px )
+{
+  #patternEditor {
+    width: 75px;
+  }
+
+  #patternMenu {
+    .Flex;
+
+    li {
+      flex-grow: 1;
+      border-right: 1px solid #000;
+    }
   }
 }
 

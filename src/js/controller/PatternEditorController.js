@@ -82,9 +82,9 @@ function handleBroadcast( type, payload )
                 const threshold = ( controlOffsetY = controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
 
                 if ( scrollY > threshold )
-                    controlContainer.classList.add( "fixed" );
+                    container.classList.add( "fixed" );
                 else
-                    controlContainer.classList.remove( "fixed" );
+                    container.classList.remove( "fixed" );
 
                 lastWindowScrollY = scrollY;
             }
