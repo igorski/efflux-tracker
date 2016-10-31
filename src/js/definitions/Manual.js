@@ -27,7 +27,7 @@ module.exports =
     /**
      * URLs to all online help pages
      */
-    PARAM_ENTRY_HELP       : "http://www.igorski.nl/efflux/help/automation",
-    NOTE_ENTRY_HELP        : "http://www.igorski.nl/efflux/help/note-entry",
-    INSTRUMENT_EDITOR_HELP : "http://www.igorski.nl/efflux/help/instrument-editor"
+    PARAM_ENTRY_HELP       : "https://www.igorski.nl/efflux/help/automation",
+    NOTE_ENTRY_HELP        : "https://www.igorski.nl/efflux/help/note-entry",
+    INSTRUMENT_EDITOR_HELP : "https://www.igorski.nl/efflux/help/instrument-editor"
 };

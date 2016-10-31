@@ -20,7 +20,7 @@ Sounds cool, but I don't want to build from source, I just want to tinker with t
 -------------------------------------------------------------------------------------
 
 Of course, it was made to allow for easy composition, so let's cut the chatter!
-You can use the application right now from  your web browser by visiting [this link](http://www.igorski.nl/experiment/efflux).
+You can use the application right now from  your web browser by visiting [this link](https://www.igorski.nl/experiment/efflux).
 
 Project outline
 ---------------
