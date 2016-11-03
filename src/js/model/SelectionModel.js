@@ -430,8 +430,7 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern, lists 
                     sIndex,
                     lists[ activePattern ]
                 );
-
-                delete pattern.channels[ channelIndex ][ sIndex ];
+                pattern.channels[ channelIndex ][ sIndex ] = 0;
             }
         }
     }
