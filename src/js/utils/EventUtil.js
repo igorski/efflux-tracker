@@ -157,7 +157,7 @@ module.exports =
                     updatePreviousEventLength( next, song.meta.tempo );
             }
         }
-        delete channel[ step ];
+        channel[ step ] = 0;
     },
 
     /**

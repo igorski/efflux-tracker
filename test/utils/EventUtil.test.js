@@ -159,10 +159,12 @@ describe( "EventUtil", () =>
         EventUtil.clearEvent( song, patternIndex, 0, 0 );
 
         assert.notStrictEqual( expected1, pchannel1[ 0 ]);
+        assert.strictEqual( 0, pchannel1[ 0 ]); // event should now be 0
 
         EventUtil.clearEvent( song, patternIndex, 1, 0 );
 
         assert.notStrictEqual( expected3, pchannel2[ 0 ]);
+        assert.strictEqual( 0, pchannel2[ 0 ]); // event should now be 0
 
         // assert remaining events are still existent
 
