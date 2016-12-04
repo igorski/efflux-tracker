@@ -25,8 +25,10 @@
 const Pubsub         = require( "pubsub-js" );
 const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
+const States         = require( "../definitions/States" );
 const EventFactory   = require( "../model/factory/EventFactory" );
 const PatternFactory = require( "../model/factory/PatternFactory" );
+const StateFactory   = require( "../model/factory/StateFactory" );
 const Form           = require( "../utils/Form" );
 const EventUtil      = require( "../utils/EventUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
@@ -164,7 +166,9 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.HIGHLIGHT_ACTIVE_STEP:
-            stepHighlight.style.top = ( payload * 32 ) + "px";
+            if ( typeof payload === "number" )
+                stepHighlight.style.top = ( payload * 32 ) + "px";
+
             highlightActiveStep();
             break;
 
@@ -206,26 +210,27 @@ function highlightActiveStep()
 
     let selection, pContainer, items, item;
 
-    for ( let i = 0, l = pContainers.length; i < l; ++i )
+    for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex )
     {
-        pContainer = pContainers[ i ];
-        selection  = selectionModel.selectedChannels[ i ];
-        items      = grabPatternContainerStepFromTemplate( i );
+        pContainer = pContainers[ pIndex ];
+        selection  = selectionModel.selectedChannels[ pIndex ];
+        items      = grabPatternContainerStepFromTemplate( pIndex );
         pContainer.querySelectorAll( "li" );
 
-        let j = items.length;
-        while ( j-- )
-        {
-            item = items[ j ].classList;
+        let sIndex = items.length;
 
-            if ( i === editorModel.activeInstrument && j === activeStep )
+        while ( sIndex-- )
+        {
+            item = items[ sIndex ].classList;
+
+            if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
                 item.add( activeStyle );
             else
                 item.remove( activeStyle );
 
-            // highlight selection
+            // highlight selection if set
 
-            if ( selection && selection.indexOf( j ) > -1 )
+            if ( selection && selection.indexOf( sIndex ) > -1 )
                 item.add( selectedStyle );
             else
                 item.remove( selectedStyle );
@@ -235,19 +240,14 @@ function highlightActiveStep()
 
 function removeEventAtHighlightedStep()
 {
-    if ( selectionModel.hasSelection() )
-        selectionModel.deleteSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
-    else
-        EventUtil.clearEvent(
-            efflux.activeSong,
-            editorModel.activePattern,
-            editorModel.activeInstrument,
-            editorModel.activeStep,
-            efflux.eventList[ editorModel.activeInstrument ]
-        );
-
-    PatternTrackListController.update(); // sync view with model
-    Pubsub.publish( Messages.SAVE_STATE );
+    Pubsub.publishSync(
+        Messages.SAVE_STATE,
+        StateFactory.getAction( States.DELETE_EVENT, {
+            efflux:        efflux,
+            addHandler:    addEventAtPosition,
+            updateHandler: PatternTrackListController.update
+        })
+    );
 }
 
 function handleInteraction( aEvent )
@@ -442,73 +442,37 @@ function handleMouseOver( aEvent )
 }
 
 /**
- * adds given AudioEvent at the currently highlighted position
+ * adds given AudioEvent at the currently highlighted position or step defined in optData
  *
  * @param {AUDIO_EVENT} event
  * @param {Object=} optData optional data with event properties
+ * @param {boolean=} optStoreInUndoRedo optional, whether to store in state history, defaults to true
  */
-function addEventAtPosition( event, optData )
+function addEventAtPosition( event, optData, optStoreInUndoRedo )
 {
-    let patternIndex = editorModel.activePattern,
-        channelIndex = editorModel.activeInstrument,
-        step         = editorModel.activeStep;
+    optStoreInUndoRedo   = ( typeof optStoreInUndoRedo === "boolean" ) ? optStoreInUndoRedo : true;
+    const undoRedoAction = StateFactory.getAction( States.ADD_EVENT, {
+        efflux:        efflux,
+        event:         event,
+        optEventData:  optData,
+        updateHandler: ( optHighlightActiveStep ) => {
 
-    // if options Object was given, use those values instead of current sequencer values
+            if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
+                // move to the next step in the pattern (unless executed from undo/redo)
+                const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
 
-    if ( optData )
-    {
-        patternIndex = ( typeof optData.patternIndex === "number" ) ? optData.patternIndex : patternIndex;
-        channelIndex = ( typeof optData.channelIndex === "number" ) ? optData.channelIndex : channelIndex;
-        step         = ( typeof optData.step         === "number" ) ? optData.step         : step;
-    }
+                if ( ++editorModel.activeStep > maxStep )
+                    editorModel.activeStep = maxStep;
 
-    const pattern = efflux.activeSong.patterns[ patternIndex ],
-          channel = pattern.channels[ channelIndex ];
-
-    EventUtil.setPosition(
-        event, pattern, patternIndex, step,
-        efflux.activeSong.meta.tempo
-    );
-
-    // remove previous event if one existed at the insertion point
-
-    if ( channel[ step ])
-        EventUtil.clearEvent( efflux.activeSong, patternIndex, channelIndex, step, efflux.eventList[ patternIndex ]);
-
-    channel[ step ] = event;
-
-    // update linked list for AudioEvents
-    EventUtil.linkEvent( event, channelIndex, efflux.activeSong, efflux.eventList );
-
-    if ( optData && optData.newEvent === true ) {
-
-        // new events by default take the instrument of the previously declared note in
-        // the current patterns event channel
-
-        const node = efflux.eventList[ channelIndex ].getNodeByData( event );
-        const prevEvent = ( node ) ? node.previous : null;
-
-        if ( prevEvent && prevEvent.data.seq.startMeasure === event.seq.startMeasure &&
-             prevEvent.instrument !== editorModel.activeInstrument &&
-             event.instrument     === editorModel.activeInstrument ) {
-
-            event.instrument = prevEvent.data.instrument;
+                selectionModel.clearSelection();
+                highlightActiveStep();
+            }
+            PatternTrackListController.update();
         }
-    }
+    });
 
-    // TODO: this is a duplicate from KeyboardController !! (this moves to the next step in the track)
-    const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
-
-    if ( ++editorModel.activeStep > maxStep )
-        editorModel.activeStep = maxStep;
-
-    selectionModel.clearSelection();
-
-    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
-    // E.O. TODO
-
-    PatternTrackListController.update();
-    Pubsub.publish( Messages.SAVE_STATE );
+    if ( optStoreInUndoRedo )
+        Pubsub.publishSync( Messages.SAVE_STATE, undoRedoAction );
 }
 
 /**

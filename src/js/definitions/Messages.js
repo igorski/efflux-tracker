@@ -96,7 +96,7 @@ module.exports =
     ADD_EVENT_AT_POSITION      : "ED:7", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
     ADD_OFF_AT_POSITION        : "ED:8",
     REMOVE_NOTE_AT_POSITION    : "ED:9",
-    SAVE_STATE                 : "ED:10",
+    SAVE_STATE                 : "ED:10", // payload is Object { undo: Function, redo: Function }
     EDIT_MOD_PARAMS_FOR_STEP   : "ED:11",
     EDIT_NOTE_FOR_STEP         : "ED:12",
 

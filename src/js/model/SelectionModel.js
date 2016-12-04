@@ -115,6 +115,20 @@ SelectionModel.prototype.setSelectionChannelRange = function( firstChannel, last
 };
 
 /**
+ * retrieve the contents of the current selection
+ *
+ * @public
+ * @param {Object} song
+ * @param {number} activePattern
+ * @return {Array.<Object>}
+ */
+SelectionModel.prototype.getSelection = function( song, activePattern ) {
+    const out = [];
+    this.copySelection( song, activePattern, out );
+    return out;
+};
+
+/**
  * sets the selected steps within the selection to given range
  *
  * @public
@@ -345,18 +359,24 @@ SelectionModel.prototype.hasSelection = function()
  *
  * @param {Object} song
  * @param {number} activePattern
+ * @param {Array=} optOutputArray optional Array to copy selection contents
+ *        into (when null, this will by default store the selection inside
+ *        this model so it can later on be pasted from this model
  */
-SelectionModel.prototype.copySelection = function( song, activePattern )
+SelectionModel.prototype.copySelection = function( song, activePattern, optOutputArray )
 {
     if ( this.getSelectionLength() === 0 )
         return;
 
     let i, max = this.selectedChannels.length;
 
-    this._copySelection = [];
+    if ( !Array.isArray( optOutputArray )) {
+        this._copySelection = [];
+        optOutputArray = this._copySelection;
+    }
 
     for ( i = 0; i < max; ++i )
-        this._copySelection.push( [] );
+        optOutputArray.push( [] );
 
     let pattern = song.patterns[ activePattern], stepValue;
     let channel;
@@ -369,7 +389,7 @@ SelectionModel.prototype.copySelection = function( song, activePattern )
         {
             for ( let j = this.minSelectedStep, l = this.maxSelectedStep; j <= l; ++j ) {
                 stepValue = pattern.channels[ i ][ j ];
-                this._copySelection[ copyIndex ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
+                optOutputArray[ copyIndex ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
             }
             ++copyIndex;
         }
@@ -406,20 +426,40 @@ SelectionModel.prototype.cutSelection = function( song, activePattern, lists )
  * @param {Object} song
  * @param {number} activePattern
  * @param {Array.<LinkedList>} lists
+ * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
+ *        will by default paste from the selection stored inside this model
+ * @param {number=} optFirstSelectedChannel optional first selection channel to paste from, defaults to selection stored in this model
+ * @param {number=} optLastSelectedChannel optional last selection channel to paste from, defaults to selection stored in this model
+ * @param {number=} optMinSelectedStep optional minimum selection step to paste from, defaults to selection stored in this model
+ * @param {number=} optMaxSelectedStep optional maximum selection step to paste from, defaults to selection stored in this model
  */
-SelectionModel.prototype.deleteSelection = function( song, activePattern, lists )
+SelectionModel.prototype.deleteSelection = function( song, activePattern, lists, optSelectionContent, optFirstSelectedChannel,
+    optLastSelectedChannel, optMinSelectedStep, optMaxSelectedStep )
 {
-    if ( this.getSelectionLength() === 0 )
+    let firstSelectedChannel = this.firstSelectedChannel,
+        lastSelectedChannel  = this.lastSelectedChannel,
+        minSelectedStep      = this.minSelectedStep,
+        maxSelectedStep      = this.maxSelectedStep;
+
+    if ( Array.isArray( optSelectionContent )) {
+        firstSelectedChannel = optFirstSelectedChannel;
+        lastSelectedChannel  = optLastSelectedChannel;
+        minSelectedStep      = optMinSelectedStep;
+        maxSelectedStep      = optMaxSelectedStep;
+    }
+    else if ( this.getSelectionLength() === 0 ) {
         return;
+    }
+    const selectedChannels = ( Array.isArray( optSelectionContent )) ? optSelectionContent : this.selectedChannels;
 
     const pattern = song.patterns[ activePattern ];
     let event;
 
-    for ( let channelIndex = this.firstSelectedChannel; channelIndex <= this.lastSelectedChannel; ++channelIndex )
+    for ( let channelIndex = firstSelectedChannel; channelIndex <= lastSelectedChannel; ++channelIndex )
     {
-        if ( this.selectedChannels[ channelIndex ].length > 0 )
+        if ( selectedChannels[ channelIndex ].length > 0 )
         {
-            for ( let sIndex = this.minSelectedStep, l = this.maxSelectedStep; sIndex <= l; ++sIndex ) {
+            for ( let sIndex = minSelectedStep, l = maxSelectedStep; sIndex <= l; ++sIndex ) {
 
                 event = pattern.channels[ channelIndex ][ sIndex ];
 
@@ -444,20 +484,26 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern, lists 
  * @param {number} activeChannel
  * @param {number} activeStep
  * @param {Array.<LinkedList>} lists
+ * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
+ *        will by default paste from the selection stored inside this model
  */
-SelectionModel.prototype.pasteSelection = function( song, activePattern, activeChannel, activeStep, lists )
+SelectionModel.prototype.pasteSelection = function( song, activePattern, activeChannel, activeStep, lists, optSelectionContent )
 {
-    if ( this._copySelection !== null )
+    if ( !Array.isArray( optSelectionContent )) {
+        optSelectionContent = this._copySelection;
+    }
+
+    if ( Array.isArray( optSelectionContent ) && optSelectionContent.length > 0 )
     {
         let target = song.patterns[ activePattern ];
         let targetPattern, writeIndex, clone;
-        let selectionLength = this._copySelection.length;
+        let selectionLength = optSelectionContent.length;
 
         for ( let cIndex = activeChannel, max = target.channels.length, j = 0; cIndex < max && j < selectionLength; ++cIndex, ++j )
         {
             targetPattern = target.channels[ cIndex ];
 
-            this._copySelection[ j ].forEach(( event, index ) =>
+            optSelectionContent[ j ].forEach(( event, index ) =>
             {
                 writeIndex = activeStep + index;
 

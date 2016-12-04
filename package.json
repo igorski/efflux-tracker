@@ -31,6 +31,7 @@
     "lz-string": "^1.4.4",
     "dspjs": "^1.0.0",
     "recorderjs": "^1.0.1",
+    "undo-manager": "^1.0.5",
     "zjslib": "^0.1.4",
     "zcanvas": "^2.0.0",
     "zmidi": "^0.1.3"

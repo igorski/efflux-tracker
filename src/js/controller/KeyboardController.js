@@ -24,7 +24,9 @@
 
 const Config         = require( "../config/Config" );
 const Messages       = require( "../definitions/Messages" );
+const States         = require( "../definitions/States" );
 const EventFactory   = require( "../model/factory/EventFactory" );
+const StateFactory   = require( "../model/factory/StateFactory" );
 const EventUtil      = require( "../utils/EventUtil" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );
 const Pubsub         = require( "pubsub-js" );
@@ -321,12 +323,13 @@ function handleKeyDown( aEvent )
 
                     // paste current selection
                     if ( hasOption ) {
-                        selectionModel.pasteSelection(
-                            efflux.activeSong, editorModel.activePattern,
-                            editorModel.activeInstrument, editorModel.activeStep, efflux.eventList
+                        Pubsub.publishSync(
+                            Messages.SAVE_STATE,
+                            StateFactory.getAction( States.PASTE_SELECTION, {
+                                efflux: efflux,
+                                updateHandler: () => Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW )
+                            })
                         );
-                        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-                        Pubsub.publishSync( Messages.SAVE_STATE );
                     }
                     break;
 
@@ -336,14 +339,13 @@ function handleKeyDown( aEvent )
 
                     if ( hasOption )
                     {
-                        if ( !selectionModel.hasSelection() ) {
-                            selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
-                            selectionModel.setSelection( editorModel.activeStep );
-                        }
-                        selectionModel.cutSelection( efflux.activeSong, editorModel.activePattern, efflux.eventList );
-                        selectionModel.clearSelection();
-                        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-                        Pubsub.publishSync( Messages.SAVE_STATE );
+                        Pubsub.publishSync(
+                            Messages.SAVE_STATE,
+                            StateFactory.getAction( States.CUT_SELECTION, {
+                                efflux: efflux,
+                                updateHandler: () => Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW )
+                            })
+                        );
                     }
                     break;
 
@@ -359,7 +361,6 @@ function handleKeyDown( aEvent )
                             state = stateModel.redo();
 
                         if ( state ) {
-                            efflux.activeSong = state;
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
 
                             // this is wasteful, can we do this more elegantly?

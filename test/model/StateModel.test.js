@@ -14,7 +14,8 @@ describe( "StateModel", function()
     const assert = chai.assert,
           expect = chai.expect;
 
-    let maxStates, model;
+    const noop = function() {}, MIN_STATES = 5;
+    let amountOfStates, model;
 
     // executed before the tests start running
 
@@ -34,8 +35,8 @@ describe( "StateModel", function()
 
     beforeEach( function()
     {
-        maxStates = Math.round( Math.random() * 100 ) + 10;
-        model     = new StateModel( maxStates );
+        amountOfStates = Math.round( Math.random() * 100 ) + MIN_STATES;
+        model = new StateModel( amountOfStates );
     });
 
     // executed after each individual test
@@ -47,115 +48,99 @@ describe( "StateModel", function()
 
     /* actual unit tests */
 
-    it( "should be able to store no more states than passed to the constructor", function()
-    {
-        assert.strictEqual( 0, model.getAmountOfStates(),
-            "expected 0 states to be stored after model instantiation" );
+    it( "should not store a state that doesn't supply undo/redo functions", () => {
 
-        let i, state, amountStored;
+        expect(() => {
+            model.store( {} );
+        }).to.throw( /cannot store a state without specifying valid undo and redo actions/ );
 
-        for ( i = 0; i < maxStates; ++i )
-        {
-            state = generateState( i );
-            model.store( state );
+        expect(() => {
+            model.store({ undo: noop, redo: noop });
+        }).not.to.throw();
+    });
 
-            amountStored = model.getAmountOfStates();
+    it( "should not be able to undo an action when no action was stored in its state history", () => {
 
-            assert.strictEqual(( i + 1 ), amountStored,
-                "expected amount of stored states to equal the amount of invoked store requests" );
+        assert.notOk( model.undo(), "expected false to have returned as no operation was available in history" );
+    });
+
+    it( "should be able to undo an action when an action was stored in its state history", ( done ) => {
+
+        model.store({ undo: () => done(), redo: noop });
+        assert.ok( model.undo() );
+    });
+
+    it( "should not be able to redo an action when no action was stored in its state history", () => {
+
+        assert.notOk( model.redo(), "expected false to have returned as no operation was available in history" );
+    });
+
+    it( "should be able to redo an action", ( done ) => {
+
+        model.store({ undo: noop, redo: () => done() });
+        assert.ok( model.undo() );
+        assert.ok( model.redo(), "expected redo to have executed as an action had been undone" );
+    });
+
+    it( "should know when it can undo an action", () => {
+        assert.notOk( model.canUndo(), "expected no undo to be available after construction");
+        model.store({ undo: noop, redo: noop });
+        assert.ok( model.canUndo(), "expected undo to be available after addition of action" );
+        model.undo();
+        assert.notOk( model.canUndo(), "expected no undo to be available after having undone all actions" );
+    });
+
+    it( "should know when it can redo an action", () => {
+        assert.notOk( model.canRedo(), "expected no redo to be available after construction");
+        model.store({ undo: noop, redo: noop });
+        assert.notOk( model.canRedo(), "expected no redo to be available after addition of action" );
+        model.undo();
+        assert.ok( model.canRedo(), "expected redo to be available after having undone actions" );
+        model.redo();
+        assert.notOk( model.canRedo(), "expected no redo to be available after having redone all actions" );
+    });
+
+    it( "should know the amount of states it has stored", () => {
+        assert.strictEqual( 0, model.getAmountOfStates(), "expected no states to be present after construction");
+
+        for ( let i = 0; i < MIN_STATES; ++i ) {
+            model.store({ undo: noop, redo: noop });
+            assert.strictEqual(( i + 1 ), model.getAmountOfStates(),
+                "expected amount of states to increase when storing new states" );
         }
 
-        for ( i = maxStates; i < maxStates * 2; ++i )
-        {
-            state = generateState( i );
-            model.store( state );
+        for ( let i = MIN_STATES - 1; i >= 0; --i ) {
+            model.undo();
+            assert.strictEqual( i, model.getAmountOfStates(), "expected amount of states to decrease when performing undo" );
+        }
 
-            amountStored = model.getAmountOfStates();
-
-            assert.strictEqual( maxStates, model.getAmountOfStates(),
-                "expected amount of stored states to equal the amount given in the constructor" );
+        for ( let i = 0; i < MIN_STATES; ++i ) {
+            model.redo();
+            assert.strictEqual(( i + 1 ), model.getAmountOfStates(),
+                "expected amount of states to increase when performing redo" );
         }
     });
 
-    it( "should be able to return to the last stored state", function()
-    {
-        const states = [];
-        let state, i;
-
-        // record states
-
-        for ( i = 0; i < maxStates; ++i )
-        {
-            state = generateState( i );
-            states.push( state );
-
-            model.store( state );
+    it( "should not store more states than it allows", () => {
+        for ( let i = 0; i < amountOfStates * 2; ++i ) {
+            model.store({ undo: noop, redo: noop });
         }
-
-        // restore states one by one
-
-        i = maxStates - 1;
-
-        while ( i-- )
-        {
-            state = model.undo();
-
-            assert.strictEqual( states[ i ], state,
-                "expected to have restored the state recorded for the given step position'" + i + "'" );
-        }
+        assert.strictEqual( amountOfStates, model.getAmountOfStates(),
+            "expected model to not have recorded more states than the defined maximum" );
     });
 
-    it( "should be able to go back and forth in state history", function()
-    {
-        const states = [];
-        let state, i;
+    it( "should be able to clear its history", () => {
 
-        // record states
-
-        for ( i = 0; i < maxStates; ++i )
-        {
-            state = generateState( i );
-            states.push( state );
-
-            model.store( state );
+        function shouldntRun() {
+            throw new Error( "undo/redo callback should not have fired after clearing the undo history" );
         }
+        model.store({ undo: shouldntRun, redo: shouldntRun });
+        model.store({ undo: shouldntRun, redo: shouldntRun });
 
-        // restore some states
+        model.flush();
 
-        let mid = Math.round( maxStates / 2 );
-
-        i = mid;
-        while ( i-- )
-            state = model.undo();
-
-        // take care when using an even amount of states (mid was calculated using rounding for an integer value)
-
-        if ( maxStates % 2 === 0 )
-            ++mid;
-
-        mid -= 1;
-
-        // restore some states by going forwards from last restore point
-
-        for ( i = mid; i < maxStates; ++i )
-        {
-            state = model.redo();
-
-            assert.strictEqual( states[ i ], state,
-                "expected to have restored the state recorded for the given step position '" + i + "'" );
-        }
+        assert.notOk( model.canUndo(), "expected no undo to be available after flushing of history" );
+        assert.notOk( model.canRedo(), "expected no redo to be available after flushing of history" );
+        assert.strictEqual( 0, model.getAmountOfStates(), "expected no states to be present in history" );
     });
 });
-
-/* helper functions */
-
-function generateState( value )
-{
-    // just some random data Object
-    const out = { foo: Math.random() * Date.now() };
-
-    if ( typeof value === "string" || typeof value === "number" )
-        out.id = value;
-
-    return out;
-}

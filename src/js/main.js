@@ -61,17 +61,25 @@ const zMIDI                           = require( "zmidi" ).zMIDI;
 
 const container = document.querySelector( "#application" );
 
-// prepare application model
+// prepare application actors
 
 const efflux = window.efflux =
 {
+    // models
+
     EditorModel     : new EditorModel(),
     InstrumentModel : new InstrumentModel(),
     SelectionModel  : new SelectionModel(),
     SongModel       : new SongModel(),
     StateModel      : new StateModel(),
+
+    // services
+
     TemplateService : new TemplateService(),
     Pubsub          : Pubsub, // expose publishing / subscribe bus
+
+    // song data
+
     activeSong      : null,   // create new empty song
     eventList       : new Array( Config.INSTRUMENT_AMOUNT )
 };
@@ -156,7 +164,6 @@ function handleBroadcast( type, payload )
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
                 Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
                 efflux.StateModel.flush();
-                efflux.StateModel.store();
             }
             break;
 
@@ -166,11 +173,8 @@ function handleBroadcast( type, payload )
 
         case Messages.SAVE_STATE:
 
-            // you might argue its wasteful to store full clones of the current
-            // song content, however we're not running this in the limited memory space
-            // of an Atari 2600 !! this should be just fine and hella fast
-
-            efflux.StateModel.store( ObjectUtil.clone( efflux.activeSong ));
+            // save changed state in StateModel for undo/redo purposes
+            efflux.StateModel.store( payload );
             break;
     }
 }

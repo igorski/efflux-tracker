@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const UndoManager = require( "undo-manager" );
+
 module.exports = StateModel;
 
 /**
@@ -37,94 +39,84 @@ function StateModel( statesToSave )
     /* instance properties */
 
     /**
-     * all stored states
-     *
      * @private
-     * @type {Array.<*>}
+     * @type {UndoManager}
      */
-    this._states = [];
+    this._undoManager = new UndoManager();
 
-    /**
-     * index of the current state
-     *
-     * @private
-     * @type {number}
-     */
-    this._current = -1;
+    /* initialization */
 
-    /**
-     * the amount of states to store
-     * before flushing the oldest ones
-     *
-     * @private
-     * @type {number}
-     */
-    this._statesToSave = ( typeof statesToSave === "number" ) ? statesToSave : 99;
+    this._undoManager.setLimit(( typeof statesToSave === "number" ) ? statesToSave : 99 );
 }
 
 /* public methods */
 
 /**
  * @public
- * @param {*} data
+ * @param {{ undo: Function, redo: Function }} undoRedoAction
  */
-StateModel.prototype.store = function( data )
+StateModel.prototype.store = function( undoRedoAction )
 {
-    let amountOfStates = this.getAmountOfStates();
-    let maxIndex       = amountOfStates - 1;
+    if ( !undoRedoAction || typeof undoRedoAction.undo !== "function" || typeof undoRedoAction.redo !== "function" )
+        throw new Error( "cannot store a state without specifying valid undo and redo actions" );
 
-    // in case we're storing a new action midway in history, remove the end of
-    // history beyond this store point
+    this._undoManager.add( undoRedoAction );
+};
 
-    if ( this._current < maxIndex )
-        this._states = this._states.slice( 0, this._current );
-
-    // if we're exceeding the maximum amount of recordable states, remove the first saved state
-
-    else if ( this.getAmountOfStates() === this._statesToSave )
-        this._states.shift();
-
-    this._states.push( data );
-    ++this._current;
+/**
+ * @public
+ * @return {boolean}
+ */
+StateModel.prototype.canUndo = function() {
+    return this._undoManager.hasUndo();
 };
 
 /**
  * return to the previously stored state
  *
  * @public
- * @return {*|null} state we're returning to will be null
- *         when there is nothing to restore to (reached beginning of history)
+ * @return {boolean} whether an undo action took place
  */
 StateModel.prototype.undo = function()
 {
-    if ( this._current > 0 )
-        return this._states[ --this._current ];
+    if ( this.canUndo() ) {
+        this._undoManager.undo();
+        return true;
+    }
+    return false;
+};
 
-    return null;
+/**
+ * @public
+ * @return {boolean}
+ */
+StateModel.prototype.canRedo = function() {
+    return this._undoManager.hasRedo();
 };
 
 /**
  * return to the next stored state
  *
  * @public
- * @return {*|null} state we're returning to will be null
-  *        when there is nothing to restore to (reached end of history)
+ * @return {boolean} whether a redo action took place
  */
 StateModel.prototype.redo = function()
 {
-    if ( this._current < ( this.getAmountOfStates() - 1 ))
-        return this._states[ ++this._current ];
-
-    return null;
+    if ( this.canRedo() ) {
+        this._undoManager.redo();
+        return true;
+    }
+    return false;
 };
 
 /**
+ * return the number of recorded states in its history stack
+ *
  * @public
  * @return {number}
  */
-StateModel.prototype.getAmountOfStates = function()
-{
-    return this._states.length;
+StateModel.prototype.getAmountOfStates = function() {
+    return this._undoManager.getIndex() + 1;
 };
 
 /**
@@ -134,6 +126,5 @@ StateModel.prototype.getAmountOfStates = function()
  */
 StateModel.prototype.flush = function()
 {
-    this._states  = [];
-    this._current = -1;
+    this._undoManager.clear();
 };
