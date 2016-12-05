@@ -562,14 +562,29 @@ function applyRecordingState()
         if ( playing )
             recorder.record();
     }
+    else if ( recorder ) {
+        recorder.stop();
+        recorder.exportWAV();
+    }
 }
 
 function handleRecordingComplete( blob )
 {
-    Recorder.forceDownload( blob, "efflux-output.wav" );
+    // download file to disk
+
+    const pom = document.createElement( "a" );
+    pom.setAttribute( "href", window.URL.createObjectURL( blob ));
+    pom.setAttribute( "target", "_blank" ); // helps for Safari (opens content in window...)
+    pom.setAttribute( "download", "efflux-output.wav" );
+    pom.click();
+
+    // free recorder resources
+
     recorder.clear();
     recorder  = null;
     recording = false;
+
+    window.URL.revokeObjectURL( blob );
 
     Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_SAVED" ));
 }
