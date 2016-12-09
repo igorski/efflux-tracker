@@ -31,8 +31,8 @@ const Pubsub       = require( "pubsub-js" );
 /* private properties */
 
 let container, element, efflux, keyboardController;
-let data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, closeCallback,
-    moduleList, valueDisplay, glideOptions, valueControl;
+let data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, lastEditedModule,
+    closeCallback, moduleList, valueDisplay, glideOptions, valueControl;
 
 const ModuleParamController = module.exports =
 {
@@ -59,6 +59,8 @@ const ModuleParamController = module.exports =
             glideOptions = element.querySelectorAll( "input[type=radio]" );
             valueControl = element.querySelector( "#moduleValue" );
             valueDisplay = element.querySelector( "#moduleInputValue" );
+
+            lastEditedModule = moduleList[ 0 ].getAttribute( "data-value" );
 
             // add listeners
 
@@ -189,7 +191,7 @@ function handleOpen( completeCallback )
     data =
     {
         instrument   : ( event ) ? event.instrument : editorModel.activeInstrument,
-        module       : ( event && event.mp ) ? event.mp.module  : moduleList[ 0 ].getAttribute( "data-value" ),
+        module       : ( event && event.mp ) ? event.mp.module  : lastEditedModule,
         glide        : ( event && event.mp ) ? event.mp.glide   : false,
         value        : ( event && event.mp ) ? event.mp.value   : 50,
         patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
@@ -237,7 +239,7 @@ function handleHelp( aEvent )
 
 function handleReady()
 {
-    data.module = getSelectedValueFromList( moduleList );
+    data.module = lastEditedModule = getSelectedValueFromList( moduleList );
     data.value  = parseFloat( valueControl.value );
     data.glide  = ( Form.getCheckedOption( glideOptions ) === "true" );
 
