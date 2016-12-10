@@ -14,7 +14,7 @@
     </select>
 </div>
 
-<ul id="oscillatorTabs">
+<ul id="oscillatorTabs" class="tabList">
     <li data-oscillator="1">
         Oscillator 1
     </li>
@@ -65,22 +65,57 @@
             </div>
 
             <div id="envelopeEditor" class="instrument-parameters">
-                <h2>Envelopes</h2>
-                <div class="wrapper input range">
-                    <label for="attack">Attack</label>
-                    <input type="range" id="attack" min="0" max="1" step=".01" value="0">
+                <ul id="envelopeTabs" class="tabList">
+                    <li data-type="amplitude" class="active">
+                        Amplitude
+                    </li>
+                    <li data-type="pitch">
+                        Pitch
+                    </li>
+                </ul>
+
+                <div id="amplitudeEditor" class="tabbed-content active">
+                    <h2>Amplitude envelope</h2>
+                    <div class="wrapper input range">
+                        <label for="attack">Attack</label>
+                        <input type="range" id="attack" min="0" max="1" step=".01" value="0">
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="decay">Decay</label>
+                        <input type="range" id="decay" min="0" max="1" step=".01" value="0">
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="sustain">Sustain</label>
+                        <input type="range" id="sustain" min="0" max="1" step=".01" value=".75">
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="release">Release</label>
+                        <input type="range" id="release" min="0" max="1" step=".01" value="0">
+                    </div>
                 </div>
-                <div class="wrapper input range">
-                    <label for="decay">Decay</label>
-                    <input type="range" id="decay" min="0" max="1" step=".01" value="0">
-                </div>
-                <div class="wrapper input range">
-                    <label for="sustain">Sustain</label>
-                    <input type="range" id="sustain" min="0" max="1" step=".01" value=".75">
-                </div>
-                <div class="wrapper input range">
-                    <label for="release">Release</label>
-                    <input type="range" id="release" min="0" max="1" step=".01" value="0">
+
+                <div id="pitchEditor" class="tabbed-content">
+                    <h2>Pitch envelope</h2>
+                    <div class="wrapper input range">
+                        <label for="pitchRange">Range</label>
+                        <input type="range" id="pitchRange" min="-24" max="24" step="1" value="0" />
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="pitchAttack">Attack</label>
+                        <input type="range" id="pitchAttack" min="0" max="1" step=".01" value="0">
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="pitchDecay">Decay</label>
+                        <input type="range" id="pitchDecay" min="0" max="1" step=".01" value="1">
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="pitchSustain">Sustain</label>
+                        <input type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75">
+                    </div>
+                    <div class="wrapper input range">
+                        <label for="pitchRelease">Release</label>
+                        <input type="range" id="pitchRelease" min="0" max="1" step=".01" value="0">
+                    </div>
                 </div>
             </div>
         </div>

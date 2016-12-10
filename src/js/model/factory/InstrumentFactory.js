@@ -22,7 +22,8 @@
  */
 "use strict";
 
-const Config = require( "../../config/Config" );
+const Config     = require( "../../config/Config" );
+const ObjectUtil = require( "../../utils/ObjectUtil" );
 
 /**
  * type definition for an instrument
@@ -77,6 +78,13 @@ let INSTRUMENT;
  *     octaveShift : number,
  *     fineShift   : number
  *     adsr: {
+ *         attack: number,
+ *         decay: number,
+ *         sustain: number,
+ *         release: number
+ *     },
+ *     pitch: {
+ *         range: number,
  *         attack: number,
  *         decay: number,
  *         sustain: number,
@@ -139,7 +147,7 @@ const InstrumentFactory = module.exports =
      */
     createOscillator( aEnabled )
     {
-        return {
+        const oscillator = {
             enabled     : aEnabled,
             waveform    : "SAW",
             table       : 0, // created when CUSTOM waveform is used
@@ -153,6 +161,29 @@ const InstrumentFactory = module.exports =
                 sustain : .75,
                 release : 0
             }
+        };
+        InstrumentFactory.createPitchEnvelope( oscillator );
+
+        return oscillator;
+    },
+
+    /**
+     * create default pitch envelope properties in oscillator
+     * this was not present in legacy instruments
+     *
+     * @public
+     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     */
+    createPitchEnvelope( oscillator )
+    {
+        if ( typeof oscillator.pitch === "object" ) return;
+
+        oscillator.pitch = {
+            range   : 0,
+            attack  : 0,
+            decay   : 1,
+            sustain : .75,
+            release : 0
         };
     },
 
@@ -177,5 +208,25 @@ const InstrumentFactory = module.exports =
                 oscillator.table[ size ] = 0;
         }
         return oscillator.table;
+    },
+
+    /**
+     * @public
+     * @param {Object} instrumentPreset
+     * @param {number} newInstrumentId
+     * @param {string} newInstrumentName
+     * @return {INSTRUMENT}
+     */
+    loadPreset( instrumentPreset, newInstrumentId, newInstrumentName )
+    {
+        const newInstrument = ObjectUtil.clone( instrumentPreset );
+        newInstrument.id    = newInstrumentId;
+        newInstrument.name  = newInstrumentName;
+
+        // legacy preset have no pitch envelopes, create now
+
+        newInstrument.oscillators.forEach(( oscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
+
+        return newInstrument;
     }
 };

@@ -8,7 +8,7 @@ const SongFactory         = require( "../../src/js/model/factory/SongFactory" );
 const SongValidator       = require( "../../src/js/model/validators/SongValidator" );
 const SongAssemblyService = require( "../../src/js/services/SongAssemblyService" );
 
-describe( "SongAssemblyService", function()
+describe( "SongAssemblyService", () =>
 {
     /* setup */
 
@@ -18,35 +18,35 @@ describe( "SongAssemblyService", function()
 
     // executed before the tests start running
 
-    before( function()
+    before( () =>
     {
 
     });
 
     // executed when all tests have finished running
 
-    after( function()
+    after( () =>
     {
 
     });
 
     // executed before each individual test
 
-    beforeEach( function()
+    beforeEach( () =>
     {
 
     });
 
     // executed after each individual test
 
-    afterEach( function()
+    afterEach( () =>
     {
 
     });
 
     /* actual unit tests */
 
-    it( "should be able to disassemble a Song into a Stringified XTK", function()
+    it( "should be able to disassemble a Song into a Stringified XTK", () =>
     {
         const song = SongFactory.createSong( 8 );
         const xtk  = SongAssemblyService.disassemble( song );
@@ -55,7 +55,7 @@ describe( "SongAssemblyService", function()
             "expected Song to have been disassembled into a stringified XTK" );
     });
 
-    it( "should be able to assemble a stringified XTK into a valid Song", function()
+    it( "should be able to assemble a stringified XTK into a valid Song", () =>
     {
         const song  = SongFactory.createSong( 8 );
         const xtk   = SongAssemblyService.disassemble( song );
@@ -65,7 +65,7 @@ describe( "SongAssemblyService", function()
             "expected XTK to have been assembled into a valid Song but it didn't pass validation" );
     });
 
-    it( "should be able to assemble and disassemble a Song without loss of data", function()
+    it( "should be able to assemble and disassemble a Song without loss of data", () =>
     {
         const song  = SongFactory.createSong( 8 );
         const xtk   = SongAssemblyService.disassemble( song );

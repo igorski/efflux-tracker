@@ -22,11 +22,12 @@
  */
 "use strict";
 
-const EventUtil = require( "../utils/EventUtil" );
+const EventUtil         = require( "../utils/EventUtil" );
+const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
 
 /* private properties */
 
-const ASSEMBLER_VERSION = 1;
+const ASSEMBLER_VERSION = 2;
 
 /**
  * SongAssembly is used to convert a Song Object into an .XTK representation
@@ -48,18 +49,20 @@ module.exports = {
 
             xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 
+            const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
+
             // first check if XTK had been saved after having been disassembled
 
-            if ( typeof xtk[ ASSEMBLER_VERSION_CODE ] === "number" ) {
+            if ( typeof xtkVersion === "number" ) {
 
                 const song = {};
 
                 song.id      = xtk[ SONG_ID ];
                 song.version = xtk[ SONG_VERSION_ID ];
 
-                assembleMeta       ( song, xtk[ META_OBJECT ] );
-                assembleInstruments( song, xtk[ INSTRUMENTS ]);
-                assemblePatterns   ( song, xtk[ PATTERNS ], song.meta.tempo );
+                assembleMeta       ( song, xtkVersion, xtk[ META_OBJECT ] );
+                assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
+                assemblePatterns   ( song, xtkVersion, xtk[ PATTERNS ], song.meta.tempo );
 
                 return song;
             }
@@ -134,6 +137,9 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_OSCILLATORS  = "o",
       OSCILLATOR_ENABLED      = "e",
       OSCILLATOR_ADSR         = "a",
+      OSCILLATOR_PITCH        = "pe",
+      OSCILLATOR_PITCH_RANGE  = "pr",
+      // ADSR used for both amplitude and pitch envelopes
       OSCILLATOR_ADSR_ATTACK  = "a",
       OSCILLATOR_ADSR_DECAY   = "d",
       OSCILLATOR_ADSR_SUSTAIN = "s",
@@ -162,7 +168,7 @@ const ASSEMBLER_VERSION_CODE = "av",
 
 /* private methods */
 
-function assembleMeta( song, xtkMeta ) {
+function assembleMeta( song, savedXtkVersion, xtkMeta ) {
 
     song.meta = {
         title    : xtkMeta[ META_TITLE ],
@@ -184,7 +190,7 @@ function disassembleMeta( xtk, meta ) {
     m[ META_TEMPO ]    = meta.tempo;
 }
 
-function assembleInstruments( song, xtkInstruments ) {
+function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 
     song.instruments = new Array( xtkInstruments.length );
     let xtkDelay, xtkFilter;
@@ -221,7 +227,7 @@ function assembleInstruments( song, xtkInstruments ) {
 
         xtkInstrument[ INSTRUMENT_OSCILLATORS].forEach( function( xtkOscillator, oIndex ) {
 
-            song.instruments[ index ].oscillators[ oIndex ] = {
+            const osc = song.instruments[ index ].oscillators[ oIndex ] = {
                 enabled: xtkOscillator[ OSCILLATOR_ENABLED ],
                 adsr : {
                     attack  : xtkOscillator[ OSCILLATOR_ADSR ][ OSCILLATOR_ADSR_ATTACK ],
@@ -236,6 +242,20 @@ function assembleInstruments( song, xtkInstruments ) {
                 waveform    : xtkOscillator[ OSCILLATOR_WAVEFORM ],
                 table       : xtkOscillator[ OSCILLATOR_TABLE ]
             };
+
+            if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in version 2 of assembler
+
+                osc.pitch = {
+                    range   : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_PITCH_RANGE ],
+                    attack  : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_ADSR_ATTACK ],
+                    decay   : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_ADSR_DECAY ],
+                    sustain : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_ADSR_SUSTAIN ],
+                    release : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_ADSR_RELEASE ]
+                };
+            }
+            else {
+                InstrumentFactory.createPitchEnvelope( osc );
+            }
         });
     });
 }
@@ -243,7 +263,7 @@ function assembleInstruments( song, xtkInstruments ) {
 function disassembleInstruments( xtk, instruments ) {
 
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
-    let xtkInstrument, delay, filter, xtkDelay, xtkFilter, xtkOscillator, xtkADSR;
+    let xtkInstrument, delay, filter, xtkDelay, xtkFilter, xtkOscillator, xtkADSR, xtkPitchADSR;
 
     instruments.forEach( function( instrument, index ) {
 
@@ -281,13 +301,26 @@ function disassembleInstruments( xtk, instruments ) {
 
             xtkOscillator = xtkInstrument[ INSTRUMENT_OSCILLATORS ][ oIndex ] = {};
 
-            xtkOscillator[ OSCILLATOR_ENABLED ]        = oscillator.enabled;
-            xtkADSR = xtkOscillator[ OSCILLATOR_ADSR ] = {};
+            xtkOscillator[ OSCILLATOR_ENABLED ]= oscillator.enabled;
+            xtkADSR      = xtkOscillator[ OSCILLATOR_ADSR ]  = {};
+            xtkPitchADSR = xtkOscillator[ OSCILLATOR_PITCH ] = {};
+
+            // amplitude envelope
 
             xtkADSR[ OSCILLATOR_ADSR_ATTACK  ] = oscillator.adsr.attack;
             xtkADSR[ OSCILLATOR_ADSR_DECAY   ] = oscillator.adsr.decay;
             xtkADSR[ OSCILLATOR_ADSR_SUSTAIN ] = oscillator.adsr.sustain;
             xtkADSR[ OSCILLATOR_ADSR_RELEASE ] = oscillator.adsr.release;
+
+            // pitch envelope
+
+            xtkPitchADSR[ OSCILLATOR_PITCH_RANGE ]  = oscillator.pitch.range;
+            xtkPitchADSR[ OSCILLATOR_ADSR_ATTACK  ] = oscillator.pitch.attack;
+            xtkPitchADSR[ OSCILLATOR_ADSR_DECAY   ] = oscillator.pitch.decay;
+            xtkPitchADSR[ OSCILLATOR_ADSR_SUSTAIN ] = oscillator.pitch.sustain;
+            xtkPitchADSR[ OSCILLATOR_ADSR_RELEASE ] = oscillator.pitch.release;
+
+            // oscillator tuning
 
             xtkOscillator[ OSCILLATOR_DETUNE       ] = oscillator.detune;
             xtkOscillator[ OSCILLATOR_FINESHIFT    ] = oscillator.fineShift;
@@ -299,7 +332,7 @@ function disassembleInstruments( xtk, instruments ) {
     });
 }
 
-function assemblePatterns( song, xtkPatterns, tempo ) {
+function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
 
     song.patterns = new Array( xtkPatterns.length );
     let pattern, channel, event, xtkAutomation;

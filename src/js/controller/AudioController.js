@@ -31,6 +31,7 @@ const Messages       = require( "../definitions/Messages" );
 const Pitch          = require( "../definitions/Pitch" );
 const WaveTables     = require( "../definitions/WaveTables" );
 const Copy           = require( "../i18n/Copy" );
+const ADSR           = require( "../modules/ADSR" );
 const Recorder       = require( "recorderjs" );
 const Pubsub         = require( "pubsub-js" );
 
@@ -270,24 +271,15 @@ const AudioController = module.exports =
 
                         generatorNode.setPeriodicWave( table );
 
-                        // tune event frequency to oscillator tuning
-
+                        // tune event frequency to oscillator tuning and apply pitch envelopes
                         generatorNode.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
                     }
 
-                    // apply amplitude envelopes
+                    // apply envelopes
 
-                    const adsrNode = AudioFactory.createGainNode( audioContext ),
-                          envelope = adsrNode.gain;
-
-                    const ADSR      = oscillatorVO.adsr,
-                          attackEnd = startTimeInSeconds + ADSR.attack,
-                          decayEnd  = attackEnd + ADSR.decay;
-
-                    envelope.cancelScheduledValues( startTimeInSeconds );
-                    envelope.setValueAtTime( 0.0, startTimeInSeconds );         // envelope start value
-                    envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
-                    envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
+                    const adsrNode = AudioFactory.createGainNode( audioContext );
+                    ADSR.applyAmpEnvelope  ( oscillatorVO.adsr, adsrNode, startTimeInSeconds );
+                    ADSR.applyPitchEnvelope( oscillatorVO.pitch, generatorNode, startTimeInSeconds );
 
                     // route oscillator to track gain > envelope gain > instrument gain
 
@@ -303,8 +295,7 @@ const AudioController = module.exports =
 
                     oscillators.push( /** @type {EVENT_VOICE} */ ({
                         generator: generatorNode,
-                        adsr: ADSR,
-                        envelope: envelope,
+                        vo: oscillatorVO,
                         frequency: frequency,
                         gain: oscillatorGain,
                         outputNode: adsrNode,
@@ -348,25 +339,24 @@ const AudioController = module.exports =
             eventObject.forEach(( event ) =>
             {
                 const oscillator = event.generator,
-                      envelope   = event.envelope,
-                      ADSR       = event.adsr;
+                      output     = event.outputNode,
+                      amplitudeEnvelope = event.vo.adsr;
 
-                // apply release envelope
+                // apply release envelopes
 
-                envelope.cancelScheduledValues( audioContext.currentTime );
-                envelope.setValueAtTime( envelope.value, audioContext.currentTime );
-                envelope.linearRampToValueAtTime( 0.0, audioContext.currentTime + ADSR.release );
+                ADSR.applyAmpRelease  ( amplitudeEnvelope, output, audioContext.currentTime );
+                ADSR.applyPitchRelease( event.vo.pitch, oscillator, audioContext.currentTime );
 
                 // stop synthesis and remove note on release end
 
-                AudioUtil.createTimer( audioContext, audioContext.currentTime + ADSR.release, function()
+                AudioUtil.createTimer( audioContext, audioContext.currentTime + amplitudeEnvelope.release, function()
                 {
                     AudioFactory.stopOscillation( this, audioContext.currentTime );
 
                     // disconnect oscillator and its output node from the instrument output
 
                     this.disconnect();
-                    event.outputNode.disconnect( modules.output );
+                    output.disconnect( modules.output );
 
                 }.bind( oscillator ));
             });

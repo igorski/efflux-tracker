@@ -16,6 +16,7 @@
   .instrument-parameters {
 
     display: inline-block;
+    vertical-align: top;
     width: 45%;
     margin-right: 1em;
 
@@ -43,9 +44,18 @@
       }
     }
   }
+
+  .tabbed-content {
+    display: none;
+    border-top: 2px solid #666;
+
+    &.active {
+      display: block;
+    }
+  }
 }
 
-#oscillatorTabs {
+.tabList {
 
   display: inline-block;
   margin: .5em 0 0;
@@ -83,14 +93,23 @@
   .oscillatorWaveforms {
 
   }
+}
 
-  #oscillatorEditor {
-    display: inline-block;
+#oscillatorEditor {
+  display: inline-block;
+}
+
+#envelopeEditor {
+  margin-top: -3em;
+
+  .tabbed-content {
+    padding-top: .5em;
   }
 }
 
 #instrumentModulesEditor {
 
+  float: right;
   padding: 0 1em 1em;
   .boxSize;
 
@@ -100,7 +119,7 @@
 }
 
 #filterEditor {
-  margin-bottom: .5em;
+  margin-bottom: .7em;
 }
 
 #filterEditor,
@@ -121,7 +140,11 @@
 }
 
 #canvasContainer {
-  margin: 1em 0;
+  margin: 1em 0 0;
+}
+
+.oscillatorWaveforms {
+  padding: .5em 0;
 }
 
 #instrumentPresets {
@@ -132,6 +155,8 @@
     float: right;
   }
 }
+
+/* ideal size and above (tablet/desktop) */
 
 @media screen and ( min-width: @idealInstrumentEditorWidth )
 {
@@ -159,6 +184,8 @@
   }
 }
 
+/* mobile */
+
 @media screen and ( max-width: @idealInstrumentEditorWidth )
 {
   #instrumentEditor {
@@ -166,17 +193,51 @@
     position: absolute;
 
     .instrument-parameters {
+      .boxSize;
+      padding: 1em;
       width: 100%;
       display: block;
+      border-radius: 7px;
+      border: 1px solid #666;
+      margin-bottom: .5em;
     }
   }
 
   #instrumentModulesEditor {
     clear: left;
     width: 100%;
+    padding: 0;
+  }
+
+  #envelopeEditor {
+    margin-top: auto;
   }
 
   #instrumentSelect {
     top: .25em;
+  }
+
+  #instrumentPresets {
+    .boxSize;
+    padding: 0 1em;
+
+    h2 {
+      width: 100%;
+    }
+    select {
+      display: block;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .save {
+      float: none;
+      margin-top: .5em;
+      input {
+        width: auto;
+      }
+      button {
+        float: right;
+      }
+    }
   }
 }

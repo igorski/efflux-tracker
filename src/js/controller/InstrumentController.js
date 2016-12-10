@@ -39,7 +39,9 @@ let container, efflux, keyboardController, view, canvas, wtDraw,
     instrumentSelect, presetSelect, presetSave, presetName,
     oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
     detuneControl, octaveShiftControl, fineShiftControl,
+    amplitudeEditor, pitchEditor,
     attackControl, decayControl, sustainControl, releaseControl,
+    pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
     delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
@@ -77,10 +79,22 @@ const InstrumentController = module.exports =
             detuneControl           = view.querySelector( "#detune" );
             octaveShiftControl      = view.querySelector( "#octaveShift" );
             fineShiftControl        = view.querySelector( "#fineShift" );
+
+            // amplitude envelope
             attackControl           = view.querySelector( "#attack" );
             decayControl            = view.querySelector( "#decay" );
             sustainControl          = view.querySelector( "#sustain" );
             releaseControl          = view.querySelector( "#release" );
+
+            // pitch envelope
+            pitchRangeControl       = view.querySelector( "#pitchRange" );
+            pitchAttackControl      = view.querySelector( "#pitchAttack" );
+            pitchDecayControl       = view.querySelector( "#pitchDecay" );
+            pitchSustainControl     = view.querySelector( "#pitchSustain" );
+            pitchReleaseControl     = view.querySelector( "#pitchRelease" );
+
+            amplitudeEditor = view.querySelector( "#amplitudeEditor" );
+            pitchEditor     = view.querySelector( "#pitchEditor" );
 
             // filter
             filterEnabledSelect     = view.querySelector( "#filterEnabled" );
@@ -130,9 +144,10 @@ const InstrumentController = module.exports =
 
             // add listeners
 
-            view.querySelector( ".close-button" ).addEventListener( "click", handleClose );
-            view.querySelector( ".help-button" ).addEventListener ( "click", handleHelp );
+            view.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
+            view.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
             view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
+            view.querySelector( "#envelopeTabs" ).addEventListener  ( "click", handleEnvelopeTabClick );
             instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
             presetSelect.addEventListener     ( "change", handlePresetSelect );
             presetSave.addEventListener       ( "click",  handlePresetSave );
@@ -147,7 +162,11 @@ const InstrumentController = module.exports =
             });
 
             [ attackControl, decayControl, sustainControl, releaseControl ].forEach(( control ) => {
-                control.addEventListener( "input", handleEnvelopeChange );
+                control.addEventListener( "input", handleAmplitudeEnvelopeChange );
+            });
+
+            [ pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl ].forEach(( control ) => {
+                control.addEventListener( "input", handlePitchEnvelopeChange );
             });
 
             instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
@@ -225,6 +244,15 @@ const InstrumentController = module.exports =
         sustainControl.value = oscillator.adsr.sustain;
         releaseControl.value = oscillator.adsr.release;
 
+        if ( !oscillator.pitch ) { // not present in legacy instruments
+            InstrumentFactory.createPitchEnvelope( oscillator );
+        }
+        pitchRangeControl.value   = oscillator.pitch.range;
+        pitchAttackControl.value  = oscillator.pitch.attack;
+        pitchDecayControl.value   = oscillator.pitch.decay;
+        pitchSustainControl.value = oscillator.pitch.sustain;
+        pitchReleaseControl.value = oscillator.pitch.release;
+
         instrumentVolumeControl.value = instrumentRef.volume;
 
         Form.setSelectedOption( filterEnabledSelect, instrumentRef.filter.enabled );
@@ -278,6 +306,7 @@ function handleBroadcast( type, payload )
 
         case Messages.SONG_LOADED:
             updatePresetList();
+            activeOscillatorIndex = 0;
             break;
     }
 }
@@ -301,6 +330,34 @@ function handleOscillatorTabClick( aEvent )
         if ( !isNaN( value )) {
             activeOscillatorIndex = value - 1;
             InstrumentController.update();
+        }
+    }
+}
+
+function handleEnvelopeTabClick( aEvent )
+{
+    const element = aEvent.target, activeClass = "active";
+    if ( element.nodeName === "LI" ) {
+
+        switch( element.getAttribute( "data-type" )) {
+            default:
+            case "amplitude":
+                amplitudeEditor.classList.add( activeClass );
+                pitchEditor.classList.remove( activeClass );
+                break;
+            case "pitch":
+                amplitudeEditor.classList.remove( activeClass );
+                pitchEditor.classList.add( activeClass );
+                break;
+        }
+        const tabs = view.querySelectorAll( "#envelopeTabs li" );
+        let i = tabs.length;
+        while ( i-- ) {
+            const tab = tabs[ i ];
+            if ( tab === element )
+                tab.classList.add( "active" );
+            else
+                tab.classList.remove( "active" );
         }
     }
 }
@@ -329,7 +386,7 @@ function handleTuningChange( aEvent )
     invalidatePreset();
 }
 
-function handleEnvelopeChange( aEvent )
+function handleAmplitudeEnvelopeChange( aEvent )
 {
     const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
           target     = aEvent.target,
@@ -351,6 +408,37 @@ function handleEnvelopeChange( aEvent )
 
         case releaseControl:
             oscillator.adsr.release = value;
+            break;
+    }
+    invalidatePreset();
+}
+
+function handlePitchEnvelopeChange( aEvent )
+{
+    const oscillator = instrumentRef.oscillators[ activeOscillatorIndex ],
+          target     = aEvent.target,
+          value      = parseFloat( target.value );
+
+    switch ( target )
+    {
+        case pitchRangeControl:
+            oscillator.pitch.range = value;
+            break;
+
+        case pitchAttackControl:
+            oscillator.pitch.attack = value;
+            break;
+
+        case pitchDecayControl:
+            oscillator.pitch.decay = value;
+            break;
+
+        case pitchSustainControl:
+            oscillator.pitch.sustain = value;
+            break;
+
+        case pitchReleaseControl:
+            oscillator.pitch.release = value;
             break;
     }
     invalidatePreset();
@@ -401,11 +489,9 @@ function handlePresetSelect( aEvent ) {
             let instrumentPreset = efflux.InstrumentModel.getInstrumentByPresetName( selectedPresetName );
 
             if ( instrumentPreset ) {
-                const newInstrument = ObjectUtil.clone( instrumentPreset );
-                newInstrument.id = instrumentId;
-                newInstrument.name = instrumentRef.name;
+                const newInstrument = InstrumentFactory.loadPreset( instrumentPreset, instrumentId, instrumentRef.name );
                 instrumentRef = efflux.activeSong.instruments[ instrumentId ] = newInstrument;
-
+                activeOscillatorIndex = 0;
                 InstrumentController.update();
                 cacheAllOscillators();
                 Pubsub.publishSync( Messages.APPLY_INSTRUMENT_MODULES );
@@ -540,6 +626,6 @@ function updatePresetList() {
 
 function invalidatePreset() {
 
-    if ( instrumentRef.presetName !== null && presetName.value.indexOf("*") === -1 )
+    if ( instrumentRef.presetName !== null && presetName.value.indexOf( "*" ) === -1 )
         presetName.value += "*";
 }

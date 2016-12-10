@@ -102,7 +102,7 @@ const InstrumentUtil = module.exports =
                     generator = voice.generator;
 
                     if ( generator instanceof OscillatorNode )
-                        generator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator )
+                        generator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator );
 
                     else if ( generator instanceof AudioBufferSourceNode )
                         generator.playbackRate.value = InstrumentUtil.tuneBufferPlayback( oscillator );
@@ -112,8 +112,8 @@ const InstrumentUtil = module.exports =
     },
 
     /**
-     * alter the frequency of currently playing events to match changes
-     * made to the tuning of given oscillator
+     * alter the volume of currently playing events to match changes
+     * made to the volume of given oscillator
      *
      * @public
      *
