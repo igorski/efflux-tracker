@@ -61,6 +61,7 @@ const KeyboardController = module.exports =
 
         window.addEventListener( "keydown", handleKeyDown );
         window.addEventListener( "keyup",   handleKeyUp );
+        window.addEventListener( "focus",   handleFocus );
     },
 
     /**
@@ -418,6 +419,12 @@ function handleKeyUp( aEvent )
         else if ( !KeyboardController.hasOption( aEvent ) && !aEvent.shiftKey )
             createNoteOffEvent( aEvent.keyCode );
     }
+}
+
+function handleFocus( aEvent )
+{
+    // when switching tabs it is possible these values are still active
+    shiftDown = optionDown = false;
 }
 
 function createNoteOnEvent( keyCode )
