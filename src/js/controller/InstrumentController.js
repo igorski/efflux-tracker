@@ -244,9 +244,6 @@ const InstrumentController = module.exports =
         sustainControl.value = oscillator.adsr.sustain;
         releaseControl.value = oscillator.adsr.release;
 
-        if ( !oscillator.pitch ) { // not present in legacy instruments
-            InstrumentFactory.createPitchEnvelope( oscillator );
-        }
         pitchRangeControl.value   = oscillator.pitch.range;
         pitchAttackControl.value  = oscillator.pitch.attack;
         pitchDecayControl.value   = oscillator.pitch.decay;

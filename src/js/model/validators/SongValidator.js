@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const InstrumentFactory = require( "../factory/InstrumentFactory" );
+
 module.exports =
 {
     /**
@@ -45,5 +47,44 @@ module.exports =
                typeof song.meta    !== "undefined" &&
                Array.isArray( song.instruments )   &&
                Array.isArray( song.patterns );
+    },
+
+    /**
+     * transforms a legacy Song so its description contains
+     * all properties available to newer factory versions
+     *
+     * @public
+     * @param {Object} song
+     */
+    transformLegacy( song )
+    {
+        song.instruments.forEach(( instrument ) => {
+
+            // pitch envelope was added in version 2 of SongAssemblyService
+
+            instrument.oscillators.forEach(( oscillator ) => {
+                if ( typeof oscillator.pitch !== "object" ) {
+                    InstrumentFactory.createPitchEnvelope( oscillator );
+                }
+            });
+        });
+
+        // fix bug where copied channels have the wrong startMeasure offset
+        // we probably want to remove this at a certain bug as the source of the bug has been fixed...
+
+        song.patterns.forEach(( pattern, patternIndex ) => {
+            pattern.channels.forEach(( channel ) => {
+                channel.forEach(( event ) => {
+                    if ( event && event.seq ) {
+                        const eventStart  = event.seq.startMeasure;
+                        const eventEnd    = event.seq.endMeasure;
+                        const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
+
+                        event.seq.startMeasure = patternIndex;
+                        event.seq.endMeasure   = event.seq.startMeasure + eventLength;
+                    }
+                });
+            });
+        });
     }
 };

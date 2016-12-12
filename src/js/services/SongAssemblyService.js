@@ -22,8 +22,8 @@
  */
 "use strict";
 
-const EventUtil         = require( "../utils/EventUtil" );
-const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
+const EventUtil     = require( "../utils/EventUtil" );
+const SongValidator = require( "../model/validators/SongValidator" );
 
 /* private properties */
 
@@ -63,6 +63,9 @@ module.exports = {
                 assembleMeta       ( song, xtkVersion, xtk[ META_OBJECT ] );
                 assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
                 assemblePatterns   ( song, xtkVersion, xtk[ PATTERNS ], song.meta.tempo );
+
+                // perform transformation on legacy songs
+                SongValidator.transformLegacy( song );
 
                 return song;
             }
@@ -225,7 +228,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
             oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
         };
 
-        xtkInstrument[ INSTRUMENT_OSCILLATORS].forEach( function( xtkOscillator, oIndex ) {
+        xtkInstrument[ INSTRUMENT_OSCILLATORS ].forEach( function( xtkOscillator, oIndex ) {
 
             const osc = song.instruments[ index ].oscillators[ oIndex ] = {
                 enabled: xtkOscillator[ OSCILLATOR_ENABLED ],
@@ -252,9 +255,6 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
                     sustain : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_ADSR_SUSTAIN ],
                     release : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_ADSR_RELEASE ]
                 };
-            }
-            else {
-                InstrumentFactory.createPitchEnvelope( osc );
             }
         });
     });

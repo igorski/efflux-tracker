@@ -28,6 +28,7 @@ const InstrumentModel                 = require( "./model/InstrumentModel" );
 const SelectionModel                  = require( "./model/SelectionModel" );
 const SongModel                       = require( "./model/SongModel" );
 const StateModel                      = require( "./model/StateModel" );
+const SongValidator                   = require( "./model/validators/SongValidator" );
 const AudioController                 = require( "./controller/AudioController" );
 const ConfirmController               = require( "./controller/ConfirmController" );
 const HelpController                  = require( "./controller/HelpController" );
@@ -139,6 +140,7 @@ else {
 
     [
         Messages.LOAD_SONG,
+        Messages.TRANSFORM_LEGACY_SONG,
         Messages.CREATE_LINKED_LISTS,
         Messages.SAVE_STATE
 
@@ -165,6 +167,12 @@ function handleBroadcast( type, payload )
                 Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
                 efflux.StateModel.flush();
             }
+            break;
+
+        case Messages.TRANSFORM_LEGACY_SONG:
+
+            if ( typeof payload === "object" )
+                SongValidator.transformLegacy( payload );
             break;
 
         case Messages.CREATE_LINKED_LISTS:

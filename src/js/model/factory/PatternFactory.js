@@ -23,7 +23,8 @@
 "use strict";
 
 const Config       = require( "../../config/Config" ),
-      EventFactory = require( "./EventFactory" );
+      EventFactory = require( "./EventFactory" ),
+      ObjectUtil   = require( "../../utils/ObjectUtil" );
 
 /**
  * type definition for a pattern list
@@ -112,7 +113,7 @@ const PatternFactory = module.exports =
             sourceLength = sourcePattern.steps = targetLength;
         }
 
-        let sourceStep, orgStartMeasure;
+        let sourceEvent, targetEvent;
 
         targetPattern.channels.forEach(( targetChannel, index ) =>
         {
@@ -122,19 +123,22 @@ const PatternFactory = module.exports =
 
             while ( i-- ) {
 
-                sourceStep = sourceChannel[ i ];
+                sourceEvent = sourceChannel[ i ];
 
                 // copy source content into the target channel (only when it has a note action or module parameter automation)
 
-                if ( sourceStep && ( sourceStep.action !== 0 || sourceStep.mp )) {
+                if ( sourceEvent && ( sourceEvent.action !== 0 || sourceEvent.mp )) {
 
-                    targetChannel[ i ] = sourceStep;
+                    targetEvent = targetChannel[ i ] = ObjectUtil.clone( sourceEvent );
 
                     // update the start measure of the event
 
-                    orgStartMeasure             = sourceStep.seq.startMeasure;
-                    sourceStep.seq.startMeasure = targetPatternIndex;
-                    sourceStep.seq.endMeasure  += ( targetPatternIndex - orgStartMeasure );
+                    const eventStart  = targetEvent.seq.startMeasure;
+                    const eventEnd    = targetEvent.seq.endMeasure;
+                    const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
+
+                    targetEvent.seq.startMeasure = targetPatternIndex;
+                    targetEvent.seq.endMeasure   = targetEvent.seq.startMeasure + eventLength;
                 }
             }
         });
