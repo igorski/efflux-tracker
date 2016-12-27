@@ -28,6 +28,7 @@ const Messages = require( "../definitions/Messages" );
 const Style    = require( "zjslib" ).Style;
 const Pubsub   = require( "pubsub-js" );
 const Bowser   = require( "bowser" );
+const DOMUtil  = require( "../utils/DOMUtil" );
 
 /* private variables */
 
@@ -48,7 +49,7 @@ module.exports =
         // add listeners to DOM
 
         window.addEventListener( "resize", handleEvent );
-        window.addEventListener( "scroll", handleEvent );
+        DOMUtil.listen( window,  "scroll", handleEvent );
 
         // listen to window unload when user navigates away
 

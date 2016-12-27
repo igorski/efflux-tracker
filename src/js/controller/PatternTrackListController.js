@@ -30,6 +30,7 @@ const EventFactory   = require( "../model/factory/EventFactory" );
 const PatternFactory = require( "../model/factory/PatternFactory" );
 const StateFactory   = require( "../model/factory/StateFactory" );
 const Form           = require( "../utils/Form" );
+const DOMUtil        = require( "../utils/DOMUtil" );
 const EventUtil      = require( "../utils/EventUtil" );
 const ObjectUtil     = require( "../utils/ObjectUtil" );
 const PatternUtil    = require( "../utils/PatternUtil" );
@@ -67,9 +68,9 @@ const PatternTrackListController = module.exports =
         // add listeners
 
         wrapper.addEventListener( "click",      handleInteraction );
-        wrapper.addEventListener( "touchstart", handleInteraction );
-        wrapper.addEventListener( "touchend",   handleInteraction );
         wrapper.addEventListener( "dblclick",   handleInteraction );
+        DOMUtil.listen( wrapper, "touchstart", handleInteraction );
+        DOMUtil.listen( wrapper, "touchend",   handleInteraction );
 
         document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
         document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
