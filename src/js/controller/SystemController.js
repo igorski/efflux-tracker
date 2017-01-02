@@ -22,13 +22,13 @@
  */
 "use strict";
 
-const Config   = require( "../config/Config" );
-const Copy     = require( "../i18n/Copy" );
-const Messages = require( "../definitions/Messages" );
-const Style    = require( "zjslib" ).Style;
-const Pubsub   = require( "pubsub-js" );
-const Bowser   = require( "bowser" );
-const DOMUtil  = require( "../utils/DOMUtil" );
+const Config       = require( "../config/Config" );
+const Copy         = require( "../i18n/Copy" );
+const Messages     = require( "../definitions/Messages" );
+const Style        = require( "zjslib" ).Style;
+const Pubsub       = require( "pubsub-js" );
+const Bowser       = require( "bowser" );
+const ListenerUtil = require( "../utils/ListenerUtil" );
 
 /* private variables */
 
@@ -49,7 +49,7 @@ module.exports =
         // add listeners to DOM
 
         window.addEventListener( "resize", handleEvent );
-        DOMUtil.listen( window,  "scroll", handleEvent );
+        ListenerUtil.listen( window,  "scroll", handleEvent );
 
         // listen to window unload when user navigates away
 

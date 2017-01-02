@@ -181,12 +181,11 @@ const AudioController = module.exports =
      */
     reset()
     {
-        instrumentEvents.forEach( function( events, instrumentIndex )
-        {
+        instrumentEvents.forEach(( events, instrumentIndex ) => {
+
             let i = events.length, event;
 
-            while ( i-- )
-            {
+            while ( i-- ) {
                 event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
 
                 if ( event ) {

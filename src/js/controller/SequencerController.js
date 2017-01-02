@@ -137,7 +137,7 @@ const SequencerController = module.exports =
         worker = new Worker( "../../workers/SequencerWorker.js" );
         worker.onmessage = ( msg ) =>
         {
-            if ( msg.data.cmd === "collect" )
+            if ( msg.data.cmd === "collect" && playing )
                 collect();
         };
     },
@@ -182,7 +182,6 @@ const SequencerController = module.exports =
             cl.remove( "icon-stop" );
 
             worker.postMessage({ "cmd" : "stop" });
-
             Pubsub.publishSync( Messages.PLAYBACK_STOPPED );
 
             if ( recording )

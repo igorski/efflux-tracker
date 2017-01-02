@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 "use strict";
+
 let supportsPassive = false;
 
 module.exports = {
@@ -34,7 +35,6 @@ module.exports = {
      * @param {!Function} handler
      */
     listen( object, eventType, handler ) {
-        console.warn("supports passive?",supportsPassive);
         object.addEventListener( eventType, handler, ( supportsPassive ) ? { passive: true } : false );
     }
 };
