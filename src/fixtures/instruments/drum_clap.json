@@ -1,0 +1,92 @@
+{
+  "id": 2,
+  "name": "Instrument 2",
+  "presetName": "FACTORY drum clap",
+  "oscillators": [
+    {
+      "enabled": true,
+      "waveform": "NOISE",
+      "table": 0,
+      "volume": 0.46,
+      "detune": 0,
+      "octaveShift": 0,
+      "fineShift": 0,
+      "adsr": {
+        "attack": 0,
+        "decay": 0.09,
+        "sustain": 0,
+        "release": 0
+      },
+      "pitch": {
+        "range": -21,
+        "attack": 0,
+        "decay": 0.11,
+        "sustain": 0,
+        "release": 0,
+        "org": 1
+      }
+    },
+    {
+      "enabled": false,
+      "waveform": "SAW",
+      "table": 0,
+      "volume": 1,
+      "detune": 0,
+      "octaveShift": 0,
+      "fineShift": 0,
+      "adsr": {
+        "attack": 0,
+        "decay": 0,
+        "sustain": 0.75,
+        "release": 0
+      },
+      "pitch": {
+        "range": 0,
+        "attack": 0,
+        "decay": 1,
+        "sustain": 0.75,
+        "release": 0
+      }
+    },
+    {
+      "enabled": false,
+      "waveform": "SAW",
+      "table": 0,
+      "volume": 1,
+      "detune": 0,
+      "octaveShift": 0,
+      "fineShift": 0,
+      "adsr": {
+        "attack": 0,
+        "decay": 0,
+        "sustain": 0.75,
+        "release": 0
+      },
+      "pitch": {
+        "range": 0,
+        "attack": 0,
+        "decay": 1,
+        "sustain": 0.75,
+        "release": 0
+      }
+    }
+  ],
+  "volume": 0.22,
+  "filter": {
+    "enabled": true,
+    "frequency": 4082.44,
+    "q": 17,
+    "speed": 0.5,
+    "depth": 50,
+    "type": "lowpass",
+    "lfoType": "off"
+  },
+  "delay": {
+    "enabled": false,
+    "type": 0,
+    "time": 0.5,
+    "feedback": 0.5,
+    "cutoff": 880,
+    "offset": 0
+  }
+}
