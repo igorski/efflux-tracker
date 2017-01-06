@@ -1,7 +1,7 @@
 {
   "id": 0,
   "name": "Instrument 0",
-  "presetName": "FACTORY key snappy",
+  "presetName": "FACTORY keys (snappy)",
   "volume": 1,
   "delay": {
     "enabled": true,

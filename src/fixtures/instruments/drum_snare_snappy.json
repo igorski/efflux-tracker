@@ -1,7 +1,7 @@
 {
   "id": 3,
   "name": "Instrument 3",
-  "presetName": "FACTORY drum snare pitched",
+  "presetName": "FACTORY drum snare (snappy)",
   "oscillators": [
     {
       "enabled": true,

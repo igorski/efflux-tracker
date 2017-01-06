@@ -1,7 +1,7 @@
 {
   "id": 0,
   "name": "Instrument 0",
-  "presetName": "FACTORY drum kick punchy",
+  "presetName": "FACTORY drum kick (pitched)",
   "oscillators": [
     {
       "enabled": true,
