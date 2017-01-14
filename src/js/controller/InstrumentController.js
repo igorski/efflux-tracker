@@ -42,6 +42,7 @@ let container, efflux, keyboardController, view, canvas, wtDraw,
     amplitudeEditor, pitchEditor,
     attackControl, decayControl, sustainControl, releaseControl,
     pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl,
+    moduleEditorPage1, moduleEditorPage2,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
     eqEnabledSelect, eqLowControl, eqMidControl, eqHighControl,
     odEnabledSelect, odDriveControl, odColorControl, odPreBandControl, odPostCutControl,
@@ -97,6 +98,9 @@ const InstrumentController = module.exports =
 
             amplitudeEditor = view.querySelector( "#amplitudeEditor" );
             pitchEditor     = view.querySelector( "#pitchEditor" );
+
+            moduleEditorPage1 = view.querySelector( "#modulesPage1" );
+            moduleEditorPage2 = view.querySelector( "#modulesPage2" );
 
             // filter
             filterEnabledSelect     = view.querySelector( "#filterEnabled" );
@@ -163,6 +167,7 @@ const InstrumentController = module.exports =
             view.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
             view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
             view.querySelector( "#envelopeTabs" ).addEventListener  ( "click", handleEnvelopeTabClick );
+            view.querySelector( "#modulesTabs" ).addEventListener   ( "click", handleModulesTabClick );
             instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
             presetSelect.addEventListener     ( "change", handlePresetSelect );
             presetSave.addEventListener       ( "click",  handlePresetSave );
@@ -384,6 +389,33 @@ function handleEnvelopeTabClick( aEvent )
                 break;
         }
         const tabs = view.querySelectorAll( "#envelopeTabs li" );
+        let i = tabs.length;
+        while ( i-- ) {
+            const tab = tabs[ i ];
+            if ( tab === element )
+                tab.classList.add( "active" );
+            else
+                tab.classList.remove( "active" );
+        }
+    }
+}
+
+function handleModulesTabClick( aEvent )
+{
+    const element = aEvent.target, activeClass = "active";
+    if ( element.nodeName === "LI" ) {
+        switch( element.getAttribute( "data-type" )) {
+            default:
+            case "page1":
+                moduleEditorPage1.classList.add( activeClass );
+                moduleEditorPage2.classList.remove( activeClass );
+                break;
+            case "page2":
+                moduleEditorPage1.classList.remove( activeClass );
+                moduleEditorPage2.classList.add( activeClass );
+                break;
+        }
+        const tabs = view.querySelectorAll( "#modulesTabs li" );
         let i = tabs.length;
         while ( i-- ) {
             const tab = tabs[ i ];

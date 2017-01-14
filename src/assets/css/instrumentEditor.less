@@ -110,25 +110,25 @@
 #instrumentModulesEditor {
 
   float: right;
-  padding: 0 1em 1em;
+  padding: 0 1em;
   .boxSize;
 
   .instrument-parameters {
     width: 100%;
+    border: 2px solid #666;
+    border-radius: 7px;
+    padding: 1em;
+    margin-bottom: .5em;
+    .boxSize;
+  }
+
+  .tabbed-content {
+    border: none;
   }
 }
 
 #filterEditor {
   margin-bottom: .7em;
-}
-
-#filterEditor,
-#delayEditor {
-
-  border: 2px solid #666;
-  border-radius: 7px;
-  padding: 1em;
-  .boxSize;
 }
 
 #filterEnabled {
@@ -181,6 +181,7 @@
   #instrumentModulesEditor {
     display: inline-block;
     width: 33%;
+    margin-top: -37px;
   }
 }
 
