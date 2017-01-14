@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,6 +34,8 @@ module.exports =
     MAX_OCTAVE                  : 8,
     SONG_FILE_EXTENSION         : ".xtk",
     INSTRUMENT_FILE_EXTENSION   : ".xit",
+
+    MIN_EQ_GAIN                 : -40.0, // in dB
 
     DEFAULT_FILTER_FREQ         : 880,
     DEFAULT_FILTER_Q            : 5,

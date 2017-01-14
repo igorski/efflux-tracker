@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,28 +43,38 @@ const ModuleUtil = module.exports =
     applyRouting( modules, output )
     {
         const moduleOutput = modules.output,
+              eq           = modules.eq,
               filter       = modules.filter.filter,
               delay        = modules.delay.delay;
 
         moduleOutput.disconnect();
+        eq.output.disconnect();
         filter.disconnect();
         delay.output.disconnect();
 
-        let route = [], lastModule = moduleOutput;
+        const routes   = [];
+        let lastOutput = moduleOutput;
+
+        if ( modules.eq.eqEnabled ) {
+            lastOutput.connect( eq.lowBand );
+            lastOutput.connect( eq.midBand );
+            lastOutput.connect( eq.highBand );
+            lastOutput = eq.output;
+        }
 
         if ( modules.filter.filterEnabled )
-            route.push( filter );
+            routes.push( filter );
 
         if ( modules.delay.delayEnabled )
-            route.push( delay );
+            routes.push( delay );
 
-        route.push( output );
+        routes.push( output );
 
         let input;
-        route.forEach(( mod ) => {
-            input = ( mod instanceof Delay ) ? mod.input : mod; // Delay is special
-            lastModule.connect( input );
-            lastModule = ( mod instanceof Delay ) ? mod.output : mod;
+        routes.forEach(( mod ) => {
+            input = ( mod instanceof Delay ) ? mod.input : mod;
+            lastOutput.connect( input );
+            lastOutput = ( mod instanceof Delay ) ? mod.output : mod;
         });
     },
 

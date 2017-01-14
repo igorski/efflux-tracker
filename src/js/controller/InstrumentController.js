@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,6 +43,7 @@ let container, efflux, keyboardController, view, canvas, wtDraw,
     attackControl, decayControl, sustainControl, releaseControl,
     pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
+    eqEnabledSelect, eqLowControl, eqMidControl, eqHighControl,
     delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
 let activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
@@ -113,6 +114,12 @@ const InstrumentController = module.exports =
             delayCutoffControl   = view.querySelector( "#delayCutoff" );
             delayOffsetControl   = view.querySelector( "#delayOffset" );
 
+            // eq
+            eqEnabledSelect = view.querySelector( "#eqEnabled" );
+            eqLowControl    = view.querySelector( "#eqLow" );
+            eqMidControl    = view.querySelector( "#eqMid" );
+            eqHighControl   = view.querySelector( "#eqHigh" );
+
             canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
             canvas.setBackgroundColor( "#000000" );
             canvas.insertInPage( view.querySelector( "#canvasContainer" ));
@@ -180,9 +187,14 @@ const InstrumentController = module.exports =
 
             delayEnabledSelect.addEventListener( "change", handleDelayChange );
             delayTypeSelect.addEventListener   ( "change", handleDelayChange );
-            [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( ( control ) => {
+            [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach(( control ) => {
                 control.addEventListener( "input", handleDelayChange );
             });
+
+            eqEnabledSelect.addEventListener( "change", handleEqChange );
+            [ eqLowControl, eqMidControl, eqHighControl ].forEach(( control => {
+                control.addEventListener( "input", handleEqChange );
+            }));
 
             updateWaveformSize();
             updatePresetList();
@@ -266,6 +278,11 @@ const InstrumentController = module.exports =
         delayFeedbackControl.value = instrumentRef.delay.feedback;
         delayCutoffControl.value   = instrumentRef.delay.cutoff;
         delayOffsetControl.value   = instrumentRef.delay.offset + .5;
+
+        Form.setSelectedOption( eqEnabledSelect, instrumentRef.eq.enabled );
+        eqLowControl.value  = instrumentRef.eq.lowGain;
+        eqMidControl.value  = instrumentRef.eq.midGain;
+        eqHighControl.value = instrumentRef.eq.highGain;
 
         updatePresetList();
     }
@@ -469,6 +486,19 @@ function handleDelayChange( aEvent ) {
     delay.offset   = parseFloat( delayOffsetControl.value ) - .5;
 
     Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS, [ instrumentId, delay ]);
+    invalidatePreset();
+}
+
+function handleEqChange( aEvent ) {
+
+    const eq = instrumentRef.eq;
+
+    eq.enabled  = ( Form.getSelectedOption( eqEnabledSelect ) === "true" );
+    eq.lowGain  = parseFloat( eqLowControl.value );
+    eq.midGain  = parseFloat( eqMidControl.value );
+    eq.highGain = parseFloat( eqHighControl.value );
+
+    Pubsub.publishSync( Messages.UPDATE_EQ_SETTINGS, [ instrumentId, eq ]);
     invalidatePreset();
 }
 

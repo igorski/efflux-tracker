@@ -87,12 +87,12 @@ ROADMAP
 
  * Separate PatternMenu from PatternTrackListController
  * Separate view logic from controllers
+ * Split InstrumentController into separete view controllers for each module
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Minimize vendor libraries
  * Add pattern jump instructions
  * Add cut/paste icons for touch screen devices
- * Add EQ for each individual instrument for mix balancing
  * Improve arrow key navigation within patterns (there are odd visual jumps when switching direction)
  * Implement Instrument mute / solo
  * Add overdrive (npm: wa-overdrive)

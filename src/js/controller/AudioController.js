@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,6 +23,7 @@
 "use strict";
 
 const AudioFactory   = require( "../model/factory/AudioFactory" );
+const ModuleFactory  = require( "../model/factory/ModuleFactory" );
 const AudioUtil      = require( "../utils/AudioUtil" );
 const ModuleUtil     = require( "../utils/ModuleUtil" );
 const InstrumentUtil = require( "../utils/InstrumentUtil" );
@@ -65,6 +66,7 @@ let EVENT_OBJECT;
 
 /**
  * @typedef {{
+ *              eq: EQ_MODULE,
  *              filter: FILTER_MODULE,
  *              delay: DELAY_MODULE,
  *              output: AudioParam
@@ -169,6 +171,7 @@ const AudioController = module.exports =
             Messages.ADJUST_INSTRUMENT_VOLUME,
             Messages.UPDATE_FILTER_SETTINGS,
             Messages.UPDATE_DELAY_SETTINGS,
+            Messages.UPDATE_EQ_SETTINGS,
             Messages.NOTE_ON,
             Messages.NOTE_OFF
 
@@ -421,14 +424,21 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.UPDATE_FILTER_SETTINGS:
-            AudioFactory.applyFilterConfiguration(
+            ModuleFactory.applyFilterConfiguration(
                 instrumentModules[ payload[ 0 ]],
                 payload[ 1 ], masterBus
             );
             break;
 
         case Messages.UPDATE_DELAY_SETTINGS:
-            AudioFactory.applyDelayConfiguration(
+            ModuleFactory.applyDelayConfiguration(
+                instrumentModules[ payload[ 0 ]],
+                payload[ 1 ], masterBus
+            );
+            break;
+
+        case Messages.UPDATE_EQ_SETTINGS:
+            ModuleFactory.applyEQConfiguration(
                 instrumentModules[ payload[ 0 ]],
                 payload[ 1 ], masterBus
             );
@@ -479,8 +489,9 @@ function createModules()
     {
         module = instrumentModules[ i ] = {
             output : AudioFactory.createGainNode( audioContext ),
-            filter : AudioFactory.createFilter( audioContext ),
-            delay  : AudioFactory.createDelay( audioContext )
+            eq     : ModuleFactory.createEQ( audioContext ),
+            filter : ModuleFactory.createFilter( audioContext ),
+            delay  : ModuleFactory.createDelay( audioContext )
         };
         ModuleUtil.applyRouting( module, masterBus );
     }

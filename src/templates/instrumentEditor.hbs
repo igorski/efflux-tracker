@@ -199,6 +199,26 @@
                 <input type="range" id="delayOffset" min="0" max="1" step=".01" value="0">
             </div>
         </div>
+
+        <div id="eqEditor" class="instrument-parameters">
+            <h2>Equalizer</h2>
+            <select id="eqEnabled">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+            <div class="wrapper input range">
+                <label for="eqLow">Low</label>
+                <input type="range" id="eqLow" min="0" max="1" step=".01" value="1">
+            </div>
+            <div class="wrapper input range">
+                <label for="eqMid">Mid</label>
+                <input type="range" id="eqMid" min="0" max="1" step=".01" value="1">
+            </div>
+            <div class="wrapper input range">
+                <label for="eqHigh">High</label>
+                <input type="range" id="eqHigh" min="0" max="1" step=".01" value="1">
+            </div>
+        </div>
     </section>
 </div>
 

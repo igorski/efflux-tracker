@@ -63,10 +63,14 @@ module.exports =
             // pitch envelope was added in version 2 of SongAssemblyService
 
             instrument.oscillators.forEach(( oscillator ) => {
-                if ( typeof oscillator.pitch !== "object" ) {
+                if ( typeof oscillator.pitch !== "object" )
                     InstrumentFactory.createPitchEnvelope( oscillator );
-                }
             });
+
+            // eq was added in version 3 of SongAssemblyService
+
+            if ( typeof instrument.eq !== "object" )
+                InstrumentFactory.createEQ( instrument );
         });
 
         // fix bug where copied channels have the wrong startMeasure offset

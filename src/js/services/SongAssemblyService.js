@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,7 +27,7 @@ const SongValidator = require( "../model/validators/SongValidator" );
 
 /* private properties */
 
-const ASSEMBLER_VERSION = 2;
+const ASSEMBLER_VERSION = 3;
 
 /**
  * SongAssembly is used to convert a Song Object into an .XTK representation
@@ -136,6 +136,11 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_FILTER_Q         = "q",
       INSTRUMENT_FILTER_SPEED     = "s",
       INSTRUMENT_FILTER_TYPE      = "ft",
+      INSTRUMENT_EQ               = "eq",
+      INSTRUMENT_EQ_ENABLED       = "e",
+      INSTRUMENT_EQ_LOW           = "l",
+      INSTRUMENT_EQ_MID           = "m",
+      INSTRUMENT_EQ_HIGH          = "h",
 
       INSTRUMENT_OSCILLATORS  = "o",
       OSCILLATOR_ENABLED      = "e",
@@ -196,10 +201,11 @@ function disassembleMeta( xtk, meta ) {
 function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 
     song.instruments = new Array( xtkInstruments.length );
-    let xtkDelay, xtkFilter;
+    let xtkEq, xtkDelay, xtkFilter;
 
-    xtkInstruments.forEach( function( xtkInstrument, index ) {
+    xtkInstruments.forEach(( xtkInstrument, index ) => {
 
+        xtkEq     = xtkInstrument[ INSTRUMENT_EQ ];
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ];
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ];
 
@@ -228,7 +234,18 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
             oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
         };
 
-        xtkInstrument[ INSTRUMENT_OSCILLATORS ].forEach( function( xtkOscillator, oIndex ) {
+        // EQ introduced in assembly version 3
+
+        if ( savedXtkVersion >= 3 ) {
+            song.instruments[ index ].eq = {
+                enabled  : xtkEq[ INSTRUMENT_EQ_ENABLED ],
+                lowGain  : xtkEq[ INSTRUMENT_EQ_LOW ],
+                midGain  : xtkEq[ INSTRUMENT_EQ_MID ],
+                highGain : xtkEq[ INSTRUMENT_EQ_HIGH ]
+            };
+        }
+
+        xtkInstrument[ INSTRUMENT_OSCILLATORS ].forEach(( xtkOscillator, oIndex ) => {
 
             const osc = song.instruments[ index ].oscillators[ oIndex ] = {
                 enabled: xtkOscillator[ OSCILLATOR_ENABLED ],
@@ -263,14 +280,15 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 function disassembleInstruments( xtk, instruments ) {
 
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
-    let xtkInstrument, delay, filter, xtkDelay, xtkFilter, xtkOscillator, xtkADSR, xtkPitchADSR;
+    let xtkInstrument, delay, filter, eq, xtkDelay, xtkFilter, xtkEq, xtkOscillator, xtkADSR, xtkPitchADSR;
 
-    instruments.forEach( function( instrument, index ) {
+    instruments.forEach(( instrument, index ) => {
 
         xtkInstrument = xtkInstruments[ index ] = {};
 
         delay  = instrument.delay;
         filter = instrument.filter;
+        eq     = instrument.eq;
 
         xtkInstrument[ INSTRUMENT_ID ]          = instrument.id;
         xtkInstrument[ INSTRUMENT_NAME ]        = instrument.name;
@@ -279,6 +297,7 @@ function disassembleInstruments( xtk, instruments ) {
 
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ]  = {};
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ] = {};
+        xtkEq     = xtkInstrument[ INSTRUMENT_EQ ]     = {};
 
         xtkDelay[ INSTRUMENT_DELAY_ENABLED  ] = delay.enabled;
         xtkDelay[ INSTRUMENT_DELAY_CUTOFF   ] = delay.cutoff;
@@ -295,9 +314,14 @@ function disassembleInstruments( xtk, instruments ) {
         xtkFilter[ INSTRUMENT_FILTER_SPEED     ] = filter.speed;
         xtkFilter[ INSTRUMENT_FILTER_TYPE      ] = filter.type;
 
+        xtkEq[ INSTRUMENT_EQ_ENABLED ] = eq.enabled;
+        xtkEq[ INSTRUMENT_EQ_LOW ]     = eq.lowGain;
+        xtkEq[ INSTRUMENT_EQ_MID ]     = eq.midGain;
+        xtkEq[ INSTRUMENT_EQ_HIGH ]    = eq.highGain;
+
         xtkInstrument[ INSTRUMENT_OSCILLATORS ] = new Array( instrument.oscillators.length );
 
-        instrument.oscillators.forEach( function( oscillator, oIndex ) {
+        instrument.oscillators.forEach(( oscillator, oIndex ) => {
 
             xtkOscillator = xtkInstrument[ INSTRUMENT_OSCILLATORS ][ oIndex ] = {};
 
@@ -337,18 +361,18 @@ function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
     song.patterns = new Array( xtkPatterns.length );
     let pattern, channel, event, xtkAutomation;
 
-    xtkPatterns.forEach( function( xtkPattern, pIndex ) {
+    xtkPatterns.forEach(( xtkPattern, pIndex ) => {
 
         pattern = song.patterns[ pIndex ] = {
             steps: xtkPattern[ PATTERN_STEPS ],
             channels: xtkPattern[ PATTERN_CHANNELS ]
         };
 
-        xtkPattern[ PATTERN_CHANNELS ].forEach( function( xtkChannel, cIndex ) {
+        xtkPattern[ PATTERN_CHANNELS ].forEach(( xtkChannel, cIndex ) => {
 
             channel = pattern.channels[ cIndex ] = new Array( xtkChannel.length );
 
-            xtkChannel.forEach( function( xtkEvent, eIndex ) {
+            xtkChannel.forEach(( xtkEvent, eIndex ) => {
 
                 if ( xtkEvent ) {
 
@@ -390,18 +414,18 @@ function disassemblePatterns( xtk, patterns ) {
     const xtkPatterns = xtk[ PATTERNS ] = new Array( patterns.length );
     let xtkPattern, xtkChannel, xtkEvent, xtkAutomation;
 
-    patterns.forEach( function( pattern, pIndex ) {
+    patterns.forEach(( pattern, pIndex ) => {
 
         xtkPattern = xtkPatterns[ pIndex ] = {};
 
         xtkPattern[ PATTERN_STEPS ]    = pattern.steps;
         xtkPattern[ PATTERN_CHANNELS ] = new Array( pattern.channels.length );
 
-        pattern.channels.forEach( function( channel, cIndex ) {
+        pattern.channels.forEach(( channel, cIndex ) => {
 
             xtkChannel = xtkPattern[ PATTERN_CHANNELS ][ cIndex ] = new Array( channel.length );
 
-            channel.forEach( function( event, eIndex ) {
+            channel.forEach(( event, eIndex ) => {
 
                 if ( event ) {
 
