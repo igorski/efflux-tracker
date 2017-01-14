@@ -26,6 +26,7 @@ const AudioFactory = require( "./AudioFactory" );
 const ModuleUtil   = require( "../../utils/ModuleUtil" );
 const Config       = require( "../../config/Config" );
 const Delay        = require( "../../third_party/Delay" );
+const Overdrive    = require( "wa-overdrive" );
 
 /* type definitions */
 
@@ -61,6 +62,14 @@ let EQ_MODULE;
  *          }}
  */
 let DELAY_MODULE;
+
+/**
+ * @typedef {{
+ *              overdrive: Overdrive
+ *              overdriveEnabled: boolean
+ *          }}
+ */
+let OVERDRIVE_MODULE;
 
 module.exports = {
 
@@ -163,8 +172,7 @@ module.exports = {
      */
     createDelay( audioContext )
     {
-        const delay = new Delay( audioContext,
-        {
+        const delay = new Delay( audioContext, {
             type: 0,
             delay: 0.5,
             feedback: 0.42,
@@ -175,6 +183,25 @@ module.exports = {
         return {
             delay: delay,
             delayEnabled: false
+        }
+    },
+
+    /**
+     * @param {Audiocontext} audioContext
+     * @return {OVERDRIVE_MODULE}
+     */
+    createOverdrive( audioContext )
+    {
+        const overdrive = new Overdrive( audioContext, {
+            preBand: 1.0,
+            postCut: 8000,
+            color: 4000,
+            drive: 0.8
+        });
+
+        return {
+            overdrive: overdrive,
+            overdriveEnabled: false
         }
     },
 
@@ -195,6 +222,26 @@ module.exports = {
         eq.lowGain.gain.value  = props.lowGain;
         eq.midGain.gain.value  = props.midGain;
         eq.highGain.gain.value = props.highGain;
+
+        ModuleUtil.applyRouting( modules, output );
+    },
+
+    /**
+     * apply a Overdrive configuration onto an Overdrive module
+     *
+     * @param {INSTRUMENT_MODULES} modules
+     * @param {Object} props
+     * @param {AudioParam} output
+     */
+    applyODConfiguration( modules, props, output )
+    {
+        const overdrive = modules.overdrive;
+
+        overdrive.overdriveEnabled  = props.enabled;
+        overdrive.overdrive.color   = props.color;
+        overdrive.overdrive.drive   = props.drive;
+        overdrive.overdrive.preBand = props.preBand;
+        overdrive.overdrive.postCut = props.postCut;
 
         ModuleUtil.applyRouting( modules, output );
     },

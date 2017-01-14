@@ -67,10 +67,13 @@ module.exports =
                     InstrumentFactory.createPitchEnvelope( oscillator );
             });
 
-            // eq was added in version 3 of SongAssemblyService
+            // EQ and OD were added in version 3 of SongAssemblyService
 
             if ( typeof instrument.eq !== "object" )
                 InstrumentFactory.createEQ( instrument );
+
+            if ( typeof instrument.od !== "object" )
+                InstrumentFactory.createOverdrive( instrument );
         });
 
         // fix bug where copied channels have the wrong startMeasure offset

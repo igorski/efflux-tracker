@@ -141,6 +141,12 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_EQ_LOW           = "l",
       INSTRUMENT_EQ_MID           = "m",
       INSTRUMENT_EQ_HIGH          = "h",
+      INSTRUMENT_OD               = "od",
+      INSTRUMENT_OD_ENABLED       = "e",
+      INSTRUMENT_OD_PREBAND       = "pb",
+      INSTRUMENT_OD_POSTCUT       = "pc",
+      INSTRUMENT_OD_COLOR         = "c",
+      INSTRUMENT_OD_DRIVE         = "d",
 
       INSTRUMENT_OSCILLATORS  = "o",
       OSCILLATOR_ENABLED      = "e",
@@ -201,11 +207,12 @@ function disassembleMeta( xtk, meta ) {
 function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 
     song.instruments = new Array( xtkInstruments.length );
-    let xtkEq, xtkDelay, xtkFilter;
+    let xtkEq, xtkOD, xtkDelay, xtkFilter;
 
     xtkInstruments.forEach(( xtkInstrument, index ) => {
 
         xtkEq     = xtkInstrument[ INSTRUMENT_EQ ];
+        xtkOD     = xtkInstrument[ INSTRUMENT_OD ];
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ];
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ];
 
@@ -234,7 +241,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
             oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
         };
 
-        // EQ introduced in assembly version 3
+        // EQ and OD introduced in assembly version 3
 
         if ( savedXtkVersion >= 3 ) {
             song.instruments[ index ].eq = {
@@ -242,6 +249,13 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
                 lowGain  : xtkEq[ INSTRUMENT_EQ_LOW ],
                 midGain  : xtkEq[ INSTRUMENT_EQ_MID ],
                 highGain : xtkEq[ INSTRUMENT_EQ_HIGH ]
+            };
+            song.instruments[ index ].overdrive = {
+                enabled : xtkOD[ INSTRUMENT_OD_ENABLED ],
+                preBand : xtkOD[ INSTRUMENT_OD_PREBAND ],
+                postCut : xtkOD[ INSTRUMENT_OD_POSTCUT ],
+                color   : xtkOD[ INSTRUMENT_OD_COLOR ],
+                drive   : xtkOD[ INSTRUMENT_OD_DRIVE ]
             };
         }
 
@@ -280,7 +294,8 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 function disassembleInstruments( xtk, instruments ) {
 
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
-    let xtkInstrument, delay, filter, eq, xtkDelay, xtkFilter, xtkEq, xtkOscillator, xtkADSR, xtkPitchADSR;
+    let xtkInstrument, delay, filter, eq, od,
+        xtkDelay, xtkFilter, xtkEq, xtkOD, xtkOscillator, xtkADSR, xtkPitchADSR;
 
     instruments.forEach(( instrument, index ) => {
 
@@ -288,6 +303,7 @@ function disassembleInstruments( xtk, instruments ) {
 
         delay  = instrument.delay;
         filter = instrument.filter;
+        od     = instrument.overdrive;
         eq     = instrument.eq;
 
         xtkInstrument[ INSTRUMENT_ID ]          = instrument.id;
@@ -298,6 +314,7 @@ function disassembleInstruments( xtk, instruments ) {
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ]  = {};
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ] = {};
         xtkEq     = xtkInstrument[ INSTRUMENT_EQ ]     = {};
+        xtkOD     = xtkInstrument[ INSTRUMENT_OD ]     = {};
 
         xtkDelay[ INSTRUMENT_DELAY_ENABLED  ] = delay.enabled;
         xtkDelay[ INSTRUMENT_DELAY_CUTOFF   ] = delay.cutoff;
@@ -318,6 +335,12 @@ function disassembleInstruments( xtk, instruments ) {
         xtkEq[ INSTRUMENT_EQ_LOW ]     = eq.lowGain;
         xtkEq[ INSTRUMENT_EQ_MID ]     = eq.midGain;
         xtkEq[ INSTRUMENT_EQ_HIGH ]    = eq.highGain;
+
+        xtkOD[ INSTRUMENT_OD_ENABLED ] = od.enabled;
+        xtkOD[ INSTRUMENT_OD_PREBAND ] = od.preBand;
+        xtkOD[ INSTRUMENT_OD_POSTCUT ] = od.postCut;
+        xtkOD[ INSTRUMENT_OD_COLOR ]   = od.color;
+        xtkOD[ INSTRUMENT_OD_DRIVE ]   = od.drive;
 
         xtkInstrument[ INSTRUMENT_OSCILLATORS ] = new Array( instrument.oscillators.length );
 

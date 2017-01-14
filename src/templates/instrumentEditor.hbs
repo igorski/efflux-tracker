@@ -200,6 +200,30 @@
             </div>
         </div>
 
+        <div id="odEditor" class="instrument-parameters">
+            <h2>Overdrive</h2>
+            <select id="odEnabled">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+            <div class="wrapper input range">
+                <label for="odDrive">Drive</label>
+                <input type="range" id="odDrive" min="0" max="1" step=".01" value="0.5">
+            </div>
+            <div class="wrapper input range">
+                <label for="odPreBand">Bandpass (pre drive)</label>
+                <input type="range" id="odPreBand" min="0" max="1" step=".01" value="0.5">
+            </div>
+            <div class="wrapper input range">
+                <label for="odColor">Pandbass (post drive)</label>
+                <input type="range" id="odColor" min="0" max="22050" step="1" value="800">
+            </div>
+            <div class="wrapper input range">
+                <label for="odPostCut">Low pass (post drive)</label>
+                <input type="range" id="odPostCut" min="0" max="22050" step=".01" value="3000">
+            </div>
+        </div>
+
         <div id="eqEditor" class="instrument-parameters">
             <h2>Equalizer</h2>
             <select id="eqEnabled">

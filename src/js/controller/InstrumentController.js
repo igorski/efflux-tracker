@@ -44,6 +44,7 @@ let container, efflux, keyboardController, view, canvas, wtDraw,
     pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
     eqEnabledSelect, eqLowControl, eqMidControl, eqHighControl,
+    odEnabledSelect, odDriveControl, odColorControl, odPreBandControl, odPostCutControl,
     delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
 let activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
@@ -120,6 +121,13 @@ const InstrumentController = module.exports =
             eqMidControl    = view.querySelector( "#eqMid" );
             eqHighControl   = view.querySelector( "#eqHigh" );
 
+            // overdrive
+            odEnabledSelect  = view.querySelector( "#odEnabled" );
+            odDriveControl   = view.querySelector( "#odDrive" );
+            odColorControl   = view.querySelector( "#odColor" );
+            odPreBandControl = view.querySelector( "#odPreBand" );
+            odPostCutControl = view.querySelector( "#odPostCut" );
+
             canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
             canvas.setBackgroundColor( "#000000" );
             canvas.insertInPage( view.querySelector( "#canvasContainer" ));
@@ -194,6 +202,11 @@ const InstrumentController = module.exports =
             eqEnabledSelect.addEventListener( "change", handleEqChange );
             [ eqLowControl, eqMidControl, eqHighControl ].forEach(( control => {
                 control.addEventListener( "input", handleEqChange );
+            }));
+
+            odEnabledSelect.addEventListener( "change", handleOverdriveChange );
+            [ odDriveControl, odColorControl, odPreBandControl, odPostCutControl ].forEach(( control => {
+                control.addEventListener( "input", handleOverdriveChange );
             }));
 
             updateWaveformSize();
@@ -283,6 +296,12 @@ const InstrumentController = module.exports =
         eqLowControl.value  = instrumentRef.eq.lowGain;
         eqMidControl.value  = instrumentRef.eq.midGain;
         eqHighControl.value = instrumentRef.eq.highGain;
+
+        Form.setSelectedOption( odEnabledSelect, instrumentRef.overdrive.enabled );
+        odDriveControl.value   = instrumentRef.overdrive.drive;
+        odColorControl.value   = instrumentRef.overdrive.color;
+        odPreBandControl.value = instrumentRef.overdrive.preBand;
+        odPostCutControl.value = instrumentRef.overdrive.postCut;
 
         updatePresetList();
     }
@@ -499,6 +518,20 @@ function handleEqChange( aEvent ) {
     eq.highGain = parseFloat( eqHighControl.value );
 
     Pubsub.publishSync( Messages.UPDATE_EQ_SETTINGS, [ instrumentId, eq ]);
+    invalidatePreset();
+}
+
+function handleOverdriveChange( aEvent ) {
+
+    const overdrive = instrumentRef.overdrive;
+
+    overdrive.enabled  = ( Form.getSelectedOption( odEnabledSelect ) === "true" );
+    overdrive.drive    = parseFloat( odDriveControl.value );
+    overdrive.color    = parseFloat( odColorControl.value );
+    overdrive.preBand  = parseFloat( odPreBandControl.value );
+    overdrive.postCut  = parseFloat( odPostCutControl.value );
+
+    Pubsub.publishSync( Messages.UPDATE_OVERDRIVE_SETTINGS, [ instrumentId, overdrive ]);
     invalidatePreset();
 }
 

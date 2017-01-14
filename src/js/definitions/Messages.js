@@ -94,13 +94,14 @@ module.exports =
     UPDATE_FILTER_SETTINGS     : "ED:4", // payload is Array [ instrument index, filter properties Object ]
     UPDATE_DELAY_SETTINGS      : "ED:5", // payload is Array [ instrument index, delay properties Object ]
     UPDATE_EQ_SETTINGS         : "ED:6", // payload is Array [ instrument index, eq properties Object ]
-    EDIT_NOTE_AT_POSITION      : "ED:7",
-    ADD_EVENT_AT_POSITION      : "ED:8", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
-    ADD_OFF_AT_POSITION        : "ED:9",
-    REMOVE_NOTE_AT_POSITION    : "ED:10",
-    SAVE_STATE                 : "ED:11", // payload is Object { undo: Function, redo: Function }
-    EDIT_MOD_PARAMS_FOR_STEP   : "ED:12",
-    EDIT_NOTE_FOR_STEP         : "ED:13",
+    UPDATE_OVERDRIVE_SETTINGS  : "ED:7", // payload is Array [ instrument index, overdrive properties Object ]
+    EDIT_NOTE_AT_POSITION      : "ED:8",
+    ADD_EVENT_AT_POSITION      : "ED:9", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
+    ADD_OFF_AT_POSITION        : "ED:10",
+    REMOVE_NOTE_AT_POSITION    : "ED:11",
+    SAVE_STATE                 : "ED:12", // payload is Object { undo: Function, redo: Function }
+    EDIT_MOD_PARAMS_FOR_STEP   : "ED:13",
+    EDIT_NOTE_FOR_STEP         : "ED:14",
 
     // MIDI messages
 

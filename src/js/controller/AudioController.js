@@ -66,6 +66,7 @@ let EVENT_OBJECT;
 
 /**
  * @typedef {{
+ *              overdrive: OVERDRIVE_MODULE,
  *              eq: EQ_MODULE,
  *              filter: FILTER_MODULE,
  *              delay: DELAY_MODULE,
@@ -172,6 +173,7 @@ const AudioController = module.exports =
             Messages.UPDATE_FILTER_SETTINGS,
             Messages.UPDATE_DELAY_SETTINGS,
             Messages.UPDATE_EQ_SETTINGS,
+            Messages.UPDATE_OVERDRIVE_SETTINGS,
             Messages.NOTE_ON,
             Messages.NOTE_OFF
 
@@ -444,6 +446,13 @@ function handleBroadcast( type, payload )
             );
             break;
 
+        case Messages.UPDATE_OVERDRIVE_SETTINGS:
+            ModuleFactory.applyODConfiguration(
+                instrumentModules[ payload[ 0 ]],
+                payload[ 1 ], masterBus
+            );
+            break;
+
         case Messages.NOTE_ON:
             AudioController.noteOn( payload[ 0 ], payload[ 1 ]);
             break;
@@ -488,10 +497,11 @@ function createModules()
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
     {
         module = instrumentModules[ i ] = {
-            output : AudioFactory.createGainNode( audioContext ),
-            eq     : ModuleFactory.createEQ( audioContext ),
-            filter : ModuleFactory.createFilter( audioContext ),
-            delay  : ModuleFactory.createDelay( audioContext )
+            output    : AudioFactory.createGainNode( audioContext ),
+            overdrive : ModuleFactory.createOverdrive( audioContext ),
+            eq        : ModuleFactory.createEQ( audioContext ),
+            filter    : ModuleFactory.createFilter( audioContext ),
+            delay     : ModuleFactory.createDelay( audioContext )
         };
         ModuleUtil.applyRouting( module, masterBus );
     }
@@ -507,8 +517,10 @@ function applyModules()
     efflux.activeSong.instruments.forEach(( instrument, index ) => {
         instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;
-        Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
-        Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS,  [ instrument.id, instrument.delay ]);
+        Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS,    [ instrument.id, instrument.filter ]);
+        Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS,     [ instrument.id, instrument.delay ]);
+        Pubsub.publishSync( Messages.UPDATE_EQ_SETTINGS,        [ instrument.id, instrument.eq ]);
+        Pubsub.publishSync( Messages.UPDATE_OVERDRIVE_SETTINGS, [ instrument.id, instrument.overdrive ]);
     });
 }
 

@@ -34,6 +34,13 @@ const ObjectUtil = require( "../../utils/ObjectUtil" );
  *              presetName: string,
  *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
  *              volume: number,
+ *              overdrive: {
+ *                  enabled: boolean,
+ *                  preBand: number,
+ *                  postCut: number,
+ *                  color:   number,
+ *                  drive:   number,
+ *              },
  *              eq: {
  *                  enabled  : boolean,
  *                  lowGain  : number,
@@ -143,12 +150,33 @@ const InstrumentFactory = module.exports =
                 offset   : 0
             }
         };
+        InstrumentFactory.createOverdrive( instrument );
         InstrumentFactory.createEQ( instrument );
         return instrument;
     },
 
     /**
-     * create default pitch envelope properties in oscillator
+     * create default overdrive properties
+     * this was not present in legacy instruments
+     *
+     * @public
+     * @param {INSTRUMENT} instrument
+     */
+    createOverdrive( instrument )
+    {
+        if ( typeof instrument.overdrive === "object" ) return;
+
+        instrument.overdrive = {
+            enabled: false,
+            preBand: 1.0,
+            postCut: 8000,
+            color:   4000,
+            drive:   0.8
+        };
+    },
+
+    /**
+     * create default equalizer properties
      * this was not present in legacy instruments
      *
      * @public
@@ -250,9 +278,10 @@ const InstrumentFactory = module.exports =
         newInstrument.id    = newInstrumentId;
         newInstrument.name  = newInstrumentName;
 
-        // legacy preset have no pitch envelopes nor EQ, create now
+        // legacy presets have no pitch envelopes, EQ or overdrive, create now
 
         newInstrument.oscillators.forEach(( oscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
+        InstrumentFactory.createOverdrive( newInstrument );
         InstrumentFactory.createEQ( newInstrument );
 
         return newInstrument;

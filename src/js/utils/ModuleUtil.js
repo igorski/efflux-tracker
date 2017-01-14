@@ -44,10 +44,12 @@ const ModuleUtil = module.exports =
     {
         const moduleOutput = modules.output,
               eq           = modules.eq,
+              overdrive    = modules.overdrive.overdrive,
               filter       = modules.filter.filter,
               delay        = modules.delay.delay;
 
         moduleOutput.disconnect();
+        overdrive.disconnect();
         eq.output.disconnect();
         filter.disconnect();
         delay.output.disconnect();
@@ -55,12 +57,15 @@ const ModuleUtil = module.exports =
         const routes   = [];
         let lastOutput = moduleOutput;
 
-        if ( modules.eq.eqEnabled ) {
+        if ( eq.eqEnabled ) {
             lastOutput.connect( eq.lowBand );
             lastOutput.connect( eq.midBand );
             lastOutput.connect( eq.highBand );
             lastOutput = eq.output;
         }
+
+        if ( modules.overdrive.overdriveEnabled )
+            routes.push( overdrive );
 
         if ( modules.filter.filterEnabled )
             routes.push( filter );
@@ -72,9 +77,14 @@ const ModuleUtil = module.exports =
 
         let input;
         routes.forEach(( mod ) => {
-            input = ( mod instanceof Delay ) ? mod.input : mod;
+
+            // some signatures are different here
+            // Delay and Overdrive have "input" and "output" GainNodes
+            // for any other type of connection (e.g. filter) "mod" is a GainNode
+
+            input = ( mod.input instanceof GainNode ) ? mod.input : mod;
             lastOutput.connect( input );
-            lastOutput = ( mod instanceof Delay ) ? mod.output : mod;
+            lastOutput = ( mod.output instanceof GainNode ) ? mod.output : mod;
         });
     },
 

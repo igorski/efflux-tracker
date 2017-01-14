@@ -95,4 +95,3 @@ ROADMAP
  * Add cut/paste icons for touch screen devices
  * Improve arrow key navigation within patterns (there are odd visual jumps when switching direction)
  * Implement Instrument mute / solo
- * Add overdrive (npm: wa-overdrive)
