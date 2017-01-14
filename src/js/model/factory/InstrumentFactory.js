@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,14 +34,27 @@ const ObjectUtil = require( "../../utils/ObjectUtil" );
  *              presetName: string,
  *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
  *              volume: number,
+ *              overdrive: {
+ *                  enabled: boolean,
+ *                  preBand: number,
+ *                  postCut: number,
+ *                  color:   number,
+ *                  drive:   number,
+ *              },
+ *              eq: {
+ *                  enabled  : boolean,
+ *                  lowGain  : number,
+ *                  midGain  : number,
+ *                  highGain : number
+ *              },
  *              filter : {
+ *                  enabled     : boolean
  *                  frequency   : number,
  *                  q           : number,
  *                  speed       : number,
  *                  depth       : number,
  *                  type        : string,
  *                  lfoType     : string,
- *                  enabled     : boolean
  *              },
  *              delay : {
  *                  enabled  : boolean,
@@ -76,7 +89,7 @@ let INSTRUMENT;
  *     volume      : number,
  *     detune      : number,
  *     octaveShift : number,
- *     fineShift   : number
+ *     fineShift   : number,
  *     adsr: {
  *         attack: number,
  *         decay: number,
@@ -109,7 +122,7 @@ const InstrumentFactory = module.exports =
      */
     createInstrument( aId, aName )
     {
-        return {
+        const instrument = {
             id   : aId,
             name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
             presetName: null,
@@ -136,6 +149,48 @@ const InstrumentFactory = module.exports =
                 cutoff   : 880,
                 offset   : 0
             }
+        };
+        InstrumentFactory.createOverdrive( instrument );
+        InstrumentFactory.createEQ( instrument );
+        return instrument;
+    },
+
+    /**
+     * create default overdrive properties
+     * this was not present in legacy instruments
+     *
+     * @public
+     * @param {INSTRUMENT} instrument
+     */
+    createOverdrive( instrument )
+    {
+        if ( typeof instrument.overdrive === "object" ) return;
+
+        instrument.overdrive = {
+            enabled: false,
+            preBand: 1.0,
+            postCut: 8000,
+            color:   4000,
+            drive:   0.8
+        };
+    },
+
+    /**
+     * create default equalizer properties
+     * this was not present in legacy instruments
+     *
+     * @public
+     * @param {INSTRUMENT} instrument
+     */
+    createEQ( instrument )
+    {
+        if ( typeof instrument.eq === "object" ) return;
+
+        instrument.eq = {
+            enabled  : false,
+            lowGain  : 1,
+            midGain  : 1,
+            highGain : 1
         };
     },
 
@@ -223,9 +278,11 @@ const InstrumentFactory = module.exports =
         newInstrument.id    = newInstrumentId;
         newInstrument.name  = newInstrumentName;
 
-        // legacy preset have no pitch envelopes, create now
+        // legacy presets have no pitch envelopes, EQ or overdrive, create now
 
         newInstrument.oscillators.forEach(( oscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
+        InstrumentFactory.createOverdrive( newInstrument );
+        InstrumentFactory.createEQ( newInstrument );
 
         return newInstrument;
     }

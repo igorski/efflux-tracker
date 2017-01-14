@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -42,7 +42,10 @@ let container, efflux, keyboardController, view, canvas, wtDraw,
     amplitudeEditor, pitchEditor,
     attackControl, decayControl, sustainControl, releaseControl,
     pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl,
+    moduleEditorPage1, moduleEditorPage2,
     filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
+    eqEnabledSelect, eqLowControl, eqMidControl, eqHighControl,
+    odEnabledSelect, odDriveControl, odColorControl, odPreBandControl, odPostCutControl,
     delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
 let activeOscillatorIndex = 0, instrumentId = 0, instrumentRef;
@@ -96,6 +99,9 @@ const InstrumentController = module.exports =
             amplitudeEditor = view.querySelector( "#amplitudeEditor" );
             pitchEditor     = view.querySelector( "#pitchEditor" );
 
+            moduleEditorPage1 = view.querySelector( "#modulesPage1" );
+            moduleEditorPage2 = view.querySelector( "#modulesPage2" );
+
             // filter
             filterEnabledSelect     = view.querySelector( "#filterEnabled" );
             frequencyControl        = view.querySelector( "#filterFrequency" );
@@ -112,6 +118,19 @@ const InstrumentController = module.exports =
             delayFeedbackControl = view.querySelector( "#delayFeedback" );
             delayCutoffControl   = view.querySelector( "#delayCutoff" );
             delayOffsetControl   = view.querySelector( "#delayOffset" );
+
+            // eq
+            eqEnabledSelect = view.querySelector( "#eqEnabled" );
+            eqLowControl    = view.querySelector( "#eqLow" );
+            eqMidControl    = view.querySelector( "#eqMid" );
+            eqHighControl   = view.querySelector( "#eqHigh" );
+
+            // overdrive
+            odEnabledSelect  = view.querySelector( "#odEnabled" );
+            odDriveControl   = view.querySelector( "#odDrive" );
+            odColorControl   = view.querySelector( "#odColor" );
+            odPreBandControl = view.querySelector( "#odPreBand" );
+            odPostCutControl = view.querySelector( "#odPostCut" );
 
             canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
             canvas.setBackgroundColor( "#000000" );
@@ -148,6 +167,7 @@ const InstrumentController = module.exports =
             view.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
             view.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
             view.querySelector( "#envelopeTabs" ).addEventListener  ( "click", handleEnvelopeTabClick );
+            view.querySelector( "#modulesTabs" ).addEventListener   ( "click", handleModulesTabClick );
             instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
             presetSelect.addEventListener     ( "change", handlePresetSelect );
             presetSave.addEventListener       ( "click",  handlePresetSave );
@@ -180,9 +200,19 @@ const InstrumentController = module.exports =
 
             delayEnabledSelect.addEventListener( "change", handleDelayChange );
             delayTypeSelect.addEventListener   ( "change", handleDelayChange );
-            [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach( ( control ) => {
+            [ delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl ].forEach(( control ) => {
                 control.addEventListener( "input", handleDelayChange );
             });
+
+            eqEnabledSelect.addEventListener( "change", handleEqChange );
+            [ eqLowControl, eqMidControl, eqHighControl ].forEach(( control => {
+                control.addEventListener( "input", handleEqChange );
+            }));
+
+            odEnabledSelect.addEventListener( "change", handleOverdriveChange );
+            [ odDriveControl, odColorControl, odPreBandControl, odPostCutControl ].forEach(( control => {
+                control.addEventListener( "input", handleOverdriveChange );
+            }));
 
             updateWaveformSize();
             updatePresetList();
@@ -267,6 +297,17 @@ const InstrumentController = module.exports =
         delayCutoffControl.value   = instrumentRef.delay.cutoff;
         delayOffsetControl.value   = instrumentRef.delay.offset + .5;
 
+        Form.setSelectedOption( eqEnabledSelect, instrumentRef.eq.enabled );
+        eqLowControl.value  = instrumentRef.eq.lowGain;
+        eqMidControl.value  = instrumentRef.eq.midGain;
+        eqHighControl.value = instrumentRef.eq.highGain;
+
+        Form.setSelectedOption( odEnabledSelect, instrumentRef.overdrive.enabled );
+        odDriveControl.value   = instrumentRef.overdrive.drive;
+        odColorControl.value   = instrumentRef.overdrive.color;
+        odPreBandControl.value = instrumentRef.overdrive.preBand;
+        odPostCutControl.value = instrumentRef.overdrive.postCut;
+
         updatePresetList();
     }
 };
@@ -348,6 +389,33 @@ function handleEnvelopeTabClick( aEvent )
                 break;
         }
         const tabs = view.querySelectorAll( "#envelopeTabs li" );
+        let i = tabs.length;
+        while ( i-- ) {
+            const tab = tabs[ i ];
+            if ( tab === element )
+                tab.classList.add( "active" );
+            else
+                tab.classList.remove( "active" );
+        }
+    }
+}
+
+function handleModulesTabClick( aEvent )
+{
+    const element = aEvent.target, activeClass = "active";
+    if ( element.nodeName === "LI" ) {
+        switch( element.getAttribute( "data-type" )) {
+            default:
+            case "page1":
+                moduleEditorPage1.classList.add( activeClass );
+                moduleEditorPage2.classList.remove( activeClass );
+                break;
+            case "page2":
+                moduleEditorPage1.classList.remove( activeClass );
+                moduleEditorPage2.classList.add( activeClass );
+                break;
+        }
+        const tabs = view.querySelectorAll( "#modulesTabs li" );
         let i = tabs.length;
         while ( i-- ) {
             const tab = tabs[ i ];
@@ -469,6 +537,33 @@ function handleDelayChange( aEvent ) {
     delay.offset   = parseFloat( delayOffsetControl.value ) - .5;
 
     Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS, [ instrumentId, delay ]);
+    invalidatePreset();
+}
+
+function handleEqChange( aEvent ) {
+
+    const eq = instrumentRef.eq;
+
+    eq.enabled  = ( Form.getSelectedOption( eqEnabledSelect ) === "true" );
+    eq.lowGain  = parseFloat( eqLowControl.value );
+    eq.midGain  = parseFloat( eqMidControl.value );
+    eq.highGain = parseFloat( eqHighControl.value );
+
+    Pubsub.publishSync( Messages.UPDATE_EQ_SETTINGS, [ instrumentId, eq ]);
+    invalidatePreset();
+}
+
+function handleOverdriveChange( aEvent ) {
+
+    const overdrive = instrumentRef.overdrive;
+
+    overdrive.enabled  = ( Form.getSelectedOption( odEnabledSelect ) === "true" );
+    overdrive.drive    = parseFloat( odDriveControl.value );
+    overdrive.color    = parseFloat( odColorControl.value );
+    overdrive.preBand  = parseFloat( odPreBandControl.value );
+    overdrive.postCut  = parseFloat( odPostCutControl.value );
+
+    Pubsub.publishSync( Messages.UPDATE_OVERDRIVE_SETTINGS, [ instrumentId, overdrive ]);
     invalidatePreset();
 }
 
