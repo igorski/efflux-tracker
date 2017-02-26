@@ -198,7 +198,7 @@
 
       span {
         display: inline-block;
-        padding: .25em .5em;
+        padding: .25em;
         white-space: nowrap;
         .boxSize;
         .noEvents;
@@ -209,8 +209,9 @@
         }
 
         &.note {
-          width: 36%;
+          width: 33%;
           text-transform: uppercase;
+          text-align: right;
           color: @color-5;
 
           &.empty {
@@ -219,15 +220,15 @@
         }
 
         &.instrument {
-          width: 8%;
+          width: 10%;
           color: #FFF;
         }
 
         &.moduleParam,
         &.moduleValue {
-          width: 23%;
+          width: 30%;
           color: #999;
-          text-align: right;
+          text-align: center;
 
           &.empty {
             color: #666;
@@ -235,6 +236,7 @@
         }
 
         &.moduleValue {
+          width: 19%;
           color: @color-5;
         }
       }

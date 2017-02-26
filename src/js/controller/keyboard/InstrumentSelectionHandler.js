@@ -46,9 +46,8 @@ module.exports = {
     setInstrument( keyCode ) {
 
         if ( keyCode >= ZERO && keyCode <= MAX_ACCEPTED_KEYCODE ) {
-            const song  = efflux.activeSong;
-            const event = song.patterns[ editorModel.activePattern ]
-                              .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+            const event = efflux.activeSong.patterns[ editorModel.activePattern ]
+                                           .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
 
             if ( event ) {
                 event.instrument = keyCode - ZERO;

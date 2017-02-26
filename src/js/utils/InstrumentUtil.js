@@ -226,13 +226,12 @@ const InstrumentUtil = module.exports =
 
 /* private methods */
 
-function pitchToUniqueId( pitch )
-{
+function pitchToUniqueId( pitch ) {
     return pitch.note + pitch.octave;
 }
 
-function recordEventIntoSong( audioEvent, sequencerController )
-{
+function recordEventIntoSong( audioEvent, sequencerController ) {
+
     if ( sequencerController.getPlaying() ) {
 
         // sequencer is playing, add event at current step
@@ -248,7 +247,13 @@ function recordEventIntoSong( audioEvent, sequencerController )
             audioEvent, pattern, activePattern, step, song.meta.tempo
         );
         audioEvent.recording = true;
-        channel[ step ]      = audioEvent;
+        const existingEvent  = channel[ step ];
+
+        // if an event was present at given position, retain it's module parameter actions
+        if ( existingEvent )
+            audioEvent.mp = existingEvent.mp;
+
+        channel[ step ] = audioEvent;
 
         // update linked list for AudioEvents
         EventUtil.linkEvent( audioEvent, editorModel.activeInstrument, efflux.activeSong, efflux.eventList );

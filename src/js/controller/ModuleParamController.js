@@ -22,19 +22,19 @@
  */
 "use strict";
 
-const EventFactory  = require( "../model/factory/EventFactory" );
-const Form          = require( "../utils/Form" );
-const NumberUtil    = require( "../utils/NumberUtil" );
-const Manual        = require( "../definitions/Manual" );
-const Messages      = require( "../definitions/Messages" );
-const SettingsModel = require( "../model/SettingsModel" );
-const Pubsub        = require( "pubsub-js" );
+const EventFactory       = require( "../model/factory/EventFactory" );
+const Form               = require( "../utils/Form" );
+const Manual             = require( "../definitions/Manual" );
+const ModuleParamHandler = require( "./keyboard/ModuleParamHandler" );
+const Messages           = require( "../definitions/Messages" );
+const SettingsModel      = require( "../model/SettingsModel" );
+const Pubsub             = require( "pubsub-js" );
 
 /* private properties */
 
 let container, element, efflux, keyboardController;
 let data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, lastEditedModule,
-    closeCallback, moduleList, valueDisplay, glideOptions, valueControl, inputFormat;
+    closeCallback, moduleList, valueDisplay, glideOptions, valueControl;
 
 const ModuleParamController = module.exports =
 {
@@ -101,28 +101,16 @@ const ModuleParamController = module.exports =
                 // modules and parameters
 
                 case 68: // D
-                    selectedModule = getNextSelectedModule( [ "delayEnabled", "delayTime", "delayFeedback", "delayCutoff", "delayOffset" ], selectedModule );
-                    setSelectedValueInList( moduleList, selectedModule );
-                    break;
-
                 case 70: // F
-                    selectedModule = getNextSelectedModule( [ "filterEnabled", "filterFreq", "filterQ", "filterLFOEnabled", "filterLFOSpeed", "filterLFODepth" ], selectedModule );
+                case 80: // P
+                case 86: // V
+                    selectedModule = ModuleParamHandler.getNextSelectedModule( keyCode, selectedModule );
                     setSelectedValueInList( moduleList, selectedModule );
                     break;
 
                 case 71: // G
                     selectedGlide = !( Form.getCheckedOption( glideOptions ) === "true" );
                     Form.setCheckedOption( glideOptions, selectedGlide );
-                    break;
-
-                case 80: // P
-                    selectedModule = getNextSelectedModule([ "pitchUp", "pitchDown" ], selectedModule );
-                    setSelectedValueInList( moduleList, selectedModule );
-                    break;
-
-                case 86: // V
-                    selectedModule = "volume";
-                    setSelectedValueInList( moduleList, selectedModule );
                     break;
 
                 // module parameter value
@@ -183,8 +171,6 @@ function handleBroadcast( type, payload )
  */
 function handleOpen( completeCallback )
 {
-    inputFormat = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex";
-
     const editorModel  = efflux.EditorModel,
           patternIndex = editorModel.activePattern,
           pattern      = efflux.activeSong.patterns[ patternIndex ],
@@ -286,10 +272,7 @@ function handleModuleClick( aEvent )
 function handleValueChange( aEvent )
 {
     const value = parseFloat( valueControl.value );
-    if ( inputFormat === "hex" )
-        valueDisplay.innerHTML = NumberUtil.toHex( value ).toUpperCase();
-    else
-        valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
+    valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
 }
 
 /* list functions */
@@ -320,21 +303,4 @@ function getSelectedValueFromList( list )
             return option.getAttribute( "data-value" );
     }
     return null;
-}
-
-function getNextSelectedModule( list, currentValue )
-{
-    for ( let i = 0, l = list.length, max = l - 1; i <l; ++i )
-    {
-        if ( list[ i ] === currentValue ) {
-
-            // value found, return next value in list (or first if we're at the list end)
-
-            if ( i < max )
-                return list[ i + 1 ];
-            else
-                break;
-        }
-    }
-    return list[ 0 ]; // value not found, return first value in list
 }

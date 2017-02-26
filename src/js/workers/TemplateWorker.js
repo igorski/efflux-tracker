@@ -115,7 +115,7 @@ function registerHelpers() {
 
         var out = ( data && data.glide ) ? "G " : "";
 
-        if ( data ) {
+        if ( data && data.module ) {
             out += data.module.charAt( 0 ).toUpperCase();
             out += data.module.match(/([A-Z]?[^A-Z]*)/g)[1].charAt( 0 );
         }
@@ -138,7 +138,7 @@ function registerHelpers() {
             // show parameter value in either hex or percentages
             // TODO there is a bit of code duplication with NumberUtil here...
             if ( paramFormat === "pct" )
-                value = Math.min( 99, data.value ).toString();
+                value = Math.min( 99, parseInt( data.value, 10 )).toString();
             else {
                 value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
             }

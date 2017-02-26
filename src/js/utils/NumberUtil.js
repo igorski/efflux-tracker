@@ -48,5 +48,25 @@ module.exports =
      */
     fromHex( value ) {
         return parseInt( value, 16 ) / RESOLUTION;
+    },
+
+    /**
+     * validate whether given value is a valid hexadecimal
+     *
+     * @public
+     * @param {string} value
+     * @return {boolean}
+     */
+    isHex( value ) {
+        if ( typeof value !== "string" )
+            return false;
+
+        const converted = parseInt( value, 16 ).toString( 16 ).toUpperCase();
+
+        // preceding 0 can be stripped (e.g. "00" will convert as "0", which is fine)
+        if ( converted.length !== value.length )
+            return ( "0" + converted ) === value.toUpperCase();
+
+        return converted === value.toUpperCase();
     }
 };

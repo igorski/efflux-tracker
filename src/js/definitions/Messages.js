@@ -51,6 +51,7 @@ module.exports =
     OPEN_ADVANCED_PATTERN_EDITOR : "UI:10",
     MENU_INITIALIZED             : "UI:MI",
     HELP_SECTION_UPDATED         : "UI:11",
+    HIGHLIGHTED_SLOT_CHANGED     : "UI:12",
 
     // song messages
 
@@ -87,21 +88,22 @@ module.exports =
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING   : "ED:0", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME   : "ED:1", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_WAVEFORM : "ED:2", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_INSTRUMENT_VOLUME   : "ED:3", // payload is Array [ instrument index, new volume ]
-    UPDATE_FILTER_SETTINGS     : "ED:4", // payload is Array [ instrument index, filter properties Object ]
-    UPDATE_DELAY_SETTINGS      : "ED:5", // payload is Array [ instrument index, delay properties Object ]
-    UPDATE_EQ_SETTINGS         : "ED:6", // payload is Array [ instrument index, eq properties Object ]
-    UPDATE_OVERDRIVE_SETTINGS  : "ED:7", // payload is Array [ instrument index, overdrive properties Object ]
-    EDIT_NOTE_AT_POSITION      : "ED:8",
-    ADD_EVENT_AT_POSITION      : "ED:9", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
-    ADD_OFF_AT_POSITION        : "ED:10",
-    REMOVE_NOTE_AT_POSITION    : "ED:11",
-    SAVE_STATE                 : "ED:12", // payload is Object { undo: Function, redo: Function }
-    EDIT_MOD_PARAMS_FOR_STEP   : "ED:13",
-    EDIT_NOTE_FOR_STEP         : "ED:14",
+    ADJUST_OSCILLATOR_TUNING            : "ED:0", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_VOLUME            : "ED:1", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_OSCILLATOR_WAVEFORM          : "ED:2", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
+    ADJUST_INSTRUMENT_VOLUME            : "ED:3", // payload is Array [ instrument index, new volume ]
+    UPDATE_FILTER_SETTINGS              : "ED:4", // payload is Array [ instrument index, filter properties Object ]
+    UPDATE_DELAY_SETTINGS               : "ED:5", // payload is Array [ instrument index, delay properties Object ]
+    UPDATE_EQ_SETTINGS                  : "ED:6", // payload is Array [ instrument index, eq properties Object ]
+    UPDATE_OVERDRIVE_SETTINGS           : "ED:7", // payload is Array [ instrument index, overdrive properties Object ]
+    EDIT_NOTE_AT_POSITION               : "ED:8",
+    ADD_EVENT_AT_POSITION               : "ED:9", // payload is Array [ AUDIO_EVENT, optional data ] (will be appended at current seq. position if no opt data (PTLController)
+    ADD_OFF_AT_POSITION                 : "ED:10",
+    REMOVE_NOTE_AT_POSITION             : "ED:11",
+    REMOVE_PARAM_AUTOMATION_AT_POSITION : "ED:12",
+    SAVE_STATE                          : "ED:13", // payload is Object { undo: Function, redo: Function }
+    EDIT_MOD_PARAMS_FOR_STEP            : "ED:14",
+    EDIT_NOTE_FOR_STEP                  : "ED:15",
 
     // MIDI messages
 

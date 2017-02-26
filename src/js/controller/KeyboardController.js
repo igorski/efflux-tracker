@@ -25,9 +25,10 @@
 const Config                     = require( "../config/Config" );
 const NoteInputHandler           = require( "./keyboard/NoteInputHandler" );
 const InstrumentSelectionHandler = require( "./keyboard/InstrumentSelectionHandler" );
+const ModuleParamHandler         = require( "./keyboard/ModuleParamHandler" );
+const ModuleValueHandler         = require( "./keyboard/ModuleValueHandler" );
 const Messages                   = require( "../definitions/Messages" );
 const States                     = require( "../definitions/States" );
-const EventFactory               = require( "../model/factory/EventFactory" );
 const StateFactory               = require( "../model/factory/StateFactory" );
 const EventUtil                  = require( "../utils/EventUtil" );
 const Pubsub                     = require( "pubsub-js" );
@@ -69,6 +70,10 @@ const KeyboardController = module.exports =
 
         NoteInputHandler.init( effluxRef, aSequencerController );
         InstrumentSelectionHandler.init( effluxRef );
+        ModuleParamHandler.init( effluxRef );
+        ModuleValueHandler.init( effluxRef );
+
+        [ Messages.HIGHLIGHTED_SLOT_CHANGED ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /**
@@ -142,6 +147,14 @@ const KeyboardController = module.exports =
 
 /* private handlers */
 
+function handleBroadcast( msg, payload ) {
+    switch ( msg ) {
+        case Messages.HIGHLIGHTED_SLOT_CHANGED:
+            updateMode();
+            break;
+    }
+}
+
 function handleKeyDown( aEvent )
 {
     if ( !suspended )
@@ -164,16 +177,8 @@ function handleKeyDown( aEvent )
 
             const hasOption = KeyboardController.hasOption( aEvent );
 
-            if ( !hasOption && !aEvent.shiftKey ) {
-                switch ( mode ) {
-                    case MODES.NOTE_INPUT:
-                        NoteInputHandler.createNoteOnEvent( keyCode );
-                        break;
-                    case MODES.INSTRUMENT_SELECT:
-                        InstrumentSelectionHandler.setInstrument( keyCode );
-                        break;
-                }
-            }
+            if ( !hasOption && !aEvent.shiftKey )
+                handleInputForMode( keyCode );
 
             switch ( keyCode )
             {
@@ -249,7 +254,7 @@ function handleKeyDown( aEvent )
                             else if ( editorModel.activeInstrument > 2 )
                                 Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
                         }
-                        setModeBySlot();
+                        updateMode();
 
                         if ( aEvent.shiftKey )
                             selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
@@ -283,7 +288,7 @@ function handleKeyDown( aEvent )
                             else if ( editorModel.activeInstrument >= 0 )
                                 Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
                         }
-                        setModeBySlot();
+                        updateMode();
 
                         if ( aEvent.shiftKey ) {
                             minSelect = Math.max( --maxSelect, 0 );
@@ -297,7 +302,7 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 8:  // backspace
-                    Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
+                    handleDeleteActionForCurrentMode();
                     handleKeyUp({ keyCode: 38, preventDefault: function() {} }); // move up to previous slot
                     break;
 
@@ -309,7 +314,7 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 46: // delete
-                    Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
+                    handleDeleteActionForCurrentMode();
                     handleKeyUp({ keyCode: 40, preventDefault: function() {} }); // move down to next slot
                     break;
 
@@ -449,7 +454,36 @@ function handleFocus( aEvent ) {
     shiftDown = optionDown = false;
 }
 
-function setModeBySlot() {
+function handleInputForMode( keyCode ) {
+    switch ( mode ) {
+        case MODES.NOTE_INPUT:
+            NoteInputHandler.createNoteOnEvent( keyCode );
+            break;
+        case MODES.INSTRUMENT_SELECT:
+            InstrumentSelectionHandler.setInstrument( keyCode );
+            break;
+        case MODES.PARAM_SELECT:
+            ModuleParamHandler.handleParam( keyCode );
+            break;
+        case MODES.PARAM_VALUE:
+            ModuleValueHandler.handleParam( keyCode );
+            break;
+    }
+}
+
+function handleDeleteActionForCurrentMode() {
+    switch ( mode ) {
+        default:
+            Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
+            break;
+        case MODES.PARAM_VALUE:
+        case MODES.PARAM_SELECT:
+            Pubsub.publishSync( Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION );
+            break;
+    }
+}
+
+function updateMode() {
     switch ( editorModel.activeSlot ) {
         default:
             mode = MODES.NOTE_INPUT;

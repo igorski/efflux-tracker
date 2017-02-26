@@ -100,6 +100,7 @@ const PatternTrackListController = module.exports =
             Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
             Messages.REMOVE_NOTE_AT_POSITION,
+            Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION,
             Messages.EDIT_MOD_PARAMS_FOR_STEP,
             Messages.EDIT_NOTE_FOR_STEP
 
@@ -131,6 +132,9 @@ const PatternTrackListController = module.exports =
             // clear cached containers after render
             pContainers = null;
             pContainerSteps = [];
+
+            if ( editorModel.activeStep !== -1 )
+            highlightActiveStep();
         });
 
         Form.setSelectedOption( stepSelect, pattern.steps );
@@ -195,6 +199,10 @@ function handleBroadcast( type, payload )
             removeEventAtHighlightedStep();
             break;
 
+        case Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION:
+            removeModuleParamAutomationAtHighlightedStep();
+            break;
+
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
             editModuleParamsForStep();
             break;
@@ -257,8 +265,7 @@ function highlightActiveStep()
     }
 }
 
-function removeEventAtHighlightedStep()
-{
+function removeEventAtHighlightedStep() {
     Pubsub.publishSync(
         Messages.SAVE_STATE,
         StateFactory.getAction( States.DELETE_EVENT, {
@@ -269,8 +276,24 @@ function removeEventAtHighlightedStep()
     );
 }
 
-function handleInteraction( aEvent )
-{
+function removeModuleParamAutomationAtHighlightedStep() {
+    // TODO: create shared getter function?
+    const event = efflux.activeSong.patterns[ editorModel.activePattern ]
+                                   .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+
+    if ( !event || !event.mp )
+        return;
+
+    Pubsub.publishSync(
+        Messages.SAVE_STATE,
+        StateFactory.getAction( States.DELETE_MODULE_AUTOMATION, {
+            event:   event,
+            updateHandler: PatternTrackListController.update
+        })
+    );
+}
+
+function handleInteraction( aEvent ) {
     // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
 
     if ( aEvent.type === "touchstart" ) {
@@ -325,19 +348,22 @@ function handleInteraction( aEvent )
                             if ( !( container instanceof Element && container.parentElement instanceof Element ))
                                 container = container.parentElement;
 
-                            if ( container.classList.contains("moduleValue")) {
+                            if ( container.classList.contains( "moduleValue" )) {
                                 editorModel.activeSlot = 3;
                             }
-                            else if ( container.classList.contains("moduleParam")) {
+                            else if ( container.classList.contains( "moduleParam" )) {
                                 editorModel.activeSlot = 2;
                             }
-                            else if ( container.classList.contains("instrument")) {
+                            else if ( container.classList.contains( "instrument" )) {
                                 editorModel.activeSlot = 1;
                             }
+                            else
+                                editorModel.activeSlot = 0;
                         }
                         else {
                             editorModel.activeSlot = 0;
                         }
+                        Pubsub.publish( Messages.HIGHLIGHTED_SLOT_CHANGED );
                     }
 
                     highlightActiveStep();

@@ -88,7 +88,7 @@ ROADMAP
  * Separate PatternMenu from PatternTrackListController
  * Separate view logic from controllers
  * Investigate whether to clean up unused views and listeners (there is no memory leakage and the additional garbage collection might even be bad)
- * Split InstrumentController into separete view controllers for each module
+ * Split InstrumentController into separate view controllers for each module
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Minimize vendor libraries
