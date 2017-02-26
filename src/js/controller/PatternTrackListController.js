@@ -38,7 +38,7 @@ const PatternUtil    = require( "../utils/PatternUtil" );
 
 /* private properties */
 
-let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
+let wrapper, container, efflux, editorModel, keyboardController, stepHighlight, slotHighlight;
 let interactionData = {},
     selectionModel, patternCopy, stepSelect, pContainers, pContainerSteps;
 
@@ -100,6 +100,7 @@ const PatternTrackListController = module.exports =
             Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
             Messages.REMOVE_NOTE_AT_POSITION,
+            Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION,
             Messages.EDIT_MOD_PARAMS_FOR_STEP,
             Messages.EDIT_NOTE_FOR_STEP
 
@@ -131,6 +132,9 @@ const PatternTrackListController = module.exports =
             // clear cached containers after render
             pContainers = null;
             pContainerSteps = [];
+
+            if ( editorModel.activeStep !== -1 )
+            highlightActiveStep();
         });
 
         Form.setSelectedOption( stepSelect, pattern.steps );
@@ -160,6 +164,7 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_SWITCH:
             selectionModel.clearSelection();
+            editorModel.activeSlot = -1;
             PatternTrackListController.update();
             break;
 
@@ -194,6 +199,10 @@ function handleBroadcast( type, payload )
             removeEventAtHighlightedStep();
             break;
 
+        case Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION:
+            removeModuleParamAutomationAtHighlightedStep();
+            break;
+
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
             editModuleParamsForStep();
             break;
@@ -208,9 +217,15 @@ function highlightActiveStep()
 {
     grabPatternContainersFromTemplate();
     const activeStyle = "active", selectedStyle = "selected",
-          activeStep = editorModel.activeStep;
+          activeStep  = editorModel.activeStep,
+          activeSlot  = editorModel.activeSlot;
 
     let selection, pContainer, items, item;
+
+    if ( slotHighlight )
+        slotHighlight.classList.remove( activeStyle );
+
+    slotHighlight = null;
 
     for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex )
     {
@@ -223,25 +238,34 @@ function highlightActiveStep()
 
         while ( sIndex-- )
         {
-            item = items[ sIndex ].classList;
+            if ( activeSlot === -1 ) {
+                item = items[ sIndex ].classList;
 
-            if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
-                item.add( activeStyle );
-            else
-                item.remove( activeStyle );
+                if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
+                    item.add( activeStyle );
+                else
+                    item.remove( activeStyle );
 
-            // highlight selection if set
+                // highlight selection if set
 
-            if ( selection && selection.indexOf( sIndex ) > -1 )
-                item.add( selectedStyle );
-            else
-                item.remove( selectedStyle );
+                if ( selection && selection.indexOf( sIndex ) > -1 )
+                    item.add( selectedStyle );
+                else
+                    item.remove( selectedStyle );
+            }
+            else {
+                if ( activeSlot !== -1 && pIndex === editorModel.activeInstrument && sIndex === activeStep ) {
+                    const slots = items[ sIndex ].querySelectorAll( "span" );
+                    slotHighlight = slots[ activeSlot ];
+                    if ( slotHighlight )
+                        slotHighlight.classList.add( activeStyle );
+                }
+            }
         }
     }
 }
 
-function removeEventAtHighlightedStep()
-{
+function removeEventAtHighlightedStep() {
     Pubsub.publishSync(
         Messages.SAVE_STATE,
         StateFactory.getAction( States.DELETE_EVENT, {
@@ -252,8 +276,24 @@ function removeEventAtHighlightedStep()
     );
 }
 
-function handleInteraction( aEvent )
-{
+function removeModuleParamAutomationAtHighlightedStep() {
+    // TODO: create shared getter function?
+    const event = efflux.activeSong.patterns[ editorModel.activePattern ]
+                                   .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+
+    if ( !event || !event.mp )
+        return;
+
+    Pubsub.publishSync(
+        Messages.SAVE_STATE,
+        StateFactory.getAction( States.DELETE_MODULE_AUTOMATION, {
+            event:   event,
+            updateHandler: PatternTrackListController.update
+        })
+    );
+}
+
+function handleInteraction( aEvent ) {
     // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
 
     if ( aEvent.type === "touchstart" ) {
@@ -299,6 +339,33 @@ function handleInteraction( aEvent )
                         selectionModel.clearSelection();
 
                     editorModel.activeStep = j;
+                    editorModel.activeSlot = -1;
+
+                    if ( aEvent.type === "click" && "caretRangeFromPoint" in document ) {
+                        const el = document.caretRangeFromPoint( aEvent.pageX, aEvent.pageY );
+                        if ( el && el.startContainer ) {
+                            let container = el.startContainer;
+                            if ( !( container instanceof Element && container.parentElement instanceof Element ))
+                                container = container.parentElement;
+
+                            if ( container.classList.contains( "moduleValue" )) {
+                                editorModel.activeSlot = 3;
+                            }
+                            else if ( container.classList.contains( "moduleParam" )) {
+                                editorModel.activeSlot = 2;
+                            }
+                            else if ( container.classList.contains( "instrument" )) {
+                                editorModel.activeSlot = 1;
+                            }
+                            else
+                                editorModel.activeSlot = 0;
+                        }
+                        else {
+                            editorModel.activeSlot = 0;
+                        }
+                        Pubsub.publish( Messages.HIGHLIGHTED_SLOT_CHANGED );
+                    }
+
                     highlightActiveStep();
 
                     keyboardController.setListener( PatternTrackListController );

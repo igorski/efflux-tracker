@@ -79,4 +79,22 @@ describe( "NumberUtil", function()
 
         assert.strictEqual( expected, NumberUtil.toHex( input ));
     });
+
+    it( "should be able to identify valid hexadecimal values", () => {
+        // non numerical values should return false
+        assert.notOk( NumberUtil.isHex( 0 ));
+        assert.notOk( NumberUtil.isHex( 255 ));
+
+        // invalid hex should return false
+        assert.notOk( NumberUtil.isHex( "FG" ));
+        assert.notOk( NumberUtil.isHex( "0x64" ));
+
+        // 0 - 9 values
+        assert.ok( NumberUtil.isHex( "0" ));
+        assert.ok( NumberUtil.isHex( "00" ));
+
+        // upper/lower case
+        assert.ok( NumberUtil.isHex( "ff" ));
+        assert.ok( NumberUtil.isHex( "FF" ));
+    });
 });

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,11 +22,37 @@
  */
 "use strict";
 
-module.exports =
-{
-    ADD_EVENT                : "S:0",
-    DELETE_EVENT             : "S:1",
-    DELETE_MODULE_AUTOMATION : "S:2",
-    CUT_SELECTION            : "S:3",
-    PASTE_SELECTION          : "S:4"
+const Config   = require( "../../config/Config" );
+const Messages = require( "../../definitions/Messages" );
+const Pubsub   = require( "pubsub-js" );
+
+let efflux, editorModel;
+
+// keyCode for the 0 key
+const ZERO = 48;
+let MAX_ACCEPTED_KEYCODE;
+
+module.exports = {
+
+    init( effluxRef ) {
+
+        efflux      = effluxRef;
+        editorModel = efflux.EditorModel;
+
+        // this will not really work if we allow more than 10 instruments :p
+        MAX_ACCEPTED_KEYCODE = ZERO + ( Config.INSTRUMENT_AMOUNT - 1 );
+    },
+
+    setInstrument( keyCode ) {
+
+        if ( keyCode >= ZERO && keyCode <= MAX_ACCEPTED_KEYCODE ) {
+            const event = efflux.activeSong.patterns[ editorModel.activePattern ]
+                                           .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+
+            if ( event ) {
+                event.instrument = keyCode - ZERO;
+                Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+            }
+        }
+    }
 };

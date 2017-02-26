@@ -60,6 +60,15 @@ function EditorModel()
     this.activeStep = 0;
 
     /**
+     * which paramter slot within an instruments step
+     * is currently selection (e.g. note 0, instrument 1, module parameter 2 or module parameter value 3)
+     * -1 indicates no deliberate slot was selected
+     *
+     * @type {number}
+     */
+    this.activeSlot = -1;
+
+    /**
      * the amount of steps in the currently selected pattern
      *
      * @public

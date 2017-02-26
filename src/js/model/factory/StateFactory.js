@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -47,6 +47,9 @@ module.exports = {
             case States.DELETE_EVENT:
                 return deleteSingleEventOrSelectionAction( data );
 
+            case States.DELETE_MODULE_AUTOMATION:
+                return deleteModuleAutomationAction( data );
+
             case States.CUT_SELECTION:
                 return cutSelectionAction( data );
 
@@ -83,20 +86,22 @@ function addSingleEventAction( data ) {
     const activePattern    = editorModel.activePattern,
           activeInstrument = editorModel.activeInstrument;
 
+    let advanceStepOnAddition = true;
+
     // if options Object was given, use those values instead of current sequencer values
 
     let optData;
-    if ( optData = data.optEventData )
-    {
+    if ( optData = data.optEventData ) {
         patternIndex = ( typeof optData.patternIndex === "number" ) ? optData.patternIndex : patternIndex;
         channelIndex = ( typeof optData.channelIndex === "number" ) ? optData.channelIndex : channelIndex;
         step         = ( typeof optData.step         === "number" ) ? optData.step         : step;
+
+        if ( typeof optData.advanceOnAddition === "boolean" )
+            advanceStepOnAddition = optData.advanceOnAddition;
     }
 
     const pattern = song.patterns[ patternIndex ],
           channel = pattern.channels[ channelIndex ];
-
-    let advanceStepOnAddition = true;
 
     function add() {
         EventUtil.setPosition(
@@ -104,10 +109,13 @@ function addSingleEventAction( data ) {
         );
 
         // remove previous event if one existed at the insertion point
+        // (but take its module parameter automation if existed for non-off events)
 
-        if ( channel[ step ])
+        if ( channel[ step ]) {
+            if ( event.action !== 2 && !event.mp && channel[ step ].mp )
+                event.mp = ObjectUtil.clone( channel[ step ].mp );
             EventUtil.clearEvent( song, patternIndex, channelIndex, step, eventList[ patternIndex ]);
-
+        }
         channel[ step ] = event;
 
         // update linked list for AudioEvents
@@ -224,6 +232,33 @@ function deleteSingleEventOrSelectionAction( data ) {
         },
         redo() {
             remove( selection );
+        }
+    }
+}
+
+/**
+ * @private
+ * @param {Object} data
+ */
+function deleteModuleAutomationAction( data ) {
+
+    const event = data.event;
+    const clonedAutomation = ObjectUtil.clone( event.mp );
+    const remove = () => {
+        delete event.mp;
+        data.updateHandler(); // syncs view with model changes
+    };
+
+    // perform action
+    remove();
+
+    return {
+        undo() {
+            event.mp = clonedAutomation;
+            data.updateHandler(); // syncs view with model changes
+        },
+        redo() {
+            remove();
         }
     }
 }

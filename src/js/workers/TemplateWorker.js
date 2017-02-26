@@ -110,26 +110,38 @@ function registerHelpers() {
      * formats module parameter automations (patternTrackList)
      *
      * use in template like:
+     */
+    Handlebars.registerHelper( "mparam", function( data ) {
+
+        var out = ( data && data.glide ) ? "G " : "";
+
+        if ( data && data.module ) {
+            out += data.module.charAt( 0 ).toUpperCase();
+            out += data.module.match(/([A-Z]?[^A-Z]*)/g)[1].charAt( 0 );
+        }
+        return out;
+    });
+
+    /**
+     * formats module parameter automation value (patternTrackList)
+     * can display in either hexadecimal or percentage-based values
+     *
+     * use in template like:
      * {{mparam event.mp formatType}}
      */
-    Handlebars.registerHelper( "mparam", function( data, paramFormat ) {
+    Handlebars.registerHelper( "mvalue", function( data, paramFormat ) {
 
         var out = "", value;
 
         if ( data ) {
 
-            out  = data.module.charAt( 0 ).toUpperCase();
-            out += data.module.match(/([A-Z]?[^A-Z]*)/g)[1].charAt( 0 );
-            out += ( data.glide ) ? " G" : "__";
-
             // show parameter value in either hex or percentages
             // TODO there is a bit of code duplication with NumberUtil here...
             if ( paramFormat === "pct" )
-                value = Math.min( 99, data.value ).toString();
+                value = Math.min( 99, parseInt( data.value, 10 )).toString();
             else {
                 value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
             }
-
             out += " " + (( value.length === 1 ) ? "0" + value : value );
         }
         return out;

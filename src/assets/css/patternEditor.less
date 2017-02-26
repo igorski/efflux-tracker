@@ -133,37 +133,43 @@
       }
     }
 
-    &:nth-child(2) li span.note {
+    &:nth-child(2) li .note,
+    &:nth-child(2) li .moduleValue {
       color: #b25050;
     }
 
-    &:nth-child(3) li span.note {
+    &:nth-child(3) li .note,
+    &:nth-child(3) li .moduleValue {
       color: #b28050;
     }
 
-    &:nth-child(4) li span.note {
+    &:nth-child(4) li .note,
+    &:nth-child(4) li .moduleValue {
       color: #a9b250;
     }
 
-    &:nth-child(5) li span.note {
+    &:nth-child(5) li .note,
+    &:nth-child(5) li .moduleValue {
       color: #60b250;
     }
 
-    &:nth-child(6) li span.note {
+    &:nth-child(6) li .note,
+    &:nth-child(6) li .moduleValue {
       color: #50b292;
     }
 
-    &:nth-child(7) li span.note {
+    &:nth-child(7) li .note,
+    &:nth-child(7) li .moduleValue {
       color: #5071b2;
     }
 
-    &:nth-child(8) li span.note {
+    &:nth-child(8) li .note,
+    &:nth-child(8) li .moduleValue {
       color: #8850b2;
     }
 
     li {
       display: block;
-      padding: .25em 1em;
       cursor: pointer;
       border-top: 2px solid #000;
       border-bottom: 2px solid #000;
@@ -192,11 +198,20 @@
 
       span {
         display: inline-block;
+        padding: .25em;
+        white-space: nowrap;
+        .boxSize;
         .noEvents;
 
+        &.active {
+          background-color: @color-1;
+          color: #000 !important;
+        }
+
         &.note {
-          width: 35%;
+          width: 33%;
           text-transform: uppercase;
+          text-align: right;
           color: @color-5;
 
           &.empty {
@@ -205,14 +220,24 @@
         }
 
         &.instrument {
-          width: 8%;
+          width: 10%;
           color: #FFF;
         }
 
-        &.moduleParam {
-          width: 50%;
-          color: #DDD;
-          text-align: left;
+        &.moduleParam,
+        &.moduleValue {
+          width: 30%;
+          color: #999;
+          text-align: center;
+
+          &.empty {
+            color: #666;
+          }
+        }
+
+        &.moduleValue {
+          width: 19%;
+          color: @color-5;
         }
       }
     }
