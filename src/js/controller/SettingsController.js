@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,30 +22,36 @@
  */
 "use strict";
 
-const Form     = require( "../utils/Form" );
-const SongUtil = require( "../utils/SongUtil" );
-const Pubsub   = require( "pubsub-js" );
-const Messages = require( "../definitions/Messages" );
-const zMIDILib = require( "zmidi" ),
-      zMIDI    = zMIDILib.zMIDI;
+const Form          = require( "../utils/Form" );
+const SongUtil      = require( "../utils/SongUtil" );
+const Pubsub        = require( "pubsub-js" );
+const Messages      = require( "../definitions/Messages" );
+const SettingsModel = require( "../model/SettingsModel" );
+const zMIDILib      = require( "zmidi" ),
+      zMIDI         = zMIDILib.zMIDI;
 
 /* private properties */
 
-let container, deviceSelect;
+let efflux, container, paramFormat, deviceSelect;
 
 const SettingsController = module.exports =
 {
-    init( containerRef )
+    init( effluxRef, containerRef )
     {
+        efflux = effluxRef;
+
         // create a list container to show the songs when loading
 
         container = document.createElement( "div" );
         container.setAttribute( "id", "settings" );
-        efflux.TemplateService.render( "settingsView", container).then(() => {
+        efflux.TemplateService.render( "settingsView", container ).then(() => {
 
             containerRef.appendChild( container ); // see CSS for visibility toggles
 
             // grab reference to DOM elements
+
+            paramFormat = container.querySelector( "#parameterInputFormat" );
+            paramFormat.addEventListener( "change", handleParameterInputFormatChange );
 
             if ( zMIDI.isSupported() )  {
                 container.querySelector( "#midiSetup" ).classList.add( "enabled" );
@@ -94,12 +100,26 @@ function handleOpen()
 {
     container.classList.add( "active" );
     Pubsub.publish( Messages.SHOW_BLIND );
+
+    // load settings from the model
+
+    const setting = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT );
+    if ( setting !== null )
+        Form.setSelectedOption( paramFormat, setting );
 }
 
 function handleClose()
 {
     container.classList.remove( "active" );
     Pubsub.publishSync( Messages.HIDE_BLIND );
+}
+
+function handleParameterInputFormatChange( aEvent )
+{
+    efflux.SettingsModel.saveSetting(
+        SettingsModel.PROPERTIES.INPUT_FORMAT, Form.getSelectedOption( paramFormat )
+    );
+    Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
 }
 
 function handleMIDIConnect( aEvent )

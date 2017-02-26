@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -29,7 +29,6 @@ const ExportUtil = require( "../utils/ExportUtil" );
 const SongUtil   = require( "../utils/SongUtil" );
 const Pubsub     = require( "pubsub-js" );
 const Messages   = require( "../definitions/Messages" );
-const zMIDI      = require( "zmidi" ).zMIDI;
 
 /* private properties */
 
@@ -85,12 +84,6 @@ const MenuController = module.exports =
 
             if ( canRecord )
                 containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
-
-            if ( !zMIDI.isSupported() ) {
-                // a bit cheap, the only setting we (for now) support is related to MIDI, if
-                // no MIDI is supported, hide the settings button
-                containerRef.querySelector( "#settingsBtn" ).style.display = "none";
-            }
 
             // get reference to DOM elements
 

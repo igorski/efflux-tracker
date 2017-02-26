@@ -115,7 +115,7 @@ const AudioController = module.exports =
      * synthesize audio using the WebAudio API
      *
      * @public
-     * @param effluxRef
+     * @param {Object} effluxRef
      * @param {Array.<INSTRUMENT>} instruments to create WaveTables for
      */
     init( effluxRef, instruments )

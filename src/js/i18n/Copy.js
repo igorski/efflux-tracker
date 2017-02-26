@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -46,37 +46,37 @@ module.exports =
 
 const EN =
 {
-    SONG_LOADED_TITLE       : "Song loaded",
-    SONG_LOADED             : "Loaded song '{0}'",
-    SONG_SAVED              : "Song '{0}' saved",
-    SONG_DELETE_CONFIRM     : "Are you sure you want to delete song '{0}' ? This operation cannot be undone.",
-    WARNING_SONG_RESET      : "Are you sure you want to reset, you will lose all changes and undo history",
-    WARNING_UNLOAD          : "Are you sure you want to leave this page ? All unsaved changes will be lost.",
-    ERROR_TITLE             : "Error",
-    CONFIRM_TITLE           : "Confirm",
-    BUTTON_OK               : "Yes",
-    BUTTON_CANCEL           : "No",
-    ERROR_SONG_IMPORT       : "Could not import song, file was possibly not a valid " + Config.SONG_FILE_EXTENSION + " " +
-                              "file, or made by an incompatible version of Efflux",
-    ERROR_FILE_LOAD         : "Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.",
-    ERROR_EMPTY_SONG        : "Song has no pattern content!",
-    ERROR_NO_META           : "Song has no title or author name, take pride in your work!",
-    ERROR_MAX_PATTERNS      : "Cannot exceed the allowed maximum of {0} patterns",
-    ERROR_NO_SONGS          : "There are currently no songs available to load. Why not create one?",
-    ERROR_NO_INS_NAME       : "Please enter a name for the instrument preset",
-    ERROR_INSTRUMENT_IMPORT : "Could not import instruments, file was possible not a valid " +
-                               Config.INSTRUMENT_FILE_EXTENSION + " file, or made by an incompatible version of Efflux",
-    SUCCESS_TITLE           : "Operation completed",
-    MIDI_ENABLED            : "Listening to MIDI messages coming from {0}",
-    MIDI_CONNECTED          : "MIDI Connection established successfully",
-    MIDI_FAILURE            : "MIDI Unavailable, Efflux could not connect to MIDI device(s)",
-    RECORDING_ENABLED       : "Recording of output enabled. When the sequencer stops, the recording will be saved " +
-                              "onto to your device",
-    RECORDING_SAVED         : "Recording saved to your download folder",
-    SONG_EXPORTED           : "Song '{0}' exported to your download folder",
-    INSTRUMENTS_EXPORTED    : "Instrument presets exported to your download folder",
-    INSTRUMENTS_IMPORTED    : "{0} instrument presets have been imported",
-    INSTRUMENT_SAVED        : "Instrument '{0}' saved",
+    SONG_LOADED_TITLE       : `Song loaded`,
+    SONG_LOADED             : `Loaded song '{0}'`,
+    SONG_SAVED              : `Song '{0}' saved`,
+    SONG_DELETE_CONFIRM     : `Are you sure you want to delete song '{0}' ? This operation cannot be undone.`,
+    WARNING_SONG_RESET      : `Are you sure you want to reset, you will lose all changes and undo history`,
+    WARNING_UNLOAD          : `Are you sure you want to leave this page ? All unsaved changes will be lost.`,
+    ERROR_TITLE             : `Error`,
+    CONFIRM_TITLE           : `Confirm`,
+    BUTTON_OK               : `Yes`,
+    BUTTON_CANCEL           : `No`,
+    ERROR_SONG_IMPORT       : `Could not import song, file was possibly not a valid ${Config.SONG_FILE_EXTENSION} ` +
+                              `file, or made by an incompatible version of Efflux`,
+    ERROR_FILE_LOAD         : `Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.`,
+    ERROR_EMPTY_SONG        : `Song has no pattern content!`,
+    ERROR_NO_META           : `Song has no title or author name, take pride in your work!`,
+    ERROR_MAX_PATTERNS      : `Cannot exceed the allowed maximum of {0} patterns`,
+    ERROR_NO_SONGS          : `There are currently no songs available to load. Why not create one?`,
+    ERROR_NO_INS_NAME       : `Please enter a name for the instrument preset`,
+    ERROR_INSTRUMENT_IMPORT : `Could not import instruments, file was possible not a valid ` +
+                              `${Config.INSTRUMENT_FILE_EXTENSION} file, or made by an incompatible version of Efflux`,
+    SUCCESS_TITLE           : `Operation completed`,
+    MIDI_ENABLED            : `Listening to MIDI messages coming from {0}`,
+    MIDI_CONNECTED          : `MIDI Connection established successfully`,
+    MIDI_FAILURE            : `MIDI Unavailable, Efflux could not connect to MIDI device(s)`,
+    RECORDING_ENABLED       : `Recording of output enabled. When the sequencer stops, the recording will be saved ` +
+                              `onto to your device`,
+    RECORDING_SAVED         : `Recording saved to your download folder`,
+    SONG_EXPORTED           : `Song '{0}' exported to your download folder`,
+    INSTRUMENTS_EXPORTED    : `Instrument presets exported to your download folder`,
+    INSTRUMENTS_IMPORTED    : `{0} instrument presets have been imported`,
+    INSTRUMENT_SAVED        : `Instrument '{0}' saved`,
 
-    INPUT_PRESET            : "--- new preset ---"
+    INPUT_PRESET            : `--- new preset ---`
 };

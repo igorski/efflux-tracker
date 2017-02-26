@@ -29,6 +29,7 @@ const States         = require( "../definitions/States" );
 const EventFactory   = require( "../model/factory/EventFactory" );
 const PatternFactory = require( "../model/factory/PatternFactory" );
 const StateFactory   = require( "../model/factory/StateFactory" );
+const SettingsModel  = require( "../model/SettingsModel" );
 const Form           = require( "../utils/Form" );
 const ListenerUtil   = require( "../utils/ListenerUtil" );
 const EventUtil      = require( "../utils/EventUtil" );
@@ -121,10 +122,10 @@ const PatternTrackListController = module.exports =
 
         efflux.TemplateService.render( "patternTrackList", wrapper, {
 
-            steps         : pattern.steps,
             pattern       : pattern,
             activeChannel : editorModel.activeInstrument,
-            activeStep    : editorModel.activeStep
+            activeStep    : editorModel.activeStep,
+            format        : efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex"
 
         }).then(() => {
             // clear cached containers after render

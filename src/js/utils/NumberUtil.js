@@ -41,7 +41,7 @@ module.exports =
     },
 
     /**
-     * convert given hexadecimal value to a number in the 0 - 1 range
+     * convert given hexadecimal value to a number in the 0 - 100 range
      *
      * @param {string} value
      * @return {number}

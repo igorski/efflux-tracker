@@ -28,6 +28,7 @@ module.exports =
 {
     LOCAL_STORAGE_SONGS         : "effluxData",
     LOCAL_STORAGE_INSTRUMENTS   : "effluxInstruments",
+    LOCAL_STORAGE_SETTINGS      : "effluxSettings",
     INSTRUMENT_AMOUNT           : 8,
     WAVE_TABLE_SIZE             : 512,
     MAX_PATTERN_AMOUNT          : 128,

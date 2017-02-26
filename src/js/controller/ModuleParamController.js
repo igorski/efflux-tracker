@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,17 +22,19 @@
  */
 "use strict";
 
-const EventFactory = require( "../model/factory/EventFactory" );
-const Form         = require( "../utils/Form" );
-const Manual       = require( "../definitions/Manual" );
-const Messages     = require( "../definitions/Messages" );
-const Pubsub       = require( "pubsub-js" );
+const EventFactory  = require( "../model/factory/EventFactory" );
+const Form          = require( "../utils/Form" );
+const NumberUtil    = require( "../utils/NumberUtil" );
+const Manual        = require( "../definitions/Manual" );
+const Messages      = require( "../definitions/Messages" );
+const SettingsModel = require( "../model/SettingsModel" );
+const Pubsub        = require( "pubsub-js" );
 
 /* private properties */
 
 let container, element, efflux, keyboardController;
 let data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, lastEditedModule,
-    closeCallback, moduleList, valueDisplay, glideOptions, valueControl;
+    closeCallback, moduleList, valueDisplay, glideOptions, valueControl, inputFormat;
 
 const ModuleParamController = module.exports =
 {
@@ -181,6 +183,8 @@ function handleBroadcast( type, payload )
  */
 function handleOpen( completeCallback )
 {
+    inputFormat = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex";
+
     const editorModel  = efflux.EditorModel,
           patternIndex = editorModel.activePattern,
           pattern      = efflux.activeSong.patterns[ patternIndex ],
@@ -282,7 +286,10 @@ function handleModuleClick( aEvent )
 function handleValueChange( aEvent )
 {
     const value = parseFloat( valueControl.value );
-    valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
+    if ( inputFormat === "hex" )
+        valueDisplay.innerHTML = NumberUtil.toHex( value ).toUpperCase();
+    else
+        valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
 }
 
 /* list functions */

@@ -26,6 +26,7 @@ const Config                          = require( "./config/Config" );
 const EditorModel                     = require( "./model/EditorModel" );
 const InstrumentModel                 = require( "./model/InstrumentModel" );
 const SelectionModel                  = require( "./model/SelectionModel" );
+const SettingsModel                   = require( "./model/SettingsModel" );
 const SongModel                       = require( "./model/SongModel" );
 const StateModel                      = require( "./model/StateModel" );
 const SongValidator                   = require( "./model/validators/SongValidator" );
@@ -71,6 +72,7 @@ const efflux = window.efflux =
     EditorModel     : new EditorModel(),
     InstrumentModel : new InstrumentModel(),
     SelectionModel  : new SelectionModel(),
+    SettingsModel   : new SettingsModel(),
     SongModel       : new SongModel(),
     StateModel      : new StateModel(),
 
@@ -103,6 +105,7 @@ else {
 
         // controllers ready, application models
 
+        efflux.SettingsModel.init();
         efflux.InstrumentModel.init();
         efflux.SongModel.init();
         efflux.activeSong = efflux.SongModel.createSong();
@@ -111,7 +114,7 @@ else {
 
         KeyboardController.init( efflux, SequencerController );
         AudioController.init( efflux, efflux.activeSong.instruments );
-        SettingsController.init( document.body );
+        SettingsController.init( efflux, document.body );
         MenuController.init( container.querySelector( "#menuSection" ), efflux );
         InstrumentController.init( container, efflux, KeyboardController );
         MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
