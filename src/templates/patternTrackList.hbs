@@ -17,17 +17,31 @@
                 {{this.instrument}}
             </span>
             {{else}}
-                //// OFF ////
+                <span class="note">//// OFF ////</span>
             {{/if}}
         {{else}}
             <span class="note empty">----</span>
-            <span class="instrument"></span>
+            <span class="instrument">-</span>
         {{/if}}
         {{# if this.mp }}
-        <span class="moduleParam">
-            {{mparam this.mp ../../../format}}
-        </span>
+            <span class="moduleParam">
+                {{mparam this.mp}}
+            </span>
+            <span class="moduleValue">
+                {{mvalue this.mp ../../../format}}
+            </span>
+        {{else}}
+            {{#unless this.action}}
+                <span class="moduleParam empty">---</span>
+                <span class="moduleValue empty">---</span>
+            {{else}}
+                {{# if this.note}}
+                    <span class="moduleParam empty">--</span>
+                    <span class="moduleValue empty">--</span>
+                {{/if}}
+            {{/unless}}
         {{/if}}
+        </span>
     </li>
     {{/each}}
 </ul>

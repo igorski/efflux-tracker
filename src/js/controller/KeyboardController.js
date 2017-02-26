@@ -36,6 +36,7 @@ let editorModel, sequencerController, stateModel, selectionModel, listener,
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
       MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
+      MAX_SLOT        = 3,
       PATTERN_WIDTH   = 150; // width of a single track/pattern column TODO : move somewhere more applicable
 
 // High notes:  2 3   5 6 7   9 0
@@ -217,20 +218,23 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_JUMP_NEXT );
                     }
                     else {
-                        if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
-                            if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
-                                ++editorModel.activePattern;
-                                editorModel.activeInstrument = 0;
-                                Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                        if ( ++editorModel.activeSlot > MAX_SLOT ) {
+                            editorModel.activeSlot = 0;
+                            // moved into first slot of next instrument, jump to next instrument
+                            if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
+                                if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
+                                    ++editorModel.activePattern;
+                                    editorModel.activeInstrument = 0;
+                                    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                                }
+                                else
+                                    editorModel.activeInstrument = MAX_CHANNEL;
+
+                                Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                             }
-                            else
-                                editorModel.activeInstrument = MAX_CHANNEL;
-
-                            Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                            else if ( editorModel.activeInstrument > 2 )
+                                Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
                         }
-                        else if ( editorModel.activeInstrument > 2 )
-                            Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
-
                         if ( aEvent.shiftKey )
                             selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
                         else
@@ -246,19 +250,23 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_JUMP_PREV );
                     }
                     else {
-                        if ( --editorModel.activeInstrument < 0 ) {
-                            if ( editorModel.activePattern > 0 ) {
-                                --editorModel.activePattern;
-                                editorModel.activeInstrument = 1;
-                                Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-                            }
-                            else
-                                editorModel.activeInstrument = 0;
+                        if ( --editorModel.activeSlot < 0 ) {
+                            editorModel.activeSlot = MAX_SLOT;
+                            // moved into last slot of previous instrument, jump to previous instrument
+                            if ( --editorModel.activeInstrument < 0 ) {
+                                if ( editorModel.activePattern > 0 ) {
+                                    --editorModel.activePattern;
+                                    editorModel.activeInstrument = 1;
+                                    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+                                }
+                                else
+                                    editorModel.activeInstrument = 0;
 
-                            Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                                Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
+                            }
+                            else if ( editorModel.activeInstrument >= 0 )
+                                Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
                         }
-                        else if ( editorModel.activeInstrument >= 0 )
-                            Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
 
                         if ( aEvent.shiftKey ) {
                             minSelect = Math.max( --maxSelect, 0 );

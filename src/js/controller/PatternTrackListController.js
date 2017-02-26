@@ -38,7 +38,7 @@ const PatternUtil    = require( "../utils/PatternUtil" );
 
 /* private properties */
 
-let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
+let wrapper, container, efflux, editorModel, keyboardController, stepHighlight, slotHighlight;
 let interactionData = {},
     selectionModel, patternCopy, stepSelect, pContainers, pContainerSteps;
 
@@ -160,6 +160,7 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_SWITCH:
             selectionModel.clearSelection();
+            editorModel.activeSlot = -1;
             PatternTrackListController.update();
             break;
 
@@ -208,9 +209,15 @@ function highlightActiveStep()
 {
     grabPatternContainersFromTemplate();
     const activeStyle = "active", selectedStyle = "selected",
-          activeStep = editorModel.activeStep;
+          activeStep  = editorModel.activeStep,
+          activeSlot  = editorModel.activeSlot;
 
     let selection, pContainer, items, item;
+
+    if ( slotHighlight )
+        slotHighlight.classList.remove( activeStyle );
+
+    slotHighlight = null;
 
     for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex )
     {
@@ -223,19 +230,29 @@ function highlightActiveStep()
 
         while ( sIndex-- )
         {
-            item = items[ sIndex ].classList;
+            if ( activeSlot === -1 ) {
+                item = items[ sIndex ].classList;
 
-            if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
-                item.add( activeStyle );
-            else
-                item.remove( activeStyle );
+                if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
+                    item.add( activeStyle );
+                else
+                    item.remove( activeStyle );
 
-            // highlight selection if set
+                // highlight selection if set
 
-            if ( selection && selection.indexOf( sIndex ) > -1 )
-                item.add( selectedStyle );
-            else
-                item.remove( selectedStyle );
+                if ( selection && selection.indexOf( sIndex ) > -1 )
+                    item.add( selectedStyle );
+                else
+                    item.remove( selectedStyle );
+            }
+            else {
+                if ( activeSlot !== -1 && pIndex === editorModel.activeInstrument && sIndex === activeStep ) {
+                    const slots = items[ sIndex ].querySelectorAll( "span" );
+                    slotHighlight = slots[ activeSlot ];
+                    if ( slotHighlight )
+                        slotHighlight.classList.add( activeStyle );
+                }
+            }
         }
     }
 }
@@ -299,6 +316,30 @@ function handleInteraction( aEvent )
                         selectionModel.clearSelection();
 
                     editorModel.activeStep = j;
+                    editorModel.activeSlot = -1;
+
+                    if ( aEvent.type === "click" && "caretRangeFromPoint" in document ) {
+                        const el = document.caretRangeFromPoint( aEvent.pageX, aEvent.pageY );
+                        if ( el && el.startContainer ) {
+                            let container = el.startContainer;
+                            if ( !( container instanceof Element && container.parentElement instanceof Element ))
+                                container = container.parentElement;
+
+                            if ( container.classList.contains("moduleValue")) {
+                                editorModel.activeSlot = 3;
+                            }
+                            else if ( container.classList.contains("moduleParam")) {
+                                editorModel.activeSlot = 2;
+                            }
+                            else if ( container.classList.contains("instrument")) {
+                                editorModel.activeSlot = 1;
+                            }
+                        }
+                        else {
+                            editorModel.activeSlot = 0;
+                        }
+                    }
+
                     highlightActiveStep();
 
                     keyboardController.setListener( PatternTrackListController );
