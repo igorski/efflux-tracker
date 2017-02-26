@@ -227,8 +227,7 @@ function highlightActiveStep()
 
     slotHighlight = null;
 
-    for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex )
-    {
+    for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex ) {
         pContainer = pContainers[ pIndex ];
         selection  = selectionModel.selectedChannels[ pIndex ];
         items      = grabPatternContainerStepFromTemplate( pIndex );
@@ -236,30 +235,33 @@ function highlightActiveStep()
 
         let sIndex = items.length;
 
-        while ( sIndex-- )
-        {
+        while ( sIndex-- ) {
+            item = items[ sIndex ];
+
             if ( activeSlot === -1 ) {
-                item = items[ sIndex ].classList;
+                const css = item.classList;
 
                 if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
-                    item.add( activeStyle );
+                    css.add( activeStyle );
                 else
-                    item.remove( activeStyle );
+                    css.remove( activeStyle );
 
                 // highlight selection if set
 
                 if ( selection && selection.indexOf( sIndex ) > -1 )
-                    item.add( selectedStyle );
+                    css.add( selectedStyle );
                 else
-                    item.remove( selectedStyle );
+                    css.remove( selectedStyle );
             }
             else {
-                if ( activeSlot !== -1 && pIndex === editorModel.activeInstrument && sIndex === activeStep ) {
-                    const slots = items[ sIndex ].querySelectorAll( "span" );
+                if ( pIndex === editorModel.activeInstrument && sIndex === activeStep ) {
+                    const slots = item.querySelectorAll( "span" );
                     slotHighlight = slots[ activeSlot ];
                     if ( slotHighlight )
                         slotHighlight.classList.add( activeStyle );
                 }
+                if ( !selection )
+                    item.classList.remove( selectedStyle );
             }
         }
     }
@@ -305,6 +307,7 @@ function handleInteraction( aEvent ) {
     if ( aEvent.target.nodeName === "LI" )
     {
         grabPatternContainersFromTemplate();
+        const shiftDown = keyboardController.hasShift();
         let selectionChannelStart = editorModel.activeInstrument, selectionStepStart = editorModel.activeStep;
         let found = false, pContainer, items;
 
@@ -331,7 +334,7 @@ function handleInteraction( aEvent ) {
                     }
 
                     // if shift was held down, we're making a selection
-                    if ( keyboardController.hasShift() ) {
+                    if ( shiftDown ) {
                         selectionModel.setSelectionChannelRange( selectionChannelStart, i );
                         selectionModel.setSelection( selectionStepStart, j );
                     }
@@ -341,7 +344,9 @@ function handleInteraction( aEvent ) {
                     editorModel.activeStep = j;
                     editorModel.activeSlot = -1;
 
-                    if ( aEvent.type === "click" && "caretRangeFromPoint" in document ) {
+                    // TODO: clean this entire function up, this is to jump directly to a slot within a event row
+
+                    if ( !shiftDown && aEvent.type === "click" && "caretRangeFromPoint" in document ) {
                         const el = document.caretRangeFromPoint( aEvent.pageX, aEvent.pageY );
                         if ( el && el.startContainer ) {
                             let container = el.startContainer;

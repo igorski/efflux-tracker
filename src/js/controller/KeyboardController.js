@@ -177,7 +177,7 @@ function handleKeyDown( aEvent )
 
             const hasOption = KeyboardController.hasOption( aEvent );
 
-            if ( !hasOption && !aEvent.shiftKey )
+            if ( !hasOption && !shiftDown )
                 handleInputForMode( keyCode );
 
             switch ( keyCode )
@@ -206,9 +206,10 @@ function handleKeyDown( aEvent )
 
                     // when holding down shift make a selection, otherwise clear selection
 
-                    if ( aEvent && aEvent.shiftKey )
+                    if ( aEvent && shiftDown ) {
+                        setActiveSlot(); // will unset selected slot
                         selectionModel.handleVerticalKeySelectAction( keyCode, editorModel.activeInstrument, curStep, editorModel.activeStep );
-                    else
+                    } else
                         selectionModel.clearSelection();
 
                     Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
@@ -223,8 +224,10 @@ function handleKeyDown( aEvent )
 
                     // when holding down shift make a selection, otherwise clear existing selection
 
-                    if ( aEvent && aEvent.shiftKey )
+                    if ( aEvent && shiftDown ) {
+                        setActiveSlot(); // will unset selected slot
                         selectionModel.handleVerticalKeySelectAction( keyCode, editorModel.activeInstrument, curStep, editorModel.activeStep );
+                    }
                     else
                         selectionModel.clearSelection();
 
@@ -237,9 +240,7 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_JUMP_NEXT );
                     }
                     else {
-                        if ( ++editorModel.activeSlot > MAX_SLOT ) {
-                            editorModel.activeSlot = 0;
-                            // moved into first slot of next instrument, jump to next instrument
+                        if ( setActiveSlot( editorModel.activeSlot + 1 )) {
                             if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
                                 if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
                                     ++editorModel.activePattern;
@@ -254,9 +255,8 @@ function handleKeyDown( aEvent )
                             else if ( editorModel.activeInstrument > 2 )
                                 Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
                         }
-                        updateMode();
 
-                        if ( aEvent.shiftKey )
+                        if ( shiftDown )
                             selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
                         else
                             selectionModel.clearSelection();
@@ -271,9 +271,7 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_JUMP_PREV );
                     }
                     else {
-                        if ( --editorModel.activeSlot < 0 ) {
-                            editorModel.activeSlot = MAX_SLOT;
-                            // moved into last slot of previous instrument, jump to previous instrument
+                        if ( setActiveSlot( editorModel.activeSlot - 1 )) {
                             if ( --editorModel.activeInstrument < 0 ) {
                                 if ( editorModel.activePattern > 0 ) {
                                     --editorModel.activePattern;
@@ -290,7 +288,7 @@ function handleKeyDown( aEvent )
                         }
                         updateMode();
 
-                        if ( aEvent.shiftKey ) {
+                        if ( shiftDown ) {
                             minSelect = Math.max( --maxSelect, 0 );
                             selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
                         }
@@ -334,6 +332,13 @@ function handleKeyDown( aEvent )
 
                 case 75: // K
                     Pubsub.publishSync( Messages.ADD_OFF_AT_POSITION );
+                    break;
+
+                case 76: // L
+                    if ( hasOption ) {
+                        Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_LOOP );
+                        aEvent.preventDefault();
+                    }
                     break;
 
                 case 82: // R
@@ -386,7 +391,7 @@ function handleKeyDown( aEvent )
                     {
                         let state;
 
-                        if ( !aEvent.shiftKey )
+                        if ( !shiftDown )
                             state = stateModel.undo();
                         else
                             state = stateModel.redo();
@@ -469,6 +474,22 @@ function handleInputForMode( keyCode ) {
             ModuleValueHandler.handleParam( keyCode );
             break;
     }
+}
+
+function setActiveSlot( targetValue ) {
+    let value = targetValue;
+    // moved into first slot of next instrument ? jump to next instrument
+    if ( targetValue > MAX_SLOT )
+        value = 0;
+    else if ( targetValue < 0 )
+        value = MAX_SLOT;
+    if ( shiftDown )
+        value = -1;
+
+    editorModel.activeSlot = value;
+    updateMode();
+
+    return ( value !== targetValue );
 }
 
 function handleDeleteActionForCurrentMode() {

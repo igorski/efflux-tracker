@@ -71,20 +71,21 @@ module.exports =
     // sequencer messages
 
     TOGGLE_SEQUENCER_PLAYSTATE : "SEQ:0",
-    PLAYBACK_STARTED           : "SEQ:1",
-    PLAYBACK_STOPPED           : "SEQ:2",
-    SET_SEQUENCER_POSITION     : "SEQ:3", // payload is number describing new measure position
-    RECORDING_COMPLETE         : "SEQ:4",
-    TEMPO_UPDATED              : "SEQ:5", // payload is Array [ old tempo, new tempo ]
-    STEP_POSITION_REACHED      : "SEQ:6", // payload is Array [ current step position, total step positions (per measure) ]
-    TOGGLE_OUTPUT_RECORDING    : "SEQ:7",
-    TOGGLE_INPUT_RECORDING     : "SEQ:8",
-    NOTE_ON                    : "SEQ:9",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    NOTE_OFF                   : "SEQ:10", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    PATTERN_SWITCH             : "SEQ:11", // payload consists of number describing new pattern index
-    PATTERN_AMOUNT_UPDATED     : "SEQ:12",
-    PATTERN_JUMP_PREV          : "SEQ:13",
-    PATTERN_JUMP_NEXT          : "SEQ:14",
+    TOGGLE_SEQUENCER_LOOP      : "SEQ:1",
+    PLAYBACK_STARTED           : "SEQ:2",
+    PLAYBACK_STOPPED           : "SEQ:3",
+    SET_SEQUENCER_POSITION     : "SEQ:4", // payload is number describing new measure position
+    RECORDING_COMPLETE         : "SEQ:5",
+    TEMPO_UPDATED              : "SEQ:6", // payload is Array [ old tempo, new tempo ]
+    STEP_POSITION_REACHED      : "SEQ:7", // payload is Array [ current step position, total step positions (per measure) ]
+    TOGGLE_OUTPUT_RECORDING    : "SEQ:8",
+    TOGGLE_INPUT_RECORDING     : "SEQ:9",
+    NOTE_ON                    : "SEQ:10",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
+    NOTE_OFF                   : "SEQ:11", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
+    PATTERN_SWITCH             : "SEQ:12", // payload consists of number describing new pattern index
+    PATTERN_AMOUNT_UPDATED     : "SEQ:13",
+    PATTERN_JUMP_PREV          : "SEQ:14",
+    PATTERN_JUMP_NEXT          : "SEQ:15",
 
     // editor messages
 

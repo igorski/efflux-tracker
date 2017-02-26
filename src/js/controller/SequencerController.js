@@ -124,6 +124,7 @@ const SequencerController = module.exports =
         [
             Messages.MIDI_DEVICE_CONNECTED,
             Messages.TOGGLE_SEQUENCER_PLAYSTATE,
+            Messages.TOGGLE_SEQUENCER_LOOP,
             Messages.TOGGLE_INPUT_RECORDING,
             Messages.SET_SEQUENCER_POSITION,
             Messages.PATTERN_AMOUNT_UPDATED,
@@ -288,6 +289,10 @@ function handleBroadcast( type, payload )
 
         case Messages.PATTERN_JUMP_NEXT:
             handlePatternNavNext( null );
+            break;
+
+        case Messages.TOGGLE_SEQUENCER_LOOP:
+            handleLoopToggle( null );
             break;
 
         case Messages.SONG_LOADED:
