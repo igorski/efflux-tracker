@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,12 +22,15 @@
  */
 "use strict";
 
+const MANUAL_ROOT = "https://www.igorski.nl/efflux/help";
+
 module.exports =
 {
     /**
      * URLs to all online help pages
      */
-    PARAM_ENTRY_HELP       : "https://www.igorski.nl/efflux/help/automation",
-    NOTE_ENTRY_HELP        : "https://www.igorski.nl/efflux/help/note-entry",
-    INSTRUMENT_EDITOR_HELP : "https://www.igorski.nl/efflux/help/instrument-editor"
+    ONLINE_MANUAL          : MANUAL_ROOT,
+    PARAM_ENTRY_HELP       : MANUAL_ROOT + "/automation",
+    NOTE_ENTRY_HELP        : MANUAL_ROOT + "/note-entry",
+    INSTRUMENT_EDITOR_HELP : MANUAL_ROOT + "/instrument-editor"
 };

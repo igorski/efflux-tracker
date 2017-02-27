@@ -29,6 +29,7 @@ const ExportUtil = require( "../utils/ExportUtil" );
 const SongUtil   = require( "../utils/SongUtil" );
 const Pubsub     = require( "pubsub-js" );
 const Messages   = require( "../definitions/Messages" );
+const Manual     = require( "../definitions/Manual" );
 
 /* private properties */
 
@@ -85,6 +86,10 @@ const MenuController = module.exports =
             if ( canRecord )
                 containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
 
+            containerRef.querySelector( "#helpBtn" ).addEventListener( "click", ( aEvent ) => {
+                window.open( Manual.ONLINE_MANUAL );
+            });
+
             // get reference to DOM elements
 
             menu   = document.getElementById( "menu" );
@@ -93,7 +98,7 @@ const MenuController = module.exports =
 
             // add event listeners
 
-            toggle.addEventListener( "click",     handleToggle );
+            toggle.addEventListener( "click", handleToggle );
 
             if ( Config.canHover() )
                 menu.addEventListener( "mouseover", handleMouseOver );
