@@ -22,25 +22,25 @@
  */
 "use strict";
 
-const Pubsub         = require( "pubsub-js" );
-const Config         = require( "../config/Config" );
-const Messages       = require( "../definitions/Messages" );
-const States         = require( "../definitions/States" );
-const EventFactory   = require( "../model/factory/EventFactory" );
-const PatternFactory = require( "../model/factory/PatternFactory" );
-const StateFactory   = require( "../model/factory/StateFactory" );
-const SettingsModel  = require( "../model/SettingsModel" );
-const Form           = require( "../utils/Form" );
-const ListenerUtil   = require( "../utils/ListenerUtil" );
-const EventUtil      = require( "../utils/EventUtil" );
-const ObjectUtil     = require( "../utils/ObjectUtil" );
-const PatternUtil    = require( "../utils/PatternUtil" );
+const Pubsub               = require( "pubsub-js" );
+const Config               = require( "../config/Config" );
+const Messages             = require( "../definitions/Messages" );
+const States               = require( "../definitions/States" );
+const EventFactory         = require( "../model/factory/EventFactory" );
+const PatternFactory       = require( "../model/factory/PatternFactory" );
+const StateFactory         = require( "../model/factory/StateFactory" );
+const Form                 = require( "../utils/Form" );
+const ListenerUtil         = require( "../utils/ListenerUtil" );
+const EventUtil            = require( "../utils/EventUtil" );
+const ObjectUtil           = require( "../utils/ObjectUtil" );
+const PatternUtil          = require( "../utils/PatternUtil" );
+const PatternTrackListView = require( "../view/PatternTrackListView" );
 
 /* private properties */
 
-let wrapper, container, efflux, editorModel, keyboardController, stepHighlight, slotHighlight;
+let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
 let interactionData = {},
-    selectionModel, patternCopy, stepSelect, pContainers, pContainerSteps;
+    selectionModel, patternCopy, stepSelect;
 
 const PatternTrackListController = module.exports =
 {
@@ -62,6 +62,7 @@ const PatternTrackListController = module.exports =
         stepSelect    = document.querySelector( "#patternSteps"  );
         stepHighlight = containerRef.querySelector( ".highlight" );
 
+        PatternTrackListView.init( effluxRef, wrapper );
         selectionModel = efflux.SelectionModel;
 
         PatternTrackListController.update(); // sync view with model state
@@ -116,30 +117,19 @@ const PatternTrackListController = module.exports =
 
         // record the current scroll offset of the container so we can restore it after updating of the HTML
         const coordinates = { x: container.scrollLeft, y: container.scrollTop };
-
         const pattern = efflux.activeSong.patterns[ activePattern ];
 
-        // render the currently active pattern on screen
-
-        efflux.TemplateService.render( "patternTrackList", wrapper, {
-
-            pattern       : pattern,
-            activeChannel : editorModel.activeInstrument,
-            activeStep    : editorModel.activeStep,
-            format        : efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex"
-
-        }).then(() => {
-            // clear cached containers after render
-            pContainers = null;
-            pContainerSteps = [];
-
-            if ( editorModel.activeStep !== -1 )
-            highlightActiveStep();
-        });
+        PatternTrackListView.render( pattern );
 
         Form.setSelectedOption( stepSelect, pattern.steps );
         container.scrollLeft = coordinates.x;
         container.scrollTop  = coordinates.y;
+    },
+
+    editNoteForStep() {
+        Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, function() {
+            keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
+        });
     }
 };
 
@@ -176,7 +166,7 @@ function handleBroadcast( type, payload )
             if ( typeof payload === "number" )
                 stepHighlight.style.top = ( payload * 32 ) + "px";
 
-            highlightActiveStep();
+            PatternTrackListView.highlightActiveStep();
             break;
 
         case Messages.REFRESH_PATTERN_VIEW:
@@ -184,7 +174,8 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.EDIT_NOTE_AT_POSITION:
-            editNoteForStep();
+        case Messages.EDIT_NOTE_FOR_STEP:
+            PatternTrackListController.editNoteForStep();
             break;
 
         case Messages.ADD_EVENT_AT_POSITION:
@@ -206,64 +197,6 @@ function handleBroadcast( type, payload )
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
             editModuleParamsForStep();
             break;
-
-        case Messages.EDIT_NOTE_FOR_STEP:
-            editNoteForStep();
-            break;
-    }
-}
-
-function highlightActiveStep()
-{
-    grabPatternContainersFromTemplate();
-    const activeStyle = "active", selectedStyle = "selected",
-          activeStep  = editorModel.activeStep,
-          activeSlot  = editorModel.activeSlot;
-
-    let selection, pContainer, items, item;
-
-    if ( slotHighlight )
-        slotHighlight.classList.remove( activeStyle );
-
-    slotHighlight = null;
-
-    for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex ) {
-        pContainer = pContainers[ pIndex ];
-        selection  = selectionModel.selectedChannels[ pIndex ];
-        items      = grabPatternContainerStepFromTemplate( pIndex );
-        pContainer.querySelectorAll( "li" );
-
-        let sIndex = items.length;
-
-        while ( sIndex-- ) {
-            item = items[ sIndex ];
-
-            if ( activeSlot === -1 ) {
-                const css = item.classList;
-
-                if ( pIndex === editorModel.activeInstrument && sIndex === activeStep )
-                    css.add( activeStyle );
-                else
-                    css.remove( activeStyle );
-
-                // highlight selection if set
-
-                if ( selection && selection.indexOf( sIndex ) > -1 )
-                    css.add( selectedStyle );
-                else
-                    css.remove( selectedStyle );
-            }
-            else {
-                if ( pIndex === editorModel.activeInstrument && sIndex === activeStep ) {
-                    const slots = item.querySelectorAll( "span" );
-                    slotHighlight = slots[ activeSlot ];
-                    if ( slotHighlight )
-                        slotHighlight.classList.add( activeStyle );
-                }
-                if ( !selection )
-                    item.classList.remove( selectedStyle );
-            }
-        }
     }
 }
 
@@ -305,95 +238,9 @@ function handleInteraction( aEvent ) {
     }
 
     if ( aEvent.target.nodeName === "LI" )
-    {
-        grabPatternContainersFromTemplate();
-        const shiftDown = keyboardController.hasShift();
-        let selectionChannelStart = editorModel.activeInstrument, selectionStepStart = editorModel.activeStep;
-        let found = false, pContainer, items;
+        PatternTrackListView.handleSlotClick( aEvent, keyboardController, PatternTrackListController );
 
-        if ( selectionModel.hasSelection() ) {
-            selectionChannelStart = selectionModel.firstSelectedChannel;
-            selectionStepStart    = selectionModel.minSelectedStep;
-        }
-
-        for ( let i = 0, l = pContainers.length; i < l; ++i ) {
-
-            if ( found ) break;
-
-            pContainer = pContainers[ i ];
-            items = grabPatternContainerStepFromTemplate( i );
-
-            let j = items.length;
-            while ( j-- )
-            {
-                if ( items[ j ] === aEvent.target ) {
-
-                    if ( i !== editorModel.activeInstrument ) {
-                        editorModel.activeInstrument = i; // when entering a new channel lane, make default instrument match index
-                        editorModel.activeInstrument = i;
-                    }
-
-                    // if shift was held down, we're making a selection
-                    if ( shiftDown ) {
-                        selectionModel.setSelectionChannelRange( selectionChannelStart, i );
-                        selectionModel.setSelection( selectionStepStart, j );
-                    }
-                    else
-                        selectionModel.clearSelection();
-
-                    editorModel.activeStep = j;
-                    editorModel.activeSlot = -1;
-
-                    // TODO: clean this entire function up, this is to jump directly to a slot within a event row
-
-                    if ( !shiftDown && aEvent.type === "click" && "caretRangeFromPoint" in document ) {
-                        const el = document.caretRangeFromPoint( aEvent.pageX, aEvent.pageY );
-                        if ( el && el.startContainer ) {
-                            let container = el.startContainer;
-                            if ( !( container instanceof Element && container.parentElement instanceof Element ))
-                                container = container.parentElement;
-
-                            if ( container.classList.contains( "moduleValue" )) {
-                                editorModel.activeSlot = 3;
-                            }
-                            else if ( container.classList.contains( "moduleParam" )) {
-                                editorModel.activeSlot = 2;
-                            }
-                            else if ( container.classList.contains( "instrument" )) {
-                                editorModel.activeSlot = 1;
-                            }
-                            else
-                                editorModel.activeSlot = 0;
-                        }
-                        else {
-                            editorModel.activeSlot = 0;
-                        }
-                        Pubsub.publish( Messages.HIGHLIGHTED_SLOT_CHANGED );
-                    }
-
-                    highlightActiveStep();
-
-                    keyboardController.setListener( PatternTrackListController );
-
-                    if ( aEvent.type === "dblclick" ) {
-
-                        aEvent.preventDefault();
-                        editNoteForStep();
-                        found = true;
-                    }
-                    break;
-                }
-            }
-        }
-    }
     Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
-}
-
-function editNoteForStep()
-{
-    Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, function() {
-        keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
-    });
 }
 
 function editModuleParamsForStep()
@@ -539,7 +386,7 @@ function addEventAtPosition( event, optData, optStoreInUndoRedo )
                     editorModel.activeStep = maxStep;
 
                 selectionModel.clearSelection();
-                highlightActiveStep();
+                PatternTrackListView.highlightActiveStep();
             }
             PatternTrackListController.update();
         }
@@ -547,18 +394,4 @@ function addEventAtPosition( event, optData, optStoreInUndoRedo )
 
     if ( optStoreInUndoRedo )
         Pubsub.publishSync( Messages.SAVE_STATE, undoRedoAction );
-}
-
-/**
- * function to retrieve and cache the currently available DOM containers
- * inside the pattern template
- *
- * @private
- */
-function grabPatternContainersFromTemplate() {
-    pContainers = pContainers || wrapper.querySelectorAll( ".pattern" );
-}
-
-function grabPatternContainerStepFromTemplate( i ) {
-    return ( pContainerSteps[ i ] = pContainerSteps[ i ] || pContainers[ i ].querySelectorAll( "li" ));
 }
