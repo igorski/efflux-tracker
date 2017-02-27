@@ -35,6 +35,7 @@ const P_MODULES = [ "pitchUp", "pitchDown" ];
 const V_MODULES = [ "volume" ];
 
 let selectedGlide = false, selectedModule;
+let lastCharacter = "", lastTypeAction = 0;
 
 const ModuleParamHandler = module.exports = {
 
@@ -45,28 +46,49 @@ const ModuleParamHandler = module.exports = {
     },
 
     handleParam( keyCode ) {
+        const now = Date.now();
+        const previousTypeAction = lastTypeAction;
+
+        lastTypeAction = now;
+
         let event = getEventForPosition();
         const createEvent = !event;
 
         if ( !createEvent && event.mp )
             selectedGlide = event.mp.glide;
 
-        switch ( keyCode ) {
-            case 68: // D
-            case 70: // F
-            case 80: // P
-            case 86: // V
-                selectedModule = ModuleParamHandler.getNextSelectedModule( keyCode, selectedModule );
-                break;
+        // if this character was typed shortly after the previous one,
+        // combine their values for more precise control
+        const character = String.fromCharCode(( 96 <= keyCode && keyCode <= 105 )? keyCode - 48 : keyCode );
 
-            case 71: // G
-                if ( event && event.mp )
-                    selectedGlide = event.mp.glide;
-                selectedGlide = !selectedGlide;
-                break;
+        if ( !character || !character.match( /^[a-z0-9]+$/i ))
+            return;
 
-            default:
-                return;
+        let value = ( now - previousTypeAction < 500 ) ? lastCharacter + character : character;
+        lastCharacter = character;
+
+        // if user is typing multiple characters in succession, attempt to retrieve module by characters
+        if ( value.length === 2 ) {
+            selectedModule = getModuleByFirstTwoLetters( value, selectedModule );
+        }
+        else {
+            switch ( keyCode ) {
+                case 68: // D
+                case 70: // F
+                case 80: // P
+                case 86: // V
+                    selectedModule = ModuleParamHandler.getNextSelectedModule( keyCode, selectedModule );
+                    break;
+
+                case 71: // G
+                    if ( event && event.mp )
+                        selectedGlide = event.mp.glide;
+                    selectedGlide = !selectedGlide;
+                    break;
+
+                default:
+                    return;
+        }
         }
         // create event if it didn't exist yet
         if ( createEvent )
@@ -110,6 +132,35 @@ function getModuleListByKeyCode( keyCode ) {
         case 86:
             return V_MODULES;
     }
+}
+
+function getModuleByFirstTwoLetters( letters, selectModule ) {
+    let list;
+    switch ( letters.charAt( 0 )) {
+        case "D":
+            list = D_MODULES;
+            break;
+        case "F":
+            list = F_MODULES;
+            break;
+        case "P":
+            list = P_MODULES;
+            break;
+        case "V":
+            list = V_MODULES;
+            break;
+    }
+    if ( list ) {
+        for ( let i = 0; i < list.length; ++i ) {
+            const module = list[ i ];
+            let name = module.charAt( 0 ).toUpperCase();
+            name += module.match(/([A-Z]?[^A-Z]*)/g)[1].charAt( 0 );
+            if ( name.substr( 0, 2 ) === letters )
+                return module;
+        }
+    }
+    // nothing found, return current
+    return selectedModule;
 }
 
 function getEventForPosition( createIfNotExisting ) {
