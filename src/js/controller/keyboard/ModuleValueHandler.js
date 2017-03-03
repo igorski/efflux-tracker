@@ -78,10 +78,7 @@ module.exports = {
 
         // no module param defined yet ? create as duplicate of previously defined property
         if ( !event.mp ) {
-            const prevEvent = EventUtil.getFirstEventBeforeStep(
-                efflux.activeSong.patterns[ editorModel.activePattern ]
-                                 .channels[ editorModel.activeInstrument ], editorModel.activeStep
-            );
+            const prevEvent = getPreviousEventWithModuleAutomation( editorModel.activeStep );
             event.mp = EventFactory.createModuleParam(
                 ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", 50, false
             );
@@ -92,6 +89,22 @@ module.exports = {
         Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
     }
 };
+
+function getPreviousEventWithModuleAutomation( step ) {
+    let prevEvent;
+    while ( !prevEvent || !prevEvent.mp ) {
+
+        if ( step <= 0 )
+            return null;
+
+        prevEvent = EventUtil.getFirstEventBeforeStep(
+            efflux.activeSong.patterns[ editorModel.activePattern ]
+                             .channels[ editorModel.activeInstrument ], step
+        );
+        step = ( prevEvent ) ? step - 1 : 0;
+    }
+    return prevEvent;
+}
 
 // TODO: duplicated from ModuleParamHandler...
 
