@@ -24,7 +24,11 @@
 
 /* private properties */
 
-const isStandards = !!( "AudioContext" in window );
+// we assume that the audioContext works according to the newest standards
+// if its is available as window.AudioContext
+// UPDATE: newer Safaris still use webkitAudioContext but have updated the API
+// method names according to spec
+const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && new webkitAudioContext().createGain()));
 
 /**
  * AudioFactory provides wrapper methods to overcome

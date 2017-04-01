@@ -90,30 +90,53 @@ const efflux = window.efflux =
 // WebAudio API not supported ? halt application start
 
 if ( !AudioController.isSupported() ) {
-    efflux.TemplateService.render( "notSupported", container );
+    haltApplicationStart();
 }
 else {
 
-    // prepare view
+    setupApplicationModel();
+
+    // initialize AudioController first, it sets up the audioContext, which is an evolving
+    // standard and has been known to break on Safari updates, try/catch before continuing actual app bootstrap
+    try {
+        AudioController.init( efflux, efflux.activeSong.instruments );
+        startApplication();
+    }
+    catch ( e ) {
+        if ( window.console )
+            console.error( e );
+
+        haltApplicationStart();
+    }
+}
+
+/* private methods */
+
+function setupApplicationModel() {
+    // prepare linked audio event list
+
+    for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+        efflux.eventList[ i ] = new LinkedList();
+
+    // setup application models
+
+    efflux.SettingsModel.init();
+    efflux.InstrumentModel.init();
+    efflux.SongModel.init();
+    efflux.activeSong = efflux.SongModel.createSong();
+}
+
+function haltApplicationStart() {
+    efflux.TemplateService.render( "notSupported", container );
+}
+
+function startApplication() {
 
     efflux.TemplateService.render( "index", container, null, true ).then(() => {
-
-        // prepare linked audio event list
-
-        for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-            efflux.eventList[ i ] = new LinkedList();
-
-        // controllers ready, application models
-
-        efflux.SettingsModel.init();
-        efflux.InstrumentModel.init();
-        efflux.SongModel.init();
-        efflux.activeSong = efflux.SongModel.createSong();
 
         // initialize application controllers
 
         KeyboardController.init( efflux, SequencerController );
-        AudioController.init( efflux, efflux.activeSong.instruments );
         SettingsController.init( efflux, document.body );
         MenuController.init( container.querySelector( "#menuSection" ), efflux );
         InstrumentController.init( container, efflux, KeyboardController );
@@ -150,7 +173,7 @@ else {
     ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 }
 
-/* private methods */
+// TODO: move this a general controller and treat this file as an application bootstrap
 
 function handleBroadcast( type, payload )
 {
