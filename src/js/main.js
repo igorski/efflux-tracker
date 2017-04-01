@@ -103,8 +103,10 @@ else {
         startApplication();
     }
     catch ( e ) {
+        // we'd like to see this output in the console, stringified lookup
+        // ensures this code remains in the production build
         if ( window.console )
-            console.error( e );
+            window["console"]["error"]( e );
 
         haltApplicationStart();
     }

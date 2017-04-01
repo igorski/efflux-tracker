@@ -25,6 +25,7 @@
 const SettingsModel = require( "../model/SettingsModel" );
 const Messages      = require( "../definitions/Messages" );
 const Pubsub        = require( "pubsub-js" );
+const Bowser        = require( "bowser" );
 
 let efflux, editorModel, selectionModel, wrapper,
     pContainers, pContainerSteps, slotHighlight;
@@ -207,10 +208,11 @@ const PatternTrackListView = module.exports = {
 /* internal methods */
 
 function selectSlotWithinClickedStep( aEvent ) {
-    if ( !( "caretRangeFromPoint" in document ))
+    // only when supported, and even then not on Safari... =/
+    if ( !( "caretRangeFromPoint" in document ) || Bowser.safari )
         return;
 
-    const el = document.caretRangeFromPoint( aEvent.pageX, aEvent.pageY );
+    const el = document.caretRangeFromPoint( aEvent.clientX, aEvent.clientY );
     let slot = 0;
 
     if ( el && el.startContainer ) {
