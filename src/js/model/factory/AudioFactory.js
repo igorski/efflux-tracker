@@ -28,7 +28,7 @@
 // if its is available as window.AudioContext
 // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
 // method names according to spec
-const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && new webkitAudioContext().createGain()));
+const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && typeof (new webkitAudioContext())["createGain"] === "function"));
 
 /**
  * AudioFactory provides wrapper methods to overcome
