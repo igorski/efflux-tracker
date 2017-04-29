@@ -5,7 +5,7 @@ module.exports = {
                 debug: true,
                 transform: [
                     ["babelify", {
-                        loose: "all",
+                        presets: ['es2015'],
                         ignore: /WaveTables/
                     }],
                     "workerify"
@@ -21,9 +21,7 @@ module.exports = {
             browserifyOptions: {
                 debug: false,
                 transform: [
-                    ["babelify", {
-                        loose: "all"
-                    }],
+                    ["babelify", {presets: ['es2015']}],
                     "workerify"
                 ]
             }

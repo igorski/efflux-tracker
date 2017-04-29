@@ -19,7 +19,8 @@
     "grunt-contrib-uglify": "^0.8.0",
     "grunt-contrib-handlebars": "0.10.2",
     "handlebars": "3.0.3",
-    "babelify": "^6.1.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^7.3.0",
     "workerify": "^0.3.0",
     "pubsub-js": "^1.5.0",
     "atomify-css" : "^3.2.2",
@@ -34,7 +35,7 @@
     "undo-manager": "^1.0.5",
     "wa-overdrive": "^0.0.3",
     "zjslib": "^0.1.4",
-    "zcanvas": "^2.0.0",
+    "zcanvas": "^3.0.7",
     "zmidi": "^0.1.3"
   },
   "scripts": {

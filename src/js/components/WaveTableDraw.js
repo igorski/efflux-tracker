@@ -23,7 +23,7 @@
 "use strict";
 
 const Config  = require( "../config/Config" );
-const zSprite = require( "zCanvas" ).zSprite;
+const zCanvas = require( "zCanvas" );
 
 // create the WaveTableDraw prototype as an extension of zSprite
 
@@ -39,7 +39,7 @@ function WaveTableDraw( width, height, updateHandler )
     this.interactionCache = { x: -1, y: -1 };
     this.updateRequested  = false;
 }
-zSprite.extend( WaveTableDraw );
+zCanvas.sprite.extend( WaveTableDraw );
 
 module.exports = WaveTableDraw;
 

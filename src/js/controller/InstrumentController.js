@@ -30,7 +30,7 @@ const Messages          = require( "../definitions/Messages" );
 const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
 const Form              = require( "../utils/Form" );
 const ObjectUtil        = require( "../utils/ObjectUtil" );
-const zCanvas           = require( "zCanvas" ).zCanvas;
+const zCanvas           = require( "zCanvas" );
 const Pubsub            = require( "pubsub-js" );
 
 /* private properties */
@@ -132,7 +132,7 @@ const InstrumentController = module.exports =
             odPreBandControl = view.querySelector( "#odPreBand" );
             odPostCutControl = view.querySelector( "#odPostCut" );
 
-            canvas = new zCanvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
+            canvas = new zCanvas.canvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
             canvas.setBackgroundColor( "#000000" );
             canvas.insertInPage( view.querySelector( "#canvasContainer" ));
 
