@@ -7,6 +7,7 @@
 
 html, body {
   height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -40,23 +41,14 @@ ul {
 }
 
 #main {
+  position: absolute;
   width: 100%;
-  min-height: 100%;
-  margin: .5em auto;
-  padding: .5em;
-  .boxSize;
-
-  margin-bottom: -@footer-height; /* minus the footer height to make it sticky */
-
-  /* sticky footer-specific */
-
-  &:before, &:after {
-    content: "";
-    display: block;
-    height: @menu-height;
-  }
-
-  /* E.O. sticky footer magic */
+  top: @menu-height;
+  left: 0;
+  bottom: @footer-height;
+  margin: .5em 0;
+  //padding: .5em;
+  //.boxSize;
 }
 
 /* standard width : desktop / large tablet */

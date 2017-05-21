@@ -32,7 +32,7 @@ const ListenerUtil = require( "../utils/ListenerUtil" );
 
 /* private variables */
 
-let patternContainer, trackList, transportSection, patternEditor, helpSection,
+let patternContainer, centerSection, trackList, transportSection, patternEditor, helpSection,
     blind, loader, calculationPending = false, scrollPending = false, loadRequests = 0;
 
 const getStyle = Style.getStyle;
@@ -189,12 +189,24 @@ function calculateDimensions( aEvent )
     patternEditor    = patternEditor    || document.querySelector( "#patternEditor" );
     trackList        = trackList        || document.querySelector( "#patternTrackList" );
     helpSection      = helpSection      || document.querySelector( "#helpSection" );
+    centerSection    = centerSection    || document.querySelector( "#center" );
+    const mainSection = document.querySelector( "#main" );
+    const metaSection = document.querySelector( "#metaSection" );
 
     // avoid thrashing by reading styles first
 
     transportWidth     = getStyle( transportSection, "width" );
     patternEditorWidth = getStyle( patternEditor,    "width" );
     helpSectionWidth   = getStyle( helpSection,      "width" );
+
+    const targetHeight = (
+                parseFloat( getStyle( mainSection, "height" )) -
+                (
+                parseFloat( getStyle( transportSection, "height" ))
+                + parseFloat( getStyle( metaSection, "height" ))
+               + parseFloat( getStyle( patternEditor, "height" ))
+                )
+            );
 
     const targetWidth = (
 
@@ -207,8 +219,10 @@ function calculateDimensions( aEvent )
     trackList.style.width        = targetWidth;
     patternContainer.style.width = targetWidth;
 
-    // side containers should be as tall as the pattern container (help container is scrollable)
+    centerSection.style.height = targetHeight + "px";
 
+    // side containers should be as tall as the pattern container (help container is scrollable)
+    return; // QQQ
     requestAnimationFrame(() => {
 
         // TODO : can we not do this at all with proper flexbox usage ?
