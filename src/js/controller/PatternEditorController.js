@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -74,9 +74,9 @@ function handleBroadcast( type, payload )
     {
         case Messages.WINDOW_SCROLLED:
 
-            // ensure the controlContainer is always visible regardless of scroll offset
+            // ensure the controlContainer is always visible regardless of scroll offset (for phones)
             // threshold defines when to offset the containers top, the last number defines the fixed header height
-            const scrollY   = window.scrollY;
+            const scrollY = window.scrollY;
 
             if ( scrollY !== lastWindowScrollY ) {
                 const threshold = ( controlOffsetY = controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
@@ -121,24 +121,6 @@ function handleBroadcast( type, payload )
                     return;
 
                 Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff )); // PatternTrackListController...
-
-                let i = patternIndices.length, number;
-
-                // remove current active class
-
-                number = patternIndices[ activeIndex ];
-                if ( number ) {
-                    number.classList.remove( "active" );
-                }
-
-                while ( i-- )
-                {
-                    number = patternIndices[ i ];
-                    if ( i * diff === step ) {
-                        number.classList.add( "active" );
-                        activeIndex = i;
-                    }
-                }
             });
             break;
     }
@@ -167,9 +149,4 @@ function handleModuleParamsClick( aEvent )
 function updateStepAmount( amount )
 {
     stepAmount = amount;
-    efflux.TemplateService.render(
-        "patternEditorIndices", indiceContainer, { amount: amount }
-    ).then(() => {
-        patternIndices = indiceContainer.querySelectorAll( "li" );
-    });
 }

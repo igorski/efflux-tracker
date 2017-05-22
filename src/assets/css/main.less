@@ -11,18 +11,87 @@
   display: inline-flex;
 }
 
+/* PHONE */
+
+@media screen and ( max-width: @mobile-width )
+{
+  html {
+    overflow: auto;
+  }
+  body.has-overlay {
+    // allow scrolling when overlay is opened
+    overflow: auto;
+  }
+
+  .container {
+    padding: 0;
+    margin: 0;
+  }
+  #center {
+    width: inherit;
+    top: 117px !important;
+  }
+  footer {
+    position: relative;
+  }
+}
+
+/* everything LARGER than a PHONE */
+
+@media screen and ( min-width: @mobile-width )
+{
+  .container
+  {
+    padding: 0 1em;
+    left: auto;
+    .boxSize;
+
+    /* menu contains submenu */
+
+    &.padded {
+      padding-left: 1em;
+      padding-right: 1em;
+
+      &:before, &:after {
+        height: 128px;
+      }
+    }
+  }
+}
+
+/* TABLET: portrait orientation */
+
 @media screen and ( max-width: @tablet-portrait-width )
+{
+
+}
+
+/* TABLET/DESKTOP portrait width */
+
+@media screen and ( max-width: @app-width )
 {
   #helpSection {
     display: none;
     width: 0;
   }
+  #center {
+    overflow-x: scroll !important;
+    overflow-y: hidden !important; // body scrolls instead
+  }
 }
+
+/* TABLET/DESKTOP ideal height */
+
+@media screen and ( min-height: @ideal-height )
+{
+
+}
+
+/* TABLET/DESKTOP medium to large */
 
 @media screen and ( min-width: @app-width) and (max-width: @ideal-width )
 {
   #center {
-    width: 100%;
     left: auto;
     margin-left: 0;
   }
@@ -30,9 +99,17 @@
     width: 5%;
   }
   #patternTrackList {
-    width: 71%;
+    width: 70%;
   }
   #helpSection {
-    width: 22.5%;
+    width: 25%;
+  }
+}
+
+/* DESKTOP wide screen */
+
+@media screen and ( min-width: @ideal-width ) {
+  #center {
+    left: 0;
   }
 }

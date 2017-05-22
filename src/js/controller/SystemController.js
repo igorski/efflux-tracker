@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,6 +25,7 @@
 const Config       = require( "../config/Config" );
 const Copy         = require( "../i18n/Copy" );
 const Messages     = require( "../definitions/Messages" );
+const Style        = require( "zjslib" ).Style;
 const Pubsub       = require( "pubsub-js" );
 const Bowser       = require( "bowser" );
 const ListenerUtil = require( "../utils/ListenerUtil" );
@@ -32,6 +33,7 @@ const ListenerUtil = require( "../utils/ListenerUtil" );
 /* private variables */
 
 let blind, loader, scrollPending = false, loadRequests = 0;
+let mainSection, centerSection;
 
 module.exports =
 {
@@ -72,9 +74,14 @@ module.exports =
             Messages.HIDE_BLIND,
             Messages.SHOW_LOADER,
             Messages.HIDE_LOADER,
+            Messages.OVERLAY_OPENED,
             Messages.CLOSE_OVERLAYS
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
+
+        // ensure that on application start all elements are presented correctly
+
+        calculateDimensions();
     }
 };
 
@@ -89,7 +96,15 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.HIDE_BLIND:
+            document.body.classList.remove( "blind" );
+            break;
+
+        case Messages.OVERLAY_OPENED:
+            document.body.classList.add( "has-overlay" );
+            break;
+
         case Messages.CLOSE_OVERLAYS:
+            document.body.classList.remove( "has-overlay" );
             document.body.classList.remove( "blind" );
             break;
 
@@ -122,6 +137,7 @@ function handleEvent( aEvent )
     {
         case "resize":
             Pubsub.publish( Messages.WINDOW_RESIZED );
+            calculateDimensions();
             break;
 
         case "scroll":
@@ -143,4 +159,22 @@ function handleEvent( aEvent )
 function handleUnload( aEvent )
 {
     return Copy.get( "WARNING_UNLOAD" );
+}
+
+/**
+ * due to the nature of the table display of the pattern editors track list
+ * we need JavaScript to calculate to correct dimensions of the overflowed track list
+ *
+ * @param aEvent
+ */
+function calculateDimensions( aEvent )
+{
+    // grab references to DOM elements (we do this lazily)
+
+    mainSection   = mainSection   || document.querySelector( "#main" );
+    centerSection = centerSection || document.querySelector( "#center" );
+
+    // synchronize pattern list width with mainsection width
+
+    centerSection.style.width = Style.getStyle( mainSection, "width" );
 }

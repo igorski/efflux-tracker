@@ -1,5 +1,6 @@
 @patternWidth: 150px;
-@fullPatternListWidth: ( 8 * @patternWidth );
+@indicesWidth: 30px;
+@fullPatternListWidth: (( 8 * @patternWidth ) + @indicesWidth );
 
 #patternSection
 {
@@ -27,8 +28,6 @@
   min-width: 54px;
 
   .controls {
-
-    z-index: 10;
 
     li {
 
@@ -61,31 +60,6 @@
     }
   }
 
-  .indices {
-
-    position: absolute;
-    width: 20px;
-    left: 50px;
-
-    li {
-      display: block;
-      font-family: Montserrat, Helvetica, Verdana, sans-serif;
-      font-weight: bold;
-      text-align: center;
-      border-top: 2px solid #000;
-      padding: .25em 0;
-      border-bottom: 2px solid #323234;
-      .noEvents;
-      .noSelect;
-      .boxSize;
-
-      &.active {
-        color: #FFF;
-      }
-    }
-  }
-
-
   &.fixed {
     .controls {
       position: fixed;
@@ -109,13 +83,37 @@
     width: @fullPatternListWidth;
   }
 
-  .pattern {
+  .indices, .pattern {
     position: relative;
     float: left;
-    width: @patternWidth;
     list-style-type: none;
     margin: 0;
     padding: 0;
+  }
+
+  .indices {
+    width: @indicesWidth;
+
+    li {
+      display: block;
+      font-family: Montserrat, Helvetica, Verdana, sans-serif;
+      font-weight: bold;
+      text-align: center;
+      border-top: 2px solid #000;
+      padding: .25em 0;
+      border-bottom: 2px solid #323234;
+      .noEvents;
+      .noSelect;
+      .boxSize;
+
+      &.active {
+        color: #FFF;
+      }
+    }
+  }
+
+  .pattern {
+    width: @patternWidth;
     background-color: #101015;
 
     &:before {
@@ -268,23 +266,10 @@
 
 }
 
-@media screen and ( max-width: 1250px )
-{
-  #patternEditor {
-    .indices {
-      display: none;
-    }
-  }
-}
-
 /* app view */
 
 @media screen and ( min-width: 1250px )
 {
-  #patternEditor {
-    width: 75px;
-  }
-
   #patternMenu {
     .Flex;
 
@@ -299,8 +284,21 @@
 
 @media screen and ( max-width: @mobile-width )
 {
-  #patternSection {
+  #patternEditor {
+    position: fixed; /* keep pattern editor in static position */
+    left: 0;
+    height: 100%;
+    z-index: 10;
+  }
+  #patternTrackList {
+    padding-left: 50px; /* to make up for fixed position pattern editor */
+  }
+
+  #metaSection, #patternSection  {
     display: none; // only visible when settings mode is active
+  }
+
+  #patternSection {
     h2 {
       display: none;
     }
@@ -324,8 +322,11 @@
   // settings mode enabled ? show all hidden stuff
 
    .settings-mode {
-     #patternSection {
+     #metaSection, #patternSection {
        display: block;
+     }
+     #center {
+       top: 290px !important;
      }
    }
 }

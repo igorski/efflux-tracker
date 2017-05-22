@@ -47,6 +47,7 @@ const PatternTrackListView = module.exports = {
     render( pattern ) {
 
         efflux.TemplateService.render( "patternTrackList", wrapper, {
+            steps         : editorModel.amountOfSteps,
             pattern       : pattern,
             activeChannel : editorModel.activeInstrument,
             activeStep    : editorModel.activeStep,

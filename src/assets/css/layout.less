@@ -2,11 +2,13 @@
 
 @app-width: 960px;
 @ideal-width: 1560px;
+@ideal-height: 650px;
 @tablet-portrait-width: 768px;
-@mobile-width: 640px; // the threshold where we start to use the mobile view
+@mobile-width: 685px; // the threshold below which we start to use the mobile view
 
 html, body {
   height: 100%;
+  // all should fit onscreen
   overflow: hidden;
 }
 
@@ -15,6 +17,20 @@ body {
   padding: 0;
   background-color: #53565c;
   .noSelect;
+}
+
+#main {
+  margin: 55px auto 0; /* menu height + padding */
+  height: 157px;
+  //padding: .5em;
+  //.boxSize;
+}
+
+#center {
+  position: absolute;
+  top: 214px; /* menu + meta + props + pattern editor */
+  bottom: @footer-height;
+  overflow: hidden;
 }
 
 ul {
@@ -46,18 +62,7 @@ ul {
 }
 
 #main {
-  margin: 55px auto 0; /* menu height + padding */
-  height: 157px;
-  //padding: .5em;
-  //.boxSize;
-}
 
-#center {
-  position: absolute;
-  top: 214px; /* menu + meta + props + pattern editor */
-  left: 0;
-  bottom: @footer-height;
-  overflow: hidden;
 }
 
 /* standard width : desktop / large tablet */
@@ -66,7 +71,7 @@ ul {
 {
   .container
   {
-    width: 100%;
+    width: inherit;
     max-width: @ideal-width;
     padding: 0;
   }
@@ -80,37 +85,6 @@ ul {
   // by blind (minimizes browser rendering)
   .blind {
     overflow: hidden;
-  }
-}
-
-/* everything larger than a phone */
-
-@media screen and ( min-width: @mobile-width )
-{
-  .container
-  {
-    padding: 0 1.5em;
-
-    /* menu contains submenu */
-
-    &.padded {
-      padding-left: 1em;
-      padding-right: 1em;
-
-      &:before, &:after {
-        height: 128px;
-      }
-    }
-  }
-}
-
-/* mobile view */
-
-@media screen and ( max-width: @mobile-width )
-{
-  .container {
-    padding: 0;
-    margin: 0;
   }
 }
 
