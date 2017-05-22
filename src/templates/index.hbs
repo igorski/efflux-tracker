@@ -8,41 +8,45 @@
     </nav>
 </header>
 
-<div id="main">
-    <div id="blind"><!-- obscuring area used below overlays --></div>
-    <section id="transportSection"></section>
-    <section id="metaSection"></section>
-    <section id="patternSection">
-        <h2>Pattern editor</h2>
-        <ul id="patternMenu">
-            <li>
-                <button id="patternClear">clear</button>
-            </li>
-            <li>
-                <button id="patternCopy">copy</button>
-            </li>
-            <li>
-                <button id="patternPaste">paste</button>
-            </li>
-            <li>
-                <button id="patternAdd">add</button>
-            </li>
-            <li>
-                <button id="patternDelete">delete</button>
-            </li>
-            <li>
-                <select id="patternSteps">
-                    <option value="16">16 steps</option>
-                    <option value="32">32 steps</option>
-                    <option value="64">64 steps</option>
-                    <option value="128">128 steps</option>
-                </select>
-            </li>
-            <li>
-                <button id="patternAdvanced">advanced</button>
-            </li>
-        </ul>
-    </section>
+<div class="container">
+    <div id="main">
+        <section id="transportSection"></section>
+        <section id="metaSection"></section>
+        <section id="patternSection">
+            <h2>Pattern editor</h2>
+            <ul id="patternMenu">
+                <li>
+                    <button id="patternClear">clear</button>
+                </li>
+                <li>
+                    <button id="patternCopy">copy</button>
+                </li>
+                <li>
+                    <button id="patternPaste">paste</button>
+                </li>
+                <li>
+                    <button id="patternAdd">add</button>
+                </li>
+                <li>
+                    <button id="patternDelete">delete</button>
+                </li>
+                <li>
+                    <select id="patternSteps">
+                        <option value="16">16 steps</option>
+                        <option value="32">32 steps</option>
+                        <option value="64">64 steps</option>
+                        <option value="128">128 steps</option>
+                    </select>
+                </li>
+                <li>
+                    <button id="patternAdvanced">advanced</button>
+                </li>
+            </ul>
+        </section>
+    </div>
+</div>
+
+<div class="container">
     <div id="center">
         <section id="patternEditor">
             <ul class="controls">
@@ -72,3 +76,5 @@
         &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2016 - 2017
     </span>
 </div>
+
+<div id="blind"><!-- obscuring area used below overlays --></div>

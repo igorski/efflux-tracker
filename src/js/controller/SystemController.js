@@ -25,24 +25,19 @@
 const Config       = require( "../config/Config" );
 const Copy         = require( "../i18n/Copy" );
 const Messages     = require( "../definitions/Messages" );
-const Style        = require( "zjslib" ).Style;
 const Pubsub       = require( "pubsub-js" );
 const Bowser       = require( "bowser" );
 const ListenerUtil = require( "../utils/ListenerUtil" );
 
 /* private variables */
 
-let patternContainer, centerSection, trackList, transportSection, patternEditor, helpSection,
-    blind, loader, calculationPending = false, scrollPending = false, loadRequests = 0;
-
-const getStyle = Style.getStyle;
-let transportWidth, patternEditorWidth, helpSectionWidth, trackListHeight;
+let blind, loader, scrollPending = false, loadRequests = 0;
 
 module.exports =
 {
     init()
     {
-        // create DOM elements
+        // fetch DOM elements
 
         blind = document.querySelector( "#blind" );
 
@@ -77,16 +72,9 @@ module.exports =
             Messages.HIDE_BLIND,
             Messages.SHOW_LOADER,
             Messages.HIDE_LOADER,
-            Messages.CLOSE_OVERLAYS,
-            Messages.PATTERN_STEPS_UPDATED,
-            Messages.HELP_SECTION_UPDATED,
-            Messages.SONG_LOADED
+            Messages.CLOSE_OVERLAYS
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-
-        // ensure that on application start all elements are presented correctly
-
-        calculateDimensions();
     }
 };
 
@@ -125,22 +113,6 @@ function handleBroadcast( type, payload )
                 loader = null;
             }
             break;
-
-        case Messages.PATTERN_STEPS_UPDATED:
-        case Messages.HELP_SECTION_UPDATED:
-
-            if ( !calculationPending ) {
-                calculationPending = true;
-                requestAnimationFrame(() => {
-                    calculateDimensions();
-                    calculationPending = false;
-                });
-            }
-            break;
-
-        case Messages.SONG_LOADED:
-            setTimeout( calculateDimensions, 10 ); // poor mans hack to let the pattern template render first...
-            break;
     }
 }
 
@@ -150,7 +122,6 @@ function handleEvent( aEvent )
     {
         case "resize":
             Pubsub.publish( Messages.WINDOW_RESIZED );
-            calculateDimensions();
             break;
 
         case "scroll":
@@ -172,62 +143,4 @@ function handleEvent( aEvent )
 function handleUnload( aEvent )
 {
     return Copy.get( "WARNING_UNLOAD" );
-}
-
-/**
- * due to the nature of the table display of the pattern editors track list
- * we need JavaScript to calculate to correct dimensions of the overflowed track list
- *
- * @param aEvent
- */
-function calculateDimensions( aEvent )
-{
-    // grab references to DOM elements (we do this lazily)
-
-    patternContainer = patternContainer || document.querySelector( "#patternContainer" );
-    transportSection = transportSection || document.querySelector( "#transportSection" );
-    patternEditor    = patternEditor    || document.querySelector( "#patternEditor" );
-    trackList        = trackList        || document.querySelector( "#patternTrackList" );
-    helpSection      = helpSection      || document.querySelector( "#helpSection" );
-    centerSection    = centerSection    || document.querySelector( "#center" );
-    const mainSection = document.querySelector( "#main" );
-    const metaSection = document.querySelector( "#metaSection" );
-
-    // avoid thrashing by reading styles first
-
-    transportWidth     = getStyle( transportSection, "width" );
-    patternEditorWidth = getStyle( patternEditor,    "width" );
-    helpSectionWidth   = getStyle( helpSection,      "width" );
-
-    const targetHeight = (
-                parseFloat( getStyle( mainSection, "height" )) -
-                (
-                parseFloat( getStyle( transportSection, "height" ))
-                + parseFloat( getStyle( metaSection, "height" ))
-               + parseFloat( getStyle( patternEditor, "height" ))
-                )
-            );
-
-    const targetWidth = (
-
-        parseFloat( transportWidth ) -
-        parseFloat( patternEditorWidth ) -
-        parseFloat( helpSectionWidth )
-
-    ) + "px";
-
-    trackList.style.width        = targetWidth;
-    patternContainer.style.width = targetWidth;
-
-    centerSection.style.height = targetHeight + "px";
-
-    // side containers should be as tall as the pattern container (help container is scrollable)
-    return; // QQQ
-    requestAnimationFrame(() => {
-
-        // TODO : can we not do this at all with proper flexbox usage ?
-
-        trackList.style.height = "auto"; // force Flexbox calculation
-        helpSection.style.maxHeight = getStyle( trackList, "height" );
-    });
 }

@@ -1,7 +1,7 @@
 @import url( "helpers.less" );
 
 @app-width: 960px;
-@ideal-width: 1598px;
+@ideal-width: 1560px;
 @tablet-portrait-width: 768px;
 @mobile-width: 640px; // the threshold where we start to use the mobile view
 
@@ -40,26 +40,40 @@ ul {
   }
 }
 
-#main {
-  position: absolute;
+.container {
   width: 100%;
-  top: @menu-height;
-  left: 0;
-  bottom: @footer-height;
-  margin: .5em 0;
+  margin: 0 auto;
+}
+
+#main {
+  margin: 55px auto 0; /* menu height + padding */
+  height: 157px;
   //padding: .5em;
   //.boxSize;
+}
+
+#center {
+  position: absolute;
+  top: 214px; /* menu + meta + props + pattern editor */
+  left: 0;
+  bottom: @footer-height;
+  overflow: hidden;
 }
 
 /* standard width : desktop / large tablet */
 
 @media screen and ( min-width: @app-width )
 {
-  #main
+  .container
   {
     width: 100%;
     max-width: @ideal-width;
     padding: 0;
+  }
+
+  #center {
+    left: 50%;
+    margin-left: -(@ideal-width / 2);
   }
 
   // no body scroll when application is obscured
@@ -73,7 +87,7 @@ ul {
 
 @media screen and ( min-width: @mobile-width )
 {
-  #main
+  .container
   {
     padding: 0 1.5em;
 
@@ -94,7 +108,7 @@ ul {
 
 @media screen and ( max-width: @mobile-width )
 {
-  #main {
+  .container {
     padding: 0;
     margin: 0;
   }
@@ -105,7 +119,6 @@ ul {
 @import url( "mixins.less" );
 @import url( "form.less" );
 @import url( "help.less" );
-@import url( "index.less" );
 @import url( "instrumentEditor.less" );
 @import url( "loader.less" );
 @import url( "menu.less" );

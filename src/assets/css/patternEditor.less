@@ -1,4 +1,5 @@
 @patternWidth: 150px;
+@fullPatternListWidth: ( 8 * @patternWidth );
 
 #patternSection
 {
@@ -96,17 +97,16 @@
 #patternContainer
 {
   position: relative;
-  width: 200px; // will be calculated by JS (see PatternTrackListController)
   overflow: auto;
-
-  .wrapper {
-    width: ( 8 * @patternWidth );
-  }
 }
 
 #patternTrackList
 {
   background-color: #393b40;
+
+  .wrapper {
+    width: @fullPatternListWidth;
+  }
 
   .pattern {
     position: relative;
@@ -246,7 +246,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 1200px;
+    width: @fullPatternListWidth;
     height: 32px;
     background-color: rgba(255,255,255,.35);
     mix-blend-mode: screen;
@@ -261,6 +261,9 @@
   #patternContainer {
     overflow-x: hidden; // no need to show scroll
     padding-bottom: 15px;
+  }
+  #patternTrackList {
+    width: @fullPatternListWidth !important;
   }
 }
 
