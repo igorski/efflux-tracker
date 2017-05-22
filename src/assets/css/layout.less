@@ -19,20 +19,6 @@ body {
   .noSelect;
 }
 
-#main {
-  margin: 55px auto 0; /* menu height + padding */
-  height: 157px;
-  //padding: .5em;
-  //.boxSize;
-}
-
-#center {
-  position: absolute;
-  top: 214px; /* menu + meta + props + pattern editor */
-  bottom: @footer-height;
-  overflow: hidden;
-}
-
 ul {
   list-style-type: none;
   margin: 0;
@@ -61,31 +47,16 @@ ul {
   margin: 0 auto;
 }
 
-#main {
-
+#properties {
+  margin: 55px auto 0; /* menu height + padding */
+  height: 157px;
 }
 
-/* standard width : desktop / large tablet */
-
-@media screen and ( min-width: @app-width )
-{
-  .container
-  {
-    width: inherit;
-    max-width: @ideal-width;
-    padding: 0;
-  }
-
-  #center {
-    left: 50%;
-    margin-left: -(@ideal-width / 2);
-  }
-
-  // no body scroll when application is obscured
-  // by blind (minimizes browser rendering)
-  .blind {
-    overflow: hidden;
-  }
+#editor {
+  position: absolute;
+  top: 214px; /* menu + meta + props + pattern editor */
+  bottom: @footer-height;
+  overflow: hidden;
 }
 
 @import url( "colors.less" );
@@ -106,6 +77,6 @@ ul {
 @import url( "scrollbars.less" );
 @import url( "settings.less" );
 @import url( "songBrowser.less" );
-@import url( "main.less" );
 @import url( "transport.less" );
 @import url( "footer.less" );
+@import url( "grid.less" );

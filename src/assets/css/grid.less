@@ -1,6 +1,6 @@
-// equal column heights for center section
+/* equal column heights for editor section */
 
-#center {
+#editor {
   .Flex;
 }
 
@@ -11,6 +11,23 @@
   display: inline-flex;
 }
 
+/* standard width: large TABLET/LAPTOP */
+
+@media screen and ( min-width: @app-width )
+{
+  .container
+  {
+    width: inherit;
+    max-width: @ideal-width;
+    padding: 0;
+  }
+
+  #editor {
+    left: 50%;
+    margin-left: -(@ideal-width / 2);
+  }
+}
+
 /* PHONE */
 
 @media screen and ( max-width: @mobile-width )
@@ -18,16 +35,11 @@
   html {
     overflow: auto;
   }
-  body.has-overlay {
-    // allow scrolling when overlay is opened
-    overflow: auto;
-  }
-
   .container {
     padding: 0;
     margin: 0;
   }
-  #center {
+  #editor {
     width: inherit;
     top: 117px !important;
   }
@@ -74,7 +86,7 @@
     display: none;
     width: 0;
   }
-  #center {
+  #editor {
     overflow-x: scroll !important;
     overflow-y: hidden !important; // body scrolls instead
   }
@@ -91,7 +103,7 @@
 
 @media screen and ( min-width: @app-width) and (max-width: @ideal-width )
 {
-  #center {
+  #editor {
     left: auto;
     margin-left: 0;
   }
@@ -109,7 +121,7 @@
 /* DESKTOP wide screen */
 
 @media screen and ( min-width: @ideal-width ) {
-  #center {
+  #editor {
     left: 0;
   }
 }

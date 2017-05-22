@@ -171,8 +171,8 @@ function calculateDimensions( aEvent )
 {
     // grab references to DOM elements (we do this lazily)
 
-    mainSection   = mainSection   || document.querySelector( "#main" );
-    centerSection = centerSection || document.querySelector( "#center" );
+    mainSection   = mainSection   || document.querySelector( "#properties" );
+    centerSection = centerSection || document.querySelector( "#editor" );
 
     // synchronize pattern list width with mainsection width
 
