@@ -4,10 +4,6 @@
   .Flex;
 }
 
-#patternTrackList {
-  width: 51%;
-}
-
 #patternEditor,
 #patternTrackList,
 #helpSection {
@@ -20,5 +16,23 @@
   #helpSection {
     display: none;
     width: 0;
+  }
+}
+
+@media screen and ( min-width: @app-width) and (max-width: @ideal-width )
+{
+  #center {
+    width: 100%;
+    left: auto;
+    margin-left: 0;
+  }
+  #patternEditor {
+    width: 5%;
+  }
+  #patternTrackList {
+    width: 71%;
+  }
+  #helpSection {
+    width: 22.5%;
   }
 }
