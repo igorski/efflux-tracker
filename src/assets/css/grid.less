@@ -1,0 +1,127 @@
+/* equal column heights for editor section */
+
+#editor {
+  .Flex;
+}
+
+#patternEditor,
+#patternTrackList,
+#helpSection {
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}
+
+/* standard width: large TABLET/LAPTOP */
+
+@media screen and ( min-width: @app-width )
+{
+  .container
+  {
+    width: inherit;
+    max-width: @ideal-width;
+    padding: 0;
+  }
+
+  #editor {
+    left: 50%;
+    margin-left: -(@ideal-width / 2);
+  }
+}
+
+/* PHONE */
+
+@media screen and ( max-width: @mobile-width )
+{
+  html {
+    overflow: auto;
+  }
+  .container {
+    padding: 0;
+    margin: 0;
+  }
+  #editor {
+    width: inherit;
+    top: 117px !important;
+  }
+  footer {
+    position: relative;
+  }
+}
+
+/* everything LARGER than a PHONE */
+
+@media screen and ( min-width: @mobile-width )
+{
+  .container
+  {
+    padding: 0 1em;
+    left: auto;
+    .boxSize;
+
+    /* menu contains submenu */
+
+    &.padded {
+      padding-left: 1em;
+      padding-right: 1em;
+
+      &:before, &:after {
+        height: 128px;
+      }
+    }
+  }
+}
+
+/* TABLET: portrait orientation */
+
+@media screen and ( max-width: @tablet-portrait-width )
+{
+
+}
+
+/* TABLET/DESKTOP portrait width */
+
+@media screen and ( max-width: @app-width )
+{
+  #helpSection {
+    display: none;
+    width: 0;
+  }
+  #editor {
+    overflow-x: scroll !important;
+    overflow-y: hidden !important; // body scrolls instead
+  }
+}
+
+/* TABLET/DESKTOP ideal height */
+
+@media screen and ( min-height: @ideal-height )
+{
+
+}
+
+/* TABLET/DESKTOP medium to large */
+
+@media screen and ( min-width: @app-width) and (max-width: @ideal-width )
+{
+  #editor {
+    left: auto;
+    margin-left: 0;
+  }
+  #patternEditor {
+    width: 5%;
+  }
+  #patternTrackList {
+    width: 70%;
+  }
+  #helpSection {
+    width: 25%;
+  }
+}
+
+/* DESKTOP wide screen */
+
+@media screen and ( min-width: @ideal-width ) {
+  #editor {
+    margin-left: -766px;
+  }
+}

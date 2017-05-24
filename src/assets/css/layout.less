@@ -1,12 +1,15 @@
 @import url( "helpers.less" );
 
 @app-width: 960px;
-@ideal-width: 1598px;
+@ideal-width: 1560px;
+@ideal-height: 650px;
 @tablet-portrait-width: 768px;
-@mobile-width: 640px; // the threshold where we start to use the mobile view
+@mobile-width: 685px; // the threshold below which we start to use the mobile view
 
 html, body {
   height: 100%;
+  // all should fit onscreen
+  overflow: hidden;
 }
 
 body {
@@ -39,73 +42,21 @@ ul {
   }
 }
 
-#main {
+.container {
   width: 100%;
-  min-height: 100%;
-  margin: .5em auto;
-  padding: .5em;
-  .boxSize;
-
-  margin-bottom: -@footer-height; /* minus the footer height to make it sticky */
-
-  /* sticky footer-specific */
-
-  &:before, &:after {
-    content: "";
-    display: block;
-    height: @menu-height;
-  }
-
-  /* E.O. sticky footer magic */
+  margin: 0 auto;
 }
 
-/* standard width : desktop / large tablet */
-
-@media screen and ( min-width: @app-width )
-{
-  #main
-  {
-    width: 100%;
-    max-width: @ideal-width;
-    padding: 0;
-  }
-
-  // no body scroll when application is obscured
-  // by blind (minimizes browser rendering)
-  .blind {
-    overflow: hidden;
-  }
+#properties {
+  margin: 55px auto 0; /* menu height + padding */
+  height: 157px;
 }
 
-/* everything larger than a phone */
-
-@media screen and ( min-width: @mobile-width )
-{
-  #main
-  {
-    padding: 0 1.5em;
-
-    /* menu contains submenu */
-
-    &.padded {
-      padding-left: 1em;
-      padding-right: 1em;
-
-      &:before, &:after {
-        height: 128px;
-      }
-    }
-  }
-}
-
-/* mobile view */
-
-@media screen and ( max-width: @mobile-width )
-{
-  #main {
-    padding: 0;
-    margin: 0;
-  }
+#editor {
+  position: absolute;
+  top: 214px; /* menu + meta + props + pattern editor */
+  bottom: @footer-height;
+  overflow: hidden;
 }
 
 @import url( "colors.less" );
@@ -113,7 +64,6 @@ ul {
 @import url( "mixins.less" );
 @import url( "form.less" );
 @import url( "help.less" );
-@import url( "index.less" );
 @import url( "instrumentEditor.less" );
 @import url( "loader.less" );
 @import url( "menu.less" );
@@ -127,6 +77,6 @@ ul {
 @import url( "scrollbars.less" );
 @import url( "settings.less" );
 @import url( "songBrowser.less" );
-@import url( "main.less" );
 @import url( "transport.less" );
 @import url( "footer.less" );
+@import url( "grid.less" );

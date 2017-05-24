@@ -1,9 +1,10 @@
-@footer-height: 56px;
+@footer-height: 45px;
 
 #footer {
+  position: absolute;
+  bottom: 0;
   //background: #333;
   background-image: linear-gradient(to bottom,#474747 0,#303030 100%);
-  display: inline-block;
   width: 100%;
   height: @footer-height;
   color: #EEE;
@@ -11,10 +12,10 @@
 
   span {
     width: auto;
-    text-align: center;
     margin: 0 auto;
+    text-align: center;
     display: block;
-    padding: 1em 0;
+    margin-top: 10px;
   }
 }
 
@@ -35,6 +36,7 @@
 {
   #footer {
     padding: 0 1em;
+    z-index: 11;
     .boxSize;
   }
 }

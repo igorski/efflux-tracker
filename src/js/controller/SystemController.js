@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,17 +32,14 @@ const ListenerUtil = require( "../utils/ListenerUtil" );
 
 /* private variables */
 
-let patternContainer, trackList, transportSection, patternEditor, helpSection,
-    blind, loader, calculationPending = false, scrollPending = false, loadRequests = 0;
-
-const getStyle = Style.getStyle;
-let transportWidth, patternEditorWidth, helpSectionWidth, trackListHeight;
+let blind, loader, scrollPending = false, loadRequests = 0;
+let mainSection, centerSection;
 
 module.exports =
 {
     init()
     {
-        // create DOM elements
+        // fetch DOM elements
 
         blind = document.querySelector( "#blind" );
 
@@ -77,10 +74,8 @@ module.exports =
             Messages.HIDE_BLIND,
             Messages.SHOW_LOADER,
             Messages.HIDE_LOADER,
-            Messages.CLOSE_OVERLAYS,
-            Messages.PATTERN_STEPS_UPDATED,
-            Messages.HELP_SECTION_UPDATED,
-            Messages.SONG_LOADED
+            Messages.OVERLAY_OPENED,
+            Messages.CLOSE_OVERLAYS
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
@@ -101,7 +96,15 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.HIDE_BLIND:
+            document.body.classList.remove( "blind" );
+            break;
+
+        case Messages.OVERLAY_OPENED:
+            document.body.classList.add( "has-overlay" );
+            break;
+
         case Messages.CLOSE_OVERLAYS:
+            document.body.classList.remove( "has-overlay" );
             document.body.classList.remove( "blind" );
             break;
 
@@ -124,22 +127,6 @@ function handleBroadcast( type, payload )
                 loader.parentNode.removeChild( loader );
                 loader = null;
             }
-            break;
-
-        case Messages.PATTERN_STEPS_UPDATED:
-        case Messages.HELP_SECTION_UPDATED:
-
-            if ( !calculationPending ) {
-                calculationPending = true;
-                requestAnimationFrame(() => {
-                    calculateDimensions();
-                    calculationPending = false;
-                });
-            }
-            break;
-
-        case Messages.SONG_LOADED:
-            setTimeout( calculateDimensions, 10 ); // poor mans hack to let the pattern template render first...
             break;
     }
 }
@@ -184,36 +171,10 @@ function calculateDimensions( aEvent )
 {
     // grab references to DOM elements (we do this lazily)
 
-    patternContainer = patternContainer || document.querySelector( "#patternContainer" );
-    transportSection = transportSection || document.querySelector( "#transportSection" );
-    patternEditor    = patternEditor    || document.querySelector( "#patternEditor" );
-    trackList        = trackList        || document.querySelector( "#patternTrackList" );
-    helpSection      = helpSection      || document.querySelector( "#helpSection" );
+    mainSection   = mainSection   || document.querySelector( "#properties" );
+    centerSection = centerSection || document.querySelector( "#editor" );
 
-    // avoid thrashing by reading styles first
+    // synchronize pattern list width with mainsection width
 
-    transportWidth     = getStyle( transportSection, "width" );
-    patternEditorWidth = getStyle( patternEditor,    "width" );
-    helpSectionWidth   = getStyle( helpSection,      "width" );
-
-    const targetWidth = (
-
-        parseFloat( transportWidth ) -
-        parseFloat( patternEditorWidth ) -
-        parseFloat( helpSectionWidth )
-
-    ) + "px";
-
-    trackList.style.width        = targetWidth;
-    patternContainer.style.width = targetWidth;
-
-    // side containers should be as tall as the pattern container (help container is scrollable)
-
-    requestAnimationFrame(() => {
-
-        // TODO : can we not do this at all with proper flexbox usage ?
-
-        trackList.style.height = "auto"; // force Flexbox calculation
-        helpSection.style.maxHeight = getStyle( trackList, "height" );
-    });
+    centerSection.style.width = Style.getStyle( mainSection, "width" );
 }

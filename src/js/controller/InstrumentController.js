@@ -322,6 +322,7 @@ function handleBroadcast( type, payload )
 
             Pubsub.publishSync( Messages.CLOSE_OVERLAYS, InstrumentController );
             Pubsub.publishSync( Messages.SHOW_BLIND );
+            Pubsub.publishSync( Messages.OVERLAY_OPENED );
 
             container.appendChild( view );
             canvas.addChild( wtDraw );

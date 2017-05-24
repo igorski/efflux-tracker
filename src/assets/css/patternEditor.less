@@ -1,4 +1,6 @@
 @patternWidth: 150px;
+@indicesWidth: 30px;
+@fullPatternListWidth: (( 8 * @patternWidth ) + @indicesWidth );
 
 #patternSection
 {
@@ -26,8 +28,6 @@
   min-width: 54px;
 
   .controls {
-
-    z-index: 10;
 
     li {
 
@@ -60,11 +60,39 @@
     }
   }
 
-  .indices {
+  &.fixed {
+    .controls {
+      position: fixed;
+      top: @menu-height;
+    }
+  }
+}
 
-    position: absolute;
-    width: 20px;
-    left: 50px;
+#patternContainer
+{
+  position: relative;
+  overflow: auto;
+  background-color: #101015;
+}
+
+#patternTrackList
+{
+  background-color: #393b40;
+
+  .wrapper {
+    width: @fullPatternListWidth;
+  }
+
+  .indices, .pattern {
+    position: relative;
+    float: left;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .indices {
+    width: @indicesWidth;
 
     li {
       display: block;
@@ -84,38 +112,8 @@
     }
   }
 
-
-  &.fixed {
-    .controls {
-      position: fixed;
-      top: @menu-height;
-    }
-  }
-}
-
-#patternContainer
-{
-  position: relative;
-  width: 200px; // will be calculated by JS (see PatternTrackListController)
-  overflow-x: scroll;
-  overflow-y: hidden;
-
-  .wrapper {
-    width: ( 8 * @patternWidth );
-  }
-}
-
-#patternTrackList
-{
-  background-color: #393b40;
-
   .pattern {
-    position: relative;
-    float: left;
     width: @patternWidth;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
     background-color: #101015;
 
     &:before {
@@ -247,7 +245,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 1200px;
+    width: @fullPatternListWidth;
     height: 32px;
     background-color: rgba(255,255,255,.35);
     mix-blend-mode: screen;
@@ -261,27 +259,17 @@
 {
   #patternContainer {
     overflow-x: hidden; // no need to show scroll
-    padding-bottom: 15px;
   }
-}
+  #patternTrackList {
+    width: @fullPatternListWidth !important;
+  }
 
-@media screen and ( max-width: 1250px )
-{
-  #patternEditor {
-    .indices {
-      display: none;
-    }
-  }
 }
 
 /* app view */
 
 @media screen and ( min-width: 1250px )
 {
-  #patternEditor {
-    width: 75px;
-  }
-
   #patternMenu {
     .Flex;
 
@@ -296,8 +284,21 @@
 
 @media screen and ( max-width: @mobile-width )
 {
-  #patternSection {
+  #patternEditor {
+    position: fixed; /* keep pattern editor in static position */
+    left: 0;
+    height: 100%;
+    z-index: 10;
+  }
+  #patternTrackList {
+    padding-left: 50px; /* to make up for fixed position pattern editor */
+  }
+
+  #metaSection, #patternSection  {
     display: none; // only visible when settings mode is active
+  }
+
+  #patternSection {
     h2 {
       display: none;
     }
@@ -321,8 +322,11 @@
   // settings mode enabled ? show all hidden stuff
 
    .settings-mode {
-     #patternSection {
+     #metaSection, #patternSection {
        display: block;
+     }
+     #editor {
+       top: 290px !important;
      }
    }
 }
