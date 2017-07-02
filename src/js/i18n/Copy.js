@@ -56,6 +56,8 @@ const EN =
     CONFIRM_TITLE           : `Confirm`,
     BUTTON_OK               : `Yes`,
     BUTTON_CANCEL           : `No`,
+    BUTTON_FS_ACTIVATE      : `Maximize`,
+    BUTTON_FS_CANCEL        : `Exit fullscreen`,
     ERROR_SONG_IMPORT       : `Could not import song, file was possibly not a valid ${Config.SONG_FILE_EXTENSION} ` +
                               `file, or made by an incompatible version of Efflux`,
     ERROR_FILE_LOAD         : `Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.`,

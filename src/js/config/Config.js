@@ -74,9 +74,19 @@ module.exports =
      * @public
      * @return {boolean}
      */
-    isDevMode(){
+    isDevMode() {
         // simple check whether we're running through the connect plugin
         return ( window.location.hostname === "localhost" || window.location.port === "3000" );
+    },
+
+    /**
+     * whether the application is running as a Chrome app
+     *
+     * @public
+     * @return {boolean}
+     */
+    isChromeApp() {
+        return window[ "chrome" ] && window[ "chrome" ][ "runtime" ] && window[ "chrome" ][ "runtime" ][ "id" ];
     },
 
     /**

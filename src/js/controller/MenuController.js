@@ -33,7 +33,7 @@ const Manual     = require( "../definitions/Manual" );
 
 /* private properties */
 
-let header, menu, toggle, efflux, songController;
+let header, menu, toggle, fsToggle, efflux, songController;
 let menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
 const MenuController = module.exports =
@@ -51,14 +51,16 @@ const MenuController = module.exports =
         songController = songControllerRef;
 
         const canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
+        const canDoFullscreen = !Config.isChromeApp();
         // on iOS and Safari recording isn't working as expected...
         const userAgent = window.navigator.userAgent;
         const canRecord = ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
 
         efflux.TemplateService.render( "menuView", containerRef, {
 
-            addExport : canImportExport,
-            addSave   : canRecord
+            addExport     : canImportExport,
+            addSave       : canRecord,
+            addFullscreen : canDoFullscreen
 
         }).then(() => {
 
@@ -85,6 +87,11 @@ const MenuController = module.exports =
 
             if ( canRecord )
                 containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
+
+            if ( canDoFullscreen ) {
+                fsToggle = containerRef.querySelector( "#fullscreenBtn" );
+                fsToggle.addEventListener( "click", handleFullscreen );
+            }
 
             containerRef.querySelector( "#helpBtn" ).addEventListener( "click", ( aEvent ) => {
                 window.open( Manual.ONLINE_MANUAL );
@@ -239,4 +246,21 @@ function handleRecord( aEvent )
 {
     Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
     Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_ENABLED" ));
+}
+
+function handleFullscreen( aEvent )
+{
+    let requestMethod, element;
+    if ( document.fullscreenElement || document.webkitFullscreenElement ) {
+        requestMethod = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
+        element = document;
+        fsToggle.innerHTML = Copy.get( "BUTTON_FS_ACTIVATE" );
+    } else {
+        requestMethod = document.body.requestFullScreen || document.body.webkitRequestFullScreen || document.body.mozRequestFullScreen || document.body.msRequestFullscreen;
+        element = document.body;
+        fsToggle.innerHTML = Copy.get( "BUTTON_FS_CANCEL" );
+    }
+
+    if ( requestMethod )
+        requestMethod.call( element );
 }
