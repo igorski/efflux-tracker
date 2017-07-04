@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,16 +27,21 @@ const Messages      = require( "../definitions/Messages" );
 const Pubsub        = require( "pubsub-js" );
 const Bowser        = require( "bowser" );
 
-let efflux, editorModel, selectionModel, wrapper,
+let efflux, editorModel, selectionModel, wrapper, patternContainer,
     pContainers, pContainerSteps, slotHighlight;
+
+const SLOT_WIDTH  = 150;
+const SLOT_HEIGHT = 32;
 
 const PatternTrackListView = module.exports = {
 
     init( effluxRef, wrapperRef ) {
-        efflux         = effluxRef;
-        wrapper        = wrapperRef;
-        editorModel    = efflux.EditorModel;
-        selectionModel = efflux.SelectionModel;
+
+        efflux           = effluxRef;
+        wrapper          = wrapperRef;
+        editorModel      = efflux.EditorModel;
+        selectionModel   = efflux.SelectionModel;
+        patternContainer = document.querySelector( "#patternContainer" );
     },
 
     /**
@@ -202,6 +207,36 @@ const PatternTrackListView = module.exports = {
                     break;
                 }
             }
+        }
+    },
+
+    /**
+     * ensure the currently active step (after a keyboard navigation)
+     * is visible on screen
+     */
+    focusActiveStep( container ) {
+
+        const top        = container.scrollTop;
+        const left       = patternContainer.scrollLeft;
+        const bottom     = top + container.offsetHeight;
+        const right      = left + patternContainer.offsetWidth;
+        const slotLeft   = editorModel.activeInstrument * SLOT_WIDTH;
+        const slotRight  = ( editorModel.activeInstrument + 1 ) * SLOT_WIDTH;
+        const slotTop    = editorModel.activeStep * SLOT_HEIGHT;
+        const slotBottom = ( editorModel.activeStep + 1 ) * SLOT_HEIGHT;
+
+        if ( slotBottom >= bottom ) {
+            container.scrollTop = slotBottom - container.offsetHeight;
+        }
+        else if ( slotTop < top ) {
+            container.scrollTop = slotTop;
+        }
+
+        if ( slotRight >= right ) {
+            patternContainer.scrollLeft = ( slotRight - patternContainer.offsetWidth ) + SLOT_WIDTH;
+        }
+        else if ( slotLeft < left ) {
+            patternContainer.scrollLeft = slotLeft;
         }
     }
 };

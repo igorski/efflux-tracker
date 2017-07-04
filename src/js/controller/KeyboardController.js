@@ -38,8 +38,7 @@ let editorModel, sequencerController, stateModel, selectionModel, listener,
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
       MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
-      MAX_SLOT        = 3,
-      PATTERN_WIDTH   = 150; // width of a single track/pattern column TODO : move somewhere more applicable
+      MAX_SLOT        = 3;
 
 // the different operating modes inside the PatternTrackList
 
@@ -212,7 +211,7 @@ function handleKeyDown( aEvent )
                     } else
                         selectionModel.clearSelection();
 
-                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    handleKeyboardNavigation();
                     break;
 
                 case 40: // down
@@ -231,7 +230,7 @@ function handleKeyDown( aEvent )
                     else
                         selectionModel.clearSelection();
 
-                    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                    handleKeyboardNavigation();
                     break;
 
                 case 39: // right
@@ -252,8 +251,6 @@ function handleKeyDown( aEvent )
 
                                 Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                             }
-                            else if ( editorModel.activeInstrument > 2 )
-                                Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, (( editorModel.activeInstrument - 2 ) * PATTERN_WIDTH ));
                         }
 
                         if ( shiftDown )
@@ -261,7 +258,7 @@ function handleKeyDown( aEvent )
                         else
                             selectionModel.clearSelection();
 
-                        Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                        handleKeyboardNavigation();
                     }
                     break;
 
@@ -275,7 +272,7 @@ function handleKeyDown( aEvent )
                             if ( --editorModel.activeInstrument < 0 ) {
                                 if ( editorModel.activePattern > 0 ) {
                                     --editorModel.activePattern;
-                                    editorModel.activeInstrument = 1;
+                                    editorModel.activeInstrument = MAX_CHANNEL;
                                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
                                 else
@@ -283,8 +280,6 @@ function handleKeyDown( aEvent )
 
                                 Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                             }
-                            else if ( editorModel.activeInstrument >= 0 )
-                                Pubsub.publishSync( Messages.PATTERN_SET_HOR_SCROLL, ( editorModel.activeInstrument > 2 ) ? ( editorModel.activeInstrument * PATTERN_WIDTH ) : 0 );
                         }
                         updateMode();
 
@@ -295,7 +290,7 @@ function handleKeyDown( aEvent )
                         else
                             selectionModel.clearSelection();
 
-                        Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+                        handleKeyboardNavigation();
                     }
                     break;
 
@@ -502,6 +497,11 @@ function handleDeleteActionForCurrentMode() {
             Pubsub.publishSync( Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION );
             break;
     }
+}
+
+function handleKeyboardNavigation() {
+    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
+    Pubsub.publishSync( Messages.HANDLE_KEYBOARD_MOVEMENT );
 }
 
 function updateMode() {

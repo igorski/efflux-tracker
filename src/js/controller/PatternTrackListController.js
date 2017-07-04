@@ -95,7 +95,6 @@ const PatternTrackListController = module.exports =
             Messages.REFRESH_SONG,
             Messages.REFRESH_PATTERN_VIEW,
             Messages.PATTERN_SWITCH,
-            Messages.PATTERN_SET_HOR_SCROLL,
             Messages.HIGHLIGHT_ACTIVE_STEP,
             Messages.EDIT_NOTE_AT_POSITION,
             Messages.ADD_EVENT_AT_POSITION,
@@ -103,7 +102,8 @@ const PatternTrackListController = module.exports =
             Messages.REMOVE_NOTE_AT_POSITION,
             Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION,
             Messages.EDIT_MOD_PARAMS_FOR_STEP,
-            Messages.EDIT_NOTE_FOR_STEP
+            Messages.EDIT_NOTE_FOR_STEP,
+            Messages.HANDLE_KEYBOARD_MOVEMENT
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -158,10 +158,6 @@ function handleBroadcast( type, payload )
             PatternTrackListController.update();
             break;
 
-        case Messages.PATTERN_SET_HOR_SCROLL:
-            container.scrollLeft = payload;
-            break;
-
         case Messages.HIGHLIGHT_ACTIVE_STEP:
             if ( typeof payload === "number" )
                 stepHighlight.style.top = ( payload * 32 ) + "px";
@@ -196,6 +192,10 @@ function handleBroadcast( type, payload )
 
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
             editModuleParamsForStep();
+            break;
+
+        case Messages.HANDLE_KEYBOARD_MOVEMENT:
+            PatternTrackListView.focusActiveStep( container );
             break;
     }
 }
