@@ -30,6 +30,7 @@ const SongUtil   = require( "../utils/SongUtil" );
 const Pubsub     = require( "pubsub-js" );
 const Messages   = require( "../definitions/Messages" );
 const Manual     = require( "../definitions/Manual" );
+const Fullscreen = require( "../ui/Fullscreen" );
 
 /* private properties */
 
@@ -51,7 +52,7 @@ const MenuController = module.exports =
         songController = songControllerRef;
 
         const canImportExport = ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
-        const canDoFullscreen = !Config.isChromeApp();
+        const canDoFullscreen = Fullscreen.isSupported();
         // on iOS and Safari recording isn't working as expected...
         const userAgent = window.navigator.userAgent;
         const canRecord = ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
@@ -88,10 +89,8 @@ const MenuController = module.exports =
             if ( canRecord )
                 containerRef.querySelector( "#audioRecord" ).addEventListener( "click", handleRecord );
 
-            if ( canDoFullscreen ) {
-                fsToggle = containerRef.querySelector( "#fullscreenBtn" );
-                fsToggle.addEventListener( "click", handleFullscreen );
-            }
+            if ( canDoFullscreen )
+                Fullscreen.setToggleButton( containerRef.querySelector( "#fullscreenBtn" ));
 
             containerRef.querySelector( "#helpBtn" ).addEventListener( "click", ( aEvent ) => {
                 window.open( Manual.ONLINE_MANUAL );
@@ -246,21 +245,4 @@ function handleRecord( aEvent )
 {
     Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
     Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_ENABLED" ));
-}
-
-function handleFullscreen( aEvent )
-{
-    let requestMethod, element;
-    if ( document.fullscreenElement || document.webkitFullscreenElement ) {
-        requestMethod = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-        element = document;
-        fsToggle.innerHTML = Copy.get( "BUTTON_FS_ACTIVATE" );
-    } else {
-        requestMethod = document.body.requestFullScreen || document.body.webkitRequestFullScreen || document.body.mozRequestFullScreen || document.body.msRequestFullscreen;
-        element = document.body;
-        fsToggle.innerHTML = Copy.get( "BUTTON_FS_CANCEL" );
-    }
-
-    if ( requestMethod )
-        requestMethod.call( element );
 }
