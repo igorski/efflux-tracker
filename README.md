@@ -53,23 +53,51 @@ A quick summary:
 
     ./src/js/model
 
-    contains the model of the application. This holds editor state (EditorModel), instrument state (InstrumentModel),
-    general settings (SettingsModel), the "song"/project that is being edited (SongModel) as well as model for
-    selection (SelectionModel) and undo/redo history (StateModel).
+contains the model of the application. This holds editor state (EditorModel), instrument state (InstrumentModel),
+general settings (SettingsModel), the "song"/project that is being edited (SongModel) as well as model for
+selection (SelectionModel) and undo/redo history (StateModel). Most models have factories to create their
+respective entities, as well as validators.
     
     ./src/js/controller
     
-    contains the controllers of the application. The controllers are responsible for monitoring state changes
-    instructed from the views, as well as listening to model state changes and broadcasting these to the view.
-    Note: not all controllers have a view (e.g. keyboard and MIDI controller handle input messages and broadcast
-    these to subscribed listeners).
+contains the controllers of the application. The controllers are responsible for monitoring state changes
+instructed from the views, as well as listening to model state changes and broadcasting these to the view.
+Note: not all controllers have a view (e.g. keyboard and MIDI controller handle input messages and broadcast
+these to subscribed listeners).
     
     ./src/js/view
     
-    contains all the views that are mediated by the controllers. The views reference HTML templates (the Handlebars
-    snippets in _/src/templates_) and attach event listeners which can be used to communicate UI changes back
-    to the controller. Note: at the moment of writing most Views are still embedded within the controllers and
-    need to be separated.
+contains all the views that are mediated by the controllers. The views reference HTML templates (the Handlebars
+snippets in _/src/templates_) and attach event listeners which can be used to communicate UI changes back
+to the controller. Note: at the moment of writing most Views are still embedded within the controllers and
+need to be separated.
+    
+Efflux model
+------------
+
+The model of Efflux' consists of the following actors (created via their respective factories):
+
+ * Song
+ * Patterns
+ * Events
+ * Instruments
+ * Modules
+ 
+All of the latter are contained within a song. A song has a list of _PATTERNS_. A Pattern is basically a list
+of channels (one for each available track) and a descriptor for the amount of _steps_ the pattern holds (e.g.
+16, 32, 64, etc.).
+
+Each pattern has _AUDIO_EVENTS_. These describe an action that should happen at a given step within a patterns
+channel. These can be note on/note off instructions or module parameter automations, or both. An event references
+an _INSTRUMENT_ that is will operate on. Note: not all events within a single pattern channel reference the
+same instrument, this can be specified at the event level for more complex compositions.
+
+As hinted above, a song also has _INSTRUMENTS_. There are an equal amount of instruments available as there are tracks
+(also known as pattern channels). As the instruments in Efflux are synthesizers, each INSTRUMENT has a list of
+_INSTRUMENT_OSCILLATORS_ which can be individually tuned and configured for playback.
+
+INSTRUMENTS also reference _MODULES_. A MODULE is basically an effects processor. Each instrument can have its output
+routed through multiple processors before its output is mixed into the master channel (by the _AudioController).
  
 Build instructions
 ------------------
