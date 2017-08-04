@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,19 +22,19 @@
  */
 "use strict";
 
-const Pubsub               = require( "pubsub-js" );
-const Config               = require( "../config/Config" );
-const Messages             = require( "../definitions/Messages" );
-const States               = require( "../definitions/States" );
-const EventFactory         = require( "../model/factory/EventFactory" );
-const PatternFactory       = require( "../model/factory/PatternFactory" );
-const StateFactory         = require( "../model/factory/StateFactory" );
-const Form                 = require( "../utils/Form" );
-const ListenerUtil         = require( "../utils/ListenerUtil" );
-const EventUtil            = require( "../utils/EventUtil" );
-const ObjectUtil           = require( "../utils/ObjectUtil" );
-const PatternUtil          = require( "../utils/PatternUtil" );
-const PatternTrackListView = require( "../view/PatternTrackListView" );
+const Pubsub         = require( "pubsub-js" );
+const Config         = require( "../config/Config" );
+const Messages       = require( "../definitions/Messages" );
+const States         = require( "../definitions/States" );
+const EventFactory   = require( "../model/factory/EventFactory" );
+const PatternFactory = require( "../model/factory/PatternFactory" );
+const StateFactory   = require( "../model/factory/StateFactory" );
+const Form           = require( "../utils/Form" );
+const ListenerUtil   = require( "../utils/ListenerUtil" );
+const EventUtil      = require( "../utils/EventUtil" );
+const ObjectUtil     = require( "../utils/ObjectUtil" );
+const PatternUtil    = require( "../utils/PatternUtil" );
+const View           = require( "../view/PatternTrackListView" );
 
 /* private properties */
 
@@ -62,7 +62,7 @@ const PatternTrackListController = module.exports =
         stepSelect    = document.querySelector( "#patternSteps"  );
         stepHighlight = containerRef.querySelector( ".highlight" );
 
-        PatternTrackListView.init( effluxRef, wrapper );
+        View.init( effluxRef, wrapper );
         selectionModel = efflux.SelectionModel;
 
         PatternTrackListController.update(); // sync view with model state
@@ -119,7 +119,7 @@ const PatternTrackListController = module.exports =
         const coordinates = { x: container.scrollLeft, y: container.scrollTop };
         const pattern = efflux.activeSong.patterns[ activePattern ];
 
-        PatternTrackListView.render( pattern );
+        View.render( pattern );
 
         Form.setSelectedOption( stepSelect, pattern.steps );
         container.scrollLeft = coordinates.x;
@@ -162,7 +162,7 @@ function handleBroadcast( type, payload )
             if ( typeof payload === "number" )
                 stepHighlight.style.top = ( payload * 32 ) + "px";
 
-            PatternTrackListView.highlightActiveStep();
+            View.highlightActiveStep();
             break;
 
         case Messages.REFRESH_PATTERN_VIEW:
@@ -195,7 +195,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.HANDLE_KEYBOARD_MOVEMENT:
-            PatternTrackListView.focusActiveStep( container );
+            View.focusActiveStep( container );
             break;
     }
 }
@@ -238,7 +238,7 @@ function handleInteraction( aEvent ) {
     }
 
     if ( aEvent.target.nodeName === "LI" )
-        PatternTrackListView.handleSlotClick( aEvent, keyboardController, PatternTrackListController );
+        View.handleSlotClick( aEvent, keyboardController, PatternTrackListController );
 
     Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
 }
@@ -386,7 +386,7 @@ function addEventAtPosition( event, optData, optStoreInUndoRedo )
                     editorModel.activeStep = maxStep;
 
                 selectionModel.clearSelection();
-                PatternTrackListView.highlightActiveStep();
+                View.highlightActiveStep();
             }
             PatternTrackListController.update();
         }

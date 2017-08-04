@@ -23,8 +23,7 @@
 "use strict";
 
 const EventFactory       = require( "../model/factory/EventFactory" );
-const Form               = require( "../utils/Form" );
-const Manual             = require( "../definitions/Manual" );
+const View               = require( "../view/ModuleParamView" );
 const ModuleParamHandler = require( "./keyboard/ModuleParamHandler" );
 const Messages           = require( "../definitions/Messages" );
 const SettingsModel      = require( "../model/SettingsModel" );
@@ -32,9 +31,8 @@ const Pubsub             = require( "pubsub-js" );
 
 /* private properties */
 
-let container, element, efflux, keyboardController;
-let data, selectedModule, selectedGlide = false, lastTypeAction = 0, prevChar = 0, lastEditedModule,
-    closeCallback, moduleList, valueDisplay, glideOptions, valueControl;
+let container, efflux, keyboardController;
+let data, selectedModule, lastEditedModule, lastTypeAction = 0, prevChar = 0, closeCallback;
 
 const ModuleParamController = module.exports =
 {
@@ -45,32 +43,14 @@ const ModuleParamController = module.exports =
      * @param effluxRef
      * @param keyboardControllerRef
      */
-    init( containerRef, effluxRef, keyboardControllerRef )
-    {
+    init( containerRef, effluxRef, keyboardControllerRef ) {
+
         container          = containerRef;
         efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
-        efflux.TemplateService.renderAsElement( "moduleParamEntry").then(( template ) => {
-
-            element = template;
-
-            // grab view elements
-
-            moduleList   = element.querySelectorAll( "#moduleSelect li" );
-            glideOptions = element.querySelectorAll( "input[type=radio]" );
-            valueControl = element.querySelector( "#moduleValue" );
-            valueDisplay = element.querySelector( "#moduleInputValue" );
-
-            lastEditedModule = moduleList[ 0 ].getAttribute( "data-value" );
-
-            // add listeners
-
-            element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
-            element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
-            element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
-            element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
-            valueControl.addEventListener( "input", handleValueChange );
+        View.init( efflux, ModuleParamController ).then(() => {
+            lastEditedModule = View.getValue();
         });
 
         // subscribe to messaging system
@@ -82,76 +62,117 @@ const ModuleParamController = module.exports =
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
+    /* public methods */
+
+    handleClose() {
+
+        if ( typeof closeCallback === "function" )
+            closeCallback( null );
+
+        View.remove();
+        Pubsub.publishSync( Messages.HIDE_BLIND );
+
+        keyboardController.reset();
+        closeCallback = null;
+    },
+
+    handleReady() {
+        data.module = lastEditedModule = View.getSelectedValueFromList( View.moduleList );
+        data.value  = View.getValue();
+        data.glide  = View.hasGlide();
+
+        // update model and view
+
+    //    if ( EventValidator.hasContent( data )) {
+
+            const pattern = efflux.activeSong.patterns[ data.patternIndex ],
+                 channel = pattern.channels[ data.channelIndex ];
+
+            let event        = channel[ data.step ];
+            const isNewEvent = !event;
+
+            if ( isNewEvent )
+                event = EventFactory.createAudioEvent();
+
+            event.mp         = data;
+            event.instrument = data.instrument;
+
+            Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
+                patternIndex : data.patternIndex,
+                channelIndex : data.channelIndex,
+                step         : data.step,
+                newEvent     : isNewEvent
+            } ]);
+    //    }
+        ModuleParamController.handleClose();
+    },
+
     /* event handlers */
 
-    handleKey( type, keyCode, event )
-    {
-        if ( type === "down" )
-        {
-            switch ( keyCode )
-            {
-                case 27: // escape
-                    handleClose();
-                    break;
+    handleKey( type, keyCode, event ) {
 
-                case 13: // enter
-                    handleReady();
-                    break;
+        if ( type !== "down" )
+            return;
 
-                // modules and parameters
+        switch ( keyCode ) {
+            case 27: // escape
+                ModuleParamController.handleClose();
+                break;
 
-                case 68: // D
-                case 70: // F
-                case 80: // P
-                case 86: // V
-                    selectedModule = ModuleParamHandler.getNextSelectedModule( keyCode, selectedModule );
-                    setSelectedValueInList( moduleList, selectedModule );
-                    break;
+            case 13: // enter
+                ModuleParamController.handleReady();
+                break;
 
-                case 71: // G
-                    selectedGlide = !( Form.getCheckedOption( glideOptions ) === "true" );
-                    Form.setCheckedOption( glideOptions, selectedGlide );
-                    break;
+            // modules and parameters
 
-                // module parameter value
+            case 68: // D
+            case 70: // F
+            case 80: // P
+            case 86: // V
+                selectedModule = ModuleParamHandler.getNextSelectedModule( keyCode, selectedModule );
+                View.setSelectedValueInList( View.moduleList, selectedModule );
+                break;
 
-                case 48: // 0 through 9
-                case 49:
-                case 50:
-                case 51:
-                case 52:
-                case 53:
-                case 54:
-                case 55:
-                case 56:
-                case 57:
+            case 71: // G
+                View.toggleGlide();
+                break;
 
-                    const now   = Date.now();
-                    const num   = parseFloat( String.fromCharCode( keyCode ));
-                    let value = num * 10;
+            // module parameter value
 
-                    // if this character was typed shortly after the previous one, combine
-                    // their numerical values for more precise control
+            case 48: // 0 through 9
+            case 49:
+            case 50:
+            case 51:
+            case 52:
+            case 53:
+            case 54:
+            case 55:
+            case 56:
+            case 57:
 
-                    if ( now - lastTypeAction < 500 )
-                        value = parseFloat( "" + prevChar + num );
+                const now = Date.now();
+                const num = parseFloat( String.fromCharCode( keyCode ));
+                let value = num * 10;
 
-                    valueControl.value = value;
-                    handleValueChange( null );
-                    lastTypeAction = now;
-                    prevChar = num;
-                    break;
-            }
+                // if this character was typed shortly after the previous one, combine
+                // their numerical values for more precise control
+
+                if ( now - lastTypeAction < 500 )
+                    value = parseFloat( "" + prevChar + num );
+
+                View.setValue( value );
+                lastTypeAction = now;
+                prevChar = num;
+                break;
         }
     }
 };
 
 /* private methods */
 
-function handleBroadcast( type, payload )
-{
-    switch ( type )
-    {
+function handleBroadcast( type, payload ) {
+
+    switch ( type ) {
         case Messages.OPEN_MODULE_PARAM_PANEL:
             handleOpen( payload );
             break;
@@ -159,7 +180,7 @@ function handleBroadcast( type, payload )
         case Messages.CLOSE_OVERLAYS:
 
             if ( payload !== ModuleParamController )
-                handleClose();
+                ModuleParamController.handleClose();
             break;
     }
 }
@@ -169,8 +190,8 @@ function handleBroadcast( type, payload )
  *
  * @param {Function} completeCallback
  */
-function handleOpen( completeCallback )
-{
+function handleOpen( completeCallback ) {
+
     const editorModel  = efflux.EditorModel,
           patternIndex = editorModel.activePattern,
           pattern      = efflux.activeSong.patterns[ patternIndex ],
@@ -178,8 +199,7 @@ function handleOpen( completeCallback )
           channel      = pattern.channels[ channelIndex ],
           event        = channel[ editorModel.activeStep ];
 
-    data =
-    {
+    data = {
         instrument   : ( event ) ? event.instrument : editorModel.activeInstrument,
         module       : ( event && event.mp ) ? event.mp.module  : lastEditedModule,
         glide        : ( event && event.mp ) ? event.mp.glide   : false,
@@ -198,109 +218,10 @@ function handleOpen( completeCallback )
     keyboardController.setBlockDefaults( false );
     keyboardController.setListener( ModuleParamController );
 
-    setSelectedValueInList( moduleList, data.module );
-    Form.setCheckedOption( glideOptions, data.glide );
-    valueControl.value = data.value;
-    handleValueChange( null ); // shows numerical value
+    selectedModule = data.module;
+    View.setSelectedValueInList( View.moduleList, data.module );
+    View.setGlide( data.glide );
+    View.setValue( data.value );
 
-    if ( !element.parentNode )
-        container.appendChild( element );
-}
-
-function handleClose()
-{
-    if ( typeof closeCallback === "function" )
-        closeCallback( null );
-
-    Pubsub.publishSync( Messages.HIDE_BLIND );
-
-    keyboardController.reset();
-
-    if ( element.parentNode ) {
-        element.parentNode.removeChild( element );
-    }
-    closeCallback = null;
-}
-
-function handleHelp( aEvent )
-{
-    window.open( Manual.PARAM_ENTRY_HELP, "_blank" );
-}
-
-function handleReady()
-{
-    data.module = lastEditedModule = getSelectedValueFromList( moduleList );
-    data.value  = parseFloat( valueControl.value );
-    data.glide  = ( Form.getCheckedOption( glideOptions ) === "true" );
-
-    // update model and view
-
-//    if ( EventValidator.hasContent( data )) {
-
-        const pattern = efflux.activeSong.patterns[ data.patternIndex ],
-             channel = pattern.channels[ data.channelIndex ];
-
-        let event        = channel[ data.step ];
-        const isNewEvent = !event;
-
-        if ( isNewEvent )
-            event = EventFactory.createAudioEvent();
-
-        event.mp         = data;
-        event.instrument = data.instrument;
-
-        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-            patternIndex : data.patternIndex,
-            channelIndex : data.channelIndex,
-            step         : data.step,
-            newEvent     : isNewEvent
-        } ]);
-//    }
-    handleClose();
-}
-
-/* module selection */
-
-function handleModuleClick( aEvent )
-{
-    const target = aEvent.target;
-    if ( target.nodeName === "LI" ) {
-        setSelectedValueInList( moduleList, target.getAttribute( "data-value" ));
-    }
-}
-
-function handleValueChange( aEvent )
-{
-    const value = parseFloat( valueControl.value );
-    valueDisplay.innerHTML = ( value < 10 ) ? "0" + value : value;
-}
-
-/* list functions */
-
-function setSelectedValueInList( list, value )
-{
-    value = value.toString();
-    let i = list.length, option;
-
-    while ( i-- )
-    {
-        option = list[ i ];
-
-        if ( option.getAttribute( "data-value" ) === value )
-            option.classList.add( "selected" );
-        else
-            option.classList.remove( "selected" );
-    }
-}
-
-function getSelectedValueFromList( list )
-{
-    let i = list.length, option;
-    while ( i-- )
-    {
-        option = list[ i ];
-        if ( option.classList.contains( "selected" ))
-            return option.getAttribute( "data-value" );
-    }
-    return null;
+    View.inject( container );
 }
