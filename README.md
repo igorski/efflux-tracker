@@ -41,6 +41,35 @@ Additional folders:
    (see FixturesLoader.js)
  
 The build scripts are defined in _./Gruntfile.js_ and includes snippets defined in the _./config_-folder.
+
+Project actors
+--------------
+
+Efflux is written without using any of the large selection of JS frameworks. Instead, it follows _design patterns_.
+Each part of the application is self-contained. State changes are communicated using the _publish / subscribe_
+mechanism (using _pubsub-js_).
+
+A quick summary:
+
+    ./src/js/model
+
+    contains the model of the application. This holds editor state (EditorModel), instrument state (InstrumentModel),
+    general settings (SettingsModel), the "song"/project that is being edited (SongModel) as well as model for
+    selection (SelectionModel) and undo/redo history (StateModel).
+    
+    ./src/js/controller
+    
+    contains the controllers of the application. The controllers are responsible for monitoring state changes
+    instructed from the views, as well as listening to model state changes and broadcasting these to the view.
+    Note: not all controllers have a view (e.g. keyboard and MIDI controller handle input messages and broadcast
+    these to subscribed listeners).
+    
+    ./src/js/view
+    
+    contains all the views that are mediated by the controllers. The views reference HTML templates (the Handlebars
+    snippets in _/src/templates_) and attach event listeners which can be used to communicate UI changes back
+    to the controller. Note: at the moment of writing most Views are still embedded within the controllers and
+    need to be separated.
  
 Build instructions
 ------------------
@@ -86,7 +115,7 @@ ROADMAP
 -------
 
  * Separate PatternMenu from PatternTrackListController
- * Separate view logic from controllers
+ * Separate view logic from controllers (in progress)
  * Investigate whether to clean up unused views and listeners (there is no memory leakage and the additional garbage collection might even be bad)
  * Split InstrumentController into separate view controllers for each module
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
