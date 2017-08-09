@@ -33,7 +33,7 @@ let efflux, editorModel, selectionModel, wrapper, patternContainer,
 const SLOT_WIDTH  = 150;
 const SLOT_HEIGHT = 32;
 
-const PatternTrackListView = module.exports = {
+const self = module.exports = {
 
     init( effluxRef, wrapperRef ) {
 
@@ -65,7 +65,7 @@ const PatternTrackListView = module.exports = {
             pContainerSteps = [];
 
             if ( editorModel.activeStep !== -1 )
-                PatternTrackListView.highlightActiveStep();
+                self.highlightActiveStep();
         });
     },
 
@@ -195,7 +195,7 @@ const PatternTrackListView = module.exports = {
                     if ( !shiftDown && aEvent.type === "click" )
                         selectSlotWithinClickedStep( aEvent );
 
-                    PatternTrackListView.highlightActiveStep();
+                    self.highlightActiveStep();
 
                     keyboardController.setListener( patternTrackListController );
 

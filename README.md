@@ -42,12 +42,12 @@ Additional folders:
  
 The build scripts are defined in _./Gruntfile.js_ and includes snippets defined in the _./config_-folder.
 
-Project actors
---------------
+Application actors
+------------------
 
 Efflux is written without using any of the large selection of JS frameworks. Instead, it follows _design patterns_.
 Each part of the application is self-contained. State changes are communicated using the _publish / subscribe_
-mechanism (using _pubsub-js_).
+mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_).
 
 A quick summary:
 
@@ -97,7 +97,7 @@ As hinted above, a song also has _INSTRUMENTS_. There are an equal amount of ins
 _INSTRUMENT_OSCILLATORS_ which can be individually tuned and configured for playback.
 
 INSTRUMENTS also reference _MODULES_. A MODULE is basically an effects processor. Each instrument can have its output
-routed through multiple processors before its output is mixed into the master channel (by the _AudioController).
+routed through multiple processors before its output is mixed into the master channel (by the _AudioController_).
  
 Build instructions
 ------------------
@@ -144,8 +144,8 @@ ROADMAP
 
  * Separate PatternMenu from PatternTrackListController
  * Separate view logic from controllers (in progress)
+ * Separate InstrumentController and InstrumentView into separate objects for each module (kinda bloated...)
  * Investigate whether to clean up unused views and listeners (there is no memory leakage and the additional garbage collection might even be bad)
- * Split InstrumentController into separate view controllers for each module
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Minimize vendor libraries

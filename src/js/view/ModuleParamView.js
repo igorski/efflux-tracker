@@ -25,18 +25,23 @@
 const Form   = require( "../utils/Form" );
 const Manual = require( "../definitions/Manual" );
 
-let efflux, controller, element,
+let efflux, element,
     valueDisplay, glideOptions, valueControl;
 
 
 const self = module.exports = {
 
+    // View-Controller communication messages (via init() listener)
+
+    EVENTS: {
+        CLOSE: 0,
+        READY: 1
+    },
     moduleList: null,
 
-    init( effluxRef, controllerRef ) {
+    init( effluxRef, listener ) {
 
-        efflux     = effluxRef;
-        controller = controllerRef;
+        efflux = effluxRef;
 
         return new Promise(( resolve, reject ) => {
             efflux.TemplateService.renderAsElement( "moduleParamEntry").then(( template ) => {
@@ -45,17 +50,21 @@ const self = module.exports = {
 
                 // grab view elements
 
-                self.moduleList   = element.querySelectorAll( "#moduleSelect li" );
-                glideOptions = element.querySelectorAll( "input[type=radio]" );
-                valueControl = element.querySelector( "#moduleValue" );
-                valueDisplay = element.querySelector( "#moduleInputValue" );
+                self.moduleList = element.querySelectorAll( "#moduleSelect li" );
+                glideOptions    = element.querySelectorAll( "input[type=radio]" );
+                valueControl    = element.querySelector( "#moduleValue" );
+                valueDisplay    = element.querySelector( "#moduleInputValue" );
 
                 // add listeners
 
-                element.querySelector( ".close-button" ).addEventListener  ( "click", handleClose );
                 element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
-                element.querySelector( ".confirm-button" ).addEventListener( "click", controller.handleReady );
-                element.querySelector( "#moduleSelect").addEventListener   ( "click", handleModuleClick );
+                element.querySelector( ".confirm-button" ).addEventListener( "click", ( e ) => {
+                    listener( self.EVENTS.READY );
+                });
+                element.querySelector( ".close-button" ).addEventListener( "click", ( e ) => {
+                    listener( self.EVENTS.CLOSE );
+                });
+                element.querySelector( "#moduleSelect").addEventListener( "click", handleModuleClick );
                 valueControl.addEventListener( "input", handleValueChange );
 
                 resolve();
@@ -131,11 +140,6 @@ const self = module.exports = {
 
 function handleHelp( aEvent ) {
     window.open( Manual.PARAM_ENTRY_HELP, "_blank" );
-}
-
-function handleClose( aEvent ) {
-    self.remove();
-    controller.handleClose();
 }
 
 function handleModuleClick( aEvent ) {

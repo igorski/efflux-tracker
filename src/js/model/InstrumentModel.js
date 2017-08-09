@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -40,6 +40,26 @@ function InstrumentModel()
      * @type {Array.<Object>}
      */
     this._instruments = [];
+
+    /* used when editing Instruments */
+
+    /**
+     * @public
+     * @type {number}
+     */
+    this.activeOscillatorIndex = 0;
+
+    /**
+     * @public
+     * @type {number}
+     */
+    this.instrumentId = 0;
+
+    /**
+     * @public
+     * @type {INSTRUMENT}
+     */
+    this.instrumentRef = null;
 }
 
 /* public methods */

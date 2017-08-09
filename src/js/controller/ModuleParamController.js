@@ -49,7 +49,7 @@ const ModuleParamController = module.exports =
         efflux             = effluxRef;
         keyboardController = keyboardControllerRef;
 
-        View.init( efflux, ModuleParamController ).then(() => {
+        View.init( efflux, handleViewMessage ).then(() => {
             lastEditedModule = View.getValue();
         });
 
@@ -62,51 +62,6 @@ const ModuleParamController = module.exports =
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
-    /* public methods */
-
-    handleClose() {
-
-        if ( typeof closeCallback === "function" )
-            closeCallback( null );
-
-        View.remove();
-        Pubsub.publishSync( Messages.HIDE_BLIND );
-
-        keyboardController.reset();
-        closeCallback = null;
-    },
-
-    handleReady() {
-        data.module = lastEditedModule = View.getSelectedValueFromList( View.moduleList );
-        data.value  = View.getValue();
-        data.glide  = View.hasGlide();
-
-        // update model and view
-
-    //    if ( EventValidator.hasContent( data )) {
-
-            const pattern = efflux.activeSong.patterns[ data.patternIndex ],
-                 channel = pattern.channels[ data.channelIndex ];
-
-            let event        = channel[ data.step ];
-            const isNewEvent = !event;
-
-            if ( isNewEvent )
-                event = EventFactory.createAudioEvent();
-
-            event.mp         = data;
-            event.instrument = data.instrument;
-
-            Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-                patternIndex : data.patternIndex,
-                channelIndex : data.channelIndex,
-                step         : data.step,
-                newEvent     : isNewEvent
-            } ]);
-    //    }
-        ModuleParamController.handleClose();
-    },
-
     /* event handlers */
 
     handleKey( type, keyCode, event ) {
@@ -116,11 +71,11 @@ const ModuleParamController = module.exports =
 
         switch ( keyCode ) {
             case 27: // escape
-                ModuleParamController.handleClose();
+                handleClose();
                 break;
 
             case 13: // enter
-                ModuleParamController.handleReady();
+                handleReady();
                 break;
 
             // modules and parameters
@@ -171,7 +126,6 @@ const ModuleParamController = module.exports =
 /* private methods */
 
 function handleBroadcast( type, payload ) {
-
     switch ( type ) {
         case Messages.OPEN_MODULE_PARAM_PANEL:
             handleOpen( payload );
@@ -180,7 +134,18 @@ function handleBroadcast( type, payload ) {
         case Messages.CLOSE_OVERLAYS:
 
             if ( payload !== ModuleParamController )
-                ModuleParamController.handleClose();
+                handleClose();
+            break;
+    }
+}
+
+function handleViewMessage( type ) {
+    switch ( type ) {
+        case View.EVENTS.READY:
+            handleReady();
+            break;
+        case View.EVENTS.CLOSE:
+            handleClose();
             break;
     }
 }
@@ -224,4 +189,47 @@ function handleOpen( completeCallback ) {
     View.setValue( data.value );
 
     View.inject( container );
+}
+
+function handleClose() {
+
+    if ( typeof closeCallback === "function" )
+        closeCallback( null );
+
+    View.remove();
+    Pubsub.publishSync( Messages.HIDE_BLIND );
+
+    keyboardController.reset();
+    closeCallback = null;
+}
+
+function handleReady() {
+    data.module = lastEditedModule = View.getSelectedValueFromList( View.moduleList );
+    data.value  = View.getValue();
+    data.glide  = View.hasGlide();
+
+    // update model and view
+
+//    if ( EventValidator.hasContent( data )) {
+
+        const pattern = efflux.activeSong.patterns[ data.patternIndex ],
+             channel = pattern.channels[ data.channelIndex ];
+
+        let event        = channel[ data.step ];
+        const isNewEvent = !event;
+
+        if ( isNewEvent )
+            event = EventFactory.createAudioEvent();
+
+        event.mp         = data;
+        event.instrument = data.instrument;
+
+        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
+            patternIndex : data.patternIndex,
+            channelIndex : data.channelIndex,
+            step         : data.step,
+            newEvent     : isNewEvent
+        } ]);
+//    }
+    handleClose();
 }
