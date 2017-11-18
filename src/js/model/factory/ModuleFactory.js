@@ -28,49 +28,6 @@ const Config       = require( "../../config/Config" );
 const Delay        = require( "../../third_party/Delay" );
 const Overdrive    = require( "wa-overdrive" );
 
-/* type definitions */
-
-/**
- * @typedef {{
- *              filter: BiquadFilterNode,
- *              lfo: OscillatorNode,
- *              lfoAmp: GainNode,
- *              lfoEnabled: boolean,
- *              filterEnabled: boolean
- *          }}
- */
-let FILTER_MODULE;
-
-/**
- * @typedef {{
- *              lowBand: BiquadFilterNode,
- *              midBand: BiquadFilterNode,
- *              highBand: BiquadFilterNode,
- *              lowGain: GainNode,
- *              midGain: GainNode,
- *              highGain: GainNode,
- *              output: GainNode,
- *              eqEnabled: boolean
- *          }}
- */
-let EQ_MODULE;
-
-/**
- * @typedef {{
- *              delay: Delay,
- *              delayEnabled: boolean
- *          }}
- */
-let DELAY_MODULE;
-
-/**
- * @typedef {{
- *              overdrive: Overdrive
- *              overdriveEnabled: boolean
- *          }}
- */
-let OVERDRIVE_MODULE;
-
 module.exports = {
 
     /**

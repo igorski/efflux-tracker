@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,18 +25,6 @@
 const Config       = require( "../../config/Config" ),
       EventFactory = require( "./EventFactory" ),
       ObjectUtil   = require( "../../utils/ObjectUtil" );
-
-/**
- * type definition for a pattern list
- *
- * @typedef {{
- *     steps: number,
- *     channels: Array.<Array.<AUDIO_EVENT>>
- * }}
- *
- * @see PatternValidator
- */
-let PATTERN;
 
 const PatternFactory = module.exports =
 {
