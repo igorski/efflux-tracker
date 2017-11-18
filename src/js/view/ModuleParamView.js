@@ -39,6 +39,12 @@ const self = module.exports = {
     },
     moduleList: null,
 
+    /**
+     * @public
+     * @param {Object} effluxRef reference to Efflux namespace (see main.js)
+     * @param {!Function} listener handler for this Views state change events
+     * @return {Promise}
+     */
     init( effluxRef, listener ) {
 
         efflux = effluxRef;
@@ -136,7 +142,6 @@ const self = module.exports = {
 };
 
 /* event handlers */
-
 
 function handleHelp( aEvent ) {
     window.open( Manual.PARAM_ENTRY_HELP, "_blank" );

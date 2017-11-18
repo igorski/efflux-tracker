@@ -60,6 +60,13 @@ const self = module.exports = {
         SAVE_PRESET: 7
     },
 
+    /**
+     * @public
+     * @param {Object} effluxRef reference to Efflux namespace (see main.js)
+     * @param {Object} keyboardControllerRef reference to keyboard controller)
+     * @param {!Function} listenerRef handler for this Views state change events
+     * @return {Promise}
+     */
     init( effluxRef, keyboardControllerRef, listenerRef ) {
 
         efflux             = effluxRef;

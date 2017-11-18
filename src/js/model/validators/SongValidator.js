@@ -34,7 +34,7 @@ module.exports =
      * @see SongFactory
      *
      * @public
-     * @param {Object} song
+     * @param {SONG} song
      * @return {boolean}
      */
     isValid( song )
@@ -54,7 +54,7 @@ module.exports =
      * all properties available to newer factory versions
      *
      * @public
-     * @param {Object} song
+     * @param {SONG} song
      */
     transformLegacy( song )
     {

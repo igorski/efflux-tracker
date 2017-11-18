@@ -385,7 +385,7 @@ function pasteSelectionAction( data ) {
  * convenience method to clone all event and channel data
  * for given pattern
  *
- * @param {Object} song
+ * @param {SONG} song
  * @param {number} activePattern
  * @returns {Object}
  */

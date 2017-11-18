@@ -30,9 +30,9 @@ const Config       = require( "../../config/Config" ),
  * type definition for a pattern list
  *
  * @typedef {{
- *              steps: number,
- *              channels: Array.<Array.<AUDIO_EVENT>>
- *          }}
+ *     steps: number,
+ *     channels: Array.<Array.<AUDIO_EVENT>>
+ * }}
  *
  * @see PatternValidator
  */

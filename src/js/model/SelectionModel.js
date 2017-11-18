@@ -118,7 +118,7 @@ SelectionModel.prototype.setSelectionChannelRange = function( firstChannel, last
  * retrieve the contents of the current selection
  *
  * @public
- * @param {Object} song
+ * @param {SONG} song
  * @param {number} activePattern
  * @return {Array.<Object>}
  */
@@ -357,7 +357,7 @@ SelectionModel.prototype.hasSelection = function()
  *
  * @public
  *
- * @param {Object} song
+ * @param {SONG} song
  * @param {number} activePattern
  * @param {Array=} optOutputArray optional Array to copy selection contents
  *        into (when null, this will by default store the selection inside
@@ -402,7 +402,7 @@ SelectionModel.prototype.copySelection = function( song, activePattern, optOutpu
  *
  * @public
  *
- * @param {Object} song
+ * @param {SONG} song
  * @param {number} activePattern
  * @param {Array.<LinkedList>} lists
  */
@@ -423,7 +423,7 @@ SelectionModel.prototype.cutSelection = function( song, activePattern, lists )
  *
  * @public
  *
- * @param {Object} song
+ * @param {SONG} song
  * @param {number} activePattern
  * @param {Array.<LinkedList>} lists
  * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
@@ -479,7 +479,7 @@ SelectionModel.prototype.deleteSelection = function( song, activePattern, lists,
 /**
  * @public
  *
- * @param {Object} song
+ * @param {SONG} song
  * @param {number} activePattern
  * @param {number} activeChannel
  * @param {number} activeStep

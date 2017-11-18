@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,8 +27,32 @@ const InstrumentFactory = require( "./InstrumentFactory" );
 
 const FACTORY_VERSION = 1;
 
+/**
+ * type definition for a Song
+ *
+ * @typedef {{
+ *     version: number,
+ *     id: string,
+ *     meta: {
+ *         title: string,
+ *         author: string,
+ *         created: number,
+ *         modified: number,
+ *         tempo: number
+ *     },
+ *     instruments: Array.<INSTRUMENT>,
+ *     patterns: Array.<PATTERN>
+ * }}
+ */
+let SONG;
+
 module.exports =
 {
+    /**
+     * @public
+     * @param {number}amountOfInstruments
+     * @returns {SONG}
+     */
     createSong( amountOfInstruments )
     {
         const song = {

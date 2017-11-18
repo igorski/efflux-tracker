@@ -83,7 +83,7 @@ module.exports = {
      * disassembles a song Object into an .XTK file
      *
      * @public
-     * @param {Object} song
+     * @param {SONG} song
      * @return {string}
      */
     disassemble( song ) {

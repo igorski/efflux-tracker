@@ -30,7 +30,7 @@ module.exports =
      * validates whether the song has any pattern content
      *
      * @public
-     * @param {Object} song
+     * @param {SONG} song
      * @return {boolean}
      */
     hasContent( song )

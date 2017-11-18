@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -53,7 +53,7 @@ module.exports =
      *
      * @param {AUDIO_EVENT} event
      * @param {number} channelIndex index of the channel the event belongs to
-     * @param {Object} song
+     * @param {SONG} song
      * @param {Array.<LinkedList>} lists
      */
     linkEvent( event, channelIndex, song, lists )
@@ -133,7 +133,7 @@ module.exports =
      * the given channel for the given pattern
      *
      * @public
-     * @param {Object} song
+     * @param {SONG} song
      * @param {number} patternIndex
      * @param {number} channelNum
      * @param {number} step

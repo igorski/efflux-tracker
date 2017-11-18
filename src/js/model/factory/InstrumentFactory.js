@@ -29,42 +29,42 @@ const ObjectUtil = require( "../../utils/ObjectUtil" );
  * type definition for an instrument
  *
  * @typedef {{
- *              id: number,
- *              name: string,
- *              presetName: string,
- *              oscillators: Array.<INSTRUMENT_OSCILLATOR>,
- *              volume: number,
- *              overdrive: {
- *                  enabled: boolean,
- *                  preBand: number,
- *                  postCut: number,
- *                  color:   number,
- *                  drive:   number,
- *              },
- *              eq: {
- *                  enabled  : boolean,
- *                  lowGain  : number,
- *                  midGain  : number,
- *                  highGain : number
- *              },
- *              filter : {
- *                  enabled     : boolean
- *                  frequency   : number,
- *                  q           : number,
- *                  speed       : number,
- *                  depth       : number,
- *                  type        : string,
- *                  lfoType     : string,
- *              },
- *              delay : {
- *                  enabled  : boolean,
- *                  type     : number,
- *                  time     : number,
- *                  feedback : number,
- *                  cutoff   : number,
- *                  offset   : number
- *              }
- *          }}
+ *     id: number,
+ *     name: string,
+ *     presetName: string,
+ *     oscillators: Array.<INSTRUMENT_OSCILLATOR>,
+ *     volume: number,
+ *     overdrive: {
+ *         enabled: boolean,
+ *         preBand: number,
+ *         postCut: number,
+ *         color:   number,
+ *         drive:   number,
+ *     },
+ *     eq: {
+ *         enabled  : boolean,
+ *         lowGain  : number,
+ *         midGain  : number,
+ *         highGain : number
+ *     },
+ *     filter : {
+ *         enabled     : boolean
+ *         frequency   : number,
+ *         q           : number,
+ *         speed       : number,
+ *         depth       : number,
+ *         type        : string,
+ *         lfoType     : string,
+ *     },
+ *     delay : {
+ *         enabled  : boolean,
+ *         type     : number,
+ *         time     : number,
+ *         feedback : number,
+ *         cutoff   : number,
+ *         offset   : number
+ *     }
+ * }}
  *
  * @see InstrumentValidator
  */
