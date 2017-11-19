@@ -22,6 +22,8 @@
  */
 "use strict";
 
+const EventFactory = require( "../model/factory/EventFactory" );
+
 module.exports =
 {
     /**
@@ -178,6 +180,124 @@ module.exports =
                 return previousEvent;
         }
         return null;
+    },
+
+    /**
+     * create a smooth glide for the module parameter changes from
+     * one slot to another
+     *
+     * @public
+     * @param {SONG} song
+     * @param {number} patternIndex
+     * @param {number} channelIndex
+     * @param {number} eventIndex
+     * @param {Array.<LinkedList>} lists
+     * @return {boolean} whether a glide has been created
+     */
+    glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists ) {
+        const list = lists[ channelIndex ];
+        const firstPattern = song.patterns[ patternIndex ];
+        const firstPatternEvents = firstPattern.channels[ channelIndex ];
+        const firstEvent = firstPatternEvents[ eventIndex ];
+        const firstParam = firstEvent.mp;
+
+        let secondEvent, secondParam;
+        let listNode = list.getNodeByData( firstEvent );
+        let compareNode;
+
+        if ( !listNode )
+            return false;
+
+        while ( compareNode = listNode.next ) {
+
+            secondEvent = compareNode.data;
+
+            // ignore events without a module parameter change
+
+            if ( secondParam = secondEvent.mp ) {
+
+                // if new event has a module parameter change for the
+                // same module, we have found our second event
+
+                if ( secondParam.module === firstParam.module ) {
+                    break;
+                }
+                else {
+                    secondParam = null;
+                    // TODO: what do we want to do in this case ?
+                }
+            }
+            // keep iterating through the linked list
+            listNode = secondEvent;
+        }
+
+        if ( !secondParam )
+            return false;
+
+        // ensure events glide their module parameter change
+
+        firstParam.glide  =
+        secondParam.glide = true;
+
+        // find distance (in steps) between these two events
+        // TODO: keep patterns' optional resolution differences in mind
+        let eventFound = false;
+        let prevEvent = firstEvent;
+        const events = [];
+
+        const addOrUpdateEvent = ( evt, channel, eventIndex ) => {
+            if ( typeof evt !== "object" ) {
+                // event didn't exist... create it, insert into the channel and update LinkedList
+                evt = EventFactory.createAudioEvent( firstEvent.instrument );
+                channel[ eventIndex ] = evt;
+                list.addAfter( prevEvent, evt )
+            }
+            evt.mp = {
+                module: firstEvent.mp.module,
+                value: 0,
+                glide: true
+            };
+            return evt;
+        };
+
+        for ( let i = patternIndex; i < song.patterns.length; ++i ) {
+            const pattern = song.patterns[ i ];
+            const channel = pattern.channels[ channelIndex ];
+
+            for ( let j = 0; j < channel.length; ++j ) {
+                let event = channel[ j ];
+
+                if ( event === firstEvent ) {
+                    eventFound = true;
+                }
+                else if ( event === secondEvent ) {
+                    break;
+                }
+                else if ( eventFound ) {
+                    event = addOrUpdateEvent( event, channel, j );
+                    events.push( event );
+                    prevEvent = event;
+                }
+            }
+        }
+        const steps = events.length + 1;
+        let increment;
+
+        if ( secondParam.value > firstParam.value ) {
+            // gliding value up
+            increment = ( secondParam.value - firstParam.value ) / steps;
+            events.forEach(( event, index ) => {
+                event.mp.value = firstParam.value + (( index + 1 ) * increment );
+            });
+        }
+        else {
+            // gliding value down
+            increment = ( secondParam.value - firstParam.value ) / steps;
+            events.forEach(( event, index ) => {
+                event.mp.value = firstParam.value + (( index + 1 ) * increment );
+            });
+        }
+        return true;
     }
 };
 
