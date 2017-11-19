@@ -24,7 +24,7 @@
 
 const EventFactory = require( "../model/factory/EventFactory" );
 
-module.exports =
+const EventUtil = module.exports =
 {
     /**
      * update the position properties of given AudioEvent
@@ -86,11 +86,10 @@ module.exports =
                 }
                 else {
 
-                    // any event (with an action) beyond this point is
+                    // any event beyond this point is
                     // the "next" event in the list for given event
 
-                    if ( compareEvent && compareEvent.action > 0 ) {
-
+                    if ( compareEvent ) {
                         insertedNode = list.addBefore( compareEvent, event );
                         updatePreviousEventLength( insertedNode, song.meta.tempo );
                         return insertedNode;
@@ -167,7 +166,7 @@ module.exports =
      * given step in given channel event list
      *
      * @public
-     * @param {Array.<AUDIO_EVENT|null>} channelEvents
+     * @param {Array.<AUDIO_EVENT>} channelEvents
      * @param {number} step
      * @return {AUDIO_EVENT|null}
      */
@@ -205,7 +204,7 @@ module.exports =
         let listNode = list.getNodeByData( firstEvent );
         let compareNode;
 
-        if ( !listNode )
+        if ( !firstParam || !listNode )
             return false;
 
         while ( compareNode = listNode.next ) {
@@ -219,13 +218,10 @@ module.exports =
                 // if new event has a module parameter change for the
                 // same module, we have found our second event
 
-                if ( secondParam.module === firstParam.module ) {
+                if ( secondParam.module === firstParam.module )
                     break;
-                }
-                else {
-                    secondParam = null;
-                    // TODO: what do we want to do in this case ?
-                }
+                else
+                    return false;
             }
             // keep iterating through the linked list
             listNode = secondEvent;
@@ -245,12 +241,13 @@ module.exports =
         let prevEvent = firstEvent;
         const events = [];
 
-        const addOrUpdateEvent = ( evt, channel, eventIndex ) => {
+        const addOrUpdateEvent = ( evt, pattern, patternIndex, channel, eventIndex ) => {
             if ( typeof evt !== "object" ) {
                 // event didn't exist... create it, insert into the channel and update LinkedList
                 evt = EventFactory.createAudioEvent( firstEvent.instrument );
                 channel[ eventIndex ] = evt;
-                list.addAfter( prevEvent, evt )
+                list.addAfter( prevEvent, evt );
+                EventUtil.setPosition( evt, pattern, patternIndex, eventIndex, song.meta.tempo );
             }
             evt.mp = {
                 module: firstEvent.mp.module,
@@ -274,7 +271,7 @@ module.exports =
                     break;
                 }
                 else if ( eventFound ) {
-                    event = addOrUpdateEvent( event, channel, j );
+                    event = addOrUpdateEvent( event, pattern, i, channel, j );
                     events.push( event );
                     prevEvent = event;
                 }

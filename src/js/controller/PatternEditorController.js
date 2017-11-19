@@ -22,14 +22,16 @@
  */
 "use strict";
 
-const Pubsub   = require( "pubsub-js" );
-const Messages = require( "../definitions/Messages" );
-const DOM      = require( "zjslib" ).DOM;
+const Pubsub    = require( "pubsub-js" );
+const Copy      = require( "../i18n/Copy" );
+const Messages  = require( "../definitions/Messages" );
+const EventUtil = require( "../utils/EventUtil" );
+const DOM       = require( "zjslib" ).DOM;
 
 /* private properties */
 
 let container, efflux, indiceContainer, controlContainer;
-let stepAmount = 0, activeIndex = 0, patternIndices, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
+let stepAmount = 0, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
 
 module.exports =
 {
@@ -52,6 +54,7 @@ module.exports =
         container.querySelector( ".addOff" ).addEventListener      ( "click", handleNoteOffClick );
         container.querySelector( ".removeNote" ).addEventListener  ( "click", handleNoteDeleteClick );
         container.querySelector( ".moduleParams" ).addEventListener( "click", handleModuleParamsClick );
+        container.querySelector( ".moduleGlide" ).addEventListener( "click",  handleModuleGlideClick );
 
         // setup messaging system
         [
@@ -144,6 +147,27 @@ function handleNoteDeleteClick( aEvent )
 function handleModuleParamsClick( aEvent )
 {
     Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );
+}
+
+function handleModuleGlideClick( aEvent )
+{
+    const patternIndex = efflux.EditorModel.activePattern;
+    const channelIndex = efflux.EditorModel.activeInstrument;
+    const channelEvents = efflux.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
+    const event         = EventUtil.getFirstEventBeforeStep( channelEvents, efflux.EditorModel.activeStep );
+    let success = false;
+
+    if ( event ) {
+        const eventIndex = channelEvents.indexOf( event );
+        success = EventUtil.glideModuleParams(
+            efflux.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
+        );
+    }
+
+    if ( success )
+        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+    else
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_PARAM_GLIDE" ));
 }
 
 function updateStepAmount( amount )

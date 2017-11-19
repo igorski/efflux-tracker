@@ -83,8 +83,20 @@ const efflux = window.efflux =
 
     // song data
 
-    activeSong      : null,   // create new empty song
-    eventList       : new Array( Config.INSTRUMENT_AMOUNT )
+    /**
+     * this will reference the currently active Song
+     *
+     * @type {SONG}
+     */
+    activeSong : null,
+
+    /**
+     * Each channel uses a LinkedList to quickly
+     * link all events to each other (@see SequencerController)
+     *
+     * Array.<LinkedList>
+     */
+    eventList : new Array( Config.INSTRUMENT_AMOUNT )
 };
 
 // WebAudio API not supported ? halt application start
