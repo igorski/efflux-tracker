@@ -235,22 +235,42 @@ function removeModuleParamAutomationAtHighlightedStep() {
 }
 
 function glideParameterAutomations() {
-    const patternIndex = efflux.EditorModel.activePattern;
-    const channelIndex = efflux.EditorModel.activeInstrument;
+    const patternIndex  = efflux.EditorModel.activePattern;
+    const channelIndex  = efflux.EditorModel.activeInstrument;
     const channelEvents = efflux.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
-    const event         = EventUtil.getFirstEventBeforeStep( channelEvents, efflux.EditorModel.activeStep );
-    let success = false;
+    const event         = EventUtil.getFirstEventBeforeStep(
+        channelEvents, efflux.EditorModel.activeStep, ( compareEvent ) => {
+            return !!compareEvent.mp;
+        });
+    let createdEvents   = null;
 
-    if ( event ) {
+    const addFn = () => {
         const eventIndex = channelEvents.indexOf( event );
-        success = EventUtil.glideModuleParams(
+        createdEvents = EventUtil.glideModuleParams(
             efflux.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
         );
+        if ( createdEvents )
+            Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+    };
+
+    if ( event ) {
+        addFn();
     }
 
-    if ( success )
-        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
-    else
+    if ( createdEvents ) {
+        Pubsub.publish( Messages.SAVE_STATE, {
+            undo: () => {
+                createdEvents.forEach(( event ) => {
+                    if ( event.note === "" )
+                        EventUtil.clearEventByReference( efflux.activeSong, event, efflux.eventList );
+                    else
+                        event.mp = null;
+                });
+                Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+            },
+            redo: addFn
+        });
+    } else
         Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_PARAM_GLIDE" ));
 }
 

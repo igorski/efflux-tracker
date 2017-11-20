@@ -132,11 +132,12 @@ function compress( string ) {
     catch ( e ) {
         return string;
     }
-
+    /*
     console.log(
         "Compressed " + string.length + " to " + compressedString.length + " (" +
         (( compressedString.length / string.length ) * 100 ).toFixed( 2 ) + "% of original size)"
     );
+    */
     return compressedString;
 }
 

@@ -162,21 +162,53 @@ const EventUtil = module.exports =
     },
 
     /**
+     * Brute force way to remove an event from a song
+     *
+     * @public
+     * @param {SONG} song
+     * @param {AUDIO_EVENT} event
+     * @param {Array.<LinkedList>} lists
+     */
+    clearEventByReference( song, event, lists )
+    {
+        let found = false;
+        song.patterns.forEach(( pattern, patternIndex ) => {
+            pattern.channels.forEach(( channel, channelIndex ) => {
+
+                if ( found )
+                    return;
+
+                channel.forEach(( compareEvent, eventIndex ) => {
+                    if ( compareEvent === event ) {
+                        EventUtil.clearEvent( song, patternIndex, channelIndex, eventIndex, lists[ channelIndex ]);
+                        found = true;
+                    }
+                });
+            });
+        });
+    },
+
+    /**
      * retrieve the first AudioEvent available before
      * given step in given channel event list
      *
      * @public
      * @param {Array.<AUDIO_EVENT>} channelEvents
      * @param {number} step
+     * @param {Function=} optCompareFn optional function to use
+     *                    to filter events by
      * @return {AUDIO_EVENT|null}
      */
-    getFirstEventBeforeStep( channelEvents, step )
+    getFirstEventBeforeStep( channelEvents, step, optCompareFn )
     {
         let previousEvent;
         for ( let i = step - 1; i >= 0; --i ) {
             previousEvent = channelEvents[ i ];
-            if ( previousEvent )
-                return previousEvent;
+            if ( previousEvent ) {
+                if ( typeof optCompareFn !== "function" || optCompareFn( previousEvent )) {
+                    return previousEvent;
+                }
+            }
         }
         return null;
     },
@@ -191,21 +223,21 @@ const EventUtil = module.exports =
      * @param {number} channelIndex
      * @param {number} eventIndex
      * @param {Array.<LinkedList>} lists
-     * @return {boolean} whether a glide has been created
+     * @return {Array.<AUDIO_EVENT>|null} created audio events
      */
     glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists ) {
-        const list = lists[ channelIndex ];
-        const firstPattern = song.patterns[ patternIndex ];
+        const list               = lists[ channelIndex ];
+        const firstPattern       = song.patterns[ patternIndex ];
         const firstPatternEvents = firstPattern.channels[ channelIndex ];
-        const firstEvent = firstPatternEvents[ eventIndex ];
-        const firstParam = firstEvent.mp;
+        const firstEvent         = firstPatternEvents[ eventIndex ];
+        const firstParam         = firstEvent.mp;
 
         let secondEvent, secondParam;
         let listNode = list.getNodeByData( firstEvent );
         let compareNode;
 
         if ( !firstParam || !listNode )
-            return false;
+            return null;
 
         while ( compareNode = listNode.next ) {
 
@@ -221,14 +253,14 @@ const EventUtil = module.exports =
                 if ( secondParam.module === firstParam.module )
                     break;
                 else
-                    return false;
+                    return null;
             }
             // keep iterating through the linked list
-            listNode = secondEvent;
+            listNode = compareNode;
         }
 
         if ( !secondParam )
-            return false;
+            return null;
 
         // ensure events glide their module parameter change
 
@@ -294,7 +326,7 @@ const EventUtil = module.exports =
                 event.mp.value = firstParam.value + (( index + 1 ) * increment );
             });
         }
-        return true;
+        return events;
     }
 };
 

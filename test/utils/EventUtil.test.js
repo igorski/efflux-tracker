@@ -224,6 +224,25 @@ describe( "EventUtil", () =>
         assert.strictEqual( null,   EventUtil.getFirstEventBeforeStep( channelEvents, 0 ));
     });
 
+    it( "should be able to retrieve the first event before the given event that matches given compare function", () =>
+    {
+        const channelEvents = [];
+
+        const event1 = EventFactory.createAudioEvent();
+        const event2 = EventFactory.createAudioEvent();
+        const event3 = EventFactory.createAudioEvent();
+
+        event1.mp = { "foo": "bar" };
+
+        channelEvents.push( event1 ); // step 0
+        channelEvents.push( event2 ); // step 1
+        channelEvents.push( event3 ); // step 2
+
+        assert.strictEqual( event1, EventUtil.getFirstEventBeforeStep( channelEvents, 2, ( compareEvent ) => {
+            return compareEvent.mp && compareEvent.mp.foo === "bar";
+        }));
+    });
+
     it( "should update the sequence length of the previous event when linking a new event in the linked event list", () => {
 
         const song          = new SongModel().createSong();
