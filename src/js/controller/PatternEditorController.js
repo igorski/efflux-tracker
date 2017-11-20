@@ -23,7 +23,6 @@
 "use strict";
 
 const Pubsub    = require( "pubsub-js" );
-const Copy      = require( "../i18n/Copy" );
 const Messages  = require( "../definitions/Messages" );
 const EventUtil = require( "../utils/EventUtil" );
 const DOM       = require( "zjslib" ).DOM;
@@ -151,23 +150,7 @@ function handleModuleParamsClick( aEvent )
 
 function handleModuleGlideClick( aEvent )
 {
-    const patternIndex = efflux.EditorModel.activePattern;
-    const channelIndex = efflux.EditorModel.activeInstrument;
-    const channelEvents = efflux.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
-    const event         = EventUtil.getFirstEventBeforeStep( channelEvents, efflux.EditorModel.activeStep );
-    let success = false;
-
-    if ( event ) {
-        const eventIndex = channelEvents.indexOf( event );
-        success = EventUtil.glideModuleParams(
-            efflux.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
-        );
-    }
-
-    if ( success )
-        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
-    else
-        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_PARAM_GLIDE" ));
+    Pubsub.publish( Messages.GLIDE_PARAM_AUTOMATIONS );
 }
 
 function updateStepAmount( amount )

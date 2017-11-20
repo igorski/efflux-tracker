@@ -325,6 +325,11 @@ function handleKeyDown( aEvent )
                      }
                      break;
 
+                case 71: // G
+                    if ( hasOption )
+                        Pubsub.publishSync( Messages.GLIDE_PARAM_AUTOMATIONS );
+                    break;
+
                 case 75: // K
                     Pubsub.publishSync( Messages.ADD_OFF_AT_POSITION );
                     break;

@@ -24,6 +24,7 @@
 
 const Pubsub         = require( "pubsub-js" );
 const Config         = require( "../config/Config" );
+const Copy           = require( "../i18n/Copy" );
 const Messages       = require( "../definitions/Messages" );
 const States         = require( "../definitions/States" );
 const EventFactory   = require( "../model/factory/EventFactory" );
@@ -101,6 +102,7 @@ const PatternTrackListController = module.exports =
             Messages.ADD_OFF_AT_POSITION,
             Messages.REMOVE_NOTE_AT_POSITION,
             Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION,
+            Messages.GLIDE_PARAM_AUTOMATIONS,
             Messages.EDIT_MOD_PARAMS_FOR_STEP,
             Messages.EDIT_NOTE_FOR_STEP,
             Messages.HANDLE_KEYBOARD_MOVEMENT
@@ -190,6 +192,10 @@ function handleBroadcast( type, payload )
             removeModuleParamAutomationAtHighlightedStep();
             break;
 
+        case Messages.GLIDE_PARAM_AUTOMATIONS:
+            glideParameterAutomations();
+            break;
+
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
             editModuleParamsForStep();
             break;
@@ -226,6 +232,26 @@ function removeModuleParamAutomationAtHighlightedStep() {
             updateHandler: PatternTrackListController.update
         })
     );
+}
+
+function glideParameterAutomations() {
+    const patternIndex = efflux.EditorModel.activePattern;
+    const channelIndex = efflux.EditorModel.activeInstrument;
+    const channelEvents = efflux.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
+    const event         = EventUtil.getFirstEventBeforeStep( channelEvents, efflux.EditorModel.activeStep );
+    let success = false;
+
+    if ( event ) {
+        const eventIndex = channelEvents.indexOf( event );
+        success = EventUtil.glideModuleParams(
+            efflux.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
+        );
+    }
+
+    if ( success )
+        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+    else
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_PARAM_GLIDE" ));
 }
 
 function handleInteraction( aEvent ) {

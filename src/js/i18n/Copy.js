@@ -68,8 +68,8 @@ const EN =
     ERROR_NO_INS_NAME       : `Please enter a name for the instrument preset`,
     ERROR_INSTRUMENT_IMPORT : `Could not import instruments, file was possible not a valid ` +
                               `${Config.INSTRUMENT_FILE_EXTENSION} file, or made by an incompatible version of Efflux`,
-    ERROR_PARAM_GLIDE       : `Could not automate module parameter glide. Define at least a start and end value for a
-                               specific module`,
+    ERROR_PARAM_GLIDE       : `Could not automate module parameter glide. Define a start and end value for a
+                               specific module parameter transition within your pattern`,
     SUCCESS_TITLE           : `Operation completed`,
     MIDI_ENABLED            : `Listening to MIDI messages coming from {0}`,
     MIDI_CONNECTED          : `MIDI Connection established successfully`,

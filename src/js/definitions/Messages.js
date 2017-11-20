@@ -103,9 +103,10 @@ module.exports =
     ADD_OFF_AT_POSITION                 : "ED:10",
     REMOVE_NOTE_AT_POSITION             : "ED:11",
     REMOVE_PARAM_AUTOMATION_AT_POSITION : "ED:12",
-    SAVE_STATE                          : "ED:13", // payload is Object { undo: Function, redo: Function }
-    EDIT_MOD_PARAMS_FOR_STEP            : "ED:14",
-    EDIT_NOTE_FOR_STEP                  : "ED:15",
+    GLIDE_PARAM_AUTOMATIONS             : "ED:13",
+    SAVE_STATE                          : "ED:14", // payload is Object { undo: Function, redo: Function }
+    EDIT_MOD_PARAMS_FOR_STEP            : "ED:15",
+    EDIT_NOTE_FOR_STEP                  : "ED:16",
 
     // MIDI messages
 
