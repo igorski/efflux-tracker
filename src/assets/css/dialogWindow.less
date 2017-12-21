@@ -1,8 +1,18 @@
-#confirmWindow {
+#dialogWindow {
 
   .EditorComponent;
   .Overlay;
   .noSelect;
+
+  width: auto;
+  height: auto;
+  left: 50%;
+  top: 50%;
+  -ms-transform: translate(-50%,-50%);
+  -moz-transform:translate(-50%,-50%);
+  -webkit-transform: translate(-50%,-50%);
+  transform: translate(-50%,-50%);
+
   padding: .25em 1em;
   .boxSize;
   border-radius: 7px;
@@ -10,6 +20,8 @@
 
   h4 {
     margin: .75em 0;
+    color: @color-1;
+    font-weight: bold;
   }
 
   button {
@@ -21,27 +33,14 @@
 
 @media screen and ( max-width: @mobile-width )
 {
-  #confirmWindow {
+  #dialogWindow {
     border-radius: 0;
+    width: 100%;
+    height: 100%;
 
     button {
       display: block;
       width: 100%;
     }
-  }
-}
-
-@confirmWidth: 350px;
-@confirmHeight: 165px;
-
-@media screen and ( min-width: @confirmWidth )
-{
-  #confirmWindow {
-    top: 50%;
-    left: 50%;
-    width: @confirmWidth;
-    height: @confirmHeight;
-    margin-left: -( @confirmWidth / 2 );
-    margin-top: -( @confirmHeight / 2);
   }
 }

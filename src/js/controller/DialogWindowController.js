@@ -36,7 +36,7 @@ module.exports =
 
         // create DOM elements
 
-        effluxRef.TemplateService.renderAsElement( "confirmWindow", {
+        effluxRef.TemplateService.renderAsElement( "dialogWindow", {
 
             title: "",
             message: "",
