@@ -4,8 +4,6 @@
 
 #patternSection
 {
-  .EditorComponent;
-
   ul {
     display: inline;
 
@@ -17,6 +15,19 @@
 
   h4 {
     display: inline;
+  }
+  #patternMenu {
+    button, select {
+      margin: 0;
+      background-color: #666;
+      color: #b6b6b6;
+      border-radius: 0;
+      border: 0;
+
+      &:hover {
+        color: #fff;
+      }
+    }
   }
 }
 
@@ -269,20 +280,6 @@
 
 }
 
-/* app view */
-
-@media screen and ( min-width: 1250px )
-{
-  #patternMenu {
-    .Flex;
-
-    li {
-      flex-grow: 1;
-      border-right: 1px solid #000;
-    }
-  }
-}
-
 /* mobile view */
 
 @media screen and ( max-width: @mobile-width )
@@ -304,21 +301,6 @@
   #patternSection {
     h2 {
       display: none;
-    }
-    #patternMenu {
-      .Flex;
-
-      li {
-        flex-grow: 1;
-        border-right: 1px solid #000;
-      }
-
-      button, select {
-        width: 100%;
-        border-radius: 0;
-        border: 0;
-        margin: 0;
-      }
     }
   }
 
