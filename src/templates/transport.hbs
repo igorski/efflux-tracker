@@ -5,6 +5,7 @@
         <li id="recordBTN" class="disabled"></li>
         <li class="icon-metronome"></li>
         <li class="icon-settings"></li>
+        <li class="section-divider"><!-- x --></li>
         <li id="patternBack">
             &lt;&lt;
         </li>
@@ -17,9 +18,12 @@
             &gt;&gt;
         </li>
     </ul>
-    <div id="tempoControl" class="wrapper input range">
-        <label for="songTempo">Tempo</label>
-        <input type="range" name="tempo" id="songTempo" min="40" max="300" step="0.1" value="120">
-        <span class="value" id="songTempoDisplay">120.0 BPM</span>
-    </div>
+    <ul id="tempoControl" class="wrapper input range">
+        <li class="section-divider"><!-- x --></li>
+        <li>
+            <label for="songTempo">Tempo</label>
+            <input type="range" name="tempo" id="songTempo" min="40" max="300" step="0.1" value="120">
+            <span class="value" id="songTempoDisplay">120.0 BPM</span>
+        </li>
+    </ul>
 </div>
