@@ -35,8 +35,7 @@ module.exports =
      *        key "{0}" that optionally exists in the retrieved copy
      * @return {string}
      */
-    get( aCopyKey, aReplacement )
-    {
+    get( aCopyKey, aReplacement ) {
         const out = EN[ aCopyKey ] || "_i18n" + aCopyKey;
         return out.replace( "{0}", aReplacement || "" );
     }
@@ -54,8 +53,8 @@ const EN =
     WARNING_UNLOAD          : `Are you sure you want to leave this page ? All unsaved changes will be lost.`,
     ERROR_TITLE             : `Error`,
     CONFIRM_TITLE           : `Confirm`,
-    BUTTON_OK               : `Yes`,
-    BUTTON_CANCEL           : `No`,
+    BUTTON_OK               : `OK`,
+    BUTTON_CANCEL           : `Cancel`,
     BUTTON_FS_ACTIVATE      : `Maximize`,
     BUTTON_FS_CANCEL        : `Exit fullscreen`,
     ERROR_SONG_IMPORT       : `Could not import song, file was possibly not a valid ${Config.SONG_FILE_EXTENSION} ` +

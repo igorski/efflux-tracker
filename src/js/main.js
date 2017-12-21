@@ -31,7 +31,7 @@ const SongModel                       = require( "./model/SongModel" );
 const StateModel                      = require( "./model/StateModel" );
 const SongValidator                   = require( "./model/validators/SongValidator" );
 const AudioController                 = require( "./controller/AudioController" );
-const ConfirmController               = require( "./controller/ConfirmController" );
+const DialogWindowController               = require( "./controller/DialogWindowController" );
 const HelpController                  = require( "./controller/HelpController" );
 const InstrumentController            = require( "./controller/InstrumentController" );
 const KeyboardController              = require( "./controller/KeyboardController" );
@@ -170,7 +170,7 @@ function startApplication() {
         );
         AdvancedPatternEditorController.init( container, efflux, KeyboardController );
         HelpController.init( container.querySelector( "#helpSection" ), efflux );
-        ConfirmController.init( container, efflux );
+        DialogWindowController.init( container, efflux );
         SystemController.init();
 
         // MIDI is currently only supported in Chrome

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,37 +26,42 @@ const Messages = require( "../definitions/Messages" );
 const Copy     = require( "../i18n/Copy" );
 const Pubsub   = require( "pubsub-js" );
 
-let container, confirm, message, confirmHandler, cancelHandler;
+let container, dialog, dialogTitle, dialogMessage,
+    confirmButton, cancelButton, confirmHandler, cancelHandler;
 
-const ConfirmController = module.exports =
+module.exports =
 {
-    init( containerRef, effluxRef )
-    {
+    init( containerRef, effluxRef ) {
         container = containerRef;
 
         // create DOM elements
 
         effluxRef.TemplateService.renderAsElement( "confirmWindow", {
-            title: Copy.get( "CONFIRM_TITLE" ),
+
+            title: "",
             message: "",
             confirm: Copy.get( "BUTTON_OK" ),
-            cancel: Copy.get( "BUTTON_CANCEL" )
+            cancel:  Copy.get( "BUTTON_CANCEL" )
 
         }).then(( template ) => {
 
-            confirm = template;
-
-            message = confirm.querySelector( ".message" );
+            dialog        = template;
+            dialogTitle   = dialog.querySelector( "h4" );
+            dialogMessage = dialog.querySelector( ".message" );
 
             // add listeners to DOM
 
-            confirm.querySelector( ".confirm-button" ).addEventListener( "click", handleConfirm );
-            confirm.querySelector( ".cancel-button" ).addEventListener( "click", handleCancel );
+            confirmButton = dialog.querySelector( ".confirm-button" );
+            cancelButton  = dialog.querySelector( ".cancel-button" );
+
+            confirmButton.addEventListener( "click", handleConfirm );
+            cancelButton.addEventListener ( "click", handleCancel );
         });
 
         // subscribe to messaging system
 
         [
+            Messages.SHOW_DIALOG,
             Messages.CONFIRM,
             Messages.CLOSE_OVERLAYS
 
@@ -66,41 +71,52 @@ const ConfirmController = module.exports =
 
 /* private methods */
 
-function handleBroadcast( type, payload )
-{
-    switch ( type )
-    {
+function handleBroadcast( type, payload ) {
+    switch ( type ) {
+        case Messages.SHOW_DIALOG:
         case Messages.CONFIRM:
             Pubsub.publishSync( Messages.SHOW_BLIND );
 
-            message.innerHTML = payload.message;
-            confirmHandler    = payload.confirm;
-            cancelHandler     = payload.cancel;
+            dialogTitle.innerHTML   = payload.title || Copy.get( "CONFIRM_TITLE" );
+            dialogMessage.innerHTML = payload.message;
+            confirmHandler = payload.confirm;
+            cancelHandler  = payload.cancel;
 
-            container.appendChild( confirm );
+            if ( type === Messages.CONFIRM )
+                show( cancelButton );
+            else
+                hide( cancelButton );
+
+            container.appendChild( dialog );
             break;
 
         case Messages.CLOSE_OVERLAYS:
-            if ( confirm.parentNode )
-                container.removeChild( confirm );
+            if ( dialog.parentNode )
+                container.removeChild( dialog );
 
             Pubsub.publishSync( Messages.HIDE_BLIND );
             break;
     }
 }
 
-function handleConfirm( aEvent )
-{
+function handleConfirm( aEvent ) {
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
 
     if ( typeof confirmHandler === "function" )
         confirmHandler();
 }
 
-function handleCancel( aEvent )
-{
+function handleCancel( aEvent ) {
     Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
 
     if ( typeof cancelHandler === "function" )
         cancelHandler();
+}
+
+function show( element ) {
+    element.style.display = "inline";
+}
+
+function hide( element ) {
+    element.style.display = "none";
 }

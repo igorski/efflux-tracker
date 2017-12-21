@@ -28,17 +28,18 @@ module.exports =
 
     SHOW_ERROR                : "SYSER", // payload is a String message that will be displayed in a popup (NotificationController)
     SHOW_FEEDBACK             : "SYSFB", // payload is a String message that will be displayed in a popup (NotificationController)
+    SHOW_DIALOG               : "SYSDL", // payload is Object {{ message: string, title: string }}
+    CONFIRM                   : "SYSCF", // payload is Object {{ message: string, title: string, confirm: Function, cancel: Function }}
     SHOW_LOADER               : "SYSSL",
     HIDE_LOADER               : "SYSHL",
     SHOW_BLIND                : "SYSSB",
     HIDE_BLIND                : "SYSHB",
-    CONFIRM                   : "SYSCF", // payload is a Object {{ message: string, confirm: Function, cancel: Function }}
     WINDOW_SCROLLED           : "SYS:2",
     WINDOW_RESIZED            : "SYS:3",
 
     // UI messages
 
-    DISPLAY_HELP                 : "UI:0",
+    DISPLAY_HELP                 : "UI:0", // payload is string name matching Handlebars template to show in help container
     CLOSE_OVERLAYS               : "UI:1", // payload consists of optional ViewController (references controller of overlay that should remain unclosed)
     OVERLAY_OPENED               : "UI:2",
     TOGGLE_INSTRUMENT_EDITOR     : "UI:3", // payload consists of number describing selected instrument index
