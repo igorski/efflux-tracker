@@ -2,8 +2,23 @@
 @indicesWidth: 30px;
 @fullPatternListWidth: (( 8 * @patternWidth ) + @indicesWidth );
 
+#metaSection, #patternSection {
+  display: inline-block;
+}
+
 #patternSection
 {
+  margin: 0 0 0 10px;
+
+  // show divider before section content
+  &:before {
+    content: "";
+    position: absolute;
+    border-left: 1px solid #666;
+    margin-top: -10px;
+    height: 100%;
+  }
+
   ul {
     display: inline;
 
@@ -36,7 +51,7 @@
   background-color: #000;
   vertical-align: top;
   position: relative;
-  min-width: 54px;
+  min-width: 40px;
 
   .controls {
 
@@ -44,9 +59,8 @@
 
       width: 40px;
       height: 40px;
-      margin: .5em;
-      border-radius: 50%;
-      background-color: #FFF;
+      margin: 0 0 1px;
+      background-color: #b6b6b6;
       background-repeat: no-repeat;
       background-position: 50%;
       background-size: 50%;
@@ -308,7 +322,7 @@
 
    .settings-mode {
      #metaSection, #patternSection {
-       display: block;
+       display: inline;
      }
      #editor {
        top: 290px !important;
