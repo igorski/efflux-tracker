@@ -27,10 +27,10 @@ const Messages      = require( "../definitions/Messages" );
 const Pubsub        = require( "pubsub-js" );
 const Bowser        = require( "bowser" );
 
-let efflux, editorModel, selectionModel, wrapper, patternContainer,
-    pContainers, pContainerSteps, slotHighlight;
+let efflux, editorModel, selectionModel, settingsModel, wrapper, container,
+    pContainers, pContainerSteps, stepHighlight, slotHighlight;
 
-let stepAmount = 0, rafPending = false;
+let stepAmount = 0, rafPending = false, containerWidth = 0, containerHeight = 0;
 
 const SLOT_WIDTH  = 150;
 const SLOT_HEIGHT = 32;
@@ -39,14 +39,18 @@ const self = module.exports = {
 
     init( effluxRef, containerRef, wrapperRef ) {
 
-        efflux           = effluxRef;
-        wrapper          = wrapperRef;
-        editorModel      = efflux.EditorModel;
-        selectionModel   = efflux.SelectionModel;
-        patternContainer = containerRef;
+        efflux         = effluxRef;
+        wrapper        = wrapperRef;
+        editorModel    = efflux.EditorModel;
+        selectionModel = efflux.SelectionModel;
+        settingsModel  = efflux.SettingsModel;
+        container      = containerRef;
+
+        stepHighlight = containerRef.querySelector( ".highlight" );
 
         // initialize
         updateStepAmount( 16 );
+        cacheElementValues();
     },
 
     /**
@@ -61,13 +65,15 @@ const self = module.exports = {
             pattern       : pattern,
             activeChannel : editorModel.activeInstrument,
             activeStep    : editorModel.activeStep,
-            format        : efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex"
+            format        : settingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex"
 
         }).then(() => {
 
             // clear cached containers after render
-            pContainers = null;
+            pContainers     = null;
             pContainerSteps = [];
+
+            container.scrollTop = 0;
 
             if ( editorModel.activeStep !== -1 )
                 self.highlightActiveStep();
@@ -76,9 +82,11 @@ const self = module.exports = {
         // subscribe to pubsub messaging
 
         [
+            Messages.WINDOW_RESIZED,
             Messages.SONG_LOADED,
             Messages.PATTERN_STEPS_UPDATED,
-            Messages.STEP_POSITION_REACHED
+            Messages.STEP_POSITION_REACHED,
+            Messages.HIGHLIGHT_ACTIVE_STEP
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -228,29 +236,29 @@ const self = module.exports = {
      * ensure the currently active step (after a keyboard navigation)
      * is visible on screen
      */
-    focusActiveStep( container ) {
+    focusActiveStep() {
 
         const top        = container.scrollTop;
-        const left       = patternContainer.scrollLeft;
-        const bottom     = top + container.offsetHeight;
-        const right      = left + patternContainer.offsetWidth;
+        const left       = container.scrollLeft;
+        const bottom     = top + containerHeight;
+        const right      = left + containerWidth;
         const slotLeft   = editorModel.activeInstrument * SLOT_WIDTH;
         const slotRight  = ( editorModel.activeInstrument + 1 ) * SLOT_WIDTH;
         const slotTop    = editorModel.activeStep * SLOT_HEIGHT;
         const slotBottom = ( editorModel.activeStep + 1 ) * SLOT_HEIGHT;
 
         if ( slotBottom >= bottom ) {
-            container.scrollTop = slotBottom - container.offsetHeight;
+            container.scrollTop = slotBottom - containerHeight;
         }
         else if ( slotTop < top ) {
             container.scrollTop = slotTop;
         }
 
         if ( slotRight >= right ) {
-            patternContainer.scrollLeft = ( slotRight - patternContainer.offsetWidth ) + SLOT_WIDTH;
+            container.scrollLeft = ( slotRight - containerWidth ) + SLOT_WIDTH;
         }
         else if ( slotLeft < left ) {
-            patternContainer.scrollLeft = slotLeft;
+            container.scrollLeft = slotLeft;
         }
     }
 };
@@ -259,13 +267,21 @@ const self = module.exports = {
 
 function handleBroadcast( type, payload ) {
     switch ( type ) {
+        case Messages.WINDOW_RESIZED:
+            cacheElementValues();
+            break;
+
         case Messages.SONG_LOADED:
-            updateStepAmount( efflux.EditorModel.amountOfSteps );
+            updateStepAmount( editorModel.amountOfSteps );
             break;
 
         case Messages.PATTERN_STEPS_UPDATED:
             updateStepAmount( payload );
             break;
+
+        case Messages.HIGHLIGHT_ACTIVE_STEP:
+           handleStep( payload );
+           break;
 
         case Messages.STEP_POSITION_REACHED:
             if ( rafPending )
@@ -284,10 +300,31 @@ function handleBroadcast( type, payload ) {
                 if ( step % diff !== 0 )
                     return;
 
-                Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff ));
+                handleStep( step / diff );
             });
             break;
     }
+}
+
+// cache container Rectangle on startup and window resize
+// this avoids DOM thrashing when performing scroll calculations
+
+function cacheElementValues() {
+    containerWidth  = container.offsetWidth;
+    containerHeight = container.offsetHeight;
+}
+
+function handleStep( step ) {
+    if ( typeof step === "number" ) {
+        const stepY = step * SLOT_HEIGHT;
+
+        stepHighlight.style.top = `${stepY}px`;
+
+        const followPlayback = ( settingsModel.getSetting( SettingsModel.PROPERTIES.FOLLOW_PLAYBACK ) === "on" );
+        if ( followPlayback && stepY > containerHeight )
+            container.scrollTop = ( stepY + SLOT_HEIGHT ) - containerHeight;
+    }
+    self.highlightActiveStep();
 }
 
 function selectSlotWithinClickedStep( aEvent ) {
@@ -299,15 +336,15 @@ function selectSlotWithinClickedStep( aEvent ) {
     let slot = 0;
 
     if ( el && el.startContainer ) {
-        let container = el.startContainer;
-        if ( !( container instanceof Element && container.parentElement instanceof Element ))
-            container = container.parentElement;
+        let startContainer = el.startContainer;
+        if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element ))
+            startContainer = startContainer.parentElement;
 
-        if ( container.classList.contains( "moduleValue" ))
+        if ( startContainer.classList.contains( "moduleValue" ))
             slot = 3;
-        else if ( container.classList.contains( "moduleParam" ))
+        else if ( startContainer.classList.contains( "moduleParam" ))
             slot = 2;
-        else if ( container.classList.contains( "instrument" ))
+        else if ( startContainer.classList.contains( "instrument" ))
             slot = 1;
     }
     editorModel.activeSlot = slot;

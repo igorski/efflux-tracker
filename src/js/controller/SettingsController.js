@@ -32,7 +32,7 @@ const zMIDILib      = require( "zmidi" ),
 
 /* private properties */
 
-let efflux, container, paramFormat, deviceSelect;
+let efflux, container, paramFormat, trackFollowSelect, deviceSelect;
 
 const SettingsController = module.exports =
 {
@@ -50,8 +50,8 @@ const SettingsController = module.exports =
 
             // grab reference to DOM elements
 
-            paramFormat = container.querySelector( "#parameterInputFormat" );
-            paramFormat.addEventListener( "change", handleParameterInputFormatChange );
+            paramFormat       = container.querySelector( "#parameterInputFormat" );
+            trackFollowSelect = container.querySelector( "#trackFollow" );
 
             if ( zMIDI.isSupported() )  {
                 container.querySelector( "#midiSetup" ).classList.add( "enabled" );
@@ -62,6 +62,8 @@ const SettingsController = module.exports =
 
             // add event listeners
 
+            paramFormat.addEventListener      ( "change", handleParameterInputFormatChange );
+            trackFollowSelect.addEventListener( "change", handleTrackFollowChange );
             container.querySelector( ".close-button" ).addEventListener( "click", handleClose );
         });
 
@@ -103,9 +105,13 @@ function handleOpen()
 
     // load settings from the model
 
-    const setting = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT );
+    let setting = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT );
     if ( setting !== null )
         Form.setSelectedOption( paramFormat, setting );
+
+    setting = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.FOLLOW_PLAYBACK );
+    if ( setting !== null )
+        Form.setSelectedOption( trackFollowSelect, setting );
 }
 
 function handleClose()
@@ -120,6 +126,13 @@ function handleParameterInputFormatChange( aEvent )
         SettingsModel.PROPERTIES.INPUT_FORMAT, Form.getSelectedOption( paramFormat )
     );
     Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+}
+
+function handleTrackFollowChange( aEvent )
+{
+    efflux.SettingsModel.saveSetting(
+        SettingsModel.PROPERTIES.FOLLOW_PLAYBACK, Form.getSelectedOption( trackFollowSelect )
+    );
 }
 
 function handleMIDIConnect( aEvent )

@@ -46,7 +46,8 @@ function SettingsModel()
  * @enum {string}
  */
 SettingsModel.PROPERTIES = {
-    INPUT_FORMAT : "if"
+    INPUT_FORMAT    : "if",
+    FOLLOW_PLAYBACK : "fp"
 };
 
 /* public methods */

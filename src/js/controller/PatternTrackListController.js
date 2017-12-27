@@ -34,7 +34,7 @@ const View           = require( "../view/PatternTrackListView" );
 
 /* private properties */
 
-let wrapper, container, efflux, editorModel, selectionModel, keyboardController, stepHighlight;
+let wrapper, container, efflux, editorModel, selectionModel, keyboardController;
 let interactionData = {};
 
 const PatternTrackListController = module.exports =
@@ -52,9 +52,8 @@ const PatternTrackListController = module.exports =
         editorModel        = efflux.EditorModel;
         keyboardController = keyboardControllerRef;
 
-        container     = containerRef;
-        wrapper       = containerRef.querySelector( ".wrapper" );
-        stepHighlight = containerRef.querySelector( ".highlight" );
+        container = containerRef;
+        wrapper   = containerRef.querySelector( ".wrapper" );
 
         View.init( effluxRef, containerRef, wrapper );
         selectionModel = efflux.SelectionModel;
@@ -75,7 +74,6 @@ const PatternTrackListController = module.exports =
             Messages.REFRESH_SONG,
             Messages.REFRESH_PATTERN_VIEW,
             Messages.PATTERN_SWITCH,
-            Messages.HIGHLIGHT_ACTIVE_STEP,
             Messages.EDIT_NOTE_AT_POSITION,
             Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
@@ -138,13 +136,6 @@ function handleBroadcast( type, payload )
             PatternTrackListController.update();
             break;
 
-        case Messages.HIGHLIGHT_ACTIVE_STEP:
-            if ( typeof payload === "number" )
-                stepHighlight.style.top = ( payload * 32 ) + "px";
-
-            View.highlightActiveStep();
-            break;
-
         case Messages.REFRESH_PATTERN_VIEW:
             PatternTrackListController.update();
             break;
@@ -179,7 +170,7 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.HANDLE_KEYBOARD_MOVEMENT:
-            View.focusActiveStep( container );
+            View.focusActiveStep();
             break;
     }
 }
