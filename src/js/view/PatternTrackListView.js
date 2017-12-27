@@ -30,18 +30,23 @@ const Bowser        = require( "bowser" );
 let efflux, editorModel, selectionModel, wrapper, patternContainer,
     pContainers, pContainerSteps, slotHighlight;
 
+let stepAmount = 0, rafPending = false;
+
 const SLOT_WIDTH  = 150;
 const SLOT_HEIGHT = 32;
 
 const self = module.exports = {
 
-    init( effluxRef, wrapperRef ) {
+    init( effluxRef, containerRef, wrapperRef ) {
 
         efflux           = effluxRef;
         wrapper          = wrapperRef;
         editorModel      = efflux.EditorModel;
         selectionModel   = efflux.SelectionModel;
-        patternContainer = document.querySelector( "#patternContainer" );
+        patternContainer = containerRef;
+
+        // initialize
+        updateStepAmount( 16 );
     },
 
     /**
@@ -67,6 +72,15 @@ const self = module.exports = {
             if ( editorModel.activeStep !== -1 )
                 self.highlightActiveStep();
         });
+
+        // subscribe to pubsub messaging
+
+        [
+            Messages.SONG_LOADED,
+            Messages.PATTERN_STEPS_UPDATED,
+            Messages.STEP_POSITION_REACHED
+
+        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /**
@@ -243,6 +257,39 @@ const self = module.exports = {
 
 /* internal methods */
 
+function handleBroadcast( type, payload ) {
+    switch ( type ) {
+        case Messages.SONG_LOADED:
+            updateStepAmount( efflux.EditorModel.amountOfSteps );
+            break;
+
+        case Messages.PATTERN_STEPS_UPDATED:
+            updateStepAmount( payload );
+            break;
+
+        case Messages.STEP_POSITION_REACHED:
+            if ( rafPending )
+                return;
+
+            rafPending = true;
+
+            requestAnimationFrame(() =>
+            {
+                rafPending = false;
+
+                const step  = payload[ 0 ],
+                      total = payload[ 1 ],
+                      diff  = total / stepAmount;
+
+                if ( step % diff !== 0 )
+                    return;
+
+                Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff ));
+            });
+            break;
+    }
+}
+
 function selectSlotWithinClickedStep( aEvent ) {
     // only when supported, and even then not on Safari... =/
     if ( !( "caretRangeFromPoint" in document ) || Bowser.safari )
@@ -265,6 +312,10 @@ function selectSlotWithinClickedStep( aEvent ) {
     }
     editorModel.activeSlot = slot;
     Pubsub.publish( Messages.HIGHLIGHTED_SLOT_CHANGED );
+}
+
+function updateStepAmount( amount ) {
+    stepAmount = amount;
 }
 
 /**

@@ -1,15 +1,12 @@
-#properties
+#songEditor
 {
-  .EditorComponent;
-  padding: 8px 0;
-
-  #metaEditor, #patternEditor {
-    display: inline;
-  }
+  display: inline-block;
 }
 
 #metaEditor
 {
+  display: inline;
+
   input {
     border-radius: 0;
     width: 100px;
@@ -18,12 +15,15 @@
   }
 }
 
-/* mobile view */
+/* phone view */
 
-@media screen and ( max-width: @mobile-width ) {
-  #metaEditor {
+@media screen and ( max-width: @mobile-width )
+{
+  #songEditor {
     display: none; // only visible when settings mode is active
+  }
 
+  #metaEditor {
     h2 {
       display: none;
     }
@@ -33,9 +33,5 @@
       .boxSize;
       width: 100%;
     }
-  }
-
-  #properties {
-    margin: 95px auto 0;
   }
 }

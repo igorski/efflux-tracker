@@ -47,7 +47,8 @@ Application actors
 
 Efflux is written without using any of the large selection of JS frameworks. Instead, it follows _design patterns_.
 Each part of the application is self-contained. State changes are communicated using the _publish / subscribe_
-mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_).
+mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_). As such, each part of
+the application is a separate component only interested in the messages that can alter its state.
 
 A quick summary:
 

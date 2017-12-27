@@ -34,7 +34,7 @@ const Fullscreen = require( "../ui/Fullscreen" );
 
 /* private properties */
 
-let header, menu, toggle, fsToggle, efflux, songController;
+let header, menu, toggle, efflux, songController;
 let menuOpened = false; // whether menu is opened (mobile hamburger menu)
 
 const MenuController = module.exports =

@@ -63,7 +63,7 @@ const PatternTrackListController = module.exports =
         stepSelect    = document.querySelector( "#patternSteps"  );
         stepHighlight = containerRef.querySelector( ".highlight" );
 
-        View.init( effluxRef, wrapper );
+        View.init( effluxRef, containerRef, wrapper );
         selectionModel = efflux.SelectionModel;
 
         PatternTrackListController.update(); // sync view with model state
@@ -85,7 +85,7 @@ const PatternTrackListController = module.exports =
         stepSelect.addEventListener( "change", handlePatternStepChange );
 
         if ( Config.canHover() ) {
-                const pSection = document.querySelector( "#patternSection" );
+                const pSection = document.querySelector( "#patternEditor" );
             pSection.addEventListener( "mouseover", handleMouseOver );
         }
 

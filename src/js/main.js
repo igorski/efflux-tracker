@@ -31,17 +31,17 @@ const SongModel                       = require( "./model/SongModel" );
 const StateModel                      = require( "./model/StateModel" );
 const SongValidator                   = require( "./model/validators/SongValidator" );
 const AudioController                 = require( "./controller/AudioController" );
-const DialogWindowController               = require( "./controller/DialogWindowController" );
+const DialogWindowController          = require( "./controller/DialogWindowController" );
 const HelpController                  = require( "./controller/HelpController" );
 const InstrumentController            = require( "./controller/InstrumentController" );
 const KeyboardController              = require( "./controller/KeyboardController" );
 const MenuController                  = require( "./controller/MenuController" );
-const MetaController                  = require( "./controller/MetaController" );
+const SongEditorController            = require( "./controller/SongEditorController" );
 const MidiController                  = require( "./controller/MidiController" );
 const ModuleParamController           = require( "./controller/ModuleParamController" );
 const NoteEntryController             = require( "./controller/NoteEntryController" );
 const NotificationController          = require( "./controller/NotificationController" );
-const PatternEditorController         = require( "./controller/PatternEditorController" );
+const TrackEditorController           = require( "./controller/TrackEditorController" );
 const PatternTrackListController      = require( "./controller/PatternTrackListController" );
 const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
 const SequencerController             = require( "./controller/SequencerController" );
@@ -154,7 +154,7 @@ function startApplication() {
         SettingsController.init( efflux, document.body );
         MenuController.init( container.querySelector( "#menuSection" ), efflux );
         InstrumentController.init( container, efflux, KeyboardController );
-        MetaController.init( container.querySelector( "#metaSection" ), efflux, KeyboardController );
+        SongEditorController.init( container.querySelector( "#songEditor" ), efflux, KeyboardController );
         SequencerController.init(
             container.querySelector( "#transportSection" ),
             efflux, AudioController, KeyboardController
@@ -163,9 +163,9 @@ function startApplication() {
         NoteEntryController.init( container, efflux, KeyboardController );
         ModuleParamController.init( container, efflux, KeyboardController );
         NotificationController.init( container );
-        PatternEditorController.init( container.querySelector( "#patternEditor" ), efflux );
+        TrackEditorController.init( container.querySelector( "#trackEditor" ), efflux );
         PatternTrackListController.init(
-            container.querySelector( "#patternContainer" ),
+            container.querySelector( "#patternTrackListContainer" ),
             efflux, KeyboardController
         );
         AdvancedPatternEditorController.init( container, efflux, KeyboardController );

@@ -30,12 +30,12 @@ const DOM       = require( "zjslib" ).DOM;
 /* private properties */
 
 let container, efflux, indiceContainer, controlContainer;
-let stepAmount = 0, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
+let controlOffsetY = 0, lastWindowScrollY = 0;
 
 module.exports =
 {
     /**
-     * initialize PatternEditorController
+     * initialize TrackEditorController
      *
      * @param containerRef
      * @param effluxRef
@@ -53,20 +53,14 @@ module.exports =
         container.querySelector( ".addOff" ).addEventListener      ( "click", handleNoteOffClick );
         container.querySelector( ".removeNote" ).addEventListener  ( "click", handleNoteDeleteClick );
         container.querySelector( ".moduleParams" ).addEventListener( "click", handleModuleParamsClick );
-        container.querySelector( ".moduleGlide" ).addEventListener( "click",  handleModuleGlideClick );
+        container.querySelector( ".moduleGlide" ).addEventListener ( "click", handleModuleGlideClick );
 
         // setup messaging system
         [
             Messages.WINDOW_SCROLLED,
-            Messages.WINDOW_RESIZED,
-            Messages.PATTERN_STEPS_UPDATED,
-            Messages.STEP_POSITION_REACHED,
-            Messages.SONG_LOADED
+            Messages.WINDOW_RESIZED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-
-        // initialize
-        updateStepAmount( 16 );
     }
 };
 
@@ -95,36 +89,6 @@ function handleBroadcast( type, payload )
         case Messages.WINDOW_RESIZED:
             controlOffsetY = 0; // flush cache
             break;
-
-        case Messages.PATTERN_STEPS_UPDATED:
-            updateStepAmount( payload );
-            break;
-
-        case Messages.SONG_LOADED:
-            updateStepAmount( efflux.EditorModel.amountOfSteps );
-            break;
-
-        case Messages.STEP_POSITION_REACHED:
-
-            if ( rafPending )
-                return;
-
-            rafPending = true;
-
-            requestAnimationFrame(() =>
-            {
-                rafPending = false;
-
-                const step  = payload[ 0 ],
-                      total = payload[ 1 ],
-                      diff  = total / stepAmount;
-
-                if ( step % diff !== 0 )
-                    return;
-
-                Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff )); // PatternTrackListController...
-            });
-            break;
     }
 }
 
@@ -151,9 +115,4 @@ function handleModuleParamsClick( aEvent )
 function handleModuleGlideClick( aEvent )
 {
     Pubsub.publish( Messages.GLIDE_PARAM_AUTOMATIONS );
-}
-
-function updateStepAmount( amount )
-{
-    stepAmount = amount;
 }
