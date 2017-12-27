@@ -55,18 +55,17 @@ module.exports =
 
         // add listeners
 
-        document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
-        document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
-        document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
-        document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
-        document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
-        document.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
+        container.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
+        container.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
+        container.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
+        container.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
+        container.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
+        container.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
 
         stepSelect.addEventListener( "change", handlePatternStepChange );
 
         if ( Config.canHover() ) {
-            const pSection = document.querySelector( "#patternEditor" );
-            pSection.addEventListener( "mouseover", handleMouseOver );
+            container.addEventListener( "mouseover", handleMouseOver );
         }
 
         // subscribe to pubsub messaging
