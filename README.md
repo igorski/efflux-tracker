@@ -143,7 +143,6 @@ KNOWN BUGS
 ROADMAP
 -------
 
- * Separate PatternMenu from PatternTrackListController
  * Separate view logic from controllers (in progress)
  * Separate InstrumentController and InstrumentView into separate objects for each module (kinda bloated...)
  * Investigate whether to clean up unused views and listeners (there is no memory leakage and the additional garbage collection might even be bad)

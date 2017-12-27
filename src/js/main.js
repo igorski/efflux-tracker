@@ -41,6 +41,7 @@ const MidiController                  = require( "./controller/MidiController" )
 const ModuleParamController           = require( "./controller/ModuleParamController" );
 const NoteEntryController             = require( "./controller/NoteEntryController" );
 const NotificationController          = require( "./controller/NotificationController" );
+const PatternEditorController         = require( "./controller/PatternEditorController" );
 const TrackEditorController           = require( "./controller/TrackEditorController" );
 const PatternTrackListController      = require( "./controller/PatternTrackListController" );
 const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
@@ -164,6 +165,7 @@ function startApplication() {
         ModuleParamController.init( container, efflux, KeyboardController );
         NotificationController.init( container );
         TrackEditorController.init( container.querySelector( "#trackEditor" ), efflux );
+        PatternEditorController.init( container.querySelector( "#patternEditor" ), efflux );
         PatternTrackListController.init(
             container.querySelector( "#patternTrackListContainer" ),
             efflux, KeyboardController
