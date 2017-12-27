@@ -297,6 +297,7 @@ function addEventAtPosition( event, optData, optStoreInUndoRedo )
 
                 selectionModel.clearSelection();
                 View.highlightActiveStep();
+                View.focusActiveStep();
             }
             PatternTrackListController.update();
         }

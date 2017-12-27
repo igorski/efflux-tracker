@@ -178,16 +178,21 @@ function handlePatternStepChange( aEvent )
     {
         let transformed = new Array( newAmount ), i, j, increment;
 
+        // ensure that the Array contains non-empty values
+        for ( i = 0; i < newAmount; ++i ) {
+            transformed[ i ] = 0;
+        }
+
         if ( newAmount < oldAmount )
         {
-            // changing from 32 to 16 steps
+            // reducing resolution, e.g. changing from 32 to 16 steps
             increment = oldAmount / newAmount;
 
             for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
                 transformed[ i ] = channel[ j ];
        }
         else {
-            // changing from 16 to 32 steps
+            // increasing resolution, e.g. changing from 16 to 32 steps
             increment = newAmount / oldAmount;
 
             for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )

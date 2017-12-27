@@ -73,8 +73,6 @@ const self = module.exports = {
             pContainers     = null;
             pContainerSteps = [];
 
-            container.scrollTop = 0;
-
             if ( editorModel.activeStep !== -1 )
                 self.highlightActiveStep();
         });
@@ -321,8 +319,12 @@ function handleStep( step ) {
         stepHighlight.style.top = `${stepY}px`;
 
         const followPlayback = ( settingsModel.getSetting( SettingsModel.PROPERTIES.FOLLOW_PLAYBACK ) === "on" );
-        if ( followPlayback && stepY > containerHeight )
-            container.scrollTop = ( stepY + SLOT_HEIGHT ) - containerHeight;
+        if ( followPlayback ) {
+            if ( stepY > containerHeight )
+                container.scrollTop = ( stepY + SLOT_HEIGHT ) - containerHeight;
+            else
+                container.scrollTop = 0;
+        }
     }
     self.highlightActiveStep();
 }
