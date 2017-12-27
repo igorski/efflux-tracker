@@ -22,15 +22,17 @@
  */
 "use strict";
 
-const Pubsub    = require( "pubsub-js" );
-const Messages  = require( "../definitions/Messages" );
-const EventUtil = require( "../utils/EventUtil" );
-const DOM       = require( "zjslib" ).DOM;
+const Config         = require( "../config/Config" );
+const Pubsub         = require( "pubsub-js" );
+const Messages       = require( "../definitions/Messages" );
+const Form           = require( "../utils/Form" );
+const PatternFactory = require( "../model/factory/PatternFactory" );
+const ObjectUtil     = require( "../utils/ObjectUtil" );
+const PatternUtil    = require( "../utils/PatternUtil" );
 
 /* private properties */
 
-let container, efflux, indiceContainer, controlContainer;
-let stepAmount = 0, rafPending = false, controlOffsetY = 0, lastWindowScrollY = 0;
+let container, efflux, editorModel, selectionModel, patternCopy, stepSelect;
 
 module.exports =
 {
@@ -44,116 +46,161 @@ module.exports =
     {
         container        = containerRef;
         efflux           = effluxRef;
-        controlContainer = container.querySelector( ".controls" );
-        indiceContainer  = container.querySelector( ".indices" );
+        editorModel      = efflux.EditorModel;
+        selectionModel   = efflux.SelectionModel;
 
-        // grab references to elements
+        // grab references to view elements
 
-        container.querySelector( ".addNote" ).addEventListener     ( "click", handleNoteAddClick );
-        container.querySelector( ".addOff" ).addEventListener      ( "click", handleNoteOffClick );
-        container.querySelector( ".removeNote" ).addEventListener  ( "click", handleNoteDeleteClick );
-        container.querySelector( ".moduleParams" ).addEventListener( "click", handleModuleParamsClick );
-        container.querySelector( ".moduleGlide" ).addEventListener( "click",  handleModuleGlideClick );
+        stepSelect = container.querySelector( "#patternSteps"  );
 
-        // setup messaging system
+        // add listeners
+
+        document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
+        document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
+        document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
+        document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
+        document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
+        document.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
+
+        stepSelect.addEventListener( "change", handlePatternStepChange );
+
+        if ( Config.canHover() ) {
+            const pSection = document.querySelector( "#patternEditor" );
+            pSection.addEventListener( "mouseover", handleMouseOver );
+        }
+
+        // subscribe to pubsub messaging
+
         [
-            Messages.WINDOW_SCROLLED,
-            Messages.WINDOW_RESIZED,
-            Messages.PATTERN_STEPS_UPDATED,
-            Messages.STEP_POSITION_REACHED,
-            Messages.SONG_LOADED
+            Messages.REFRESH_SONG,
+            Messages.SONG_LOADED,
+            Messages.PATTERN_SWITCH,
+            Messages.REFRESH_PATTERN_VIEW
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-
-        // initialize
-        updateStepAmount( 16 );
     }
 };
 
+/* internal methods */
+
 function handleBroadcast( type, payload )
 {
-    switch ( type )
-    {
-        case Messages.WINDOW_SCROLLED:
-
-            // ensure the controlContainer is always visible regardless of scroll offset (for phones)
-            // threshold defines when to offset the containers top, the last number defines the fixed header height
-            const scrollY = window.scrollY;
-
-            if ( scrollY !== lastWindowScrollY ) {
-                const threshold = ( controlOffsetY = controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
-
-                if ( scrollY > threshold )
-                    container.classList.add( "fixed" );
-                else
-                    container.classList.remove( "fixed" );
-
-                lastWindowScrollY = scrollY;
-            }
-            break;
-
-        case Messages.WINDOW_RESIZED:
-            controlOffsetY = 0; // flush cache
-            break;
-
-        case Messages.PATTERN_STEPS_UPDATED:
-            updateStepAmount( payload );
-            break;
-
+    switch ( type ) {
+        case Messages.REFRESH_SONG:
         case Messages.SONG_LOADED:
-            updateStepAmount( efflux.EditorModel.amountOfSteps );
-            break;
+        case Messages.PATTERN_SWITCH:
+        case Messages.REFRESH_PATTERN_VIEW:
 
-        case Messages.STEP_POSITION_REACHED:
+            let activePattern = editorModel.activePattern;
+            if ( activePattern >= efflux.activeSong.patterns.length )
+                activePattern = efflux.activeSong.patterns.length - 1;
 
-            if ( rafPending )
-                return;
-
-            rafPending = true;
-
-            requestAnimationFrame(() =>
-            {
-                rafPending = false;
-
-                const step  = payload[ 0 ],
-                      total = payload[ 1 ],
-                      diff  = total / stepAmount;
-
-                if ( step % diff !== 0 )
-                    return;
-
-                Pubsub.publish( Messages.HIGHLIGHT_ACTIVE_STEP, ( step / diff )); // PatternTrackListController...
-            });
+            const pattern = efflux.activeSong.patterns[ activePattern ];
+            Form.setSelectedOption( stepSelect, pattern.steps );
             break;
     }
 }
 
-function handleNoteAddClick( aEvent )
+function handlePatternClear( aEvent )
 {
-    Pubsub.publish( Messages.EDIT_NOTE_AT_POSITION );
+    efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
+    selectionModel.clearSelection();
+    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+    Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
 }
 
-function handleNoteOffClick( aEvent )
+function handlePatternCopy( aEvent )
 {
-    Pubsub.publish( Messages.ADD_OFF_AT_POSITION );
+    patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
 }
 
-function handleNoteDeleteClick( aEvent )
+function handlePatternPaste( aEvent )
 {
-    Pubsub.publish( Messages.REMOVE_NOTE_AT_POSITION );
+    if ( patternCopy ) {
+        PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
+        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+        Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
+    }
 }
 
-function handleModuleParamsClick( aEvent )
+function handlePatternAdd( aEvent )
 {
-    Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );
+    const song     = efflux.activeSong,
+          patterns = song.patterns;
+
+    if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
+        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_MAX_PATTERNS", Config.MAX_PATTERN_AMOUNT ));
+        return;
+    }
+    song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, editorModel.activePattern + 1, editorModel.amountOfSteps );
+
+    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
+    Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
 }
 
-function handleModuleGlideClick( aEvent )
+function handlePatternDelete( aEvent )
 {
-    Pubsub.publish( Messages.GLIDE_PARAM_AUTOMATIONS );
+    const song     = efflux.activeSong,
+          patterns = song.patterns;
+
+    if ( patterns.length === 1 )
+    {
+        handlePatternClear( aEvent );
+    }
+    else {
+
+        song.patterns = PatternUtil.removePatternAtIndex( patterns, editorModel.activePattern );
+
+        if ( editorModel.activePattern > 0 )
+            Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
+        else
+            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+
+        Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
+    }
 }
 
-function updateStepAmount( amount )
+function handlePatternAdvanced( aEvent ) {
+    Pubsub.publish( Messages.OPEN_ADVANCED_PATTERN_EDITOR );
+}
+
+function handlePatternStepChange( aEvent )
 {
-    stepAmount = amount;
+    const song    = efflux.activeSong,
+          pattern = song.patterns[ editorModel.activePattern ];
+
+    const oldAmount = pattern.steps;
+    const newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
+
+    // update model values
+    pattern.steps = editorModel.amountOfSteps = newAmount;
+
+    pattern.channels.forEach(( channel, index ) =>
+    {
+        let transformed = new Array( newAmount ), i, j, increment;
+
+        if ( newAmount < oldAmount )
+        {
+            // changing from 32 to 16 steps
+            increment = oldAmount / newAmount;
+
+            for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
+                transformed[ i ] = channel[ j ];
+       }
+        else {
+            // changing from 16 to 32 steps
+            increment = newAmount / oldAmount;
+
+            for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
+                transformed[ j ] = channel[ i ];
+        }
+        pattern.channels[ index ] = transformed;
+    });
+
+    Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newAmount );
+    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
+}
+
+function handleMouseOver( aEvent ) {
+    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
 }

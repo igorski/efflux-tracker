@@ -1,0 +1,27 @@
+// style for mobile specific adaptive behaviour (responsive behaviour
+// is part of each other .less file)
+
+// PHONE specific
+
+@media screen and ( max-width: @mobile-width ) {
+
+  #properties {
+    margin: 95px auto 0;
+  }
+
+  // settings mode enabled ? show all previously hidden stuff
+
+  .settings-mode {
+    #transportControls {
+      #tempoControl {
+        display: inline;
+      }
+    }
+    #songEditor, #patternEditor {
+      display: block;
+    }
+    #editor {
+      top: 220px !important;
+    }
+  }
+}

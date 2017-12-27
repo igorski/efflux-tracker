@@ -23,25 +23,19 @@
 "use strict";
 
 const Pubsub         = require( "pubsub-js" );
-const Config         = require( "../config/Config" );
 const Copy           = require( "../i18n/Copy" );
 const Messages       = require( "../definitions/Messages" );
 const States         = require( "../definitions/States" );
 const EventFactory   = require( "../model/factory/EventFactory" );
-const PatternFactory = require( "../model/factory/PatternFactory" );
 const StateFactory   = require( "../model/factory/StateFactory" );
-const Form           = require( "../utils/Form" );
 const ListenerUtil   = require( "../utils/ListenerUtil" );
 const EventUtil      = require( "../utils/EventUtil" );
-const ObjectUtil     = require( "../utils/ObjectUtil" );
-const PatternUtil    = require( "../utils/PatternUtil" );
 const View           = require( "../view/PatternTrackListView" );
 
 /* private properties */
 
-let wrapper, container, efflux, editorModel, keyboardController, stepHighlight;
-let interactionData = {},
-    selectionModel, patternCopy, stepSelect;
+let wrapper, container, efflux, editorModel, selectionModel, keyboardController, stepHighlight;
+let interactionData = {};
 
 const PatternTrackListController = module.exports =
 {
@@ -60,10 +54,9 @@ const PatternTrackListController = module.exports =
 
         container     = containerRef;
         wrapper       = containerRef.querySelector( ".wrapper" );
-        stepSelect    = document.querySelector( "#patternSteps"  );
         stepHighlight = containerRef.querySelector( ".highlight" );
 
-        View.init( effluxRef, wrapper );
+        View.init( effluxRef, containerRef, wrapper );
         selectionModel = efflux.SelectionModel;
 
         PatternTrackListController.update(); // sync view with model state
@@ -74,20 +67,6 @@ const PatternTrackListController = module.exports =
         wrapper.addEventListener( "dblclick",   handleInteraction );
         ListenerUtil.listen( wrapper, "touchstart", handleInteraction );
         ListenerUtil.listen( wrapper, "touchend",   handleInteraction );
-
-        document.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
-        document.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
-        document.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
-        document.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
-        document.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
-        document.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
-
-        stepSelect.addEventListener( "change", handlePatternStepChange );
-
-        if ( Config.canHover() ) {
-            const pSection = document.querySelector( "#patternSection" );
-            pSection.addEventListener( "mouseover", handleMouseOver );
-        }
 
         // subscribe to pubsub messaging
 
@@ -123,7 +102,6 @@ const PatternTrackListController = module.exports =
 
         View.render( pattern );
 
-        Form.setSelectedOption( stepSelect, pattern.steps );
         container.scrollLeft = coordinates.x;
         container.scrollTop  = coordinates.y;
     },
@@ -301,111 +279,6 @@ function addOffEvent()
     const offEvent = EventFactory.createAudioEvent();
     offEvent.action = 2; // noteOff;
     addEventAtPosition( offEvent );
-}
-
-function handlePatternClear( aEvent )
-{
-    efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
-    selectionModel.clearSelection();
-    PatternTrackListController.update();
-    Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
-}
-
-function handlePatternCopy( aEvent )
-{
-    patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
-}
-
-function handlePatternPaste( aEvent )
-{
-    if ( patternCopy ) {
-        PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
-        PatternTrackListController.update();
-        Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
-    }
-}
-
-function handlePatternAdd( aEvent )
-{
-    const song     = efflux.activeSong,
-          patterns = song.patterns;
-
-    if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_MAX_PATTERNS", Config.MAX_PATTERN_AMOUNT ));
-        return;
-    }
-    song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, editorModel.activePattern + 1, editorModel.amountOfSteps );
-
-    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-    Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
-}
-
-function handlePatternDelete( aEvent )
-{
-    const song     = efflux.activeSong,
-          patterns = song.patterns;
-
-    if ( patterns.length === 1 )
-    {
-        handlePatternClear( aEvent );
-    }
-    else {
-
-        song.patterns = PatternUtil.removePatternAtIndex( patterns, editorModel.activePattern );
-
-        if ( editorModel.activePattern > 0 )
-            Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
-        else
-            PatternTrackListController.update();
-
-        Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-    }
-}
-
-function handlePatternAdvanced( aEvent ) {
-    Pubsub.publish( Messages.OPEN_ADVANCED_PATTERN_EDITOR );
-}
-
-function handlePatternStepChange( aEvent )
-{
-    const song    = efflux.activeSong,
-          pattern = song.patterns[ editorModel.activePattern ];
-
-    const oldAmount = pattern.steps;
-    const newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
-
-    // update model values
-    pattern.steps = editorModel.amountOfSteps = newAmount;
-
-    pattern.channels.forEach(( channel, index ) =>
-    {
-        let transformed = new Array( newAmount ), i, j, increment;
-
-        if ( newAmount < oldAmount )
-        {
-            // changing from 32 to 16 steps
-            increment = oldAmount / newAmount;
-
-            for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
-                transformed[ i ] = channel[ j ];
-       }
-        else {
-            // changing from 16 to 32 steps
-            increment = newAmount / oldAmount;
-
-            for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
-                transformed[ j ] = channel[ i ];
-        }
-        pattern.channels[ index ] = transformed;
-    });
-
-    Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newAmount );
-    PatternTrackListController.update(); // sync with model
-}
-
-function handleMouseOver( aEvent )
-{
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
 }
 
 /**

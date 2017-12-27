@@ -1,3 +1,7 @@
+// style for the application header
+// the header holds the menu and the sequencer transport controls
+// as we want these elements to be docked at the top at all times
+
 @menu-height: 46px;
 @toggle-width: 50px;
 
@@ -130,6 +134,7 @@
 
       ul {
         display: block;
+        z-index: 2;
       }
     }
 
@@ -190,6 +195,7 @@
 
   #menu {
     position: fixed;
+    z-index: 2; // above transport controls
     overflow-x: hidden;
     overflow-y: scroll;
     width: 100%;
@@ -255,5 +261,12 @@
         height: 100%;
       }
     }
+  }
+
+  #transportControls {
+    position: fixed;
+    top: @menu-height;
+    width: 100%;
+    z-index: 1; // below menu
   }
 }

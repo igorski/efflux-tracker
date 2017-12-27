@@ -1,3 +1,5 @@
+// generated font for all transporter icons
+
 @font-face {
   font-family: 'transporter';
   src: url('../fonts/transporter.eot');
@@ -9,89 +11,100 @@
   font-style: normal;
 }
 
+@transport-height: 42px; // height + border bottom
+
 #transportControls
 {
   .EditorComponent;
   font-family: Montserrat, Helvetica, Verdana, sans-serif;
+  margin-bottom: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
 
   ul {
     list-style-type: none;
-    display: inline;
-  }
 
-  li {
-    display: inline;
-    padding: .5em 0 .5em .5em;
-    font-weight: bold;
-    cursor: pointer;
+    li {
+      display: inline;
+      padding: .5em 0 .5em .5em;
+      font-weight: bold;
+      cursor: pointer;
 
-    // loop button
-    &#loopBTN {
-      padding-left: 0;
-    }
-
-    // record button
-    &#recordBTN {
-      background-color: #d00e57;
-      padding: 0 .65em;
-      border-radius: 50%;
-      margin-left: .75em;
-
-      &.active {
-        background-color: #FFF;
+      // loop button
+      &#loopBTN {
+        padding-left: 0;
       }
 
-      &.disabled {
-        display: none;
+      // record button
+      &#recordBTN {
+        background-color: #d00e57;
+        padding: 0 .65em;
+        border-radius: 50%;
+        margin-left: .75em;
+
+        &.active {
+          background-color: #FFF;
+        }
+
+        &.disabled {
+          display: none;
+        }
       }
-    }
 
-    // measure indicator
-    &#currentPattern {
-      display: inline-flex;
-      width: 95px;
-      color: #FFF;
-
-      span {
-        flex-grow: 1;
-        margin-top: 2px;
-      }
-
-      .current {
-        width: 28px; // fits "333"
-        height: 15px;
-        border: 1px solid #b7babe;
-        font-weight: bold;
-        margin-right: .5em;
+      // measure indicator
+      &#currentPattern {
+        display: inline-flex;
+        width: 95px;
         color: #FFF;
-        background-color: transparent;
-        text-align: center;
+
+        span {
+          flex-grow: 1;
+          margin-top: 2px;
+        }
+
+        .current {
+          width: 28px; // fits "333"
+          height: 15px;
+          border: 1px solid #999;
+          font-weight: bold;
+          margin-right: .5em;
+          color: #FFF;
+          background-color: transparent;
+          text-align: center;
+        }
+
+        .total {
+          background-color: #333;
+          text-align: center;
+          padding: 0 .5em;
+        }
       }
-    }
 
-    // pattern jump buttons
-    &#patternNext {
-      padding-left: 0;
-    }
-
-    &.icon-metronome {
-      padding: 0 0 0 .5em;
-
-      &.active {
-        color: #FFF;
+      // pattern jump buttons
+      &#patternNext {
+        padding-left: 0;
       }
-    }
 
-    &.icon-settings {
-      display: none; // mobile only (see below)
-    }
+      &.icon-metronome {
+        padding: 0 0 0 .5em;
 
-    &.icon-settings {
-      padding: 0 .25em;
-    }
+        &.active {
+          color: #FFF;
+        }
+      }
 
-    &.enabled {
-      color: red;
+      &.icon-settings {
+        display: none; // mobile only (see below)
+      }
+
+      &.icon-settings {
+        padding: 0 .25em;
+      }
+
+      &.enabled {
+        color: red;
+      }
     }
   }
 
@@ -116,8 +129,7 @@
       display: inline-block;
       font-weight: bold;
       font-style: italic;
-      font-size: 110%;
-      vertical-align: middle;
+      font-size: 90%;
     }
   }
 
@@ -171,6 +183,28 @@
   }
 }
 
+/* everything above ideal app size */
+
+@media screen and ( min-width: @app-width )
+{
+  #transportControls
+  {
+    // divides sections of the list
+
+    .section-divider {
+      padding: 0 .5em;
+
+      &:before {
+        position: absolute;
+        z-index: 1;
+        content: "";
+        border-left: 1px solid #666;
+        height: @transport-height;
+      }
+    }
+  }
+}
+
 /* mobile view */
 
 @media screen and ( max-width: @mobile-width )
@@ -188,18 +222,8 @@
     #tempoControl {
       display: none;
     }
-    li.icon-settings {
+    ul li.icon-settings {
       display: inline;
-    }
-  }
-
-  // settings mode enabled ? show all hidden stuff
-
-  .settings-mode {
-    #transportControls {
-      #tempoControl {
-        display: inline;
-      }
     }
   }
 }

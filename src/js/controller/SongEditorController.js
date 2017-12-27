@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,10 +32,10 @@ const Pubsub   = require( "pubsub-js" );
 let container, efflux, keyboardController, editorModel;
 let title, author, instrumentEditBtn;
 
-const MetaController = module.exports =
+const SongEditorController = module.exports =
 {
     /**
-     * initialize MetaController, attach MetaView template into give container
+     * initialize SongEditorController, attach MetaView template into give container
      *
      * @param containerRef
      * @param effluxRef
@@ -48,7 +48,7 @@ const MetaController = module.exports =
         editorModel        = efflux.EditorModel;
         keyboardController = keyboardControllerRef;
 
-        efflux.TemplateService.render( "metaView", container, null, true ).then(() => {
+        efflux.TemplateService.render( "songEditorView", container, null, true ).then(() => {
 
             // cache view elements
 
@@ -58,7 +58,7 @@ const MetaController = module.exports =
 
             // synchronize with model
 
-            MetaController.update();
+            SongEditorController.update();
 
             // add listeners
 
@@ -98,7 +98,7 @@ function handleBroadcast( type, payload )
     switch( type )
     {
         case Messages.SONG_LOADED:
-            MetaController.update();
+            SongEditorController.update();
             break;
     }
 }

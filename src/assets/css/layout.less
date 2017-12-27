@@ -49,13 +49,14 @@ ul {
 }
 
 #properties {
-  margin: 55px auto 0; /* menu height + padding */
-  height: 157px;
+  .EditorComponent;
+  padding: 8px 0;
+  margin: 80px auto 0; /* offset top margin by menu height */
 }
 
 #editor {
   position: absolute;
-  top: 214px; /* menu + meta + props + pattern editor */
+  top: 134px; /* menu + song meta */
   bottom: @footer-height;
   overflow: hidden;
 }
@@ -67,13 +68,15 @@ ul {
 @import url( "help.less" );
 @import url( "instrumentEditor.less" );
 @import url( "loader.less" );
-@import url( "menu.less" );
-@import url( "meta.less" );
+@import url( "header.less" );
+@import url( "songEditor.less" );
 @import url( "dialogWindow.less" );
 @import url( "noteEntry.less" );
 @import url( "notifications.less" );
 @import url( "moduleParamEntry.less" );
+@import url( "trackEditor.less" );
 @import url( "patternEditor.less" );
+@import url( "patternTrackList.less" );
 @import url( "advancedPatternEditor.less" );
 @import url( "scrollbars.less" );
 @import url( "settings.less" );
@@ -81,3 +84,4 @@ ul {
 @import url( "transport.less" );
 @import url( "footer.less" );
 @import url( "grid.less" );
+@import url( "mobile.less" );

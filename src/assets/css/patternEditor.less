@@ -1,10 +1,14 @@
-@patternWidth: 150px;
-@indicesWidth: 30px;
-@fullPatternListWidth: (( 8 * @patternWidth ) + @indicesWidth );
+#patternEditor {
+  display: inline-block;
+}
 
-#patternSection
+#patternEditor
 {
-  .EditorComponent;
+  margin: 0 0 0 10px;
+
+  h4 {
+    display: inline;
+  }
 
   ul {
     display: inline;
@@ -13,323 +17,68 @@
       display: inline;
       cursor: pointer;
     }
-  }
 
-  h4 {
-    display: inline;
-  }
-}
-
-#patternEditor
-{
-  background-color: #000;
-  vertical-align: top;
-  position: relative;
-  min-width: 54px;
-
-  .controls {
-
-    li {
-
-      width: 40px;
-      height: 40px;
-      margin: .5em;
-      border-radius: 50%;
-      background-color: #FFF;
-      background-repeat: no-repeat;
-      background-position: 50%;
-      background-size: 50%;
-      cursor: pointer;
-
-      &.addNote {
-        background-image: url('../images/icon-note-add.png');
-      }
-      &.addOff {
-        background-image: url('../images/icon-note-mute.png');
-      }
-      &.removeNote {
-        background-image: url('../images/icon-note-delete.png');
-      }
-      &.moduleParams {
-        background-image: url('../images/icon-module-params.png');
-      }
-      &.moduleGlide {
-        background-image: url('../images/icon-module-glide.png');
-      }
+    button, select {
+      margin: 0;
+      background-color: #666;
+      color: #b6b6b6;
+      border-radius: 0;
+      border: 0;
 
       &:hover {
-        background-color: @color-1;
+        color: #fff;
       }
-    }
-  }
-
-  &.fixed {
-    .controls {
-      position: fixed;
-      top: @menu-height;
     }
   }
 }
 
-#patternContainer
+/* tablet view */
+
+@media screen and ( min-width: @app-width )
 {
-  position: relative;
-  overflow: auto;
-  background-color: #101015;
-}
-
-#patternTrackList
-{
-  background-color: #393b40;
-
-  .wrapper {
-    width: @fullPatternListWidth;
-  }
-
-  .indices, .pattern {
-    position: relative;
-    float: left;
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-  }
-
-  .indices {
-    width: @indicesWidth;
-
-    li {
-      display: block;
-      font-family: Montserrat, Helvetica, Verdana, sans-serif;
-      font-weight: bold;
-      text-align: center;
-      border-top: 2px solid #000;
-      padding: .25em 0;
-      border-bottom: 2px solid #323234;
-      .noEvents;
-      .noSelect;
-      .boxSize;
-
-      &.active {
-        color: #FFF;
-      }
-    }
-  }
-
-  .pattern {
-    width: @patternWidth;
-    background-color: #101015;
-
+  #patternEditor {
+    // show divider before section content
     &:before {
-      position: absolute;
       content: "";
-      border-right: 1px solid #000;
+      position: absolute;
+      border-left: 1px solid #666;
+      margin-top: -10px;
       height: 100%;
-      top: 0;
-      right: 0;
     }
-
-    &:last-of-type {
-      &:before {
-        border: none;
-      }
-    }
-
-    &:nth-child(2) li .note,
-    &:nth-child(2) li .moduleValue {
-      color: #b25050;
-    }
-
-    &:nth-child(3) li .note,
-    &:nth-child(3) li .moduleValue {
-      color: #b28050;
-    }
-
-    &:nth-child(4) li .note,
-    &:nth-child(4) li .moduleValue {
-      color: #a9b250;
-    }
-
-    &:nth-child(5) li .note,
-    &:nth-child(5) li .moduleValue {
-      color: #60b250;
-    }
-
-    &:nth-child(6) li .note,
-    &:nth-child(6) li .moduleValue {
-      color: #50b292;
-    }
-
-    &:nth-child(7) li .note,
-    &:nth-child(7) li .moduleValue {
-      color: #5071b2;
-    }
-
-    &:nth-child(8) li .note,
-    &:nth-child(8) li .moduleValue {
-      color: #8850b2;
-    }
-
-    li {
-      display: block;
-      cursor: pointer;
-      border-top: 2px solid #000;
-      border-bottom: 2px solid #000;
-      font-weight: bold;
-      .boxSize;
-
-      &:nth-child(odd) {
-        background-color: #323234;
-        border-color: #323234;
-      }
-
-      &.active, &:hover {
-        border: 2px solid @color-1;
-        z-index: 10;
-      }
-
-      &.selected {
-        background-color: @color-2;
-        border-color: @color-2;
-        color: #000 !important;
-
-        span {
-          color: #000 !important;
-        }
-      }
-
-      span {
-        display: inline-block;
-        padding: .25em;
-        white-space: nowrap;
-        .boxSize;
-        .noEvents;
-
-        &.active {
-          background-color: @color-1;
-          color: #000 !important;
-        }
-
-        &.note {
-          width: 33%;
-          text-transform: uppercase;
-          text-align: right;
-          color: @color-5;
-
-          &.empty {
-            color: #b6b6b6;
-          }
-        }
-
-        &.instrument {
-          width: 10%;
-          color: #FFF;
-        }
-
-        &.moduleParam,
-        &.moduleValue {
-          width: 30%;
-          color: #999;
-          text-align: center;
-
-          &.empty {
-            color: #666;
-          }
-        }
-
-        &.moduleValue {
-          width: 19%;
-          color: @color-5;
-        }
-      }
-    }
-  }
-
-  .highlight {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: @fullPatternListWidth;
-    height: 32px;
-    background-color: rgba(255,255,255,.35);
-    mix-blend-mode: screen;
-    .noEvents;
   }
 }
 
-/* ideal view */
+/* everything above mobile view and below app width */
 
-@media screen and ( min-width: @ideal-width )
+@media screen and ( min-width: @mobile-width ) and ( max-width: @app-width )
 {
-  #patternContainer {
-    overflow-x: hidden; // no need to show scroll
-  }
-  #patternTrackList {
-    width: @fullPatternListWidth !important;
-  }
-
-}
-
-/* app view */
-
-@media screen and ( min-width: 1250px )
-{
-  #patternMenu {
-    .Flex;
-
-    li {
-      flex-grow: 1;
-      border-right: 1px solid #000;
-    }
+  #patternEditor {
+    // TODO: we're now hiding our interface from these users...
+    display: none;
   }
 }
 
-/* mobile view */
+/* phone view */
 
 @media screen and ( max-width: @mobile-width )
 {
-  #patternEditor {
-    position: fixed; /* keep pattern editor in static position */
-    left: 0;
-    height: 100%;
-    z-index: 10;
-  }
-  #patternTrackList {
-    padding-left: 50px; /* to make up for fixed position pattern editor */
-  }
-
-  #metaSection, #patternSection  {
+  #patternEditor  {
     display: none; // only visible when settings mode is active
   }
 
-  #patternSection {
+  #patternEditor {
     h2 {
       display: none;
     }
-    #patternMenu {
-      .Flex;
+    ul {
+      display: flex;
+      margin: 0;
 
       li {
+        float: left;
         flex-grow: 1;
-        border-right: 1px solid #000;
-      }
-
-      button, select {
-        width: 100%;
-        border-radius: 0;
-        border: 0;
-        margin: 0;
+        position: relative;
       }
     }
   }
-
-  // settings mode enabled ? show all hidden stuff
-
-   .settings-mode {
-     #metaSection, #patternSection {
-       display: block;
-     }
-     #editor {
-       top: 290px !important;
-     }
-   }
 }
