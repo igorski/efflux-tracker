@@ -11,6 +11,8 @@
   font-style: normal;
 }
 
+@transport-height: 42px; // height + border bottom
+
 #transportControls
 {
   .EditorComponent;
@@ -19,22 +21,6 @@
   padding: 0;
   border: none;
   border-radius: 0;
-
-  @transport-height: 42px; // height + border bottom
-
-  // divides sections of the list
-
-  .section-divider {
-    padding: 0 .5em;
-
-    &:before {
-      position: absolute;
-      z-index: 1;
-      content: "";
-      border-left: 1px solid #666;
-      height: @transport-height;
-    }
-  }
 
   ul {
     list-style-type: none;
@@ -197,6 +183,28 @@
   }
 }
 
+/* everything above ideal app size */
+
+@media screen and ( min-width: @app-width )
+{
+  #transportControls
+  {
+    // divides sections of the list
+
+    .section-divider {
+      padding: 0 .5em;
+
+      &:before {
+        position: absolute;
+        z-index: 1;
+        content: "";
+        border-left: 1px solid #666;
+        height: @transport-height;
+      }
+    }
+  }
+}
+
 /* mobile view */
 
 @media screen and ( max-width: @mobile-width )
@@ -214,18 +222,8 @@
     #tempoControl {
       display: none;
     }
-    li.icon-settings {
+    ul li.icon-settings {
       display: inline;
-    }
-  }
-
-  // settings mode enabled ? show all hidden stuff
-
-  .settings-mode {
-    #transportControls {
-      #tempoControl {
-        display: inline;
-      }
     }
   }
 }

@@ -10,38 +10,28 @@
 {
   margin: 0 0 0 10px;
 
-  // show divider before section content
-  &:before {
-    content: "";
-    position: absolute;
-    border-left: 1px solid #666;
-    margin-top: -10px;
-    height: 100%;
-  }
-
-  ul {
-    display: inline;
-
-    li {
-      display: inline;
-      cursor: pointer;
-    }
-  }
-
   h4 {
     display: inline;
   }
-  #patternMenu {
-    button, select {
-      margin: 0;
-      background-color: #666;
-      color: #b6b6b6;
-      border-radius: 0;
-      border: 0;
+}
 
-      &:hover {
-        color: #fff;
-      }
+#patternMenu {
+  display: inline;
+
+  li {
+    display: inline;
+    cursor: pointer;
+  }
+
+  button, select {
+    margin: 0;
+    background-color: #666;
+    color: #b6b6b6;
+    border-radius: 0;
+    border: 0;
+
+    &:hover {
+      color: #fff;
     }
   }
 }
@@ -291,7 +281,32 @@
   #patternTrackList {
     width: @fullPatternListWidth !important;
   }
+}
 
+/* tablet view */
+
+@media screen and ( min-width: @app-width )
+{
+  #patternSection {
+    // show divider before section content
+    &:before {
+      content: "";
+      position: absolute;
+      border-left: 1px solid #666;
+      margin-top: -10px;
+      height: 100%;
+    }
+  }
+}
+
+/* everything above mobile view and below app width */
+
+@media screen and ( min-width: @mobile-width ) and ( max-width: @app-width )
+{
+  #patternSection {
+    // TODO: we're now hiding our interface fr these users...
+    display: none;
+  }
 }
 
 /* mobile view */
@@ -318,14 +333,14 @@
     }
   }
 
-  // settings mode enabled ? show all hidden stuff
+  #patternMenu {
+    display: flex;
+    margin: 0;
 
-   .settings-mode {
-     #metaSection, #patternSection {
-       display: inline;
-     }
-     #editor {
-       top: 290px !important;
-     }
-   }
+    li {
+      float: left;
+      flex-grow: 1;
+      position: relative;
+    }
+  }
 }
