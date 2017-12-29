@@ -109,7 +109,7 @@ function addSingleEventAction( data ) {
         );
 
         // remove previous event if one existed at the insertion point
-        // (but take its module parameter automation if existed for non-off events)
+        // (but take its module parameter automation when existing for non-off events)
 
         if ( channel[ step ]) {
             if ( event.action !== 2 && !event.mp && channel[ step ].mp )
@@ -127,13 +127,22 @@ function addSingleEventAction( data ) {
             // the current patterns event channel
 
             const node = eventList[ channelIndex ].getNodeByData( event );
-            const prevEvent = ( node ) ? node.previous : null;
+            let prevNode = ( node ) ? node.previous : null;
 
-            if ( prevEvent && prevEvent.data.seq.startMeasure === event.seq.startMeasure &&
-                 prevEvent.instrument !== activeInstrument &&
-                 event.instrument     === activeInstrument ) {
+            // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
+            // keep on traversing backwards until we find a valid event
 
-                event.instrument = prevEvent.data.instrument;
+            while ( prevNode && prevNode.data.action === 2 ) {
+                prevNode = prevNode.previous;
+            }
+
+            // only do this for events within the same measure though
+
+            if ( prevNode && prevNode.data.seq.startMeasure === event.seq.startMeasure &&
+                 prevNode.instrument !== activeInstrument &&
+                 event.instrument    === activeInstrument ) {
+
+                event.instrument = prevNode.data.instrument;
             }
         }
         data.updateHandler( advanceStepOnAddition ); // syncs view with model changes
