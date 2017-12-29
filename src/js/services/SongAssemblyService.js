@@ -22,8 +22,9 @@
  */
 "use strict";
 
-const EventUtil     = require( "../utils/EventUtil" );
-const SongValidator = require( "../model/validators/SongValidator" );
+const EventUtil         = require( "../utils/EventUtil" );
+const SongValidator     = require( "../model/validators/SongValidator" );
+const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
 
 /* private properties */
 
@@ -292,14 +293,20 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 }
 
 function disassembleInstruments( xtk, instruments ) {
-
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
+
     let xtkInstrument, delay, filter, eq, od,
         xtkDelay, xtkFilter, xtkEq, xtkOD, xtkOscillator, xtkADSR, xtkPitchADSR;
 
     instruments.forEach(( instrument, index ) => {
 
         xtkInstrument = xtkInstruments[ index ] = {};
+
+        // these modules were only added in a later factory version
+        // assert they exist by calling these functions
+
+        InstrumentFactory.createOverdrive( instrument );
+        InstrumentFactory.createEQ( instrument );
 
         delay  = instrument.delay;
         filter = instrument.filter;
@@ -359,7 +366,9 @@ function disassembleInstruments( xtk, instruments ) {
             xtkADSR[ OSCILLATOR_ADSR_SUSTAIN ] = oscillator.adsr.sustain;
             xtkADSR[ OSCILLATOR_ADSR_RELEASE ] = oscillator.adsr.release;
 
-            // pitch envelope
+            // pitch envelope (added in factory version 2, assert there is a pitch envelope for backwards compatibility)
+
+            InstrumentFactory.createPitchEnvelope( oscillator );
 
             xtkPitchADSR[ OSCILLATOR_PITCH_RANGE ]  = oscillator.pitch.range;
             xtkPitchADSR[ OSCILLATOR_ADSR_ATTACK  ] = oscillator.pitch.attack;
