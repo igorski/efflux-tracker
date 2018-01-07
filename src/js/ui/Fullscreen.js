@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017 - http://www.igorski.nl
+ * Igor Zinken 2017-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,13 +24,14 @@
 
 const Config = require( "../config/Config" );
 const Copy   = require( "../i18n/Copy" );
+const Bowser = require( "bowser" );
 
 let fsToggle;
 
 module.exports = {
 
     isSupported() {
-        return !Config.isChromeApp();
+        return !Config.isChromeApp() && !Bowser.ios;
     },
 
     setToggleButton( element ) {
