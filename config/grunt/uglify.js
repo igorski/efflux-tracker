@@ -34,9 +34,7 @@ module.exports =
     },
     prod: {
         files: {
-            '<%= config.target.env %><%= pkg.name %>.js': [ '<%= config.target.prod %><%= pkg.name %>.js' ],
-            '<%= config.target.env %>Instruments.js': [ '<%= config.target.prod %>Instruments.js' ],
-            '<%= config.target.env %>Songs.js': [ '<%= config.target.prod %>Songs.js' ]
+            '<%= config.target.env %><%= pkg.name %>.js': [ '<%= config.target.prod %><%= pkg.name %>.js' ]
         }
     }
 };
