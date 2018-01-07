@@ -46,11 +46,10 @@ const Pubsub         = require( "pubsub-js" );
  *
  * @typedef {{
  *              generator: OscillatorNode|AudioBufferSourceNode,
- *              envelope: AudioParam,
  *              gain: AudioParam,
  *              outputNode: AudioParam,
  *              frequency: number,
- *              adsr: Object,
+ *              vo: INSTRUMENT_OSCILLATOR,
  *              gliding: false
  *          }}
  */
@@ -282,8 +281,8 @@ const AudioController = module.exports =
                     // apply envelopes
 
                     const adsrNode = AudioFactory.createGainNode( audioContext );
-                    ADSR.applyAmpEnvelope  ( oscillatorVO.adsr, adsrNode, startTimeInSeconds );
-                    ADSR.applyPitchEnvelope( oscillatorVO.pitch, generatorNode, startTimeInSeconds );
+                    ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode, startTimeInSeconds );
+                    ADSR.applyPitchEnvelope( oscillatorVO, generatorNode, startTimeInSeconds );
 
                     // route oscillator to track gain > envelope gain > instrument gain
 
@@ -343,26 +342,17 @@ const AudioController = module.exports =
             eventObject.forEach(( event ) =>
             {
                 const oscillator = event.generator,
-                      output     = event.outputNode,
-                      amplitudeEnvelope = event.vo.adsr;
+                      output     = event.outputNode;
 
                 // apply release envelopes
 
-                ADSR.applyAmpRelease  ( amplitudeEnvelope, output, audioContext.currentTime );
-                ADSR.applyPitchRelease( event.vo.pitch, oscillator, audioContext.currentTime );
+                ADSR.applyAmpRelease  ( event.vo, output,     audioContext.currentTime );
+                ADSR.applyPitchRelease( event.vo, oscillator, audioContext.currentTime );
 
                 // stop synthesis and remove note on release end
 
-                AudioUtil.createTimer( audioContext, audioContext.currentTime + amplitudeEnvelope.release, function()
-                {
-                    AudioFactory.stopOscillation( this, audioContext.currentTime );
-
-                    // disconnect oscillator and its output node from the instrument output
-
-                    this.disconnect();
-                    output.disconnect( modules.output );
-
-                }.bind( oscillator ));
+                AudioUtil.createTimer( audioContext, audioContext.currentTime + event.vo.adsr.release,
+                    handleOscillatorStop.bind( oscillator, output, modules ));
             });
         }
         delete instrumentEvents[ aInstrument.id ][ aEvent.id ];
@@ -522,6 +512,17 @@ function applyModules()
         Pubsub.publishSync( Messages.UPDATE_EQ_SETTINGS,        [ instrument.id, instrument.eq ]);
         Pubsub.publishSync( Messages.UPDATE_OVERDRIVE_SETTINGS, [ instrument.id, instrument.overdrive ]);
     });
+}
+
+function handleOscillatorStop( output, modules )
+{
+    // this === an OscillatorNode (this function is bound by noteOff()-method)
+    AudioFactory.stopOscillation( this, audioContext.currentTime );
+
+    // disconnect oscillator and its output node from the instrument output
+
+    this.disconnect();
+    output.disconnect( modules.output );
 }
 
 /**

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -69,7 +69,7 @@ let INSTRUMENT;
 
 /**
  * type definition for an instruments oscillator
- * waveform is an enumeration which can be SAW, TRIANGLE, SQUARE or CUSTOM
+ * waveform is an enumeration which can be SAW, SINE, TRIANGLE, SQUARE, NOISE or CUSTOM
  *
  * the table Array holds numerical values in the -1 to +1 range
  * describing a bipolar waveform for the oscillator to use when waveform is CUSTOM
