@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -30,7 +30,7 @@ const Bowser        = require( "bowser" );
 let efflux, editorModel, selectionModel, settingsModel, wrapper, container,
     pContainers, pContainerSteps, stepHighlight, slotHighlight;
 
-let stepAmount = 0, rafPending = false, containerWidth = 0, containerHeight = 0;
+let stepAmount = 0, rafPending = false, containerWidth = 0, containerHeight = 0, lastFollowStep = 0;
 
 const SLOT_WIDTH  = 150;
 const SLOT_HEIGHT = 32;
@@ -320,10 +320,19 @@ function handleStep( step ) {
 
         const followPlayback = ( settingsModel.getSetting( SettingsModel.PROPERTIES.FOLLOW_PLAYBACK ) === "on" );
         if ( followPlayback ) {
-            if ( stepY > containerHeight )
+            // following activated, ensure the list auto scrolls
+            if ( stepY > containerHeight ) {
+                if (( ++lastFollowStep % 2 ) === 1 )
+                    container.classList.add( "follow" );
+                else
+                    container.classList.remove( "follow" );
+
                 container.scrollTop = ( stepY + SLOT_HEIGHT ) - containerHeight;
-            else
+            }
+            else {
                 container.scrollTop = 0;
+                lastFollowStep = 0;
+            }
         }
     }
     self.highlightActiveStep();

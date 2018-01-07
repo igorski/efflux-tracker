@@ -187,6 +187,23 @@
   }
 }
 
+#patternTrackListContainer {
+  // when the view should be following the sequencer we switch the odd/even pattern
+  // of the list for less eye strain (only the instructions will seem to be scrolling)
+  &.follow {
+    .pattern li {
+      &:nth-child(even) {
+        background-color: #323234;
+        border-color: #323234;
+      }
+      &:nth-child(odd) {
+        background-color: transparent;
+        border-color: transparent;
+      }
+    }
+  }
+}
+
 /* ideal view */
 
 @media screen and ( min-width: @ideal-width )
