@@ -1,7 +1,7 @@
 {
   "id": 0,
   "name": "Instrument 0",
-  "presetName": "FACTORY percussive pad",
+  "presetName": "FACTORY pad percussive",
   "oscillators": [
     {
       "enabled": true,
