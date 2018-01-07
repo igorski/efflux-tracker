@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -73,8 +73,15 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
         m     = Math.round( size / 2 ),
         i;
 
+    // generate waveform for value range -1 to +1
     switch ( aType )
     {
+        case "SINE":
+            for ( i = 0; i < size; ++i )
+                table[ i ] = (( 180.0 - Math.sin( i * Math.PI / 180 ) * 180 ) / 180 ) - 1;
+
+            break;
+
         case "TRIANGLE":
 
             for ( i = 0; i < size; ++i )

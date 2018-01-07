@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -138,22 +138,22 @@ const AudioController = module.exports =
         // initialize the WaveTable / AudioBuffer pool
 
         pool = {
-            SAW: audioContext.createPeriodicWave(
-                new Float32Array( WaveTables.SAW.real ), new Float32Array( WaveTables.SAW.imag )
-            ),
-            TRIANGLE: audioContext.createPeriodicWave(
-                new Float32Array( WaveTables.TRIANGLE.real ), new Float32Array( WaveTables.TRIANGLE.imag )
-            ),
-            SQUARE: audioContext.createPeriodicWave(
-                new Float32Array( WaveTables.SQUARE.real ), new Float32Array( WaveTables.SQUARE.imag )
-            ),
             NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
-            CUSTOM: [] // created and maintained by "cacheCustomTables()"
+            CUSTOM: [] // content created and maintained by "cacheCustomTables()"
         };
 
         const noiseChannel = pool.NOISE.getChannelData( 0 );
         for ( let i = 0, l = noiseChannel.length; i < l; ++i )
           noiseChannel[ i ] = Math.random() * 2 - 1;
+
+        // create periodic waves from the entries in the WaveTables definitions file
+
+        Object.keys( WaveTables ).forEach(( waveIdentifier ) => {
+            pool[ waveIdentifier ] = audioContext.createPeriodicWave(
+                new Float32Array( WaveTables[ waveIdentifier ].real ),
+                new Float32Array( WaveTables[ waveIdentifier ].imag )
+            );
+        });
 
         AudioController.reset();
         cacheCustomTables( instruments );
