@@ -205,7 +205,7 @@ const EventUtil = module.exports =
         for ( let i = step - 1; i >= 0; --i ) {
             previousEvent = channelEvents[ i ];
             if ( previousEvent &&
-                 typeof optCompareFn !== "function" || optCompareFn( previousEvent )) {
+                ( typeof optCompareFn !== "function" || optCompareFn( previousEvent ))) {
                 return previousEvent;
             }
         }
