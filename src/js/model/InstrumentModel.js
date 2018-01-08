@@ -91,7 +91,7 @@ InstrumentModel.prototype.init = function()
                 self.setInstruments( instruments );
                 self.persist();
 
-            }, "Instruments.js");
+            }, "Instruments.json" );
         }
     );
 };

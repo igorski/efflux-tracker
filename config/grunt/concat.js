@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports =
 {
     // copy third party libraries
@@ -28,7 +30,7 @@ module.exports =
             separator: ','
         },
         src : [ "<%= config.project.root %>/fixtures/songs/**/*.json" ],
-        dest : "<%= config.target.env %>/Songs.js"
+        dest : "<%= config.target.env %>/Songs.json"
     },
 
     fixturesInstruments :
@@ -40,6 +42,6 @@ module.exports =
             separator: ','
         },
         src : [ "<%= config.project.root %>/fixtures/instruments/**/*.json" ],
-        dest : "<%= config.target.env %>/Instruments.js"
+        dest : "<%= config.target.env %>/Instruments.json"
     }
 };

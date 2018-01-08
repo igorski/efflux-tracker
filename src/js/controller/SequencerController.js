@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,7 +43,7 @@ let efflux, audioController, keyboardController, audioContext, worker, editorMod
 let playing           = false,
     looping           = false,
     recording         = false,
-    scheduleAheadTime = .2,
+    scheduleAheadTime = 0.2,
     stepPrecision     = 64,
     beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
     beatUnit          = 4;
@@ -238,7 +238,7 @@ const SequencerController = module.exports =
         return {
             measure: currentMeasure,
             step: currentStep
-        }
+        };
     },
 
     /**

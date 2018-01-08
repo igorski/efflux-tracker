@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * TemplateWorker leverages the creation of HTML templates
  * using Handlebars off the main execution thread

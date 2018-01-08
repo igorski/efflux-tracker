@@ -1,4 +1,6 @@
-var fs = require( "fs" );
+"use strict";
+
+const fs = require( "fs" );
 
 module.exports = {
     dev: {

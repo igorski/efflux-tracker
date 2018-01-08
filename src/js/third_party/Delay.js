@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * Taken from https://github.com/web-audio-components/delay
  *

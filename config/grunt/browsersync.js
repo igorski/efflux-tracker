@@ -1,8 +1,8 @@
+"use strict";
+
 module.exports = {
     bsFiles: {
-	src: [
-		'dist/dev/**/*'
-	]
+        src: [ "dist/dev/**/*" ]
     },
     options: {
         watchTask: true,
@@ -12,8 +12,8 @@ module.exports = {
             scroll: false
         },
         server: {
-            baseDir: '<%= config.target.dev %>',
-            index: 'index.html'
+            baseDir: "<%= config.target.dev %>",
+            index: "index.html"
         }
     }
 };

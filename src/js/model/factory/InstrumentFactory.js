@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -129,7 +129,7 @@ const InstrumentFactory = module.exports =
             adsr : {
                 attack  : 0,
                 decay   : 0,
-                sustain : .75,
+                sustain : 0.75,
                 release : 0
             }
         };
@@ -153,7 +153,7 @@ const InstrumentFactory = module.exports =
             range   : 0,
             attack  : 0,
             decay   : 1,
-            sustain : .75,
+            sustain : 0.75,
             release : 0
         };
     },

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -47,19 +47,19 @@ function Select( aElement, aChangeCallback, aOptions )
       *        value: string
       *      }>}
      */
-    this._options;
+    this._options = null;
 
     /**
      * @private
      * @type {Element}
      */
-    this._element;
+    this._element = null;
 
     /**
      * @private
      * @type {Element}
      */
-    this._container;
+    this._container = null;
 
     /**
      * optional SelectList this Select can belong to
@@ -67,7 +67,7 @@ function Select( aElement, aChangeCallback, aOptions )
      * @public
      * @type {SelectList}
      */
-    this.list;
+    this.list = null;
 
     /**
      * @private

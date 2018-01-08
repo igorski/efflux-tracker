@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -43,12 +43,12 @@ module.exports =
     MAX_FILTER_FREQ             : 24000,
     MAX_FILTER_Q                : 40,
 
-    DEFAULT_FILTER_LFO_SPEED    : .5,
+    DEFAULT_FILTER_LFO_SPEED    : 0.5,
     DEFAULT_FILTER_LFO_DEPTH    : 50,
     MAX_FILTER_LFO_SPEED        : 25,
     MAX_FILTER_LFO_DEPTH        : 100,
 
-    DEFAULT_DELAY_MIX           : .65,
+    DEFAULT_DELAY_MIX           : 0.65,
     DEFAULT_DELAY_FEEDBACK      : 0.01,
     DEFAULT_DELAY_TIME          : 0.33,
     DEFAULT_DELAY_CUT_OFF       : 1500,
@@ -86,7 +86,7 @@ module.exports =
      * @return {boolean}
      */
     isChromeApp() {
-        return window[ "chrome" ] && window[ "chrome" ][ "runtime" ] && window[ "chrome" ][ "runtime" ][ "id" ];
+        return window.chrome && window.chrome.runtime && window.chrome.runtime.id;
     },
 
     /**

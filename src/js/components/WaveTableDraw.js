@@ -130,7 +130,7 @@ WaveTableDraw.prototype.draw = function( aCanvasContext )
 
     while ( i-- )
     {
-        point = ( this.table[ i ] + 1 ) * .5; // convert from -1 to +1 bipolar range
+        point = ( this.table[ i ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
         aCanvasContext.lineTo( x + ( i * size ), y - ( point * h ));
     }
     aCanvasContext.stroke();

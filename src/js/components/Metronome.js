@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -54,12 +54,14 @@ module.exports =
 
         let pitch = 220; // default note has low pitch, except for:
 
-        if ( !( currentStep % maxStep ))
+        const isFirstBeat = ( currentStep % maxStep ) === 0;
+
+        if ( isFirstBeat )
             pitch = 440; // beat 0 == medium pitch
 
         else if ( currentStep % ( maxStep / 4 ))
             pitch = 880; // quarter notes = high pitch
 
-        AudioUtil.beep( audioContext, pitch, time, .05 );
+        AudioUtil.beep( audioContext, pitch, time, 0.05 );
     }
 };

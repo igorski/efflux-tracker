@@ -1,7 +1,9 @@
-var fs      = require( "fs" );
-var path    = require( "path" );
-var grunt   = require( "grunt" );
-var globals = require( "../globals" );
+"use strict";
+
+const fs      = require( "fs" );
+const path    = require( "path" );
+const grunt   = require( "grunt" );
+const globals = require( "../globals" );
 
 module.exports =
 {

@@ -1,10 +1,12 @@
-var css = require( "atomify-css" );
+"use strict";
+
+const css = require( "atomify-css" );
 
 module.exports =
 {
-    concat : function( outputFile, outputAssets, callback )
+    concat( outputFile, outputAssets, callback )
     {
-        var opts = {
+        const opts = {
             entry    : 'src/assets/css/layout.less',
             output   : outputFile,
             compress : true/*,
@@ -14,8 +16,8 @@ module.exports =
             }*/
         };
 
-        css( opts, function( err )
-        {
+        css( opts, ( err ) => {
+
             if ( err )
                 throw new Error( "could not resolve .less files", err );
 

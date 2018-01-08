@@ -72,7 +72,7 @@ SongModel.prototype.init = function()
                 self.setSongs( songs );
                 self.persist();
 
-            }, "Songs.js" );
+            }, "Songs.json" );
         }
     );
 };

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -253,7 +253,7 @@ const self = module.exports = {
         delayTimeControl.value     = instrumentRef.delay.time;
         delayFeedbackControl.value = instrumentRef.delay.feedback;
         delayCutoffControl.value   = instrumentRef.delay.cutoff;
-        delayOffsetControl.value   = instrumentRef.delay.offset + .5;
+        delayOffsetControl.value   = instrumentRef.delay.offset + 0.5;
 
         Form.setSelectedOption( eqEnabledSelect, instrumentRef.eq.enabled );
         eqLowControl.value  = instrumentRef.eq.lowGain;
@@ -270,7 +270,7 @@ const self = module.exports = {
     updateWaveformSize() {
         const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
         const windowWidth = window.innerWidth;
-        const width       = ( windowWidth < ideal ) ? windowWidth *  .9: ideal;
+        const width       = ( windowWidth < ideal ) ? windowWidth *  0.9: ideal;
 
         if ( canvas.getWidth() !== width ) {
             canvas.setDimensions( width, 200 );
@@ -492,7 +492,7 @@ function handleDelayChange( aEvent ) {
     delay.time     = parseFloat( delayTimeControl.value );
     delay.feedback = parseFloat( delayFeedbackControl.value );
     delay.cutoff   = parseFloat( delayCutoffControl.value );
-    delay.offset   = parseFloat( delayOffsetControl.value ) - .5;
+    delay.offset   = parseFloat( delayOffsetControl.value ) - 0.5;
 
     Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS, [ model.instrumentId, delay ]);
     invalidatePresetName();

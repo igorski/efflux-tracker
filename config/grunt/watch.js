@@ -1,3 +1,5 @@
+"use strict";
+
 module.exports = {
     js: {
         files: "<%= config.project.js %>/**/*.js",

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -119,7 +119,7 @@ else {
         // we'd like to see this output in the console, stringified lookup
         // ensures this code remains in the production build
         if ( window.console )
-            window["console"]["error"]( e );
+            window.console.error( e );
 
         haltApplicationStart();
     }

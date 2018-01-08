@@ -1,4 +1,6 @@
-var timer, interval = 25, data;
+"use strict";
+
+var interval = 25, timer, data;
 
 /**
  * SequencerWorker leverages the intervallic polling
