@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -187,7 +187,10 @@ function handleOpen( completeCallback )
     // by default take the previously declared events instrument as the target instrument for the new event
     // otherwise take the active instrument as the target instrument
 
-    const previousEvent     = EventUtil.getFirstEventBeforeStep( channel, editorModel.activeStep );
+    const previousEvent = EventUtil.getFirstEventBeforeStep( channel, editorModel.activeStep, ( previousEvent ) => {
+        // ignore off events as they do not specify an instrument
+        return previousEvent.action !== 2;
+    });
     const defaultInstrument = ( previousEvent ) ? previousEvent.instrument : editorModel.activeInstrument;
 
     data =

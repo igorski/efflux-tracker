@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -204,10 +204,9 @@ const EventUtil = module.exports =
         let previousEvent;
         for ( let i = step - 1; i >= 0; --i ) {
             previousEvent = channelEvents[ i ];
-            if ( previousEvent ) {
-                if ( typeof optCompareFn !== "function" || optCompareFn( previousEvent )) {
-                    return previousEvent;
-                }
+            if ( previousEvent &&
+                 typeof optCompareFn !== "function" || optCompareFn( previousEvent )) {
+                return previousEvent;
             }
         }
         return null;
