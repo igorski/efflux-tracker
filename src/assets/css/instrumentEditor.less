@@ -47,7 +47,7 @@
 
   .tabbed-content {
     display: none;
-    border-top: 2px solid #666;
+    border-top: 1px solid #666;
 
     &.active {
       display: block;
@@ -63,9 +63,8 @@
   li {
     display: inline-block;
     border: 1px solid #666;
-    border-bottom: none;
-    border-top-left-radius: 7px;
-    border-top-right-radius: 7px;
+    border-bottom: 1px solid #393b40;
+    margin-bottom: -1px; // makes it essentially appear "bottom-less" due to border-bottom colour over background
     padding: .25em 1em;
     cursor: pointer;
     background-color: #666;
@@ -97,13 +96,19 @@
 
 #oscillatorEditor {
   display: inline-block;
+  padding: .5em .75em;
+  .boxSize;
+  border: 1px solid #666;
+  min-height: 174px;
 }
 
 #envelopeEditor {
   margin-top: -3em;
 
   .tabbed-content {
-    padding-top: .5em;
+    padding: .5em .75em;
+    border: 1px solid #666;
+    min-height: 165px;
   }
 }
 
@@ -115,7 +120,7 @@
 
   .instrument-parameters {
     width: 100%;
-    border: 2px solid #666;
+    border: 1px solid #666;
     border-radius: 7px;
     padding: 1em;
     margin-bottom: .5em;
@@ -172,7 +177,7 @@
     display: inline-block;
     width: 66%;
     padding: 1em;
-    border: 2px solid #666;
+    border: 1px solid #666;
     border-top: 1px solid #666;
     border-bottom-left-radius: 7px;
     border-bottom-right-radius: 7px;
