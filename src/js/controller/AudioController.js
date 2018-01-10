@@ -245,7 +245,7 @@ const AudioController = module.exports =
                 if ( oscillatorVO.enabled ) {
 
                     voice = aInstrument.oscillators[ oscillatorIndex ];
-
+                    const oscillatorGain = AudioFactory.createGainNode( audioContext );
                     let generatorNode;
 
                     // buffer source ? assign it to the oscillator
@@ -259,21 +259,30 @@ const AudioController = module.exports =
                     }
                     else {
 
-                        // oscillator source, get WaveTable from pool
+                        // has oscillator source
 
-                        generatorNode = audioContext.createOscillator();
-                        let table;
+                        if ( oscillatorVO.waveform === "PWM" ) {
+                            // PWM uses a custom Oscillator type
+                            generatorNode = AudioFactory.createPWM(
+                                audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorGain
+                            );
+                        }
+                        else {
+                            // all other waveforms have WaveTables which are defined in the pools
 
-                        if ( oscillatorVO.waveform !== "CUSTOM" )
-                            table = pool[ oscillatorVO.waveform ];
-                        else
-                            table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
+                            generatorNode = audioContext.createOscillator();
+                            let table;
 
-                        if ( !table ) // no table ? that's a bit of a problem. what did you break!?
-                            return;
+                            if ( oscillatorVO.waveform !== "CUSTOM" )
+                                table = pool[ oscillatorVO.waveform ];
+                            else
+                                table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
 
-                        generatorNode.setPeriodicWave( table );
+                            if ( !table ) // no table ? that's a bit of a problem. what did you break!?
+                                return;
 
+                            generatorNode.setPeriodicWave( table );
+                        }
                         // tune event frequency to oscillator tuning and apply pitch envelopes
                         generatorNode.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
                     }
@@ -286,9 +295,9 @@ const AudioController = module.exports =
 
                     // route oscillator to track gain > envelope gain > instrument gain
 
-                    const oscillatorGain = AudioFactory.createGainNode( audioContext );
                     oscillatorGain.gain.value = oscillatorVO.volume;
-                    generatorNode.connect( oscillatorGain );
+                    if ( oscillatorVO.waveform !== "PWM" )
+                        generatorNode.connect( oscillatorGain );
                     oscillatorGain.connect( adsrNode );
                     adsrNode.connect( modules.output );
 

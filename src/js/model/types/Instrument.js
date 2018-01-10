@@ -69,7 +69,7 @@ let INSTRUMENT;
 
 /**
  * type definition for an instruments oscillator
- * waveform is an enumeration which can be SAW, SINE, TRIANGLE, SQUARE, NOISE or CUSTOM
+ * waveform is an enumeration which can be SAW, SINE, TRIANGLE, SQUARE, NOISE, PWM or CUSTOM
  *
  * the table Array holds numerical values in the -1 to +1 range
  * describing a bipolar waveform for the oscillator to use when waveform is CUSTOM

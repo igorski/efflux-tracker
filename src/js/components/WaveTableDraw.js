@@ -69,9 +69,10 @@ WaveTableDraw.prototype.setTable = function( aTableArray )
 WaveTableDraw.prototype.generateAndSetTable = function( aType )
 {
     let size  = Config.WAVE_TABLE_SIZE,
-        table = new Array( size ),
-        m     = Math.round( size / 2 ),
-        i;
+        table = new Array( size ), i,
+        // all waveforms have their peak halfway through their cycle
+        // expect for PWM (Pulse Width Modulation)
+        m     = Math.round(( aType === "PWM" ) ? size / 3 : size / 2 );
 
     // generate waveform for value range -1 to +1
     switch ( aType )
@@ -100,6 +101,7 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
             break;
 
         case "SQUARE":
+        case "PWM":
 
             for ( i = 0; i < size; ++i )
                 table[ i ] = ( i < m ) ? -1 : 1;

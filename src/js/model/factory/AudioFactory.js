@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -80,5 +80,86 @@ const AudioFactory = module.exports =
             return aContext.createGain();
 
         return aContext.createGainNode();
-    }
+    },
+
+    /**
+     * Create a Pulse Width Modulator
+     * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
+     *
+     * @public
+     * @param {AudioContext} audioContext
+     * @param {number} startTime
+     * @param {number} endTime
+     * @param {AudioDestinationNode=} destination
+     * @return {OscillatorNode}
+     */
+   createPWM( audioContext, startTime, endTime, destination = audioContext.destination ) {
+
+        const pulseOsc = audioContext.createOscillator();
+        pulseOsc.type  = "sawtooth";
+
+        // Shape the output into a pulse wave.
+        const pulseShaper = audioContext.createWaveShaper();
+        pulseShaper.curve = pulseCurve;
+        pulseOsc.connect( pulseShaper );
+
+        //Use a GainNode as our new "width" audio parameter.
+        const widthGain = AudioFactory.createGainNode( audioContext );
+        widthGain.gain.value = 0; //Default width.
+        pulseOsc.width = widthGain.gain; //Add parameter to oscillator node.
+        widthGain.connect( pulseShaper );
+
+        //Pass a constant value of 1 into the widthGain – so the "width" setting
+        //is duplicated to its output.
+        const constantOneShaper = audioContext.createWaveShaper();
+        constantOneShaper.curve = constantOneCurve;
+        pulseOsc.connect( constantOneShaper );
+        constantOneShaper.connect( widthGain );
+
+        // Override the oscillator's "connect" and "disconnect" method so that the
+        // new node's output actually comes from the pulseShaper.
+        pulseOsc.connect = function() {
+            pulseShaper.connect.apply( pulseShaper, arguments );
+        };
+        pulseOsc.disconnect = function() {
+            pulseShaper.disconnect.apply( pulseShaper, arguments );
+        };
+
+        // The pulse-width will start at 0.4 and finish at 0.1.
+        pulseOsc.width.value = 0.4; //The initial pulse-width.
+        pulseOsc.width.exponentialRampToValueAtTime( 0.1, endTime );
+
+        // Add a low frequency oscillator to modulate the pulse-width.
+        const lfo = audioContext.createOscillator();
+        lfo.type = "triangle";
+        lfo.frequency.value = 10;
+
+        const lfoDepth = AudioFactory.createGainNode( audioContext );
+        lfoDepth.gain.value = 0.1;
+        lfoDepth.gain.exponentialRampToValueAtTime( 0.05, startTime + 0.5 );
+        lfoDepth.gain.exponentialRampToValueAtTime( 0.15, endTime );
+        lfo.connect(lfoDepth);
+        lfoDepth.connect(pulseOsc.width);
+        lfo.start(startTime);
+        lfo.stop(endTime);
+
+        const filter = audioContext.createBiquadFilter();
+        filter.type = "lowpass";
+        filter.frequency.value = 16000;
+        filter.frequency.exponentialRampToValueAtTime( 440, endTime );
+        pulseOsc.connect( filter );
+        filter.connect( destination );
+
+        return pulseOsc;
+   }
 };
+
+//Pre-calculate the WaveShaper curves so that we can reuse them.
+const pulseCurve = new Float32Array( 256 );
+for ( let i = 0; i < 128; ++i ) {
+    pulseCurve[ i ]       = -1;
+    pulseCurve[ i + 128 ] = 1;
+}
+const constantOneCurve = new Float32Array( 2 );
+constantOneCurve[ 0 ] = 1;
+constantOneCurve[ 1 ] = 1;
