@@ -1,0 +1,106 @@
+{
+  "id": 1,
+  "name": "Instrument 1",
+  "presetName": "FACTORY drum kick 8-bit",
+  "oscillators": [
+    {
+      "enabled": true,
+      "waveform": "NOISE",
+      "table": 0,
+      "volume": 0.65,
+      "detune": -47.9,
+      "octaveShift": 0,
+      "fineShift": 0,
+      "adsr": {
+        "attack": 0,
+        "decay": 0.05,
+        "sustain": 0.1,
+        "release": 0
+      },
+      "pitch": {
+        "range": -1,
+        "attack": 0,
+        "decay": 1,
+        "sustain": 0.75,
+        "release": 0,
+        "org": 0.041999999433755875
+      }
+    },
+    {
+      "enabled": true,
+      "waveform": "SINE",
+      "table": 0,
+      "volume": 1,
+      "detune": 0,
+      "octaveShift": -1,
+      "fineShift": 0,
+      "adsr": {
+        "attack": 0,
+        "decay": 0,
+        "sustain": 0.75,
+        "release": 0
+      },
+      "pitch": {
+        "range": -24,
+        "attack": 0.2,
+        "decay": 1,
+        "sustain": 0.75,
+        "release": 0,
+        "org": 130.81300354003906
+      }
+    },
+    {
+      "enabled": false,
+      "waveform": "SAW",
+      "table": 0,
+      "volume": 1,
+      "detune": 0,
+      "octaveShift": 0,
+      "fineShift": 0,
+      "adsr": {
+        "attack": 0,
+        "decay": 0,
+        "sustain": 0.75,
+        "release": 0
+      },
+      "pitch": {
+        "range": 0,
+        "attack": 0,
+        "decay": 1,
+        "sustain": 0.75,
+        "release": 0
+      }
+    }
+  ],
+  "volume": 1,
+  "filter": {
+    "enabled": false,
+    "frequency": 880,
+    "q": 5,
+    "speed": 0.5,
+    "depth": 50,
+    "type": "lowpass",
+    "lfoType": "off"
+  },
+  "delay": {
+    "enabled": false,
+    "type": 0,
+    "time": 0.5,
+    "feedback": 0.5,
+    "cutoff": 880,
+    "offset": 0
+  },
+  "overdrive": {
+    "enabled": false,
+    "preBand": 1,
+    "postCut": 8000,
+    "color": 4000,
+    "drive": 0.8
+  },
+  "eq": {
+    "enabled": false,
+    "lowGain": 1,
+    "midGain": 1,
+    "highGain": 1
+  }
+}
