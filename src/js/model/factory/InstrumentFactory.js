@@ -43,9 +43,9 @@ const InstrumentFactory = module.exports =
             name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
             presetName: null,
             oscillators : [
-                InstrumentFactory.createOscillator( true  ),
-                InstrumentFactory.createOscillator( false ),
-                InstrumentFactory.createOscillator( false )
+                InstrumentFactory.createOscillator( true,  "TRIANGLE"  ),
+                InstrumentFactory.createOscillator( false, "SINE" ),
+                InstrumentFactory.createOscillator( false, "SAW" )
             ],
             volume: 1,
             filter : {
@@ -114,13 +114,14 @@ const InstrumentFactory = module.exports =
      * @public
      *
      * @param {boolean} aEnabled
+     * @param {string} aWaveform
      * @return {INSTRUMENT_OSCILLATOR}
      */
-    createOscillator( aEnabled )
+    createOscillator( aEnabled, aWaveform = "SAW" )
     {
         const oscillator = {
             enabled     : aEnabled,
-            waveform    : "SAW",
+            waveform    : aWaveform,
             table       : 0, // created when CUSTOM waveform is used
             volume      : 1,
             detune      : 0,
