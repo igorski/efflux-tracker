@@ -211,7 +211,7 @@ const self = module.exports = {
 
     update( instrumentRef, activeOscillatorIndex ) {
 
-        setActiveTab( activeOscillatorIndex );
+        setActiveTab( element.querySelectorAll( "#oscillatorTabs li" ), activeOscillatorIndex );
 
         const oscillator = getActiveOscillator();
         element.querySelector( "h2" ).innerHTML = "Editing " + instrumentRef.name;
@@ -341,6 +341,7 @@ function handleOscillatorTabClick( aEvent ) {
 
 function handleEnvelopeTabClick( aEvent ) {
     const element = aEvent.target, activeClass = "active";
+    let tabIndex = 0;
     if ( element.nodeName === "LI" ) {
         switch( element.getAttribute( "data-type" )) {
             default:
@@ -351,22 +352,16 @@ function handleEnvelopeTabClick( aEvent ) {
             case "pitch":
                 amplitudeEditor.classList.remove( activeClass );
                 pitchEditor.classList.add( activeClass );
+                tabIndex = 1;
                 break;
         }
-        const tabs = element.querySelectorAll( "#envelopeTabs li" );
-        let i = tabs.length;
-        while ( i-- ) {
-            const tab = tabs[ i ];
-            if ( tab === element )
-                tab.classList.add( "active" );
-            else
-                tab.classList.remove( "active" );
-        }
+        setActiveTab( document.querySelectorAll( "#envelopeTabs li" ), tabIndex );
     }
 }
 
 function handleModulesTabClick( aEvent ) {
     const element = aEvent.target, activeClass = "active";
+    let tabIndex = 0;
     if ( element.nodeName === "LI" ) {
         switch( element.getAttribute( "data-type" )) {
             default:
@@ -377,17 +372,10 @@ function handleModulesTabClick( aEvent ) {
             case "page2":
                 moduleEditorPage1.classList.remove( activeClass );
                 moduleEditorPage2.classList.add( activeClass );
+                tabIndex = 1;
                 break;
         }
-        const tabs = element.querySelectorAll( "#modulesTabs li" );
-        let i = tabs.length;
-        while ( i-- ) {
-            const tab = tabs[ i ];
-            if ( tab === element )
-                tab.classList.add( "active" );
-            else
-                tab.classList.remove( "active" );
-        }
+        setActiveTab( document.querySelectorAll( "#modulesTabs li" ), tabIndex );
     }
 }
 
@@ -601,23 +589,25 @@ function invalidatePresetName() {
         presetNameInput.value += "*";
 }
 
-function setActiveTab( activeOscillatorIndex ) {
-    const tabs = element.querySelectorAll( "#oscillatorTabs li" );
-    let tab;
-
-    let i = tabs.length;
+/**
+ * sets the active class in a tab list
+ *
+ * @param {NodeList} tabs of Nodes which are tabs
+ * @param {number} activeTab index of the active tab
+ */
+function setActiveTab( tabs, activeTab ) {
+    let i = tabs.length, tabCSSList;
     while ( i-- ) {
-        tab = tabs[ i ].classList;
-        if ( i === activeOscillatorIndex )
-            tab.add( "active" );
+        tabCSSList = tabs[ i ].classList;
+        if ( i === activeTab )
+            tabCSSList.add( "active" );
         else
-        tab.remove( "active" );
+            tabCSSList.remove( "active" );
     }
 }
 
 function togglePitchSliders( enabled ) {
-    [ octaveShiftControl, fineShiftControl ].forEach(( slider ) =>
-    {
+    [ octaveShiftControl, fineShiftControl ].forEach(( slider ) => {
         if ( enabled )
             slider.removeAttribute( "disabled" );
         else
