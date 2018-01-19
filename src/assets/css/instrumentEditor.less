@@ -1,4 +1,4 @@
-@idealInstrumentEditorWidth: ( @app-width * .9 );
+@idealInstrumentEditorWidth: 855px;
 @idealInstrumentEditorHeight: 580px;
 
 #instrumentEditor
@@ -114,22 +114,34 @@
 
 #instrumentModulesEditor {
 
-  float: right;
+  vertical-align: top;
   padding: 0 1em;
+  margin-top: -10px;
   .boxSize;
 
   .instrument-parameters {
     width: 100%;
-    border: 1px solid #666;
     border-bottom-right-radius: 14px;
-    padding: 1em;
+    padding-top: 0;
     margin-bottom: .5em;
     .boxSize;
   }
 
   .tabbed-content {
-    border: none;
+    border: 1px solid grey;
+    padding: 1em;
+    .boxSize;
   }
+
+  .module-list {
+    display: inline-block;
+    vertical-align: top;
+    width: 100%;
+  }
+}
+
+#modulesTabs {
+
 }
 
 #filterEditor {
@@ -141,6 +153,7 @@
 #filterEnabled,
 #delayEnabled {
   float: right;
+  margin-top: -25px;
   margin-right: 10px;
 }
 
@@ -175,7 +188,7 @@
 
   #instrumentOscillatorEditor {
     display: inline-block;
-    width: 66%;
+    width: 550px;
     padding: 1em;
     border: 1px solid #666;
     border-top: 1px solid #666;
@@ -185,8 +198,10 @@
 
   #instrumentModulesEditor {
     display: inline-block;
-    width: 33%;
-    margin-top: -8px;
+
+    .module-list {
+      max-width: 260px;
+    }
   }
 }
 
@@ -209,7 +224,6 @@
   }
 
   #instrumentModulesEditor {
-    clear: left;
     width: 100%;
     padding: 0;
   }

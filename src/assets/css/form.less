@@ -49,7 +49,16 @@ select {
 }
 
 fieldset {
-  border: 0;
+  legend {
+    font-weight: bold;
+    font-style: italic;
+    color: @color-1;
+  }
+  border: 1px solid grey;
+  border-radius: 7px;
+  padding: .5em 1em;
+  margin-bottom: .5em;
+  .boxSize;
 }
 
 /* specific for range elements, taken from Daniel Sterns post on css-tricks */
