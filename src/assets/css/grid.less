@@ -32,9 +32,6 @@
 
 @media screen and ( max-width: @mobile-width )
 {
-  html {
-    overflow: auto;
-  }
   .container {
     padding: 0;
     margin: 0;
@@ -78,10 +75,15 @@
 
 }
 
-/* TABLET/DESKTOP portrait width */
+/* TABLET/DESKTOP portrait width (everything smaller than app width) */
 
 @media screen and ( max-width: @app-width )
 {
+  // allow scrolling as we can expect the overlays to have scrollable content
+  html {
+    overflow: auto;
+  }
+
   #helpSection {
     display: none;
     width: 0;
@@ -90,6 +92,13 @@
     overflow-x: scroll !important;
     overflow-y: hidden !important; // body scrolls instead
   }
+}
+
+/* everything from app width and above */
+
+@media screen and ( min-width: @app-width )
+{
+
 }
 
 /* TABLET/DESKTOP ideal height */
