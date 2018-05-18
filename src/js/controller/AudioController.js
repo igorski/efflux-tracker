@@ -131,7 +131,7 @@ const AudioController = module.exports =
 
         efflux = effluxRef;
 
-        AudioUtil.iOSinit( audioContext );
+        AudioUtil.init( audioContext );
         setupRouting();
 
         // initialize the WaveTable / AudioBuffer pool

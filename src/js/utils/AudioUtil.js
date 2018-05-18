@@ -116,17 +116,21 @@ module.exports =
      * after a user event. this method starts the engine (silently) as soon as
      * a touch interaction has occurred in the document
      *
+     * as of Chrome 65 this also happens on desktop!
+     *
      * @param {AudioContext} audioContext
      */
-    iOSinit( audioContext )
+    init( audioContext )
     {
-        if ( !Bowser.ios )
-            return;
-
-        const handler = ( touchEvent ) =>
+        const handler = ( event ) =>
         {
+            document.removeEventListener( "click",      handler, false );
             document.removeEventListener( "touchstart", handler, false );
 
+            if ( !Bowser.ios && audioContext.state === "suspended" ) {
+                audioContext.resume();
+                return;
+            }
             const source  = audioContext.createOscillator();
             source.type   = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
 
@@ -141,6 +145,7 @@ module.exports =
 
             noGain.disconnect();
         };
+        document.addEventListener( "click",      handler );
         document.addEventListener( "touchstart", handler );
     }
 };
