@@ -119,64 +119,60 @@ const AudioController = module.exports =
      */
     init( effluxRef, instruments )
     {
-        if ( typeof AudioContext !== "undefined" ) {
-            audioContext = new AudioContext();
-        }
-        else if ( typeof webkitAudioContext !== "undefined" ) {
-            audioContext = new webkitAudioContext();
-        }
-        else {
-            throw new Error( "WebAudio API not supported (try 'isSupported()' prior to invoking)" );
-        }
-
         efflux = effluxRef;
 
-        AudioUtil.init( audioContext );
-        setupRouting();
+        // asynchronously generated AudioContext (after user interaction)
 
-        // initialize the WaveTable / AudioBuffer pool
+        AudioUtil.init(( generatedContext ) => {
+            audioContext = generatedContext;
+            setupRouting();
 
-        pool = {
-            NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
-            CUSTOM: [] // content created and maintained by "cacheCustomTables()"
-        };
+            // initialize the WaveTable / AudioBuffer pool
 
-        const noiseChannel = pool.NOISE.getChannelData( 0 );
-        for ( let i = 0, l = noiseChannel.length; i < l; ++i )
-          noiseChannel[ i ] = Math.random() * 2 - 1;
+            pool = {
+                NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
+                CUSTOM: [] // content created and maintained by "cacheCustomTables()"
+            };
 
-        // create periodic waves from the entries in the WaveTables definitions file
+            const noiseChannel = pool.NOISE.getChannelData( 0 );
+            for ( let i = 0, l = noiseChannel.length; i < l; ++i )
+              noiseChannel[ i ] = Math.random() * 2 - 1;
 
-        Object.keys( WaveTables ).forEach(( waveIdentifier ) => {
-            pool[ waveIdentifier ] = audioContext.createPeriodicWave(
-                new Float32Array( WaveTables[ waveIdentifier ].real ),
-                new Float32Array( WaveTables[ waveIdentifier ].imag )
-            );
+            // create periodic waves from the entries in the WaveTables definitions file
+
+            Object.keys( WaveTables ).forEach(( waveIdentifier ) => {
+                pool[ waveIdentifier ] = audioContext.createPeriodicWave(
+                    new Float32Array( WaveTables[ waveIdentifier ].real ),
+                    new Float32Array( WaveTables[ waveIdentifier ].imag )
+                );
+            });
+
+            AudioController.reset();
+            cacheCustomTables( instruments );
+
+            // subscribe to messages
+
+            [   Messages.SONG_LOADED,
+                Messages.PLAYBACK_STARTED,
+                Messages.PLAYBACK_STOPPED,
+                Messages.APPLY_INSTRUMENT_MODULES,
+                Messages.TOGGLE_OUTPUT_RECORDING,
+                Messages.SET_CUSTOM_WAVEFORM,
+                Messages.ADJUST_OSCILLATOR_TUNING,
+                Messages.ADJUST_OSCILLATOR_VOLUME,
+                Messages.ADJUST_OSCILLATOR_WAVEFORM,
+                Messages.ADJUST_INSTRUMENT_VOLUME,
+                Messages.UPDATE_FILTER_SETTINGS,
+                Messages.UPDATE_DELAY_SETTINGS,
+                Messages.UPDATE_EQ_SETTINGS,
+                Messages.UPDATE_OVERDRIVE_SETTINGS,
+                Messages.NOTE_ON,
+                Messages.NOTE_OFF
+
+            ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
+
+            Pubsub.publishSync( Messages.AUDIO_CONTEXT_READY, audioContext );
         });
-
-        AudioController.reset();
-        cacheCustomTables( instruments );
-
-        // subscribe to messages
-
-        [   Messages.SONG_LOADED,
-            Messages.PLAYBACK_STARTED,
-            Messages.PLAYBACK_STOPPED,
-            Messages.APPLY_INSTRUMENT_MODULES,
-            Messages.TOGGLE_OUTPUT_RECORDING,
-            Messages.SET_CUSTOM_WAVEFORM,
-            Messages.ADJUST_OSCILLATOR_TUNING,
-            Messages.ADJUST_OSCILLATOR_VOLUME,
-            Messages.ADJUST_OSCILLATOR_WAVEFORM,
-            Messages.ADJUST_INSTRUMENT_VOLUME,
-            Messages.UPDATE_FILTER_SETTINGS,
-            Messages.UPDATE_DELAY_SETTINGS,
-            Messages.UPDATE_EQ_SETTINGS,
-            Messages.UPDATE_OVERDRIVE_SETTINGS,
-            Messages.NOTE_ON,
-            Messages.NOTE_OFF
-
-        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /**

@@ -36,6 +36,7 @@ module.exports =
     HIDE_BLIND                : "SYSHB",
     WINDOW_SCROLLED           : "SYS:2",
     WINDOW_RESIZED            : "SYS:3",
+    AUDIO_CONTEXT_READY       : "SYS:4", // payload is AudioContext
 
     // UI messages
 

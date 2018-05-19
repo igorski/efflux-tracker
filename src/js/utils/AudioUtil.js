@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -112,40 +112,56 @@ module.exports =
     },
 
     /**
-     * on iOS all audio is muted unless the engine has been initialized directly
-     * after a user event. this method starts the engine (silently) as soon as
-     * a touch interaction has occurred in the document
+     * On iOS all audio is muted unless the engine has been initialized directly
+     * after a user event. As of Chrome 65 this is also expected for other
+     * environments, including desktops.
      *
-     * as of Chrome 65 this also happens on desktop!
+     * This method will lazily create the AudioContext on the first click/touch/
+     * keyboard interaction.
      *
-     * @param {AudioContext} audioContext
+     * @param {Function} readyHandler to invoke when audioContext is created
+     *        this handler will receive the generated AudioContext
      */
-    init( audioContext )
+    init( readyHandler )
     {
+        let audioContext;
         const handler = ( event ) =>
         {
             document.removeEventListener( "click",      handler, false );
+            document.removeEventListener( "keydown",    handler, false );
             document.removeEventListener( "touchstart", handler, false );
+
+            if ( typeof AudioContext !== "undefined" )
+                audioContext = new AudioContext();
+
+            else if ( typeof webkitAudioContext !== "undefined" )
+                audioContext = new webkitAudioContext();
+
+            else
+                throw new Error( "WebAudio API not supported" );
 
             if ( !Bowser.ios && audioContext.state === "suspended" ) {
                 audioContext.resume();
-                return;
             }
-            const source  = audioContext.createOscillator();
-            source.type   = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
+            else {
+                const source  = audioContext.createOscillator();
+                source.type   = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
 
-            // no need to HEAR it, though ;-)
-            const noGain = AudioFactory.createGainNode( audioContext );
-            source.connect( noGain );
-            noGain.gain.value = 0;
+                // no need to HEAR it, though ;-)
+                const noGain = AudioFactory.createGainNode( audioContext );
+                source.connect( noGain );
+                noGain.gain.value = 0;
 
-            noGain.connect( audioContext.destination );
-            AudioFactory.startOscillation( source, 0 );  // triggers unmute in iOS
-            AudioFactory.stopOscillation ( source, 0 );  // stops the oscillation so oscillator can be garbage collected
+                noGain.connect( audioContext.destination );
+                AudioFactory.startOscillation( source, 0 );  // triggers unmute in iOS
+                AudioFactory.stopOscillation ( source, 0 );  // stops the oscillation so oscillator can be garbage collected
 
-            noGain.disconnect();
+                noGain.disconnect();
+            }
+            readyHandler( audioContext );
         };
         document.addEventListener( "click",      handler );
+        document.addEventListener( "keydown",    handler );
         document.addEventListener( "touchstart", handler );
     }
 };

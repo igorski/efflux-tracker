@@ -109,20 +109,12 @@ else {
 
     setupApplicationModel();
 
-    // initialize AudioController first, it sets up the audioContext, which is an evolving
-    // standard and has been known to break on Safari updates, try/catch before continuing actual app bootstrap
-    try {
-        AudioController.init( efflux, efflux.activeSong.instruments );
-        startApplication();
-    }
-    catch ( e ) {
-        // we'd like to see this output in the console, stringified lookup
-        // ensures this code remains in the production build
-        if ( window.console )
-            window.console.error( e );
+    // verify WebAudio API is available in this environment prior to starting
 
+    if ( AudioController.isSupported())
+        startApplication();
+    else
         haltApplicationStart();
-    }
 }
 
 /* private methods */
@@ -146,6 +138,8 @@ function haltApplicationStart() {
 }
 
 function startApplication() {
+
+    AudioController.init( efflux, efflux.activeSong.instruments );
 
     efflux.TemplateService.render( "index", container, null, true ).then(() => {
 

@@ -69,7 +69,6 @@ const SequencerController = module.exports =
         efflux             = effluxRef;
         audioController    = audioControllerRef;
         keyboardController = keyboardControllerRef;
-        audioContext       = audioControllerRef.getContext();
         editorModel        = efflux.EditorModel;
 
         // create LinkedLists to store all currently playing events for all channels
@@ -131,7 +130,8 @@ const SequencerController = module.exports =
             Messages.PATTERN_SWITCH,
             Messages.PATTERN_JUMP_PREV,
             Messages.PATTERN_JUMP_NEXT,
-            Messages.SONG_LOADED
+            Messages.SONG_LOADED,
+            Messages.AUDIO_CONTEXT_READY
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
@@ -210,7 +210,7 @@ const SequencerController = module.exports =
             currentStep = 0;
 
         if ( typeof currentTime !== "number" )
-            currentTime = audioContext.currentTime;
+            currentTime = audioContext ? audioContext.currentTime : 0;
 
         currentMeasure        = measure;
         nextNoteTime          = currentTime;
@@ -307,6 +307,11 @@ function handleBroadcast( type, payload )
         // when a MIDI device is connected, we allow recording from MIDI input
         case Messages.MIDI_DEVICE_CONNECTED:
             recordBTN.classList.remove( "disabled" );
+            break;
+
+        case Messages.AUDIO_CONTEXT_READY:
+            audioContext = payload;
+            SequencerController.setPosition( 0 );
             break;
     }
 }
