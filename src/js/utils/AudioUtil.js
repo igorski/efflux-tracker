@@ -23,7 +23,6 @@
 "use strict";
 
 const AudioFactory = require( "../model/factory/AudioFactory" );
-const Bowser       = require( "bowser" );
 
 module.exports =
 {
@@ -57,7 +56,7 @@ module.exports =
      * @param {AudioContext} audioContext
      * @param {number} time when the callback should be fired (relative to AudioContext currentTime)
      * @param {!Function} callback function to execute
-     * @return {Oscillator}
+     * @return {OscillatorNode}
      */
     createTimer( audioContext, time, callback )
     {
@@ -86,7 +85,7 @@ module.exports =
      * @param {number=} startTimeInSeconds optional, defaults to current time
      * @param {number=} durationInSeconds optional, defaults to 1 second
      *
-     * @return {Oscillator} created Oscillator
+     * @return {OscillatorNode} created Oscillator
      */
     beep( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
     {
@@ -127,9 +126,8 @@ module.exports =
         let audioContext;
         const handler = ( event ) =>
         {
-            document.removeEventListener( "click",      handler, false );
-            document.removeEventListener( "keydown",    handler, false );
-            document.removeEventListener( "touchstart", handler, false );
+            document.removeEventListener( "click",   handler, false );
+            document.removeEventListener( "keydown", handler, false );
 
             if ( typeof AudioContext !== "undefined" )
                 audioContext = new AudioContext();
@@ -140,28 +138,9 @@ module.exports =
             else
                 throw new Error( "WebAudio API not supported" );
 
-            if ( !Bowser.ios && audioContext.state === "suspended" ) {
-                audioContext.resume();
-            }
-            else {
-                const source  = audioContext.createOscillator();
-                source.type   = 0;        // MUST be number (otherwise throws error on iOS/Chrome on mobile)
-
-                // no need to HEAR it, though ;-)
-                const noGain = AudioFactory.createGainNode( audioContext );
-                source.connect( noGain );
-                noGain.gain.value = 0;
-
-                noGain.connect( audioContext.destination );
-                AudioFactory.startOscillation( source, 0 );  // triggers unmute in iOS
-                AudioFactory.stopOscillation ( source, 0 );  // stops the oscillation so oscillator can be garbage collected
-
-                noGain.disconnect();
-            }
             readyHandler( audioContext );
         };
-        document.addEventListener( "click",      handler );
-        document.addEventListener( "keydown",    handler );
-        document.addEventListener( "touchstart", handler );
+        document.addEventListener( "click",   handler );
+        document.addEventListener( "keydown", handler );
     }
 };

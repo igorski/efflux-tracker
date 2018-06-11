@@ -188,6 +188,7 @@ function handleSave( aEvent )
     if ( isValid( song )) {
         efflux.SongModel.saveSong( song );
         Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "SONG_SAVED", song.meta.title ));
+        Pubsub.publish( Messages.SONG_SAVED, song );
     }
 }
 
