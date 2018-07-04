@@ -23,7 +23,7 @@
 "use strict";
 
 const Config  = require( "../config/Config" );
-const zCanvas = require( "zCanvas" );
+const zCanvas = require( "zcanvas" );
 
 // create the WaveTableDraw prototype as an extension of zSprite
 
