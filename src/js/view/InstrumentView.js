@@ -29,7 +29,7 @@ const Messages          = require( "../definitions/Messages" );
 const Pubsub            = require( "pubsub-js" );
 const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
 const WaveTableDraw     = require( "../components/WaveTableDraw" );
-const zCanvas           = require( "zCanvas" );
+const zCanvas           = require( "zcanvas" );
 
 let efflux, model, listener, keyboardController;
 let element, canvas, wtDraw,
