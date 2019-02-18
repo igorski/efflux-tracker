@@ -40,12 +40,12 @@ Additional folders:
    a single file that can be requested via Ajax on the first application start to provide demo content
    (see FixturesLoader.js)
  
-The build scripts are defined in _./Gruntfile.js_ and includes snippets defined in the _./config_-folder.
-
 Application actors
 ------------------
 
-Efflux is written without using any of the large selection of JS frameworks. Instead, it follows _design patterns_.
+Efflux is written in [Vue](https://vuejs.org). I
+
+nstead, it follows _design patterns_.
 Each part of the application is self-contained. State changes are communicated using the _publish / subscribe_
 mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_). As such, each part of
 the application is a separate component only interested in the messages that can alter its state.
@@ -103,23 +103,22 @@ routed through multiple processors before its output is mixed into the master ch
 Build instructions
 ------------------
 
-You will need Node.js in order to run the build scripts and resolve the dependencies. The build script is
-run using Grunt.
+You will need Node.js in order to run the build scripts and resolve the dependencies.
 
 To build efflux first resolve all dependencies using Node:
 
     npm install
  
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
-location at _http://localhost:3000_) using the following Grunt command:
+location at _http://localhost:8080_) using the following Grunt command:
 
-    grunt dev
+    npm run serve
  
 A production build (minimizes CSS and JS output size) can be created using the following Grunt command:
 
-    grunt build
+    npm run build
  
-After which the build output is available in the _./dist/prod_-folder.
+After which the build output is available in the _./dist/_-folder.
  
 Unit testing
 ------------
