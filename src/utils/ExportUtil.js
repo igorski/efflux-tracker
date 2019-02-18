@@ -54,7 +54,7 @@ module.exports = {
 
             reader.onerror = ( readerEvent ) =>
             {
-                Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_FILE_LOAD" ));
+                Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_FILE_LOAD" ));
             };
 
             reader.onload = ( readerEvent ) =>
@@ -72,7 +72,7 @@ module.exports = {
                     Pubsub.publish( Messages.SONG_LOADED, song );
                 }
                 else {
-                    Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_SONG_IMPORT" ));
+                    Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_SONG_IMPORT" ));
                 }
             };
             // start reading file contents
@@ -95,7 +95,7 @@ module.exports = {
         pom.click();
 
         Pubsub.publish( Messages.SONG_EXPORTED, song );
-        Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "SONG_EXPORTED", song.meta.title ));
+        Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "SONG_EXPORTED", song.meta.title ));
     },
 
     /* instrument presets */
@@ -120,7 +120,7 @@ module.exports = {
 
             reader.onerror = ( readerEvent ) =>
             {
-                Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_FILE_LOAD" ));
+                Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_FILE_LOAD" ));
             };
 
             reader.onload = ( readerEvent ) =>
@@ -143,9 +143,9 @@ module.exports = {
                     });
 
                     if ( amountImported > 0 )
-                        Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "INSTRUMENTS_IMPORTED", amountImported ));
+                        Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "INSTRUMENTS_IMPORTED", amountImported ));
                     else
-                        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_INSTRUMENT_IMPORT" ));
+                        Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_INSTRUMENT_IMPORT" ));
                 }
             };
             // start reading file contents
@@ -169,7 +169,7 @@ module.exports = {
             pom.setAttribute( "download", "efflux_instrument_presets" + Config.INSTRUMENT_FILE_EXTENSION );
             pom.click();
 
-            Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "INSTRUMENTS_EXPORTED" ));
+            Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "INSTRUMENTS_EXPORTED" ));
         }
     }
 };

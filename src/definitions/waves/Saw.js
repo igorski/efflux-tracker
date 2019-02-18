@@ -1,9 +1,7 @@
-"use strict";
-
 /**
  * taken from: https://github.com/ehsan/chromium-audio-samples/tree/mozilla/wave-tables
  */
-module.exports = {
+export default {
     real: [
         0.000000,
         0.000000,

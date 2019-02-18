@@ -158,7 +158,7 @@ function handleEvent( aEvent )
 
 function handleUnload( aEvent )
 {
-    return Copy.get( "WARNING_UNLOAD" );
+    return getCopy( "WARNING_UNLOAD" );
 }
 
 /**

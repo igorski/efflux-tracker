@@ -133,12 +133,12 @@ function handleViewMessage( type, optPayload ) {
         case View.EVENTS.SAVE_PRESET:
             const newPresetName = /** @type {string} */ ( optPayload );
             if ( newPresetName.trim().length === 0 ) {
-                Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_NO_INS_NAME" ));
+                Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_NO_INS_NAME" ));
             }
             else {
                 model.instrumentRef.presetName = newPresetName;
                 if ( model.saveInstrument( ObjectUtil.clone( model.instrumentRef ) )) {
-                    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "INSTRUMENT_SAVED", newPresetName ));
+                    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "INSTRUMENT_SAVED", newPresetName ));
                     updatePresetList();
                 }
             }
@@ -214,7 +214,7 @@ function updatePresetList() {
     const presets = model.getInstruments();
     const list    = [];
 
-    list.push({ title: Copy.get( "INPUT_PRESET" ), value: EMPTY_PRESET_VALUE });
+    list.push({ title: getCopy( "INPUT_PRESET" ), value: EMPTY_PRESET_VALUE });
     presets.forEach(( preset ) => {
         list.push({ title: preset.presetName, value: preset.presetName });
     });

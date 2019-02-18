@@ -240,7 +240,7 @@ function glideParameterAutomations() {
             redo: addFn
         });
     } else
-        Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "ERROR_PARAM_GLIDE" ));
+        Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_PARAM_GLIDE" ));
 }
 
 function handleInteraction( aEvent ) {

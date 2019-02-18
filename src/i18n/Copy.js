@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2019 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,23 +22,20 @@
  */
 "use strict";
 
-const Config = require( "../config/Config" );
+import Config from "../config/Config";
 
-module.exports =
-{
-    /**
-     * retrieve the localized content for given key
-     *
-     * @public
-     * @param {string} aCopyKey
-     * @param {string|number=} aReplacement optional string/number to replace
-     *        key "{0}" that optionally exists in the retrieved copy
-     * @return {string}
-     */
-    get( aCopyKey, aReplacement ) {
-        const out = EN[ aCopyKey ] || "_i18n" + aCopyKey;
-        return out.replace( "{0}", aReplacement || "" );
-    }
+/**
+ * retrieve the localized content for given key
+ *
+ * @public
+ * @param {string} aCopyKey
+ * @param {string|number=} aReplacement optional string/number to replace
+ *        key "{0}" that optionally exists in the retrieved copy
+ * @return {string}
+ */
+export const getCopy = ( aCopyKey, aReplacement ) => {
+    const out = EN[ aCopyKey ] || "_i18n" + aCopyKey;
+    return out.replace( "{0}", aReplacement || "" );
 };
 
 // TODO? currently English only

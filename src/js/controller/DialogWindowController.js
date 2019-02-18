@@ -40,8 +40,8 @@ module.exports =
 
             title: "",
             message: "",
-            confirm: Copy.get( "BUTTON_OK" ),
-            cancel:  Copy.get( "BUTTON_CANCEL" )
+            confirm: getCopy( "BUTTON_OK" ),
+            cancel:  getCopy( "BUTTON_CANCEL" )
 
         }).then(( template ) => {
 
@@ -77,7 +77,7 @@ function handleBroadcast( type, payload ) {
         case Messages.CONFIRM:
             Pubsub.publishSync( Messages.SHOW_BLIND );
 
-            dialogTitle.innerHTML   = payload.title || Copy.get( "CONFIRM_TITLE" );
+            dialogTitle.innerHTML   = payload.title || getCopy( "CONFIRM_TITLE" );
             dialogMessage.innerHTML = payload.message;
             confirmHandler = payload.confirm;
             cancelHandler  = payload.cancel;

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2018 - http://www.igorski.nl
+ * Igor Zinken 2017-2019 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,41 +20,34 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import { getCopy } from '../i18n/Copy';
+import Bowser from 'bowser';
 
-const Config = require( "../config/Config" );
-const Copy   = require( "../i18n/Copy" );
-const Bowser = require( "bowser" );
-
+const d = window.document;
 let fsToggle;
 
-module.exports = {
+export const isSupported = () => !Bowser.ios;
 
-    isSupported() {
-        return !Config.isChromeApp() && !Bowser.ios;
-    },
+export const setToggleButton = ( element )=> {
+    fsToggle = element;
+    fsToggle.addEventListener( "click",           toggleFullscreen );
 
-    setToggleButton( element ) {
-        fsToggle = element;
-        fsToggle.addEventListener( "click",                  toggleFullscreen );
-        document.addEventListener( "webkitfullscreenchange", handleFullscreenChange, false );
-        document.addEventListener( "mozfullscreenchange",    handleFullscreenChange, false );
-        document.addEventListener( "fullscreenchange",       handleFullscreenChange, false );
-        document.addEventListener( "MSFullscreenChange",     handleFullscreenChange, false );
-    }
+    d.addEventListener( "webkitfullscreenchange", handleFullscreenChange, false );
+    d.addEventListener( "mozfullscreenchange",    handleFullscreenChange, false );
+    d.addEventListener( "fullscreenchange",       handleFullscreenChange, false );
+    d.addEventListener( "MSFullscreenChange",     handleFullscreenChange, false );
 };
 
 /* internal methods */
 
 function toggleFullscreen( aEvent ) {
-
     let requestMethod, element;
-    if ( document.fullscreenElement || document.webkitFullscreenElement ) {
-        requestMethod = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen || document.msExitFullscreen;
-        element = document;
+    if ( d.fullscreenElement || d.webkitFullscreenElement ) {
+        requestMethod = d.exitFullscreen || d.webkitExitFullscreen || d.mozCancelFullScreen || d.msExitFullscreen;
+        element = d;
     } else {
-        requestMethod = document.body.requestFullScreen || document.body.webkitRequestFullScreen || document.body.mozRequestFullScreen || document.body.msRequestFullscreen;
-        element = document.body;
+        requestMethod = d.body.requestFullScreen || d.body.webkitRequestFullScreen || d.body.mozRequestFullScreen || d.body.msRequestFullscreen;
+        element = d.body;
     }
 
     if ( requestMethod )
@@ -64,7 +57,7 @@ function toggleFullscreen( aEvent ) {
 function handleFullscreenChange() {
 
     if ( document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement === true )
-        fsToggle.innerHTML = Copy.get( "BUTTON_FS_CANCEL" );
+        fsToggle.innerHTML = getCopy( "BUTTON_FS_CANCEL" );
     else
-        fsToggle.innerHTML = Copy.get( "BUTTON_FS_ACTIVATE" );
+        fsToggle.innerHTML = getCopy( "BUTTON_FS_ACTIVATE" );
 }

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016-2019 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,21 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-module.exports =
+export const States =
 {
-    /**
-     * translates a given value in the 0 - 100 range, scales it to the
-     * length of given Array and returns the associated Array item with
-     * the index closest to the resulting scaled value
-     *
-     * @param {Array.<*>} array of items
-     * @param {number} value in the 0 - 100 range
-     * @return {*} associated array item to scaled value
-     */
-    rangeToIndex( array, value )
-    {
-        return array[ Math.round( value / ( 100 / ( array.length - 1 ))) ];
-    }
+    ADD_EVENT                : "S:0",
+    DELETE_EVENT             : "S:1",
+    DELETE_MODULE_AUTOMATION : "S:2",
+    CUT_SELECTION            : "S:3",
+    PASTE_SELECTION          : "S:4"
 };

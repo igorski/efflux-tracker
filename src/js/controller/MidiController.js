@@ -96,7 +96,7 @@ function addMIDIListener( aPortNumber )
 
     const device = zMIDI.getInChannels()[ aPortNumber ];
     Pubsub.publish( Messages.MIDI_DEVICE_CONNECTED, aPortNumber );
-    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "MIDI_ENABLED", device.manufacturer + " " + device.name ));
+    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "MIDI_ENABLED", device.manufacturer + " " + device.name ));
 }
 
 /* event handlers */
@@ -106,13 +106,13 @@ function handleConnectSuccess()
     if ( zMIDI.getInChannels().length === 0 )
         return handleConnectFailure( "" );
 
-    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "MIDI_CONNECTED" ));
+    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "MIDI_CONNECTED" ));
     Pubsub.publish( Messages.MIDI_RECEIVED_INPUT_DEVICES, zMIDI.getInChannels() );
 }
 
 function handleConnectFailure( msg )
 {
-    Pubsub.publish( Messages.SHOW_ERROR, Copy.get( "MIDI_FAILURE" ));
+    Pubsub.publish( Messages.SHOW_ERROR, getCopy( "MIDI_FAILURE" ));
 }
 
 /**

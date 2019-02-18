@@ -1,14 +1,13 @@
 /* equal column heights for editor section */
 
 #editor {
-  .Flex;
+  @include Flex;
 }
 
 #trackEditor,
 #patternTrackList,
 #helpSection {
-  display: -webkit-inline-flex;
-  display: inline-flex;
+  @include InlineFlex;
 }
 
 /* standard width: large TABLET/LAPTOP */

@@ -80,7 +80,7 @@ const efflux = window.efflux =
     // services
 
     TemplateService : new TemplateService(),
-    Pubsub          : Pubsub, // expose publishing / subscribe bus
+
 
     // song data
 

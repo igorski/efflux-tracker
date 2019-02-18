@@ -604,5 +604,5 @@ function handleRecordingComplete( blob )
 
     window.URL.revokeObjectURL( blob );
 
-    Pubsub.publish( Messages.SHOW_FEEDBACK, Copy.get( "RECORDING_SAVED" ));
+    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "RECORDING_SAVED" ));
 }

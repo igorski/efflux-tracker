@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - http://www.igorski.nl
+ * Igor Zinken 2016-2019 - http://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,9 +22,9 @@
  */
 "use strict";
 
-const Bowser = require( "bowser" );
+import Bowser from "bowser";
 
-module.exports =
+export default
 {
     LOCAL_STORAGE_SONGS         : "effluxData",
     LOCAL_STORAGE_INSTRUMENTS   : "effluxInstruments",
@@ -76,17 +76,7 @@ module.exports =
      */
     isDevMode() {
         // simple check whether we're running through the connect plugin
-        return ( window.location.hostname === "localhost" || window.location.port === "3000" );
-    },
-
-    /**
-     * whether the application is running as a Chrome app
-     *
-     * @public
-     * @return {boolean}
-     */
-    isChromeApp() {
-        return window.chrome && window.chrome.runtime && window.chrome.runtime.id;
+        return ( window.location.hostname === "localhost" );
     },
 
     /**

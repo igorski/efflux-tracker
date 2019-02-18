@@ -93,7 +93,7 @@ function handleOpen()
     list.innerHTML = "";
 
     if ( songs.length === 0 ) {
-        Pubsub.publishSync( Messages.SHOW_ERROR, Copy.get( "ERROR_NO_SONGS" ));
+        Pubsub.publishSync( Messages.SHOW_ERROR, getCopy( "ERROR_NO_SONGS" ));
         return;
     }
 
@@ -144,7 +144,7 @@ function handleSongDeleteClick( aEvent )
         return;
 
     Pubsub.publish( Messages.CONFIRM, {
-        message:  Copy.get( "SONG_DELETE_CONFIRM", song.meta.title ),
+        message:  getCopy( "SONG_DELETE_CONFIRM", song.meta.title ),
         confirm : function() {
             songModel.deleteSong( song );
             Pubsub.publishSync( Messages.OPEN_SONG_BROWSER ); // refreshes view

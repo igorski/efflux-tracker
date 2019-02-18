@@ -123,9 +123,9 @@ After which the build output is available in the _./dist/_-folder.
 Unit testing
 ------------
 
-Unit tests are run via Mocha, which is installed as a dependency. You can run the tests by using:
+Unit tests are run via Jest, which is installed as a dependency. You can run the tests by using:
 
-    npm test
+    npm run test
  
 Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
@@ -142,9 +142,6 @@ KNOWN BUGS
 ROADMAP
 -------
 
- * Separate view logic from controllers (in progress)
- * Separate InstrumentController and InstrumentView into separate objects for each module (kinda bloated...)
- * Investigate whether to clean up unused views and listeners (there is no memory leakage and the additional garbage collection might even be bad)
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Minimize vendor libraries
@@ -152,3 +149,10 @@ ROADMAP
  * Add cut/paste icons for touch screen devices
  * Improve arrow key navigation within patterns (there are odd visual jumps when switching direction)
  * Implement Instrument mute / solo
+
+TODO VUE
+--------
+
+All Handlebars moved to components
+All less files moved to appropriate components or SCSS ibraries
+To what extend can we get rid of Pubsub ??

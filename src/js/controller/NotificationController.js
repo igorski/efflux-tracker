@@ -61,15 +61,15 @@ function handleBroadcast( type, payload )
     switch ( type )
     {
         case Messages.SONG_LOADED:
-            openWindow( Copy.get( "SONG_LOADED_TITLE" ), Copy.get( "SONG_LOADED", payload.meta.title ));
+            openWindow( getCopy( "SONG_LOADED_TITLE" ), getCopy( "SONG_LOADED", payload.meta.title ));
             break;
 
         case Messages.SHOW_ERROR:
-            openWindow( Copy.get( "ERROR_TITLE" ), payload );
+            openWindow( getCopy( "ERROR_TITLE" ), payload );
             break;
 
         case Messages.SHOW_FEEDBACK:
-            openWindow( Copy.get( "SUCCESS_TITLE" ), payload );
+            openWindow( getCopy( "SUCCESS_TITLE" ), payload );
             break;
     }
 }
