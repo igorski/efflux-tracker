@@ -1,19 +1,4 @@
-#blind {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,.5);
-  z-index: 400; // below overlays (see mixins.less)
-  display: none;
-}
 
-.blind {
-  #blind {
-    display: block;
-  }
-}
 
 #properties {
   @include EditorComponent;
@@ -29,11 +14,8 @@
 }
 
 @import url( "form.less" );
-@import url( "help.less" );
 @import url( "instrumentEditor.less" );
-@import url( "loader.less" );
 @import url( "songEditor.less" );
-@import url( "dialogWindow.less" );
 @import url( "noteEntry.less" );
 @import url( "notifications.less" );
 @import url( "moduleParamEntry.less" );

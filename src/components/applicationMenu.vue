@@ -67,12 +67,12 @@ import { isSupported, setToggleButton } from '../utils/Fullscreen';
 import { getCopy } from '../i18n/Copy';
 import { Manual } from '../definitions/Manual';
 import { Messages } from '../definitions/Messages';
-import Pubsub from 'pubsub-js';
 
 export default {
     computed: {
         ...mapState([
-            'menuOpened'
+            'menuOpened',
+            'overlayOpened',
         ]),
         hasImportExport() {
             return ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
@@ -86,6 +86,13 @@ export default {
             return ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
         }
     },
+    watch: {
+        overlayOpened(isOpen, wasOpen) {
+            if (!isOpen && wasOpen === true) {
+                this.setMenuOpened(false);
+            }
+        }
+    },
     mounted() {
         if (this.$refs.fullscreenBtn) {
             setToggleButton(this.$refs.fullscreenBtn);
@@ -94,32 +101,11 @@ export default {
     methods: {
         ...mapMutations([
             'setMenuOpened',
+            'setOverlayState',
+            'setHelpTopic',
         ]),
-        handleBroadcast( type, payload ) {
-            switch ( type )
-            {
-                case Messages.WINDOW_RESIZED: // also close menu on resize
-                case Messages.CLOSE_OVERLAYS:
-        
-                    if ( menuOpened )
-                        handleToggle( null );
-                    break;
-        
-                case Messages.SAVE_SONG:
-                    handleSave( null );
-                    break;
-        
-                case Messages.VALIDATE_AND_GET_SONG:
-        
-                    if ( this.isValid( efflux.activeSong )) {
-                        if ( typeof payload === "function" )
-                            payload( efflux.activeSong );
-                    }
-                    break;
-            }
-        },
         handleMouseOver( aEvent ) {
-            Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicMenu" );
+            this.setHelpTopic('menu');
         },
         handleLoad( aEvent ) {
             Pubsub.publish( Messages.CLOSE_OVERLAYS, MenuController ); // close open overlays
@@ -151,7 +137,7 @@ export default {
             });
         },
         handleSettings( aEvent ) {
-            Pubsub.publish( Messages.CLOSE_OVERLAYS, MenuController ); // close open overlays
+            this.setOverlayState(false); // closes open overlays
             Pubsub.publish( Messages.OPEN_SETTINGS_PANEL );
         },
         handleHelpClick(aEvent) {

@@ -154,5 +154,16 @@ TODO VUE
 --------
 
 All Handlebars moved to components
-All less files moved to appropriate components or SCSS ibraries
-To what extend can we get rid of Pubsub ??
+All less files moved to appropriate components or SCSS libraries
+Menu all functionalities (bar help)
+SequencerWorker
+igorski.nl share integration
+Bill Fruge Web MIDI on Linux??
+Overlays must be appended to blind (so don't need to watch setOverlayState for self removal)
+
+HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
+
+LONG TERM TODO (make Git issues)
+--------------
+
+Clean up helpSection (do not inline all topics)

@@ -22,9 +22,10 @@
  */
 "use strict";
 
-const AudioFactory = require( "../model/factory/AudioFactory" );
+import AudioFactory from "../model/factory/AudioFactory";
+const d = window.document;
 
-module.exports =
+export const AudioUtil =
 {
     /**
      * create a WaveTable from given graphPoints Array (a list of
@@ -126,8 +127,8 @@ module.exports =
         let audioContext;
         const handler = ( event ) =>
         {
-            document.removeEventListener( "click",   handler, false );
-            document.removeEventListener( "keydown", handler, false );
+            d.removeEventListener( "click",   handler, false );
+            d.removeEventListener( "keydown", handler, false );
 
             if ( typeof AudioContext !== "undefined" )
                 audioContext = new AudioContext();
@@ -140,7 +141,7 @@ module.exports =
 
             readyHandler( audioContext );
         };
-        document.addEventListener( "click",   handler );
-        document.addEventListener( "keydown", handler );
+        d.addEventListener( "click",   handler );
+        d.addEventListener( "keydown", handler );
     }
 };

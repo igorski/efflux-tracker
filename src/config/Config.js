@@ -76,7 +76,7 @@ export default
      */
     isDevMode() {
         // simple check whether we're running through the connect plugin
-        return ( window.location.hostname === "localhost" );
+        return ( window.location.hostname === 'localhost' );
     },
 
     /**

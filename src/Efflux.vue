@@ -57,21 +57,36 @@
                         <div class="highlight"></div>
                     </div>
                 </section>
-                <section id="helpSection"><!-- x --></section>
+                <help-section />
             </div>
         </div>
 
         <application-footer />
 
-        <div id="blind"><!-- obscuring area used below overlays --></div>
+        <!-- obscuring area displayed below overlays -->
+        <div v-if="overlayOpened" id="blind"></div>
+        <!-- dialog window used for information messages, alerts and confirmations -->
+        <dialog-window v-if="dialog"
+            :type="dialog.type"
+            :title="dialog.title"
+            :message="dialog.message"
+            :confirm-handler="dialog.confirm"
+            :cancel-handler="dialog.cancel"
+        />
+        <loader v-if="loading" />
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapGetters } from 'vuex';
+import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
+import Config from './config/Config';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
+import HelpSection from './components/helpSection';
+import DialogWindow from './components/dialogWindow';
+import Loader from './components/loader';
 import store from './store';
 
 export default {
@@ -79,24 +94,53 @@ export default {
     store,
     components: {
         ApplicationHeader,
-        ApplicationFooter
+        ApplicationFooter,
+        HelpSection,
+        Loader,
+        DialogWindow,
     },
     computed: {
         ...mapState([
             'menuOpened',
+            'overlayOpened',
+            'loading',
+            'dialog'
+        ]),
+        ...mapGetters([
+            'getCopy'
         ]),
     },
     watch: {
         menuOpened(isOpen) {
             // prevent scrolling main body when scrolling menu list
-            window.document.body.style.overflow = isOpen ? "hidden" : "auto";
+                window.document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         }
     },
     created() {
+        // expose publishing / subscribe bus to integrate with outside API's
+
         window.efflux = Object.assign( window.efflux || {}, {
-            Pubsub: Pubsub // expose publishing / subscribe bus to integrate with outside API's
+            Pubsub: Pubsub
         });
-    }
+
+        // show confirmation message on page reload
+
+        if ( !Config.isDevMode() ) {
+            const handleUnload = () => this.getCopy('WARNING_UNLOAD');
+            if ( Bowser.ios ) {
+                window.addEventListener( 'popstate', handleUnload );
+            }
+            else if ( typeof window.onbeforeunload !== 'undefined' ) {
+                const prevBeforeUnload = window.onbeforeunload;
+                window.onbeforeunload = ( aEvent ) => {
+                    if ( prevBeforeUnload ) {
+                        prevBeforeUnload( aEvent );
+                    }
+                    return handleUnload();
+                };
+            }
+        }
+    },
 };
 </script>
 
@@ -116,4 +160,15 @@ export default {
         padding: 0;
         @include noSelect;
     }
+
+    #blind {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,.5);
+      z-index: 400; // below overlays (see _variables.scss)
+    }
+
 </style>

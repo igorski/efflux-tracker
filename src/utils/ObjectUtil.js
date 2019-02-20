@@ -22,7 +22,7 @@
  */
 "use strict";
 
-module.exports =
+export const ObjectUtil =
 {
     /**
      * clone given Object into a new Object instance
@@ -31,8 +31,7 @@ module.exports =
      * @param {Object} aObject
      * @return {Object}
      */
-    clone( aObject )
-    {
+    clone( aObject ){
         return JSON.parse( JSON.stringify( aObject ));
     }
 };

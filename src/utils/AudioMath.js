@@ -22,7 +22,7 @@
  */
 "use strict";
 
-module.exports =
+export const AudioMath =
 {
     /**
      * get the duration of a measure (at given time signature and
@@ -34,8 +34,7 @@ module.exports =
      *                 doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
      * @return {number} duration in milliseconds
      */
-    getMeasureDurationInMs( bpm, beatsPerMeasure )
-    {
+    getMeasureDurationInMs( bpm, beatsPerMeasure ){
         return ( beatsPerMeasure / ( bpm / 60 )) * 1000;
     },
 
@@ -46,8 +45,7 @@ module.exports =
      * @param {number} milliSeconds
      * @return {number} frequency in Hz
      */
-    msToFrequency( milliSeconds )
-    {
+    msToFrequency( milliSeconds ) {
         return 1000 / milliSeconds;
     }
 };

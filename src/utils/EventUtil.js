@@ -22,9 +22,9 @@
  */
 "use strict";
 
-const EventFactory = require( "../model/factory/EventFactory" );
+import EventFactory from "../model/factory/EventFactory";
 
-const EventUtil = module.exports =
+export const EventUtil =
 {
     /**
      * update the position properties of given AudioEvent

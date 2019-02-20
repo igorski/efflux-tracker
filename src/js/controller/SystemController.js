@@ -50,22 +50,7 @@ module.exports =
 
         // listen to window unload when user navigates away
 
-        if ( !Config.isDevMode() ) {
-            if ( Bowser.ios ) {
-                window.addEventListener( "popstate", handleUnload );
-            }
-            else {
-                if ( typeof window.onbeforeunload !== "undefined" ) { // unavailable to Chrome apps
-                    const prevBeforeUnload = window.onbeforeunload;
-                    window.onbeforeunload = ( aEvent ) => {
-                        if ( prevBeforeUnload ) {
-                            prevBeforeUnload( aEvent );
-                        }
-                        return handleUnload( aEvent );
-                    };
-                }
-            }
-        }
+
 
         // subscribe to messaging system
 
@@ -86,50 +71,6 @@ module.exports =
 };
 
 /* private methods */
-
-function handleBroadcast( type, payload )
-{
-    switch ( type )
-    {
-        case Messages.SHOW_BLIND:
-            document.body.classList.add( "blind" );
-            break;
-
-        case Messages.HIDE_BLIND:
-            document.body.classList.remove( "blind" );
-            break;
-
-        case Messages.OVERLAY_OPENED:
-            document.body.classList.add( "has-overlay" );
-            break;
-
-        case Messages.CLOSE_OVERLAYS:
-            document.body.classList.remove( "has-overlay" );
-            document.body.classList.remove( "blind" );
-            break;
-
-        case Messages.SHOW_LOADER:
-
-            if ( ++loadRequests === 1 && !loader ) {
-                Pubsub.publish( Messages.SHOW_BLIND );
-                efflux.TemplateService.renderAsElement( "loader" ).then(( template ) => {
-                    loader = template;
-                    document.body.appendChild( loader );
-                });
-            }
-            break;
-
-        case Messages.HIDE_LOADER:
-            loadRequests = Math.max( 0, loadRequests - 1 );
-
-            if ( loadRequests === 0 && loader ) {
-                Pubsub.publish( Messages.HIDE_BLIND );
-                loader.parentNode.removeChild( loader );
-                loader = null;
-            }
-            break;
-    }
-}
 
 function handleEvent( aEvent )
 {
@@ -154,11 +95,6 @@ function handleEvent( aEvent )
             }
             break;
     }
-}
-
-function handleUnload( aEvent )
-{
-    return getCopy( "WARNING_UNLOAD" );
 }
 
 /**
