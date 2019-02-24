@@ -39,7 +39,7 @@ export default {
     },
     computed: {
       ...mapState([
-        'menuOpened',
+        'menuOpened'
       ])
     }
 };

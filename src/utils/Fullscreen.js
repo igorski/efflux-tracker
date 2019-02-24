@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2019 - http://www.igorski.nl
+ * Igor Zinken 2017-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -40,7 +40,7 @@ export const setToggleButton = ( element )=> {
 
 /* internal methods */
 
-function toggleFullscreen( aEvent ) {
+function toggleFullscreen() {
     let requestMethod, element;
     if ( d.fullscreenElement || d.webkitFullscreenElement ) {
         requestMethod = d.exitFullscreen || d.webkitExitFullscreen || d.mozCancelFullScreen || d.msExitFullscreen;

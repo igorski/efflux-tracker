@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -56,18 +56,6 @@ module.exports =
 
         // add listeners
 
-        container.querySelector( "#patternClear"  ).addEventListener( "click",  handlePatternClear );
-        container.querySelector( "#patternCopy"   ).addEventListener( "click",  handlePatternCopy );
-        container.querySelector( "#patternPaste"  ).addEventListener( "click",  handlePatternPaste );
-        container.querySelector( "#patternAdd"    ).addEventListener( "click",  handlePatternAdd );
-        container.querySelector( "#patternDelete" ).addEventListener( "click",  handlePatternDelete );
-        container.querySelector( "#patternAdvanced" ).addEventListener( "click", handlePatternAdvanced );
-
-        stepSelect.addEventListener( "change", handlePatternStepChange );
-
-        if ( Config.canHover() ) {
-            container.addEventListener( "mouseover", handleMouseOver );
-        }
 
         // subscribe to pubsub messaging
 
@@ -99,113 +87,4 @@ function handleBroadcast( type, payload )
             Form.setSelectedOption( stepSelect, pattern.steps );
             break;
     }
-}
-
-function handlePatternClear( aEvent )
-{
-    efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
-    selectionModel.clearSelection();
-    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-    Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
-}
-
-function handlePatternCopy( aEvent )
-{
-    patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
-}
-
-function handlePatternPaste( aEvent )
-{
-    if ( patternCopy ) {
-        PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
-        Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-        Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
-    }
-}
-
-function handlePatternAdd( aEvent )
-{
-    const song     = efflux.activeSong,
-          patterns = song.patterns;
-
-    if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-        Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_MAX_PATTERNS", Config.MAX_PATTERN_AMOUNT ));
-        return;
-    }
-    song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, editorModel.activePattern + 1, editorModel.amountOfSteps );
-
-    Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-    Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
-}
-
-function handlePatternDelete( aEvent )
-{
-    const song     = efflux.activeSong,
-          patterns = song.patterns;
-
-    if ( patterns.length === 1 )
-    {
-        handlePatternClear( aEvent );
-    }
-    else {
-
-        song.patterns = PatternUtil.removePatternAtIndex( patterns, editorModel.activePattern );
-
-        if ( editorModel.activePattern > 0 )
-            Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
-        else
-            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-
-        Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-    }
-}
-
-function handlePatternAdvanced( aEvent ) {
-    Pubsub.publish( Messages.OPEN_ADVANCED_PATTERN_EDITOR );
-}
-
-function handlePatternStepChange( aEvent )
-{
-    const song    = efflux.activeSong,
-          pattern = song.patterns[ editorModel.activePattern ];
-
-    const oldAmount = pattern.steps;
-    const newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
-
-    // update model values
-    pattern.steps = editorModel.amountOfSteps = newAmount;
-
-    pattern.channels.forEach(( channel, index ) =>
-    {
-        let transformed = new Array( newAmount ), i, j, increment;
-
-        // ensure that the Array contains non-empty values
-        for ( i = 0; i < newAmount; ++i ) {
-            transformed[ i ] = 0;
-        }
-
-        if ( newAmount < oldAmount )
-        {
-            // reducing resolution, e.g. changing from 32 to 16 steps
-            increment = oldAmount / newAmount;
-
-            for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
-                transformed[ i ] = channel[ j ];
-       }
-        else {
-            // increasing resolution, e.g. changing from 16 to 32 steps
-            increment = newAmount / oldAmount;
-
-            for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
-                transformed[ j ] = channel[ i ];
-        }
-        pattern.channels[ index ] = transformed;
-    });
-
-    Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newAmount );
-    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-}
-
-function handleMouseOver( aEvent ) {
-    Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicPattern" );
 }

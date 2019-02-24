@@ -128,13 +128,13 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
     computed: {
         ...mapState([
-            'helpTopic',
-        ]),
+            'helpTopic'
+        ])
     }
 };
 </script>

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,7 +27,6 @@
  * tables are quite large (also you should have very little
  * interest in reading their contents!)
  */
-
 export default
 {
     SINE    : require( "./waves/Sine" ),

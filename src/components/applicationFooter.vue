@@ -37,8 +37,6 @@ export default {
 <style lang="scss" scoped>
     @import "../styles/_variables.scss";
 
-    $footer-height: 45px;
-    
     #footer {
       position: absolute;
       bottom: 0;

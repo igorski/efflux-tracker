@@ -101,22 +101,22 @@ describe( "StateModel", function()
     });
 
     it( "should know the amount of states it has stored", () => {
-        assert.strictEqual( 0, model.getAmountOfStates(), "expected no states to be present after construction");
+        assert.strictEqual( 0, model.amountOfStates(), "expected no states to be present after construction");
 
         for ( let i = 0; i < MIN_STATES; ++i ) {
             model.store({ undo: noop, redo: noop });
-            assert.strictEqual(( i + 1 ), model.getAmountOfStates(),
+            assert.strictEqual(( i + 1 ), model.amountOfStates(),
                 "expected amount of states to increase when storing new states" );
         }
 
         for ( let i = MIN_STATES - 1; i >= 0; --i ) {
             model.undo();
-            assert.strictEqual( i, model.getAmountOfStates(), "expected amount of states to decrease when performing undo" );
+            assert.strictEqual( i, model.amountOfStates(), "expected amount of states to decrease when performing undo" );
         }
 
         for ( let i = 0; i < MIN_STATES; ++i ) {
             model.redo();
-            assert.strictEqual(( i + 1 ), model.getAmountOfStates(),
+            assert.strictEqual(( i + 1 ), model.amountOfStates(),
                 "expected amount of states to increase when performing redo" );
         }
     });
@@ -125,7 +125,7 @@ describe( "StateModel", function()
         for ( let i = 0; i < amountOfStates * 2; ++i ) {
             model.store({ undo: noop, redo: noop });
         }
-        assert.strictEqual( amountOfStates, model.getAmountOfStates(),
+        assert.strictEqual( amountOfStates, model.amountOfStates(),
             "expected model to not have recorded more states than the defined maximum" );
     });
 
@@ -141,6 +141,6 @@ describe( "StateModel", function()
 
         assert.notOk( model.canUndo(), "expected no undo to be available after flushing of history" );
         assert.notOk( model.canRedo(), "expected no redo to be available after flushing of history" );
-        assert.strictEqual( 0, model.getAmountOfStates(), "expected no states to be present in history" );
+        assert.strictEqual( 0, model.amountOfStates(), "expected no states to be present in history" );
     });
 });

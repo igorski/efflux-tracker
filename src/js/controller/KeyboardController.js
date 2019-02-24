@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - http://www.igorski.nl
+ * Igor Zinken 2016-2017 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -389,19 +389,13 @@ function handleKeyDown( aEvent )
 
                     if ( hasOption )
                     {
-                        let state;
-
-                        if ( !shiftDown )
-                            state = stateModel.undo();
-                        else
-                            state = stateModel.redo();
-
-                        if ( state ) {
+                        const action = !shiftDown ? 'undo' : 'redo';
+                        HistoryModule[action].then(() => {
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
 
                             // this is wasteful, can we do this more elegantly?
                             EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
-                        }
+                        });
                     }
                     break;
 

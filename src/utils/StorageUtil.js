@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,13 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import LZString from 'lz-string';
 
-const LZString = require( "lz-string" );
+let storage;
 
-let isChromeStorage, storage;
-
-const StorageUtil = module.exports =
+const StorageUtil =
 {
     /**
      * initializes the storage mechanism
@@ -35,15 +33,8 @@ const StorageUtil = module.exports =
      */
     init()
     {
-        try {
-            // Chrome app, use Chrome storage
-            storage = window.chrome.storage.local;
-            isChromeStorage = true;
-        }
-        catch( e ) {
-            // use LocalStorage
-            storage = window.localStorage;
-        }
+        // use LocalStorage
+        storage = window.localStorage;
     },
 
     /**
@@ -160,3 +151,6 @@ function decompress( string ) {
     else
         return decompressedString;
 }
+
+export default StorageUtil;
+

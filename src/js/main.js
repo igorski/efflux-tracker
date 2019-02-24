@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - http://www.igorski.nl
+ * Igor Zinken 2016-2018 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -204,7 +204,7 @@ function handleBroadcast( type, payload )
                 SongUtil.resetPlayState( efflux.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
                 Pubsub.publishSync( Messages.SONG_LOADED, song );
                 Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
-                efflux.StateModel.flush();
+                efflux.HistoryModule.flush();
             }
             break;
 
@@ -221,7 +221,7 @@ function handleBroadcast( type, payload )
         case Messages.SAVE_STATE:
 
             // save changed state in StateModel for undo/redo purposes
-            efflux.StateModel.store( payload );
+            efflux.HistoryModule.store( payload );
             break;
     }
 }

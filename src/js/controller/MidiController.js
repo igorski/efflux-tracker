@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - http://www.igorski.nl
+ * Igor Zinken 2016 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -128,8 +128,8 @@ function handleMIDIMessage( aEvent )
     {
         case zMIDIEvent.NOTE_ON:
 
-            const instrumentId  = efflux.EditorModel.activeInstrument;
-            const instrument    = efflux.activeSong.instruments[ instrumentId ];
+            const instrumentId = efflux.EditorModel.activeInstrument;
+            const instrument   = efflux.activeSong.instruments[ instrumentId ];
             InstrumentUtil.noteOn( pitch, instrument, editorModel.recordingInput, sequencerController );
             break;
 

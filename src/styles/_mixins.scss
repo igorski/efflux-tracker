@@ -1,0 +1,30 @@
+/* mixins */
+
+@mixin noSelect {
+  -webkit-touch-callout: none;
+    -webkit-user-select: none;
+     -khtml-user-select: none;
+       -moz-user-select: none;
+        -ms-user-select: none;
+            user-select: none;
+}
+
+@mixin noEvents {
+  pointer-events: none;
+}
+
+@mixin boxSize {
+  -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+     -moz-box-sizing: border-box; /* Firefox, other Gecko */
+          box-sizing: border-box;
+}
+
+@mixin Flex {
+  display: -webkit-flex;
+  display: flex;
+}
+
+@mixin InlineFlex {
+  display: -webkit-inline-flex;
+  display: inline-flex;
+}

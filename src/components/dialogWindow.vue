@@ -50,7 +50,7 @@ export default {
         type: {
             type: String,
             required: true,
-            validator: value => /confirm/.test(value)
+            validator: value => /info|confirm|error/.test(value)
         },
         confirmHandler: {
             type: Function,

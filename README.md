@@ -43,35 +43,13 @@ Additional folders:
 Application actors
 ------------------
 
-Efflux is written in [Vue](https://vuejs.org). I
+Efflux is written using [Vue](https://vuejs.org). While originally the application was written without adopting any
+framework, the design pattern adopted is similar to Vue and Vuex's reactivity model, with the benefit of Vue bringing
+easier templating, data binding and event handling.
 
-nstead, it follows _design patterns_.
 Each part of the application is self-contained. State changes are communicated using the _publish / subscribe_
 mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_). As such, each part of
 the application is a separate component only interested in the messages that can alter its state.
-
-A quick summary:
-
-    ./src/js/model
-
-contains the model of the application. This holds editor state (EditorModel), instrument state (InstrumentModel),
-general settings (SettingsModel), the "song"/project that is being edited (SongModel) as well as model for
-selection (SelectionModel) and undo/redo history (StateModel). Most models have factories to create their
-respective entities, as well as validators.
-    
-    ./src/js/controller
-    
-contains the controllers of the application. The controllers are responsible for monitoring state changes
-instructed from the views, as well as listening to model state changes and broadcasting these to the view.
-Note: not all controllers have a view (e.g. keyboard and MIDI controller handle input messages and broadcast
-these to subscribed listeners).
-    
-    ./src/js/view
-    
-contains all the views that are mediated by the controllers. The views reference HTML templates (the Handlebars
-snippets in _/src/templates_) and attach event listeners which can be used to communicate UI changes back
-to the controller. Note: at the moment of writing most Views are still embedded within the controllers and
-need to be separated.
     
 Efflux model
 ------------
@@ -105,16 +83,16 @@ Build instructions
 
 You will need Node.js in order to run the build scripts and resolve the dependencies.
 
-To build efflux first resolve all dependencies using Node:
+To build efflux, first resolve all dependencies using NPM:
 
     npm install
  
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
-location at _http://localhost:8080_) using the following Grunt command:
+location at _http://localhost:8080_) using the following Node command:
 
     npm run serve
  
-A production build (minimizes CSS and JS output size) can be created using the following Grunt command:
+A production build (minimizes CSS and JS output size) can be created using the following command:
 
     npm run build
  
@@ -129,8 +107,6 @@ Unit tests are run via Jest, which is installed as a dependency. You can run the
  
 Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
 the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
-
-NOTE : Node v 4.0 or higher must be installed for running the tests (these depend on jsdom)
 
 KNOWN BUGS
 ----------
@@ -160,8 +136,17 @@ SequencerWorker
 igorski.nl share integration
 Bill Fruge Web MIDI on Linux??
 Overlays must be appended to blind (so don't need to watch setOverlayState for self removal)
+minification of JSON fixtures
+check whether selections cut paste copy et al work
+check whether settings can be saved
+check whether instruments can be saved
+FixturesLoader > use axios
+unit tests > jest
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
+
+submit to madewithvue :D
+
 
 LONG TERM TODO (make Git issues)
 --------------

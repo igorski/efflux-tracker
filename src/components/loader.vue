@@ -20,7 +20,7 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-<template>
+<template functional>
     <div id="loader">
         <div class='uil-default-css'>
             <div style='top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(0deg) translate(0,-60px);transform:rotate(0deg) translate(0,-60px);border-radius:10px;position:absolute;'></div>
@@ -40,9 +40,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+export default {
 
-export default {};
+};
 </script>
 
 <style lang="scss" scoped>

@@ -2,20 +2,38 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Pubsub from 'pubsub-js';
 import { getCopy } from '../i18n/Copy';
+import editor from './modules/editorModule';
+import history from './modules/historyModule';
+import instrument from './modules/instrumentModule';
+import selection from './modules/selectionModule';
+import settings from './modules/settingsModule';
 
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+    modules: {
+        editor,
+        history,
+        instrument,
+        selection,
+        settings
+    },
     state: {
         menuOpened: false,
         overlayOpened: false,
         helpTopic: 'general',
         loading: false,
-        dialog: null,
+        dialog: null
     },
     getters: {
-        // expose copy retrieval via curried getter
-        getCopy: () => state => (copyKey, optReplacement) => getCopy(copyKey, optReplacement),
+        /**
+         * We expose retrieval of text content via this curried getter so we can
+         * easily use it within Vue component templates.
+         *
+         * TODO: consider use of vue-i18n
+         */
+        // eslint-disable-next-line no-unused-vars
+        getCopy: () => state => (copyKey, optReplacement) => getCopy(copyKey, optReplacement)
     },
     mutations: {
         /**
