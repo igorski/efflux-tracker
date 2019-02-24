@@ -1,35 +1,51 @@
 <template>
     <div id="app">
         <application-header />
-        <div class="container">
-            <div id="properties">
-                <section id="songEditor"></section>
-                <pattern-editor />
+        <!-- message of disappointment in case environment does not support appropriate web API's -->
+        <template v-if="!canLaunch">
+            <h1>Whoops...</h1>
+            <p>
+                Either the WebAudio API is not supported in this browser or it does not match the
+                required standards. Sadly, Efflux depends on this API in order to actually output sound!
+            </p>
+            <p>
+                Luckily, you can get a web browser that offers support for free.
+                We recommend <a href="https://www.google.com/chrome" rel="noopener" target="_blank">Google Chrome</a> for an
+                optimal experience.
+            </p>
+        </template>
+        <template v-else>
+            <!-- actual application -->
+            <div class="container">
+                <div id="properties">
+                    <section id="songEditor"></section>
+                    <pattern-editor />
+                </div>
             </div>
-        </div>
 
-        <div class="container">
-            <div id="editor">
-                <section id="trackEditor">
-                    <ul class="controls">
-                        <li class="addNote"></li>
-                        <li class="addOff"></li>
-                        <li class="removeNote"></li>
-                        <li class="moduleParams"></li>
-                        <li class="moduleGlide"></li>
-                    </ul>
-                </section>
-                <section id="patternTrackList">
-                    <div id="patternTrackListContainer">
-                        <div class="wrapper">
-                            <!-- HandleBars content appended here -->
+            <div class="container">
+                <div id="editor">
+                    <section id="trackEditor">
+                        <ul class="controls">
+                            <li class="addNote"></li>
+                            <li class="addOff"></li>
+                            <li class="removeNote"></li>
+                            <li class="moduleParams"></li>
+                            <li class="moduleGlide"></li>
+                        </ul>
+                    </section>
+                    <section id="patternTrackList">
+                        <div id="patternTrackListContainer">
+                            <div class="wrapper">
+                                <!-- HandleBars content appended here -->
+                            </div>
+                            <div class="highlight"></div>
                         </div>
-                        <div class="highlight"></div>
-                    </div>
-                </section>
-                <help-section />
+                    </section>
+                    <help-section />
+                </div>
             </div>
-        </div>
+        </template>
 
         <application-footer />
 
@@ -51,7 +67,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapActions } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config/Config';
@@ -84,6 +100,9 @@ export default {
         ...mapGetters([
             'getCopy'
         ]),
+        canLaunch() {
+            return AudioController.isSupported();
+        }
     },
     watch: {
         menuOpened(isOpen) {
@@ -91,8 +110,8 @@ export default {
                 window.document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         }
     },
-    created() {
-        // expose publishing / subscribe bus to integrate with outside API's
+    async created() {
+        // expose publish / subscribe bus to integrate with outside API's
 
         window.efflux = Object.assign( window.efflux || {}, {
             Pubsub: Pubsub
@@ -104,17 +123,22 @@ export default {
         this.loadStoredInstruments();
         this.loadStoredSongs();
 
+        // prepare model
+
+        this.prepareLinkedList();
+        this.setActiveSong(await this.createSong());
+
         // show confirmation message on page reload
 
         if ( !Config.isDevMode() ) {
             const handleUnload = () => this.getCopy('WARNING_UNLOAD');
             if ( Bowser.ios ) {
-                window.addEventListener( 'popstate', handleUnload );
+                window.addEventListener('popstate', handleUnload);
             }
-            else if ( typeof window.onbeforeunload !== 'undefined' ) {
+            else if (typeof window.onbeforeunload !== 'undefined') {
                 const prevBeforeUnload = window.onbeforeunload;
                 window.onbeforeunload = aEvent => {
-                    if ( prevBeforeUnload ) {
+                    if (typeof prevBeforeUnload === 'function') {
                         prevBeforeUnload( aEvent );
                     }
                     return handleUnload();
@@ -123,10 +147,15 @@ export default {
         }
     },
     methods: {
+        ...mapMutations([
+            'prepareLinkedList',
+            'setActiveSong'
+        ]),
         ...mapActions([
             'loadStoredSettings',
             'loadStoredInstruments',
-            'loadStoredSongs'
+            'loadStoredSongs',
+            'createSong'
         ])
     }
 };

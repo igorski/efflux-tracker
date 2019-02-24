@@ -92,7 +92,13 @@ export default {
          *
          * @type {number}
          */
-        lowerKeyboardOctave: 2
+        lowerKeyboardOctave: 2,
+
+        /**
+         * linked list that is used to chain all song pattern
+         * events sequentially, used for fast editing
+         */
+        list: null
     },
     mutations: {
         reset(state) {
@@ -100,6 +106,13 @@ export default {
             state.activePattern    =
             state.activeStep       = 0;
             state.recordingInput   = false;
+        },
+        prepareLinkedList(state) {
+            state.eventList = new Array(Config.INSTRUMENT_AMOUNT);
+
+            for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
+                state.eventList[ i ] = new LinkedList();
+            }
         }
     }
 };

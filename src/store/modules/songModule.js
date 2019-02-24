@@ -34,7 +34,7 @@ const persistState = state => {
     state.songs.forEach( function( song, index ) {
         xtkSongs[ index ] = SongAssemblyService.disassemble( song );
     });
-    StorageUtil.setItem( Config.LOCAL_STORAGEsongs, JSON.stringify( xtkSongs ));
+    StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( xtkSongs ));
 };
 
 export default {
@@ -42,7 +42,8 @@ export default {
         /**
          * @type {Array.<Object>}
          */
-        songs: []
+        songs: [],
+        activeSong: null
     },
     getters: {
         getSongs(state) {
@@ -62,6 +63,9 @@ export default {
                 songs[ index ] = SongAssemblyService.assemble( xtk );
             });
             state.songs = songs;
+        },
+        setActiveSong(state, song) {
+            state.activeSong = song;
         }
     },
     actions: {

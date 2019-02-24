@@ -25,7 +25,8 @@
             </li>
             <li>
                 <select id="patternSteps"
-                        @change="handlePatternStepChange">
+                        @change="handlePatternStepChange"
+                >
                     <option value="16">16 steps</option>
                     <option value="32">32 steps</option>
                     <option value="64">64 steps</option>
@@ -44,6 +45,9 @@
 import { mapMutations } from 'vuex';
 
 export default {
+    data: () => ({
+        patternCopy: null
+    }),
     methods: {
         ...mapMutations([
            'setHelpTopic',
@@ -56,11 +60,11 @@ export default {
             Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
         },
         handlePatternCopy() {
-            patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
+            this.patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
         },
         handlePatternPaste() {
-            if ( patternCopy ) {
-                PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], patternCopy, editorModel.activePattern );
+            if ( this.patternCopy ) {
+                PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], this.patternCopy, editorModel.activePattern );
                 Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                 Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
             }
@@ -96,8 +100,7 @@ export default {
                 Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
             }
         },
-        handlePatternStepChange()
-        {
+        handlePatternStepChange() {
             const song    = efflux.activeSong,
                   pattern = song.patterns[ editorModel.activePattern ];
 
@@ -151,8 +154,7 @@ export default {
       display: inline-block;
     }
 
-    #patternEditor
-    {
+    #patternEditor {
       margin: 0 0 0 10px;
 
       h4 {
@@ -183,8 +185,7 @@ export default {
 
     /* tablet view */
 
-    @media screen and ( min-width: $app-width )
-    {
+    @media screen and ( min-width: $app-width ) {
       #patternEditor {
         // show divider before section content
         &:before {
@@ -199,8 +200,7 @@ export default {
 
     /* everything above mobile view and below app width */
 
-    @media screen and ( min-width: $mobile-width ) and ( max-width: $app-width )
-    {
+    @media screen and ( min-width: $mobile-width ) and ( max-width: $app-width ) {
       #patternEditor {
         // TODO: we're now hiding our interface from these users...
         display: none;
@@ -209,8 +209,7 @@ export default {
 
     /* phone view */
 
-    @media screen and ( max-width: $mobile-width )
-    {
+    @media screen and ( max-width: $mobile-width ) {
       #patternEditor  {
         display: none; // only visible when settings mode is active
       }

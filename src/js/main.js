@@ -1,142 +1,3 @@
-/**
- * The MIT License (MIT)
- *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-"use strict";
-
-const Config                          = require( "./config/Config" );
-const EditorModel                     = require( "./model/EditorModel" );
-const InstrumentModel                 = require( "./model/InstrumentModel" );
-const SelectionModel                  = require( "./model/SelectionModel" );
-const SettingsModel                   = require( "./model/SettingsModel" );
-const SongModel                       = require( "./model/SongModel" );
-const StateModel                      = require( "./model/StateModel" );
-const SongValidator                   = require( "./model/validators/SongValidator" );
-const AudioController                 = require( "./controller/AudioController" );
-const DialogWindowController          = require( "./controller/DialogWindowController" );
-const HelpController                  = require( "./controller/HelpController" );
-const InstrumentController            = require( "./controller/InstrumentController" );
-const KeyboardController              = require( "./controller/KeyboardController" );
-const MenuController                  = require( "./controller/MenuController" );
-const SongEditorController            = require( "./controller/SongEditorController" );
-const MidiController                  = require( "./controller/MidiController" );
-const ModuleParamController           = require( "./controller/ModuleParamController" );
-const NoteEntryController             = require( "./controller/NoteEntryController" );
-const NotificationController          = require( "./controller/NotificationController" );
-const PatternEditorController         = require( "./controller/PatternEditorController" );
-const TrackEditorController           = require( "./controller/TrackEditorController" );
-const PatternTrackListController      = require( "./controller/PatternTrackListController" );
-const AdvancedPatternEditorController = require( "./controller/AdvancedPatternEditorController" );
-const SequencerController             = require( "./controller/SequencerController" );
-const SettingsController              = require( "./controller/SettingsController" );
-const SongBrowserController           = require( "./controller/SongBrowserController" );
-const SystemController                = require( "./controller/SystemController" );
-const ObjectUtil                      = require( "./utils/ObjectUtil" );
-const EventUtil                       = require( "./utils/EventUtil" );
-const SongUtil                        = require( "./utils/SongUtil" );
-const LinkedList                      = require( "./utils/LinkedList" );
-const TemplateService                 = require( "./services/TemplateService" );
-const Messages                        = require( "./definitions/Messages" );
-const Pubsub                          = require( "pubsub-js" );
-const zMIDI                           = require( "zmidi" ).zMIDI;
-
-/* initialize application */
-
-// grab reference to application container in template
-
-const container = document.querySelector( "#application" );
-
-// prepare application actors
-
-const efflux = window.efflux =
-{
-    // models
-
-    EditorModel     : new EditorModel(),
-    InstrumentModel : new InstrumentModel(),
-    SelectionModel  : new SelectionModel(),
-    SettingsModel   : new SettingsModel(),
-    SongModel       : new SongModel(),
-    StateModel      : new StateModel(),
-
-    // services
-
-    TemplateService : new TemplateService(),
-
-
-    // song data
-
-    /**
-     * this will reference the currently active Song
-     *
-     * @type {SONG}
-     */
-    activeSong : null,
-
-    /**
-     * Each channel uses a LinkedList to quickly
-     * link all events to each other (@see SequencerController)
-     *
-     * Array.<LinkedList>
-     */
-    eventList : new Array( Config.INSTRUMENT_AMOUNT )
-};
-
-// WebAudio API not supported ? halt application start
-
-if ( !AudioController.isSupported() ) {
-    haltApplicationStart();
-}
-else {
-
-    setupApplicationModel();
-
-    // verify WebAudio API is available in this environment prior to starting
-
-    if ( AudioController.isSupported())
-        startApplication();
-    else
-        haltApplicationStart();
-}
-
-/* private methods */
-
-function setupApplicationModel() {
-    // prepare linked audio event list
-
-    for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-        efflux.eventList[ i ] = new LinkedList();
-
-    // setup application models
-
-    efflux.SettingsModel.init();
-    efflux.InstrumentModel.init();
-    efflux.SongModel.init();
-    efflux.activeSong = efflux.SongModel.createSong();
-}
-
-function haltApplicationStart() {
-    efflux.TemplateService.render( "notSupported", container );
-}
-
 function startApplication() {
 
     AudioController.init( efflux, efflux.activeSong.instruments );
@@ -147,7 +8,6 @@ function startApplication() {
 
         KeyboardController.init( efflux, SequencerController );
         SettingsController.init( efflux, document.body );
-        MenuController.init( container.querySelector( "#menuSection" ), efflux );
         InstrumentController.init( container, efflux, KeyboardController );
         SongEditorController.init( container.querySelector( "#songEditor" ), efflux, KeyboardController );
         SequencerController.init(
@@ -159,15 +19,11 @@ function startApplication() {
         ModuleParamController.init( container, efflux, KeyboardController );
         NotificationController.init( container );
         TrackEditorController.init( container.querySelector( "#trackEditor" ), efflux );
-        PatternEditorController.init( container.querySelector( "#patternEditor" ), efflux );
         PatternTrackListController.init(
             container.querySelector( "#patternTrackListContainer" ),
             efflux, KeyboardController
         );
         AdvancedPatternEditorController.init( container, efflux, KeyboardController );
-        HelpController.init( container.querySelector( "#helpSection" ), efflux );
-        DialogWindowController.init( container, efflux );
-        SystemController.init();
 
         // MIDI is currently only supported in Chrome
 
