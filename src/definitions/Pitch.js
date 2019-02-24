@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export const Pitch =
+const Pitch =
 {
     /**
      * order of note names within a single octave
@@ -176,3 +176,5 @@ export const Pitch =
         return NaN;
     }
 };
+
+export default Pitch;

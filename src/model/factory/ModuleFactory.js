@@ -24,7 +24,7 @@
 
 const AudioFactory = require( "./AudioFactory" );
 const ModuleUtil   = require( "../../utils/ModuleUtil" );
-const Config       = require( "../../config/Config" );
+const Config       = require( "../../config" );
 const Delay        = require( "../../third_party/Delay" );
 const Overdrive    = require( "wa-overdrive" );
 

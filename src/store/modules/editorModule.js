@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Config from '../../config';
+import LinkedList from '../../utils/LinkedList';
 
 // editor module stores all states of the editor such as
 // the instrument which is currently be edited, the active track

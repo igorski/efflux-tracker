@@ -22,7 +22,7 @@
  */
 "use strict";
 
-import Config from "../config/Config";
+import Config from "../config";
 
 /**
  * retrieve the localized content for given key

@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const Config    = require( "../config/Config" );
+const Config    = require( "../config" );
 const Delay     = require( "../third_party/Delay" );
 const ArrayUtil = require( "../utils/ArrayUtil" );
 const Messages  = require( "../definitions/Messages" );

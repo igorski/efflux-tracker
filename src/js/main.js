@@ -10,10 +10,6 @@ function startApplication() {
         SettingsController.init( efflux, document.body );
         InstrumentController.init( container, efflux, KeyboardController );
         SongEditorController.init( container.querySelector( "#songEditor" ), efflux, KeyboardController );
-        SequencerController.init(
-            container.querySelector( "#transportSection" ),
-            efflux, AudioController, KeyboardController
-        );
         SongBrowserController.init( document.body, efflux );
         NoteEntryController.init( container, efflux, KeyboardController );
         ModuleParamController.init( container, efflux, KeyboardController );

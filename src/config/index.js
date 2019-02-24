@@ -20,19 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Bowser from "bowser";
+import Bowser from 'bowser';
 
-export default Config =
+export default
 {
-    LOCAL_STORAGE_SONGS         : "effluxData",
-    LOCAL_STORAGE_INSTRUMENTS   : "effluxInstruments",
-    LOCAL_STORAGE_SETTINGS      : "effluxSettings",
+    LOCAL_STORAGE_SONGS         : 'effluxData',
+    LOCAL_STORAGE_INSTRUMENTS   : 'effluxInstruments',
+    LOCAL_STORAGE_SETTINGS      : 'effluxSettings',
     INSTRUMENT_AMOUNT           : 8,
     WAVE_TABLE_SIZE             : 512,
     MAX_PATTERN_AMOUNT          : 128,
     MAX_OCTAVE                  : 8,
-    SONG_FILE_EXTENSION         : ".xtk",
-    INSTRUMENT_FILE_EXTENSION   : ".xit",
+    SONG_FILE_EXTENSION         : '.xtk',
+    INSTRUMENT_FILE_EXTENSION   : '.xit',
 
     MIN_EQ_GAIN                 : -40.0, // in dB
 
@@ -63,7 +63,7 @@ export default Config =
      * @return {string}
      */
     getBasePath(){
-        return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
+        return ( typeof window.effluxPath === 'string' ) ? window.effluxPath : window.location.origin + window.location.pathname;
     },
 
     /**

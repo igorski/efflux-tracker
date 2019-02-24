@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const Config            = require( "../config/Config" );
+const Config            = require( "../config" );
 const Form              = require( "../utils/Form" );
 const Manual            = require( "../definitions/Manual" );
 const Messages          = require( "../definitions/Messages" );

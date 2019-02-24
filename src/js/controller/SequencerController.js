@@ -1,56 +1,10 @@
-/**
- * The MIT License (MIT)
- *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-"use strict";
-
-const Config       = require( "../config/Config" );
-const Form         = require( "../utils/Form" );
-const AudioUtil    = require( "../utils/AudioUtil" );
-const EventUtil    = require( "../utils/EventUtil" );
-const SongUtil     = require( "../utils/SongUtil" );
-const LinkedList   = require( "../utils/LinkedList" );
-const Messages     = require( "../definitions/Messages" );
-const Metronome    = require( "../components/Metronome" );
-const AudioFactory = require( "../model/factory/AudioFactory" );
-const Bowser       = require( "bowser" );
-const Pubsub       = require( "pubsub-js" );
-
 /* private properties */
 
-let efflux, audioController, keyboardController, audioContext, worker, editorModel,
-    playBTN, loopBTN, recordBTN, settingsToggle, tempoSlider, currentPositionInput,
+ playBTN, loopBTN, recordBTN, settingsToggle, tempoSlider, currentPositionInput,
     maxPositionTitle, metronomeToggle, tempoDisplay;
 
-let playing           = false,
-    looping           = false,
-    recording         = false,
-    scheduleAheadTime = 0.2,
-    stepPrecision     = 64,
-    beatAmount        = 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
-    beatUnit          = 4;
 
-let queueHandlers = [], channelQueue = new Array( Config.INSTRUMENT_AMOUNT ),
-    currentMeasure, measureStartTime, firstMeasureStartTime,
-    currentStep, nextNoteTime, channels;
+
 
 const SequencerController = module.exports =
 {
@@ -66,16 +20,6 @@ const SequencerController = module.exports =
      */
     init( containerRef, effluxRef, audioControllerRef, keyboardControllerRef )
     {
-        efflux             = effluxRef;
-        audioController    = audioControllerRef;
-        keyboardController = keyboardControllerRef;
-        editorModel        = efflux.EditorModel;
-
-        // create LinkedLists to store all currently playing events for all channels
-
-        for ( let i = 0; i < channelQueue.length; ++i )
-            channelQueue[ i ] = new LinkedList();
-
         // render the transport controls in the DOM
 
         efflux.TemplateService.render( "transport", containerRef, null, true ).then(() => {
@@ -96,25 +40,6 @@ const SequencerController = module.exports =
             currentPositionInput = document.querySelector( "#currentPattern .current" );
             maxPositionTitle     = document.querySelector( "#currentPattern .total" );
 
-            // add event listeners
-
-            playBTN.addEventListener        ( "click", handlePlayToggle );
-            loopBTN.addEventListener        ( "click", handleLoopToggle );
-            recordBTN.addEventListener      ( "click", handleRecordToggle );
-            tempoSlider.addEventListener    ( "input", handleTempoChange );
-            metronomeToggle.addEventListener( "click", handleMetronomeToggle );
-            settingsToggle.addEventListener ( "click", handleSettingsToggle );
-            currentPositionInput.addEventListener( "focus",  handleCurrentPositionInteraction );
-            currentPositionInput.addEventListener( "change", handleCurrentPositionInteraction );
-            currentPositionInput.addEventListener( "blur",   handleCurrentPositionInteraction );
-            document.querySelector( "#patternBack" ).addEventListener( "click", handlePatternNavBack );
-            document.querySelector( "#patternNext" ).addEventListener( "click", handlePatternNavNext );
-
-            // for desktop/laptop devices we enable record mode (for keyboard input)
-            // if a MIDI device is connected on a mobile device, it is enabled again
-
-            if ( !Bowser.ios && !Bowser.android )
-                recordBTN.classList.remove( "disabled" );
         });
 
 
@@ -135,22 +60,9 @@ const SequencerController = module.exports =
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
 
-        worker = new Worker( "../../workers/SequencerWorker.js" );
-        worker.onmessage = ( msg ) =>
-        {
-            if ( msg.data.cmd === "collect" && playing )
-                collect();
-        };
+
     },
 
-    /**
-     * query whether the Sequencer is currently playing
-     * @return {boolean}
-     */
-    getPlaying()
-    {
-        return playing;
-    },
 
     /**
      * start / stop the Sequencer

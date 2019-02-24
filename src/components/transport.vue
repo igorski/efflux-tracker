@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019 - https://www.igorski.nl
+* Igor Zinken 2016-2019 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -21,42 +21,107 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="transportControls">
-        <ul>
-            <li id="playBTN" class="icon-play"></li>
-            <li id="loopBTN" class="icon-loop"></li>
-            <li id="recordBTN" class="disabled"></li>
-            <li class="icon-metronome"></li>
-            <li class="icon-settings"></li>
-            <li class="section-divider"><!-- x --></li>
-            <li id="patternBack">
-                &lt;&lt;
-            </li>
-            <li id="currentPattern">
-                <input class="current" value="1" maxlength="3">
-                <span class="divider">/</span>
-                <span class="total">1</span>
-            </li>
-            <li id="patternNext">
-                &gt;&gt;
-            </li>
-        </ul>
-        <ul id="tempoControl" class="wrapper input range">
-            <li class="section-divider"><!-- x --></li>
-            <li>
-                <label for="songTempo">Tempo</label>
-                <input type="range" name="tempo" id="songTempo" min="40" max="300" step="0.1" value="120">
-                <span class="value" id="songTempoDisplay">120.0 BPM</span>
-            </li>
-        </ul>
-    </div>
+    <section id="transportSection">
+        <div id="transportControls">
+            <ul>
+                <li id="playBTN" class="icon-play" @click="handlePlayToggle"></li>
+                <li id="loopBTN" class="icon-loop" @click="handleLoopToggle"></li>
+                <li id="recordBTN"
+                    :class="{ disabled: !canRecord }"
+                    @click="handleRecordToggle"
+                ></li>
+                <li class="icon-metronome" @click="handleMetronomeToggle"></li>
+                <li class="icon-settings"  @click="handleSettingsToggle"></li>
+                <li class="section-divider"><!-- x --></li>
+                <li id="patternBack" @click="handlePatternNavBack">
+                    &lt;&lt;
+                </li>
+                <li id="currentPattern">
+                    <input class="current"
+                           value="1" maxlength="3"
+                           @focus="handleCurrentPositionInteraction"
+                           @change="handleCurrentPositionInteraction"
+                           @blur="handleCurrentPositionInteraction"
+                    />
+                    <span class="divider">/</span>
+                    <span class="total">1</span>
+                </li>
+                <li id="patternNext" @click="handlePatternNavNext">
+                    &gt;&gt;
+                </li>
+            </ul>
+            <ul id="tempoControl" class="wrapper input range">
+                <li class="section-divider"><!-- x --></li>
+                <li>
+                    <label for="songTempo">Tempo</label>
+                    <input type="range"
+                           name="tempo" id="songTempo"
+                           min="40" max="300" step="0.1" value="120"
+                           @input="handleTempoChange"
+                    />
+                    <span class="value" id="songTempoDisplay">120.0 BPM</span>
+                </li>
+            </ul>
+        </div>
+    </section>
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
 
-export default {
+import Config       from '../config';
+import Form         from '../utils/Form';
+import AudioUtil    from '../utils/AudioUtil';
+import EventUtil    from '../utils/EventUtil';
+import SongUtil     from '../utils/SongUtil';
+import LinkedList   from '../utils/LinkedList';
+import Metronome    from '../utils/Metronome';
+import Messages     from '../definitions/Messages';
+import AudioFactory from '../model/factory/AudioFactory';
+import Bowser       from 'bowser';
+import Pubsub       from 'pubsub-js';
 
+export default {
+    data: () => ({
+        playing              : false,
+        looping              : false,
+        recording            : false,
+        scheduleAheadTime    : 0.2,
+        stepPrecision        : 64,
+        beatAmount           : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
+        beatUnit             : 4,
+        queueHandlers        : [],
+        channelQueue         : new Array( Config.INSTRUMENT_AMOUNT ),
+        currentMeasure       : 0,
+        measureStartTime     : 0,
+        firstMeasureStartTime: 0,
+        currentStep          : 0,
+        nextNoteTime         : 0,
+        channels             : 0,
+        worker               : null
+    }),
+    computed: {
+        canRecord() {
+            // for desktop/laptop devices we enable record mode (for keyboard input)
+            // if a MIDI device is connected on a mobile device, it is enabled as well
+            return !Bowser.ios && !Bowser.android;
+        }
+    },
+    created() {
+        // create LinkedLists to store all currently playing events for all channels
+
+        for ( let i = 0; i < this.channelQueue.length; ++i ) {
+            this.channelQueue[ i ] = new LinkedList();
+        }
+
+        // spawn Worker to handle the intervallic polling
+
+        this.worker = new Worker( '../../workers/SequencerWorker.js' );
+        this.worker.onmessage = msg => {
+            if ( msg.data.cmd === "collect" && this.playing )
+                collect();
+        };
+    }
 };
 </script>
 
@@ -67,11 +132,11 @@ export default {
 
     @font-face {
       font-family: 'transporter';
-      src: url('../fonts/transporter.eot');
-      src: url('../fonts/transporter.eot#iefix') format('embedded-opentype'),
-           url('../fonts/transporter.woff') format('woff'),
-           url('../fonts/transporter.ttf') format('truetype'),
-           url('../fonts/transporter.svg#transporter') format('svg');
+      src: url('../assets/fonts/transporter.eot');
+      src: url('../assets/fonts/transporter.eot#iefix') format('embedded-opentype'),
+           url('../assets/fonts/transporter.woff') format('woff'),
+           url('../assets/fonts/transporter.ttf') format('truetype'),
+           url('../assets/fonts/transporter.svg#transporter') format('svg');
       font-weight: normal;
       font-style: normal;
     }

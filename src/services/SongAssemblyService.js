@@ -20,11 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const EventUtil         = require( "../utils/EventUtil" );
-const SongValidator     = require( "../model/validators/SongValidator" );
-const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
+import EventUtil         from '../utils/EventUtil';
+import SongValidator     from '../model/validators/SongValidator';
+import InstrumentFactory from '../model/factory/InstrumentFactory';
 
 /* private properties */
 
@@ -35,8 +33,8 @@ const ASSEMBLER_VERSION = 3;
  * for file storage. While an .XTK is still a JSON Object, some properties are omitted / renamed
  * to limit filesize
  */
-module.exports = {
-
+export default
+{
     /**
      * assembles a song Object from an .XTK file
      *

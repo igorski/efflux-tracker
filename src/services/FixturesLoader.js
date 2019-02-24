@@ -22,10 +22,10 @@
  */
 "use strict";
 
-const Config   = require( "../config/Config" );
+const Config   = require( "../config" );
 const Messages = require( "../definitions/Messages" );
 const Pubsub   = require( "pubsub-js" );
-const Qajax    = require( "qajax" );
+//const Qajax    = require( "qajax" );
 
 module.exports =
 {
@@ -40,7 +40,8 @@ module.exports =
     load( callback, filename )
     {
         showLoader();
-        Qajax( Config.getBasePath() + "/" + filename )
+        return; // QQQ
+        Qajax( `${Config.getBasePath()}/${filename}` )
             .then(( success ) =>
             {
                 hideLoader();

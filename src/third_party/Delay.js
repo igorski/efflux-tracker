@@ -1,5 +1,3 @@
-"use strict";
-
 /**
  * Taken from https://github.com/web-audio-components/delay
  *
@@ -491,4 +489,4 @@ Delay.prototype = Object.create(null, {
  * Exports.
  */
 
-module.exports = Delay;
+export default Delay;

@@ -20,11 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import InstrumentFactory from '../factory/InstrumentFactory';
 
-const InstrumentFactory = require( "../factory/InstrumentFactory" );
-
-module.exports =
+export default
 {
     /**
      * queries whether given Object is a valid song. NOTE: this is

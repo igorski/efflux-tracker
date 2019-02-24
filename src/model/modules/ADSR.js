@@ -20,13 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
 let ADSR, envelope, attack, release, attackEnd, decayEnd, step;
 const MAX_PITCH_ENVELOPE_VALUE = 24; // max value we expect for the pitch envelope's range
 
-
-module.exports = {
+export default {
 
     /**
      * apply attack, decay and sustain amplitude envelopes to given gain Node

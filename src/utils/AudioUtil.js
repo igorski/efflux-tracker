@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
 import AudioFactory from "../model/factory/AudioFactory";
 const d = window.document;
 
-export const AudioUtil =
+export default
 {
     /**
      * create a WaveTable from given graphPoints Array (a list of
@@ -42,10 +40,10 @@ export const AudioUtil =
     {
         // DFT provided by dsp.js
 
-        let ft = new DFT( graphPoints.length );
-        ft.forward( graphPoints );
+        const dft = new DFT( graphPoints.length );
+        dft.forward( graphPoints );
 
-        return audioContext.createPeriodicWave( ft.real, ft.imag );
+        return audioContext.createPeriodicWave( dft.real, dft.imag );
     },
 
     /**
@@ -61,11 +59,11 @@ export const AudioUtil =
      */
     createTimer( audioContext, time, callback )
     {
-        let timer = audioContext.createOscillator();
+        const timer = audioContext.createOscillator();
 
         timer.onended = callback;
 
-        let noGain = AudioFactory.createGainNode( audioContext );
+        const noGain = AudioFactory.createGainNode( audioContext );
         timer.connect( noGain );
         noGain.gain.value = 0;
         noGain.connect( audioContext.destination );
@@ -90,7 +88,7 @@ export const AudioUtil =
      */
     beep( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
     {
-        let oscillator = audioContext.createOscillator();
+        const oscillator = audioContext.createOscillator();
         oscillator.connect( audioContext.destination );
 
         oscillator.frequency.value = frequencyInHertz;
@@ -125,23 +123,23 @@ export const AudioUtil =
     init( readyHandler )
     {
         let audioContext;
-        const handler = ( event ) =>
+        const handler = event =>
         {
-            d.removeEventListener( "click",   handler, false );
-            d.removeEventListener( "keydown", handler, false );
+            d.removeEventListener( 'click',   handler, false );
+            d.removeEventListener( 'keydown', handler, false );
 
-            if ( typeof AudioContext !== "undefined" )
-                audioContext = new AudioContext();
+            if ( typeof window.AudioContext !== 'undefined' )
+                audioContext = new window.AudioContext();
 
-            else if ( typeof webkitAudioContext !== "undefined" )
-                audioContext = new webkitAudioContext();
+            else if ( typeof window.webkitAudioContext !== 'undefined' )
+                audioContext = new window.webkitAudioContext();
 
             else
-                throw new Error( "WebAudio API not supported" );
+                throw new Error( 'WebAudio API not supported' );
 
             readyHandler( audioContext );
         };
-        d.addEventListener( "click",   handler );
-        d.addEventListener( "keydown", handler );
+        d.addEventListener( 'click',   handler );
+        d.addEventListener( 'keydown', handler );
     }
 };

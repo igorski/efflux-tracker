@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
 import EventFactory from "../model/factory/EventFactory";
 
-export const EventUtil =
+const EventUtil =
 {
     /**
      * update the position properties of given AudioEvent
@@ -231,20 +229,23 @@ export const EventUtil =
         const firstEvent         = firstPatternEvents[ eventIndex ];
         const firstParam         = firstEvent.mp;
 
+        const listNode = list.getNodeByData( firstEvent );
         let secondEvent, secondParam;
-        let listNode = list.getNodeByData( firstEvent );
         let compareNode;
 
         if ( !firstParam || !listNode )
             return null;
 
-        while ( compareNode = listNode.next ) {
+        compareNode = listNode.next;
+
+        while ( compareNode ) {
 
             secondEvent = compareNode.data;
+            secondParam = secondEvent.mp;
 
             // ignore events without a module parameter change
 
-            if ( secondParam = secondEvent.mp ) {
+            if ( secondParam ) {
 
                 // if new event has a module parameter change for the
                 // same module, we have found our second event
@@ -255,7 +256,7 @@ export const EventUtil =
                     return null;
             }
             // keep iterating through the linked list
-            listNode = compareNode;
+            compareNode = compareNode.next;
         }
 
         if ( !secondParam )
@@ -273,7 +274,7 @@ export const EventUtil =
         const events = [];
 
         const addOrUpdateEvent = ( evt, pattern, patternIndex, channel, eventIndex ) => {
-            if ( typeof evt !== "object" ) {
+            if ( typeof evt !== 'object' ) {
                 // event didn't exist... create it, insert into the channel and update LinkedList
                 evt = EventFactory.createAudioEvent( firstEvent.instrument );
                 channel[ eventIndex ] = evt;
@@ -366,3 +367,5 @@ function calculateMeasureLength( tempo ) {
 
     return ( 60 / tempo ) * 4; // TODO: the 4 is implying all songs will be in 4/4 time
 }
+
+export default EventUtil;

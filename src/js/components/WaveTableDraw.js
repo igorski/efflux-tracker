@@ -20,16 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const Config  = require( "../config/Config" );
-const zCanvas = require( "zcanvas" );
+import Config  from '../config';
+import zCanvas from 'zcanvas';
 
 // create the WaveTableDraw prototype as an extension of zSprite
 
 function WaveTableDraw( width, height, updateHandler )
 {
-    WaveTableDraw.super( this, "constructor", 0, 0, width, height );
+    WaveTableDraw.super( this, 'constructor', 0, 0, width, height );
     this.setDraggable( true );
 
     /* instance properties */
@@ -41,7 +39,7 @@ function WaveTableDraw( width, height, updateHandler )
 }
 zCanvas.sprite.extend( WaveTableDraw );
 
-module.exports = WaveTableDraw;
+export default WaveTableDraw;
 
 /* public methods */
 
@@ -72,25 +70,25 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
         table = new Array( size ), i,
         // all waveforms have their peak halfway through their cycle
         // expect for PWM (Pulse Width Modulation)
-        m     = Math.round(( aType === "PWM" ) ? size / 3 : size / 2 );
+        m     = Math.round(( aType === 'PWM' ) ? size / 3 : size / 2 );
 
     // generate waveform for value range -1 to +1
     switch ( aType )
     {
-        case "SINE":
+        case 'SINE':
             for ( i = 0; i < size; ++i )
                 table[ i ] = (( 180.0 - Math.sin( i * Math.PI / 180 ) * 180 ) / 180 ) - 1;
 
             break;
 
-        case "TRIANGLE":
+        case 'TRIANGLE':
 
             for ( i = 0; i < size; ++i )
                 table[ i ] = ( m - Math.abs( i % ( 2 * m ) - m )) * ( 1 / ( m / 2 ) ) - 1;
 
             break;
 
-        case "SAW":
+        case 'SAW':
 
             let phase = 0, phaseIncrement = ( 1 / size );
             for ( i = 0; i < size; ++i ) {
@@ -100,15 +98,15 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
             }
             break;
 
-        case "SQUARE":
-        case "PWM":
+        case 'SQUARE':
+        case 'PWM':
 
             for ( i = 0; i < size; ++i )
                 table[ i ] = ( i < m ) ? -1 : 1;
 
             break;
 
-        case "NOISE":
+        case 'NOISE':
 
             for ( i = 0; i < size; ++i )
                 table[ i ] = Math.random() * 2 - 1;
@@ -119,7 +117,7 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
 
 WaveTableDraw.prototype.draw = function( aCanvasContext )
 {
-    aCanvasContext.strokeStyle = "#CC0000";
+    aCanvasContext.strokeStyle = '#CC0000';
     aCanvasContext.lineWidth = 5;
     aCanvasContext.beginPath();
 
@@ -143,8 +141,8 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
 {
     if ( this.isDragging ) {
 
-        if ( aEvent.type === "touchend" ||
-             aEvent.type === "mouseup" ) {
+        if ( aEvent.type === 'touchend' ||
+             aEvent.type === 'mouseup' ) {
 
             this.isDragging = false;
             return true;
@@ -203,8 +201,8 @@ WaveTableDraw.prototype.handleInteraction = function( aEventX, aEventY, aEvent )
             });
         }
     }
-    else if ( aEvent.type === "touchstart" ||
-              aEvent.type === "mousedown" )
+    else if ( aEvent.type === 'touchstart' ||
+              aEvent.type === 'mousedown' )
     {
         this.isDragging = true;
         return true;

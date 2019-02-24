@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const Config                     = require( "../config/Config" );
+const Config                     = require( "../config" );
 const NoteInputHandler           = require( "./keyboard/NoteInputHandler" );
 const InstrumentSelectionHandler = require( "./keyboard/InstrumentSelectionHandler" );
 const ModuleParamHandler         = require( "./keyboard/ModuleParamHandler" );

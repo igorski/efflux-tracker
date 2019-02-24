@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import Config     from '../../config';
+import ObjectUtil from '../../utils/ObjectUtil';
 
-const Config     = require( "../../config/Config" );
-const ObjectUtil = require( "../../utils/ObjectUtil" );
-
-const InstrumentFactory = module.exports =
+const InstrumentFactory =
 {
     /**
      * create a new instrument Object
@@ -204,3 +202,5 @@ const InstrumentFactory = module.exports =
         return newInstrument;
     }
 };
+
+export default InstrumentFactory;

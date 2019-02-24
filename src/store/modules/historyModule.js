@@ -37,13 +37,13 @@ const module = {
     },
     getters: {
         canUndo(state) {
-            return state._undoManager.hasUndo();
+            return state.undoManager.hasUndo();
         },
         canRedo(state) {
-            return state._undoManager.hasRedo();
+            return state.undoManager.hasRedo();
         },
         amountOfStates(state) {
-            return state._undoManager.getIndex() + 1;
+            return state.undoManager.getIndex() + 1;
         }
     },
     mutations: {
@@ -58,13 +58,13 @@ const module = {
             if ( typeof undo !== 'function' || typeof redo !== 'function' )
                 throw new Error( 'cannot store a state without specifying valid undo and redo actions' );
 
-            state._undoManager.add({ undo, redo });
+            state.undoManager.add({ undo, redo });
         },
         /**
          * clears entire history
          */
         flush(state) {
-            state._undoManager.clear();
+            state.undoManager.clear();
         }
     },
     actions: {
@@ -76,7 +76,7 @@ const module = {
         undo({ state, getters }) {
             return new Promise(resolve => {
                 if ( getters.canUndo ) {
-                    state._undoManager.undo();
+                    state.undoManager.undo();
                     resolve();
                 } else {
                     reject();
@@ -91,7 +91,7 @@ const module = {
         redo({ state, getters }) {
             return new Promise((resolve, reject) => {
                 if ( getters.canRedo ) {
-                    state._undoManager.redo();
+                    state.undoManager.redo();
                     resolve();
                 } else {
                     reject();
@@ -103,6 +103,6 @@ const module = {
 
 /* initialization */
 
-module.state._undoManager.setLimit( STATES_TO_SAVE );
+module.state.undoManager.setLimit( STATES_TO_SAVE );
 
 export default module;

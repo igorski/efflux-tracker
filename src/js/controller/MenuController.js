@@ -1,7 +1,7 @@
 
 "use strict";
 
-const Config     = require( "../config/Config" );
+const Config     = require( "../config" );
 const Copy       = require( "../i18n/Copy" );
 const ExportUtil = require( "../utils/ExportUtil" );
 const SongUtil   = require( "../utils/SongUtil" );

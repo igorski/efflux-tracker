@@ -22,7 +22,7 @@
  */
 "use strict";
 
-const Config              = require( "../config/Config" );
+const Config              = require( "../config" );
 const Copy                = require( "../i18n/Copy" );
 const Messages            = require( "../definitions/Messages" );
 const SongAssemblyService = require( "../services/SongAssemblyService" );

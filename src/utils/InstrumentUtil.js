@@ -232,7 +232,7 @@ function pitchToUniqueId( pitch ) {
 
 function recordEventIntoSong( audioEvent, sequencerController ) {
 
-    if ( sequencerController.getPlaying() ) {
+    if ( sequencerController.playing ) {
 
         // sequencer is playing, add event at current step
 

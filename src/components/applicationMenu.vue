@@ -65,8 +65,8 @@
 import { mapState, mapMutations } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/Fullscreen';
 import { getCopy } from '../i18n/Copy';
-import { Manual } from '../definitions/Manual';
-import { Messages } from '../definitions/Messages';
+import Manual from '../definitions/Manual';
+import Messages from '../definitions/Messages';
 
 export default {
     computed: {

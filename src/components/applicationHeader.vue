@@ -25,17 +25,19 @@
             :class="{ expanded: menuOpened }"
     >
         <application-menu />
-        <section id="transportSection"></section>
+        <transport />
     </header>
 </template>
 
 <script>
 import { mapState } from 'vuex';
 import ApplicationMenu from './applicationMenu';
+import Transport from './transport';
 
 export default {
     components: {
-        ApplicationMenu
+        ApplicationMenu,
+        Transport
     },
     computed: {
       ...mapState([

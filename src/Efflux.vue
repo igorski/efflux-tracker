@@ -70,7 +70,7 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
-import Config from './config/Config';
+import Config from './config';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
 import PatternEditor from './components/patternEditor';
@@ -95,13 +95,14 @@ export default {
             'menuOpened',
             'overlayOpened',
             'loading',
-            'dialog'
+            'dialog',
+            'audioController'
         ]),
         ...mapGetters([
             'getCopy'
         ]),
         canLaunch() {
-            return AudioController.isSupported();
+            return this.audioController.isSupported();
         }
     },
     watch: {

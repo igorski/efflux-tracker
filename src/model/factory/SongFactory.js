@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,35 +20,31 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const PatternFactory    = require( "./PatternFactory" );
-const InstrumentFactory = require( "./InstrumentFactory" );
+import PatternFactory    from './PatternFactory';
+import InstrumentFactory from './InstrumentFactory';
 
 const FACTORY_VERSION = 1;
 
-module.exports =
+export default
 {
     /**
      * @public
      * @param {number}amountOfInstruments
      * @returns {SONG}
      */
-    createSong( amountOfInstruments )
-    {
+    createSong( amountOfInstruments ) {
         const song = {
-
             version: FACTORY_VERSION, // allows backwards compatibility when updating Song Object signature
 
             // unique identifier
 
-            id : Date.now() + Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 ),
+            id : `${Date.now()}${Math.floor(( 1 + Math.random()) * 0x10000 ).toString( 16 )}`,
 
             // outline of meta data
 
             meta : {
-                title    : "",
-                author   : "",
+                title    : '',
+                author   : '',
                 created  : Date.now(),
                 modified : Date.now(),
                 tempo    : 120.0
@@ -70,9 +66,9 @@ module.exports =
             ]
         };
 
-        for ( let i = 0; i < amountOfInstruments; ++i )
+        for ( let i = 0; i < amountOfInstruments; ++i ) {
             song.instruments[ i ] = InstrumentFactory.createInstrument( i );
-
+        }
         return song;
     }
 };

@@ -20,10 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config              from '../config/Config';
-import FixturesLoader      from '../services/FixturesLoader';
-import StorageUtil         from '../utils/StorageUtil';
-import InstrumentValidator from './validators/InstrumentValidator';
+import Config              from '../../config';
+import FixturesLoader      from '../../services/FixturesLoader';
+import StorageUtil         from '../../utils/StorageUtil';
+import InstrumentValidator from '../../model/validators/InstrumentValidator';
 
 /* internal methods */
 
@@ -110,9 +110,9 @@ export default {
         saveInstrument({ commit }, instrument) {
             return new Promise((resolve, reject) => {
                 if ( InstrumentValidator.isValid( instrument ) &&
-                   ( typeof instrument.presetName === "string" && instrument.presetName.length > 0 )) {
+                   ( typeof instrument.presetName === 'string' && instrument.presetName.length > 0 )) {
 
-                    commit('deleteInstrument', { instrument, false }); // remove duplicate instrument if existed
+                    commit('deleteInstrument', { instrument, persist: false }); // remove duplicate instrument if existed
                     commit('addInstrument', instrument );
                     persistState(state);
 

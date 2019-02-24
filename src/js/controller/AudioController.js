@@ -20,21 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const AudioFactory   = require( "../model/factory/AudioFactory" );
-const ModuleFactory  = require( "../model/factory/ModuleFactory" );
-const AudioUtil      = require( "../utils/AudioUtil" );
-const ModuleUtil     = require( "../utils/ModuleUtil" );
-const InstrumentUtil = require( "../utils/InstrumentUtil" );
-const Config         = require( "../config/Config" );
-const Messages       = require( "../definitions/Messages" );
-const Pitch          = require( "../definitions/Pitch" );
-const WaveTables     = require( "../definitions/WaveTables" );
-const Copy           = require( "../i18n/Copy" );
-const ADSR           = require( "../modules/ADSR" );
-const Recorder       = require( "recorderjs" );
-const Pubsub         = require( "pubsub-js" );
+import AudioFactory   from '../../model/factory/AudioFactory';
+import ModuleFactory  from '../../model/factory/ModuleFactory';
+import AudioUtil      from '../../utils/AudioUtil';
+import ModuleUtil     from '../../utils/ModuleUtil';
+import InstrumentUtil from '../../utils/InstrumentUtil';
+import Config         from '../../config';
+import Messages       from '../../definitions/Messages';
+import Pitch          from '../../definitions/Pitch';
+import WaveTables     from '../../definitions/WaveTables';
+import Copy           from '../../i18n/Copy';
+import ADSR           from '../../model/modules/ADSR';
+import Recorder       from 'recorderjs';
+import Pubsub         from 'pubsub-js';
 
 /* type definitions */
 
@@ -95,7 +93,7 @@ let instrumentModules;
  */
 let instrumentEvents = [];
 
-const AudioController = module.exports =
+const AudioController =
 {
     /**
      * query whether we can actually use the WebAudio API in
@@ -606,3 +604,5 @@ function handleRecordingComplete( blob )
 
     Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "RECORDING_SAVED" ));
 }
+
+export default AudioController;

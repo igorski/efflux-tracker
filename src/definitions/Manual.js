@@ -22,7 +22,7 @@
  */
 const MANUAL_ROOT = "https://www.igorski.nl/efflux/help";
 
-export const Manual =
+export default
 {
     /**
      * URLs to all online help pages

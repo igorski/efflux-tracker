@@ -7,7 +7,9 @@ import history from './modules/historyModule';
 import instrument from './modules/instrumentModule';
 import selection from './modules/selectionModule';
 import settings from './modules/settingsModule';
+import sequencer from './modules/sequencerModule';
 import song from './modules/songModule';
+import audioController from '../js/controller/AudioController';
 
 Vue.use(Vuex);
 
@@ -18,6 +20,7 @@ export default new Vuex.Store({
         instrument,
         selection,
         settings,
+        sequencer,
         song
     },
     state: {
@@ -25,7 +28,8 @@ export default new Vuex.Store({
         overlayOpened: false,
         helpTopic: 'general',
         loading: false,
-        dialog: null
+        dialog: null,
+        audioController
     },
     getters: {
         /**

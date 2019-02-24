@@ -143,6 +143,7 @@ check whether instruments can be saved
 FixturesLoader > use axios
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
+Webpack Worker in Blob
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 
