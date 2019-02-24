@@ -28,7 +28,7 @@ import StorageUtil from '../../utils/StorageUtil';
 /**
  * save the state of the model in local storage
  */
-const persist = state => {
+const persistState = state => {
     StorageUtil.setItem( Config.LOCAL_STORAGE_SETTINGS, JSON.stringify( state._settings ));
 };
 
@@ -54,7 +54,7 @@ export default {
     mutations: {
         saveSetting(state, { name, setting }) {
             state._settings[ name ] = setting;
-            persist(state);
+            persistState(state);
         },
         setStoredSettings(state, settings) {
             state._settings = settings;

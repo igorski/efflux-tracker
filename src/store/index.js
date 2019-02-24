@@ -7,6 +7,7 @@ import history from './modules/historyModule';
 import instrument from './modules/instrumentModule';
 import selection from './modules/selectionModule';
 import settings from './modules/settingsModule';
+import song from './modules/songModule';
 
 Vue.use(Vuex);
 
@@ -16,7 +17,8 @@ export default new Vuex.Store({
         history,
         instrument,
         selection,
-        settings
+        settings,
+        song
     },
     state: {
         menuOpened: false,

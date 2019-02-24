@@ -27,7 +27,7 @@ import InstrumentValidator from './validators/InstrumentValidator';
 
 /* internal methods */
 
-const persist = state => {
+const persistState = state => {
     StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
 };
 
@@ -101,7 +101,7 @@ export default {
                    FixturesLoader.load(( instruments ) => {
 
                        commit('setInstruments')( instruments );
-                       persist(state);
+                       persistState(state);
 
                    }, "Instruments.json" );
                }
@@ -114,7 +114,7 @@ export default {
 
                     commit('deleteInstrument', { instrument, false }); // remove duplicate instrument if existed
                     commit('addInstrument', instrument );
-                    persist(state);
+                    persistState(state);
 
                     resolve();
                 } else {
@@ -156,7 +156,7 @@ export default {
 
                 if (deleted) {
                     if (persist)
-                        persist(state);
+                        persistState(state);
 
                     resolve();
                 } else {

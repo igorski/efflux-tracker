@@ -98,10 +98,11 @@ export default {
             Pubsub: Pubsub
         });
 
-        // load persistent model data
+        // load both persistent model data as well as data fixtures
 
         this.loadStoredSettings();
         this.loadStoredInstruments();
+        this.loadStoredSongs();
 
         // show confirmation message on page reload
 
@@ -124,7 +125,8 @@ export default {
     methods: {
         ...mapActions([
             'loadStoredSettings',
-            'loadStoredInstruments'
+            'loadStoredInstruments',
+            'loadStoredSongs'
         ])
     }
 };
