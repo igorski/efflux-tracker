@@ -1,58 +1,59 @@
 /**
-* The MIT License (MIT)
-*
-* Igor Zinken 2016-2019 - https://www.igorski.nl
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of
-* this software and associated documentation files (the "Software"), to deal in
-* the Software without restriction, including without limitation the rights to
-* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-* the Software, and to permit persons to whom the Software is furnished to do so,
-* subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-* FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-* IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ * The MIT License (MIT)
+ *
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 <template>
     <section id="transportSection">
         <div id="transportControls">
             <ul>
-                <li id="playBTN" :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
-                    @click="setPlaying(!isPlaying)"></li>
+                <li id="playBTN"
+                    :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
+                    @click="setPlaying(!isPlaying)"
+                ></li>
                 <li id="loopBTN" class="icon-loop"
-                    :class="{ active: isLooping }" @click="setLooping(!isLooping)"></li>
+                    :class="{ active: isLooping }"
+                    @click="setLooping(!isLooping)"
+                ></li>
                 <li id="recordBTN"
                     :class="[ disabled: !canRecord, isRecording ? 'active' : '' ]"
                     @click="setRecording(!isRecording)"
                 ></li>
                 <li class="icon-metronome"
                     :class="{ active: isMetronomeEnabled }"
-                    @click="setMetronomeEnabled(!isMetronomeEnabled)"></li>
+                    @click="setMetronomeEnabled(!isMetronomeEnabled)"
+                ></li>
                 <li class="icon-settings"  @click="handleSettingsToggle"></li>
                 <li class="section-divider"><!-- x --></li>
-                <li id="patternBack" @click="handlePatternNavBack">
-                    &lt;&lt;
-                </li>
+                <li id="patternBack" @click="handlePatternNavBack">&lt;&lt;</li>
                 <li id="currentPattern">
                     <input class="current"
-                           value="1" maxlength="3"
+                           value="currentPatternValue"
+                           maxlength="3"
                            @focus="handleCurrentPositionInteraction"
-                           @change="handleCurrentPositionInteraction"
                            @blur="handleCurrentPositionInteraction"
-                    >{{ ( activePattern + 1 ).toString() }}</input>
+                    />
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
-                <li id="patternNext" @click="handlePatternNavNext">
-                    &gt;&gt;
-                </li>
+                <li id="patternNext" @click="handlePatternNavNext">&gt;&gt;</li>
             </ul>
             <ul id="tempoControl" class="wrapper input range">
                 <li class="section-divider"><!-- x --></li>
@@ -95,7 +96,7 @@ export default {
             'isPlaying',
             'isLooping',
             'isRecording',
-            'isMetronomeEnabled',
+            'isMetronomeEnabled'
         ]),
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
@@ -108,6 +109,25 @@ export default {
             },
             set(value) {
                 this.setTempo(value);
+            }
+        },
+        currentPatternValue: {
+            get() {
+                return ( this.activePattern + 1 ).toString();
+            },
+            set(patternValue) {
+                let value = Math.min( parseInt( patternValue, 10 ), this.activeSong.patterns.length );
+
+                if ( isNaN( value ))
+                    value = this.currentMeasure;
+                else
+                    --value; // normalize to Array indices (0 == first, not 1)
+
+                if ( value !== currentMeasure ) {
+                    this.setCurrentMeasure(value);
+                    this.setActivePattern(value);   // TODO: are active pattern and current measure the same??
+                    //Pubsub.publish( Messages.PATTERN_SWITCH, value );
+                }
             }
         }
     },
@@ -153,8 +173,8 @@ export default {
             'setCurrentMeasure',
             'setMetronomeEnabled',
             'setTempo',
-            'setActivePattern',
-        ]}),
+            'setActivePattern'
+        ]),
         ...mapActions([
             'prepareSequencer'
         ])
@@ -169,31 +189,13 @@ export default {
             case 'blur':
                 keyboardController.setSuspended( false );
                 break;
-    
-            case 'change':
-    
-                let value = Math.min( parseInt( element.value, 10 ), this.activeSong.patterns.length );
-    
-                if ( isNaN( value ))
-                    value = currentMeasure + 1;
-    
-                element.value = value;
-                --value; // normalize to Array indices (0 == first, not 1)
-    
-                if ( value !== currentMeasure ) {
-                    this.setCurrentMeasure(value);
-                    this.setActivePattern(value);   // TODO: are active pattern and current measure the same??
-                    //Pubsub.publish( Messages.PATTERN_SWITCH, value );
-                }
-                Form.blur( element );
-                break;
         }
     }
 };
 </script>
 
 <style lang="scss" scoped>
-    @import "../styles/_variables.scss";
+    @import '../styles/_variables.scss';
 
     // generated font for all transporter icons
 
@@ -434,4 +436,3 @@ export default {
       }
     }
 </style>
- 

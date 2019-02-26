@@ -81,7 +81,7 @@ export default {
         },
     },
     actions: {
-        async loadStoredSongs({ state, commit }) {
+        loadStoredSongs({ state, commit }) {
             StorageUtil.getItem( Config.LOCAL_STORAGEsongs ).then(
                 ( result ) => {
                     if ( typeof result === "string" ) {
@@ -91,7 +91,7 @@ export default {
                         catch ( e ) {}
                     }
                 },
-                ( error ) => {
+                async ( error ) => {
 
                     // no songs available ? load fixtures with "factory content"
 

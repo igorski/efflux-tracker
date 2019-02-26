@@ -23,6 +23,7 @@
 import Config from '../../config';
 import LinkedList from '../../utils/LinkedList';
 import Metronome from '../../utils/Metronome';
+import SequencerWorker from '../../workers/sequencer.worker.js';
 
 /* internal methods */
 
@@ -335,7 +336,7 @@ export default {
             }
 
             // spawn Worker to handle the intervallic polling
-            state.worker = new Worker( '../../workers/SequencerWorker.js' );
+            state.worker = new SequencerWorker();
             state.worker.onmessage = msg => {
                 if ( msg.data.cmd === "collect" && state.isPlaying )
                     collect(state);

@@ -83,9 +83,9 @@ export default {
         }
     },
     actions: {
-        async loadStoredInstruments({ state, commit }) {
+        loadStoredInstruments({ state, commit }) {
             StorageUtil.init();
-            StorageUtil.getItem( Config.LOCAL_STORAGEinstrumentS ).then(
+            StorageUtil.getItem( Config.LOCAL_STORAGE_INSTRUMENTS ).then(
                ( result ) => {
                    if ( typeof result === "string" ) {
                        try {
@@ -94,7 +94,7 @@ export default {
                        catch ( e ) {}
                    }
                },
-               ( error ) => {
+               async ( error ) => {
 
                    // no instruments available ? load fixtures with "factory content"
                    commit('setLoading', true);

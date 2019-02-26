@@ -38,6 +38,7 @@
     "undo-manager": "^1.0.5",
     "vue-template-compiler": "^2.5.21",
     "wa-overdrive": "^0.0.3",
+    "worker-loader": "^2.0.0",
     "zcanvas": "^3.0.7",
     "zjslib": "^0.1.4",
     "zmidi": "^0.1.3"
