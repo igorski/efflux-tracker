@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,50 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import Config from '../config';
+import axios  from 'axios';
 
-const Config   = require( "../config" );
-const Messages = require( "../definitions/Messages" );
-const Pubsub   = require( "pubsub-js" );
-//const Qajax    = require( "qajax" );
-
-module.exports =
+export default
 {
     /**
      * convenience method to retrieve demo songs via
      * Ajax, this overcomes the need to package them along
      * with the main application script
      *
-     * @param {!Function} callback will receive parsed JSON Object
      * @param {string} filename to load
+     * @return {Promise}
      */
-    load( callback, filename )
-    {
-        showLoader();
-        return; // QQQ
-        Qajax( `${Config.getBasePath()}/${filename}` )
-            .then(( success ) =>
-            {
-                hideLoader();
-
-                if ( success ) {
-                    const data = success.responseText;
-                    try {
-                        const json = JSON.parse( data );
-                        callback( json );
-                    }
-                    catch( e ) {}
-                }
-            },
-            ( error ) => hideLoader
-        );
+    load( filename ) {
+        return axios.get( `${Config.getBasePath()}/${filename}` )
     }
 };
-
-function showLoader() {
-    Pubsub.publish( Messages.SHOW_LOADER );
-}
-
-function hideLoader() {
-    Pubsub.publish( Messages.HIDE_LOADER );
-}

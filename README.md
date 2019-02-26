@@ -144,6 +144,10 @@ FixturesLoader > use axios
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 Webpack Worker in Blob
+igorski.nl Analytics
+CSS no tag selectors in critical areas
+metronome
+recording events
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 

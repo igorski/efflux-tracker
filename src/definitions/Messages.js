@@ -72,13 +72,10 @@ export default
 
     // sequencer messages
 
-    TOGGLE_SEQUENCER_PLAYSTATE : "SEQ:0",
     TOGGLE_SEQUENCER_LOOP      : "SEQ:1",
     PLAYBACK_STARTED           : "SEQ:2",
     PLAYBACK_STOPPED           : "SEQ:3",
-    SET_SEQUENCER_POSITION     : "SEQ:4", // payload is number describing new measure position
     RECORDING_COMPLETE         : "SEQ:5",
-    TEMPO_UPDATED              : "SEQ:6", // payload is Array [ old tempo, new tempo ]
     STEP_POSITION_REACHED      : "SEQ:7", // payload is Array [ current step position, total step positions (per measure) ]
     TOGGLE_OUTPUT_RECORDING    : "SEQ:8",
     TOGGLE_INPUT_RECORDING     : "SEQ:9",

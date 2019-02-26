@@ -241,7 +241,7 @@ function recordEventIntoSong( audioEvent, sequencerController ) {
         const activePattern = editorModel.activePattern;
         const pattern       = song.patterns[ activePattern ];
         const channel       = pattern.channels[ editorModel.activeInstrument ];
-        const step          = Math.round( sequencerController.getPosition().step / 64 * editorModel.amountOfSteps );
+        const step          = Math.round( sequencerModule.position.step / 64 * editorModule.amountOfSteps );
 
         EventUtil.setPosition(
             audioEvent, pattern, activePattern, step, song.meta.tempo

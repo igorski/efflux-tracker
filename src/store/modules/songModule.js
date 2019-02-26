@@ -24,6 +24,7 @@ import Config              from '../../config';
 import SongFactory         from '../../model/factory/SongFactory';
 import FixturesLoader      from '../../services/FixturesLoader';
 import SongAssemblyService from '../../services/SongAssemblyService';
+import SongUtil            from '../../utils/SongUtil';
 import StorageUtil         from '../../utils/StorageUtil';
 
 /* internal methods */
@@ -66,10 +67,21 @@ export default {
         },
         setActiveSong(state, song) {
             state.activeSong = song;
-        }
+        },
+        setTempo(state, value) {
+            const meta     = state.activeSong.meta;
+            const oldTempo = meta.tempo;
+            const newTempo = parseFloat(value);
+
+            meta.tempo = newTempo;
+
+            // update existing event offsets by the tempo ratio
+
+            SongUtil.updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
+        },
     },
     actions: {
-        loadStoredSongs({ state, commit }) {
+        async loadStoredSongs({ state, commit }) {
             StorageUtil.getItem( Config.LOCAL_STORAGEsongs ).then(
                 ( result ) => {
                     if ( typeof result === "string" ) {
@@ -83,12 +95,13 @@ export default {
 
                     // no songs available ? load fixtures with "factory content"
 
-                    FixturesLoader.load(( songs ) => {
-
+                    commit('setLoading', true);
+                    const songs = await FixturesLoader.load('Songs.json');
+                    commit('setLoading', false);
+                    if (songs) {
                         commit('setSongs', songs );
                         persist(state);
-
-                    }, "Songs.json" );
+                    }
                 }
             );
         },

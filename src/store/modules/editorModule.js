@@ -103,11 +103,11 @@ export default {
         list: null
     },
     mutations: {
-        reset(state) {
-            state.activeInstrument =
-            state.activePattern    =
-            state.activeStep       = 0;
-            state.recordingInput   = false;
+        setActivePattern(state, value) {
+            state.activePattern = value;
+        },
+        setRecordingInput(state, value) {
+            state.recordingInput = !value;
         },
         prepareLinkedList(state) {
             state.eventList = new Array(Config.INSTRUMENT_AMOUNT);
@@ -115,6 +115,12 @@ export default {
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
                 state.eventList[ i ] = new LinkedList();
             }
+        },
+        reset(state) {
+            state.activeInstrument =
+            state.activePattern    =
+            state.activeStep       = 0;
+            state.recordingInput   = false;
         }
     }
 };

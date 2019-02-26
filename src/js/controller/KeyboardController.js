@@ -186,7 +186,7 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 32: // spacebar
-                    Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_PLAYSTATE );
+                    //Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_PLAYSTATE ); sequencerModel.setPlaying(!sequencerModel.isPlaying);
                     break;
 
                 // capture the apple key here as it is not recognized as a modifier
@@ -343,7 +343,7 @@ function handleKeyDown( aEvent )
 
                 case 82: // R
                     if ( hasOption ) {
-                        Pubsub.publishSync( Messages.TOGGLE_INPUT_RECORDING );
+                        //Pubsub.publishSync( Messages.TOGGLE_INPUT_RECORDING ); sequencerModel.setRecording(true);
                         aEvent.preventDefault();
                     }
                     break;

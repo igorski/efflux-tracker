@@ -83,7 +83,7 @@ export default {
         }
     },
     actions: {
-        loadStoredInstruments({ state, commit }) {
+        async loadStoredInstruments({ state, commit }) {
             StorageUtil.init();
             StorageUtil.getItem( Config.LOCAL_STORAGEinstrumentS ).then(
                ( result ) => {
@@ -97,13 +97,14 @@ export default {
                ( error ) => {
 
                    // no instruments available ? load fixtures with "factory content"
+                   commit('setLoading', true);
+                   const instruments = await FixturesLoader.load('Instruments.json');
+                   commit('setLoading', false);
 
-                   FixturesLoader.load(( instruments ) => {
-
+                   if (instruments) {
                        commit('setInstruments')( instruments );
                        persistState(state);
-
-                   }, "Instruments.json" );
+                   }
                }
             );
         },

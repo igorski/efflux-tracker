@@ -24,13 +24,17 @@
     <section id="transportSection">
         <div id="transportControls">
             <ul>
-                <li id="playBTN" class="icon-play" @click="handlePlayToggle"></li>
-                <li id="loopBTN" class="icon-loop" @click="handleLoopToggle"></li>
+                <li id="playBTN" :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
+                    @click="setPlaying(!isPlaying)"></li>
+                <li id="loopBTN" class="icon-loop"
+                    :class="{ active: isLooping }" @click="setLooping(!isLooping)"></li>
                 <li id="recordBTN"
-                    :class="{ disabled: !canRecord }"
-                    @click="handleRecordToggle"
+                    :class="[ disabled: !canRecord, isRecording ? 'active' : '' ]"
+                    @click="setRecording(!isRecording)"
                 ></li>
-                <li class="icon-metronome" @click="handleMetronomeToggle"></li>
+                <li class="icon-metronome"
+                    :class="{ active: isMetronomeEnabled }"
+                    @click="setMetronomeEnabled(!isMetronomeEnabled)"></li>
                 <li class="icon-settings"  @click="handleSettingsToggle"></li>
                 <li class="section-divider"><!-- x --></li>
                 <li id="patternBack" @click="handlePatternNavBack">
@@ -42,9 +46,9 @@
                            @focus="handleCurrentPositionInteraction"
                            @change="handleCurrentPositionInteraction"
                            @blur="handleCurrentPositionInteraction"
-                    />
+                    >{{ ( activePattern + 1 ).toString() }}</input>
                     <span class="divider">/</span>
-                    <span class="total">1</span>
+                    <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
                 <li id="patternNext" @click="handlePatternNavNext">
                     &gt;&gt;
@@ -55,11 +59,12 @@
                 <li>
                     <label for="songTempo">Tempo</label>
                     <input type="range"
-                           name="tempo" id="songTempo"
-                           min="40" max="300" step="0.1" value="120"
-                           @input="handleTempoChange"
+                           id="songTempo"
+                           name="tempo"
+                           v-model="tempo"
+                           min="40" max="300" step="0.1"
                     />
-                    <span class="value" id="songTempoDisplay">120.0 BPM</span>
+                    <span class="value">{{ tempo }} BPM</span>
                 </li>
             </ul>
         </div>
@@ -67,60 +72,122 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import Vue from 'vue';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 
 import Config       from '../config';
 import Form         from '../utils/Form';
 import AudioUtil    from '../utils/AudioUtil';
 import EventUtil    from '../utils/EventUtil';
 import SongUtil     from '../utils/SongUtil';
-import LinkedList   from '../utils/LinkedList';
-import Metronome    from '../utils/Metronome';
 import Messages     from '../definitions/Messages';
 import AudioFactory from '../model/factory/AudioFactory';
 import Bowser       from 'bowser';
 import Pubsub       from 'pubsub-js';
 
 export default {
-    data: () => ({
-        playing              : false,
-        looping              : false,
-        recording            : false,
-        scheduleAheadTime    : 0.2,
-        stepPrecision        : 64,
-        beatAmount           : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
-        beatUnit             : 4,
-        queueHandlers        : [],
-        channelQueue         : new Array( Config.INSTRUMENT_AMOUNT ),
-        currentMeasure       : 0,
-        measureStartTime     : 0,
-        firstMeasureStartTime: 0,
-        currentStep          : 0,
-        nextNoteTime         : 0,
-        channels             : 0,
-        worker               : null
-    }),
     computed: {
+        ...mapState([
+            'activePattern',
+            'activeSong'
+        ]),
+        ...mapGetters([
+            'isPlaying',
+            'isLooping',
+            'isRecording',
+            'isMetronomeEnabled',
+        ]),
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
             // if a MIDI device is connected on a mobile device, it is enabled as well
             return !Bowser.ios && !Bowser.android;
+        },
+        tempo: {
+            get() {
+                return this.activeSong.meta.tempo;
+            },
+            set(value) {
+                this.setTempo(value);
+            }
+        }
+    },
+    watch: {
+        isPlaying(playing) {
+            if (playing) {
+                this.setPosition(this.activePattern);
+            } else if(this.isRecording) {
+                this.setRecording(false);
+                this.clearPEndign();
+            }
+        },
+        isRecording(recording, wasRecording) {
+            this.setRecordingInput(recording);
+            if ( wasRecording ) {
+                // unflag the recorded state of all the events
+                const patterns = this.activeSong.patterns;
+                let event, i;
+
+                patterns.forEach( pattern => {
+                    pattern.channels.forEach(events => {
+                        i = events.length;
+                        while ( i-- ) {
+                            event = events[ i ];
+                            if ( event )
+                                Vue.set(event, 'recording', false);
+                        }
+                    });
+                });
+            }
         }
     },
     created() {
-        // create LinkedLists to store all currently playing events for all channels
-
-        for ( let i = 0; i < this.channelQueue.length; ++i ) {
-            this.channelQueue[ i ] = new LinkedList();
+        this.prepareSequencer();
+    },
+    methods: {
+        ...mapMutations([
+            'setPlaying',
+            'setLooping',
+            'setRecording',
+            'setRecordingInput',    // TODO: why track this in both sequencer and editor modules??
+            'setCurrentStep',
+            'setCurrentMeasure',
+            'setMetronomeEnabled',
+            'setTempo',
+            'setActivePattern',
+        ]}),
+        ...mapActions([
+            'prepareSequencer'
+        ])
+    },
+    handleCurrentPositionInteraction(e) {
+        const element = e.target;
+        switch ( e.type ) {
+            case 'focus':
+                keyboardController.setSuspended( true );
+                break;
+    
+            case 'blur':
+                keyboardController.setSuspended( false );
+                break;
+    
+            case 'change':
+    
+                let value = Math.min( parseInt( element.value, 10 ), this.activeSong.patterns.length );
+    
+                if ( isNaN( value ))
+                    value = currentMeasure + 1;
+    
+                element.value = value;
+                --value; // normalize to Array indices (0 == first, not 1)
+    
+                if ( value !== currentMeasure ) {
+                    this.setCurrentMeasure(value);
+                    this.setActivePattern(value);   // TODO: are active pattern and current measure the same??
+                    //Pubsub.publish( Messages.PATTERN_SWITCH, value );
+                }
+                Form.blur( element );
+                break;
         }
-
-        // spawn Worker to handle the intervallic polling
-
-        this.worker = new Worker( '../../workers/SequencerWorker.js' );
-        this.worker.onmessage = msg => {
-            if ( msg.data.cmd === "collect" && this.playing )
-                collect();
-        };
     }
 };
 </script>

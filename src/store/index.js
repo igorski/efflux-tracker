@@ -27,7 +27,7 @@ export default new Vuex.Store({
         menuOpened: false,
         overlayOpened: false,
         helpTopic: 'general',
-        loading: false,
+        loading: 0,
         dialog: null,
         audioController
     },
@@ -67,7 +67,11 @@ export default new Vuex.Store({
             }
         },
         setLoading(state, loading) {
-            state.loading = !!loading;
+            if (!!loading) {
+                state.loading += 1;
+            } else {
+                state.loading = Math.max(0, state.loading - 1 );
+            }
         },
         openDialog(state, { title, message, confirm = null, cancel = null }) {
             state.dialog = { title, message, confirm, cancel };
