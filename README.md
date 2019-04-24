@@ -131,6 +131,7 @@ TODO VUE
 
 All Handlebars moved to components
 All less files moved to appropriate components or SCSS libraries
+KeyboardController to Vuex store module (we need store access for mutations)
 Menu all functionalities (bar help)
 SequencerWorker
 igorski.nl share integration

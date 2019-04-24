@@ -105,9 +105,7 @@ const PatternTrackListController = module.exports =
     },
 
     editNoteForStep() {
-        Pubsub.publish( Messages.OPEN_NOTE_ENTRY_PANEL, function() {
-            keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
-        });
+        this.setOverlay('nep');
     }
 };
 

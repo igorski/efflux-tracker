@@ -22,15 +22,6 @@
  */
 "use strict";
 
-const EventUtil      = require( "../utils/EventUtil" );
-const EventFactory   = require( "../model/factory/EventFactory" );
-const EventValidator = require( "../model/validators/EventValidator" );
-const Form           = require( "../utils/Form" );
-const Manual         = require( "../definitions/Manual" );
-const Messages       = require( "../definitions/Messages" );
-const Pitch          = require( "../definitions/Pitch" );
-const Pubsub         = require( "pubsub-js" );
-
 /* private properties */
 
 let container, element, efflux, keyboardController;
@@ -76,14 +67,6 @@ const NoteEntryController = module.exports =
             element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
             element.querySelector( ".confirm-button" ).addEventListener( "click", handleReady );
         });
-
-        // subscribe to messaging system
-
-        [
-            Messages.OPEN_NOTE_ENTRY_PANEL,
-            Messages.CLOSE_OVERLAYS
-
-        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
 
     /* event handlers */
@@ -151,92 +134,6 @@ const NoteEntryController = module.exports =
         }
     }
 };
-
-/* private methods */
-
-function handleBroadcast( type, payload )
-{
-    switch ( type )
-    {
-        case Messages.OPEN_NOTE_ENTRY_PANEL:
-            handleOpen( payload );
-            break;
-
-        case Messages.CLOSE_OVERLAYS:
-
-            if ( payload !== NoteEntryController )
-                handleClose();
-            break;
-    }
-}
-
-/**
- * open note entry pane
- *
- * @param {Function} completeCallback
- */
-function handleOpen( completeCallback )
-{
-    const editorModel  = efflux.EditorModel,
-          patternIndex = editorModel.activePattern,
-          pattern      = efflux.activeSong.patterns[ patternIndex ],
-          channelIndex = editorModel.activeInstrument,
-          channel      = pattern.channels[ channelIndex ],
-          event        = channel[ editorModel.activeStep ];
-
-    // by default take the previously declared events instrument as the target instrument for the new event
-    // otherwise take the active instrument as the target instrument
-
-    const previousEvent = EventUtil.getFirstEventBeforeStep( channel, editorModel.activeStep, ( previousEvent ) => {
-        // ignore off events as they do not specify an instrument
-        return previousEvent.action !== 2;
-    });
-    const defaultInstrument = ( previousEvent ) ? previousEvent.instrument : editorModel.activeInstrument;
-
-    data =
-    {
-        instrument   : ( event ) ? event.instrument : defaultInstrument,
-        note         : ( event ) ? event.note       : "C",
-        octave       : ( event ) ? event.octave     : 3,
-        patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
-        channelIndex : channelIndex, // always use channel index (event instrument might be associated w/ different channel lane)
-        step         : editorModel.activeStep
-    };
-
-    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, NoteEntryController ); // close open overlays
-    Pubsub.publish( Messages.SHOW_BLIND );
-
-    closeCallback = completeCallback;
-
-    keyboardController.setBlockDefaults( false );
-    keyboardController.setListener( NoteEntryController );
-
-    setSelectedValueInList( noteList,   data.note );
-    setSelectedValueInList( octaveList, data.octave );
-
-    selectedNote   = data.note;
-    selectedOctave = data.octave;
-
-    Form.setSelectedOption( instrumentSelect, data.instrument );
-
-    if ( !element.parentNode )
-        container.appendChild( element );
-}
-
-function handleClose()
-{
-    if ( typeof closeCallback === "function" )
-        closeCallback();
-
-    Pubsub.publishSync( Messages.HIDE_BLIND );
-
-    keyboardController.reset();
-
-    if ( element.parentNode ) {
-        element.parentNode.removeChild( element );
-    }
-    closeCallback = null;
-}
 
 function handleHelp( aEvent )
 {

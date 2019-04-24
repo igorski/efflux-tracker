@@ -63,8 +63,8 @@ export default new Vuex.Store({
         setBlindActive(state, active) {
             state.blindActive = !!active;
         },
-        setOverlay(state, overlayName = '') {
-            state.blindActive = true;
+        setOverlay(state, overlayName) {
+            state.blindActive = !!overlayName;
             state.overlay = overlayName;
         },
         setHelpTopic(state, topic) {
@@ -73,7 +73,7 @@ export default new Vuex.Store({
             }
         },
         setLoading(state, loading) {
-            if (!!loading) {
+            if (loading) {
                 state.loading += 1;
             } else {
                 state.loading = Math.max(0, state.loading - 1 );

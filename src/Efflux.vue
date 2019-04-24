@@ -61,7 +61,9 @@
             :cancel-handler="dialog.cancel"
         />
 
-        <advanced-pattern-editor v-if="overlay === 'ape'" />
+        <template v-if="overlay">
+            <advanced-pattern-editor v-if="overlay === 'ape'" />
+        </template>
 
         <notification v-if="notifications.length" />
 

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,18 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const Config                     = require( "../config" );
-const NoteInputHandler           = require( "./keyboard/NoteInputHandler" );
-const InstrumentSelectionHandler = require( "./keyboard/InstrumentSelectionHandler" );
-const ModuleParamHandler         = require( "./keyboard/ModuleParamHandler" );
-const ModuleValueHandler         = require( "./keyboard/ModuleValueHandler" );
-const Messages                   = require( "../definitions/Messages" );
-const States                     = require( "../definitions/States" );
-const StateFactory               = require( "../model/factory/StateFactory" );
-const EventUtil                  = require( "../utils/EventUtil" );
-const Pubsub                     = require( "pubsub-js" );
+import Config                     from '../config';
+import NoteInputHandler           from './keyboard/NoteInputHandler';
+import InstrumentSelectionHandler from './keyboard/InstrumentSelectionHandler';
+import ModuleParamHandler         from './keyboard/ModuleParamHandler';
+import ModuleValueHandler         from './keyboard/ModuleValueHandler';
+import Messages                   from '../definitions/Messages';
+import States                     from '../definitions/States';
+import StateFactory               from '../model/factory/StateFactory';
+import EventUtil                  from '../utils/EventUtil';
+import Pubsub                     from 'pubsub-js';
 
 let editorModel, sequencerController, stateModel, selectionModel, listener,
     suspended = false, blockDefaults = true, optionDown = false, shiftDown = false, minSelect = 0, maxSelect = 0;
@@ -51,7 +49,7 @@ const MODES = {
 
 let mode = MODES.NOTE_INPUT;
 
-const KeyboardController = module.exports =
+const KeyboardController =
 {
     /**
      * initialize KeyboardController
@@ -99,8 +97,8 @@ const KeyboardController = module.exports =
 
     /**
      * attach a listener to receive updates whenever a key
-     * has been released. listenerRef requires a "handleKey"
-     * function which receives three arguments:
+     * has been released. listenerRef is a function
+     * which receives three arguments:
      *
      * {string} type, either "up" or "down"
      * {number} keyCode, the keys keyCode
@@ -144,6 +142,8 @@ const KeyboardController = module.exports =
     }
 };
 
+export default KeyboardController;
+
 /* private handlers */
 
 function handleBroadcast( msg, payload ) {
@@ -169,8 +169,8 @@ function handleKeyDown( aEvent )
         if ( blockDefaults && DEFAULT_BLOCKED.indexOf( keyCode ) > -1 )
             aEvent.preventDefault();
 
-        if ( listener && listener.handleKey ) {
-            listener.handleKey( "down", keyCode, aEvent );
+        if ( typeof listener === 'function' ) {
+            listener( "down", keyCode, aEvent );
         }
         else {
 
@@ -439,8 +439,8 @@ function handleKeyUp( aEvent ) {
     }
 
     if ( !suspended ) {
-        if ( listener && listener.handleKey )
-            listener.handleKey( "up", aEvent.keyCode, aEvent );
+        if ( typeof listener === 'function' )
+            listener( "up", aEvent.keyCode, aEvent );
         else if ( !KeyboardController.hasOption( aEvent ) && !aEvent.shiftKey ) {
             if ( mode === MODES.NOTE_INPUT )
                 NoteInputHandler.createNoteOffEvent( aEvent.keyCode );

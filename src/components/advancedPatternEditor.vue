@@ -52,6 +52,7 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex';
+import Vue from 'vue';
 
 import Messages       from '../definitions/Messages';
 import PatternFactory from '../model/factory/PatternFactory';
@@ -100,12 +101,11 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setBlindActive',
+            'setOverlay',
             'closeDialog',
         ]),
         handleClose() {
-            this.setBlindActive(false);
-            this.closeDialog();
+            this.setOverlay(null);
         },
         handleConfirm() {
             const song            = this.activeSong;
@@ -146,8 +146,8 @@ export default {
             // update event offsets
 
             for ( let patternIndex = pastePatternValue; patternIndex < song.patterns.length; ++patternIndex ) {
-                song.patterns[ patternIndex ].channels.forEach(( channel, channelIndex ) => {
-                    channel.forEach(( event, eventIndex ) => {
+                song.patterns[ patternIndex ].channels.forEach(channel => {
+                    channel.forEach(event => {
                         if ( event && event.seq ) {
                             const eventStart  = event.seq.startMeasure;
                             const eventEnd    = event.seq.endMeasure;
