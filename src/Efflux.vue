@@ -6,7 +6,7 @@
             <h1>Whoops...</h1>
             <p>
                 Either the WebAudio API is not supported in this browser or it does not match the
-                required standards. Sadly, Efflux depends on this API in order to actually output sound!
+                required standards. Sadly, Efflux depends on these standards in order to actually output sound!
             </p>
             <p>
                 Luckily, you can get a web browser that offers support for free.
@@ -50,7 +50,7 @@
         <application-footer />
 
         <!-- obscuring area displayed below overlays -->
-        <div v-if="overlayOpened" id="blind"></div>
+        <div v-if="blindActive" id="blind"></div>
 
         <!-- dialog window used for information messages, alerts and confirmations -->
         <dialog-window v-if="dialog"
@@ -61,6 +61,10 @@
             :cancel-handler="dialog.cancel"
         />
 
+        <advanced-pattern-editor v-if="overlay === 'ape'" />
+
+        <notification v-if="notifications.length" />
+
         <!-- loading animation -->
         <loader v-if="loading" />
     </div>
@@ -68,14 +72,17 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
+import AdvancedPatternEditor from './components/advancedPatternEditor';
 import PatternEditor from './components/patternEditor';
 import HelpSection from './components/helpSection';
 import DialogWindow from './components/dialogWindow';
+import Notification from './components/notification';
 import Loader from './components/loader';
 import store from './store';
 
@@ -85,25 +92,28 @@ export default {
     components: {
         ApplicationHeader,
         ApplicationFooter,
+        AdvancedPatternEditor,
         PatternEditor,
         HelpSection,
         Loader,
-        DialogWindow
+        DialogWindow,
     },
     computed: {
         ...mapState([
             'menuOpened',
-            'overlayOpened',
+            'blindActive',
             'loading',
             'dialog',
-            'audioController'
+            'overlay',
+            'notifications',
+            'audioController',
         ]),
         ...mapGetters([
-            'getCopy'
+            'getCopy',
         ]),
         canLaunch() {
             return this.audioController.isSupported();
-        }
+        },
     },
     watch: {
         menuOpened(isOpen) {
@@ -163,7 +173,7 @@ export default {
 </script>
 
 <style lang="scss">
-    @import "./styles/_variables.scss";
+    @import '@/styles/_variables.scss';
 
     html, body {
         height: 100%;

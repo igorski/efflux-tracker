@@ -68,7 +68,7 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setOverlayState',
+            'setBlindActive',
             'closeDialog',
         ]),
         handleConfirm() {
@@ -84,7 +84,7 @@ export default {
             this.close();
         },
         close() {
-            this.setOverlayState(false);
+            this.setBlindActive(false);
             this.closeDialog();
         }
     }

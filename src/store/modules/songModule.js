@@ -32,7 +32,7 @@ import StorageUtil         from '../../utils/StorageUtil';
 const persistState = state => {
     // convert all Songs into XTK format (uses less storage)
     const xtkSongs = new Array( state.songs.length );
-    state.songs.forEach( function( song, index ) {
+    state.songs.forEach(( song, index ) => {
         xtkSongs[ index ] = SongAssemblyService.disassemble( song );
     });
     StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( xtkSongs ));
@@ -100,7 +100,7 @@ export default {
                     commit('setLoading', false);
                     if (songs) {
                         commit('setSongs', songs );
-                        persist(state);
+                        persistState(state);
                     }
                 }
             );

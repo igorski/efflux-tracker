@@ -62,24 +62,11 @@ const StorageUtil =
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
             }
-            else if ( !isChromeStorage ) {
-                const data = storage.getItem( key );
-                if ( data )
-                    resolve( decompress( data ));
-                else
-                    reject( Error( "Data for '" + key + "' not found" ));
-            }
-            else {
-                storage.get( key, ( data ) =>
-                {
-                    // we keep the API the same as with regular storage mechanisms
-
-                    if ( data === null || Object.keys( data ).length === 0 || !data[ key ] )
-                        reject( Error( "Data for '" + key + "' not found" ) );
-                    else
-                        resolve( decompress( data[ key ] ));
-                });
-            }
+            const data = storage.getItem( key );
+            if ( data )
+                resolve( decompress( data ));
+            else
+                reject( Error( "Data for '" + key + "' not found" ));
         });
     },
 
@@ -99,14 +86,7 @@ const StorageUtil =
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
             }
-            else if ( !isChromeStorage ) {
-                resolve( storage.setItem( key, compressedData ));
-            }
-            else {
-                const insert  = {};
-                insert[ key ] = compressedData;
-                storage.set( insert, resolve );
-            }
+            resolve( storage.setItem( key, compressedData ));
         });
     }
 };
@@ -143,7 +123,7 @@ function decompress( string ) {
         return string;
     }
 
-    // smaller length implies that given string could not be decompressed
+    // shorter length implies that given string could not be decompressed
     // properly, meaning it was likely not compressed in the first place
 
     if ( !decompressedString || decompressedString.length < string.length )

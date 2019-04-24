@@ -50,8 +50,9 @@ export default {
     }),
     methods: {
         ...mapMutations([
-           'setHelpTopic',
-            'clearSelection'
+            'setHelpTopic',
+            'clearSelection',
+            'setOverlay',
         ]),
         handlePatternClear() {
             efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
@@ -141,9 +142,9 @@ export default {
             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
         },
         handlePatternAdvanced() {
-            Pubsub.publish( Messages.OPEN_ADVANCED_PATTERN_EDITOR );
-        }
-    }
+            this.setOverlay('ape');
+        },
+    },
 };
 </script>
 
@@ -187,7 +188,7 @@ export default {
 
     @media screen and ( min-width: $app-width ) {
       #patternEditor {
-        // show divider before section content
+        /* show divider before section content */
         &:before {
           content: "";
           position: absolute;
@@ -202,7 +203,7 @@ export default {
 
     @media screen and ( min-width: $mobile-width ) and ( max-width: $app-width ) {
       #patternEditor {
-        // TODO: we're now hiding our interface from these users...
+        /* TODO: we're now hiding our interface from these users... */
         display: none;
       }
     }
@@ -211,7 +212,7 @@ export default {
 
     @media screen and ( max-width: $mobile-width ) {
       #patternEditor  {
-        display: none; // only visible when settings mode is active
+        display: none; /* only visible when settings mode is active */
       }
 
       #patternEditor {

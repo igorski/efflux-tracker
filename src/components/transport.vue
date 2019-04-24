@@ -33,7 +33,7 @@
                     @click="setLooping(!isLooping)"
                 ></li>
                 <li id="recordBTN"
-                    :class="[ disabled: !canRecord, isRecording ? 'active' : '' ]"
+                    :class="[{ disabled: !canRecord }, isRecording ? 'active' : '' ]"
                     @click="setRecording(!isRecording)"
                 ></li>
                 <li class="icon-metronome"
@@ -77,7 +77,6 @@ import Vue from 'vue';
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 
 import Config       from '../config';
-import Form         from '../utils/Form';
 import AudioUtil    from '../utils/AudioUtil';
 import EventUtil    from '../utils/EventUtil';
 import SongUtil     from '../utils/SongUtil';
@@ -129,7 +128,7 @@ export default {
                     //Pubsub.publish( Messages.PATTERN_SWITCH, value );
                 }
             }
-        }
+        },
     },
     watch: {
         isPlaying(playing) {
@@ -147,7 +146,7 @@ export default {
                 const patterns = this.activeSong.patterns;
                 let event, i;
 
-                patterns.forEach( pattern => {
+                patterns.forEach(pattern => {
                     pattern.channels.forEach(events => {
                         i = events.length;
                         while ( i-- ) {
@@ -190,14 +189,14 @@ export default {
                 keyboardController.setSuspended( false );
                 break;
         }
-    }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-    @import '../styles/_variables.scss';
+    @import '@/styles/_variables.scss';
 
-    // generated font for all transporter icons
+    /* generated font for all transporter icons */
 
     @font-face {
       font-family: 'transporter';
@@ -210,7 +209,7 @@ export default {
       font-style: normal;
     }
 
-    $transport-height: 42px; // height + border bottom
+    $transport-height: 42px; /* height + border bottom */
 
     #transportSection {
       background-color: #393b40;
@@ -234,12 +233,12 @@ export default {
           font-weight: bold;
           cursor: pointer;
 
-          // loop button
+          /* loop button */
           &#loopBTN {
             padding-left: 0;
           }
 
-          // record button
+          /* record button */
           &#recordBTN {
             background-color: #d00e57;
             padding: 0 .65em;
@@ -255,7 +254,7 @@ export default {
             }
           }
 
-          // measure indicator
+          /* measure indicator */
           &#currentPattern {
             display: inline-flex;
             width: 95px;
@@ -267,7 +266,7 @@ export default {
             }
 
             .current {
-              width: 28px; // fits "333"
+              width: 28px; /* fits "333" */
               height: 15px;
               border: 1px solid #999;
               font-weight: bold;
@@ -284,7 +283,7 @@ export default {
             }
           }
 
-          // pattern jump buttons
+          /* pattern jump buttons */
           &#patternNext {
             padding-left: 0;
           }
@@ -298,7 +297,7 @@ export default {
           }
 
           &.icon-settings {
-            display: none; // mobile only (see below)
+            display: none; /* mobile only (see below) */
           }
 
           &.icon-settings {
@@ -311,7 +310,7 @@ export default {
         }
       }
 
-      // tempo control
+      /* tempo control */
 
       #tempoControl {
         padding: .5em 0 0 .5em;
@@ -399,7 +398,7 @@ export default {
     @media screen and ( min-width: $app-width ) {
       #transportControls
       {
-        // divides sections of the list
+        /* divides sections of the list */
 
         .section-divider {
           padding: 0 .5em;

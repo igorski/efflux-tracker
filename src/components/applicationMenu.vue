@@ -72,7 +72,7 @@ export default {
     computed: {
         ...mapState([
             'menuOpened',
-            'overlayOpened',
+            'blindActive',
         ]),
         hasImportExport() {
             return ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
@@ -87,7 +87,7 @@ export default {
         }
     },
     watch: {
-        overlayOpened(isOpen, wasOpen) {
+        blindActive(isOpen, wasOpen) {
             if (!isOpen && wasOpen === true) {
                 this.setMenuOpened(false);
             }
@@ -101,7 +101,7 @@ export default {
     methods: {
         ...mapMutations([
             'setMenuOpened',
-            'setOverlayState',
+            'setBlindActive',
             'setHelpTopic',
         ]),
         handleMouseOver( aEvent ) {
@@ -137,7 +137,7 @@ export default {
             });
         },
         handleSettings( aEvent ) {
-            this.setOverlayState(false); // closes open overlays
+            this.setBlindActive(false); // closes open overlays
             Pubsub.publish( Messages.OPEN_SETTINGS_PANEL );
         },
         handleHelpClick(aEvent) {

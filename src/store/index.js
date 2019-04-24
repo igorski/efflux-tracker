@@ -25,10 +25,12 @@ export default new Vuex.Store({
     },
     state: {
         menuOpened: false,
-        overlayOpened: false,
+        blindActive: false,
         helpTopic: 'general',
         loading: 0,
         dialog: null,
+        overlay: null, /* string name of overlay window @see Efflux.vue */
+        notifications: [],
         audioController
     },
     getters: {
@@ -58,8 +60,12 @@ export default new Vuex.Store({
         setMenuOpened(state, value) {
             state.menuOpened = !!value;
         },
-        setOverlayState(state, opened) {
-            state.overlayOpened = !!opened;
+        setBlindActive(state, active) {
+            state.blindActive = !!active;
+        },
+        setOverlay(state, overlayName = '') {
+            state.blindActive = true;
+            state.overlay = overlayName;
         },
         setHelpTopic(state, topic) {
             if (typeof topic === 'string') {
@@ -78,6 +84,12 @@ export default new Vuex.Store({
         },
         closeDialog(state) {
             state.dialog = null;
+        },
+        showNotification(state, { title, content }) {
+            state.notifications.push({ title, content });
+        },
+        clearNotifications(state) {
+            state.notifications = [];
         }
     },
     actions: {
