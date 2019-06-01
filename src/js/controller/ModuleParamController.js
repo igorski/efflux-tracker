@@ -26,7 +26,6 @@ const EventFactory       = require( "../model/factory/EventFactory" );
 const View               = require( "../view/ModuleParamView" );
 const ModuleParamHandler = require( "./keyboard/ModuleParamHandler" );
 const Messages           = require( "../definitions/Messages" );
-const SettingsModel      = require( "../model/SettingsModel" );
 const Pubsub             = require( "pubsub-js" );
 
 /* private properties */
@@ -36,32 +35,6 @@ let data, selectedModule, lastEditedModule, lastTypeAction = 0, prevChar = 0, cl
 
 const ModuleParamController = module.exports =
 {
-    /**
-     * initialize ModuleParamController
-     *
-     * @param containerRef
-     * @param effluxRef
-     * @param keyboardControllerRef
-     */
-    init( containerRef, effluxRef, keyboardControllerRef ) {
-
-        container          = containerRef;
-        efflux             = effluxRef;
-        keyboardController = keyboardControllerRef;
-
-        View.init( efflux, handleViewMessage ).then(() => {
-            lastEditedModule = View.getValue();
-        });
-
-        // subscribe to messaging system
-
-        [
-            Messages.OPEN_MODULE_PARAM_PANEL,
-            Messages.CLOSE_OVERLAYS
-
-        ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-    },
-
     /* event handlers */
 
     handleKey( type, keyCode, event ) {
@@ -123,21 +96,6 @@ const ModuleParamController = module.exports =
     }
 };
 
-/* private methods */
-
-function handleBroadcast( type, payload ) {
-    switch ( type ) {
-        case Messages.OPEN_MODULE_PARAM_PANEL:
-            handleOpen( payload );
-            break;
-
-        case Messages.CLOSE_OVERLAYS:
-
-            if ( payload !== ModuleParamController )
-                handleClose();
-            break;
-    }
-}
 
 function handleViewMessage( type ) {
     switch ( type ) {
@@ -150,86 +108,3 @@ function handleViewMessage( type ) {
     }
 }
 
-/**
- * open module param entry pane
- *
- * @param {Function} completeCallback
- */
-function handleOpen( completeCallback ) {
-
-    const editorModel  = efflux.EditorModel,
-          patternIndex = editorModel.activePattern,
-          pattern      = efflux.activeSong.patterns[ patternIndex ],
-          channelIndex = editorModel.activeInstrument,
-          channel      = pattern.channels[ channelIndex ],
-          event        = channel[ editorModel.activeStep ];
-
-    data = {
-        instrument   : ( event ) ? event.instrument : editorModel.activeInstrument,
-        module       : ( event && event.mp ) ? event.mp.module  : lastEditedModule,
-        glide        : ( event && event.mp ) ? event.mp.glide   : false,
-        value        : ( event && event.mp ) ? event.mp.value   : 50,
-        patternIndex : ( event ) ? event.seq.startMeasure : patternIndex,
-        channelIndex : channelIndex, // always use channel index (event instrument might be associated w/ different channel lane)
-        step         : editorModel.activeStep
-    };
-
-    Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
-    Pubsub.publish( Messages.SHOW_BLIND );
-
-    closeCallback  = completeCallback;
-    selectedModule = data.module;
-
-    keyboardController.setBlockDefaults( false );
-    keyboardController.setListener( ModuleParamController );
-
-    selectedModule = data.module;
-    View.setSelectedValueInList( View.moduleList, data.module );
-    View.setGlide( data.glide );
-    View.setValue( data.value );
-
-    View.inject( container );
-}
-
-function handleClose() {
-
-    if ( typeof closeCallback === "function" )
-        closeCallback( null );
-
-    View.remove();
-    Pubsub.publishSync( Messages.HIDE_BLIND );
-
-    keyboardController.reset();
-    closeCallback = null;
-}
-
-function handleReady() {
-    data.module = lastEditedModule = View.getSelectedValueFromList( View.moduleList );
-    data.value  = View.getValue();
-    data.glide  = View.hasGlide();
-
-    // update model and view
-
-//    if ( EventValidator.hasContent( data )) {
-
-        const pattern = efflux.activeSong.patterns[ data.patternIndex ],
-             channel = pattern.channels[ data.channelIndex ];
-
-        let event        = channel[ data.step ];
-        const isNewEvent = !event;
-
-        if ( isNewEvent )
-            event = EventFactory.createAudioEvent();
-
-        event.mp         = data;
-        event.instrument = data.instrument;
-
-        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-            patternIndex : data.patternIndex,
-            channelIndex : data.channelIndex,
-            step         : data.step,
-            newEvent     : isNewEvent
-        } ]);
-//    }
-    handleClose();
-}
