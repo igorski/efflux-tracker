@@ -40,13 +40,13 @@ const persistState = state => {
 
 export default {
     state: {
-        /**
-         * @type {Array.<Object>}
-         */
-        songs: [],
-        activeSong: null
+        songs: [], /** @type {Array.<Object>} */
+        activeSong: null,
     },
     getters: {
+        activeSong(state) {
+            return state.activeSong;
+        },
         getSongs(state) {
             return state.songs;
         },

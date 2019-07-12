@@ -80,7 +80,7 @@ const module = {
                     resolve();
                 } else {
                     reject();
-                };
+                }
             });
         },
         /**

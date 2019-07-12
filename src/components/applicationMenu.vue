@@ -101,8 +101,8 @@ export default {
     methods: {
         ...mapMutations([
             'setMenuOpened',
-            'setBlindActive',
             'setHelpTopic',
+            'setOverlay',
         ]),
         handleMouseOver( aEvent ) {
             this.setHelpTopic('menu');
@@ -137,8 +137,7 @@ export default {
             });
         },
         handleSettings( aEvent ) {
-            this.setBlindActive(false); // closes open overlays
-            Pubsub.publish( Messages.OPEN_SETTINGS_PANEL );
+            this.setOverlay('settings');
         },
         handleHelpClick(aEvent) {
             window.open( Manual.ONLINE_MANUAL );

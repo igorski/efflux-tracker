@@ -23,6 +23,7 @@
 <template>
     <div id="notifications">
         <div v-for="notification in _notifications"
+             :key="`notification_${notification.title}`"
              class="notificationWindow"
              :class="{ active: notification.active }"
              @click="closeNotification( notification )">

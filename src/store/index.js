@@ -21,7 +21,7 @@ export default new Vuex.Store({
         selection,
         settings,
         sequencer,
-        song
+        song,
     },
     state: {
         menuOpened: false,

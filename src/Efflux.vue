@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div v-if="prepared" id="app">
         <application-header />
         <!-- message of disappointment in case environment does not support appropriate web API's -->
         <template v-if="!canLaunch">
@@ -63,6 +63,7 @@
 
         <template v-if="overlay">
             <advanced-pattern-editor v-if="overlay === 'ape'" />
+            <settings-window v-else-if="overlay === 'settings'" />
         </template>
 
         <notification v-if="notifications.length" />
@@ -84,6 +85,7 @@ import AdvancedPatternEditor from './components/advancedPatternEditor';
 import PatternEditor from './components/patternEditor';
 import HelpSection from './components/helpSection';
 import DialogWindow from './components/dialogWindow';
+import SettingsWindow from './components/settingsWindow';
 import Notification from './components/notification';
 import Loader from './components/loader';
 import store from './store';
@@ -99,7 +101,11 @@ export default {
         HelpSection,
         Loader,
         DialogWindow,
+        SettingsWindow,
     },
+    data: () => ({
+        prepared: false,
+    }),
     computed: {
         ...mapState([
             'menuOpened',
@@ -126,9 +132,7 @@ export default {
     async created() {
         // expose publish / subscribe bus to integrate with outside API's
 
-        window.efflux = Object.assign( window.efflux || {}, {
-            Pubsub: Pubsub
-        });
+        window.efflux = { ...window.efflux, Pubsub };
 
         // load both persistent model data as well as data fixtures
 
@@ -140,6 +144,8 @@ export default {
 
         this.prepareLinkedList();
         this.setActiveSong(await this.createSong());
+
+        this.prepared = true;
 
         // show confirmation message on page reload
 

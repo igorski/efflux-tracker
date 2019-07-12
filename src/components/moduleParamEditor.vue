@@ -74,9 +74,10 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import Pubsub from 'pubsub-js';
 
 export default {
-    data: {
+    data: () => ({
         instrument: null,
         module: null,
         glide: false,
@@ -84,12 +85,14 @@ export default {
         patternIndex: 0,
         channelIndex: 0,
         step: 0,
-    },
+    }),
     computed: {
         ...mapState([
             'activePattern',
             'activeInstrument',
             'activeStep',
+        ]),
+        ...mapGetters([
             'activeSong',
         ]),
         valueText() {

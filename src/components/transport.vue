@@ -40,7 +40,7 @@
                     :class="{ active: isMetronomeEnabled }"
                     @click="setMetronomeEnabled(!isMetronomeEnabled)"
                 ></li>
-                <li class="icon-settings"  @click="handleSettingsToggle"></li>
+                <li class="icon-settings" @click="handleSettingsToggle"></li>
                 <li class="section-divider"><!-- x --></li>
                 <li id="patternBack" @click="handlePatternNavBack">&lt;&lt;</li>
                 <li id="currentPattern">
@@ -89,13 +89,13 @@ export default {
     computed: {
         ...mapState([
             'activePattern',
-            'activeSong'
         ]),
         ...mapGetters([
+            'activeSong',
             'isPlaying',
             'isLooping',
             'isRecording',
-            'isMetronomeEnabled'
+            'isMetronomeEnabled',
         ]),
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
@@ -136,7 +136,7 @@ export default {
                 this.setPosition(this.activePattern);
             } else if(this.isRecording) {
                 this.setRecording(false);
-                this.clearPEndign();
+                this.clearPending();
             }
         },
         isRecording(recording, wasRecording) {
@@ -165,6 +165,7 @@ export default {
     methods: {
         ...mapMutations([
             'setPlaying',
+            'setPosition',
             'setLooping',
             'setRecording',
             'setRecordingInput',    // TODO: why track this in both sequencer and editor modules??
@@ -172,24 +173,59 @@ export default {
             'setCurrentMeasure',
             'setMetronomeEnabled',
             'setTempo',
-            'setActivePattern'
+            'setActivePattern',
         ]),
         ...mapActions([
-            'prepareSequencer'
-        ])
-    },
-    handleCurrentPositionInteraction(e) {
-        const element = e.target;
-        switch ( e.type ) {
-            case 'focus':
-                keyboardController.setSuspended( true );
-                break;
-    
-            case 'blur':
-                keyboardController.setSuspended( false );
-                break;
+            'prepareSequencer',
+        ]),
+        handleCurrentPositionInteraction(e) {
+            const element = e.target;
+            switch ( e.type ) {
+                case 'focus':
+                    keyboardController.setSuspended( true );
+                    break;
+
+                case 'blur':
+                    keyboardController.setSuspended( false );
+                    break;
+            }
+        },
+        handleSettingsToggle(e) {
+            const body     = window.document.body,
+                  cssClass = "settings-mode",
+                  enabled  = !body.classList.contains( cssClass );
+
+            if ( enabled )
+                e.target.classList.add( "active" );
+            else
+                e.target.classList.remove( "active" );
+
+            body.classList.toggle( cssClass );
+        },
+        handlePatternNavBack( aEvent ) {
+            if ( this.activePattern > 0 )
+                this.switchPattern( this.activePattern - 1 );
+        },
+        handlePatternNavNext( aEvent ) {
+            const max = this.activeSong.patterns.length - 1;
+
+            if ( this.activePattern < max )
+                this.switchPattern( this.activePattern + 1 );
+        },
+        switchPattern( newMeasure ) {
+            if ( this.activePattern === newMeasure )
+                return;
+
+            currentMeasure = this.activePattern = newMeasure;
+            Pubsub.publishSync( Messages.PATTERN_SWITCH, newMeasure );
+
+            const newSteps = this.activeSong.patterns[ newMeasure ].steps;
+            if ( editorModel.amountOfSteps !== newSteps ) {
+                editorModel.amountOfSteps = newSteps;
+                Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newSteps );
+            }
         }
-    },
+    }
 };
 </script>
 

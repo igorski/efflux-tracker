@@ -51,7 +51,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 import Vue from 'vue';
 
 import Messages       from '../definitions/Messages';
@@ -82,6 +82,8 @@ export default {
     computed: {
         ...mapState([
             'activePattern',
+        ]),
+        ...mapGetters([
             'activeSong',
         ]),
         maxPattern() {

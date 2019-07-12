@@ -70,8 +70,6 @@ const SettingsController = module.exports =
         // subscribe to messages
 
         [
-            Messages.OPEN_SETTINGS_PANEL,
-            Messages.CLOSE_OVERLAYS,
             Messages.MIDI_RECEIVED_INPUT_DEVICES
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -84,13 +82,6 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
-        case Messages.OPEN_SETTINGS_PANEL:
-            handleOpen();
-            break;
-
-        case Messages.CLOSE_OVERLAYS:
-            handleClose();
-            break;
 
         case Messages.MIDI_RECEIVED_INPUT_DEVICES:
             showAvailableMIDIDevices( payload );
