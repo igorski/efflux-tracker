@@ -30,11 +30,6 @@ function handleBroadcast( type, payload )
             SequencerController.update();
             break;
 
-        // when a MIDI device is connected, we allow recording from MIDI input
-        case Messages.MIDI_DEVICE_CONNECTED:
-            recordBTN.classList.remove( "disabled" );
-            break;
-
         case Messages.AUDIO_CONTEXT_READY:
             audioContext = payload;
             SequencerController.setPosition( 0 );

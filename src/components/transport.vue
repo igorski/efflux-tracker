@@ -87,11 +87,12 @@ import Pubsub       from 'pubsub-js';
 
 export default {
     computed: {
-        ...mapState([
-            'activePattern',
-        ]),
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            activePattern: state => state.editor.activePattern,
+            midiConnected: state => state.midi.midiConnected,
+        }),
         ...mapGetters([
-            'activeSong',
             'isPlaying',
             'isLooping',
             'isRecording',
@@ -100,7 +101,8 @@ export default {
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
             // if a MIDI device is connected on a mobile device, it is enabled as well
-            return !Bowser.ios && !Bowser.android;
+            const hasKeyboard = !Bowser.ios && !Bowser.android;
+            return hasKeyboard || this.midiConnected;
         },
         tempo: {
             get() {

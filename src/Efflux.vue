@@ -34,11 +34,11 @@
 
         <application-footer />
 
-        <!-- obscuring area displayed below overlays -->
+        <!-- overlays -->
         <div v-if="blindActive" id="blind">
             <template v-if="overlay">
-                <advanced-pattern-editor v-if="overlay === 'ape'" />
-                <settings-window v-if="overlay === 'settings'" />
+                <advanced-pattern-editor v-if="overlay === 'ape'" @close="closeOverlay" />
+                <settings-window v-if="overlay === 'settings'" @close="closeOverlay" />
             </template>
         </div>
 
@@ -120,7 +120,7 @@ export default {
     watch: {
         menuOpened(isOpen) {
             // prevent scrolling main body when scrolling menu list
-                window.document.body.style.overflow = isOpen ? 'hidden' : 'auto';
+            window.document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         }
     },
     async created() {
@@ -167,6 +167,8 @@ export default {
             'setActiveSong',
             'setWindowSize',
             'setWindowScrollOffset',
+            'setBlindActive',
+            'closeDialog',
         ]),
         ...mapActions([
             'loadStoredSettings',
@@ -211,6 +213,10 @@ export default {
 
             this.centerSection.style.width = Style.getStyle( this.mainSection, "width" );
         },
+        closeOverlay() {
+            this.setBlindActive(false);
+            this.closeDialog();
+        }
     }
 };
 </script>

@@ -100,11 +100,4 @@ export default
     SAVE_STATE                          : "ED:14", // payload is Object { undo: Function, redo: Function }
     EDIT_MOD_PARAMS_FOR_STEP            : "ED:15",
     EDIT_NOTE_FOR_STEP                  : "ED:16",
-
-    // MIDI messages
-
-    MIDI_CONNECT_TO_INTERFACE   : "MID:0",
-    MIDI_ADD_LISTENER_TO_DEVICE : "MID:1", // payload is device number (is MIDIInput list number)
-    MIDI_RECEIVED_INPUT_DEVICES : "MID:2", // payload is Array.<MIDIInput>
-    MIDI_DEVICE_CONNECTED       : "MID:3"  // payload is device number (is MIDIInput list number)
 };

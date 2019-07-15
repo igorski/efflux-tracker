@@ -254,8 +254,7 @@ export default {
          * @param {Object=} optData optional data with event properties
          * @param {boolean=} optStoreInUndoRedo optional, whether to store in state history, defaults to true
          */
-        addEventAtPosition( event, optData, optStoreInUndoRedo ){
-            optStoreInUndoRedo   = ( typeof optStoreInUndoRedo === "boolean" ) ? optStoreInUndoRedo : true;
+        addEventAtPosition( event, optData, optStoreInUndoRedo = true ) {
             const undoRedoAction = StateFactory.getAction( States.ADD_EVENT, {
                 efflux:        efflux,
                 event:         event,

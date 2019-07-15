@@ -159,4 +159,5 @@ submit to madewithvue :D
 LONG TERM TODO (make Git issues)
 --------------
 
+Create separate component for MIDI settings panel
 Clean up helpSection (do not inline all topics)

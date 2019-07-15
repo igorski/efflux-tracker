@@ -5,6 +5,7 @@ import { getCopy } from '../i18n/Copy';
 import editor from './modules/editorModule';
 import history from './modules/historyModule';
 import instrument from './modules/instrumentModule';
+import midi from './modules/midiModule';
 import selection from './modules/selectionModule';
 import settings from './modules/settingsModule';
 import sequencer from './modules/sequencerModule';
@@ -22,6 +23,7 @@ export default new Vuex.Store({
         settings,
         sequencer,
         song,
+        midi,
     },
     state: {
         menuOpened: false,
