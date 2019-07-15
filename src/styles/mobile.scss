@@ -3,7 +3,7 @@
 
 // PHONE specific
 
-@media screen and ( max-width: @mobile-width ) {
+@media screen and ( max-width: $mobile-width ) {
 
   #properties {
     margin: 95px auto 0;

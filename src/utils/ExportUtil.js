@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,17 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import Config              from '../config';
+import Copy                from '../i18n/Copy';
+import Messages            from '../definitions/Messages';
+import SongAssemblyService from '../services/SongAssemblyService';
+import SongValidator       from '../model/validators/SongValidator';
+import InstrumentValidator from '../model/validators/InstrumentValidator';
+import Pubsub              from 'pubsub-js';
 
-const Config              = require( "../config" );
-const Copy                = require( "../i18n/Copy" );
-const Messages            = require( "../definitions/Messages" );
-const SongAssemblyService = require( "../services/SongAssemblyService" );
-const SongValidator       = require( "../model/validators/SongValidator" );
-const InstrumentValidator = require( "../model/validators/InstrumentValidator" );
-const Pubsub              = require( "pubsub-js" );
-
-module.exports = {
+export default {
 
     /* songs */
 

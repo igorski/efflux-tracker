@@ -227,7 +227,7 @@ const InstrumentUtil = module.exports =
 /* private methods */
 
 function pitchToUniqueId( pitch ) {
-    return pitch.note + pitch.octave;
+    return `${pitch.note}${pitch.octave}`;
 }
 
 function recordEventIntoSong( audioEvent, sequencerController ) {

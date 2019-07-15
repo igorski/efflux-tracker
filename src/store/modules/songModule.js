@@ -116,6 +116,7 @@ export default {
                 song.meta.modified = Date.now();    // update timestamp
                 state.songs.push( song );
                 persistState(state);
+                resolve();
             });
         },
         deleteSong({ state }, { song, persist = true }) {

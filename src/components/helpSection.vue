@@ -143,7 +143,7 @@ export default {
     @import '@/styles/_variables.scss';
 
     #helpSection {
-      @include EditorComponent;
+      @include EditorComponent();
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
       vertical-align: top;

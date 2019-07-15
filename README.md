@@ -129,6 +129,7 @@ ROADMAP
 TODO VUE
 --------
 
+REPLACE ALL INSTANCES OF WINDOW_RESIZE and WINDOW_SCROLL with watchers
 All Handlebars moved to components
 All less files moved to appropriate components or SCSS libraries
 KeyboardController to Vuex store module (we need store access for mutations)

@@ -25,23 +25,8 @@
 
             <div class="container">
                 <div id="editor">
-                    <section id="trackEditor">
-                        <ul class="controls">
-                            <li class="addNote"></li>
-                            <li class="addOff"></li>
-                            <li class="removeNote"></li>
-                            <li class="moduleParams"></li>
-                            <li class="moduleGlide"></li>
-                        </ul>
-                    </section>
-                    <section id="patternTrackList">
-                        <div id="patternTrackListContainer">
-                            <div class="wrapper">
-                                <!-- HandleBars content appended here -->
-                            </div>
-                            <div class="highlight"></div>
-                        </div>
-                    </section>
+                    <track-editor />
+                    <pattern-track-list />
                     <help-section />
                 </div>
             </div>
@@ -50,7 +35,12 @@
         <application-footer />
 
         <!-- obscuring area displayed below overlays -->
-        <div v-if="blindActive" id="blind"></div>
+        <div v-if="blindActive" id="blind">
+            <template v-if="overlay">
+                <advanced-pattern-editor v-if="overlay === 'ape'" />
+                <settings-window v-if="overlay === 'settings'" />
+            </template>
+        </div>
 
         <!-- dialog window used for information messages, alerts and confirmations -->
         <dialog-window v-if="dialog"
@@ -60,12 +50,7 @@
             :confirm-handler="dialog.confirm"
             :cancel-handler="dialog.cancel"
         />
-
-        <template v-if="overlay">
-            <advanced-pattern-editor v-if="overlay === 'ape'" />
-            <settings-window v-else-if="overlay === 'settings'" />
-        </template>
-
+        <!-- notifications -->
         <notification v-if="notifications.length" />
 
         <!-- loading animation -->
@@ -79,10 +64,14 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config';
+import ListenerUtil from './utils/ListenerUtil';
+import { Style } from 'zjslib';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
 import AdvancedPatternEditor from './components/advancedPatternEditor';
 import PatternEditor from './components/patternEditor';
+import PatternTrackList from './components/patternTrackList';
+import TrackEditor from './components/trackEditor';
 import HelpSection from './components/helpSection';
 import DialogWindow from './components/dialogWindow';
 import SettingsWindow from './components/settingsWindow';
@@ -102,9 +91,14 @@ export default {
         Loader,
         DialogWindow,
         SettingsWindow,
+        TrackEditor,
+        PatternTrackList,
     },
     data: () => ({
         prepared: false,
+        scrollPending: false,
+        mainSection: null,
+        centerSection: null,
     }),
     computed: {
         ...mapState([
@@ -144,6 +138,7 @@ export default {
 
         this.prepareLinkedList();
         this.setActiveSong(await this.createSong());
+        this.addListeners();
 
         this.prepared = true;
 
@@ -164,18 +159,58 @@ export default {
                 };
             }
         }
+        this.$nextTick(this.calculateDimensions);
     },
     methods: {
         ...mapMutations([
             'prepareLinkedList',
-            'setActiveSong'
+            'setActiveSong',
+            'setWindowSize',
+            'setWindowScrollOffset',
         ]),
         ...mapActions([
             'loadStoredSettings',
             'loadStoredInstruments',
             'loadStoredSongs',
             'createSong'
-        ])
+        ]),
+        addListeners() {
+            // no need to dispose as these will be active during application lifetime
+            window.addEventListener( "resize", this.handleResize );
+            ListenerUtil.listen( window,  "scroll", this.handleScroll );
+        },
+        handleResize(event) {
+            this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
+            this.calculateDimensions();
+        },
+        handleScroll(event) {
+            // only fire this event on next frame to avoid
+            // DOM thrashing by all subscribed listeners
+
+            if ( !this.scrollPending ) {
+                this.scrollPending = true;
+                this.$nextTick(() => {
+                    this.setWindowScrollOffset(window.scrollY);
+                    this.scrollPending = false;
+                });
+            }
+        },
+        calculateDimensions() {
+            /**
+             * due to the nature of the table display of the pattern editors track list
+             * we need JavaScript to calculate to correct dimensions of the overflowed track list
+             */
+
+                // grab references to DOM elements (we do this lazily)
+            // TODO: delegate these to the Vue components in question
+
+            this.mainSection   = this.mainSection   || document.querySelector( "#properties" );
+            this.centerSection = this.centerSection || document.querySelector( "#editor" );
+
+            // synchronize pattern list width with mainsection width
+
+            this.centerSection.style.width = Style.getStyle( this.mainSection, "width" );
+        },
     }
 };
 </script>

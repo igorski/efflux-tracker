@@ -43,9 +43,11 @@ module.exports = {
 try {
     const opts = Object.defineProperty({}, 'passive', {
         get: function() {
-            supportsPassive = true;
+            return supportsPassive = true;
         }
     });
     window.addEventListener( "test", null, opts );
 
-} catch (e) {}
+} catch (e) {
+    // nowt...
+}

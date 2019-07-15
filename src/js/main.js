@@ -14,11 +14,6 @@ function startApplication() {
         NoteEntryController.init( container, efflux, KeyboardController );
         ModuleParamController.init( container, efflux, KeyboardController );
         NotificationController.init( container );
-        TrackEditorController.init( container.querySelector( "#trackEditor" ), efflux );
-        PatternTrackListController.init(
-            container.querySelector( "#patternTrackListContainer" ),
-            efflux, KeyboardController
-        );
         AdvancedPatternEditorController.init( container, efflux, KeyboardController );
 
         // MIDI is currently only supported in Chrome

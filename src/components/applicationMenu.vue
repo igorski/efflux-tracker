@@ -38,13 +38,13 @@
                         <li @click="handleSave">Save song</li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
                         <template v-if="hasImportExport">
-                            <li id="songImport">Import song</li>
-                            <li id="songExport">Export song</li>
+                            <li @click="importSong">Import song</li>
+                            <li @click="exportSong">Export song</li>
                         </template>
                         <li id="songReset" @click="handleReset">Reset song</li>
                         <template v-if="hasImportExport">
-                            <li>Import instrument presets</li>
-                            <li>Export instrument presets</li>
+                            <li @click="importInstruments">Import instrument presets</li>
+                            <li @click="exportInstruments">Export instrument presets</li>
                         </template>
                     </ul>
                 </li>
@@ -62,17 +62,22 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/Fullscreen';
 import { getCopy } from '../i18n/Copy';
 import Manual from '../definitions/Manual';
 import Messages from '../definitions/Messages';
+import ExportUtil from '../utils/ExportUtil';
 
 export default {
     computed: {
         ...mapState([
             'menuOpened',
             'blindActive',
+        ]),
+        ...mapGetters([
+            'activeSong',
+            'getInstruments',
         ]),
         hasImportExport() {
             return ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
@@ -103,6 +108,7 @@ export default {
             'setMenuOpened',
             'setHelpTopic',
             'setOverlay',
+            'saveSong',
         ]),
         handleMouseOver( aEvent ) {
             this.setHelpTopic('menu');
@@ -112,12 +118,12 @@ export default {
             Pubsub.publish( Messages.OPEN_SONG_BROWSER );
         },
         handleSave( aEvent ) {
-            const song = efflux.activeSong;
-        
-            if ( this.isValid( song )) {
-                efflux.SongModel.saveSong( song );
-                Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "SONG_SAVED", song.meta.title ));
-                Pubsub.publish( Messages.SONG_SAVED, song );
+            if ( this.isValid( this.activeSong )) {
+                this.saveSong( this.activeSong )
+                    .then(() => {
+                    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "SONG_SAVED", song.meta.title ));
+                    Pubsub.publish( Messages.SONG_SAVED, song );
+                });
             }
         },
         handleReset( aEvent ) {
@@ -168,7 +174,21 @@ export default {
         handleRecord( aEvent ) {
             Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
             Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "RECORDING_ENABLED" ));
-        }
+        },
+        importSong() {
+            ExportUtil.importSong();
+        },
+        exportSong() {
+            if ( this.isValid( this.activeSong )) {
+                ExportUtil.exportSong( this.activeSong );
+            }
+        },
+        importInstruments() {
+            ExportUtil.importInstrument();
+        },
+        exportInstruments() {
+            ExportUtil.exportInstruments(this.getInstruments());
+        },
     }
 };
 </script>

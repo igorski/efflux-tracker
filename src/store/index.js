@@ -28,6 +28,8 @@ export default new Vuex.Store({
         blindActive: false,
         helpTopic: 'general',
         loading: 0,
+        windowSize: { width: window.innerWidth, height: window.innerHeight },
+        windowScrollOffset: 0,
         dialog: null,
         overlay: null, /* string name of overlay window @see Efflux.vue */
         notifications: [],
@@ -90,6 +92,12 @@ export default new Vuex.Store({
         },
         clearNotifications(state) {
             state.notifications = [];
+        },
+        setWindowSize(state, { width, height }) {
+            state.windowSize = { width, height };
+        },
+        setWindowScrollOffset(state, value) {
+            state.windowScrollOffset = value;
         }
     },
     actions: {

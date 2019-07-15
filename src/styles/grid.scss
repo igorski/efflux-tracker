@@ -1,35 +1,35 @@
 /* equal column heights for editor section */
 
 #editor {
-  @include Flex;
+  @include Flex();
 }
 
 #trackEditor,
 #patternTrackList,
 #helpSection {
-  @include InlineFlex;
+  @include InlineFlex();
 }
 
 /* standard width: large TABLET/LAPTOP */
 
-@media screen and ( min-width: @app-width )
+@media screen and ( min-width: $app-width )
 {
   .container
   {
     width: inherit;
-    max-width: @ideal-width;
+    max-width: $ideal-width;
     padding: 0;
   }
 
   #editor {
     left: 50%;
-    margin-left: -(@ideal-width / 2);
+    margin-left: -($ideal-width / 2);
   }
 }
 
 /* PHONE */
 
-@media screen and ( max-width: @mobile-width )
+@media screen and ( max-width: $mobile-width )
 {
   .container {
     padding: 0;
@@ -46,13 +46,13 @@
 
 /* everything LARGER than a PHONE */
 
-@media screen and ( min-width: @mobile-width )
+@media screen and ( min-width: $mobile-width )
 {
   .container
   {
     padding: 0 1em;
     left: auto;
-    .boxSize;
+    @include boxSize();
 
     /* menu contains submenu */
 
@@ -69,14 +69,14 @@
 
 /* TABLET: portrait orientation */
 
-@media screen and ( max-width: @tablet-portrait-width )
+@media screen and ( max-width: $tablet-portrait-width )
 {
 
 }
 
 /* TABLET/DESKTOP portrait width (everything smaller than app width) */
 
-@media screen and ( max-width: @app-width )
+@media screen and ( max-width: $app-width )
 {
   // allow scrolling as we can expect the overlays to have scrollable content
   html {
@@ -95,21 +95,21 @@
 
 /* everything from app width and above */
 
-@media screen and ( min-width: @app-width )
+@media screen and ( min-width: $app-width )
 {
 
 }
 
 /* TABLET/DESKTOP ideal height */
 
-@media screen and ( min-height: @ideal-height )
+@media screen and ( min-height: $ideal-height )
 {
 
 }
 
 /* TABLET/DESKTOP medium to large */
 
-@media screen and ( min-width: @app-width) and (max-width: @ideal-width )
+@media screen and ( min-width: $app-width) and (max-width: $ideal-width )
 {
   #editor {
     left: auto;
@@ -128,7 +128,7 @@
 
 /* DESKTOP wide screen */
 
-@media screen and ( min-width: @ideal-width ) {
+@media screen and ( min-width: $ideal-width ) {
   #editor {
     margin-left: -766px;
   }

@@ -29,7 +29,7 @@
         <fieldset>
             <div class="wrapper input">
                 <label>Copy pattern range:</label>
-                <input type="number" :ref="firstPatternInput" min="1" max="maxPattern" value="firstPattern">
+                <input type="number" ref="firstPatternInput" min="1" max="maxPattern" value="firstPattern">
                 <input type="number" min="1" max="maxPattern" value="lastPattern">
             </div>
         </fieldset>
@@ -94,7 +94,7 @@ export default {
         this.firstPattern =
         this.lastPattern  = this.activePattern + 1;
         this.firstChannel = 1;
-        this.lastChannel  = song.instruments.length;
+        this.lastChannel  = this.activeSong.instruments.length;
         this.pastePattern = this.maxPattern;
 
         this.$nextTick(() => {
