@@ -101,8 +101,8 @@ export default {
                    const instruments = await FixturesLoader.load('Instruments.json');
                    commit('setLoading', false);
 
-                   if (instruments) {
-                       commit('setInstruments')( instruments );
+                   if (Array.isArray(instruments)) {
+                       commit('setInstruments', instruments);
                        persistState(state);
                    }
                }

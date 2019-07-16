@@ -34,6 +34,20 @@ export default
      * @return {Promise}
      */
     load( filename ) {
-        return axios.get( `${Config.getBasePath()}/${filename}` )
+        return new Promise((resolve, reject) => {
+            axios.get( `${Config.getBasePath()}fixtures/${filename}` )
+                .then(({ data }) => {
+                    if (data) {
+                        // Fixtures are bundled in an map, convert to list
+                        resolve(
+                            Object.keys(data).reduce((acc, key) => {
+                                acc.push(data[key]);
+                                return acc;
+                            }, [])
+                        );
+                    }
+                })
+                .catch(e => reject(e));
+        });
     }
 };

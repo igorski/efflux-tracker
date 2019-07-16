@@ -133,23 +133,20 @@ REPLACE ALL INSTANCES OF WINDOW_RESIZE and WINDOW_SCROLL with watchers
 All Handlebars moved to components
 All less files moved to appropriate components or SCSS libraries
 KeyboardController to Vuex store module (we need store access for mutations)
-Menu all functionalities (bar help)
+Menu all functionalities (bar settings, help, maximuze)
 SequencerWorker
 igorski.nl share integration
 Bill Fruge Web MIDI on Linux??
 Overlays must be appended to blind (so don't need to watch setOverlayState for self removal)
-minification of JSON fixtures
 check whether selections cut paste copy et al work
-check whether settings can be saved
 check whether instruments can be saved
-FixturesLoader > use axios
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 Webpack Worker in Blob
 igorski.nl Analytics
 CSS no tag selectors in critical areas
 metronome
-recording events
+recording events (also using MIDI)
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 

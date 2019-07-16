@@ -82,7 +82,7 @@ export default {
     },
     actions: {
         loadStoredSongs({ state, commit }) {
-            StorageUtil.getItem( Config.LOCAL_STORAGEsongs ).then(
+            StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then(
                 ( result ) => {
                     if ( typeof result === "string" ) {
                         try {
@@ -98,8 +98,8 @@ export default {
                     commit('setLoading', true);
                     const songs = await FixturesLoader.load('Songs.json');
                     commit('setLoading', false);
-                    if (songs) {
-                        commit('setSongs', songs );
+                    if (Array.isArray(songs)) {
+                        commit('setSongs', songs);
                         persistState(state);
                     }
                 }
