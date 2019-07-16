@@ -58,7 +58,13 @@
                     <select id="midiDevices"
                             v-model="portNumber"
                             @change="handleMIDIDeviceSelect">
-                        <option>Connect to MIDI API first.</option>
+                        <template v-if="midiDeviceList.length">
+                            <option v-for="(device, index) in midiDeviceList"
+                                    :key="`device_${index}`"
+                                    :value="device.value"
+                            >{{ device.title }}</option>
+                        </template>
+                        <option v-else value="-1">Connect to MIDI API first.</option>
                     </select>
                 </div>
                 <p>
@@ -79,6 +85,7 @@ export default {
     data: () => ({
         paramFormat: 'hex',
         trackFollow: false,
+        midiDeviceList: [],
     }),
     computed: {
         ...mapState({
@@ -98,7 +105,7 @@ export default {
                 return this.midiPortNumber;
             },
             set(value) {
-                this.setMidiPortNumber(value);
+                this.setMIDIPortNumber(value);
             }
         },
     },
@@ -117,7 +124,7 @@ export default {
         ...mapMutations([
             'saveSetting',
             'showNotification',
-            'setPortNumber',
+            'setMIDIPortNumber',
         ]),
         handleParameterInputFormatChange( aEvent ) {
             this.saveSetting(
@@ -134,9 +141,10 @@ export default {
             zMIDI.connect(this.handleMIDIconnectSuccess, this.handleMIDIconnectFailure);
         },
         handleMIDIconnectSuccess() {
-            if ( zMIDI.getInChannels().length === 0 ) {
+            if (zMIDI.getInChannels().length === 0) {
                 return this.handleMIDIconnectFailure();
             }
+            this.showAvailableMIDIDevices(zMIDI.getInChannels());
             this.showNotification({ message: this.getCopy('MIDI_CONNECTED') });
         },
         handleMIDIconnectFailure() {
@@ -157,21 +165,13 @@ export default {
             });
         },
         showAvailableMIDIDevices( aInputs ) {
-            let options = [], option, input;
-        
-            for ( let i = 0, l = aInputs.length; i < l; ++i )
-            {
-                input  = aInputs[ i ];
-                option = {
-                    title : input.manufacturer + " " + input.name,
-                    value : i
-                };
-               options.push( option );
-            }
-            Form.setOptions( deviceSelect, options );
-        
-            if ( options.length === 1 )
-                Pubsub.publish( Messages.MIDI_ADD_LISTENER_TO_DEVICE, 0 );
+            this.midiDeviceList = aInputs.map((input, i) => ({
+                title : `${input.manufacturer} ${input.name}`,
+                value : i,
+            }));
+
+            if (this.midiDeviceList.length === 1 )
+                this.portNumber = this.midiDeviceList[0].value;
         }
     }
 };
