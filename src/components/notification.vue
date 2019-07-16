@@ -22,63 +22,73 @@
 */
 <template>
     <div id="notifications">
-        <div v-for="notification in _notifications"
-             :key="`notification_${notification.title}`"
+        <div v-for="(notification, index) in queue"
+             :key="`notification_${index}`"
              class="notificationWindow"
-             :class="{ active: notification.active }"
-             @click="closeNotification( notification )">
+             :class="{ active: notification.visible, destroyed: notification.destroyed }"
+             @click="closeNotification(notification)"
+        >
             <h3>{{ notification.title }}</h3>
-            <p>{{ notification.content }}</p>
+            <p>{{ notification.message }}</p>
         </div>
     </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
     data: () => ({
-        _notifications: []
+        queue: [],
     }),
     computed: {
-        ...mapGetters([
-            'notifications'
+        ...mapState([
+            'notifications',
         ])
     },
     watch: {
-        notifications( value ) {
-            if ( value.length ) {
+        notifications: {
+            immediate: true,
+            handler(value = []) {
+                if (!value.length) return;
+
                 value.forEach(notification => {
                     // create Value Object for the message
-                    this._notifications.push({
-                        visible: true,
-                        ...notification
-                    });
+                    const notificationVO = { ...notification, visible: true, destroyed: false };
+                    this.queue.push(notificationVO);
+
                     // auto close after a short delay
-                    window.setTimeout( this.closeNotification.bind( this, notification ), 5000 );
+                    window.setTimeout( this.closeNotification.bind(this, notificationVO), 5000 );
                 });
                 this.clearNotifications();
-            }
+            },
         },
     },
     methods: {
         ...mapMutations([
-            'clearNotifications'
+            'clearNotifications',
         ]),
-        closeNotification( notification ) {
-            if ( !notification.visible ) {
-                return;
+        closeNotification(notificationVO) {
+            if (!notificationVO.visible) return;
+
+            // trigger 1 sec close animation (see css)
+            notificationVO.visible = false;
+            window.setTimeout(this.removeNotification.bind(this, notificationVO), 1000 );
+        },
+        removeNotification(notificationVO) {
+            notificationVO.destroyed = true;
+            // only clear queue once all notifications have been destroyed
+            // (v-for does not guarantee order so clearing when there are multiple notifications
+            // causes weird jumps in remaining notification windows)
+            if (!this.queue.find(notificationVO => !notificationVO.destroyed)) {
+                this.queue = [];
             }
-            notification.visible = false;
-            window.setTimeout(() => {
-                this._notifications.splice( this._notifications.indexOf( notification ), 1 );
-            }, 1000 );
-        }
+        },
     }
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     @import '../styles/_variables.scss';
 
     #notifications
@@ -105,7 +115,11 @@ export default {
         cursor: pointer;
         box-shadow: 0 0 0 rgba(0,255,255,0);
 
-        &.visible {
+        &.destroyed {
+          display: none;
+        }
+
+        &.active {
           right: 1em;
           box-shadow: 0 0 7px rgba(0,255,255,.35);
         }
@@ -134,7 +148,7 @@ export default {
           top: -500px;
           padding: 1em 2em;
 
-          &.visible {
+          &.active {
             top: 0;
           }
         }

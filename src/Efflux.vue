@@ -51,7 +51,7 @@
             :cancel-handler="dialog.cancel"
         />
         <!-- notifications -->
-        <notification v-if="notifications.length" />
+        <notification />
 
         <!-- loading animation -->
         <loader v-if="loading" />
@@ -86,13 +86,14 @@ export default {
         ApplicationHeader,
         ApplicationFooter,
         AdvancedPatternEditor,
-        PatternEditor,
+        DialogWindow,
         HelpSection,
         Loader,
-        DialogWindow,
+        Notification,
+        PatternEditor,
+        PatternTrackList,
         SettingsWindow,
         TrackEditor,
-        PatternTrackList,
     },
     data: () => ({
         prepared: false,
@@ -107,7 +108,6 @@ export default {
             'loading',
             'dialog',
             'overlay',
-            'notifications',
             'audioController',
         ]),
         ...mapGetters([

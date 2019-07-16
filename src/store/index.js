@@ -45,7 +45,7 @@ export default new Vuex.Store({
          * TODO: consider use of vue-i18n
          */
         // eslint-disable-next-line no-unused-vars
-        getCopy: () => state => (copyKey, optReplacement) => getCopy(copyKey, optReplacement)
+        getCopy: state => (copyKey, optReplacement) => getCopy(copyKey, optReplacement)
     },
     mutations: {
         /**
