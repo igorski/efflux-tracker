@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const EventFactory = require( "../model/factory/EventFactory" );
-const EventUtil    = require( "./EventUtil" );
-const Pubsub       = require( "pubsub-js" );
-const Messages     = require( "../definitions/Messages" );
+import EventFactory from '../model/factory/EventFactory';
+import EventUtil    from './EventUtil';
+import Pubsub       from 'pubsub-js';
+import Messages     from '../definitions/Messages';
 
 let playingNotes = {};
 
-const InstrumentUtil = module.exports =
+const InstrumentUtil =
 {
     /**
      * tune given frequency to given oscillators tuning
@@ -175,10 +173,10 @@ const InstrumentUtil = module.exports =
      * @param {{ note: string, octave: number }} pitch
      * @param {INSTRUMENT} instrument to play back the note on
      * @param {boolean=} record whether to record the note into given instruments pattern list
-     * @param {SequencerController} sequencerController
+     * @param {boolean} isSequencerPlaying
      * @return {AUDIO_EVENT|null}
      */
-    noteOn( pitch, instrument, record, sequencerController )
+    noteOn( pitch, instrument, record, isSequencerPlaying )
     {
         const id = pitchToUniqueId( pitch );
 
@@ -194,7 +192,7 @@ const InstrumentUtil = module.exports =
         Pubsub.publishSync( Messages.NOTE_ON, [ audioEvent, instrument ]);
 
         if ( record )
-            recordEventIntoSong( audioEvent, sequencerController );
+            recordEventIntoSong( audioEvent, isSequencerPlaying );
 
         return audioEvent;
     },
@@ -202,9 +200,9 @@ const InstrumentUtil = module.exports =
     /**
      * @public
      * @param {{ note: string, octave: number }} pitch
-     * @param {SequencerController} sequencerController
+     * @param {boolean} isSequencerPlaying
     */
-    noteOff( pitch, sequencerController )
+    noteOff( pitch, isSequencerPlaying )
     {
         const id         = pitchToUniqueId( pitch );
         const audioEvent = playingNotes[ id ];
@@ -215,7 +213,7 @@ const InstrumentUtil = module.exports =
             if ( audioEvent.recording ) {
                 const offEvent = EventFactory.createAudioEvent( audioEvent.instrument.id );
                 offEvent.action = 2; // noteOff
-                recordEventIntoSong( offEvent, sequencerController );
+                recordEventIntoSong( offEvent, isSequencerPlaying );
             }
             audioEvent.event.recording   = false;
            // audioEvent.event.seq.playing = false;
@@ -224,15 +222,17 @@ const InstrumentUtil = module.exports =
     }
 };
 
+export default InstrumentUtil;
+
 /* private methods */
 
 function pitchToUniqueId( pitch ) {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent, sequencerController ) {
+function recordEventIntoSong( audioEvent, isSequencerPlaying ) {
 
-    if ( sequencerController.playing ) {
+    if ( isSequencerPlaying ) {
 
         // sequencer is playing, add event at current step
 

@@ -89,8 +89,8 @@ export default new Vuex.Store({
         closeDialog(state) {
             state.dialog = null;
         },
-        showNotification(state, { title, content }) {
-            state.notifications.push({ title, content });
+        showNotification(state, { title, message }) {
+            state.notifications.push({ title, message });
         },
         clearNotifications(state) {
             state.notifications = [];

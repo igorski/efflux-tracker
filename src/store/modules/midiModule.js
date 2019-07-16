@@ -20,10 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { MIDINotes } from 'zmidi';
+import InstrumentUtil from '../../utils/InstrumentUtil';
+
 export default {
     state: {
         midiPortNumber: -1,
         midiConnected: false,
+    },
+    getters: {
+        midiMessageHandler: state => handleMIDIMessage.bind(state),
     },
     mutations: {
         setMIDIPortNumber(state, value) {
@@ -36,25 +42,26 @@ export default {
 };
 
 /**
+ * MIDI message handler (received via zmidi library)
+ * this method is bound to the store state
+ *
  * @param {zMIDIEvent} aEvent
  */
-function handleMIDIMessage( aEvent )
-{
-    const noteValue   = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
-          pitch       = MIDINotes.getPitchByNoteNumber( noteValue),
-          editorModel = efflux.EditorModel;
+function handleMIDIMessage( aEvent ) {
+    const noteValue = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
+          pitch     = MIDINotes.getPitchByNoteNumber(noteValue);
 
     switch ( aEvent.type )
     {
         case zMIDIEvent.NOTE_ON:
 
-            const instrumentId = efflux.EditorModel.activeInstrument;
-            const instrument   = efflux.activeSong.instruments[ instrumentId ];
-            InstrumentUtil.noteOn( pitch, instrument, editorModel.recordingInput, sequencerController );
+            const instrumentId = this.editor.activeInstrument;
+            const instrument   = this.song.activeSong.instruments[ instrumentId ];
+            InstrumentUtil.noteOn( pitch, instrument, this.editor.recordingInput, this.sequencer.playing );
             break;
 
         case zMIDIEvent.NOTE_OFF:
-            InstrumentUtil.noteOff( pitch, sequencerController );
+            InstrumentUtil.noteOff( pitch, this.sequencer.playing );
             break;
     }
 }

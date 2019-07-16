@@ -73,7 +73,7 @@ export default
      * @return {boolean}
      */
     isDevMode() {
-        // simple check whether we're running through the connect plugin
+        // simple check whether we're running through the webpack dev server
         return ( window.location.hostname === 'localhost' );
     },
 

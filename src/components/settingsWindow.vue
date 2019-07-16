@@ -31,16 +31,20 @@
                 <legend>General settings</legend>
                 <div class="wrapper select">
                     <label for="parameterInputFormat">Parameter input format</label>
-                    <select id="parameterInputFormat" @change="handleParameterInputFormatChange">
+                    <select id="parameterInputFormat"
+                            v-model="paramFormat"
+                            @change="handleParameterInputFormatChange">
                         <option value="hex">Hexadecimal (00 to FF)</option>
                         <option value="pct">Percentage (0 to 100)</option>
                     </select>
                 </div>
                 <div class="wrapper checkbox">
                     <label for="trackFollow">Follow playback</label>
-                    <select id="trackFollow" @change="handleTrackFollowChange">
-                        <option value="on">on</option>
-                        <option value="off" selected>off</option>
+                    <select id="trackFollow"
+                            v-model="trackFollow"
+                            @change="handleTrackFollowChange">
+                        <option value="true">on</option>
+                        <option value="false" selected>off</option>
                     </select>
                 </div>
             </fieldset>
@@ -72,19 +76,26 @@ import { mapState, mapGetters, mapMutations } from 'vuex';
 import { zMIDI } from 'zmidi';
 
 export default {
+    data: () => ({
+        paramFormat: 'hex',
+        trackFollow: false,
+    }),
     computed: {
-        ...mapState([
+        ...mapState({
             midiPortNumber: state => state.midi.midiPortNumber,
-        ]),
+            settings: state => state.settings.PROPERTIES,
+        }),
         ...mapGetters([
             'getCopy',
+            'getSetting',
+            'midiMessageHandler',
         ]),
         hasMIDIsupport() {
             return zMIDI.isSupported();
         },
         portNumber: {
             get() {
-                return this.midiPortNumber,
+                return this.midiPortNumber;
             },
             set(value) {
                 this.setMidiPortNumber(value);
@@ -94,27 +105,29 @@ export default {
     mounted() {
         // load settings from the model
 
-        let setting = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT );
+        let setting = this.getSetting( this.settings.INPUT_FORMAT );
         if ( setting !== null )
-            Form.setSelectedOption( paramFormat, setting );
+            this.paramFormat = setting;
 
-        setting = efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.FOLLOW_PLAYBACK );
+        setting = this.getSetting( this.settings.FOLLOW_PLAYBACK );
         if ( setting !== null )
-            Form.setSelectedOption( trackFollowSelect, setting );
+            this.trackFollow = setting;
     },
     methods: {
         ...mapMutations([
+            'saveSetting',
+            'showNotification',
             'setPortNumber',
         ]),
         handleParameterInputFormatChange( aEvent ) {
-            efflux.SettingsModel.saveSetting(
-                SettingsModel.PROPERTIES.INPUT_FORMAT, Form.getSelectedOption( paramFormat )
+            this.saveSetting(
+                { name: this.settings.INPUT_FORMAT, value: this.paramFormat }
             );
-            Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
+            // TODO:    Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
         },
         handleTrackFollowChange( aEvent ) {
-            efflux.SettingsModel.saveSetting(
-                SettingsModel.PROPERTIES.FOLLOW_PLAYBACK, Form.getSelectedOption( trackFollowSelect )
+            this.saveSetting(
+                { name: this.settings.FOLLOW_PLAYBACK, value: this.trackFollow }
             );
         },
         handleMIDIConnect( aEvent ) {
@@ -124,11 +137,10 @@ export default {
             if ( zMIDI.getInChannels().length === 0 ) {
                 return this.handleMIDIconnectFailure();
             }
-            Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "MIDI_CONNECTED" ));
-            Pubsub.publish( Messages.MIDI_RECEIVED_INPUT_DEVICES, zMIDI.getInChannels() );
+            this.showNotification({ message: this.getCopy('MIDI_CONNECTED') });
         },
         handleMIDIconnectFailure() {
-            Pubsub.publish( Messages.SHOW_ERROR, getCopy( "MIDI_FAILURE" ));
+            this.showNotification({ title: this.getCopy('ERROR'), message: this.getCopy('MIDI_FAILURE') });
         },
         handleMIDIDeviceSelect() {
             // first clean up all old listeners
@@ -137,11 +149,12 @@ export default {
             while ( amountOfPorts-- )
                 zMIDI.removeMessageListener( amountOfPorts );
 
-            zMIDI.addMessageListener( this.portNumber, handleMIDIMessage );
+            zMIDI.addMessageListener( this.portNumber, this.midiMessageHandler );
 
             const device = zMIDI.getInChannels()[ this.portNumber ];
-            Pubsub.publish( Messages.MIDI_DEVICE_CONNECTED, this.portNumber );
-            Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "MIDI_ENABLED", device.manufacturer + " " + device.name ));
+            this.showNotification({ message:
+                this.getCopy( "MIDI_ENABLED", `${device.manufacturer} ${device.name}` )
+            });
         },
         showAvailableMIDIDevices( aInputs ) {
             let options = [], option, input;

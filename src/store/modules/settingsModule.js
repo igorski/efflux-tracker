@@ -45,15 +45,15 @@ export default {
     },
     getters: {
         getSetting: state => name => {
-            if ( tate._settings.hasOwnProperty( name )) {
-                return this._settings[ name ];
+            if ( state._settings.hasOwnProperty( name )) {
+                return state._settings[ name ];
             }
             return null;
         }
     },
     mutations: {
-        saveSetting(state, { name, setting }) {
-            state._settings[ name ] = setting;
+        saveSetting(state, { name, value }) {
+            state._settings[ name ] = value;
             persistState(state);
         },
         setStoredSettings(state, settings) {
