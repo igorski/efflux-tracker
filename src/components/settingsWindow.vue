@@ -85,11 +85,11 @@ export default {
     data: () => ({
         paramFormat: 'hex',
         trackFollow: false,
-        midiDeviceList: [],
     }),
     computed: {
         ...mapState({
             midiPortNumber: state => state.midi.midiPortNumber,
+            midiDeviceList: state => state.midi.midiDeviceList,
             settings: state => state.settings.PROPERTIES,
         }),
         ...mapGetters([
@@ -119,11 +119,14 @@ export default {
         setting = this.getSetting( this.settings.FOLLOW_PLAYBACK );
         if ( setting !== null )
             this.trackFollow = setting;
+
+        this.portNumber = this.midiPortNumber;
     },
     methods: {
         ...mapMutations([
             'saveSetting',
             'showNotification',
+            'createMIDIDeviceList',
             'setMIDIPortNumber',
         ]),
         handleParameterInputFormatChange( aEvent ) {
@@ -164,12 +167,10 @@ export default {
                 this.getCopy( "MIDI_ENABLED", `${device.manufacturer} ${device.name}` )
             });
         },
-        showAvailableMIDIDevices( aInputs ) {
-            this.midiDeviceList = aInputs.map((input, i) => ({
-                title : `${input.manufacturer} ${input.name}`,
-                value : i,
-            }));
+        showAvailableMIDIDevices(inputs) {
+            this.createMIDIDeviceList(inputs);
 
+            // auto select first device if there is only one available
             if (this.midiDeviceList.length === 1 )
                 this.portNumber = this.midiDeviceList[0].value;
         }

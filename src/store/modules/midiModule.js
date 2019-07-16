@@ -27,6 +27,7 @@ export default {
     state: {
         midiPortNumber: -1,
         midiConnected: false,
+        midiDeviceList: [],
     },
     getters: {
         midiMessageHandler: state => handleMIDIMessage.bind(state),
@@ -38,6 +39,12 @@ export default {
         setMIDIConnected(state, value) {
             state.midiConnected = !!value;
         },
+        createMIDIDeviceList(state, inputs) {
+            state.midiDeviceList = inputs.map((input, i) => ({
+                title : `${input.manufacturer} ${input.name}`,
+                value : i,
+            }));
+        }
     }
 };
 
