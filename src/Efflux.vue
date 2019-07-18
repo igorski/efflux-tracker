@@ -1,5 +1,5 @@
 <template>
-    <div v-if="prepared" id="app">
+    <div v-if="prepared" id="efflux">
         <application-header />
         <!-- message of disappointment in case environment does not support appropriate web API's -->
         <template v-if="!canLaunch">
@@ -18,7 +18,7 @@
             <!-- actual application -->
             <div class="container">
                 <div id="properties">
-                    <section id="songEditor"></section>
+                    <song-editor />
                     <pattern-editor />
                 </div>
             </div>
@@ -77,6 +77,7 @@ import HelpSection from './components/helpSection';
 import DialogWindow from './components/dialogWindow';
 import SettingsWindow from './components/settingsWindow';
 import SongBrowser from './components/songBrowser';
+import SongEditor from './components/songEditor';
 import Notification from './components/notification';
 import Loader from './components/loader';
 import store from './store';
@@ -96,6 +97,7 @@ export default {
         PatternTrackList,
         SettingsWindow,
         SongBrowser,
+        SongEditor,
         TrackEditor,
     },
     data: () => ({
@@ -132,8 +134,18 @@ export default {
 
             this.resetEditor();
             this.resetHistory();
-            this.setAmountOfSteps(song.patterns[0].steps);
             this.createLinkedList(song);
+            this.setActiveInstrument(0);
+            this.setActivePattern(0);
+            this.setActiveStep(0);
+
+            if (!song.meta.title)
+                    return;
+
+            this.showNotification({
+                title: this.getCopy('SONG_LOADED_TITLE'),
+                message: this.getCopy('SONG_LOADED', song.meta.title)
+            });
         },
     },
     async created() {
@@ -179,6 +191,10 @@ export default {
             'prepareLinkedList',
             'createLinkedList',
             'setActiveSong',
+            'setActiveInstrument',
+            'setActivePattern',
+            'setActiveStep',
+            'setActiveInstrument',
             'setAmountOfSteps',
             'setWindowSize',
             'setWindowScrollOffset',
@@ -186,6 +202,7 @@ export default {
             'resetEditor',
             'resetHistory',
             'closeDialog',
+            'showNotification',
         ]),
         ...mapActions([
             'loadStoredSettings',
@@ -253,6 +270,10 @@ export default {
         margin: 0;
         padding: 0;
         @include noSelect;
+    }
+
+    #songEditor {
+      display: inline-block;
     }
 
     #blind {

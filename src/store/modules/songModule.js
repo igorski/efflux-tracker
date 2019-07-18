@@ -73,6 +73,12 @@ export default {
                 SongUtil.resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
             }
         },
+        setActiveSongAuthor(state, author) {
+            state.activeSong.meta.author = author;
+        },
+        setActiveSongTitle(state, title) {
+            state.activeSong.meta.title = title;
+        },
         setTempo(state, value) {
             const meta     = state.activeSong.meta;
             const oldTempo = meta.tempo;

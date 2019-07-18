@@ -242,14 +242,12 @@ function handleKeyDown( aEvent )
                         if ( setActiveSlot( editorModel.activeSlot + 1 )) {
                             if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
                                 if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
-                                    ++editorModel.activePattern;
+                                    this.setActivePattern(this.activePattern + 1);
                                     editorModel.activeInstrument = 0;
                                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
                                 else
                                     editorModel.activeInstrument = MAX_CHANNEL;
-
-                                Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                             }
                         }
 
@@ -271,14 +269,12 @@ function handleKeyDown( aEvent )
                         if ( setActiveSlot( editorModel.activeSlot - 1 )) {
                             if ( --editorModel.activeInstrument < 0 ) {
                                 if ( editorModel.activePattern > 0 ) {
-                                    --editorModel.activePattern;
+                                    this.setActivePattern(this.activePattern - 1);
                                     editorModel.activeInstrument = MAX_CHANNEL;
                                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
                                 else
                                     editorModel.activeInstrument = 0;
-
-                                Pubsub.publishSync( Messages.PATTERN_SWITCH, editorModel.activePattern );
                             }
                         }
                         updateMode();

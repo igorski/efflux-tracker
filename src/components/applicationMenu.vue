@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/Fullscreen';
 import { getCopy } from '../i18n/Copy';
 import Manual from '../definitions/Manual';
@@ -108,6 +108,11 @@ export default {
             'setMenuOpened',
             'setHelpTopic',
             'setOverlay',
+            'openDialog',
+            'setActiveSong',
+        ]),
+        ...mapActions([
+            'createSong',
             'saveSong',
         ]),
         handleMouseOver( aEvent ) {
@@ -126,19 +131,14 @@ export default {
             }
         },
         handleReset( aEvent ) {
-            Pubsub.publish( Messages.CONFIRM, {
-                message: getCopy( "WARNING_SONG_RESET" ),
-                confirm: function() {
-                    efflux.activeSong = efflux.SongModel.createSong();
-        
-                    const editorModel = efflux.EditorModel;
-                    editorModel.activeInstrument =
-                    editorModel.activePattern    =
-                    editorModel.activeStep       = 0;
-                    editorModel.amountOfSteps    = efflux.activeSong.patterns[ 0 ].steps;
-        
-                    Pubsub.publish( Messages.SONG_LOADED, efflux.activeSong );
-                }
+            const self = this;
+            this.openDialog({
+                type: 'confirm',
+                message: getCopy('WARNING_SONG_RESET'),
+                confirm() {
+                    self.createSong()
+                        .then(song => self.setActiveSong(song));
+                },
             });
         },
         handleSettings( aEvent ) {

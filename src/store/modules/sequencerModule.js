@@ -35,14 +35,14 @@ import SequencerWorker from '../../workers/sequencer.worker.js';
  * @param {number} aEventChannel channel the event belongs to
  */
 function enqueueEvent(state, aEvent, aEventChannel ) {
-    const { beatAmount, nextNoteTime, currentMeasure } = state;
+    const { beatAmount, nextNoteTime, activePattern } = state;
     aEvent.seq.playing = true; // lock the Event for further querying during its playback
 
     // calculate the total duration for the event
 
     const patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
     const patterns        = efflux.activeSong.patterns;
-    const eventPattern    = patterns[ currentMeasure ];
+    const eventPattern    = patterns[ activePattern ];
 
     if ( eventPattern )
         aEvent.seq.mpLength = patternDuration / eventPattern.steps;
@@ -149,7 +149,7 @@ function collect(state) {
                     event = channel[ j ];
 
                     if ( event && !event.seq.playing && !event.recording &&
-                         event.seq.startMeasure === state.currentMeasure &&
+                         event.seq.startMeasure === state.activePattern &&
                          compareTime >= event.seq.startMeasureOffset &&
                          compareTime < ( event.seq.startMeasureOffset + event.seq.length ))
                     {
@@ -186,9 +186,9 @@ function step(state) {
 
         // advance the measure if the Sequencer wasn't looping
 
-        if ( !state.looping && ++state.currentMeasure === totalMeasures ) {
+        if ( !state.looping && ++state.activePattern === totalMeasures ) {
             // last measure reached, jump back to first
-            state.currentMeasure = 0;
+            state.activePattern = 0;
 
             // stop playing if we're recording and looping is disabled
 
@@ -198,7 +198,7 @@ function step(state) {
                 return;
             }
         }
-        SequencerController.setPosition( state.currentMeasure, state.nextNoteTime );
+        SequencerController.setPosition( state.activePattern, state.nextNoteTime );
 
         if ( state.recording )
         {
@@ -209,11 +209,11 @@ function step(state) {
                 state.metronome.enabled         = state.metronome.restore;
                 state.metronome.countInComplete = true;
 
-                state.currentMeasure        = 0;   // now we're actually starting!
+                state.activePattern        = 0;   // now we're actually starting!
                 state.firstMeasureStartTime = audioContext.currentTime;
             }
         }
-        switchPattern( currentMeasure );
+        switchPattern( activePattern );
     }
    // Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ state.currentStep, state.stepPrecision ]);
 }
@@ -231,7 +231,7 @@ export default {
         beatUnit              : 4,
         queueHandlers         : [],
         channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
-        currentMeasure        : 0,
+        activePattern         : 0,
         measureStartTime      : 0,
         firstMeasureStartTime : 0,
         currentStep           : 0,
@@ -253,7 +253,10 @@ export default {
         isMetronomeEnabled(state) {
             return state.metronome.enabled;
         },
-        position: state => ({ measure: state.currentMeasure, step: state.currentStep })
+        amountOfSteps(state, rootState) {
+            return rootState.activeSong.patterns[state.activePattern].steps;
+        },
+        position: state => ({ pattern: state.activePattern, step: state.currentStep })
     },
     mutations: {
         setPlaying(state, isPlaying) {
@@ -278,41 +281,70 @@ export default {
         setRecording(state, isRecording) {
             state.recording = !!isRecording;
         },
+        setActivePattern(state, value) {
+            state.activePattern = value;
+        },
         setCurrentStep(state, step) {
             state.currentStep = step;
         },
-        setCurrentMeasure(state, measure) {
-            state.currentMeasure = measure;
+        setPatternSteps(state, { pattern, steps }) {
+            const oldAmount = pattern.steps;
+            pattern.channels.forEach(( channel, index ) => {
+               const transformed = new Array(steps);
+               let i, j, increment;
+
+               // ensure that the Array contains non-empty values
+               for ( i = 0; i < steps; ++i ) {
+                   transformed[ i ] = 0;
+               }
+
+               if ( steps < oldAmount )
+               {
+                   // reducing resolution, e.g. changing from 32 to 16 steps
+                   increment = oldAmount / steps;
+
+                   for ( i = 0, j = 0; i < steps; ++i, j += increment )
+                       transformed[ i ] = channel[ j ];
+              }
+               else {
+                   // increasing resolution, e.g. changing from 16 to 32 steps
+                   increment = steps / oldAmount;
+
+                   for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
+                       transformed[ j ] = channel[ i ];
+               }
+               pattern.channels[index] = transformed;
+           });
         },
         /**
          * set the sequencers position
          *
          * @param {Object} state
          * @param {Object} activeSong
-         * @param {number} measure
-         * @param {number=} currentTime optional time to sync given measure to
+         * @param {number} pattern
+         * @param {number=} currentTime optional time to sync given pattern to
          *        this will default to the currentTime of the AudioContext for instant enqueuing
          */
-        setPosition(state, { activeSong, measure, currentTime }) {
-            if ( measure >= activeSong.patterns.length )
-                measure = activeSong.patterns.length - 1;
+        setPosition(state, { activeSong, pattern, currentTime }) {
+            if ( pattern >= activeSong.patterns.length )
+                pattern = activeSong.patterns.length - 1;
 
-            if ( state.currentMeasure !== measure )
+            if ( state.activePattern !== pattern )
                 state.currentStep = 0;
             // TODO: get audioContext??
             if ( typeof currentTime !== "number" )
                 currentTime = audioContext ? audioContext.currentTime : 0;
 
-            state.currentMeasure        = measure;
+            state.activePattern         = pattern;
             state.nextNoteTime          = currentTime;
             state.measureStartTime      = currentTime;
-            state.firstMeasureStartTime = currentTime - ( measure * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
+            state.firstMeasureStartTime = currentTime - ( pattern * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
 
-            state.channels = activeSong.patterns[ state.currentMeasure ].channels;
+            state.channels = activeSong.patterns[ state.activePattern ].channels;
 
             // when going to the first measure we should stop playing all currently sounding notes
 
-            if ( state.currentMeasure === 0 ) {
+            if ( state.activePattern === 0 ) {
                 state.channelQueue.forEach(list => {
                     let q = list.head;
                     while ( q ) {

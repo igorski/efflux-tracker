@@ -93,11 +93,13 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            amountOfSteps: state => state.editor.amountOfSteps,
-            activePattern: state => state.editor.activePattern,
+            activePattern: state => state.sequencer.activePattern,
             activeChannel: state => state.editor.activeChannel,
             activeStep: state => state.editor.activeStep,
         }),
+        ...mapGetters([
+            'amountOfSteps',
+        ]),
         activeSongPattern() {
             return this.activeSong.patterns[this.activePattern];
         },
@@ -106,6 +108,12 @@ export default {
         container: null,
         paramFormat: null,
     }),
+    watch: {
+        activePattern() {
+            this.clearSelection();
+            this.setActiveSlot(-1);
+        },
+    },
     mounted() {
         this.$nextTick(() => {
             this.container = this.$refs['container'];
@@ -115,6 +123,8 @@ export default {
     methods: {
         ...mapMutations([
             'setActivePattern',
+            'setActiveSlot',
+            'clearSelection',
         ]),
         update() {
             let activePattern = this.activePattern;
@@ -170,8 +180,8 @@ export default {
         },
         removeModuleParamAutomationAtHighlightedStep() {
             // TODO: create shared getter function?
-            const event = efflux.activeSong.patterns[ editorModel.activePattern ]
-                                           .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+            const event = this.activeSong.patterns[ this.activePattern ]
+                                         .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
         
             if ( !event || !event.mp )
                 return;
@@ -185,9 +195,9 @@ export default {
             );
         },
         glideParameterAutomations() {
-            const patternIndex  = efflux.EditorModel.activePattern;
+            const patternIndex  = efflux.this.activePattern;
             const channelIndex  = efflux.EditorModel.activeInstrument;
-            const channelEvents = efflux.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
+            const channelEvents = this.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
             const event         = EventUtil.getFirstEventBeforeStep(
                 channelEvents, efflux.EditorModel.activeStep, ( compareEvent ) => {
                     return !!compareEvent.mp;
@@ -197,7 +207,7 @@ export default {
             const addFn = () => {
                 const eventIndex = channelEvents.indexOf( event );
                 createdEvents = EventUtil.glideModuleParams(
-                    efflux.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
+                    this.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
                 );
                 if ( createdEvents )
                     Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
@@ -212,7 +222,7 @@ export default {
                     undo: () => {
                         createdEvents.forEach(( event ) => {
                             if ( event.note === "" )
-                                EventUtil.clearEventByReference( efflux.activeSong, event, efflux.eventList );
+                                EventUtil.clearEventByReference( this.activeSong, event, efflux.eventList );
                             else
                                 event.mp = null;
                         });
@@ -263,7 +273,7 @@ export default {
         
                     if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
                         // move to the next step in the pattern (unless executed from undo/redo)
-                        const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
+                        const maxStep = this.activeSong.patterns[this.activePattern].steps - 1;
         
                         if ( ++editorModel.activeStep > maxStep )
                             editorModel.activeStep = maxStep;

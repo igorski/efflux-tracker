@@ -73,6 +73,10 @@ export default new Vuex.Store({
         },
         setHelpTopic(state, topic) {
             if (typeof topic === 'string') {
+                // we slightly delay showing the new help text (scenario: user is moving
+                // the mouse to helpSection to scroll its currently displayed help text)
+                //const now = Date.now();
+                //if (( now - lastHelpRequest ) > DELAY ) {
                 state.helpTopic = topic;
             }
         },

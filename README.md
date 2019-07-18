@@ -150,6 +150,14 @@ recording events (also using MIDI)
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 
+editormodule.activeStep > should become selected step (setter too)!
+currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
+store.setOverlay() -> should indicate its a modal component
+
+TODO: force tracklist re-render (for instance toggle hex/pct in settings screen)
+
+
+replace ids with classes in scoped components
 submit to madewithvue :D
 
 

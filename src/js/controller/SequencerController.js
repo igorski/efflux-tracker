@@ -5,7 +5,6 @@ function handleBroadcast( type, payload )
     switch( type )
     {
         case Messages.PATTERN_AMOUNT_UPDATED:
-        case Messages.PATTERN_SWITCH:
             SequencerController.update();
             break;
 

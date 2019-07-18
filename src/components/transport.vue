@@ -89,7 +89,7 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.editor.activePattern,
+            activePattern: state => state.sequencer.activePattern,
             midiConnected: state => state.midi.midiConnected,
         }),
         ...mapGetters([
@@ -97,6 +97,7 @@ export default {
             'isLooping',
             'isRecording',
             'isMetronomeEnabled',
+            'amountOfSteps',
         ]),
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
@@ -120,14 +121,12 @@ export default {
                 let value = Math.min( parseInt( patternValue, 10 ), this.activeSong.patterns.length );
 
                 if ( isNaN( value ))
-                    value = this.currentMeasure;
+                    value = this.activePattern;
                 else
                     --value; // normalize to Array indices (0 == first, not 1)
 
-                if ( value !== currentMeasure ) {
-                    this.setCurrentMeasure(value);
-                    this.setActivePattern(value);   // TODO: are active pattern and current measure the same??
-                    //Pubsub.publish( Messages.PATTERN_SWITCH, value );
+                if ( value !== this.activePattern ) {
+                    this.setActivePattern(value);
                 }
             }
         },
@@ -135,7 +134,7 @@ export default {
     watch: {
         isPlaying(playing) {
             if (playing) {
-                this.setPosition(this.activePattern);
+                this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
             } else if(this.isRecording) {
                 this.setRecording(false);
                 this.clearPending();
@@ -176,6 +175,7 @@ export default {
             'setMetronomeEnabled',
             'setTempo',
             'setActivePattern',
+            'setPatternSteps',
         ]),
         ...mapActions([
             'prepareSequencer',
@@ -204,26 +204,25 @@ export default {
 
             body.classList.toggle( cssClass );
         },
-        handlePatternNavBack( aEvent ) {
+        handlePatternNavBack() {
             if ( this.activePattern > 0 )
                 this.switchPattern( this.activePattern - 1 );
         },
-        handlePatternNavNext( aEvent ) {
+        handlePatternNavNext() {
             const max = this.activeSong.patterns.length - 1;
 
             if ( this.activePattern < max )
                 this.switchPattern( this.activePattern + 1 );
         },
-        switchPattern( newMeasure ) {
-            if ( this.activePattern === newMeasure )
+        switchPattern(newPattern) {
+            if ( this.activePattern === newPattern )
                 return;
 
-            currentMeasure = this.activePattern = newMeasure;
-            Pubsub.publishSync( Messages.PATTERN_SWITCH, newMeasure );
+            this.setActivePattern(newPattern);
 
-            const newSteps = this.activeSong.patterns[ newMeasure ].steps;
-            if ( editorModel.amountOfSteps !== newSteps ) {
-                editorModel.amountOfSteps = newSteps;
+            const newSteps = this.activeSong.patterns[newPattern].steps;
+            if ( this.amountOfSteps !== newSteps ) {
+                this.setPatternSteps({ pattern: this.activeSong.patterns[this.activePattern], steps: newSteps });
                 Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newSteps );
             }
         }

@@ -73,7 +73,6 @@ const PatternTrackListController = module.exports =
             Messages.SONG_LOADED,
             Messages.REFRESH_SONG,
             Messages.REFRESH_PATTERN_VIEW,
-            Messages.PATTERN_SWITCH,
             Messages.EDIT_NOTE_AT_POSITION,
             Messages.ADD_EVENT_AT_POSITION,
             Messages.ADD_OFF_AT_POSITION,
@@ -110,12 +109,6 @@ function handleBroadcast( type, payload )
             }
             PatternTrackListController.update();
             wrapper.focus();
-            break;
-
-        case Messages.PATTERN_SWITCH:
-            selectionModel.clearSelection();
-            editorModel.activeSlot = -1;
-            PatternTrackListController.update();
             break;
 
         case Messages.REFRESH_PATTERN_VIEW:

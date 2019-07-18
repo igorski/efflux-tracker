@@ -21,7 +21,10 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="trackEditor">
+    <section id="trackEditor"
+             ref="container"
+             :class="{ fixed: isFixed }"
+    >
         <ul class="controls">
             <li class="addNote" @click="handleNoteAddClick"></li>
             <li class="addOff" @click="handleNoteOffClick"></li>
@@ -35,10 +38,13 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 
+import { DOM } from 'zjslib';
+
 export default {
     data: () => ({
         controlOffsetY: 0,
-        lastWindowScrollY: 0
+        lastWindowScrollY: 0,
+        isFixed: false,
     }),
     computed: {
         ...mapState([
@@ -54,13 +60,9 @@ export default {
             // ensure the controlContainer is always visible regardless of scroll offset (for phones)
             // threshold defines when to offset the containers top, the last number defines the fixed header height
             if ( scrollY !== this.lastWindowScrollY ) {
-                const threshold = ( this.controlOffsetY = this.controlOffsetY || DOM.getElementCoordinates( container, true ).y - 46 );
+                const threshold = ( this.controlOffsetY = this.controlOffsetY || DOM.getElementCoordinates( this.$refs.container, true ).y - 46 );
 
-                if ( scrollY > threshold )
-                    container.classList.add( 'fixed' );
-                else
-                    container.classList.remove( 'fixed' );
-
+                this.isFixed = scrollY > threshold;
                 this.lastWindowScrollY = scrollY;
             }
         }
@@ -85,7 +87,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     @import '@/styles/_variables.scss';
 
     #trackEditor

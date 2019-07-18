@@ -25,7 +25,7 @@
             </li>
             <li>
                 <select id="patternSteps"
-                        @change="handlePatternStepChange"
+                        v-model="patternStep"
                 >
                     <option value="16">16 steps</option>
                     <option value="32">32 steps</option>
@@ -42,30 +42,53 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 
 export default {
     data: () => ({
         patternCopy: null
     }),
+    computed: {
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            activePattern: state => state.sequencer.activePattern,
+        }),
+        ...mapGetters([
+            'amountOfSteps',
+        ]),
+        patternStep: {
+            get() {
+                return this.activeSong.patterns[this.activePattern].steps;
+            },
+            set(value) {
+                const pattern = this.activeSong.patterns[this.activePattern];
+
+                // update model values
+                this.setPatternSteps({ pattern, steps: value });
+
+               Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, value );
+            }
+        }
+    },
     methods: {
         ...mapMutations([
             'setHelpTopic',
             'clearSelection',
+            'setPatternSteps',
             'setOverlay',
         ]),
         handlePatternClear() {
-            efflux.activeSong.patterns[ editorModel.activePattern ] = PatternFactory.createEmptyPattern( editorModel.amountOfSteps );
+            efflux.activeSong.patterns[ this.activePattern ] = PatternFactory.createEmptyPattern(this.amountOfSteps);
             this.clearSelection();
             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
             Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
         },
         handlePatternCopy() {
-            this.patternCopy = ObjectUtil.clone( efflux.activeSong.patterns[ editorModel.activePattern ] );
+            this.patternCopy = ObjectUtil.clone( this.activeSong.patterns[ this.activePattern ] );
         },
         handlePatternPaste() {
             if ( this.patternCopy ) {
-                PatternFactory.mergePatterns( efflux.activeSong.patterns[ editorModel.activePattern ], this.patternCopy, editorModel.activePattern );
+                PatternFactory.mergePatterns( this.activeSong.patterns[ this.activePattern ], this.patternCopy, this.activePattern );
                 Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                 Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
             }
@@ -78,68 +101,28 @@ export default {
                 Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_MAX_PATTERNS", Config.MAX_PATTERN_AMOUNT ));
                 return;
             }
-            song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, editorModel.activePattern + 1, editorModel.amountOfSteps );
+            song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, this.activePattern + 1, this.amountOfSteps );
         
             Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-            Pubsub.publish( Messages.PATTERN_SWITCH, ++editorModel.activePattern );
+
+            this.setActivePattern(this.activePattern + 1);
         },
         handlePatternDelete() {
-            const song     = efflux.activeSong,
-                  patterns = song.patterns;
+            const patterns = this.activeSong.patterns;
         
             if ( patterns.length === 1 ) {
                 handlePatternClear( aEvent );
             }
             else {
-                song.patterns = PatternUtil.removePatternAtIndex( patterns, editorModel.activePattern );
+                this.activeSong.patterns = PatternUtil.removePatternAtIndex(patterns, this.activePattern);
         
-                if ( editorModel.activePattern > 0 )
-                    Pubsub.publish( Messages.PATTERN_SWITCH, --editorModel.activePattern );
+                if ( this.activePattern > 0 )
+                    this.setActivePattern(this.activePattern - 1);
                 else
                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
         
                 Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
             }
-        },
-        handlePatternStepChange() {
-            const song    = efflux.activeSong,
-                  pattern = song.patterns[ editorModel.activePattern ];
-
-            const oldAmount = pattern.steps;
-            const newAmount = parseInt( Form.getSelectedOption( stepSelect ), 10 );
-
-            // update model values
-            pattern.steps = editorModel.amountOfSteps = newAmount;
-
-            pattern.channels.forEach(( channel, index ) => {
-                const transformed = new Array( newAmount );
-                let i, j, increment;
-
-                // ensure that the Array contains non-empty values
-                for ( i = 0; i < newAmount; ++i ) {
-                    transformed[ i ] = 0;
-                }
-
-                if ( newAmount < oldAmount )
-                {
-                    // reducing resolution, e.g. changing from 32 to 16 steps
-                    increment = oldAmount / newAmount;
-
-                    for ( i = 0, j = 0; i < newAmount; ++i, j += increment )
-                        transformed[ i ] = channel[ j ];
-               }
-                else {
-                    // increasing resolution, e.g. changing from 16 to 32 steps
-                    increment = newAmount / oldAmount;
-
-                    for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
-                        transformed[ j ] = channel[ i ];
-                }
-                pattern.channels[ index ] = transformed;
-            });
-
-            Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newAmount );
-            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
         },
         handlePatternAdvanced() {
             this.setOverlay('ape');

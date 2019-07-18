@@ -45,7 +45,6 @@ export default
     OPEN_MODULE_PARAM_PANEL      : "UI:8",  // payload is callback Function to be executed on panel close
     HIGHLIGHT_ACTIVE_STEP        : "UI:9",  // payload is optional number indicating currently active highlight (otherwise defaults to last active step)
     MENU_INITIALIZED             : "UI:MI",
-    HELP_SECTION_UPDATED         : "UI:11",
     HIGHLIGHTED_SLOT_CHANGED     : "UI:12",
     HANDLE_KEYBOARD_MOVEMENT     : "UI:13",
 
@@ -76,7 +75,6 @@ export default
     TOGGLE_INPUT_RECORDING     : "SEQ:9",
     NOTE_ON                    : "SEQ:10",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
     NOTE_OFF                   : "SEQ:11", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    PATTERN_SWITCH             : "SEQ:12", // payload consists of number describing new pattern index
     PATTERN_AMOUNT_UPDATED     : "SEQ:13",
     PATTERN_JUMP_PREV          : "SEQ:14",
     PATTERN_JUMP_NEXT          : "SEQ:15",

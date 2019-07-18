@@ -38,13 +38,6 @@ export default {
         activeInstrument: 0,
     
         /**
-         * which pattern is currently selected
-         *
-         * @type {number}
-         */
-        activePattern: 0,
-    
-        /**
          * which pattern step is currently selected
          *
          * @type {number}
@@ -59,13 +52,6 @@ export default {
          * @type {number}
          */
         activeSlot: -1,
-    
-        /**
-         * the amount of steps in the currently selected pattern
-         *
-         * @type {number}
-         */
-        amountOfSteps: 16,
     
         /**
          * whether the editor is recording notes
@@ -104,11 +90,14 @@ export default {
         list: null
     },
     mutations: {
-        setActivePattern(state, value) {
-            state.activePattern = value;
+        setActiveSlot(state, value) {
+            state.activeSlot = value;
         },
-        setAmountOfSteps(state, value) {
-            state.amountOfSteps = value;
+        setActiveInstrument(state, value) {
+            state.activeInstrument = value;
+        },
+        setActiveStep(state, value) {
+            state.activeStep = value;
         },
         setRecordingInput(state, value) {
             state.recordingInput = !value;
@@ -125,7 +114,6 @@ export default {
         },
         resetEditor(state) {
             state.activeInstrument =
-            state.activePattern    =
             state.activeStep       = 0;
             state.recordingInput   = false;
         }
