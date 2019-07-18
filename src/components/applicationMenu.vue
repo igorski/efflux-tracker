@@ -114,8 +114,7 @@ export default {
             this.setHelpTopic('menu');
         },
         handleLoad( aEvent ) {
-            Pubsub.publish( Messages.CLOSE_OVERLAYS, MenuController ); // close open overlays
-            Pubsub.publish( Messages.OPEN_SONG_BROWSER );
+            this.setOverlay('sngbr');
         },
         handleSave( aEvent ) {
             if ( this.isValid( this.activeSong )) {

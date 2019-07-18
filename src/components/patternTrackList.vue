@@ -42,10 +42,10 @@
                             <template v-if="event.note">
                                 <!-- note on event -->
                                 <span v-if="event.note" class="note">
-                                    {{event.note}} - {{event.octave}}
+                                    {{ event.note }} - {{ event.octave }}
                                 </span>
                                 <span class="instrument">
-                                    {{this.instrument}}
+                                    {{ event.instrument }}
                                 </span>
                             </template>
                             <template v-else>

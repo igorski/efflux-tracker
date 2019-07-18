@@ -25,6 +25,7 @@ import SongFactory         from '../../model/factory/SongFactory';
 import FixturesLoader      from '../../services/FixturesLoader';
 import SongAssemblyService from '../../services/SongAssemblyService';
 import SongUtil            from '../../utils/SongUtil';
+import ObjectUtil          from '../../utils/ObjectUtil';
 import StorageUtil         from '../../utils/StorageUtil';
 
 /* internal methods */
@@ -47,7 +48,7 @@ export default {
         activeSong(state) {
             return state.activeSong;
         },
-        getSongs(state) {
+        songs(state) {
             return state.songs;
         },
         getSongById: state => id => state.songs.find(song => song.id === id) || null
@@ -66,7 +67,11 @@ export default {
             state.songs = songs;
         },
         setActiveSong(state, song) {
-            state.activeSong = song;
+            if ( song && song.meta && song.patterns ) {
+                // close song as we do not want to modify the original song stored in list
+                state.activeSong = ObjectUtil.clone( song );
+                SongUtil.resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
+            }
         },
         setTempo(state, value) {
             const meta     = state.activeSong.meta;

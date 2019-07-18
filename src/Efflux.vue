@@ -38,6 +38,7 @@
         <div v-if="blindActive" id="blind">
             <template v-if="overlay">
                 <advanced-pattern-editor v-if="overlay === 'ape'" @close="closeOverlay" />
+                <song-browser v-if="overlay === 'sngbr'" @close="closeOverlay" />
                 <settings-window v-if="overlay === 'settings'" @close="closeOverlay" />
             </template>
         </div>
@@ -75,6 +76,7 @@ import TrackEditor from './components/trackEditor';
 import HelpSection from './components/helpSection';
 import DialogWindow from './components/dialogWindow';
 import SettingsWindow from './components/settingsWindow';
+import SongBrowser from './components/songBrowser';
 import Notification from './components/notification';
 import Loader from './components/loader';
 import store from './store';
@@ -93,6 +95,7 @@ export default {
         PatternEditor,
         PatternTrackList,
         SettingsWindow,
+        SongBrowser,
         TrackEditor,
     },
     data: () => ({
@@ -112,6 +115,7 @@ export default {
         ]),
         ...mapGetters([
             'getCopy',
+            'activeSong',
         ]),
         canLaunch() {
             return this.audioController.isSupported();
@@ -121,7 +125,16 @@ export default {
         menuOpened(isOpen) {
             // prevent scrolling main body when scrolling menu list
             window.document.body.style.overflow = isOpen ? 'hidden' : 'auto';
-        }
+        },
+        activeSong(song) {
+            if (song == null)
+                return;
+
+            this.resetEditor();
+            this.resetHistory();
+            this.setAmountOfSteps(song.patterns[0].steps);
+            this.createLinkedList(song);
+        },
     },
     async created() {
         // expose publish / subscribe bus to integrate with outside API's
@@ -164,10 +177,14 @@ export default {
     methods: {
         ...mapMutations([
             'prepareLinkedList',
+            'createLinkedList',
             'setActiveSong',
+            'setAmountOfSteps',
             'setWindowSize',
             'setWindowScrollOffset',
             'setBlindActive',
+            'resetEditor',
+            'resetHistory',
             'closeDialog',
         ]),
         ...mapActions([

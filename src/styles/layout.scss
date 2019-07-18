@@ -39,9 +39,12 @@
 
     .close-button {
       position: absolute;
-      top: .85em;
-      right: .75em;
+      top: 18px;
+      right: 12px;
       cursor: pointer;
+      border: 2px solid #000;
+      background-color: $color-1;
+      border-radius: 4px;
     }
   }
 }

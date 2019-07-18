@@ -7,27 +7,16 @@ function startApplication() {
         // initialize application controllers
 
         KeyboardController.init( efflux, SequencerController );
-        SettingsController.init( efflux, document.body );
         InstrumentController.init( container, efflux, KeyboardController );
         SongEditorController.init( container.querySelector( "#songEditor" ), efflux, KeyboardController );
-        SongBrowserController.init( document.body, efflux );
         NoteEntryController.init( container, efflux, KeyboardController );
         ModuleParamController.init( container, efflux, KeyboardController );
-        NotificationController.init( container );
-        AdvancedPatternEditorController.init( container, efflux, KeyboardController );
-
-        // MIDI is currently only supported in Chrome
-
-        if ( zMIDI.isSupported() )
-            MidiController.init( efflux, AudioController, SequencerController );
     });
 
     // subscribe to pubsub system to receive and broadcast messages across the application
 
     [
-        Messages.LOAD_SONG,
         Messages.TRANSFORM_LEGACY_SONG,
-        Messages.CREATE_LINKED_LISTS,
         Messages.SAVE_STATE
 
     ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
@@ -38,22 +27,7 @@ function startApplication() {
 function handleBroadcast( type, payload )
 {
     switch ( type )
-    {
-        case Messages.LOAD_SONG:
 
-            const song = ( typeof payload === "string" ) ? efflux.SongModel.getSongById( payload ) : payload;
-
-            if ( song && song.meta && song.patterns ) {
-
-                efflux.activeSong = ObjectUtil.clone( song );
-                efflux.EditorModel.reset();
-                efflux.EditorModel.amountOfSteps = song.patterns[ 0 ].steps;
-                SongUtil.resetPlayState( efflux.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
-                Pubsub.publishSync( Messages.SONG_LOADED, song );
-                Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
-                efflux.HistoryModule.flush();
-            }
-            break;
 
         case Messages.TRANSFORM_LEGACY_SONG:
 
@@ -61,9 +35,6 @@ function handleBroadcast( type, payload )
                 SongValidator.transformLegacy( payload );
             break;
 
-        case Messages.CREATE_LINKED_LISTS:
-            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
-            break;
 
         case Messages.SAVE_STATE:
 

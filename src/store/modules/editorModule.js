@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from '../../config';
+import EventUtil from '../../utils/EventUtil';
 import LinkedList from '../../utils/LinkedList';
 
 // editor module stores all states of the editor such as
@@ -106,6 +107,9 @@ export default {
         setActivePattern(state, value) {
             state.activePattern = value;
         },
+        setAmountOfSteps(state, value) {
+            state.amountOfSteps = value;
+        },
         setRecordingInput(state, value) {
             state.recordingInput = !value;
         },
@@ -116,7 +120,10 @@ export default {
                 state.eventList[ i ] = new LinkedList();
             }
         },
-        reset(state) {
+        createLinkedList(state, song) {
+            EventUtil.linkEvents(song.patterns, state.eventList);
+        },
+        resetEditor(state) {
             state.activeInstrument =
             state.activePattern    =
             state.activeStep       = 0;

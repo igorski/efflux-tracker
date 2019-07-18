@@ -63,7 +63,7 @@ const module = {
         /**
          * clears entire history
          */
-        flush(state) {
+        resetHistory(state) {
             state.undoManager.clear();
         }
     },

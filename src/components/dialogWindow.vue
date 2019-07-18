@@ -26,11 +26,11 @@
         <p>{{ message }}</p>
         <button type="button"
                 @click="handleConfirm"
-        >{{ getCopy()('BUTTON_OK') }}</button>
+        >{{ getCopy('BUTTON_OK') }}</button>
         <button v-if="type === 'confirm'"
                 type="button"
                 @click="handleCancel"
-        >{{ getCopy()('BUTTON_CANCEL') }}</button>
+        >{{ getCopy('BUTTON_CANCEL') }}</button>
     </div>
 </template>
 
@@ -54,11 +54,11 @@ export default {
         },
         confirmHandler: {
             type: Function,
-            required: false,
+            default: null,
         },
         cancelHandler: {
             type: Function,
-            required: false,
+            default: null,
         }
     },
     computed: {
@@ -68,7 +68,6 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setBlindActive',
             'closeDialog',
         ]),
         handleConfirm() {
@@ -84,7 +83,6 @@ export default {
             this.close();
         },
         close() {
-            this.setBlindActive(false);
             this.closeDialog();
         }
     }

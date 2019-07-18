@@ -83,8 +83,8 @@ export default new Vuex.Store({
                 state.loading = Math.max(0, state.loading - 1 );
             }
         },
-        openDialog(state, { title, message, confirm = null, cancel = null }) {
-            state.dialog = { title, message, confirm, cancel };
+        openDialog(state, { type = 'info', title = '', message = '', confirm = null, cancel = null }) {
+            state.dialog = { type, title, message, confirm, cancel };
         },
         closeDialog(state) {
             state.dialog = null;
