@@ -38,19 +38,19 @@
                         <li @click="handleSave">Save song</li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
                         <template v-if="hasImportExport">
-                            <li @click="importSong">Import song</li>
-                            <li @click="exportSong">Export song</li>
+                            <li @click="handleSongImport">Import song</li>
+                            <li @click="handleSongExport">Export song</li>
                         </template>
                         <li id="songReset" @click="handleReset">Reset song</li>
                         <template v-if="hasImportExport">
-                            <li @click="importInstruments">Import instrument presets</li>
-                            <li @click="exportInstruments">Export instrument presets</li>
+                            <li @click="handleInstrumentImport">Import instrument presets</li>
+                            <li @click="handleInstrumentExport">Export instrument presets</li>
                         </template>
                     </ul>
                 </li>
                 <li @click="handleSettings">Settings</li>
                 <li v-if="hasRecord" @click="handleRecord">Record output</li>
-                <li @click="handleHelpClick">Help</li>
+                <li @click="handleHelp">Help</li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"
                     ref="fullscreenBtn"
@@ -67,7 +67,7 @@ import { isSupported, setToggleButton } from '../utils/Fullscreen';
 import { getCopy } from '../i18n/Copy';
 import Manual from '../definitions/Manual';
 import Messages from '../definitions/Messages';
-import ExportUtil from '../utils/ExportUtil';
+import SongUtil from '../utils/SongUtil';
 
 export default {
     computed: {
@@ -78,9 +78,10 @@ export default {
         ...mapGetters([
             'activeSong',
             'getInstruments',
+            'getCopy',
         ]),
         hasImportExport() {
-            return ( typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined" );
+            return typeof window.btoa !== 'undefined' && typeof window.FileReader !== 'undefined';
         },
         hasFullscreen() {
             return isSupported();
@@ -109,11 +110,17 @@ export default {
             'setHelpTopic',
             'setOverlay',
             'openDialog',
+            'showError',
+            'showNotification',
             'setActiveSong',
         ]),
         ...mapActions([
             'createSong',
             'saveSong',
+            'importSong',
+            'exportSong',
+            'importInstruments',
+            'exportInstruments',
         ]),
         handleMouseOver( aEvent ) {
             this.setHelpTopic('menu');
@@ -125,16 +132,15 @@ export default {
             if ( this.isValid( this.activeSong )) {
                 this.saveSong( this.activeSong )
                     .then(() => {
-                    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "SONG_SAVED", song.meta.title ));
-                    Pubsub.publish( Messages.SONG_SAVED, song );
-                });
+                        this.showNotification({ message: this.getCopy('SONG_SAVED', this.activeSong.meta.title) });
+                    });
             }
         },
         handleReset( aEvent ) {
             const self = this;
             this.openDialog({
                 type: 'confirm',
-                message: getCopy('WARNING_SONG_RESET'),
+                message: this.getCopy('WARNING_SONG_RESET'),
                 confirm() {
                     self.createSong()
                         .then(song => self.setActiveSong(song));
@@ -144,49 +150,54 @@ export default {
         handleSettings( aEvent ) {
             this.setOverlay('settings');
         },
-        handleHelpClick(aEvent) {
-            window.open( Manual.ONLINE_MANUAL );
+        handleHelp(aEvent) {
+            window.open(Manual.ONLINE_MANUAL);
         },
         /**
          * validates whether the current state of the song is
          * eligible for saving / exporting
-         *
-         * @private
-         * @param song
          */
-        isValid( song ) {
-            let hasContent = SongUtil.hasContent( song );
-        
+        isValid(song) {
+            let hasContent = SongUtil.hasContent(song);
+
             if ( !hasContent ) {
-                Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_EMPTY_SONG" ) );
+                this.showError(this.getCopy('ERROR_EMPTY_SONG'));
                 return false;
             }
-        
-            if ( song.meta.author.length === 0 || song.meta.title.length === 0 )
+
+            if (song.meta.author.length === 0 || song.meta.title.length === 0)
                 hasContent = false;
-        
-            if ( !hasContent )
-                Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_NO_META" ));
-        
+
+            if (!hasContent)
+                this.showError(this.getCopy('ERROR_NO_META'));
+
             return hasContent;
         },
         handleRecord( aEvent ) {
             Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
-            Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "RECORDING_ENABLED" ));
+            this.showNotification({ message: this.getCopy('RECORDING_ENABLED') });
         },
-        importSong() {
-            ExportUtil.importSong();
+        handleSongImport() {
+            this.importSong()
+                .then(() => this.showNotification({ message: this.getCopy('SONG_IMPORTED') }))
+                .catch(error => this.showError(error));
         },
-        exportSong() {
-            if ( this.isValid( this.activeSong )) {
-                ExportUtil.exportSong( this.activeSong );
+        handleSongExport() {
+            if ( this.isValid(this.activeSong)) {
+                this.exportSong(this.activeSong)
+                    .then(() => this.showNotification({ message: this.getCopy('SONG_EXPORTED', this.activeSong.meta.title) }))
+                    .catch(error => this.showError(error));
             }
         },
-        importInstruments() {
-            ExportUtil.importInstrument();
+        handleInstrumentImport() {
+            this.importInstruments()
+                .then(amountImported => this.showNotification({ message: this.getCopy('INSTRUMENTS_IMPORTED', amountImported.toString()) }))
+                .catch(error => this.showError(error));
         },
-        exportInstruments() {
-            ExportUtil.exportInstruments(this.getInstruments());
+        handleInstrumentExport() {
+            this.exportInstruments()
+                .then(() => this.showNotification({ message: this.getCopy('INSTRUMENTS_EXPORTED') }))
+                .catch();
         },
     }
 };

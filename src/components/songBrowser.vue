@@ -100,6 +100,7 @@ export default {
 
 <style lang='scss' scoped>
     @import '../styles/_variables.scss';
+    @import '../styles/_layout.scss';
 
     $songBrowserWidth: 600px;
     $songBrowserHeight: 600px;

@@ -87,18 +87,38 @@ export default new Vuex.Store({
                 state.loading = Math.max(0, state.loading - 1 );
             }
         },
+        /**
+         * open a dialog window showing given title and message.
+         * types can be info, error or confirm. When type is confirm, optional
+         * confirmation and cancellation handler can be passed.
+         */
         openDialog(state, { type = 'info', title = '', message = '', confirm = null, cancel = null }) {
             state.dialog = { type, title, message, confirm, cancel };
         },
         closeDialog(state) {
             state.dialog = null;
         },
+        /**
+         * shows a dialog window stating an Error has occurred.
+         */
+        showError(state, message) {
+            state.dialog = { type: 'error', title: getCopy('ERROR_TITLE'), message };
+        },
+        /**
+         * shows a notification containing given title and message.
+         * multiple notifications can be stacked.
+         */
         showNotification(state, { title, message }) {
             state.notifications.push({ title, message });
         },
         clearNotifications(state) {
             state.notifications = [];
         },
+        /**
+         * cache the resize/scroll offsets in the store so
+         * components can react to these values instead of maintaining
+         * multiple listeners at the expense of DOM trashing/performance hits
+         */
         setWindowSize(state, { width, height }) {
             state.windowSize = { width, height };
         },

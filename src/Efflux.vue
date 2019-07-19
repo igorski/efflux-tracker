@@ -256,7 +256,7 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '@/styles/_variables.scss';
+    @import '@/styles/_layout.scss';
 
     html, body {
         height: 100%;

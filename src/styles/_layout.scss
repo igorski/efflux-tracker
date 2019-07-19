@@ -1,3 +1,9 @@
+@import '_variables.scss';
+@import 'scrollbars.scss';
+@import 'grid.scss';
+@import 'forms.scss';
+@import 'mobile.scss';
+
 /* mixins */
 
 @mixin EditorComponent
@@ -63,7 +69,7 @@ ul {
 }
 
 #properties {
-  @include EditorComponent;
+  @include EditorComponent();
   padding: 8px 0;
   margin: 80px auto 0; /* offset top margin by menu height */
 }

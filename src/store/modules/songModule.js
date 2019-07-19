@@ -24,6 +24,7 @@ import Config              from '../../config';
 import SongFactory         from '../../model/factory/SongFactory';
 import FixturesLoader      from '../../services/FixturesLoader';
 import SongAssemblyService from '../../services/SongAssemblyService';
+import SongValidator       from '../../model/validators/SongValidator';
 import SongUtil            from '../../utils/SongUtil';
 import ObjectUtil          from '../../utils/ObjectUtil';
 import StorageUtil         from '../../utils/StorageUtil';
@@ -51,7 +52,7 @@ export default {
         songs(state) {
             return state.songs;
         },
-        getSongById: state => id => state.songs.find(song => song.id === id) || null
+        getSongById: state => id => state.songs.find(song => song.id === id) || null,
     },
     mutations: {
         /**
@@ -60,17 +61,17 @@ export default {
          */
         setSongs(state, xtkSongs) {
             // convert XTK songs into Song Objects
-            const songs = new Array( xtkSongs.length );
-            xtkSongs.forEach(( xtk, index ) => {
-                songs[ index ] = SongAssemblyService.assemble( xtk );
+            const songs = new Array(xtkSongs.length);
+            xtkSongs.forEach((xtk, index) => {
+                songs[index] = SongAssemblyService.assemble(xtk);
             });
             state.songs = songs;
         },
         setActiveSong(state, song) {
-            if ( song && song.meta && song.patterns ) {
+            if (song && song.meta && song.patterns) {
                 // close song as we do not want to modify the original song stored in list
-                state.activeSong = ObjectUtil.clone( song );
-                SongUtil.resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
+                state.activeSong = ObjectUtil.clone(song);
+                SongUtil.resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got "frozen" events
             }
         },
         setActiveSongAuthor(state, author) {
@@ -122,8 +123,13 @@ export default {
             });
         },
         saveSong({ state, dispatch }, song ) {
-            return new Promise(resolve => {
-                dispatch('deleteSong', { song, persist: false }); // remove duplicate song if existed
+            return new Promise(async resolve => {
+                try {
+                    await dispatch('deleteSong', { song, persist: false }); // remove duplicate song if existed
+                }
+                catch(e) {
+                    // that's fine.
+                }
                 song.meta.modified = Date.now();    // update timestamp
                 state.songs.push( song );
                 persistState(state);
@@ -164,6 +170,65 @@ export default {
                     reject();
                 }
             });
-        }
+        },
+        importSong({ commit, dispatch, getters })
+        {
+            // inline handler to overcome blocking of the file select popup by the browser
+    
+            const fileBrowser = document.createElement('input');
+            fileBrowser.setAttribute('type',   'file');
+            fileBrowser.setAttribute('accept', Config.SONG_FILE_EXTENSION);
+    
+            const simulatedEvent = document.createEvent('MouseEvent');
+            simulatedEvent.initMouseEvent(
+                'click', true, true, window, 1,
+                 0, 0, 0, 0, false,
+                 false, false, false, 0, null
+            );
+            fileBrowser.dispatchEvent(simulatedEvent);
+
+            return new Promise((resolve, reject) => {
+                fileBrowser.addEventListener('change', fileBrowserEvent => {
+                    const reader = new FileReader();
+
+                    reader.onerror = readerEvent => {
+                        reject(getters.getCopy('ERROR_FILE_LOAD'));
+                    };
+
+                    reader.onload = async readerEvent => {
+                        const fileData = readerEvent.target.result;
+                        const song     = SongAssemblyService.assemble(window.atob(fileData));
+
+                        // rudimentary check if we're dealing with a valid song
+
+                        if (SongValidator.isValid(song)) {
+                            await dispatch('saveSong', song);
+                            commit('setActiveSong', song);
+                            resolve();
+                        }
+                        else {
+                            reject(getters.getCopy('ERROR_SONG_IMPORT'));
+                        }
+                    };
+                    // start reading file contents
+                    reader.readAsText(fileBrowserEvent.target.files[0]);
+                });
+            });
+        },
+        exportSong(store, song) {
+            return new Promise(resolve => {
+                const base64encodedSong = window.btoa(SongAssemblyService.disassemble(song));
+
+                // download file to disk
+
+                const pom = document.createElement('a');
+                pom.setAttribute('href', `data:application/json;charset=utf-8,${encodeURIComponent(base64encodedSong)}`);
+                pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
+                pom.setAttribute('download', `${song.meta.title}${Config.SONG_FILE_EXTENSION}` );
+                pom.click();
+
+                resolve();
+            });
+        },
     }
 };

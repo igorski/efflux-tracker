@@ -45,6 +45,7 @@ const EN =
     SONG_LOADED_TITLE       : `Song loaded`,
     SONG_LOADED             : `Loaded song '{0}'`,
     SONG_SAVED              : `Song '{0}' saved`,
+    SONG_IMPORTED           : `Song imported successfully.`,
     SONG_DELETE_CONFIRM     : `Are you sure you want to delete song '{0}' ? This operation cannot be undone.`,
     WARNING_SONG_RESET      : `Are you sure you want to reset, you will lose all changes and undo history`,
     WARNING_UNLOAD          : `Are you sure you want to leave this page ? All unsaved changes will be lost.`,

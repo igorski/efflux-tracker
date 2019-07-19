@@ -180,6 +180,7 @@ export default {
 
 <style lang="scss">
     @import '@/styles/_variables.scss';
+    @import '@/styles/_layout.scss';
 
     #settings
     {
