@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2018 - https://www.igorski.nl
+ * Igor Zinken 2017-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import AudioFactory from './AudioFactory';
+import ModuleUtil   from '../../utils/ModuleUtil';
+import Config       from '../../config';
+import Delay        from '../../third_party/Delay';
+import Overdrive    from 'wa-overdrive';
 
-const AudioFactory = require( "./AudioFactory" );
-const ModuleUtil   = require( "../../utils/ModuleUtil" );
-const Config       = require( "../../config" );
-const Delay        = require( "../../third_party/Delay" );
-const Overdrive    = require( "wa-overdrive" );
-
-module.exports = {
-
+export default
+{
     /**
      * create an equalizer with low/mid/high bands, to change the emphasis
      * of the equalizers frequency range, alter the gain values of the

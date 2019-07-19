@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="songEditor">
+    <section class="song-editor">
         <div class="meta-editor"
              @mouseover="setHelpTopic('meta')"
         >
@@ -73,19 +73,20 @@ export default {
             'setActiveSongAuthor',
             'setActiveSongTitle',
             'setHelpTopic',
+            'suspendKeyboardService',
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
          * so it doesn't broadcast the typing to its listeners
          */
         handleFocusIn() {
-            keyboardController.setSuspended( true );
+            this.suspendKeyboardService(true);
         },
         /**
          * on focus out, restore the KeyboardControllers broadcasting
          */
-        handleFocusOut( aEvent ) {
-            keyboardController.setSuspended( false );
+        handleFocusOut() {
+            this.suspendKeyboardService(false);
         },
     }
 };
@@ -93,6 +94,10 @@ export default {
 
 <style lang="scss" scoped>
     @import '@/styles/_variables.scss';
+
+    .song-editor {
+        display: inline-block;
+    }
 
     .meta-editor {
       display: inline;
@@ -108,7 +113,7 @@ export default {
     /* phone view */
 
     @media screen and ( max-width: $mobile-width ) {
-      #songEditor {
+      .song-editor {
         display: none; // only visible when settings mode is active
       }
 

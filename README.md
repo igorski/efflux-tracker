@@ -129,40 +129,36 @@ ROADMAP
 TODO VUE
 --------
 
+FONTS!
 REPLACE ALL INSTANCES OF WINDOW_RESIZE and WINDOW_SCROLL with watchers
-All Handlebars moved to components
-All less files moved to appropriate components or SCSS libraries
-KeyboardController to Vuex store module (we need store access for mutations)
-Menu all functionalities (bar settings, help, maximuze)
-SequencerWorker
+Record output
+SequencerWorker (Webpack Worker in Blob)
 igorski.nl share integration
 Bill Fruge Web MIDI on Linux??
 Overlays must be appended to blind (so don't need to watch setOverlayState for self removal)
 check whether selections cut paste copy et al work
-check whether instruments can be saved
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
-Webpack Worker in Blob
 igorski.nl Analytics
-CSS no tag selectors in critical areas
 metronome
 recording events (also using MIDI)
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 
 editormodule.activeStep > should become selected step (setter too)!
+activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
 store.setOverlay() -> should indicate its a modal component
+rename stateFactory and related stuff to historyState
 
 TODO: force tracklist re-render (for instance toggle hex/pct in settings screen)
 
-
-replace ids with classes in scoped components
 submit to madewithvue :D
-
 
 LONG TERM TODO (make Git issues)
 --------------
 
+vue i18n
 Create separate component for MIDI settings panel
 Clean up helpSection (do not inline all topics)
+CSS no tag selectors in critical areas (replace ids with classes in scoped components)

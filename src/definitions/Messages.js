@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -45,7 +45,6 @@ export default
     OPEN_MODULE_PARAM_PANEL      : "UI:8",  // payload is callback Function to be executed on panel close
     HIGHLIGHT_ACTIVE_STEP        : "UI:9",  // payload is optional number indicating currently active highlight (otherwise defaults to last active step)
     MENU_INITIALIZED             : "UI:MI",
-    HIGHLIGHTED_SLOT_CHANGED     : "UI:12",
     HANDLE_KEYBOARD_MOVEMENT     : "UI:13",
 
     // song messages

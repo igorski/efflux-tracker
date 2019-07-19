@@ -11,6 +11,7 @@ import settings from './modules/settingsModule';
 import sequencer from './modules/sequencerModule';
 import song from './modules/songModule';
 import audioController from '../js/controller/AudioController';
+import keyboardService from '../services/KeyboardService';
 
 Vue.use(Vuex);
 
@@ -35,7 +36,6 @@ export default new Vuex.Store({
         dialog: null,
         overlay: null, /* string name of overlay window @see Efflux.vue */
         notifications: [],
-        audioController
     },
     getters: {
         /**
@@ -115,6 +115,15 @@ export default new Vuex.Store({
             state.notifications = [];
         },
         /**
+         * service hooks
+         */
+        syncKeyboard() {
+            keyboardService.syncEditorSlot();
+        },
+        suspendKeyboardService(state, isSuspended) {
+            keyboardService.setSuspended(!!isSuspended);
+        },
+        /**
          * cache the resize/scroll offsets in the store so
          * components can react to these values instead of maintaining
          * multiple listeners at the expense of DOM trashing/performance hits
@@ -127,6 +136,20 @@ export default new Vuex.Store({
         }
     },
     actions: {
-
+        /**
+         * Install the services that will listen to the hardware
+         * (audio outputs/inputs, keyboard, etc.) connected to the device
+         * the application is running on.
+         */
+        setupServices() {
+            // cheat a little by giving the services access to the root store.
+            // when synthesizing audio we need instant access to song events
+            // nextTick()-based reactivity is too large of a latency
+            const storeReference = this;
+            return new Promise(resolve => {
+                keyboardService.init(storeReference);
+                resolve();
+            });
+        },
     }
 });

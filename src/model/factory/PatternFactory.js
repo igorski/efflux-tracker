@@ -131,6 +131,8 @@ const PatternFactory =
     }
 };
 
+export default PatternFactory;
+
 /* private methods */
 
 /**
@@ -160,5 +162,3 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
     });
     return out;
 }
-
-export default PatternFactory;

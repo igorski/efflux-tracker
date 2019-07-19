@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017 - https://www.igorski.nl
+ * Igor Zinken 2017-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,13 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import EventFactory from '../../model/factory/EventFactory';
+import Messages     from '../../definitions/Messages';
+import Pubsub       from 'pubsub-js';
 
-const EventFactory = require( "../../model/factory/EventFactory" );
-const Messages     = require( "../../definitions/Messages" );
-const Pubsub       = require( "pubsub-js" );
-
-let efflux, editorModel;
+let store, state;
 
 // modules parameters available to Efflux, we map keyCode to the first letter(s) of their name
 const D_MODULES = [ "delayEnabled", "delayTime", "delayFeedback", "delayCutoff", "delayOffset" ];
@@ -37,12 +35,11 @@ const V_MODULES = [ "volume" ];
 let selectedGlide = false, selectedModule;
 let lastCharacter = "", lastTypeAction = 0;
 
-const ModuleParamHandler = module.exports = {
+const ModuleParamHandler = {
 
-    init( effluxRef ) {
-
-        efflux      = effluxRef;
-        editorModel = efflux.EditorModel;
+    init(storeReference) {
+        store = storeReference;
+        state = store.state;
     },
 
     handleParam( keyCode ) {
@@ -88,7 +85,7 @@ const ModuleParamHandler = module.exports = {
 
                 default:
                     return;
-        }
+            }
         }
         // create event if it didn't exist yet
         if ( createEvent )
@@ -119,6 +116,9 @@ const ModuleParamHandler = module.exports = {
         return list[ 0 ]; // value not found, return first value in list
     }
 };
+export default ModuleParamHandler;
+
+/* internal methods */
 
 function getModuleListByKeyCode( keyCode ) {
     switch ( keyCode ) {
@@ -164,18 +164,19 @@ function getModuleByFirstTwoLetters( letters, selectModule ) {
 }
 
 function getEventForPosition( createIfNotExisting ) {
-    let event = efflux.activeSong.patterns[ editorModel.activePattern ]
-                                 .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+    let event = state.song.activeSong
+                    .patterns[ state.sequencer.activePattern ]
+                    .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
 
     if ( !event && createIfNotExisting === true ) {
 
         event = EventFactory.createAudioEvent();
 
-        event.instrument = editorModel.activeInstrument;
+        event.instrument = state.editor.activeInstrument;
         Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-            patternIndex      : editorModel.activePattern,
-            channelIndex      : editorModel.activeInstrument,
-            step              : editorModel.activeStep,
+            patternIndex      : state.sequencer.activePattern,
+            channelIndex      : state.editor.activeInstrument,
+            step              : state.editor.activeStep,
             newEvent          : true,
             advanceOnAddition : false
         } ]);

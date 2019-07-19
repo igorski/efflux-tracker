@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -155,7 +155,11 @@ const AudioFactory =
    }
 };
 
-//Pre-calculate the WaveShaper curves so that we can reuse them.
+export default AudioFactory;
+
+/* internal methods */
+
+// Pre-calculate the WaveShaper curves so that we can reuse them.
 const pulseCurve = new Float32Array( 256 );
 for ( let i = 0; i < 128; ++i ) {
     pulseCurve[ i ]       = -1;
@@ -164,5 +168,3 @@ for ( let i = 0; i < 128; ++i ) {
 const constantOneCurve = new Float32Array( 2 );
 constantOneCurve[ 0 ] = 1;
 constantOneCurve[ 1 ] = 1;
-
-export default AudioFactory;

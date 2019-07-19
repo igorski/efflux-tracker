@@ -63,7 +63,6 @@ const self = module.exports = {
         efflux.TemplateService.render( "patternTrackList", wrapper, {
             steps         : editorModel.amountOfSteps,
             pattern       : pattern,
-            activeChannel : editorModel.activeInstrument,
             activeStep    : editorModel.activeStep,
             format        : settingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || "hex"
 
@@ -108,20 +107,20 @@ const self = module.exports = {
 
         slotHighlight = null;
 
-        for ( let pIndex = 0, l = pContainers.length; pIndex < l; ++pIndex ) {
-            pContainer = pContainers[ pIndex ];
-            selection  = selectionModel.selectedChannels[ pIndex ];
-            items      = grabPatternContainerStepFromTemplate( pIndex );
+        for ( let channelIndex = 0, l = pContainers.length; channelIndex < l; ++channelIndex ) {
+            pContainer = pContainers[ channelIndex ];
+            selection  = selectionModel.selectedChannels[ channelIndex ];
+            items      = grabPatternContainerStepFromTemplate( channelIndex );
             pContainer.querySelectorAll( "li" );
 
-            let sIndex = items.length;
+            let stepIndex = items.length;
 
-            while ( sIndex-- ) {
+            while ( stepIndex-- ) {
 
-                item = items[ sIndex ];
+                item = items[ stepIndex ];
 
-                const activePattern      = ( pIndex === editorModel.activeInstrument );
-                const activeSelectedStep = ( sIndex === activeStep );
+                const activeChannel      = ( channelIndex === editorModel.activeInstrument );
+                const activeSelectedStep = ( stepIndex === activeStep );
 
                 // no particular slot selected within pattern step
 
@@ -129,14 +128,14 @@ const self = module.exports = {
 
                     const css = item.classList;
 
-                    if ( activePattern && activeSelectedStep )
+                    if ( activeChannel && activeSelectedStep )
                         css.add( activeStyle );
                     else
                         css.remove( activeStyle );
 
                     // highlight selection if set
 
-                    if ( selection && selection.indexOf( sIndex ) > -1 )
+                    if ( selection && selection.indexOf( stepIndex ) > -1 )
                         css.add( selectedStyle );
                     else
                         css.remove( selectedStyle );
@@ -144,18 +143,18 @@ const self = module.exports = {
                 else {
                     // slot selected, highlight active slot
 
-                    if ( activePattern && activeSelectedStep ) {
-                        const slots = item.querySelectorAll( "span" );
-                        slotHighlight = slots[ activeSlot ];
-                        if ( slotHighlight )
-                            slotHighlight.classList.add( activeStyle );
-                    }
+                    //if ( activeChannel && activeSelectedStep ) {
+                    //    const slots = item.querySelectorAll( "span" );
+                    //    slotHighlight = slots[ activeSlot ];
+                    //    if ( slotHighlight )
+                    //        slotHighlight.classList.add( activeStyle );
+                    //}
                     // remove selected style from step if no selection was set
                     if ( !selection )
                         item.classList.remove( selectedStyle );
 
                     // ensure the step has a selection outline
-                    if ( activePattern && activeSelectedStep )
+                    if ( activeChannel && activeSelectedStep )
                         item.classList.add( activeStyle );
                     else
                         item.classList.remove( activeStyle );
@@ -359,7 +358,6 @@ function selectSlotWithinClickedStep( aEvent ) {
             slot = 1;
     }
     editorModel.activeSlot = slot;
-    Pubsub.publish( Messages.HIGHLIGHTED_SLOT_CHANGED );
 }
 
 function updateStepAmount( amount ) {

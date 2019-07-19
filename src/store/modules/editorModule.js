@@ -89,15 +89,18 @@ export default {
          */
         list: null
     },
+    getters: {
+        activeSlot: state => state.activeSlot,
+    },
     mutations: {
         setActiveSlot(state, value) {
-            state.activeSlot = value;
+            state.activeSlot = Math.max(0, Math.min(3, value));
         },
         setActiveInstrument(state, value) {
-            state.activeInstrument = value;
+            state.activeInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
         },
         setActiveStep(state, value) {
-            state.activeStep = value;
+            state.activeStep = Math.max(0, value);
         },
         setRecordingInput(state, value) {
             state.recordingInput = !value;

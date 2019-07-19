@@ -35,47 +35,75 @@
                 >
                     <li v-for="(event, stepIndex) in channel"
                         :key="`channel_${channelIndex}_${stepIndex}`"
-                        :class="{ active: stepIndex === activeStep && channelIndex === activeChannel }"
+                        :class="{
+                            active: stepIndex === activeStep && channelIndex === activeInstrument,
+                            selected: isStepSelected(channelIndex, stepIndex)
+                        }"
                     >
                         <!-- note instruction -->
                         <template v-if="event.action">
                             <template v-if="event.note">
                                 <!-- note on event -->
-                                <span v-if="event.note" class="note">
+                                <span v-if="event.note"
+                                      class="note"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
+                                >
                                     {{ event.note }} - {{ event.octave }}
                                 </span>
-                                <span class="instrument">
+                                <span class="instrument"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
+                                >
                                     {{ event.instrument }}
                                 </span>
                             </template>
                             <template v-else>
                                 <!-- note off event -->
-                                <span class="note">//// OFF ////</span>
-                                <span class="instrument"></span>
+                                <span class="note"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
+                                >//// OFF ////</span>
+                                <span class="instrument"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
+                                ></span>
                             </template>
                         </template>
                         <template v-else>
                             <!-- no note event -->
-                            <span class="note empty">----</span>
-                            <span class="instrument">-</span>
+                            <span class="note empty"
+                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
+                            >----</span>
+                            <span class="instrument"
+                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
+                            >-</span>
                         </template>
                         <!-- module parameter instruction -->
                         <template v-if="event.mp">
-                            <span class="moduleParam">
+                            <span class="moduleParam"
+                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
+                            >
                                 {{ formatModuleParam(event.mp) }}
                             </span>
-                            <span class="moduleValue">
+                            <span class="moduleValue"
+                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
+                            >
                                 {{ formatModuleValue(event.mp) }}
                             </span>
                         </template>
                         <template v-else>
-                            <template v-if="event.action">
-                                <span class="moduleParam empty">---</span>
-                                <span class="moduleValue empty">---</span>
+                            <template v-if="!event.action">
+                                <span class="moduleParam empty"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
+                                >---</span>
+                                <span class="moduleValue empty"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
+                                >---</span>
                             </template>
                             <template v-else-if="event.note">
-                                <span class="moduleParam empty">--</span>
-                                <span class="moduleValue empty">--</span>
+                                <span class="moduleParam empty"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
+                                >--</span>
+                                <span class="moduleValue empty"
+                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
+                                >--</span>
                             </template>
                         </template>
                    </li>
@@ -94,8 +122,10 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
-            activeChannel: state => state.editor.activeChannel,
+            activeInstrument: state => state.editor.activeInstrument,
             activeStep: state => state.editor.activeStep,
+            activeSlot: state => state.editor.activeSlot,
+            selectedChannels: state => state.selection.selectedChannels,
         }),
         ...mapGetters([
             'amountOfSteps',
@@ -126,6 +156,12 @@ export default {
             'setActiveSlot',
             'clearSelection',
         ]),
+        isStepSelected(channelIndex, stepIndex) {
+            return this.selectedChannels[channelIndex] && this.selectedChannels[channelIndex].includes(stepIndex);
+        },
+        isSlotHighlighted(channelIndex, stepIndex, slotIndex) {
+            return channelIndex === this.activeInstrument && stepIndex === this.activeStep && slotIndex === this.activeSlot;
+        },
         update() {
             let activePattern = this.activePattern;
 

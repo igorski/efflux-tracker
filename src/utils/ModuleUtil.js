@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2017 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,15 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
 const Config    = require( "../config" );
 const Delay     = require( "../third_party/Delay" );
 const ArrayUtil = require( "../utils/ArrayUtil" );
 const Messages  = require( "../definitions/Messages" );
 const Pubsub    = require( "pubsub-js" );
 
-const ModuleUtil = module.exports =
+const ModuleUtil =
 {
     /**
      * apply the routing for the given instrument modules
@@ -150,7 +148,9 @@ const ModuleUtil = module.exports =
     }
 };
 
-/* private methods */
+export default ModuleUtil;
+
+/* internal methods */
 
 function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 {

@@ -6,9 +6,7 @@ function startApplication() {
 
         // initialize application controllers
 
-        KeyboardController.init( efflux, SequencerController );
         InstrumentController.init( container, efflux, KeyboardController );
-        SongEditorController.init( container.querySelector( "#songEditor" ), efflux, KeyboardController );
         NoteEntryController.init( container, efflux, KeyboardController );
         ModuleParamController.init( container, efflux, KeyboardController );
     });

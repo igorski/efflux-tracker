@@ -66,6 +66,7 @@ import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config';
 import ListenerUtil from './utils/ListenerUtil';
+import audioController from './js/controller/AudioController';
 import { Style } from 'zjslib';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
@@ -113,14 +114,14 @@ export default {
             'loading',
             'dialog',
             'overlay',
-            'audioController',
         ]),
         ...mapGetters([
             'getCopy',
             'activeSong',
+            'activeSlot',
         ]),
         canLaunch() {
-            return this.audioController.isSupported();
+            return audioController.isSupported();
         },
     },
     watch: {
@@ -140,12 +141,18 @@ export default {
             this.setActiveStep(0);
 
             if (!song.meta.title)
-                    return;
+                return;
 
             this.showNotification({
                 title: this.getCopy('SONG_LOADED_TITLE'),
                 message: this.getCopy('SONG_LOADED', song.meta.title)
             });
+        },
+        /**
+         * synchronize editor module changes with keyboard service
+         */
+        activeSlot() {
+            this.syncKeyboard();
         },
     },
     async created() {
@@ -163,6 +170,7 @@ export default {
 
         this.prepareLinkedList();
         this.setActiveSong(await this.createSong());
+        await this.setupServices();
         this.addListeners();
 
         this.prepared = true;
@@ -203,8 +211,10 @@ export default {
             'resetHistory',
             'closeDialog',
             'showNotification',
+            'syncKeyboard',
         ]),
         ...mapActions([
+            'setupServices',
             'loadStoredSettings',
             'loadStoredInstruments',
             'loadStoredSongs',
@@ -270,10 +280,6 @@ export default {
         margin: 0;
         padding: 0;
         @include noSelect;
-    }
-
-    #songEditor {
-      display: inline-block;
     }
 
     #blind {

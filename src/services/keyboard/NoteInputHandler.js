@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017 - https://www.igorski.nl
+ * Igor Zinken 2017-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import InstrumentUtil from '../../utils/InstrumentUtil';
 
-const InstrumentUtil = require( "../../utils/InstrumentUtil" );
-
-let efflux, editorModel, sequencerController;
+let store, state;
 
 // High notes:  2 3   5 6 7   9 0
 //             Q W E R T Y U I O P
@@ -35,11 +33,10 @@ const HIGHER_KEYS = [ 81, 50, 87, 51, 69, 82, 53, 84, 54, 89, 55, 85, 73, 57, 79
 const LOWER_KEYS    = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190, 186, 191 ];
 const KEY_NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E" ];
 
-module.exports = {
-    init( effluxRef, sequencerControllerRef ) {
-        efflux              = effluxRef;
-        editorModel         = effluxRef.EditorModel;
-        sequencerController = sequencerControllerRef;
+export default {
+    init(storeReference) {
+        store = storeReference;
+        state = store.state;
     },
 
     createNoteOnEvent( keyCode ) {
@@ -47,19 +44,21 @@ module.exports = {
         if ( note !== null ) {
             InstrumentUtil.noteOn(
                 note,
-                efflux.activeSong.instruments[ editorModel.activeInstrument ],
-                editorModel.recordingInput,
-                sequencerController
+                state.song.activeSong.instruments[state.editor.activeInstrument],
+                state.editor.recordingInput,
+                state.sequencer.playing
             );
         }
     },
 
     createNoteOffEvent( keyCode ) {
-        const note = getNoteForKey( keyCode );
+        const note = getNoteForKey(keyCode);
         if ( note !== null )
-            InstrumentUtil.noteOff( note, sequencerController );
+            InstrumentUtil.noteOff(note, state.sequencer.playing);
     }
 };
+
+/* internal methods */
 
 /**
  * translates a key code to a note
@@ -77,11 +76,11 @@ function getNoteForKey( keyCode )
 
     if ( higherIndex > -1 ) {
         noteName = KEY_NOTE_LIST[ higherIndex ];
-        octave   = editorModel.higherKeyboardOctave;
+        octave   = state.editor.higherKeyboardOctave;
     }
     else if ( lowerIndex > -1 ) {
         noteName = KEY_NOTE_LIST[ lowerIndex ];
-        octave   = editorModel.lowerKeyboardOctave;
+        octave   = state.editor.lowerKeyboardOctave;
     }
     else
         return null;

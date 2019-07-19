@@ -108,7 +108,7 @@ const setSelectionChannelRange = ( state, firstChannel, lastChannel) => {
     for ( let i = state.firstSelectedChannel; i <= state.lastSelectedChannel; ++i )
         state.selectedChannels[ i ] = [];
 
-    setSelection( state.minSelectedStep, state.maxSelectedStep );
+    setSelection( state, state.minSelectedStep, state.maxSelectedStep );
 };
 
 /**
@@ -323,9 +323,9 @@ const module = {
          * @param {number} activeStep the next active step within the current pattern
          */
         handleVerticalKeySelectAction( state, { keyCode, activeChannel, curStep, activeStep }) {
-            let ac           = state.actionCache,
-                isUp         = ( keyCode === 38 ),
-                hadSelection = hasSelection(state);
+            const ac           = state.actionCache,
+                  isUp         = ( keyCode === 38 ),
+                  hadSelection = hasSelection(state);
 
             if ( !hadSelection )
                 ac.channelOnSelection = activeChannel;
@@ -387,9 +387,9 @@ const module = {
          * @param {number} activeStepOnStart the active step when the horizontal selection started
          */
         handleHorizontalKeySelectAction( state, { keyCode, activeChannelOnStart, activeStepOnStart }) {
-            let ac           = state.actionCache,
-                isLeft       = ( keyCode === 37 ),
-                hadSelection = hasSelection(state);
+            const ac           = state.actionCache,
+                  isLeft       = ( keyCode === 37 ),
+                  hadSelection = hasSelection(state);
 
             if ( !hadSelection ) {
                 state.minSelectedStep     = activeStepOnStart;

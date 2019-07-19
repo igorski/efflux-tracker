@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017 - https://www.igorski.nl
+ * Igor Zinken 2017-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,25 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import EventFactory from '../../model/factory/EventFactory';
+import EventUtil    from '../../utils/EventUtil';
+import NumberUtil   from '../../utils/NumberUtil';
+import Messages     from '../../definitions/Messages';
+import Pubsub       from 'pubsub-js';
 
-const SettingsModel = require( "../../model/SettingsModel" );
-const EventFactory  = require( "../../model/factory/EventFactory" );
-const EventUtil     = require( "../../utils/EventUtil" );
-const NumberUtil    = require( "../../utils/NumberUtil" );
-const Messages      = require( "../../definitions/Messages" );
-const Pubsub        = require( "pubsub-js" );
-
-let efflux, editorModel;
-
+let store, state;
 let lastCharacter = "", lastTypeAction = 0;
 
-module.exports = {
+export default {
 
-    init( effluxRef ) {
-
-        efflux      = effluxRef;
-        editorModel = efflux.EditorModel;
+    init(storeReference) {
+        store = storeReference;
+        state = store.state;
     },
 
     handleParam( keyCode ) {
@@ -59,7 +54,7 @@ module.exports = {
         lastCharacter = character;
 
         // validate value
-        switch ( efflux.SettingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT )) {
+        switch ( store.getters.getSetting( state.settings.PROPERTIES.INPUT_FORMAT )) {
             default:
             case "hex":
                 if ( !NumberUtil.isHex( value ))
@@ -78,7 +73,7 @@ module.exports = {
 
         // no module param defined yet ? create as duplicate of previously defined property
         if ( !event.mp ) {
-            const prevEvent = getPreviousEventWithModuleAutomation( editorModel.activeStep );
+            const prevEvent = getPreviousEventWithModuleAutomation( state.editor.activeStep );
             event.mp = EventFactory.createModuleParam(
                 ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", 50, false
             );
@@ -90,6 +85,8 @@ module.exports = {
     }
 };
 
+/* internal methods */
+
 function getPreviousEventWithModuleAutomation( step ) {
     let prevEvent;
     while ( !prevEvent || !prevEvent.mp ) {
@@ -98,8 +95,9 @@ function getPreviousEventWithModuleAutomation( step ) {
             return null;
 
         prevEvent = EventUtil.getFirstEventBeforeStep(
-            efflux.activeSong.patterns[ editorModel.activePattern ]
-                             .channels[ editorModel.activeInstrument ], step
+            state.song.activeSong
+                .patterns[ state.sequencer.activePattern ]
+                .channels[ state.editor.activeInstrument ], step
         );
         step = ( prevEvent ) ? step - 1 : 0;
     }
@@ -109,18 +107,19 @@ function getPreviousEventWithModuleAutomation( step ) {
 // TODO: duplicated from ModuleParamHandler...
 
 function getEventForPosition( createIfNotExisting ) {
-    let event = efflux.activeSong.patterns[ editorModel.activePattern ]
-                                 .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+    let event = state.song.activeSong
+                    .patterns[ state.sequencer.activePattern ]
+                    .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
 
     if ( !event && createIfNotExisting === true ) {
 
         event = EventFactory.createAudioEvent();
 
-        event.instrument = editorModel.activeInstrument;
+        event.instrument = state.editor.activeInstrument;
         Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-            patternIndex      : editorModel.activePattern,
-            channelIndex      : editorModel.activeInstrument,
-            step              : editorModel.activeStep,
+            patternIndex      : state.sequencer.activePattern,
+            channelIndex      : state.editor.activeInstrument,
+            step              : state.editor.activeStep,
             newEvent          : true,
             advanceOnAddition : false
         } ]);

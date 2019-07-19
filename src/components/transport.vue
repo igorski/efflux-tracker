@@ -45,10 +45,10 @@
                 <li id="patternBack" @click="handlePatternNavBack">&lt;&lt;</li>
                 <li id="currentPattern">
                     <input class="current"
-                           value="currentPatternValue"
+                           v-model="currentPatternValue"
                            maxlength="3"
-                           @focus="handleCurrentPositionInteraction"
-                           @blur="handleCurrentPositionInteraction"
+                           @focus="suspendKeyboardService(true)"
+                           @blur="suspendKeyboardService(false)"
                     />
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
@@ -176,22 +176,11 @@ export default {
             'setTempo',
             'setActivePattern',
             'setPatternSteps',
+            'suspendKeyboardService',
         ]),
         ...mapActions([
             'prepareSequencer',
         ]),
-        handleCurrentPositionInteraction(e) {
-            const element = e.target;
-            switch ( e.type ) {
-                case 'focus':
-                    keyboardController.setSuspended( true );
-                    break;
-
-                case 'blur':
-                    keyboardController.setSuspended( false );
-                    break;
-            }
-        },
         handleSettingsToggle(e) {
             const body     = window.document.body,
                   cssClass = "settings-mode",

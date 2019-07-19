@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017 - https://www.igorski.nl
+ * Igor Zinken 2017-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,24 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import Config   from '../../config';
+import Messages from '../../definitions/Messages';
+import Pubsub   from 'pubsub-js';
 
-const Config   = require( "../../config" );
-const Messages = require( "../../definitions/Messages" );
-const Pubsub   = require( "pubsub-js" );
-
-let efflux, editorModel;
+let store, state;
 
 // keyCode for the 0 key
 const ZERO = 48;
 let MAX_ACCEPTED_KEYCODE;
 
-module.exports = {
+export default {
 
-    init( effluxRef ) {
-
-        efflux      = effluxRef;
-        editorModel = efflux.EditorModel;
+    init(storeReference) {
+        store = storeReference;
+        state = store.state;
 
         // this will not really work if we allow more than 10 instruments :p
         MAX_ACCEPTED_KEYCODE = ZERO + ( Config.INSTRUMENT_AMOUNT - 1 );
@@ -46,8 +43,9 @@ module.exports = {
     setInstrument( keyCode ) {
 
         if ( keyCode >= ZERO && keyCode <= MAX_ACCEPTED_KEYCODE ) {
-            const event = efflux.activeSong.patterns[ editorModel.activePattern ]
-                                           .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
+            const event = state.song.activeSong
+                            .patterns[ state.sequencer.activePattern ]
+                            .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
 
             if ( event ) {
                 event.instrument = keyCode - ZERO;

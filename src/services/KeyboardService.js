@@ -31,7 +31,7 @@ import StateFactory               from '../model/factory/StateFactory';
 import EventUtil                  from '../utils/EventUtil';
 import Pubsub                     from 'pubsub-js';
 
-let editorModel, sequencerController, stateModel, selectionModel, listener,
+let store, state, listener,
     suspended = false, blockDefaults = true, optionDown = false, shiftDown = false, minSelect = 0, maxSelect = 0;
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
@@ -49,28 +49,31 @@ const MODES = {
 
 let mode = MODES.NOTE_INPUT;
 
-const KeyboardController =
+/**
+ * KeyboardService is a dedicated controller that listens to keyboard
+ * input events, allowing combinations of keypresses to toggle application
+ * editing modes across components and states.
+ */
+const KeyboardService =
 {
-    /**
-     * initialize KeyboardController
-     */
-    init( effluxRef, aSequencerController )
+    init(storeReference)
     {
-        editorModel         = effluxRef.EditorModel;
-        stateModel          = effluxRef.StateModel;
-        selectionModel      = effluxRef.SelectionModel;
-        sequencerController = aSequencerController;
+        store = storeReference;
+        state = store.state;
 
-        window.addEventListener( "keydown", handleKeyDown );
-        window.addEventListener( "keyup",   handleKeyUp );
-        window.addEventListener( "focus",   handleFocus );
+        // these handlers remain active for the entire application lifetime
 
-        NoteInputHandler.init( effluxRef, aSequencerController );
-        InstrumentSelectionHandler.init( effluxRef );
-        ModuleParamHandler.init( effluxRef );
-        ModuleValueHandler.init( effluxRef );
+        window.addEventListener('keydown', handleKeyDown );
+        window.addEventListener('keyup',   handleKeyUp );
+        window.addEventListener('focus',   handleFocus );
 
-        [ Messages.HIGHLIGHTED_SLOT_CHANGED ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
+        // initialize the handlers for the individual sections
+        // the respective components will trigger their enabled/disabled states
+
+        NoteInputHandler.init(storeReference);
+        InstrumentSelectionHandler.init(storeReference);
+        ModuleParamHandler.init(storeReference);
+        ModuleValueHandler.init(storeReference);
     },
 
     /**
@@ -80,8 +83,7 @@ const KeyboardController =
      * @param {Event} aEvent
      * @returns {boolean}
      */
-    hasOption( aEvent )
-    {
+    hasOption( aEvent ) {
         return ( optionDown === true ) || aEvent.ctrlKey;
     },
 
@@ -90,8 +92,7 @@ const KeyboardController =
      *
      * @returns {boolean}
      */
-    hasShift()
-    {
+    hasShift() {
         return ( shiftDown === true );
     },
 
@@ -108,19 +109,17 @@ const KeyboardController =
      *
      * @param {Object|Function} listenerRef
      */
-    setListener( listenerRef )
-    {
+    setListener( listenerRef ) {
         listener = listenerRef;
     },
 
     /**
-     * the KeyboardController can be suspended so it
+     * the KeyboardService can be suspended so it
      * will not fire its callback to the listeners
      *
      * @param {boolean} value
      */
-    setSuspended( value )
-    {
+    setSuspended( value ) {
         suspended = value;
     },
 
@@ -129,38 +128,45 @@ const KeyboardController =
      *
      * @param value
      */
-    setBlockDefaults( value )
-    {
+    setBlockDefaults( value ) {
         blockDefaults = value;
     },
 
-    reset : function()
-    {
-        KeyboardController.setListener( null );
-        KeyboardController.setSuspended( false );
-        KeyboardController.setBlockDefaults( true );
-    }
+    reset() {
+        KeyboardService.setListener( null );
+        KeyboardService.setSuspended( false );
+        KeyboardService.setBlockDefaults( true );
+    },
+
+    syncEditorSlot() {
+        switch (state.editor.activeSlot) {
+            default:
+                mode = MODES.NOTE_INPUT;
+                break;
+            case 1:
+                mode = MODES.INSTRUMENT_SELECT;
+                break;
+            case 2:
+                mode = MODES.PARAM_SELECT;
+                break;
+            case 3:
+                mode = MODES.PARAM_VALUE;
+                break;
+        }
+    },
 };
 
-export default KeyboardController;
+export default KeyboardService;
 
-/* private handlers */
-
-function handleBroadcast( msg, payload ) {
-    switch ( msg ) {
-        case Messages.HIGHLIGHTED_SLOT_CHANGED:
-            updateMode();
-            break;
-    }
-}
+/* internal methods */
 
 function handleKeyDown( aEvent )
 {
     if ( !suspended )
     {
         const keyCode    = aEvent.keyCode,
-              curStep    = editorModel.activeStep,
-              curChannel = editorModel.activeInstrument; // the current step position and channel within the pattern
+              curStep    = state.editor.activeStep,
+              curChannel = state.editor.activeInstrument; // the current step position and channel within the pattern
 
         shiftDown = !!aEvent.shiftKey;
 
@@ -174,7 +180,7 @@ function handleKeyDown( aEvent )
         }
         else {
 
-            const hasOption = KeyboardController.hasOption( aEvent );
+            const hasOption = KeyboardService.hasOption( aEvent );
 
             if ( !hasOption && !shiftDown )
                 handleInputForMode( keyCode );
@@ -200,35 +206,44 @@ function handleKeyDown( aEvent )
 
                 case 38: // up
 
-                    if ( --editorModel.activeStep < 0 )
-                        editorModel.activeStep = 0;
+                    store.commit('setActiveStep', state.editor.activeStep - 1);
 
                     // when holding down shift make a selection, otherwise clear selection
 
                     if ( aEvent && shiftDown ) {
                         setActiveSlot(); // will unset selected slot
-                        selectionModel.handleVerticalKeySelectAction( keyCode, editorModel.activeInstrument, curStep, editorModel.activeStep );
+                        store.commit('handleVerticalKeySelectAction', {
+                            keyCode,
+                            activeChannel: state.editor.activeInstrument,
+                            curStep,
+                            activeStep: state.editor.activeStep
+                        });
                     } else
-                        selectionModel.clearSelection();
+                        store.commit('clearSelection');
 
                     handleKeyboardNavigation();
                     break;
 
                 case 40: // down
 
-                    const maxStep = efflux.activeSong.patterns[ editorModel.activePattern ].steps - 1;
-
-                    if ( ++editorModel.activeStep > maxStep )
-                        editorModel.activeStep = maxStep;
+                    const maxStep = state.song.activeSong.patterns[ state.sequencer.activePattern ].steps - 1;
+                    const targetStep = state.editor.activeStep + 1;
+                    if (targetStep <= maxStep)
+                        store.commit('setActiveStep', targetStep);
 
                     // when holding down shift make a selection, otherwise clear existing selection
 
                     if ( aEvent && shiftDown ) {
                         setActiveSlot(); // will unset selected slot
-                        selectionModel.handleVerticalKeySelectAction( keyCode, editorModel.activeInstrument, curStep, editorModel.activeStep );
+                        store.commit('handleVerticalKeySelectAction', {
+                            keyCode,
+                            activeChannel: state.editor.activeInstrument,
+                            curStep,
+                            activeStep: state.editor.activeStep
+                        });
                     }
                     else
-                        selectionModel.clearSelection();
+                        store.commit('clearSelection');
 
                     handleKeyboardNavigation();
                     break;
@@ -239,22 +254,27 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_JUMP_NEXT );
                     }
                     else {
-                        if ( setActiveSlot( editorModel.activeSlot + 1 )) {
-                            if ( ++editorModel.activeInstrument > MAX_CHANNEL ) {
-                                if ( editorModel.activePattern < ( efflux.activeSong.patterns.length - 1 )) {
-                                    this.setActivePattern(this.activePattern + 1);
-                                    editorModel.activeInstrument = 0;
+                        if (setActiveSlot(state.editor.activeSlot + 1)) {
+                            // when we go right from the most right lane, move to the next pattern (when existing)
+                            if (state.editor.activeInstrument + 1 > MAX_CHANNEL ) {
+                                if (state.sequencer.activePattern < ( state.song.activeSong.patterns.length - 1 )) {
+                                    store.commit('setActivePattern', state.sequencer.activePattern + 1);
+                                    store.commit('setActiveInstrument', 0);
                                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
-                                else
-                                    editorModel.activeInstrument = MAX_CHANNEL;
+                            } else {
+                                store.commit('setActiveInstrument', state.editor.activeInstrument + 1);
                             }
                         }
 
                         if ( shiftDown )
-                            selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
+                            store.commit('handleHorizontalKeySelectAction', {
+                                keyCode,
+                                activeChannelOnStart: curChannel,
+                                activeStepOnStart: state.editor.activeStep
+                            });
                         else
-                            selectionModel.clearSelection();
+                            store.commit('clearSelection');
 
                         handleKeyboardNavigation();
                     }
@@ -266,25 +286,29 @@ function handleKeyDown( aEvent )
                         Pubsub.publishSync( Messages.PATTERN_JUMP_PREV );
                     }
                     else {
-                        if ( setActiveSlot( editorModel.activeSlot - 1 )) {
-                            if ( --editorModel.activeInstrument < 0 ) {
-                                if ( editorModel.activePattern > 0 ) {
-                                    this.setActivePattern(this.activePattern - 1);
-                                    editorModel.activeInstrument = MAX_CHANNEL;
+                        if (setActiveSlot(state.editor.activeSlot - 1)) {
+                            // when we go left from the most left lane, move to the previous pattern (when existing)
+                            if (state.editor.activeInstrument - 1 < 0 ) {
+                                if (state.editor.activePattern > 0 ) {
+                                    store.commit('setActivePattern', state.sequencer.activePattern - 1);
+                                    store.commit('setActiveInstrument', MAX_CHANNEL);
                                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
-                                else
-                                    editorModel.activeInstrument = 0;
+                            } else {
+                                store.commit('setActiveInstrument', state.editor.activeInstrument - 1);
                             }
                         }
-                        updateMode();
 
                         if ( shiftDown ) {
                             minSelect = Math.max( --maxSelect, 0 );
-                            selectionModel.handleHorizontalKeySelectAction( keyCode, curChannel, editorModel.activeStep );
+                            store.commit('handleHorizontalKeySelectAction', {
+                                keyCode,
+                                activeChannelOnStart: curChannel,
+                                activeStepOnStart: state.editor.activeStep
+                            });
                         }
                         else
-                            selectionModel.clearSelection();
+                            store.commit('clearSelection');
 
                         handleKeyboardNavigation();
                     }
@@ -312,12 +336,12 @@ function handleKeyDown( aEvent )
                      // copy current selection
                      if ( hasOption )
                      {
-                         if ( !selectionModel.hasSelection() ) {
-                             selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
-                             selectionModel.setSelection( editorModel.activeStep );
+                         if ( !store.state.selection.hasSelection() ) {
+                             store.state.selection.setSelectionChannelRange( state.editor.activeInstrument );
+                             store.state.selection.setSelection( state.editor.activeStep );
                          }
-                         selectionModel.copySelection( efflux.activeSong, editorModel.activePattern );
-                         selectionModel.clearSelection();
+                         store.state.selection.copySelection( state.song.activeSong, state.sequencer.activePattern );
+                         store.commit('clearSelection');
                      }
                      break;
 
@@ -390,25 +414,25 @@ function handleKeyDown( aEvent )
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
 
                             // this is wasteful, can we do this more elegantly?
-                            EventUtil.linkEvents( efflux.activeSong.patterns, efflux.eventList );
+                            EventUtil.linkEvents( state.song.activeSong.patterns, efflux.eventList );
                         });
                     }
                     break;
 
                 case 189: // +
-                    editorModel.higherKeyboardOctave = Math.max( editorModel.higherKeyboardOctave - 1, 1 );
+                    state.editor.higherKeyboardOctave = Math.max( state.editor.higherKeyboardOctave - 1, 1 );
                     break;
 
                 case 187: // -
-                    editorModel.higherKeyboardOctave = Math.min( editorModel.higherKeyboardOctave + 1, Config.MAX_OCTAVE );
+                    state.editor.higherKeyboardOctave = Math.min( state.editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE );
                     break;
 
                 case 219: // [
-                    editorModel.lowerKeyboardOctave = Math.max( editorModel.lowerKeyboardOctave - 1, 1 );
+                    state.editor.lowerKeyboardOctave = Math.max( state.editor.lowerKeyboardOctave - 1, 1 );
                     break;
 
                 case 221: // ]
-                    editorModel.lowerKeyboardOctave = Math.min( editorModel.lowerKeyboardOctave + 1, Config.MAX_OCTAVE );
+                    state.editor.lowerKeyboardOctave = Math.min( state.editor.lowerKeyboardOctave + 1, Config.MAX_OCTAVE );
                     break;
             }
         }
@@ -429,7 +453,7 @@ function handleKeyUp( aEvent ) {
                 break;
 
             case 16:
-                selectionModel.actionCache.stepOnSelection = -1;
+                store.state.selection.actionCache.stepOnSelection = -1;
                 break;
         }
     }
@@ -437,7 +461,7 @@ function handleKeyUp( aEvent ) {
     if ( !suspended ) {
         if ( typeof listener === 'function' )
             listener( "up", aEvent.keyCode, aEvent );
-        else if ( !KeyboardController.hasOption( aEvent ) && !aEvent.shiftKey ) {
+        else if ( !KeyboardService.hasOption( aEvent ) && !aEvent.shiftKey ) {
             if ( mode === MODES.NOTE_INPUT )
                 NoteInputHandler.createNoteOffEvent( aEvent.keyCode );
         }
@@ -476,8 +500,7 @@ function setActiveSlot( targetValue ) {
     if ( shiftDown )
         value = -1;
 
-    editorModel.activeSlot = value;
-    updateMode();
+    store.commit('setActiveSlot', value);
 
     return ( value !== targetValue );
 }
@@ -497,21 +520,4 @@ function handleDeleteActionForCurrentMode() {
 function handleKeyboardNavigation() {
     Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
     Pubsub.publishSync( Messages.HANDLE_KEYBOARD_MOVEMENT );
-}
-
-function updateMode() {
-    switch ( editorModel.activeSlot ) {
-        default:
-            mode = MODES.NOTE_INPUT;
-            break;
-        case 1:
-            mode = MODES.INSTRUMENT_SELECT;
-            break;
-        case 2:
-            mode = MODES.PARAM_SELECT;
-            break;
-        case 3:
-            mode = MODES.PARAM_VALUE;
-            break;
-    }
 }

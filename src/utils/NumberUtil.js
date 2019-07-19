@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017 - https://www.igorski.nl
+ * Igor Zinken 2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,13 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
 // we use an 8-bit range for the hexadecimal values (256 steps)
 // internally we use a 0 - 100 range floating point precision
 const RESOLUTION = 255 / 100;
 
-module.exports =
+export default
 {
     /**
      * convert given integer value to a hexadecimal string
@@ -37,7 +35,7 @@ module.exports =
      */
     toHex( value ) {
         const hex = Math.round( value * RESOLUTION ).toString( 16 );
-        return ( hex.length === 1 ) ? "0" + hex : hex;
+        return ( hex.length === 1 ) ? `0${hex}` : hex;
     },
 
     /**
@@ -58,14 +56,14 @@ module.exports =
      * @return {boolean}
      */
     isHex( value ) {
-        if ( typeof value !== "string" )
+        if ( typeof value !== 'string' )
             return false;
 
         const converted = parseInt( value, 16 ).toString( 16 ).toUpperCase();
 
         // preceding 0 can be stripped (e.g. "00" will convert as "0", which is fine)
         if ( converted.length !== value.length )
-            return ( "0" + converted ) === value.toUpperCase();
+            return ( `0${converted}` ) === value.toUpperCase();
 
         return converted === value.toUpperCase();
     }
