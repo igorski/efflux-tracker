@@ -54,7 +54,7 @@ const module = {
          * @param {Function} undo
          * @param {Function} redo
          */
-        store( state, { undo, redo }) {
+        saveState( state, { undo, redo }) {
             if ( typeof undo !== 'function' || typeof redo !== 'function' )
                 throw new Error( 'cannot store a state without specifying valid undo and redo actions' );
 

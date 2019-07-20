@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import EventUtil from '../../utils/EventUtil';
 import ObjectUtil from '../../utils/ObjectUtil';
 
 /* internal methods */
@@ -66,7 +67,7 @@ const getSelectionLength = state => ( state.maxSelectedStep - state.minSelectedS
  *        into (when null, this will by default store the selection inside
  *        this model so it can later on be pasted from this model
  */
-const copySelection = ( state, song, activePattern, optOutputArray ) => {
+const copySelection = ( state, { song, activePattern, optOutputArray }) => {
     if ( getSelectionLength(state) === 0 )
         return;
 
@@ -80,7 +81,7 @@ const copySelection = ( state, song, activePattern, optOutputArray ) => {
     for ( i = 0; i < max; ++i )
         optOutputArray.push( [] );
 
-    let pattern = song.patterns[ activePattern], stepValue;
+    let pattern = song.patterns[activePattern], stepValue;
     let channel;
     let copyIndex = 0;
 
@@ -94,6 +95,58 @@ const copySelection = ( state, song, activePattern, optOutputArray ) => {
                 optOutputArray[ copyIndex ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
             }
             ++copyIndex;
+        }
+    }
+};
+
+/**
+ * deletes the contents within the current selection
+ *
+ * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
+ *        will by default paste from the selection stored inside this model
+ * @param {number=} optFirstSelectedChannel optional first selection channel to paste from, defaults to selection stored in this model
+ * @param {number=} optLastSelectedChannel optional last selection channel to paste from, defaults to selection stored in this model
+ * @param {number=} optMinSelectedStep optional minimum selection step to paste from, defaults to selection stored in this model
+ * @param {number=} optMaxSelectedStep optional maximum selection step to paste from, defaults to selection stored in this model
+ */
+const deleteSelection = (state, { song, eventList, activePattern,
+                                  optSelectionContent, optFirstSelectedChannel, optLastSelectedChannel,
+                                  optMinSelectedStep, optMaxSelectedStep }) => {
+    let firstSelectedChannel = state.firstSelectedChannel,
+        lastSelectedChannel  = state.lastSelectedChannel,
+        minSelectedStep      = state.minSelectedStep,
+        maxSelectedStep      = state.maxSelectedStep;
+
+    if ( Array.isArray( optSelectionContent )) {
+        firstSelectedChannel = optFirstSelectedChannel;
+        lastSelectedChannel  = optLastSelectedChannel;
+        minSelectedStep      = optMinSelectedStep;
+        maxSelectedStep      = optMaxSelectedStep;
+    }
+    else if ( getSelectionLength(state) === 0 ) {
+        return;
+    }
+    const selectedChannels = ( Array.isArray( optSelectionContent )) ? optSelectionContent : state.selectedChannels;
+    const pattern = song.patterns[ activePattern ];
+    let event;
+
+    for ( let channelIndex = firstSelectedChannel; channelIndex <= lastSelectedChannel; ++channelIndex )
+    {
+        if ( selectedChannels[ channelIndex ].length > 0 )
+        {
+            for ( let sIndex = minSelectedStep, l = maxSelectedStep; sIndex <= l; ++sIndex ) {
+
+                event = pattern.channels[ channelIndex ][ sIndex ];
+
+                EventUtil.clearEvent(
+                    song,
+                    activePattern,
+                    channelIndex,
+                    sIndex,
+                    eventList[ activePattern ]
+                );
+                pattern.channels[ channelIndex ][ sIndex ] = 0;
+            }
         }
     }
 };
@@ -211,92 +264,60 @@ const module = {
         }
     },
     mutations: {
+        setMinSelectedStep(state, value) {
+            state.minSelectedStep = value;
+        },
+        setMaxSelectedStep(state, value) {
+            state.maxSelectedStep = value;
+        },
+        /**
+         * sets the channels that are present in the selection
+         *
+         * @param {Object} state
+         * @param {number} firstChannel
+         * @param {number=} lastChannel optional (defaults to firstChannel for single channel selection)
+         */
+        setSelectionChannelRange(state, { firstChannel, lastChannel }) {
+            setSelectionChannelRange(state, firstChannel, lastChannel);
+        },
+        setStepOnSelection(state, step) {
+            state.actionCache.stepOnSelection = step;
+        },
         /**
          * cuts the contents within the current selection
          * (copies their data and deletes them)
          */
-        cutSelection( state ) {
+        cutSelection( state, { song, activePattern, eventList }) {
             if ( getSelectionLength(state) === 0 )
                 return;
 
             // copy first
-            copySelection( state, state.song, state.activePattern );
+            copySelection( state, { song, activePattern });
 
             // delete second
-            deleteSelection( state, state.song, state.activePattern, state.lists );
-        },
-        /**
-         * deletes the contents within the current selection
-         *
-         * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
-         *        will by default paste from the selection stored inside this model
-         * @param {number=} optFirstSelectedChannel optional first selection channel to paste from, defaults to selection stored in this model
-         * @param {number=} optLastSelectedChannel optional last selection channel to paste from, defaults to selection stored in this model
-         * @param {number=} optMinSelectedStep optional minimum selection step to paste from, defaults to selection stored in this model
-         * @param {number=} optMaxSelectedStep optional maximum selection step to paste from, defaults to selection stored in this model
-         */
-        deleteSelection(state, { optSelectionContent, optFirstSelectedChannel, optLastSelectedChannel,
-                                 optMinSelectedStep, optMaxSelectedStep }) {
-            let firstSelectedChannel = state.firstSelectedChannel,
-                lastSelectedChannel  = state.lastSelectedChannel,
-                minSelectedStep      = state.minSelectedStep,
-                maxSelectedStep      = state.maxSelectedStep;
-
-            if ( Array.isArray( optSelectionContent )) {
-                firstSelectedChannel = optFirstSelectedChannel;
-                lastSelectedChannel  = optLastSelectedChannel;
-                minSelectedStep      = optMinSelectedStep;
-                maxSelectedStep      = optMaxSelectedStep;
-            }
-            else if ( getSelectionLength(state) === 0 ) {
-                return;
-            }
-            const selectedChannels = ( Array.isArray( optSelectionContent )) ? optSelectionContent : state.selectedChannels;
-
-            const pattern = state.song.patterns[ state.activePattern ];
-            let event;
-
-            for ( let channelIndex = firstSelectedChannel; channelIndex <= lastSelectedChannel; ++channelIndex )
-            {
-                if ( selectedChannels[ channelIndex ].length > 0 )
-                {
-                    for ( let sIndex = minSelectedStep, l = maxSelectedStep; sIndex <= l; ++sIndex ) {
-
-                        event = pattern.channels[ channelIndex ][ sIndex ];
-
-                        EventUtil.clearEvent(
-                            state.song,
-                            state.activePattern,
-                            channelIndex,
-                            sIndex,
-                            state.lists[ state.activePattern ]
-                        );
-                        pattern.channels[ channelIndex ][ sIndex ] = 0;
-                    }
-                }
-            }
+            deleteSelection( state, { song, activePattern, eventList });
         },
         /**
          * @param {Object} state
          * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
          *        will by default paste from the selection stored inside this model
          */
-        pasteSelection(state, optSelectionContent ) {
+        pasteSelection(state, { song, eventList, activeInstrument, activePattern, activeStep, optSelectionContent = null }) {
             if ( !Array.isArray( optSelectionContent )) {
                 optSelectionContent = state.copySelection;
             }
 
             if ( Array.isArray( optSelectionContent ) && optSelectionContent.length > 0 ) {
-                let target = state.song.patterns[ state.activePattern ];
+                let target = song.patterns[ activePattern ];
                 let targetPattern, writeIndex, clone;
                 let selectionLength = optSelectionContent.length;
 
-                for ( let cIndex = state.activeChannel, max = target.channels.length, j = 0;
+                for ( let cIndex = activeInstrument, max = target.channels.length, j = 0;
                       cIndex < max && j < selectionLength; ++cIndex, ++j ) {
                     targetPattern = target.channels[ cIndex ];
 
                     optSelectionContent[ j ].forEach(( event, index ) => {
-                        writeIndex = state.activeStep + index;
+                        writeIndex = activeStep + index;
 
                         if ( writeIndex < targetPattern.length ) {
                             if ( event && ( event.action !== 0 || event.mp )) {
@@ -304,9 +325,9 @@ const module = {
                                 clone = ObjectUtil.clone( event );
                                 clone.instrument  = cIndex;
                                 clone.seq.playing = false;
-                                EventUtil.setPosition( clone, target, state.activePattern, writeIndex, state.song.meta.tempo, clone.seq.length );
+                                EventUtil.setPosition( clone, target, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
                                 targetPattern[ writeIndex ] = clone;
-                                EventUtil.linkEvent( clone, cIndex, state.song, state.lists );
+                                EventUtil.linkEvent( clone, cIndex, song, eventList );
                             }
                         }
                     });
@@ -420,17 +441,8 @@ const module = {
 
             ac.prevHorizontalKey = keyCode;
         },
-        /**
-         * sets the channels that are present in the selection
-         *
-         * @param {Object} state
-         * @param {number} firstChannel
-         * @param {number=} lastChannel optional (defaults to firstChannel for single channel selection)
-         */
-        setSelectionChannelRange(state, { firstChannel, lastChannel }) {
-            setSelectionChannelRange(state, firstChannel, lastChannel);
-        },
         equalizeSelection,
+        copySelection,
         clearSelection,
         setSelection
     }

@@ -55,7 +55,7 @@ export default {
     
         /**
          * whether the editor is recording notes
-         * from the MIDI input device
+         * from the MIDI input device or computer keyboard
          *
          * @type {boolean}
          */
@@ -94,7 +94,7 @@ export default {
     },
     mutations: {
         setActiveSlot(state, value) {
-            state.activeSlot = Math.max(0, Math.min(3, value));
+            state.activeSlot = Math.max(-1, Math.min(3, value));
         },
         setActiveInstrument(state, value) {
             state.activeInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
@@ -104,6 +104,12 @@ export default {
         },
         setRecordingInput(state, value) {
             state.recordingInput = !value;
+        },
+        setHigherKeyboardOctave(state, value) {
+            state.higherKeyboardOctave = value;
+        },
+        setLowerKeyboardOctave(state, value) {
+            state.lowerKeyboardOctave = value;
         },
         prepareLinkedList(state) {
             state.eventList = new Array(Config.INSTRUMENT_AMOUNT);

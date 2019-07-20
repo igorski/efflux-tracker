@@ -149,9 +149,9 @@ const self = module.exports = {
                     //    if ( slotHighlight )
                     //        slotHighlight.classList.add( activeStyle );
                     //}
-                    // remove selected style from step if no selection was set
-                    if ( !selection )
-                        item.classList.remove( selectedStyle );
+                    //// remove selected style from step if no selection was set
+                    //if ( !selection )
+                    //    item.classList.remove( selectedStyle );
 
                     // ensure the step has a selection outline
                     if ( activeChannel && activeSelectedStep )

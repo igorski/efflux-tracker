@@ -57,15 +57,12 @@ export default {
     }
 };
 
-/* private methods */
+/* internal methods */
 
 /**
  * adds a single AUDIO_EVENT into a pattern
- *
- * @private
- * @param {Object} data
  */
-function addSingleEventAction( data ) {
+function addSingleEventAction({ store, optEventData, updateHandler }) {
 
     const song        = data.efflux.activeSong,
           eventList   = data.efflux.eventList,
@@ -89,7 +86,7 @@ function addSingleEventAction( data ) {
     // if options Object was given, use those values instead of current sequencer values
 
     let optData;
-    if ( optData = data.optEventData ) {
+    if ( optData = optEventData ) {
         patternIndex = ( typeof optData.patternIndex === "number" ) ? optData.patternIndex : patternIndex;
         channelIndex = ( typeof optData.channelIndex === "number" ) ? optData.channelIndex : channelIndex;
         step         = ( typeof optData.step         === "number" ) ? optData.step         : step;
@@ -143,7 +140,7 @@ function addSingleEventAction( data ) {
                 event.instrument = prevNode.data.instrument;
             }
         }
-        data.updateHandler( advanceStepOnAddition ); // syncs view with model changes
+        updateHandler( advanceStepOnAddition ); // syncs view with model changes
         advanceStepOnAddition = false;
     }
 
@@ -161,7 +158,7 @@ function addSingleEventAction( data ) {
                 step,
                 eventList[ activeInstrument ]
             );
-            data.updateHandler(); // syncs view with model changes
+            updateHandler(); // syncs view with model changes
         },
         redo() {
             add();
@@ -172,11 +169,8 @@ function addSingleEventAction( data ) {
 /**
  * removes a single AUDIO_EVENT or multiple AUDIO_EVENTS within a selection
  * from a pattern
- *
- * @private
- * @param {Object} data
  */
-function deleteSingleEventOrSelectionAction( data ) {
+function deleteSingleEventOrSelectionAction({ store, addHandler, updateHandler } ) {
 
     const song             = data.efflux.activeSong,
           eventList        = data.efflux.eventList,
@@ -213,7 +207,7 @@ function deleteSingleEventOrSelectionAction( data ) {
                 eventList[ activeInstrument ]
             );
         }
-        data.updateHandler(); // syncs view with model changes
+        updateHandler(); // syncs view with model changes
     }
 
     // delete the event as it was the trigger for this action
@@ -229,13 +223,13 @@ function deleteSingleEventOrSelectionAction( data ) {
                 );
             }
             else {
-                data.addHandler( event, {
+                addHandler( event, {
                     patternIndex: activePattern,
                     channelIndex: activeInstrument,
                     step: activeStep
                 }, false ); // false flag prevents storing in undo/redo again, kinda important!
             }
-            data.updateHandler(); // syncs view with model changes
+            updateHandler(); // syncs view with model changes
         },
         redo() {
             remove( selection );
@@ -243,17 +237,11 @@ function deleteSingleEventOrSelectionAction( data ) {
     };
 }
 
-/**
- * @private
- * @param {Object} data
- */
-function deleteModuleAutomationAction( data ) {
-
-    const event = data.event;
+function deleteModuleAutomationAction({ store, event, updateHandler }) {
     const clonedAutomation = ObjectUtil.clone( event.mp );
     const remove = () => {
         delete event.mp;
-        data.updateHandler(); // syncs view with model changes
+        updateHandler(); // syncs view with model changes
     };
 
     // perform action
@@ -262,7 +250,7 @@ function deleteModuleAutomationAction( data ) {
     return {
         undo() {
             event.mp = clonedAutomation;
-            data.updateHandler(); // syncs view with model changes
+            updateHandler(); // syncs view with model changes
         },
         redo() {
             remove();
@@ -270,25 +258,19 @@ function deleteModuleAutomationAction( data ) {
     };
 }
 
-/**
- * @private
- * @param {Object} data
- */
-function cutSelectionAction( data ) {
+function cutSelectionAction({ store, updateHandler }) {
 
-    const song           = data.efflux.activeSong,
-          editorModel    = data.efflux.EditorModel,
-          selectionModel = data.efflux.SelectionModel;
+    const song = store.state.song.activeSong;
 
-    if ( !selectionModel.hasSelection() ) {
-        selectionModel.setSelectionChannelRange( editorModel.activeInstrument );
-        selectionModel.setSelection( editorModel.activeStep );
+    if ( !store.getters.hasSelection) {
+        store.commit('setSelectionChannelRange', { firstChannel: store.state.editor.activeInstrument });
+        store.commit('setSelection', store.state.editor.activeStep);
     }
-    const activePattern        = editorModel.activePattern;
-    const selectedFirstChannel = selectionModel.firstSelectedChannel;
-    const selectedLastChannel  = selectionModel.lastSelectedChannel;
-    const selectedMinStep      = selectionModel.minSelectedStep;
-    const selectedMaxStep      = selectionModel.maxSelectedStep;
+    const activePattern   = store.state.sequencer.activePattern;
+    const firstChannel    = store.state.selection.firstSelectedChannel;
+    const lastChannel     = store.state.selection.lastSelectedChannel;
+    const selectedMinStep = store.state.selection.minSelectedStep;
+    const selectedMaxStep = store.state.selection.maxSelectedStep;
 
     const originalPatternData = clonePattern( song, activePattern );
     let cutData;
@@ -297,11 +279,11 @@ function cutSelectionAction( data ) {
             song.patterns[ activePattern ] = cutData;
         }
         else {
-            selectionModel.cutSelection( song, activePattern, data.efflux.eventList );
+            store.commit('cutSelection', { song, activePattern, eventList: store.state.editor.eventList });
             cutData = clonePattern( song, activePattern );
         }
-        selectionModel.clearSelection();
-        data.updateHandler(); // syncs view with model changes
+        store.commit('clearSelection');
+        updateHandler(); // syncs view with model changes
     }
 
     // cut the data as it was the trigger for this action
@@ -315,11 +297,11 @@ function cutSelectionAction( data ) {
             song.patterns[ activePattern ] = originalPatternData;
 
             // restore selection model to previous state
-            selectionModel.minSelectedStep = selectedMinStep;
-            selectionModel.maxSelectedStep = selectedMaxStep;
-            selectionModel.setSelectionChannelRange( selectedFirstChannel, selectedLastChannel );
+            store.commit('setMinSelectedStep', selectedMinStep);
+            store.commit('setMaxSelectedStep', selectedMaxStep);
+            store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
 
-            data.updateHandler(); // syncs view with model changes
+            updateHandler(); // syncs view with model changes
         },
         redo() {
             cut();
@@ -327,39 +309,31 @@ function cutSelectionAction( data ) {
     };
 }
 
-/**
- * @private
- * @param {Object} data
- */
-function pasteSelectionAction( data ) {
+function pasteSelectionAction({ store, updateHandler }) {
 
-    const song             = data.efflux.activeSong,
-          eventList        = data.efflux.eventList,
-          editorModel      = data.efflux.EditorModel,
-          selectionModel   = data.efflux.SelectionModel,
-          activePattern    = editorModel.activePattern,
-          activeInstrument = editorModel.activeInstrument,
-          activeStep       = editorModel.activeStep;
+    const song             = store.state.song.activeSong,
+          eventList        = store.state.editor.eventList,
+          activePattern    = store.state.sequencer.activePattern,
+          activeInstrument = store.state.editor.activeInstrument,
+          activeStep       = store.state.editor.activeStep;
 
     let originalPatternData = clonePattern( song, activePattern );
     let pastedData;
 
-    const selectedFirstChannel = selectionModel.firstSelectedChannel;
-    const selectedLastChannel  = selectionModel.lastSelectedChannel;
-    const selectedMinStep      = selectionModel.minSelectedStep;
-    const selectedMaxStep      = selectionModel.maxSelectedStep;
+    const firstChannel    = store.state.selection.firstSelectedChannel;
+    const lastChannel     = store.state.selection.lastSelectedChannel;
+    const selectedMinStep = store.state.selection.minSelectedStep;
+    const selectedMaxStep = store.state.selection.maxSelectedStep;
 
     function paste() {
         if ( pastedData ) {
             song.patterns[ activePattern ] = pastedData;
         }
         else {
-            selectionModel.pasteSelection(
-                song, activePattern, activeInstrument, activeStep, eventList
-            );
+            store.commit('pasteSelection', { song, eventList, activePattern, activeInstrument, activeStep });
             pastedData = clonePattern( song, activePattern );
         }
-        data.updateHandler(); // syncs view with model changes
+        updateHandler(); // syncs view with model changes
     }
 
     // delete the data as it was the trigger for this action
@@ -376,11 +350,11 @@ function pasteSelectionAction( data ) {
             // this means we are returning the model to the state prior to the pasting
             // restore selection model to previous state
 
-            selectionModel.minSelectedStep = selectedMinStep;
-            selectionModel.maxSelectedStep = selectedMaxStep;
-            selectionModel.setSelectionChannelRange( selectedFirstChannel, selectedLastChannel );
+            store.commit('setMinSelectedStep', selectedMinStep);
+            store.commit('setMaxSelectedStep', selectedMaxStep);
+            store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
 
-            data.updateHandler(); // syncs view with model changes
+            updateHandler(); // syncs view with model changes
         },
         redo() {
             paste( originalPatternData );

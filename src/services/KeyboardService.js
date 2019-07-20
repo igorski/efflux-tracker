@@ -188,11 +188,16 @@ function handleKeyDown( aEvent )
             switch ( keyCode )
             {
                 case 27: // escape
-                    Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
+
+                    // close dialog (if existing), else close overlay (if existing)
+                    if (state.dialog)
+                        store.commit('closeDialog');
+                    else if (state.overlay)
+                        store.commit('setOverlay', null);
                     break;
 
                 case 32: // spacebar
-                    //Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_PLAYSTATE ); sequencerModel.setPlaying(!sequencerModel.isPlaying);
+                    store.commit('setPlaying', !state.sequencer.playing);
                     break;
 
                 // capture the apple key here as it is not recognized as a modifier
@@ -336,11 +341,11 @@ function handleKeyDown( aEvent )
                      // copy current selection
                      if ( hasOption )
                      {
-                         if ( !store.state.selection.hasSelection() ) {
-                             store.state.selection.setSelectionChannelRange( state.editor.activeInstrument );
-                             store.state.selection.setSelection( state.editor.activeStep );
+                         if (!store.getters.hasSelection) {
+                             store.commit('setSelectionChannelRange', { firstChannel: state.editor.activeInstrument });
+                             store.commit('setSelection', state.editor.activeStep);
                          }
-                         store.state.selection.copySelection( state.song.activeSong, state.sequencer.activePattern );
+                         store.commit('copySelection', { song: state.song.activeSong, activePattern: state.sequencer.activePattern });
                          store.commit('clearSelection');
                      }
                      break;
@@ -356,14 +361,14 @@ function handleKeyDown( aEvent )
 
                 case 76: // L
                     if ( hasOption ) {
-                        Pubsub.publishSync( Messages.TOGGLE_SEQUENCER_LOOP );
+                        store.commit('setLooping', !state.sequencer.looping);
                         aEvent.preventDefault();
                     }
                     break;
 
                 case 82: // R
                     if ( hasOption ) {
-                        //Pubsub.publishSync( Messages.TOGGLE_INPUT_RECORDING ); sequencerModel.setRecording(true);
+                        store.commit('setRecording', !state.sequencer.recording);
                         aEvent.preventDefault();
                     }
                     break;
@@ -379,10 +384,9 @@ function handleKeyDown( aEvent )
 
                     // paste current selection
                     if ( hasOption ) {
-                        Pubsub.publishSync(
-                            Messages.SAVE_STATE,
+                        store.commit('saveState',
                             StateFactory.getAction( States.PASTE_SELECTION, {
-                                efflux: efflux,
+                                store,
                                 updateHandler: () => Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW )
                             })
                         );
@@ -393,12 +397,10 @@ function handleKeyDown( aEvent )
 
                     // cut current selection
 
-                    if ( hasOption )
-                    {
-                        Pubsub.publishSync(
-                            Messages.SAVE_STATE,
+                    if ( hasOption ) {
+                        store.commit('saveState',
                             StateFactory.getAction( States.CUT_SELECTION, {
-                                efflux: efflux,
+                                store,
                                 updateHandler: () => Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW )
                             })
                         );
@@ -407,32 +409,31 @@ function handleKeyDown( aEvent )
 
                 case 90: // Z
 
-                    if ( hasOption )
-                    {
+                    if ( hasOption ) {
                         const action = !shiftDown ? 'undo' : 'redo';
-                        HistoryModule[action].then(() => {
+                        store.dispatch(action).then(() => {
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
 
-                            // this is wasteful, can we do this more elegantly?
-                            EventUtil.linkEvents( state.song.activeSong.patterns, efflux.eventList );
+                            // TODO this is wasteful, can we do this more elegantly?
+                            EventUtil.linkEvents( state.song.activeSong.patterns, state.editor.eventList );
                         });
                     }
                     break;
 
                 case 189: // +
-                    state.editor.higherKeyboardOctave = Math.max( state.editor.higherKeyboardOctave - 1, 1 );
+                    store.commit('setHigherKeyboardOctave', Math.max(state.editor.higherKeyboardOctave - 1, 1));
                     break;
 
                 case 187: // -
-                    state.editor.higherKeyboardOctave = Math.min( state.editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE );
+                    store.commit('setHigherKeyboardOctave', Math.min(state.editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE));
                     break;
 
                 case 219: // [
-                    state.editor.lowerKeyboardOctave = Math.max( state.editor.lowerKeyboardOctave - 1, 1 );
+                    store.commit('setLowerKeyboardOctave', Math.max( state.editor.lowerKeyboardOctave - 1, 1));
                     break;
 
                 case 221: // ]
-                    state.editor.lowerKeyboardOctave = Math.min( state.editor.lowerKeyboardOctave + 1, Config.MAX_OCTAVE );
+                    store.commit('setLowerKeyboardOctave', Math.min( state.editor.lowerKeyboardOctave + 1, Config.MAX_OCTAVE));
                     break;
             }
         }
@@ -453,7 +454,7 @@ function handleKeyUp( aEvent ) {
                 break;
 
             case 16:
-                store.state.selection.actionCache.stepOnSelection = -1;
+                store.commit('setStepOnSelection', -1);
                 break;
         }
     }
