@@ -180,7 +180,7 @@ export default {
             this.container.scrollTop  = coordinates.y;
         },
         formatModuleParam(data) {
-            let out = ( data && data.glide ) ? "G " : "";
+            let out = ( data && data.glide ) ? 'G ' : '';
 
             if ( data && data.module ) {
                 out += data.module.charAt( 0 ).toUpperCase();
@@ -189,7 +189,7 @@ export default {
             return out;
         },
         formatModuleValue(data) {
-            let out = "", value;
+            let out = '', value;
 
             if ( data ) {
 
@@ -200,7 +200,7 @@ export default {
                 else {
                     value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
                 }
-                out += " " + (( value.length === 1 ) ? "0" + value : value );
+                out += " " + (( value.length === 1 ) ? `0${value}` : value );
             }
             return out;
         },
