@@ -88,6 +88,8 @@ function addMIDIListener( aPortNumber )
     // first clean up all old listeners
     let amountOfPorts = zMIDI.getInChannels().length;
 
+    aPortNumber = Math.max(0, Math.min(amountOfPorts - 1, aPortNumber)); // keep within range
+
     while ( amountOfPorts-- )
         zMIDI.removeMessageListener( amountOfPorts );
 
