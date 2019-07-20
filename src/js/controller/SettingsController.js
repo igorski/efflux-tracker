@@ -142,7 +142,7 @@ function handleMIDIConnect( aEvent )
 
 function handleMIDIDeviceSelect( aEvent )
 {
-    Pubsub.publish( Messages.MIDI_ADD_LISTENER_TO_DEVICE, aEvent.target );
+    Pubsub.publish( Messages.MIDI_ADD_LISTENER_TO_DEVICE, parseInt(aEvent.target.value));
 }
 
 function showAvailableMIDIDevices( aInputs )
