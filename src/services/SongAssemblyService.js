@@ -389,7 +389,7 @@ function disassembleInstruments( xtk, instruments ) {
 function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
 
     song.patterns = new Array( xtkPatterns.length );
-    let pattern, channel, event, xtkAutomation;
+    let pattern, channel, event;
 
     xtkPatterns.forEach(( xtkPattern, pIndex ) => {
 
@@ -420,9 +420,9 @@ function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
                     };
 
                     EventUtil.setPosition( event, pattern, pIndex, eIndex, tempo, xtkEvent[ EVENT_LENGTH ]);
+                    const xtkAutomation = xtkEvent[ EVENT_MODULE_AUTOMATION ];
 
-                    if ( xtkAutomation = xtkEvent[ EVENT_MODULE_AUTOMATION ]) {
-
+                    if ( xtkAutomation) {
                         event.mp = {
                             module: xtkAutomation[ EVENT_MODULE ],
                             value:  xtkAutomation[ EVENT_MODULE_VALUE ],

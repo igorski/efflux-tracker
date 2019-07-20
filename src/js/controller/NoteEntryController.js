@@ -164,12 +164,15 @@ function handleReady()
         event.note       = data.note;
         event.octave     = data.octave;
 
-        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-            patternIndex : data.patternIndex,
-            channelIndex : data.channelIndex,
-            step         : data.step,
-            newEvent     : isNewEvent
-        } ]);
+        this.addEventAtPosition({
+            store: this.$store, event,
+            optData: {
+                patternIndex : data.patternIndex,
+                channelIndex : data.channelIndex,
+                step         : data.step,
+                newEvent     : isNewEvent
+            }
+        });
     }
     handleClose();
 }

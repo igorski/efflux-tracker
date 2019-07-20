@@ -73,7 +73,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Pubsub from 'pubsub-js';
 
 export default {
@@ -126,6 +126,9 @@ export default {
         this.setSelectedValueInList( this.moduleList, this.module );
     },
     methods: {
+        ...mapActions([
+            'addEventAtPosition',
+        ]),
         handleClose() {
             this.$emit('close');
         },
@@ -144,12 +147,15 @@ export default {
                 event.mp         = { ...this.$data }; // serialize data into event module param property
                 event.instrument = this.instrument;
         
-                Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-                    patternIndex : this.patternIndex,
-                    channelIndex : this.channelIndex,
-                    step         : this.step,
-                    newEvent     : isNewEvent
-                } ]);
+                this.addEventAtPosition({
+                    store: this.$store, event,
+                    optData: {
+                        patternIndex : this.patternIndex,
+                        channelIndex : this.channelIndex,
+                        step         : this.step,
+                        newEvent     : isNewEvent
+                    }
+                });
         //    }
             
             this.handleClose();

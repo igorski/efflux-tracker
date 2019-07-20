@@ -143,6 +143,8 @@ igorski.nl Analytics
 metronome
 recording events (also using MIDI)
 
+what is the difference between editor.recordingInput and sequencer.recording ???
+
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 
 editormodule.activeStep > should become selected step (setter too)!

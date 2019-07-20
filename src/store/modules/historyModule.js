@@ -74,7 +74,7 @@ const module = {
          * @return {boolean} whether an undo action took place
          */
         undo({ state, getters }) {
-            return new Promise(resolve => {
+            return new Promise((resolve, reject) => {
                 if ( getters.canUndo ) {
                     state.undoManager.undo();
                     resolve();
@@ -101,8 +101,8 @@ const module = {
     }
 };
 
+export default module;
+
 /* initialization */
 
 module.state.undoManager.setLimit( STATES_TO_SAVE );
-
-export default module;

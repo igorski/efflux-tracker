@@ -116,13 +116,16 @@ function getEventForPosition( createIfNotExisting ) {
         event = EventFactory.createAudioEvent();
 
         event.instrument = state.editor.activeInstrument;
-        Pubsub.publish( Messages.ADD_EVENT_AT_POSITION, [ event, {
-            patternIndex      : state.sequencer.activePattern,
-            channelIndex      : state.editor.activeInstrument,
-            step              : state.editor.activeStep,
-            newEvent          : true,
-            advanceOnAddition : false
-        } ]);
+        store.commit('addEventAtPosition', {
+            store, event,
+            optData: {
+                patternIndex      : state.sequencer.activePattern,
+                channelIndex      : state.editor.activeInstrument,
+                step              : state.editor.activeStep,
+                newEvent          : true,
+                advanceOnAddition : false
+            }
+        });
     }
     return event;
 }

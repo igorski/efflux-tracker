@@ -257,9 +257,9 @@ const module = {
          *
          * @return {Array.<Object>}
          */
-        getSelection(state) {
+        getSelection: state => ({ song, activePattern }) => {
             const out = [];
-            copySelection( state, state.song, state.activePattern, out );
+            copySelection( state, song, activePattern, out );
             return out;
         }
     },
@@ -444,6 +444,7 @@ const module = {
         equalizeSelection,
         copySelection,
         clearSelection,
+        deleteSelection,
         setSelection
     }
 };

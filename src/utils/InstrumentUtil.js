@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Vue          from 'vue';
 import EventFactory from '../model/factory/EventFactory';
 import EventUtil    from './EventUtil';
 import Pubsub       from 'pubsub-js';
@@ -87,26 +88,23 @@ const InstrumentUtil =
      */
     adjustEventTunings( events, oscillatorIndex, oscillator )
     {
-        let i = events.length,
-            event, voice, generator;
+        events.forEach(event => {
 
-        while ( i-- )
-        {
-            if ( event = events[ i ] ) {
+            if (!event)
+                return;
 
-                if ( event.length > oscillatorIndex ) {
+            if ( event.length > oscillatorIndex ) {
 
-                    voice     = event[ oscillatorIndex ];
-                    generator = voice.generator;
+                const voice     = event[ oscillatorIndex ];
+                const generator = voice.generator;
 
-                    if ( generator instanceof OscillatorNode )
-                        generator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator );
+                if ( generator instanceof OscillatorNode )
+                    generator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator );
 
-                    else if ( generator instanceof AudioBufferSourceNode )
-                        generator.playbackRate.value = InstrumentUtil.tuneBufferPlayback( oscillator );
-                }
+                else if ( generator instanceof AudioBufferSourceNode )
+                    generator.playbackRate.value = InstrumentUtil.tuneBufferPlayback( oscillator );
             }
-        }
+        });
     },
 
     /**
@@ -121,20 +119,16 @@ const InstrumentUtil =
      */
     adjustEventVolume( events, oscillatorIndex, oscillator )
     {
-        let i = events.length,
-            event, voice;
+        events.forEach(event => {
 
-        while ( i-- )
-        {
-            if ( event = events[ i ] ) {
+            if (!event)
+                return;
 
-                if ( event.length > oscillatorIndex ) {
-
-                    voice = event[ oscillatorIndex ];
-                    voice.gain.gain.value = oscillator.volume;
-                }
+            if ( event.length > oscillatorIndex ) {
+                const voice = event[ oscillatorIndex ];
+                voice.gain.gain.value = oscillator.volume;
             }
-        }
+        });
     },
 
     /**
@@ -152,19 +146,17 @@ const InstrumentUtil =
         if ( !( table instanceof PeriodicWave ))
             return;
 
-        let i = events.length, event, generator;
+        events.forEach(event => {
 
-        while ( i-- )
-        {
-            if ( event = events[ i ] ) {
+            if (!event)
+                return;
 
-                if ( event.length > oscillatorIndex ) {
-
-                    if (( generator = event[ oscillatorIndex].generator ) instanceof OscillatorNode )
-                        generator.setPeriodicWave( table );
-                }
+            if ( event.length > oscillatorIndex ) {
+                const generator = event[oscillatorIndex].generator;
+                if (generator instanceof OscillatorNode )
+                    generator.setPeriodicWave(table);
             }
-        }
+        });
     },
 
     /**
@@ -173,10 +165,10 @@ const InstrumentUtil =
      * @param {{ note: string, octave: number }} pitch
      * @param {INSTRUMENT} instrument to play back the note on
      * @param {boolean=} record whether to record the note into given instruments pattern list
-     * @param {boolean} isSequencerPlaying
+     * @param {Object} store root Vuex store
      * @return {AUDIO_EVENT|null}
      */
-    noteOn( pitch, instrument, record, isSequencerPlaying )
+    noteOn( pitch, instrument, record, store )
     {
         const id = pitchToUniqueId( pitch );
 
@@ -192,7 +184,7 @@ const InstrumentUtil =
         Pubsub.publishSync( Messages.NOTE_ON, [ audioEvent, instrument ]);
 
         if ( record )
-            recordEventIntoSong( audioEvent, isSequencerPlaying );
+            recordEventIntoSong( audioEvent, store );
 
         return audioEvent;
     },
@@ -200,22 +192,22 @@ const InstrumentUtil =
     /**
      * @public
      * @param {{ note: string, octave: number }} pitch
-     * @param {boolean} isSequencerPlaying
+     * @param {Object} store root Vuex store
     */
-    noteOff( pitch, isSequencerPlaying )
+    noteOff( pitch, store )
     {
-        const id         = pitchToUniqueId( pitch );
-        const audioEvent = playingNotes[ id ];
+        const id      = pitchToUniqueId( pitch );
+        const eventVO = playingNotes[ id ];
 
-        if ( audioEvent ) {
-            Pubsub.publishSync( Messages.NOTE_OFF, [ audioEvent.event, audioEvent.instrument ]);
+        if ( eventVO ) {
+            Pubsub.publishSync( Messages.NOTE_OFF, [ eventVO.event, eventVO.instrument ]);
 
-            if ( audioEvent.recording ) {
-                const offEvent = EventFactory.createAudioEvent( audioEvent.instrument.id );
+            if ( eventVO.recording ) {
+                const offEvent = EventFactory.createAudioEvent( eventVO.instrument.id );
                 offEvent.action = 2; // noteOff
-                recordEventIntoSong( offEvent, isSequencerPlaying );
+                recordEventIntoSong( offEvent, store );
             }
-            audioEvent.event.recording   = false;
+            Vue.set(eventVO.event, 'recording', false);
            // audioEvent.event.seq.playing = false;
         }
         delete playingNotes[ id ];
@@ -230,18 +222,17 @@ function pitchToUniqueId( pitch ) {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent, isSequencerPlaying ) {
-
-    if ( isSequencerPlaying ) {
+function recordEventIntoSong( audioEvent, store )
+{
+    if ( store.state.sequencer.playing ) {
 
         // sequencer is playing, add event at current step
 
-        const editorModel   = efflux.EditorModel;
-        const song          = efflux.activeSong;
-        const activePattern = editorModel.activePattern;
+        const song          = store.state.song.activeSong;
+        const activePattern = store.state.sequencer.activePattern;
         const pattern       = song.patterns[ activePattern ];
-        const channel       = pattern.channels[ editorModel.activeInstrument ];
-        const step          = Math.round( sequencerModule.position.step / 64 * editorModule.amountOfSteps );
+        const channel       = pattern.channels[ store.state.editor.activeInstrument ];
+        const step          = Math.round( store.getters.position.step / 64 * store.getters.amountOfSteps );
 
         EventUtil.setPosition(
             audioEvent, pattern, activePattern, step, song.meta.tempo
@@ -251,12 +242,12 @@ function recordEventIntoSong( audioEvent, isSequencerPlaying ) {
 
         // if an event was present at given position, retain it's module parameter actions
         if ( existingEvent )
-            audioEvent.mp = existingEvent.mp;
+            audioEvent.mp = { ...existingEvent.mp };
 
-        channel[ step ] = audioEvent;
+        Vue.set(channel, step, audioEvent );
 
         // update linked list for AudioEvents
-        EventUtil.linkEvent( audioEvent, editorModel.activeInstrument, efflux.activeSong, efflux.eventList );
+        EventUtil.linkEvent( audioEvent, store.state.sequencer.activeInstrument, song, store.state.editor.eventList );
 
         Pubsub.publish( Messages.REFRESH_PATTERN_VIEW ); // ensure we can see the note being added
     }
@@ -264,6 +255,11 @@ function recordEventIntoSong( audioEvent, isSequencerPlaying ) {
         // sequencer isn't playing, add event at current editor step
         // unless it is a noteOff, let the user add it explicitly
         if ( audioEvent.action !== 2 )
-            Pubsub.publishSync( Messages.ADD_EVENT_AT_POSITION, [ audioEvent, { newEvent: true } ]);
+            store.commit('addEventAtPosition', {
+                store, event: audioEvent,
+                optData: {
+                    newEvent: true,
+                },
+            });
     }
 }

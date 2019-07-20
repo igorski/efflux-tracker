@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import EventFactory from "../model/factory/EventFactory";
+import Vue          from 'vue';
+import EventFactory from '../model/factory/EventFactory';
 
 const EventUtil =
 {
@@ -41,10 +42,12 @@ const EventUtil =
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
-        event.seq.length             = ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength;
-        event.seq.startMeasure       = patternNum;
-        event.seq.startMeasureOffset = eventOffset;
-        event.seq.endMeasure         = patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ));
+        const seq = event.seq;
+
+        Vue.set(seq, 'length', ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength);
+        Vue.set(seq, 'startMeasure', patternNum);
+        Vue.set(seq, 'startMeasureOffset', eventOffset);
+        Vue.set(seq, 'endMeasure', patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength )));
     },
 
     /**
@@ -103,8 +106,8 @@ const EventUtil =
 
     /**
      * create LinkedLists for all events present in given
-     * pattern lists. The SequencerController will read
-     * from the LinkedList for a better performance
+     * pattern lists. The sequencer will read
+     * from the LinkedList for more performant results
      *
      * @public
      * @param {Array.<PATTERN>} patterns
@@ -113,13 +116,9 @@ const EventUtil =
     linkEvents( patterns, lists )
     {
         lists.forEach(( list, channelIndex ) => {
-
-            // clear existing list contents
-            list.flush();
-
+            list.flush(); // clear existing list contents
             patterns.forEach(( pattern ) => {
                 pattern.channels[ channelIndex ].forEach(( event ) => {
-
                     if ( event )
                         list.add( event );
                 });
@@ -156,7 +155,7 @@ const EventUtil =
                     updatePreviousEventLength( next, song.meta.tempo );
             }
         }
-        channel[ step ] = 0;
+        Vue.set(channel, step, 0);
     },
 
     /**
@@ -203,7 +202,7 @@ const EventUtil =
         for ( let i = step - 1; i >= 0; --i ) {
             previousEvent = channelEvents[ i ];
             if ( previousEvent &&
-                ( typeof optCompareFn !== "function" || optCompareFn( previousEvent ))) {
+                ( typeof optCompareFn !== 'function' || optCompareFn( previousEvent ))) {
                 return previousEvent;
             }
         }
@@ -264,8 +263,8 @@ const EventUtil =
 
         // ensure events glide their module parameter change
 
-        firstParam.glide  =
-        secondParam.glide = true;
+        Vue.set(firstParam,  'glide', true);
+        Vue.set(secondParam, 'glide', true);
 
         // find distance (in steps) between these two events
         // TODO: keep patterns' optional resolution differences in mind
@@ -277,15 +276,15 @@ const EventUtil =
             if ( typeof evt !== 'object' ) {
                 // event didn't exist... create it, insert into the channel and update LinkedList
                 evt = EventFactory.createAudioEvent( firstEvent.instrument );
-                channel[ eventIndex ] = evt;
+                Vue.set(channel, eventIndex, evt);
                 list.addAfter( prevEvent, evt );
                 EventUtil.setPosition( evt, pattern, patternIndex, eventIndex, song.meta.tempo );
             }
-            evt.mp = {
+            Vue.set(evt, 'mp', {
                 module: firstEvent.mp.module,
                 value: 0,
                 glide: true
-            };
+            });
             return evt;
         };
 
@@ -316,14 +315,16 @@ const EventUtil =
             // gliding value up
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event, index ) => {
-                event.mp.value = firstParam.value + (( index + 1 ) * increment );
+                const mp = event.mp;
+                Vue.set(mp, 'value', firstParam.value + (( index + 1 ) * increment));
             });
         }
         else {
             // gliding value down
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event, index ) => {
-                event.mp.value = firstParam.value + (( index + 1 ) * increment );
+                const mp = event.mp;
+                Vue.set(mp, 'value', firstParam.value + (( index + 1 ) * increment));
             });
         }
         return events;
@@ -334,20 +335,20 @@ function updatePreviousEventLength( eventListNode, songTempo ) {
 
     if ( eventListNode.previous ) {
 
-        const event     = eventListNode.data;
-        const prevEvent = eventListNode.previous.data;
+        const eventSeq     = eventListNode.data.seq;
+        const prevEventSeq = eventListNode.previous.data.seq;
 
-        if ( prevEvent.seq.startMeasure === event.seq.startMeasure ) {
-            prevEvent.seq.length = (
-                ( event.seq.startMeasureOffset - prevEvent.seq.startMeasureOffset )
+        if ( prevEventSeq.startMeasure === eventSeq.startMeasure ) {
+            Vue.set(prevEventSeq, 'length',
+                eventSeq.startMeasureOffset - prevEventSeq.startMeasureOffset
             );
         }
         else {
 
-            const currentStartMeasure = event.seq.startMeasure;
+            const currentStartMeasure = eventSeq.startMeasure;
             const measureLength       = calculateMeasureLength( songTempo );
-            let previousStartMeasure  = prevEvent.seq.startMeasure;
-            let length = measureLength - prevEvent.seq.startMeasureOffset;
+            let previousStartMeasure  = prevEventSeq.startMeasure;
+            let length = measureLength - prevEventSeq.startMeasureOffset;
             let i = 0;
 
             while ( previousStartMeasure < currentStartMeasure ) {
@@ -358,7 +359,7 @@ function updatePreviousEventLength( eventListNode, songTempo ) {
                 ++previousStartMeasure;
                 ++i;
             }
-            prevEvent.seq.length = length + event.seq.startMeasureOffset;
+            Vue.set(prevEventSeq, 'length', length + eventSeq.startMeasureOffset);
         }
     }
 }

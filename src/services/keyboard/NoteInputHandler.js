@@ -45,8 +45,8 @@ export default {
             InstrumentUtil.noteOn(
                 note,
                 state.song.activeSong.instruments[state.editor.activeInstrument],
-                state.editor.recordingInput,
-                state.sequencer.playing
+                state.sequencer.recording,
+                store
             );
         }
     },
@@ -54,7 +54,7 @@ export default {
     createNoteOffEvent( keyCode ) {
         const note = getNoteForKey(keyCode);
         if ( note !== null )
-            InstrumentUtil.noteOff(note, state.sequencer.playing);
+            InstrumentUtil.noteOff(note, store);
     }
 };
 

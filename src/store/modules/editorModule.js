@@ -85,7 +85,10 @@ export default {
 
         /**
          * linked list that is used to chain all song pattern
-         * events sequentially, used for fast editing
+         * events sequentially, used for fast lookup and editing
+         *
+         * NOTE: the linked list is NOT reactive, do not use
+         * Vue.set/delete on its properties.
          */
         list: null
     },

@@ -22,6 +22,8 @@
  */
 import Config              from '../../config';
 import SongFactory         from '../../model/factory/SongFactory';
+import StateFactory        from '../../model/factory/StateFactory';
+import States              from '../../definitions/States';
 import FixturesLoader      from '../../services/FixturesLoader';
 import SongAssemblyService from '../../services/SongAssemblyService';
 import SongValidator       from '../../model/validators/SongValidator';
@@ -90,6 +92,35 @@ export default {
             // update existing event offsets by the tempo ratio
 
             SongUtil.updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
+        },
+        /**
+         * adds given AudioEvent at the currently highlighted position or step defined in optData
+         *
+         * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
+         */
+        addEventAtPosition(state, { event, store, optData, optStoreInUndoRedo = true }) {
+            const undoRedoAction = StateFactory.getAction( States.ADD_EVENT, {
+                store,
+                event,
+                optEventData:  optData,
+                updateHandler: optHighlightActiveStep => {
+
+                    if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
+                        // move to the next step in the pattern (unless executed from undo/redo)
+                        const maxStep = store.state.song.activeSong.patterns[store.state.sequencer.activePattern].steps - 1;
+                        const targetStep = store.state.editor.activeStep + 1;
+
+                        if (targetStep <= maxStep)
+                            store.commit('setActiveStep', targetStep);
+
+                        store.commit('clearSelection');
+                        //View.highlightActiveStep();
+                        //View.focusActiveStep();
+                    }
+                }
+            });
+            if ( optStoreInUndoRedo )
+                store.commit('saveState', undoRedoAction );
         },
     },
     actions: {

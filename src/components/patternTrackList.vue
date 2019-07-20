@@ -155,6 +155,7 @@ export default {
             'setActivePattern',
             'setActiveSlot',
             'clearSelection',
+            'addEventAtPosition',
         ]),
         isStepSelected(channelIndex, stepIndex) {
             return this.selectedChannels[channelIndex] && this.selectedChannels[channelIndex].includes(stepIndex);
@@ -205,12 +206,10 @@ export default {
             return out;
         },
         removeEventAtHighlightedStep() {
-            Pubsub.publishSync(
-                Messages.SAVE_STATE,
+            this.saveState(
                 StateFactory.getAction( States.DELETE_EVENT, {
-                    efflux:        efflux,
-                    addHandler:    addEventAtPosition,
-                    updateHandler: PatternTrackListController.update
+                    store: this.$store,
+                    addHandler: this.addEventAtPosition
                 })
             );
         },
@@ -291,38 +290,7 @@ export default {
         addOffEvent() {
             const offEvent = EventFactory.createAudioEvent();
             offEvent.action = 2; // noteOff;
-            addEventAtPosition( offEvent );
-        },
-        /**
-         * adds given AudioEvent at the currently highlighted position or step defined in optData
-         *
-         * @param {AUDIO_EVENT} event
-         * @param {Object=} optData optional data with event properties
-         * @param {boolean=} optStoreInUndoRedo optional, whether to store in state history, defaults to true
-         */
-        addEventAtPosition( event, optData, optStoreInUndoRedo = true ) {
-            const undoRedoAction = StateFactory.getAction( States.ADD_EVENT, {
-                efflux:        efflux,
-                event:         event,
-                optEventData:  optData,
-                updateHandler: ( optHighlightActiveStep ) => {
-        
-                    if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
-                        // move to the next step in the pattern (unless executed from undo/redo)
-                        const maxStep = this.activeSong.patterns[this.activePattern].steps - 1;
-        
-                        if ( ++editorModel.activeStep > maxStep )
-                            editorModel.activeStep = maxStep;
-        
-                        selectionModel.clearSelection();
-                        View.highlightActiveStep();
-                        View.focusActiveStep();
-                    }
-                    PatternTrackListController.update();
-                }
-            });
-            if ( optStoreInUndoRedo )
-                Pubsub.publishSync( Messages.SAVE_STATE, undoRedoAction );
+            this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
     }
 };

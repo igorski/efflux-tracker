@@ -128,7 +128,6 @@ LinkedList.prototype.addAfter = function( existing, data ) {
 LinkedList.prototype.remove = function( object ) {
 
     if ( object instanceof Node ) {
-
         object.remove();
     }
     else if ( typeof object === "number" ) {
