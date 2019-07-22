@@ -93,14 +93,10 @@ export default
      * @public
      * @param {Array.<PATTERN>} patterns
      */
-    resetPlayState( patterns )
-    {
-        patterns.forEach(( pattern ) =>
-        {
-            pattern.channels.forEach(( channel ) =>
-            {
-                channel.forEach(( event ) =>
-                {
+    resetPlayState(patterns) {
+        patterns.forEach(pattern => {
+            pattern.channels.forEach(channel => {
+                channel.forEach(event => {
                     if ( event )
                         event.seq.playing = false;
                 });

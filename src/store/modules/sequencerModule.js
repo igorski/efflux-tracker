@@ -42,7 +42,7 @@ function enqueueEvent(store, event, eventChannel ) {
     const { beatAmount, nextNoteTime, activePattern, channelQueue } = store.state.sequencer;
     const activeSong = store.state.song.activeSong;
 
-    Vue.set(event.seq, 'playing', true); // lock the Event for further querying during its playback
+    event.seq.playing = true; // lock the Event for further querying during its playback
 
     // calculate the total duration for the event
 
@@ -51,7 +51,7 @@ function enqueueEvent(store, event, eventChannel ) {
     const eventPattern    = patterns[ activePattern ];
 
     if ( eventPattern )
-        Vue.set(event.seq, 'mpLength', patternDuration / eventPattern.steps);
+        event.seq.mpLength = patternDuration / eventPattern.steps;
 
     // play back the event in the AudioService
 
@@ -68,7 +68,7 @@ function enqueueEvent(store, event, eventChannel ) {
         let playing = queue.head;
 
         while ( playing ) {
-            dequeueEvent( store.state.sequencer, playing.data, nextNoteTime );
+            dequeueEvent(store.state.sequencer, playing.data, nextNoteTime);
             playing.remove();
             playing = queue.head;
         }
@@ -79,9 +79,9 @@ function enqueueEvent(store, event, eventChannel ) {
     // is enqueued for this events channel
 
     if ( !isNoteOn )
-        dequeueEvent( store.state.sequencer, event, nextNoteTime + event.seq.mpLength );
+        dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.mpLength);
     else
-        queue.add( event );
+        queue.add(event);
 }
 
 /**
@@ -93,11 +93,11 @@ function enqueueEvent(store, event, eventChannel ) {
  * @param {number} time
  */
 function dequeueEvent(state, event, time ) {
-    if ( !event.seq.playing )
+    if (!event.seq.playing)
         return;
 
     const clock = AudioUtil.createTimer( AudioService.getAudioContext(), time, () => {
-        Vue.set(event.seq, 'playing', false);
+        event.seq.playing = false;
         AudioService.noteOff(event);
         freeHandler(state, clock ); // clear reference to this timed event
     });
@@ -106,31 +106,20 @@ function dequeueEvent(state, event, time ) {
     state.queueHandlers.push( clock );
 }
 
-function clearPending({ state }) {
-    SongUtil.resetPlayState(state.song.activeSong.patterns); // unset playing state of existing events
-
-    let i = state.sequencer.queueHandlers.length;
-    while ( i-- )
-        freeHandler(state.sequencer, state.sequencer.queueHandlers[ i ]);
-
-    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-        state.sequencer.channelQueue[ i ].flush();
-}
-
 /**
  * free reference to given "clock" (makes it
  * eligible for garbage collection)
  *
  * @param {Object} state sequencer Vuex module state
- * @param {OscillatorNode} aNode
+ * @param {OscillatorNode} node
  */
-function freeHandler( state, aNode ) {
-    aNode.disconnect();
-    aNode.onended = null;
+function freeHandler(state, node) {
+    node.disconnect();
+    node.onended = null;
 
-    const i = state.queueHandlers.indexOf( aNode );
+    const i = state.queueHandlers.indexOf(node);
     if ( i !== -1 )
-        state.queueHandlers.splice( i, 1 );
+        state.queueHandlers.splice(i, 1);
 }
 
 function collect(store) {
@@ -190,8 +179,11 @@ function step(store) {
 
     // advance the beat number, wrap to zero when start of next bar is enqueued
 
-    if ( ++state.currentStep === state.stepPrecision ) {
-        state.currentStep = 0;
+    const currentStep = state.currentStep + 1;
+    store.commit('setCurrentStep', currentStep);
+
+    if (currentStep === state.stepPrecision) {
+        store.commit('setCurrentStep', 0);
 
         // advance the measure if the Sequencer wasn't looping
 
@@ -200,7 +192,7 @@ function step(store) {
 
         if (state.activePattern === totalMeasures) {
             // last measure reached, jump back to first
-            state.activePattern = 0;
+            store.commit('setActivePattern', 0);
 
             // stop playing if we're recording and looping is disabled
 
@@ -220,9 +212,9 @@ function step(store) {
 
                 state.metronome.enabled         = state.metronome.restore;
                 state.metronome.countInComplete = true;
-
-                state.activePattern        = 0;   // now we're actually starting!
                 state.firstMeasureStartTime = AudioService.getAudioContext().currentTime;
+
+                store.commit('setActivePattern', 0);
             }
         }
         store.commit('setActivePattern', state.activePattern );
@@ -280,10 +272,16 @@ export default {
                     state.metronome.enabled         = true;
                 }
                 state.currentStep = 0;  // always start from beginning
-                state.worker.postMessage({ "cmd" : "start" });
+                state.worker.postMessage({ 'cmd' : 'start' });
                 //Pubsub.publishSync( Messages.PLAYBACK_STARTED );
             } else {
-                state.worker.postMessage({ "cmd" : "stop" });
+                state.worker.postMessage({ 'cmd' : 'stop' });
+                let i = state.queueHandlers.length;
+                while ( i-- )
+                    freeHandler(state, state.queueHandlers[ i ]);
+
+                for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+                    state.channelQueue[i].flush();
                 //Pubsub.publishSync( Messages.PLAYBACK_STOPPED );
             }
         },

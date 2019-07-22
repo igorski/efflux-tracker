@@ -27,6 +27,7 @@ import ModuleParamHandler         from './keyboard/ModuleParamHandler';
 import ModuleValueHandler         from './keyboard/ModuleValueHandler';
 import Messages                   from '../definitions/Messages';
 import States                     from '../definitions/States';
+import EventFactory               from '../model/factory/EventFactory';
 import StateFactory               from '../model/factory/StateFactory';
 import EventUtil                  from '../utils/EventUtil';
 import Pubsub                     from 'pubsub-js';
@@ -356,7 +357,9 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 75: // K
-                    Pubsub.publishSync( Messages.ADD_OFF_AT_POSITION );
+                    const offEvent = EventFactory.createAudioEvent();
+                    offEvent.action = 2; // noteOff;
+                    store.commit('addEventAtPosition', { event: offEvent, store });
                     break;
 
                 case 76: // L

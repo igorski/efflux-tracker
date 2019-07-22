@@ -37,10 +37,10 @@ export default
     createAudioEvent( instrument, note, octave, action )
     {
         return {
-            instrument : ( typeof instrument === "number" ) ? instrument : 0,
-            note       : ( typeof note === "string" )       ? note       : "",
-            octave     : ( typeof octave === "number" )     ? octave     : 0,
-            action     : ( typeof action === "number" )     ? action     : 0,
+            instrument : ( typeof instrument === 'number' ) ? instrument : 0,
+            note       : ( typeof note === 'string' )       ? note       : '',
+            octave     : ( typeof octave === 'number' )     ? octave     : 0,
+            action     : ( typeof action === 'number' )     ? action     : 0,
             recording  : false,
             seq : {
                 playing            : false,

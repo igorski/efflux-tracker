@@ -135,9 +135,11 @@ export default {
         isPlaying(playing) {
             if (playing) {
                 this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
-            } else if(this.isRecording) {
-                this.setRecording(false);
-                this.clearPending();
+            } else {
+                if (this.isRecording) {
+                    this.setRecording(false);
+                }
+                SongUtil.resetPlayState(this.activeSong.patterns); // unset playing state of existing events
             }
         },
         isRecording(recording, wasRecording) {

@@ -241,7 +241,7 @@ const AudioService =
         if ( event.action === 1 ) { // 1 == noteOn
             Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
 
-            //console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
+            console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
 
             const frequency = Pitch.getFrequency( event.note, event.octave );
 
@@ -353,7 +353,7 @@ const AudioService =
     {
         const eventObject = instrumentEvents[ event.instrument ][ event.id ];
 
-        //console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
+        console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
 
         if ( eventObject ) {
 
