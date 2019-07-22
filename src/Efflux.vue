@@ -66,7 +66,7 @@ import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config';
 import ListenerUtil from './utils/ListenerUtil';
-import audioController from './js/controller/AudioController';
+import AudioService from './services/AudioService';
 import { Style } from 'zjslib';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
@@ -121,7 +121,7 @@ export default {
             'activeSlot',
         ]),
         canLaunch() {
-            return audioController.isSupported();
+            return AudioService.isSupported();
         },
     },
     watch: {
@@ -129,10 +129,14 @@ export default {
             // prevent scrolling main body when scrolling menu list
             window.document.body.style.overflow = isOpen ? 'hidden' : 'auto';
         },
-        activeSong(song) {
+        activeSong(song = null) {
             if (song == null)
                 return;
 
+            if (AudioService.initialized) {
+                AudioService.reset();
+                AudioService.cacheCustomTables(song.instruments);
+            }
             this.resetEditor();
             this.resetHistory();
             this.createLinkedList(song);

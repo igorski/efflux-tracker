@@ -167,7 +167,6 @@ export default {
             // update UI
 
             Pubsub.publish( Messages.REFRESH_SONG );
-            Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
 
             this.handleClose();
         },

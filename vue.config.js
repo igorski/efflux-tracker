@@ -1,4 +1,4 @@
-const MergeJsonWebpackPlugin = require("merge-jsons-webpack-plugin");
+const MergeJsonWebpackPlugin = require('merge-jsons-webpack-plugin');
 //const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = {
@@ -13,10 +13,18 @@ module.exports = {
 
                     test: /\.worker\.js$/,
                     use: { loader: 'worker-loader', options: { inline: true, fallback: false } }
+                },
+                {
+                    // we use DSP.js to provide Discrete Fourier Transform. This is a NPM module, but does not use
+                    // CommonJS / AMD / ES6 module. Include and inline in global namespace...
+
+                    test: /\.dspjs$/,
+                    use: [ 'script-loader' ]
                 }
             ]
         },
         plugins: [
+
             //new CopyWebpackPlugin([
             //    { from: '' },
             //]),

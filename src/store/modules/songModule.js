@@ -131,10 +131,12 @@ export default {
                         try {
                             commit('setSongs', JSON.parse( result ));
                         }
-                        catch ( e ) {}
+                        catch ( e ) {
+                            // that's fine...
+                        }
                     }
                 },
-                async ( error ) => {
+                async () => {
 
                     // no songs available ? load fixtures with "factory content"
 
@@ -222,7 +224,7 @@ export default {
                 fileBrowser.addEventListener('change', fileBrowserEvent => {
                     const reader = new FileReader();
 
-                    reader.onerror = readerEvent => {
+                    reader.onerror = () => {
                         reject(getters.getCopy('ERROR_FILE_LOAD'));
                     };
 

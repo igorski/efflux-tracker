@@ -13,14 +13,15 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED "AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioFactory from "../model/factory/AudioFactory";
+import dspjs from 'script-loader!dspjs'; // non CommonJS/ES6 module, provide "DFT" on window
+import AudioFactory from '../model/factory/AudioFactory';
 const d = window.document;
 
 export default
@@ -93,10 +94,10 @@ export default
 
         oscillator.frequency.value = frequencyInHertz;
 
-        if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 )
+        if ( typeof startTimeInSeconds !== 'number' || startTimeInSeconds === 0 )
             startTimeInSeconds = audioContext.currentTime;
 
-        if ( typeof durationInSeconds !== "number" )
+        if ( typeof durationInSeconds !== 'number' )
             durationInSeconds = 1;
 
         // oscillator will start, stop and can be garbage collected after going out of scope
@@ -110,10 +111,8 @@ export default
     },
 
     /**
-     * On iOS all audio is muted unless the engine has been initialized directly
-     * after a user event. As of Chrome 65 this is also expected for other
-     * environments, including desktops.
-     *
+     * On mobile (and an increasing number of desktop environments) all audio is muted
+     * unless the engine has been initialized directly after a user interaction.
      * This method will lazily create the AudioContext on the first click/touch/
      * keyboard interaction.
      *

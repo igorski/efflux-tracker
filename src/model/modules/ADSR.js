@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -45,8 +45,8 @@ export default {
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case "SINE":
-            case "TRIANGLE":
+            case 'SINE':
+            case 'TRIANGLE':
                 attack = ( ADSR.attack === 0 ) ? 0.002 : ADSR.attack;
                 break;
         }
@@ -80,8 +80,8 @@ export default {
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case "SINE":
-            case "TRIANGLE":
+            case 'SINE':
+            case 'TRIANGLE':
                 release = ( ADSR.release === 0 ) ? 0.002 : ADSR.release;
                 break;
         }
@@ -145,7 +145,7 @@ export default {
     {
         ADSR = /** @type {Object} */ ( oscillator.pitch );
 
-        if ( ADSR.range === 0 || typeof ADSR.org !== "number" )
+        if ( ADSR.range === 0 || typeof ADSR.org !== 'number' )
             return; // do not apply pitch envelopes if no deviating pitch range was defined
 
         envelope = ( generator instanceof AudioBufferSourceNode ) ? generator.playbackRate : generator.frequency;

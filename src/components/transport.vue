@@ -42,7 +42,7 @@
                 ></li>
                 <li class="icon-settings" @click="handleSettingsToggle"></li>
                 <li class="section-divider"><!-- x --></li>
-                <li id="patternBack" @click="handlePatternNavBack">&lt;&lt;</li>
+                <li id="patternBack" @click="gotoPreviousPattern">&lt;&lt;</li>
                 <li id="currentPattern">
                     <input class="current"
                            v-model="currentPatternValue"
@@ -53,7 +53,7 @@
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
-                <li id="patternNext" @click="handlePatternNavNext">&gt;&gt;</li>
+                <li id="patternNext" @click="gotoNextPattern">&gt;&gt;</li>
             </ul>
             <ul id="tempoControl" class="wrapper input range">
                 <li class="section-divider"><!-- x --></li>
@@ -158,10 +158,19 @@ export default {
                     });
                 });
             }
-        }
+        },
+        activePattern: {
+            immediate: true,
+            handler(value) {
+                const newSteps = this.activeSong.patterns[value].steps;
+                if (this.amountOfSteps !== newSteps) {
+                    this.setPatternSteps({ pattern: this.activeSong.patterns[this.activePattern], steps: newSteps });
+                }
+            }
+        },
     },
     created() {
-        this.prepareSequencer();
+        this.prepareSequencer(this.$store);
     },
     methods: {
         ...mapMutations([
@@ -177,6 +186,8 @@ export default {
             'setActivePattern',
             'setPatternSteps',
             'suspendKeyboardService',
+            'gotoPreviousPattern',
+            'gotoNextPattern',
         ]),
         ...mapActions([
             'prepareSequencer',
@@ -193,28 +204,6 @@ export default {
 
             body.classList.toggle( cssClass );
         },
-        handlePatternNavBack() {
-            if ( this.activePattern > 0 )
-                this.switchPattern( this.activePattern - 1 );
-        },
-        handlePatternNavNext() {
-            const max = this.activeSong.patterns.length - 1;
-
-            if ( this.activePattern < max )
-                this.switchPattern( this.activePattern + 1 );
-        },
-        switchPattern(newPattern) {
-            if ( this.activePattern === newPattern )
-                return;
-
-            this.setActivePattern(newPattern);
-
-            const newSteps = this.activeSong.patterns[newPattern].steps;
-            if ( this.amountOfSteps !== newSteps ) {
-                this.setPatternSteps({ pattern: this.activeSong.patterns[this.activePattern], steps: newSteps });
-                Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, newSteps );
-            }
-        }
     }
 };
 </script>

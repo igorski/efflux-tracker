@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
 /* private properties */
 
 // we assume that the audioContext works according to the newest standards
@@ -28,6 +27,18 @@
 // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
 // method names according to spec
 const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && typeof (new window.webkitAudioContext()).createGain === "function"));
+
+/* internal methods */
+
+// Pre-calculate the WaveShaper curves so that we can reuse them.
+const pulseCurve = new Float32Array( 256 );
+for ( let i = 0; i < 128; ++i ) {
+    pulseCurve[ i ]       = -1;
+    pulseCurve[ i + 128 ] = 1;
+}
+const constantOneCurve = new Float32Array( 2 );
+constantOneCurve[ 0 ] = 1;
+constantOneCurve[ 1 ] = 1;
 
 /**
  * AudioFactory provides wrapper methods to overcome
@@ -97,7 +108,7 @@ const AudioFactory =
    createPWM( audioContext, startTime, endTime, destination = audioContext.destination ) {
 
         const pulseOsc = audioContext.createOscillator();
-        pulseOsc.type  = "sawtooth";
+        pulseOsc.type  = 'sawtooth';
 
         // Shape the output into a pulse wave.
         const pulseShaper = audioContext.createWaveShaper();
@@ -132,7 +143,7 @@ const AudioFactory =
 
         // Add a low frequency oscillator to modulate the pulse-width.
         const lfo = audioContext.createOscillator();
-        lfo.type = "triangle";
+        lfo.type = 'triangle';
         lfo.frequency.value = 10;
 
         const lfoDepth = AudioFactory.createGainNode( audioContext );
@@ -145,7 +156,7 @@ const AudioFactory =
         lfo.stop(endTime);
 
         const filter = audioContext.createBiquadFilter();
-        filter.type = "lowpass";
+        filter.type = 'lowpass';
         filter.frequency.value = 16000;
         filter.frequency.exponentialRampToValueAtTime( 440, endTime );
         pulseOsc.connect( filter );
@@ -156,15 +167,3 @@ const AudioFactory =
 };
 
 export default AudioFactory;
-
-/* internal methods */
-
-// Pre-calculate the WaveShaper curves so that we can reuse them.
-const pulseCurve = new Float32Array( 256 );
-for ( let i = 0; i < 128; ++i ) {
-    pulseCurve[ i ]       = -1;
-    pulseCurve[ i + 128 ] = 1;
-}
-const constantOneCurve = new Float32Array( 2 );
-constantOneCurve[ 0 ] = 1;
-constantOneCurve[ 1 ] = 1;

@@ -91,10 +91,12 @@ export default {
                        try {
                            commit('setInstruments', JSON.parse( result ));
                        }
-                       catch ( e ) {}
+                       catch ( e ) {
+                           // that's fine...
+                       }
                    }
                },
-               async ( error ) => {
+               async () => {
 
                    // no instruments available ? load fixtures with "factory content"
                    commit('setLoading', true);
@@ -188,7 +190,7 @@ export default {
                 fileBrowser.addEventListener( 'change', fileBrowserEvent => {
                     const reader = new FileReader();
     
-                    reader.onerror = readerEvent => {
+                    reader.onerror = () => {
                         reject(getters.getCopy('ERROR_FILE_LOAD'));
                     };
     

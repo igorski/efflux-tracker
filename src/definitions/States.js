@@ -22,9 +22,9 @@
  */
 export default
 {
-    ADD_EVENT                : "S:0",
-    DELETE_EVENT             : "S:1",
-    DELETE_MODULE_AUTOMATION : "S:2",
-    CUT_SELECTION            : "S:3",
-    PASTE_SELECTION          : "S:4"
+    ADD_EVENT                : 'S:0',
+    DELETE_EVENT             : 'S:1',
+    DELETE_MODULE_AUTOMATION : 'S:2',
+    CUT_SELECTION            : 'S:3',
+    PASTE_SELECTION          : 'S:4'
 };

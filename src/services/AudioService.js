@@ -20,19 +20,26 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioFactory   from '../../model/factory/AudioFactory';
-import ModuleFactory  from '../../model/factory/ModuleFactory';
-import AudioUtil      from '../../utils/AudioUtil';
-import ModuleUtil     from '../../utils/ModuleUtil';
-import InstrumentUtil from '../../utils/InstrumentUtil';
-import Config         from '../../config';
-import Messages       from '../../definitions/Messages';
-import Pitch          from '../../definitions/Pitch';
-import WaveTables     from '../../definitions/WaveTables';
-import Copy           from '../../i18n/Copy';
-import ADSR           from '../../model/modules/ADSR';
+import Vue            from 'vue';
+import AudioFactory   from '../model/factory/AudioFactory';
+import ModuleFactory  from '../model/factory/ModuleFactory';
+import AudioUtil      from '../utils/AudioUtil';
+import ModuleUtil     from '../utils/ModuleUtil';
+import InstrumentUtil from '../utils/InstrumentUtil';
+import Config         from '../config';
+import Messages       from '../definitions/Messages';
+import Pitch          from '../definitions/Pitch';
+import WaveTables     from '../definitions/WaveTables';
+import Copy           from '../i18n/Copy';
+import ADSR           from '../model/modules/ADSR';
 import Recorder       from 'recorderjs';
 import Pubsub         from 'pubsub-js';
+
+
+/* private properties */
+
+let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
+    playing = false, recording = false, recorder;
 
 /* type definitions */
 
@@ -72,11 +79,6 @@ let EVENT_OBJECT;
  */
 let INSTRUMENT_MODULES;
 
-/* private properties */
-
-let efflux, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
-    playing = false, recording = false, recorder;
-
 /**
  * list that will contain all modules
  * for each instantiated instrument
@@ -93,83 +95,104 @@ let instrumentModules;
  */
 let instrumentEvents = [];
 
-const AudioController =
+const AudioService =
 {
+    initialized: false,
+
     /**
      * query whether we can actually use the WebAudio API in
      * the current application environment
      *
      * @return {boolean}
      */
-    isSupported()
-    {
-        return ( typeof AudioContext !== "undefined" ||
-                 typeof webkitAudioContext !== "undefined" );
+    isSupported() {
+        return ( typeof AudioContext !== 'undefined' ||
+                 typeof webkitAudioContext !== 'undefined' );
     },
 
     /**
-     * initializes the audioContent so we can
+     * initializes the audioContext so we can
      * synthesize audio using the WebAudio API
      *
-     * @public
-     * @param {Object} effluxRef
-     * @param {Array.<INSTRUMENT>} instruments to create WaveTables for
+     * @param {Object} storeReference the root Vuex store
+     * @return Promise
      */
-    init( effluxRef, instruments )
-    {
-        efflux = effluxRef;
+    init(storeReference) {
+        store = storeReference;
+        state = store.state;
 
-        // asynchronously generated AudioContext (after user interaction)
+        // NOTE: the audioContext is generated asynchronously after a user direction
+        // (e.g. click/touch/keydown anywhere in the document)
 
-        AudioUtil.init(( generatedContext ) => {
-            audioContext = generatedContext;
-            setupRouting();
+        return new Promise(resolve => {
+            AudioUtil.init(( generatedContext ) => {
+                audioContext = generatedContext;
+                setupRouting();
 
-            // initialize the WaveTable / AudioBuffer pool
+                // initialize the WaveTable / AudioBuffer pool
 
-            pool = {
-                NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
-                CUSTOM: [] // content created and maintained by "cacheCustomTables()"
-            };
+                pool = {
+                    NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
+                    CUSTOM: [] // content created and maintained by "cacheCustomTables()"
+                };
 
-            const noiseChannel = pool.NOISE.getChannelData( 0 );
-            for ( let i = 0, l = noiseChannel.length; i < l; ++i )
-              noiseChannel[ i ] = Math.random() * 2 - 1;
+                const noiseChannel = pool.NOISE.getChannelData( 0 );
+                for ( let i = 0, l = noiseChannel.length; i < l; ++i )
+                  noiseChannel[ i ] = Math.random() * 2 - 1;
 
-            // create periodic waves from the entries in the WaveTables definitions file
+                // create periodic waves from the entries in the WaveTables definitions file
 
-            Object.keys( WaveTables ).forEach(( waveIdentifier ) => {
-                pool[ waveIdentifier ] = audioContext.createPeriodicWave(
-                    new Float32Array( WaveTables[ waveIdentifier ].real ),
-                    new Float32Array( WaveTables[ waveIdentifier ].imag )
-                );
+                Object.keys(WaveTables).forEach(waveIdentifier => {
+                    pool[ waveIdentifier ] = audioContext.createPeriodicWave(
+                        new Float32Array( WaveTables[ waveIdentifier ].real ),
+                        new Float32Array( WaveTables[ waveIdentifier ].imag )
+                    );
+                });
+                AudioService.reset();
+                AudioService.cacheCustomTables(state.song.activeSong.instruments);
+
+                // subscribe to messages
+
+                [   Messages.SONG_LOADED,
+                    Messages.PLAYBACK_STARTED,
+                    Messages.PLAYBACK_STOPPED,
+                    Messages.APPLY_INSTRUMENT_MODULES,
+                    Messages.TOGGLE_OUTPUT_RECORDING,
+                    Messages.SET_CUSTOM_WAVEFORM,
+                    Messages.ADJUST_OSCILLATOR_TUNING,
+                    Messages.ADJUST_OSCILLATOR_VOLUME,
+                    Messages.ADJUST_OSCILLATOR_WAVEFORM,
+                    Messages.ADJUST_INSTRUMENT_VOLUME,
+                    Messages.UPDATE_FILTER_SETTINGS,
+                    Messages.UPDATE_DELAY_SETTINGS,
+                    Messages.UPDATE_EQ_SETTINGS,
+                    Messages.UPDATE_OVERDRIVE_SETTINGS,
+                    Messages.NOTE_ON,
+                    Messages.NOTE_OFF
+
+                ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
+
+                AudioService.initialized = true;
+                resolve(audioContext);
             });
+        });
+    },
 
-            AudioController.reset();
-            cacheCustomTables( instruments );
-
-            // subscribe to messages
-
-            [   Messages.SONG_LOADED,
-                Messages.PLAYBACK_STARTED,
-                Messages.PLAYBACK_STOPPED,
-                Messages.APPLY_INSTRUMENT_MODULES,
-                Messages.TOGGLE_OUTPUT_RECORDING,
-                Messages.SET_CUSTOM_WAVEFORM,
-                Messages.ADJUST_OSCILLATOR_TUNING,
-                Messages.ADJUST_OSCILLATOR_VOLUME,
-                Messages.ADJUST_OSCILLATOR_WAVEFORM,
-                Messages.ADJUST_INSTRUMENT_VOLUME,
-                Messages.UPDATE_FILTER_SETTINGS,
-                Messages.UPDATE_DELAY_SETTINGS,
-                Messages.UPDATE_EQ_SETTINGS,
-                Messages.UPDATE_OVERDRIVE_SETTINGS,
-                Messages.NOTE_ON,
-                Messages.NOTE_OFF
-
-            ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-
-            Pubsub.publishSync( Messages.AUDIO_CONTEXT_READY, audioContext );
+    /**
+     * cache the custom WaveTables that are available to the instruments
+     *
+     * @param {Array.<INSTRUMENT>} instruments
+     */
+    cacheCustomTables(instruments) {
+        instruments.forEach(( instrument, instrumentIndex ) => {
+            pool.CUSTOM[ instrumentIndex ] = new Array( instrument.oscillators.length );
+            instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
+                if ( oscillator.table ) {
+                    pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createTableFromCustomGraph(
+                     instrumentIndex, oscillatorIndex, oscillator.table
+                    );
+                }
+            });
         });
     },
 
@@ -177,21 +200,18 @@ const AudioController =
      * halts all playing audio, flushed events and
      * resets unique event id counter
      */
-    reset()
-    {
-        instrumentEvents.forEach(( events, instrumentIndex ) => {
-
+    reset() {
+        instrumentEvents.forEach(events => {
             let i = events.length, event;
 
             while ( i-- ) {
                 event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
 
                 if ( event ) {
-                    event.forEach(( voice, oscillatorIndex ) => AudioFactory.stopOscillation( voice.generator ));
+                    event.forEach(( voice, oscillatorIndex ) => AudioFactory.stopOscillation(voice.generator));
                 }
             }
         });
-
         instrumentEvents = new Array( Config.INSTRUMENT_AMOUNT );
         for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
             instrumentEvents[ i ] = [];
@@ -206,45 +226,41 @@ const AudioController =
      *
      * @return {AudioContext}
      */
-    getContext()
-    {
+    getAudioContext() {
         return audioContext;
     },
 
     /**
      * synthesize the audio for given event at given startTime
      *
-     * @param {AUDIO_EVENT} aEvent
-     * @param {INSTRUMENT} aInstrument to playback the event
+     * @param {AUDIO_EVENT} event
+     * @param {INSTRUMENT} instrument to playback the event
      * @param {number=} startTimeInSeconds optional, defaults to current time
      */
-    noteOn( aEvent, aInstrument, startTimeInSeconds )
-    {
-        if ( aEvent.action === 1 ) // noteOn
-        {
-            aEvent.id = ( ++UNIQUE_EVENT_ID ); // create unique event identifier
+    noteOn( event, instrument, startTimeInSeconds ) {
+        if ( event.action === 1 ) { // 1 == noteOn
+            Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
 
-            //console.log("NOTE ON FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
+            //console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
 
-            const frequency = Pitch.getFrequency( aEvent.note, aEvent.octave );
+            const frequency = Pitch.getFrequency( event.note, event.octave );
 
-            if ( typeof startTimeInSeconds !== "number" )
+            if ( typeof startTimeInSeconds !== 'number' )
                 startTimeInSeconds = audioContext.currentTime;
 
             let oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
-            const modules   = instrumentModules[ aInstrument.id ];
+            const modules   = instrumentModules[ instrument.id ];
 
-            aInstrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) =>
-            {
+            instrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) => {
                 if ( oscillatorVO.enabled ) {
 
-                    voice = aInstrument.oscillators[ oscillatorIndex ];
+                    voice = instrument.oscillators[ oscillatorIndex ];
                     const oscillatorGain = AudioFactory.createGainNode( audioContext );
                     let generatorNode;
 
                     // buffer source ? assign it to the oscillator
 
-                    if ( oscillatorVO.waveform === "NOISE" ) {
+                    if ( oscillatorVO.waveform === 'NOISE' ) {
 
                         generatorNode = audioContext.createBufferSource();
                         generatorNode.buffer = pool.NOISE;
@@ -255,7 +271,7 @@ const AudioController =
 
                         // has oscillator source
 
-                        if ( oscillatorVO.waveform === "PWM" ) {
+                        if ( oscillatorVO.waveform === 'PWM' ) {
                             // PWM uses a custom Oscillator type
                             generatorNode = AudioFactory.createPWM(
                                 audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorGain
@@ -267,10 +283,10 @@ const AudioController =
                             generatorNode = audioContext.createOscillator();
                             let table;
 
-                            if ( oscillatorVO.waveform !== "CUSTOM" )
+                            if ( oscillatorVO.waveform !== 'CUSTOM' )
                                 table = pool[ oscillatorVO.waveform ];
                             else
-                                table = pool.CUSTOM[ aInstrument.id ][ oscillatorIndex ];
+                                table = pool.CUSTOM[ instrument.id ][ oscillatorIndex ];
 
                             if ( !table ) // no table ? that's a bit of a problem. what did you break!?
                                 return;
@@ -290,8 +306,10 @@ const AudioController =
                     // route oscillator to track gain > envelope gain > instrument gain
 
                     oscillatorGain.gain.value = oscillatorVO.volume;
-                    if ( oscillatorVO.waveform !== "PWM" )
+
+                    if ( oscillatorVO.waveform !== 'PWM' )
                         generatorNode.connect( oscillatorGain );
+
                     oscillatorGain.connect( adsrNode );
                     adsrNode.connect( modules.output );
 
@@ -309,17 +327,17 @@ const AudioController =
                     }));
                 }
             });
-            instrumentEvents[ aInstrument.id ][ aEvent.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
+            instrumentEvents[ instrument.id ][ event.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
         }
 
         // module parameter change specified ? process it inside the ModuleUtil
 
-        if ( aEvent.mp ) {
+        if (event.mp) {
             ModuleUtil.applyModuleParamChange(
-                aEvent,
-                instrumentModules[ aInstrument.id ],
-                efflux.activeSong.instruments[ aInstrument.id ],
-                instrumentEvents[ aInstrument.id ],
+                event,
+                instrumentModules[ instrument.id ],
+                instrument,
+                instrumentEvents[ instrument.id ],
                 startTimeInSeconds || audioContext.currentTime,
                 masterBus
             );
@@ -329,18 +347,17 @@ const AudioController =
     /**
      * immediately stop playing audio for the given event
      *
-     * @param {AUDIO_EVENT} aEvent
-     * @param {INSTRUMENT} aInstrument playing back the event
+     * @param {AUDIO_EVENT} event
      */
-    noteOff( aEvent, aInstrument )
+    noteOff( event )
     {
-        const eventObject = instrumentEvents[ aInstrument.id ][ aEvent.id ];
+        const eventObject = instrumentEvents[ event.instrument ][ event.id ];
 
-        //console.log("NOTE OFF FOR " + aEvent.id + " ( " + aEvent.note + aEvent.octave + ") @ " + audioContext.currentTime );
+        //console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
 
         if ( eventObject ) {
 
-            const modules = instrumentModules[ aInstrument.id ];
+            const modules = instrumentModules[ event.instrument ];
 
             eventObject.forEach(( event ) =>
             {
@@ -358,7 +375,7 @@ const AudioController =
                     handleOscillatorStop.bind( oscillator, output, modules ));
             });
         }
-        delete instrumentEvents[ aInstrument.id ][ aEvent.id ];
+        delete instrumentEvents[ event.instrument ][ event.id ];
     }
 };
 
@@ -380,7 +397,7 @@ function handleBroadcast( type, payload )
 
         case Messages.PLAYBACK_STOPPED:
             playing = false;
-            AudioController.reset();
+            AudioService.reset();
             if ( recording && recorder ) {
                 recorder.stop();
                 recorder.exportWAV();
@@ -390,11 +407,6 @@ function handleBroadcast( type, payload )
         case Messages.TOGGLE_OUTPUT_RECORDING:
             recording = !recording;
             applyRecordingState();
-            break;
-
-        case Messages.SONG_LOADED:
-            AudioController.reset();
-            cacheCustomTables( payload.instruments );
             break;
 
         case Messages.SET_CUSTOM_WAVEFORM:
@@ -447,11 +459,11 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.NOTE_ON:
-            AudioController.noteOn( payload[ 0 ], payload[ 1 ]);
+            AudioService.noteOn( payload[ 0 ], payload[ 1 ]);
             break;
 
         case Messages.NOTE_OFF:
-            AudioController.noteOff( payload[ 0 ], payload[ 1 ]);
+            AudioService.noteOff( payload[ 0 ], payload[ 1 ]);
             break;
     }
 }
@@ -529,29 +541,6 @@ function handleOscillatorStop( output, modules )
 }
 
 /**
- * cache the custom WaveTables that are available to the instruments
- *
- * @private
- * @param {Array.<INSTRUMENT>} instruments
- */
-function cacheCustomTables( instruments )
-{
-    instruments.forEach(( instrument, instrumentIndex ) =>
-    {
-        pool.CUSTOM[ instrumentIndex ] = new Array( instrument.oscillators.length );
-
-        instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
-
-            if ( oscillator.table ) {
-                pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createTableFromCustomGraph(
-                 instrumentIndex, oscillatorIndex, oscillator.table
-                );
-            }
-        });
-    });
-}
-
-/**
  * create a periodicWaveTable (which can be used with a OscillatorNode for playback)
  * from an Array of custom drawn points
  *
@@ -605,4 +594,4 @@ function handleRecordingComplete( blob )
     Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "RECORDING_SAVED" ));
 }
 
-export default AudioController;
+export default AudioService;

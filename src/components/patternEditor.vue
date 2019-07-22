@@ -65,8 +65,6 @@ export default {
 
                 // update model values
                 this.setPatternSteps({ pattern, steps: value });
-
-               Pubsub.publish( Messages.PATTERN_STEPS_UPDATED, value );
             }
         }
     },
@@ -102,9 +100,6 @@ export default {
                 return;
             }
             song.patterns = PatternUtil.addEmptyPatternAtIndex( patterns, this.activePattern + 1, this.amountOfSteps );
-        
-            Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
-
             this.setActivePattern(this.activePattern + 1);
         },
         handlePatternDelete() {
@@ -120,8 +115,6 @@ export default {
                     this.setActivePattern(this.activePattern - 1);
                 else
                     Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-        
-                Pubsub.publish( Messages.PATTERN_AMOUNT_UPDATED );
             }
         },
         handlePatternAdvanced() {

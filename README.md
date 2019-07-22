@@ -62,9 +62,9 @@ The model of Efflux' consists of the following actors (created via their respect
  * Instruments
  * Modules
  
-All of the latter are contained within a song. A song has a list of _PATTERNS_. A Pattern is basically a list
-of channels (one for each available track) and a descriptor for the amount of _steps_ the pattern holds (e.g.
-16, 32, 64, etc.).
+All of the latter are contained within a song (which is maintained by its own Vuex store module). A song has a list
+of _PATTERNS_. A Pattern is basically a list of channels (one for each available track) and a descriptor for the amount
+of _steps_ the pattern holds (e.g. 16, 32, 64, etc.).
 
 Each pattern has _AUDIO_EVENTS_. These describe an action that should happen at a given step within a patterns
 channel. These can be note on/note off instructions or module parameter automations, or both. An event references
@@ -106,33 +106,23 @@ Unit tests are run via Jest, which is installed as a dependency. You can run the
     npm run test
  
 Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
-the suffix "_.test_", e.g. _Functions.js_ will have a test file _Functions.test.js_.
-
-KNOWN BUGS
-----------
-
- * pitch down automation works in reverse...
- * delay module parameter mutations don't glide
- * delay time is clamped to 0 - 1 yet the application uses a different range
+the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.js_.
 
 ROADMAP
 -------
 
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
- * Minimize vendor libraries
  * Add pattern jump instructions
  * Add cut/paste icons for touch screen devices
- * Improve arrow key navigation within patterns (there are odd visual jumps when switching direction)
  * Implement Instrument mute / solo
 
-TODO VUE
---------
+TODO VUE MIGRATION
+------------------
 
 FONTS!
 REPLACE ALL INSTANCES OF WINDOW_RESIZE and WINDOW_SCROLL with watchers
 Record output
-SequencerWorker (Webpack Worker in Blob)
 igorski.nl share integration
 Bill Fruge Web MIDI on Linux??
 Overlays must be appended to blind (so don't need to watch setOverlayState for self removal)
@@ -157,7 +147,7 @@ TODO: force tracklist re-render (for instance toggle hex/pct in settings screen)
 
 submit to madewithvue :D
 
-LONG TERM TODO (make Git issues)
+LONG TERM TODO (make Git issues once Vue migration is in master)
 --------------
 
 vue i18n

@@ -32,7 +32,6 @@ export default
     HIDE_LOADER               : "SYSHL",
     SHOW_BLIND                : "SYSSB",
     HIDE_BLIND                : "SYSHB",
-    AUDIO_CONTEXT_READY       : "SYS:4", // payload is AudioContext
 
     // UI messages
 
@@ -56,7 +55,6 @@ export default
     TRANSFORM_LEGACY_SONG     : "SNGTF",  // payload is Song object
     REFRESH_SONG              : "SNG:3",
     REFRESH_PATTERN_VIEW      : "SNG:4",
-    PATTERN_STEPS_UPDATED     : "SNG:5",  // payload consists of number describing new pattern length
     CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
     APPLY_INSTRUMENT_MODULES  : "SNG:7",
 
@@ -71,9 +69,6 @@ export default
     TOGGLE_INPUT_RECORDING     : "SEQ:9",
     NOTE_ON                    : "SEQ:10",  // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
     NOTE_OFF                   : "SEQ:11", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    PATTERN_AMOUNT_UPDATED     : "SEQ:13",
-    PATTERN_JUMP_PREV          : "SEQ:14",
-    PATTERN_JUMP_NEXT          : "SEQ:15",
 
     // editor messages
 
@@ -90,7 +85,6 @@ export default
     REMOVE_NOTE_AT_POSITION             : "ED:11",
     REMOVE_PARAM_AUTOMATION_AT_POSITION : "ED:12",
     GLIDE_PARAM_AUTOMATIONS             : "ED:13",
-    SAVE_STATE                          : "ED:14", // payload is Object { undo: Function, redo: Function }
     EDIT_MOD_PARAMS_FOR_STEP            : "ED:15",
     EDIT_NOTE_FOR_STEP                  : "ED:16",
 };

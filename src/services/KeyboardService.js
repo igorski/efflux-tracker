@@ -256,7 +256,7 @@ function handleKeyDown( aEvent )
                 case 39: // right
 
                     if ( hasOption ) {
-                        Pubsub.publishSync( Messages.PATTERN_JUMP_NEXT );
+                        store.commit('gotoNextPattern', state.song.activeSong);
                     }
                     else {
                         if (setActiveSlot(state.editor.activeSlot + 1)) {
@@ -288,7 +288,7 @@ function handleKeyDown( aEvent )
                 case 37: // left
 
                     if ( hasOption ) {
-                        Pubsub.publishSync( Messages.PATTERN_JUMP_PREV );
+                        store.commit('gotoPreviousPattern');
                     }
                     else {
                         if (setActiveSlot(state.editor.activeSlot - 1)) {

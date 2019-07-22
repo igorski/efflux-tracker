@@ -117,6 +117,9 @@
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
 
+const SLOT_WIDTH  = 150;
+const SLOT_HEIGHT = 32;
+
 export default {
     computed: {
         ...mapState({
@@ -126,6 +129,7 @@ export default {
             activeStep: state => state.editor.activeStep,
             activeSlot: state => state.editor.activeSlot,
             selectedChannels: state => state.selection.selectedChannels,
+            windowSize: state => state.windowSize,
         }),
         ...mapGetters([
             'amountOfSteps',
@@ -137,17 +141,26 @@ export default {
     data: () => ({
         container: null,
         paramFormat: null,
+        containerWidth: 0,
+        containerHeight: 0,
     }),
     watch: {
         activePattern() {
             this.clearSelection();
             this.setActiveSlot(-1);
         },
+        activeStep() {
+            this.focusActiveStep();
+        },
+        windowSize() {
+            this.cacheDimensions();
+        },
     },
     mounted() {
         this.$nextTick(() => {
             this.container = this.$refs['container'];
             this.wrapper = this.$refs['wrapper'];
+            this.cacheDimensions();
         });
     },
     methods: {
@@ -157,6 +170,10 @@ export default {
             'clearSelection',
             'addEventAtPosition',
         ]),
+        cacheDimensions() {
+            this.containerWidth  = this.container.offsetWidth;
+            this.containerHeight = this.container.offsetHeight;
+        },
         isStepSelected(channelIndex, stepIndex) {
             return this.selectedChannels[channelIndex] && this.selectedChannels[channelIndex].includes(stepIndex);
         },
@@ -179,6 +196,34 @@ export default {
 
             this.container.scrollLeft = coordinates.x;
             this.container.scrollTop  = coordinates.y;
+        },
+        /**
+         * ensure the currently active step (after a keyboard navigation)
+         * is visible on screen
+         */
+        focusActiveStep() {
+            const top        = this.container.scrollTop;
+            const left       = this.container.scrollLeft;
+            const bottom     = top + this.containerHeight;
+            const right      = left + this.containerWidth;
+            const slotLeft   = this.activeInstrument * SLOT_WIDTH;
+            const slotRight  = ( this.activeInstrument + 1 ) * SLOT_WIDTH;
+            const slotTop    = this.activeStep * SLOT_HEIGHT;
+            const slotBottom = ( this.activeStep + 1 ) * SLOT_HEIGHT;
+
+            if ( slotBottom >= bottom ) {
+                this.container.scrollTop = slotBottom - this.containerHeight;
+            }
+            else if ( slotTop < top ) {
+                this.container.scrollTop = slotTop;
+            }
+
+            if ( slotRight >= right ) {
+                this.container.scrollLeft = ( slotRight - this.containerWidth ) + SLOT_WIDTH;
+            }
+            else if ( slotLeft < left ) {
+                this.container.scrollLeft = slotLeft;
+            }
         },
         formatModuleParam(data) {
             let out = ( data && data.glide ) ? 'G ' : '';
@@ -237,7 +282,7 @@ export default {
                 channelEvents, efflux.EditorModel.activeStep, ( compareEvent ) => {
                     return !!compareEvent.mp;
                 });
-            let createdEvents   = null;
+            let createdEvents = null;
         
             const addFn = () => {
                 const eventIndex = channelEvents.indexOf( event );
@@ -256,10 +301,10 @@ export default {
                 Pubsub.publish( Messages.SAVE_STATE, {
                     undo: () => {
                         createdEvents.forEach(( event ) => {
-                            if ( event.note === "" )
+                            if ( event.note === '' )
                                 EventUtil.clearEventByReference( this.activeSong, event, efflux.eventList );
                             else
-                                event.mp = null;
+                                Vue.set(event, 'mp', null);
                         });
                         Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
                     },

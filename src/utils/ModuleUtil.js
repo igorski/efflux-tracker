@@ -20,11 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-const Config    = require( "../config" );
-const Delay     = require( "../third_party/Delay" );
-const ArrayUtil = require( "../utils/ArrayUtil" );
-const Messages  = require( "../definitions/Messages" );
-const Pubsub    = require( "pubsub-js" );
+import Config    from '../config';
+import Delay     from '../third_party/Delay';
+import Messages  from '../definitions/Messages';
+import Pubsub    from 'pubsub-js';
+import { rangeToIndex } from '../utils/ArrayUtil';
 
 const ModuleUtil =
 {
@@ -104,44 +104,44 @@ const ModuleUtil =
         switch ( audioEvent.mp.module )
         {
             // gain effects
-            case "volume":
+            case 'volume':
                 applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds );
                 break;
 
             // pitch effects
-            case "pitchUp":
-            case "pitchDown":
+            case 'pitchUp':
+            case 'pitchDown':
                 applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds );
                 break;
 
             // filter effects
-            case "filterEnabled":
+            case 'filterEnabled':
                 modules.filter.filterEnabled = ( audioEvent.mp.value >= 50 );
                 ModuleUtil.applyRouting( modules, output );
                 break;
 
-            case "filterLFOEnabled":
-                instrument.filter.lfoType = ArrayUtil.rangeToIndex([ "off", "sine", "square", "sawtooth", "triangle" ], audioEvent.mp.value );
+            case 'filterLFOEnabled':
+                instrument.filter.lfoType = rangeToIndex([ 'off', 'sine', 'square', 'sawtooth', 'triangle' ], audioEvent.mp.value );
                 Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
                 break;
 
-            case "filterFreq":
-            case "filterQ":
-            case "filterLFOSpeed":
-            case "filterLFODepth":
+            case 'filterFreq':
+            case 'filterQ':
+            case 'filterLFOSpeed':
+            case 'filterLFODepth':
                 applyFilter( audioEvent, modules, startTimeInSeconds );
                 break;
 
             // delay effects
-            case "delayEnabled":
+            case 'delayEnabled':
                 modules.delay.delayEnabled = ( audioEvent.mp.value >= 50 );
                 ModuleUtil.applyRouting( modules, output );
                 break;
 
-            case "delayTime":
-            case "delayFeedback":
-            case "delayCutoff":
-            case "delayOffset":
+            case 'delayTime':
+            case 'delayFeedback':
+            case 'delayCutoff':
+            case 'delayOffset':
                 applyDelay( audioEvent, modules, startTimeInSeconds );
                 break;
         }
@@ -186,7 +186,7 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
 {
     const mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
-        goingUp = ( mp.module === "pitchUp" );
+        goingUp = ( mp.module === 'pitchUp' );
 
     let i, j, event, voice, generator, tmp, target;
 
@@ -241,19 +241,19 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
 
     switch ( mp.module )
     {
-        case "filterFreq":
+        case 'filterFreq':
             scheduleParameterChange( module.filter.frequency, target * Config.MAX_FILTER_FREQ, startTimeInSeconds, durationInSeconds, doGlide );
             break;
 
-        case "filterQ":
+        case 'filterQ':
             scheduleParameterChange( module.filter.Q, target * Config.MAX_FILTER_Q, startTimeInSeconds, durationInSeconds, doGlide );
             break;
 
-        case "filterLFOSpeed":
+        case 'filterLFOSpeed':
             scheduleParameterChange( module.lfo.frequency, target * Config.MAX_FILTER_LFO_SPEED, startTimeInSeconds, durationInSeconds, doGlide );
             break;
 
-        case "filterLFODepth":
+        case 'filterLFODepth':
             scheduleParameterChange( module.lfoAmp.gain,
                 ( target * Config.MAX_FILTER_LFO_DEPTH ) / 100 * module.filter.frequency.value,
                 startTimeInSeconds, durationInSeconds, doGlide
@@ -268,19 +268,19 @@ function applyDelay( audioEvent, modules, startTimeInSeconds )
 
     switch ( mp.module )
     {
-        case "delayTime":
+        case 'delayTime':
             module.delay = target * Config.MAX_DELAY_TIME;
             break;
 
-        case "delayFeedback":
+        case 'delayFeedback':
             module.feedback = target * Config.MAX_DELAY_FEEDBACK;
             break;
 
-        case "delayCutoff":
+        case 'delayCutoff':
             module.cutoff = target * Config.MAX_DELAY_CUTOFF;
             break;
 
-        case "delayOffset":
+        case 'delayOffset':
             module.offset = target * Config.MAX_DELAY_OFFSET;
             break;
     }

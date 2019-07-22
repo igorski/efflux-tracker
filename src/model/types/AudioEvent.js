@@ -25,14 +25,14 @@
 /**
  * type definition for a single AudioEvent
  *
- * "id" is assigned by the AudioController at playback
+ * "id" is assigned by the AudioService at playback
  *
  * the "action" property is an enumeration describing the action of the note, e.g.:
  * 0 = nothing, 1 = noteOn, 2 = noteOff (kills previous note)
  *
  * the "recording" property describes whether the event is currently being
- * recorded (won't be played back by the SequencerController as it is being
- * played back via the MidiController)
+ * recorded (won't be played back by the Sequencer as it is being
+ * played back via the MIDI module)
  *
  * the "seq" Object defines the properties for playback within the
  * Sequencer and defines values in seconds

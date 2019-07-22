@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-const MANUAL_ROOT = "https://www.igorski.nl/efflux/help/";
+const MANUAL_ROOT = 'https://www.igorski.nl/efflux/help/';
 
 export default
 {
@@ -28,7 +28,7 @@ export default
      * URLs to all online help pages
      */
     ONLINE_MANUAL          : MANUAL_ROOT,
-    PARAM_ENTRY_HELP       : MANUAL_ROOT + "automation",
-    NOTE_ENTRY_HELP        : MANUAL_ROOT + "note-entry",
-    INSTRUMENT_EDITOR_HELP : MANUAL_ROOT + "instrument-editor"
+    PARAM_ENTRY_HELP       : MANUAL_ROOT + 'automation',
+    NOTE_ENTRY_HELP        : MANUAL_ROOT + 'note-entry',
+    INSTRUMENT_EDITOR_HELP : MANUAL_ROOT + 'instrument-editor'
 };

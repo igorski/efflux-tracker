@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,10 +27,15 @@
  * tables are quite large (also you should have very little
  * interest in reading their contents!)
  */
+import SINE from './waves/Sine';
+import SAW from './waves/Saw';
+import TRIANGLE from './waves/Triangle';
+import SQUARE from './waves/Square';
+
 export default
 {
-    SINE    : require( "./waves/Sine" ),
-    SAW     : require( "./waves/Saw" ),
-    TRIANGLE: require( "./waves/Triangle" ),
-    SQUARE  : require( "./waves/Square" )
+    SINE,
+    SAW,
+    TRIANGLE,
+    SQUARE,
 };

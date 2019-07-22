@@ -20,9 +20,13 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+import Vue from 'vue';
 import Config from '../../config';
 import LinkedList from '../../utils/LinkedList';
 import Metronome from '../../utils/Metronome';
+import AudioUtil from '../../utils/AudioUtil';
+import SongUtil from '../../utils/SongUtil';
+import AudioService from '../../services/AudioService';
 import SequencerWorker from '../../workers/sequencer.worker.js';
 
 /* internal methods */
@@ -30,39 +34,41 @@ import SequencerWorker from '../../workers/sequencer.worker.js';
 // TODO: move these to a dedicated helper
 
 /**
- * @param {Object} state
- * @param {AUDIO_EVENT} aEvent
- * @param {number} aEventChannel channel the event belongs to
+ * @param {Object} store root Vuex store
+ * @param {AUDIO_EVENT} event
+ * @param {number} eventChannel channel the event belongs to
  */
-function enqueueEvent(state, aEvent, aEventChannel ) {
-    const { beatAmount, nextNoteTime, activePattern } = state;
-    aEvent.seq.playing = true; // lock the Event for further querying during its playback
+function enqueueEvent(store, event, eventChannel ) {
+    const { beatAmount, nextNoteTime, activePattern, channelQueue } = store.state.sequencer;
+    const activeSong = store.state.song.activeSong;
+
+    Vue.set(event.seq, 'playing', true); // lock the Event for further querying during its playback
 
     // calculate the total duration for the event
 
-    const patternDuration = ( 60 / efflux.activeSong.meta.tempo ) * beatAmount;
-    const patterns        = efflux.activeSong.patterns;
+    const patternDuration = ( 60 / activeSong.meta.tempo ) * beatAmount;
+    const patterns        = activeSong.patterns;
     const eventPattern    = patterns[ activePattern ];
 
     if ( eventPattern )
-        aEvent.seq.mpLength = patternDuration / eventPattern.steps;
+        Vue.set(event.seq, 'mpLength', patternDuration / eventPattern.steps);
 
-    // play back the event in the AudioController
+    // play back the event in the AudioService
 
-    audioController.noteOn( aEvent, efflux.activeSong.instruments[ aEvent.instrument ], nextNoteTime );
+    AudioService.noteOn( event, activeSong.instruments[ event.instrument ], nextNoteTime );
 
     // events must also be dequeued (as they have a fixed duration)
 
-    const isNoteOn = ( aEvent.action === 1 );
-    const queue    = state.channelQueue[ aEventChannel ];
+    const isNoteOn = ( event.action === 1 );
+    const queue    = channelQueue[ eventChannel ];
 
-    if ( aEvent.action !== 0 ) {
+    if ( event.action !== 0 ) {
 
         // all non-module parameter change events kill previously playing notes
         let playing = queue.head;
 
         while ( playing ) {
-            dequeueEvent( state, playing.data, nextNoteTime );
+            dequeueEvent( store.state.sequencer, playing.data, nextNoteTime );
             playing.remove();
             playing = queue.head;
         }
@@ -73,26 +79,26 @@ function enqueueEvent(state, aEvent, aEventChannel ) {
     // is enqueued for this events channel
 
     if ( !isNoteOn )
-        dequeueEvent( state, aEvent, aTime + aEvent.seq.mpLength );
+        dequeueEvent( store.state.sequencer, event, nextNoteTime + event.seq.mpLength );
     else
-        queue.add( aEvent );
+        queue.add( event );
 }
 
 /**
  * use a silent OscillatorNode as a strictly timed clock
- * for removing the AudioEvents from the AudioController
+ * for removing the AudioEvents from the AudioService
  *
- * @param {Object} state
- * @param {AUDIO_EVENT} aEvent
- * @param {number} aTime
+ * @param {Object} state sequencer Vuex module state
+ * @param {AUDIO_EVENT} event
+ * @param {number} time
  */
-function dequeueEvent( state, aEvent, aTime ) {
-    if ( !aEvent.seq.playing )
+function dequeueEvent(state, event, time ) {
+    if ( !event.seq.playing )
         return;
 
-    const clock = AudioUtil.createTimer( audioContext, aTime, ( aTimerEvent ) => {
-        aEvent.seq.playing = false;
-        audioController.noteOff( aEvent, efflux.activeSong.instruments[ aEvent.instrument ]);
+    const clock = AudioUtil.createTimer( AudioService.getAudioContext(), time, () => {
+        Vue.set(event.seq, 'playing', false);
+        AudioService.noteOff(event);
         freeHandler(state, clock ); // clear reference to this timed event
     });
 
@@ -100,22 +106,22 @@ function dequeueEvent( state, aEvent, aTime ) {
     state.queueHandlers.push( clock );
 }
 
-function clearPending(state) {
-    SongUtil.resetPlayState( efflux.activeSong.patterns ); // unset playing state of existing events
+function clearPending({ state }) {
+    SongUtil.resetPlayState(state.song.activeSong.patterns); // unset playing state of existing events
 
-    let i = state.queueHandlers.length;
+    let i = state.sequencer.queueHandlers.length;
     while ( i-- )
-        freeHandler(state, state.queueHandlers[ i ]);
+        freeHandler(state.sequencer, state.sequencer.queueHandlers[ i ]);
 
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-        state.channelQueue[ i ].flush();
+        state.sequencer.channelQueue[ i ].flush();
 }
 
 /**
  * free reference to given "clock" (makes it
  * eligible for garbage collection)
  *
- * @param {Object} state
+ * @param {Object} state sequencer Vuex module state
  * @param {OscillatorNode} aNode
  */
 function freeHandler( state, aNode ) {
@@ -127,21 +133,23 @@ function freeHandler( state, aNode ) {
         state.queueHandlers.splice( i, 1 );
 }
 
-function collect(state) {
+function collect(store) {
+    const state = store.state.sequencer;
+
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
     const sequenceEvents = !( state.recording && state.metronome.countIn && !state.metronome.countInComplete );
     let i, j, channel, event, compareTime;
 
-    while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime ))
+    while ( state.nextNoteTime < ( AudioService.getAudioContext().currentTime + state.scheduleAheadTime ))
     {
         if ( sequenceEvents )
         {
             compareTime = ( state.nextNoteTime - state.measureStartTime );
-            i = channels.length;
+            i = state.channels.length;
 
             while ( i-- )
             {
-                channel = channels[ i ];
+                channel = state.channels[ i ];
                 j = channel.length;
 
                 while ( j-- )
@@ -154,16 +162,16 @@ function collect(state) {
                          compareTime < ( event.seq.startMeasureOffset + event.seq.length ))
                     {
                         // enqueue into AudioContext queue at the right time
-                        enqueueEvent( state, event, i );
+                        enqueueEvent( store, event, i );
                     }
                 }
             }
         }
         if ( state.metronome.enabled ) // sound the metronome
-            state.metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, audioContext );
+            state.metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, AudioService.getAudioContext() );
 
         // advance to next step position
-        step(state);
+        step(store);
     }
 }
 
@@ -172,12 +180,13 @@ function collect(state) {
  * onto the next, when the end of pattern has been reached, the
  * pattern will either loop or we the Sequencer will progress onto the next pattern
  */
-function step(state) {
-    const song          = efflux.activeSong;
-    const totalMeasures = song.patterns.length;
+function step(store) {
+    const activeSong    = store.state.song.activeSong;
+    const totalMeasures = activeSong.patterns.length;
+    const state         = store.state.sequencer;
 
     // Advance current note and time by the given subdivision...
-    state.nextNoteTime += (( 60 / song.meta.tempo ) * 4 ) / state.stepPrecision;
+    state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
 
     // advance the beat number, wrap to zero when start of next bar is enqueued
 
@@ -186,19 +195,22 @@ function step(state) {
 
         // advance the measure if the Sequencer wasn't looping
 
-        if ( !state.looping && ++state.activePattern === totalMeasures ) {
+        if (!state.looping)
+            store.commit('gotoNextPattern', activeSong);
+
+        if (state.activePattern === totalMeasures) {
             // last measure reached, jump back to first
             state.activePattern = 0;
 
             // stop playing if we're recording and looping is disabled
 
-            if ( state.recording && !efflux.EditorModel.loopedRecording ) {
-                SequencerController.setPlaying( false );
+            if ( state.recording && !state.editor.loopedRecording ) {
+                store.commit('setPlaying', false );
                // Pubsub.publishSync( Messages.RECORDING_COMPLETE );
                 return;
             }
         }
-        SequencerController.setPosition( state.activePattern, state.nextNoteTime );
+        store.commit('setPosition', { activeSong, pattern: state.activePattern, currentTime: state.nextNoteTime });
 
         if ( state.recording )
         {
@@ -210,10 +222,10 @@ function step(state) {
                 state.metronome.countInComplete = true;
 
                 state.activePattern        = 0;   // now we're actually starting!
-                state.firstMeasureStartTime = audioContext.currentTime;
+                state.firstMeasureStartTime = AudioService.getAudioContext().currentTime;
             }
         }
-        switchPattern( activePattern );
+        store.commit('setActivePattern', state.activePattern );
     }
    // Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ state.currentStep, state.stepPrecision ]);
 }
@@ -284,40 +296,51 @@ export default {
         setActivePattern(state, value) {
             state.activePattern = value;
         },
+        gotoPreviousPattern(state) {
+            if (state.activePattern > 0)
+                state.activePattern = state.activePattern - 1;
+        },
+        gotoNextPattern(state, activeSong) {
+            const max = activeSong.patterns.length - 1;
+
+            if ( state.activePattern < max )
+                state.activePattern = state.activePattern + 1;
+        },
         setCurrentStep(state, step) {
             state.currentStep = step;
         },
         setPatternSteps(state, { pattern, steps }) {
             const oldAmount = pattern.steps;
             pattern.channels.forEach(( channel, index ) => {
-               const transformed = new Array(steps);
-               let i, j, increment;
+                const transformed = new Array(steps);
+                let i, j, increment;
 
-               // ensure that the Array contains non-empty values
-               for ( i = 0; i < steps; ++i ) {
-                   transformed[ i ] = 0;
-               }
+                // ensure that the Array contains non-empty values
+                for ( i = 0; i < steps; ++i ) {
+                    transformed[ i ] = 0;
+                }
 
-               if ( steps < oldAmount )
-               {
-                   // reducing resolution, e.g. changing from 32 to 16 steps
-                   increment = oldAmount / steps;
+                if ( steps < oldAmount )
+                {
+                    // reducing resolution, e.g. changing from 32 to 16 steps
+                    increment = oldAmount / steps;
 
-                   for ( i = 0, j = 0; i < steps; ++i, j += increment )
+                    for ( i = 0, j = 0; i < steps; ++i, j += increment )
                        transformed[ i ] = channel[ j ];
-              }
-               else {
-                   // increasing resolution, e.g. changing from 16 to 32 steps
-                   increment = steps / oldAmount;
+                }
+                else {
+                    // increasing resolution, e.g. changing from 16 to 32 steps
+                    increment = steps / oldAmount;
 
-                   for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
+                    for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
                        transformed[ j ] = channel[ i ];
-               }
-               pattern.channels[index] = transformed;
-           });
+                }
+                Vue.set(pattern.channels, index, transformed);
+                Vue.set(pattern, 'steps', steps);
+            });
         },
         /**
-         * set the sequencers position
+         * set the sequencers position to given target pattern and optional offset defined by currentTime
          *
          * @param {Object} state
          * @param {Object} activeSong
@@ -331,9 +354,9 @@ export default {
 
             if ( state.activePattern !== pattern )
                 state.currentStep = 0;
-            // TODO: get audioContext??
-            if ( typeof currentTime !== "number" )
-                currentTime = audioContext ? audioContext.currentTime : 0;
+
+            if ( typeof currentTime !== 'number' )
+                currentTime = AudioService.getAudioContext() ? AudioService.getAudioContext().currentTime : 0;
 
             state.activePattern         = pattern;
             state.nextNoteTime          = currentTime;
@@ -360,7 +383,7 @@ export default {
         }
     },
     actions: {
-        prepareSequencer({ state }) {
+        prepareSequencer({ state }, rootStore) {
             // create LinkedLists to store all currently playing events for all channels
 
             for ( let i = 0; i < state.channelQueue.length; ++i ) {
@@ -369,9 +392,9 @@ export default {
 
             // spawn Worker to handle the intervallic polling
             state.worker = new SequencerWorker();
-            state.worker.onmessage = msg => {
-                if ( msg.data.cmd === "collect" && state.isPlaying )
-                    collect(state);
+            state.worker.onmessage = ({ data }) => {
+                if ( data.cmd === 'collect' && state.playing )
+                    collect(rootStore);
             };
         }
     }

@@ -10,8 +10,8 @@ import selection from './modules/selectionModule';
 import settings from './modules/settingsModule';
 import sequencer from './modules/sequencerModule';
 import song from './modules/songModule';
-import audioController from '../js/controller/AudioController';
-import keyboardService from '../services/KeyboardService';
+import AudioService from '../services/AudioService';
+import KeyboardService from '../services/KeyboardService';
 
 Vue.use(Vuex);
 
@@ -118,10 +118,10 @@ export default new Vuex.Store({
          * service hooks
          */
         syncKeyboard() {
-            keyboardService.syncEditorSlot();
+            KeyboardService.syncEditorSlot();
         },
         suspendKeyboardService(state, isSuspended) {
-            keyboardService.setSuspended(!!isSuspended);
+            KeyboardService.setSuspended(!!isSuspended);
         },
         /**
          * cache the resize/scroll offsets in the store so
@@ -141,13 +141,14 @@ export default new Vuex.Store({
          * (audio outputs/inputs, keyboard, etc.) connected to the device
          * the application is running on.
          */
-        setupServices() {
+        setupServices({ commit }) {
             // cheat a little by giving the services access to the root store.
             // when synthesizing audio we need instant access to song events
             // nextTick()-based reactivity is too large of a latency
             const storeReference = this;
             return new Promise(resolve => {
-                keyboardService.init(storeReference);
+                AudioService.init(storeReference);
+                KeyboardService.init(storeReference);
                 resolve();
             });
         },

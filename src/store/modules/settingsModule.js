@@ -69,7 +69,9 @@ export default {
                         try {
                             commit('setStoredSettings', JSON.parse( result ));
                         }
-                        catch ( e ) {}
+                        catch ( e ) {
+                            // that's fine
+                        }
                     }
                 },
                 ( error ) => {

@@ -32,9 +32,6 @@ let efflux, editorModel, selectionModel, settingsModel, wrapper, container,
 
 let stepAmount = 0, rafPending = false, containerWidth = 0, containerHeight = 0, lastFollowStep = 0;
 
-const SLOT_WIDTH  = 150;
-const SLOT_HEIGHT = 32;
-
 const self = module.exports = {
 
     init( effluxRef, containerRef, wrapperRef ) {
@@ -50,7 +47,6 @@ const self = module.exports = {
 
         // initialize
         updateStepAmount( 16 );
-        cacheElementValues();
     },
 
     /**
@@ -79,9 +75,7 @@ const self = module.exports = {
         // subscribe to pubsub messaging
 
         [
-            Messages.WINDOW_RESIZED,
             Messages.SONG_LOADED,
-            Messages.PATTERN_STEPS_UPDATED,
             Messages.STEP_POSITION_REACHED,
             Messages.HIGHLIGHT_ACTIVE_STEP
 
@@ -228,52 +222,14 @@ const self = module.exports = {
             }
         }
     },
-
-    /**
-     * ensure the currently active step (after a keyboard navigation)
-     * is visible on screen
-     */
-    focusActiveStep() {
-
-        const top        = container.scrollTop;
-        const left       = container.scrollLeft;
-        const bottom     = top + containerHeight;
-        const right      = left + containerWidth;
-        const slotLeft   = editorModel.activeInstrument * SLOT_WIDTH;
-        const slotRight  = ( editorModel.activeInstrument + 1 ) * SLOT_WIDTH;
-        const slotTop    = editorModel.activeStep * SLOT_HEIGHT;
-        const slotBottom = ( editorModel.activeStep + 1 ) * SLOT_HEIGHT;
-
-        if ( slotBottom >= bottom ) {
-            container.scrollTop = slotBottom - containerHeight;
-        }
-        else if ( slotTop < top ) {
-            container.scrollTop = slotTop;
-        }
-
-        if ( slotRight >= right ) {
-            container.scrollLeft = ( slotRight - containerWidth ) + SLOT_WIDTH;
-        }
-        else if ( slotLeft < left ) {
-            container.scrollLeft = slotLeft;
-        }
-    }
 };
 
 /* internal methods */
 
 function handleBroadcast( type, payload ) {
     switch ( type ) {
-        case Messages.WINDOW_RESIZED:
-            cacheElementValues();
-            break;
-
         case Messages.SONG_LOADED:
             updateStepAmount( editorModel.amountOfSteps );
-            break;
-
-        case Messages.PATTERN_STEPS_UPDATED:
-            updateStepAmount( payload );
             break;
 
         case Messages.HIGHLIGHT_ACTIVE_STEP:
@@ -292,7 +248,7 @@ function handleBroadcast( type, payload ) {
 
                 const step  = payload[ 0 ],
                       total = payload[ 1 ],
-                      diff  = total / stepAmount;
+                      diff  = total / activeSong.patterns[activePattern].steps;
 
                 if ( step % diff !== 0 )
                     return;
@@ -301,14 +257,6 @@ function handleBroadcast( type, payload ) {
             });
             break;
     }
-}
-
-// cache container Rectangle on startup and window resize
-// this avoids DOM thrashing when performing scroll calculations
-
-function cacheElementValues() {
-    containerWidth  = container.offsetWidth;
-    containerHeight = container.offsetHeight;
 }
 
 function handleStep( step ) {
