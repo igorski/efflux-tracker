@@ -78,6 +78,7 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 
 import Config       from '../config';
 import AudioUtil    from '../utils/AudioUtil';
+import AudioService from '../services/AudioService';
 import EventUtil    from '../utils/EventUtil';
 import SongUtil     from '../utils/SongUtil';
 import Messages     from '../definitions/Messages';
@@ -133,6 +134,7 @@ export default {
     },
     watch: {
         isPlaying(playing) {
+            AudioService.togglePlayback(playing, this.activeSong);
             if (playing) {
                 this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
             } else {

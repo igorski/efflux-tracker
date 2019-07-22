@@ -273,7 +273,6 @@ export default {
                 }
                 state.currentStep = 0;  // always start from beginning
                 state.worker.postMessage({ 'cmd' : 'start' });
-                //Pubsub.publishSync( Messages.PLAYBACK_STARTED );
             } else {
                 state.worker.postMessage({ 'cmd' : 'stop' });
                 let i = state.queueHandlers.length;
@@ -282,7 +281,6 @@ export default {
 
                 for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
                     state.channelQueue[i].flush();
-                //Pubsub.publishSync( Messages.PLAYBACK_STOPPED );
             }
         },
         setLooping(state, isLooping) {

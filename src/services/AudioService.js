@@ -154,8 +154,6 @@ const AudioService =
                 // subscribe to messages
 
                 [   Messages.SONG_LOADED,
-                    Messages.PLAYBACK_STARTED,
-                    Messages.PLAYBACK_STOPPED,
                     Messages.APPLY_INSTRUMENT_MODULES,
                     Messages.TOGGLE_OUTPUT_RECORDING,
                     Messages.SET_CUSTOM_WAVEFORM,
@@ -194,6 +192,20 @@ const AudioService =
                 }
             });
         });
+    },
+
+    togglePlayback(isPlaying, song) {
+        playing = isPlaying;
+        if (playing) {
+            applyModules(song);
+            applyRecordingState();
+        } else {
+            AudioService.reset();
+            if (recording && recorder) {
+                recorder.stop();
+                recorder.exportWAV();
+            }
+        }
     },
 
     /**
@@ -241,7 +253,7 @@ const AudioService =
         if ( event.action === 1 ) { // 1 == noteOn
             Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
 
-            console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
+            //console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
 
             const frequency = Pitch.getFrequency( event.note, event.octave );
 
@@ -353,7 +365,7 @@ const AudioService =
     {
         const eventObject = instrumentEvents[ event.instrument ][ event.id ];
 
-        console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
+        //console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
 
         if ( eventObject ) {
 
@@ -385,24 +397,11 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
-        case Messages.PLAYBACK_STARTED:
-            playing = true;
-            applyModules();
-            applyRecordingState();
-            break;
-
         case Messages.APPLY_INSTRUMENT_MODULES:
             applyModules();
             break;
 
-        case Messages.PLAYBACK_STOPPED:
-            playing = false;
-            AudioService.reset();
-            if ( recording && recorder ) {
-                recorder.stop();
-                recorder.exportWAV();
-            }
-            break;
+
 
         case Messages.TOGGLE_OUTPUT_RECORDING:
             recording = !recording;
@@ -516,10 +515,10 @@ function createModules()
  * apply the module settings described in
  * the currently active songs model
  */
-function applyModules()
+function applyModules(song)
 {
     let instrumentModule;
-    efflux.activeSong.instruments.forEach(( instrument, index ) => {
+    song.instruments.forEach(( instrument, index ) => {
         instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;
         Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS,    [ instrument.id, instrument.filter ]);

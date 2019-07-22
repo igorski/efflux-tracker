@@ -122,10 +122,10 @@ TODO VUE MIGRATION
 
 FONTS!
 REPLACE ALL INSTANCES OF WINDOW_RESIZE and WINDOW_SCROLL with watchers
+Filters and modules
+Mouse and horizontal keyboard control
 Record output
 igorski.nl share integration
-Bill Fruge Web MIDI on Linux??
-Overlays must be appended to blind (so don't need to watch setOverlayState for self removal)
 check whether selections cut paste copy et al work
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub

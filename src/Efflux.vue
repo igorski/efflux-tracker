@@ -143,6 +143,7 @@ export default {
             this.setActiveInstrument(0);
             this.setActivePattern(0);
             this.setActiveStep(0);
+            this.setPlaying(false);
 
             if (!song.meta.title)
                 return;
@@ -208,6 +209,7 @@ export default {
             'setActiveStep',
             'setActiveInstrument',
             'setAmountOfSteps',
+            'setPlaying',
             'setWindowSize',
             'setWindowScrollOffset',
             'setBlindActive',
