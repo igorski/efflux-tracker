@@ -21,38 +21,41 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div>
+    <div id="instrumentEditor">
         <div class="header">
             <h2>Instrument editor</h2>
-            <button class="help-button">?</button>
-            <button class="close-button">x</button>
-            <select id="instrumentSelect">
-                <option value="0">Instrument 0</option>
-                <option value="1">Instrument 1</option>
-                <option value="2">Instrument 2</option>
-                <option value="3">Instrument 3</option>
-                <option value="4">Instrument 4</option>
-                <option value="5">Instrument 5</option>
-                <option value="6">Instrument 6</option>
-                <option value="7">Instrument 7</option>
+            <button class="help-button"
+                    @click="">?</button>
+            <button class="close-button"
+                    @click="$emit('close')">x</button>
+            <select id="instrumentSelect"
+                    v-model.number="instrument"
+            >
+                <option v-for="(instrument, idx) in instrumentAmount"
+                        :value="idx"
+                >Instrument {{ instrument }}</option>
             </select>
         </div>
-
         <ul id="oscillatorTabs" class="tabList">
-            <li data-oscillator="1">
+            <li :class="{ active: activeOscillatorIndex === 0 }"
+                @click="setActiveOscillatorIndex(0)"
+            >
                 Oscillator 1
             </li>
-            <li data-oscillator="2">
+            <li :class="{ active: activeOscillatorIndex === 1 }"
+                @click="setActiveOscillatorIndex(1)"
+            >
                 Oscillator 2
             </li>
-            <li data-oscillator="3">
+            <li :class="{ active: activeOscillatorIndex === 2 }"
+                @click="setActiveOscillatorIndex(2)"
+            >
                 Oscillator 3
             </li>
         </ul>
-
         <div class="horizontalGroup">
             <section id="instrumentOscillatorEditor">
-                <div id="canvasContainer"><!-- x --></div>
+                <div id="canvasContainer" ref="canvasContainer"><!-- x --></div>
                 <div class="oscillatorWaveforms">
                     <select id="oscillatorEnabled">
                         <option value="true">Enabled</option>
@@ -68,7 +71,6 @@
                         <option value="CUSTOM">Custom</option>
                     </select>
                 </div>
-
                 <div class="horizontalGroup">
                     <div id="oscillatorEditor" class="instrument-parameters">
                         <h2>Oscillator tuning</h2>
@@ -78,11 +80,13 @@
                         </div>
                         <div class="wrapper input range">
                             <label for="octaveShift">Octave shift</label>
-                            <input type="range" id="octaveShift" min="-2" max="2" step="1" value="0">
+                            <input type="range" id="octaveShift" min="-2" max="2" step="1" value="0"
+                            :disabled="{ disabled: activeOscillator.waveform === 'NOISE' }">
                         </div>
                         <div class="wrapper input range">
                             <label for="fineShift">Fine shift</label>
-                            <input type="range" id="fineShift" min="-7" max="7" step="1" value="0">
+                            <input type="range" id="fineShift" min="-7" max="7" step="1" value="0"
+                                   :disabled="{ disabled: activeOscillator.waveform === 'NOISE' }">
                         </div>
                         <div class="wrapper input range">
                             <label for="volume">Volume</label>
@@ -301,14 +305,107 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import zCanvas from 'zcanvas';
+import Config from '../../config';
+import Manual from '../../definitions/Manual';
+import WaveTableDraw from './components/WaveTableDraw';
+import InstrumentFactory from '../../model/factory/InstrumentFactory';
 
 export default {
+    data: () => ({
+        instrumentAmount: Config.INSTRUMENT_AMOUNT,
+        instrument: 0,
+        canvas: null,
+        wtDraw: null,
+    }),
+    computed: {
+        ...mapState([
+            'windowSize',
+        ]),
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            instrumentId: state => state.instrument.instrumentId,
+            activeOscillatorIndex: state => state.instrument.activeOscillatorIndex,
+        }),
+        instrumentRef() {
+            return this.activeSong.instruments[this.instrumentId];
+        },
+        activeOscillator() {
+            return this.instrumentRef.oscillators[this.activeOscillatorIndex];
+        },
+    },
+    watch: {
+        windowSize: {
+            immediate: true,
+            handler({ width, height }) {
+                if (this.canvas) {
+                    this.resizeWaveTableDraw(width, height);
+                }
+            },
+        },
+        activeOscillator(oscillator) {
+            if ( oscillator.waveform !== 'CUSTOM' )
+                this.wtDraw.generateAndSetTable(oscillator.waveform);
+            else
+                this.wtDraw.setTable(InstrumentFactory.getTableForOscillator(oscillator));
 
+          //  togglePitchSliders( oscillator.waveform !== "NOISE" ); // no pitch shifting for noise buffer
+        },
+    },
+    mounted() {
+        this.canvas = new zCanvas.canvas(512, 200); // 512 equals the size of the wave table (see InstrumentFactory)
+        this.canvas.setBackgroundColor('#000000');
+        this.canvas.insertInPage(this.$refs.canvasContainer);
+        this.wtDraw = new WaveTableDraw(this.canvas.getWidth(), this.canvas.getHeight(), this.handleWaveformUpdate);
+        this.resizeWaveTableDraw();
+    },
+    beforeDestroy() {
+        this.canvas.dispose();    
+    },
+    methods: {
+        ...mapMutations([
+            'setActiveOscillatorIndex',
+        ]),
+        resizeWaveTableDraw(width = window.innerWidth, height = window.innerHeight) {
+            const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
+            const targetWidth = ( width < ideal ) ? width *  0.9: ideal;
+
+            if (this.canvas.getWidth() !== targetWidth ) {
+                this.canvas.setDimensions(targetWidth, 200);
+                wtDraw._bounds.width = targetWidth;
+            }
+        },
+        handleWaveformUpdate(table) {
+            console.warn('update');
+            let oscillator;
+            if (this.instrumentRef) {
+                this.activeOscillator.table = table;
+
+                // when drawing, force the oscillator type to transition to custom
+                // and activate the oscillator (to make changes instantly audible)
+                if (this.activeOscillator.waveform !== "CUSTOM" ) {
+                    Form.setSelectedOption( oscWaveformSelect, "CUSTOM" );
+                    if ( !oscillator.enabled ) {
+                        oscillator.enabled = true;
+                        Form.setSelectedOption( oscEnabledSelect, true );
+                    }
+                    handleOscillatorWaveformChange( null );
+                }
+                else
+                    listener( self.EVENTS.CACHE_OSC );
+
+                invalidatePresetName();
+            }
+        },
+        handleHelp( aEvent ) {
+            window.open(Manual.INSTRUMENT_EDITOR_HELP, '_blank');
+        },
+    }
 };
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
+    @import '@/styles/_layout.scss';
 
     $idealInstrumentEditorWidth: 855px;
     $idealInstrumentEditorHeight: 580px;

@@ -121,10 +121,9 @@ TODO VUE MIGRATION
 ------------------
 
 FONTS!
-REPLACE ALL INSTANCES OF WINDOW_RESIZE and WINDOW_SCROLL with watchers
-Filters and modules
 Mouse and horizontal keyboard control
 Record output
+move instrumentModule active oscillator and instrument to editorModule
 igorski.nl share integration
 check whether selections cut paste copy et al work
 unit tests > jest

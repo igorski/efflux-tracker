@@ -543,10 +543,10 @@ function applyRecordingState() {
 function handleRecordingComplete(blob) {
     // download file to disk
 
-    const pom = document.createElement( 'a' );
-    pom.setAttribute( 'href', window.URL.createObjectURL( blob ));
-    pom.setAttribute( 'target', '_blank' ); // helps for Safari (opens content in window...)
-    pom.setAttribute( 'download', 'efflux-output.wav' );
+    const pom = document.createElement('a');
+    pom.setAttribute('href', window.URL.createObjectURL(blob));
+    pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
+    pom.setAttribute('download', 'efflux-output.wav');
     pom.click();
 
     // free recorder resources
@@ -555,7 +555,7 @@ function handleRecordingComplete(blob) {
     recorder  = null;
     recording = false;
 
-    window.URL.revokeObjectURL( blob );
+    window.URL.revokeObjectURL(blob);
 
     store.commit('showNotification', { message: store.getters.getCopy('RECORDING_SAVED') });
 }

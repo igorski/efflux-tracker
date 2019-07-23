@@ -38,6 +38,7 @@
         <div v-if="blindActive" id="blind">
             <template v-if="overlay">
                 <advanced-pattern-editor v-if="overlay === 'ape'" @close="closeOverlay" />
+                <instrument-editor v-if="overlay === 'ie'" @close="closeOverlay" />
                 <song-browser v-if="overlay === 'sngbr'" @close="closeOverlay" />
                 <settings-window v-if="overlay === 'settings'" @close="closeOverlay" />
             </template>
@@ -71,6 +72,7 @@ import { Style } from 'zjslib';
 import ApplicationHeader from './components/applicationHeader';
 import ApplicationFooter from './components/applicationFooter';
 import AdvancedPatternEditor from './components/advancedPatternEditor';
+import InstrumentEditor from './components/instrument-editor/instrumentEditor';
 import PatternEditor from './components/patternEditor';
 import PatternTrackList from './components/patternTrackList';
 import TrackEditor from './components/trackEditor';
@@ -92,6 +94,7 @@ export default {
         AdvancedPatternEditor,
         DialogWindow,
         HelpSection,
+        InstrumentEditor,
         Loader,
         Notification,
         PatternEditor,

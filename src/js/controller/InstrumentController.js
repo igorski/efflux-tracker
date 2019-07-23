@@ -53,7 +53,6 @@ const InstrumentController = module.exports =
             Messages.CLOSE_OVERLAYS,
             Messages.TOGGLE_INSTRUMENT_EDITOR,
             Messages.SONG_LOADED,
-            Messages.WINDOW_RESIZED
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -98,10 +97,6 @@ function handleBroadcast( type, payload ) {
 
             if ( payload !== InstrumentController )
                 View.remove();
-            break;
-
-        case Messages.WINDOW_RESIZED:
-            View.updateWaveformSize();
             break;
 
         case Messages.SONG_LOADED:

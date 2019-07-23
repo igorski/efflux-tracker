@@ -28,8 +28,6 @@ const Manual            = require( "../definitions/Manual" );
 const Messages          = require( "../definitions/Messages" );
 const Pubsub            = require( "pubsub-js" );
 const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
-const WaveTableDraw     = require( "../components/WaveTableDraw" );
-const zCanvas           = require( "zcanvas" );
 
 let efflux, model, listener, keyboardController;
 let element, canvas, wtDraw,
@@ -142,12 +140,6 @@ const self = module.exports = {
             odPreBandControl = element.querySelector( "#odPreBand" );
             odPostCutControl = element.querySelector( "#odPostCut" );
 
-            canvas = new zCanvas.canvas( 512, 200 ); // 512 equals the size of the wave table (see InstrumentFactory)
-            canvas.setBackgroundColor( "#000000" );
-            canvas.insertInPage( element.querySelector( "#canvasContainer" ));
-
-            wtDraw = new WaveTableDraw( canvas.getWidth(), canvas.getHeight(), handleWaveformUpdate );
-
             // add listeners
 
             element.querySelector( ".close-button" ).addEventListener  ( "click", ( e ) => listener( self.EVENTS.CLOSE ));
@@ -204,16 +196,12 @@ const self = module.exports = {
                 control.addEventListener( "input", handleOverdriveChange );
             }));
 
-            self.updateWaveformSize();
             listener( self.EVENTS.READY );
         });
     },
 
     update( instrumentRef, activeOscillatorIndex ) {
 
-        setActiveTab( element.querySelectorAll( "#oscillatorTabs li" ), activeOscillatorIndex );
-
-        const oscillator = getActiveOscillator();
         element.querySelector( "h2" ).innerHTML = "Editing " + instrumentRef.name;
 
         showWaveformForOscillator( oscillator );
@@ -267,16 +255,6 @@ const self = module.exports = {
         odPostCutControl.value = instrumentRef.overdrive.postCut;
     },
 
-    updateWaveformSize() {
-        const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
-        const windowWidth = window.innerWidth;
-        const width       = ( windowWidth < ideal ) ? windowWidth *  0.9: ideal;
-
-        if ( canvas.getWidth() !== width ) {
-            canvas.setDimensions( width, 200 );
-            wtDraw._bounds.width = width;
-        }
-    },
 
     inject( container ) {
         container.appendChild( element );
@@ -302,32 +280,6 @@ const self = module.exports = {
 
 /* event handlers */
 
-function handleWaveformUpdate( table ) {
-    let oscillator;
-    if ( model.instrumentRef ) {
-        oscillator       = getActiveOscillator();
-        oscillator.table = table;
-
-        // when drawing, force the oscillator type to transition to custom
-        // and activate the oscillator (to make changes instantly audible)
-        if ( oscillator.waveform !== "CUSTOM" ) {
-            Form.setSelectedOption( oscWaveformSelect, "CUSTOM" );
-            if ( !oscillator.enabled ) {
-                oscillator.enabled = true;
-                Form.setSelectedOption( oscEnabledSelect, true );
-            }
-            handleOscillatorWaveformChange( null );
-        }
-        else
-            listener( self.EVENTS.CACHE_OSC );
-
-        invalidatePresetName();
-    }
-}
-
-function handleHelp( aEvent ) {
-    window.open( Manual.INSTRUMENT_EDITOR_HELP, "_blank" );
-}
 
 function handleOscillatorTabClick( aEvent ) {
     const element = aEvent.target;
@@ -575,15 +527,6 @@ function handleInstrumentVolumeChange( aEvent ) {
 
 /* private methods */
 
-function showWaveformForOscillator( oscillator ) {
-    if ( oscillator.waveform !== "CUSTOM" )
-        wtDraw.generateAndSetTable( oscillator.waveform );
-    else
-        wtDraw.setTable( InstrumentFactory.getTableForOscillator( oscillator ));
-
-    togglePitchSliders( oscillator.waveform !== "NOISE" ); // no pitch shifting for noise buffer
-}
-
 function invalidatePresetName() {
     if ( model.instrumentRef.presetName !== null && presetNameInput.value.indexOf( "*" ) === -1 )
         presetNameInput.value += "*";
@@ -604,17 +547,4 @@ function setActiveTab( tabs, activeTab ) {
         else
             tabCSSList.remove( "active" );
     }
-}
-
-function togglePitchSliders( enabled ) {
-    [ octaveShiftControl, fineShiftControl ].forEach(( slider ) => {
-        if ( enabled )
-            slider.removeAttribute( "disabled" );
-        else
-            slider.setAttribute( "disabled", "disabled" );
-    });
-}
-
-function getActiveOscillator() {
-    return model.instrumentRef.oscillators[ model.activeOscillatorIndex ];
 }

@@ -38,7 +38,9 @@
                    @focus="handleFocusIn"
                    @blur="handleFocusOut"
             />
-            <button id="instrumentEditBtn">Instrument editor</button>
+            <button id="instrumentEditBtn"
+                    @click="handleInstrumentEditorClick"
+            >Instrument editor</button>
         </div>
     </section>
 </template>
@@ -74,6 +76,7 @@ export default {
             'setActiveSongTitle',
             'setHelpTopic',
             'suspendKeyboardService',
+            'setOverlay',
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
@@ -87,6 +90,9 @@ export default {
          */
         handleFocusOut() {
             this.suspendKeyboardService(false);
+        },
+        handleInstrumentEditorClick() {
+            this.setOverlay('ie');
         },
     }
 };

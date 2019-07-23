@@ -51,11 +51,6 @@ export default {
          * @type {number}
          */
         instrumentId : 0,
-
-        /**
-         * @type {INSTRUMENT}
-         */
-        instrumentRef : null
     },
     getters: {
         getInstruments(state) {
@@ -80,6 +75,9 @@ export default {
         },
         addInstrument(state, instrument) {
             state.instruments.push(instrument);
+        },
+        setActiveOscillatorIndex(state, index) {
+            state.activeOscillatorIndex = index;
         },
     },
     actions: {
