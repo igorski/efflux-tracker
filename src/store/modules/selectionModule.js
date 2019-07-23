@@ -441,11 +441,13 @@ const module = {
 
             ac.prevHorizontalKey = keyCode;
         },
+        setSelection(state, { selectionStart, selectionEnd }) {
+            setSelection(state, selectionStart, selectionEnd);
+        },
         equalizeSelection,
         copySelection,
         clearSelection,
         deleteSelection,
-        setSelection
     }
 };
 

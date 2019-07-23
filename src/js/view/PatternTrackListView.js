@@ -156,72 +156,6 @@ const self = module.exports = {
             }
         }
     },
-
-    /**
-     * handle the event when the user clicks/taps a slot within the pattern
-     *
-     * @public
-     * @param aEvent
-     * @param keyboardController
-     * @param patternTrackListController
-     */
-    handleSlotClick( aEvent, keyboardController, patternTrackListController ) {
-        grabPatternContainersFromTemplate();
-        const shiftDown = keyboardController.hasShift();
-        let selectionChannelStart = editorModel.activeInstrument,
-            selectionStepStart    = editorModel.activeStep;
-        let found = false, pContainer, items;
-
-        if ( selectionModel.hasSelection() ) {
-            selectionChannelStart = selectionModel.firstSelectedChannel;
-            selectionStepStart    = selectionModel.minSelectedStep;
-        }
-
-        for ( let i = 0, l = pContainers.length; i < l; ++i ) {
-
-            if ( found ) break;
-
-            pContainer = pContainers[ i ];
-            items = grabPatternContainerStepFromTemplate( i );
-
-            let j = items.length;
-            while ( j-- )
-            {
-                if ( items[ j ] === aEvent.target ) {
-
-                    if ( i !== editorModel.activeInstrument ) {
-                        editorModel.activeInstrument = i; // when entering a new channel lane, make default instrument match index
-                        editorModel.activeInstrument = i;
-                    }
-
-                    // if shift was held down, we're making a selection
-                    if ( shiftDown ) {
-                        selectionModel.setSelectionChannelRange( selectionChannelStart, i );
-                        selectionModel.setSelection( selectionStepStart, j );
-                    }
-                    else
-                        selectionModel.clearSelection();
-
-                    editorModel.activeStep = j;
-                    editorModel.activeSlot = -1;
-
-                    if ( !shiftDown && aEvent.type === "click" )
-                        selectSlotWithinClickedStep( aEvent );
-
-                    self.highlightActiveStep();
-
-                    keyboardController.setListener( patternTrackListController );
-
-                    if ( aEvent.type === "dblclick" ) {
-                        aEvent.preventDefault();
-                        patternTrackListController.editNoteForStep();
-                        found = true;
-                    }
-                    break;
-                }
-            }
-        }
-    },
 };
 
 /* internal methods */
@@ -285,43 +219,6 @@ function handleStep( step ) {
     self.highlightActiveStep();
 }
 
-function selectSlotWithinClickedStep( aEvent ) {
-    // only when supported, and even then not on Safari... =/
-    if ( !( "caretRangeFromPoint" in document ) || Bowser.safari )
-        return;
-
-    const el = document.caretRangeFromPoint( aEvent.clientX, aEvent.clientY );
-    let slot = 0;
-
-    if ( el && el.startContainer ) {
-        let startContainer = el.startContainer;
-        if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element ))
-            startContainer = startContainer.parentElement;
-
-        if ( startContainer.classList.contains( "moduleValue" ))
-            slot = 3;
-        else if ( startContainer.classList.contains( "moduleParam" ))
-            slot = 2;
-        else if ( startContainer.classList.contains( "instrument" ))
-            slot = 1;
-    }
-    editorModel.activeSlot = slot;
-}
-
 function updateStepAmount( amount ) {
     stepAmount = amount;
-}
-
-/**
- * function to retrieve and cache the currently available DOM containers
- * inside the pattern template
- *
- * @private
- */
-function grabPatternContainersFromTemplate() {
-    pContainers = pContainers || wrapper.querySelectorAll( ".pattern" );
-}
-
-function grabPatternContainerStepFromTemplate( i ) {
-    return ( pContainerSteps[ i ] = pContainerSteps[ i ] || pContainers[ i ].querySelectorAll( "li" ));
 }

@@ -62,11 +62,6 @@ const PatternTrackListController = module.exports =
 
         // add listeners
 
-        wrapper.addEventListener( "click",      handleInteraction );
-        wrapper.addEventListener( "dblclick",   handleInteraction );
-        ListenerUtil.listen( wrapper, "touchstart", handleInteraction );
-        ListenerUtil.listen( wrapper, "touchend",   handleInteraction );
-
         // subscribe to pubsub messaging
 
         [
@@ -84,11 +79,6 @@ const PatternTrackListController = module.exports =
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
-
-
-    editNoteForStep() {
-        this.setOverlay('nep');
-    }
 };
 
 /* private methods */

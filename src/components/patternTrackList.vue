@@ -23,7 +23,12 @@
 <template>
     <section id="patternTrackList">
         <div id="patternTrackListContainer" ref="container">
-            <div class="wrapper" ref="wrapper">
+            <div class="wrapper" ref="wrapper"
+                 @click="handleInteraction"
+                 @dblclick="handleInteraction"
+                 @touchstart.passive="handleInteraction"
+                 @touchend.passive="handleInteraction"
+            >
                 <ul class="indices">
                     <li v-for="step in amountOfSteps"
                         :key="`index_${step}`"
@@ -32,6 +37,7 @@
                 <ul v-for="(channel, channelIndex) in activeSongPattern.channels"
                     :key="`channel_${channelIndex}`"
                     class="pattern"
+                    ref="pattern"
                 >
                     <li v-for="(event, stepIndex) in channel"
                         :key="`channel_${channelIndex}_${stepIndex}`"
@@ -116,6 +122,8 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import KeyboardService from '../services/KeyboardService';
+import Bowser from 'bowser';
 
 const SLOT_WIDTH  = 150;
 const SLOT_HEIGHT = 32;
@@ -133,6 +141,7 @@ export default {
         }),
         ...mapGetters([
             'amountOfSteps',
+            'hasSelection',
         ]),
         activeSongPattern() {
             return this.activeSong.patterns[this.activePattern];
@@ -143,11 +152,14 @@ export default {
         paramFormat: null,
         containerWidth: 0,
         containerHeight: 0,
+        interactionData: { offset: 0, time: 0 },
+        pContainerSteps: [], // will cache DOM elements for interation events
     }),
     watch: {
         activePattern() {
             this.clearSelection();
             this.setActiveSlot(-1);
+            this.pContainerSteps = [];
         },
         activeStep() {
             this.focusActiveStep();
@@ -158,16 +170,21 @@ export default {
     },
     mounted() {
         this.$nextTick(() => {
-            this.container = this.$refs['container'];
-            this.wrapper = this.$refs['wrapper'];
+            this.container = this.$refs.container;
+            this.wrapper = this.$refs.wrapper;
             this.cacheDimensions();
         });
     },
     methods: {
         ...mapMutations([
+            'setActiveInstrument',
             'setActivePattern',
             'setActiveSlot',
+            'setActiveStep',
+            'setHelpTopic',
             'clearSelection',
+            'setSelectionChannelRange',
+            'setSelection',
             'addEventAtPosition',
         ]),
         cacheDimensions() {
@@ -313,20 +330,6 @@ export default {
             } else
                 Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_PARAM_GLIDE" ));
         },
-        handleInteraction( aEvent ) {
-            // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
-        
-            if ( aEvent.type === "touchstart" ) {
-                interactionData.offset = window.scrollY;
-                interactionData.time   = Date.now();
-                return;
-            }
-        
-            if ( aEvent.target.nodeName === "LI" )
-                View.handleSlotClick( aEvent, keyboardController, PatternTrackListController );
-        
-            Pubsub.publish( Messages.DISPLAY_HELP, "helpTopicTracker" );
-        },
         editModuleParamsForStep() {
             Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function() {
                 keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
@@ -336,6 +339,106 @@ export default {
             const offEvent = EventFactory.createAudioEvent();
             offEvent.action = 2; // noteOff;
             this.addEventAtPosition({ event: offEvent, store: this.$store });
+        },
+        handleInteraction(event) {
+            // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
+            if (event.type === 'touchstart' ) {
+                this.interactionData.offset = window.scrollY;
+                this.interactionData.time   = Date.now();
+                return;
+            }
+            if (event.target.nodeName === 'LI')
+                this.handleSlotClick(event);
+
+            this.setHelpTopic('tracker');
+        },
+        /**
+         * handle the event when the user clicks/taps a slot within the pattern
+         * WHY are we doing difficult manual calculations ? The easiest thing would be to
+         * add the listener directly on the slots themselves, but consider the excessive
+         * amount of event listeners that would attached to a large amount of DOM elements.
+         */
+        handleSlotClick(event) {
+            const pContainers = this.$refs.pattern;
+            const shiftDown = KeyboardService.hasShift();
+            let selectionChannelStart = this.activeInstrument,
+                selectionStepStart    = this.activeStep;
+            let found = false;
+
+            if (this.hasSelection) {
+                selectionChannelStart = selectionModel.firstSelectedChannel;
+                selectionStepStart    = selectionModel.minSelectedStep;
+            }
+
+            for ( let i = 0, l = pContainers.length; i < l; ++i ) {
+                if ( found ) break;
+
+                const pContainer = pContainers[ i ];
+                const items = this.grabPatternContainerStepFromTemplate(pContainer, i);
+
+                let j = items.length;
+                while ( j-- ) {
+                    if ( items[ j ] === event.target ) {
+                        if ( i !== this.activeInstrument ) {
+                            this.setActiveInstrument(i); // when entering a new channel lane, make default instrument match index
+                        }
+
+                        // if shift was held down, we're making a selection
+                        if ( shiftDown ) {
+                            this.setSelectionChannelRange({ firstChannel: selectionChannelStart, lastChannel: i });
+                            this.setSelection({ selectionStart: selectionStepStart, selectionEnd: j });
+                        }
+                        else
+                            this.clearSelection();
+
+                        this.setActiveStep(j);
+                        this.setActiveSlot(-1);
+
+                        if (!shiftDown && event.type === 'click')
+                            this.selectSlotWithinClickedStep(event);
+
+                        //keyboardController.setListener( patternTrackListController );
+
+                        if (event.type === 'dblclick') {
+                            event.preventDefault();
+                            this.setOverlay('nep'); // this.editNoteForStep
+                            found = true;
+                        }
+                        break;
+                    }
+                }
+            }
+        },
+        selectSlotWithinClickedStep(event) {
+            // only when supported, and even then not on Safari... =/
+            if ( !( 'caretRangeFromPoint' in document ) || Bowser.safari )
+                return;
+        
+            const el = document.caretRangeFromPoint(event.clientX, event.clientY);
+            let slot = 0;
+        
+            if ( el && el.startContainer ) {
+                let startContainer = el.startContainer;
+                if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element ))
+                    startContainer = startContainer.parentElement;
+        
+                if (startContainer.classList.contains('moduleValue'))
+                    slot = 3;
+                else if (startContainer.classList.contains('moduleParam'))
+                    slot = 2;
+                else if (startContainer.classList.contains('instrument'))
+                    slot = 1;
+            }
+            this.setActiveSlot(slot);
+        },
+        /**
+         * maintain a cache for step slots within a single pattern container
+         * this is a little more work for us, but prevents repeated DOM thrashing during heavy editing
+         */
+        grabPatternContainerStepFromTemplate(container, step) {
+            const stepElement = this.pContainerSteps[step] || container.querySelectorAll('li');
+            this.pContainerSteps[step] = stepElement;
+            return stepElement;
         },
     }
 };
