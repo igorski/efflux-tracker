@@ -116,7 +116,7 @@ export default {
         },
         currentPatternValue: {
             get() {
-                return ( this.activePattern + 1 ).toString();
+                return `${this.activePattern + 1}`;
             },
             set(patternValue) {
                 let value = Math.min( parseInt( patternValue, 10 ), this.activeSong.patterns.length );
