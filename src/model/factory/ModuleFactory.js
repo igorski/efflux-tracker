@@ -26,8 +26,30 @@ import Config       from '../../config';
 import Delay        from '../../third_party/Delay';
 import Overdrive    from 'wa-overdrive';
 
-export default
-{
+const ModuleFactory = {
+    /**
+     * Factory method to apply changes to an existing module chain
+     *
+     * @param {string} moduleType type of the module (e.g. 'filter', 'delay', 'eq', 'od')
+     * @param {INSTRUMENT_MODULES} modules
+     * @param {Object} props
+     * @param {AudioParam} output
+     */
+    applyConfiguration(moduleType, modules, props, output) {
+        switch (moduleType) {
+            default:
+                throw new Error(`unknown module ${moduleType} in ModuleFactory`);
+            case 'filter':
+                return ModuleFactory.applyFilterConfiguration(modules, props, output);
+            case 'delay':
+                return ModuleFactory.applyDelayConfiguration(modules, props, output);
+            case 'eq':
+                return ModuleFactory.applyEQConfiguration(modules, props, output);
+            case 'od':
+                return ModuleFactory.applyODConfiguration(modules, props, output);
+        }
+    },
+
     /**
      * create an equalizer with low/mid/high bands, to change the emphasis
      * of the equalizers frequency range, alter the gain values of the
@@ -37,10 +59,9 @@ export default
      * @param {AudioContext} audioContext
      * @return {EQ_MODULE}
      */
-    createEQ( audioContext )
-    {
+    createEQ( audioContext ) {
         const hBand           = audioContext.createBiquadFilter();
-        hBand.type            = "lowshelf";
+        hBand.type            = 'lowshelf';
         hBand.frequency.value = 360; // TODO make band range configurable?
         hBand.gain.value      = Config.MIN_EQ_GAIN;
         
@@ -50,7 +71,7 @@ export default
         const mBand = AudioFactory.createGainNode( audioContext );
         
         const lBand           = audioContext.createBiquadFilter();
-        lBand.type            = "highshelf";
+        lBand.type            = 'highshelf';
         lBand.frequency.value = 3600; // TODO make band range configurable?
         lBand.gain.value      = Config.MIN_EQ_GAIN;
         
@@ -97,8 +118,7 @@ export default
      * @param {AudioContext} audioContext
      * @return {FILTER_MODULE}
      */
-    createFilter( audioContext )
-    {
+    createFilter( audioContext ) {
         const filter = audioContext.createBiquadFilter();
         const lfo    = audioContext.createOscillator();
         const lfoAmp = AudioFactory.createGainNode( audioContext );
@@ -125,8 +145,7 @@ export default
      * @param {AudioContext} audioContext
      * @return {DELAY_MODULE}
      */
-    createDelay( audioContext )
-    {
+    createDelay( audioContext ) {
         const delay = new Delay( audioContext, {
             type: 0,
             delay: 0.5,
@@ -145,8 +164,7 @@ export default
      * @param {Audiocontext} audioContext
      * @return {OVERDRIVE_MODULE}
      */
-    createOverdrive( audioContext )
-    {
+    createOverdrive( audioContext ) {
         const overdrive = new Overdrive( audioContext, {
             preBand: 1.0,
             postCut: 8000,
@@ -169,8 +187,7 @@ export default
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyEQConfiguration( modules, props, output )
-    {
+    applyEQConfiguration( modules, props, output ) {
         const eq = modules.eq;
 
         eq.eqEnabled           = props.enabled;
@@ -209,8 +226,7 @@ export default
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyFilterConfiguration( modules, props, output )
-    {
+    applyFilterConfiguration( modules, props, output ) {
         const filter        = modules.filter;
         const filterEnabled = ( props.lfoType !== "off" );
 
@@ -254,8 +270,7 @@ export default
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyDelayConfiguration( modules, props, output )
-    {
+    applyDelayConfiguration( modules, props, output ) {
         const delay = modules.delay.delay;
 
         delay.type     = props.type;
@@ -268,3 +283,4 @@ export default
         ModuleUtil.applyRouting( modules, output );
     }
 };
+export default ModuleFactory;

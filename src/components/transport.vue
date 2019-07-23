@@ -74,7 +74,7 @@
 
 <script>
 import Vue from 'vue';
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 
 import Config       from '../config';
 import AudioUtil    from '../utils/AudioUtil';
@@ -173,9 +173,6 @@ export default {
             }
         },
     },
-    created() {
-        this.prepareSequencer(this.$store);
-    },
     methods: {
         ...mapMutations([
             'setPlaying',
@@ -192,9 +189,6 @@ export default {
             'suspendKeyboardService',
             'gotoPreviousPattern',
             'gotoNextPattern',
-        ]),
-        ...mapActions([
-            'prepareSequencer',
         ]),
         handleSettingsToggle(e) {
             const body     = window.document.body,

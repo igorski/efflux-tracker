@@ -80,7 +80,7 @@ export default {
         },
         addInstrument(state, instrument) {
             state.instruments.push(instrument);
-        }
+        },
     },
     actions: {
         loadStoredInstruments({ state, commit }) {

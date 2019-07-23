@@ -380,18 +380,21 @@ export default {
     },
     actions: {
         prepareSequencer({ state }, rootStore) {
-            // create LinkedLists to store all currently playing events for all channels
+            return new Promise(resolve => {
+                // create LinkedLists to store all currently playing events for all channels
 
-            for ( let i = 0; i < state.channelQueue.length; ++i ) {
-                state.channelQueue[ i ] = new LinkedList();
-            }
+                for ( let i = 0; i < state.channelQueue.length; ++i ) {
+                    state.channelQueue[ i ] = new LinkedList();
+                }
 
-            // spawn Worker to handle the intervallic polling
-            state.worker = new SequencerWorker();
-            state.worker.onmessage = ({ data }) => {
-                if ( data.cmd === 'collect' && state.playing )
-                    collect(rootStore);
-            };
+                // spawn Worker to handle the intervallic polling
+                state.worker = new SequencerWorker();
+                state.worker.onmessage = ({ data }) => {
+                    if ( data.cmd === 'collect' && state.playing )
+                        collect(rootStore);
+                };
+                resolve();
+            });
         }
     }
 };

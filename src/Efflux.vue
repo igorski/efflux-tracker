@@ -175,6 +175,7 @@ export default {
 
         this.prepareLinkedList();
         this.setActiveSong(await this.createSong());
+        await this.prepareSequencer(this.$store);
         await this.setupServices();
         this.addListeners();
 
@@ -221,6 +222,7 @@ export default {
         ]),
         ...mapActions([
             'setupServices',
+            'prepareSequencer',
             'loadStoredSettings',
             'loadStoredInstruments',
             'loadStoredSongs',

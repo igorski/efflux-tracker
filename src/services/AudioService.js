@@ -175,7 +175,6 @@ const AudioService =
             });
         });
     },
-
     /**
      * cache the custom WaveTables that are available to the instruments
      *
@@ -193,7 +192,6 @@ const AudioService =
             });
         });
     },
-
     togglePlayback(isPlaying, song) {
         playing = isPlaying;
         if (playing) {
@@ -207,9 +205,8 @@ const AudioService =
             }
         }
     },
-
     /**
-     * halts all playing audio, flushed events and
+     * halts all playing audio, flushes events and
      * resets unique event id counter
      */
     reset() {
@@ -232,7 +229,6 @@ const AudioService =
 
         UNIQUE_EVENT_ID = 0;
     },
-
     /**
      * retrieve a reference to the AudioContext
      *
@@ -241,7 +237,6 @@ const AudioService =
     getAudioContext() {
         return audioContext;
     },
-
     /**
      * synthesize the audio for given event at given startTime
      *
@@ -355,14 +350,12 @@ const AudioService =
             );
         }
     },
-
     /**
      * immediately stop playing audio for the given event
      *
      * @param {AUDIO_EVENT} event
      */
-    noteOff( event )
-    {
+    noteOff(event) {
         const eventObject = instrumentEvents[ event.instrument ][ event.id ];
 
         //console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
@@ -391,7 +384,7 @@ const AudioService =
     }
 };
 
-/* private methods */
+/* internal methods */
 
 function handleBroadcast( type, payload )
 {
@@ -400,8 +393,6 @@ function handleBroadcast( type, payload )
         case Messages.APPLY_INSTRUMENT_MODULES:
             applyModules();
             break;
-
-
 
         case Messages.TOGGLE_OUTPUT_RECORDING:
             recording = !recording;
@@ -430,28 +421,10 @@ function handleBroadcast( type, payload )
             break;
 
         case Messages.UPDATE_FILTER_SETTINGS:
-            ModuleFactory.applyFilterConfiguration(
-                instrumentModules[ payload[ 0 ]],
-                payload[ 1 ], masterBus
-            );
-            break;
-
         case Messages.UPDATE_DELAY_SETTINGS:
-            ModuleFactory.applyDelayConfiguration(
-                instrumentModules[ payload[ 0 ]],
-                payload[ 1 ], masterBus
-            );
-            break;
-
         case Messages.UPDATE_EQ_SETTINGS:
-            ModuleFactory.applyEQConfiguration(
-                instrumentModules[ payload[ 0 ]],
-                payload[ 1 ], masterBus
-            );
-            break;
-
         case Messages.UPDATE_OVERDRIVE_SETTINGS:
-            ModuleFactory.applyODConfiguration(
+            ModuleFactory.applyConfiguration(type,
                 instrumentModules[ payload[ 0 ]],
                 payload[ 1 ], masterBus
             );
@@ -512,31 +485,28 @@ function createModules()
 }
 
 /**
- * apply the module settings described in
- * the currently active songs model
+ * apply the module settings described in the currently active
+ * songs model onto the audio processing chain
  */
-function applyModules(song)
-{
-    let instrumentModule;
+function applyModules(song) {
     song.instruments.forEach(( instrument, index ) => {
-        instrumentModule = instrumentModules[ index ];
+        const instrumentModule = instrumentModules[ index ];
         instrumentModule.output.gain.value = instrument.volume;
-        Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS,    [ instrument.id, instrument.filter ]);
-        Pubsub.publishSync( Messages.UPDATE_DELAY_SETTINGS,     [ instrument.id, instrument.delay ]);
-        Pubsub.publishSync( Messages.UPDATE_EQ_SETTINGS,        [ instrument.id, instrument.eq ]);
-        Pubsub.publishSync( Messages.UPDATE_OVERDRIVE_SETTINGS, [ instrument.id, instrument.overdrive ]);
+        ModuleFactory.applyConfiguration('filter', instrumentModule, instrument.filter, masterBus);
+        ModuleFactory.applyConfiguration('delay', instrumentModule, instrument.delay, masterBus);
+        ModuleFactory.applyConfiguration('eq', instrumentModule, instrument.eq, masterBus);
+        ModuleFactory.applyConfiguration('od', instrumentModule, instrument.overdrive, masterBus);
     });
 }
 
-function handleOscillatorStop( output, modules )
-{
-    // this === an OscillatorNode (this function is bound by noteOff()-method)
-    AudioFactory.stopOscillation( this, audioContext.currentTime );
+function handleOscillatorStop( output, modules ) {
+    // this === an OscillatorNode (this function invocation is bound by the noteOff()-method)
+    AudioFactory.stopOscillation(/** @type {OscillatorNode} */( this ), audioContext.currentTime);
 
     // disconnect oscillator and its output node from the instrument output
 
     this.disconnect();
-    output.disconnect( modules.output );
+    output.disconnect(modules.output);
 }
 
 /**
@@ -550,13 +520,11 @@ function handleOscillatorStop( output, modules )
  * @param {Array.<number>} table list of points
  * @return {PeriodicWave} the created WaveTable
  */
-function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table )
-{
+function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
     return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioUtil.createWaveTableFromGraph( audioContext, table );
 }
 
-function applyRecordingState()
-{
+function applyRecordingState() {
     if ( recording ) {
         if ( !recorder ) {
             recorder = new Recorder( masterBus, {
@@ -572,14 +540,13 @@ function applyRecordingState()
     }
 }
 
-function handleRecordingComplete( blob )
-{
+function handleRecordingComplete(blob) {
     // download file to disk
 
-    const pom = document.createElement( "a" );
-    pom.setAttribute( "href", window.URL.createObjectURL( blob ));
-    pom.setAttribute( "target", "_blank" ); // helps for Safari (opens content in window...)
-    pom.setAttribute( "download", "efflux-output.wav" );
+    const pom = document.createElement( 'a' );
+    pom.setAttribute( 'href', window.URL.createObjectURL( blob ));
+    pom.setAttribute( 'target', '_blank' ); // helps for Safari (opens content in window...)
+    pom.setAttribute( 'download', 'efflux-output.wav' );
     pom.click();
 
     // free recorder resources
@@ -590,7 +557,6 @@ function handleRecordingComplete( blob )
 
     window.URL.revokeObjectURL( blob );
 
-    Pubsub.publish( Messages.SHOW_FEEDBACK, getCopy( "RECORDING_SAVED" ));
+    store.commit('showNotification', { message: store.getters.getCopy('RECORDING_SAVED') });
 }
-
 export default AudioService;
