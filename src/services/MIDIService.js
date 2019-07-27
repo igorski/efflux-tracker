@@ -20,26 +20,38 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import MIDIService from '../../services/MIDIService';
+import { MIDINotes, zMIDIEvent } from 'zmidi';
+import InstrumentUtil from '../utils/InstrumentUtil';
+
+let store, state;
 
 export default {
-    state: {
-        midiPortNumber: -1,
-        midiConnected: false,
-        midiDeviceList: [],
+    init(storeReference) {
+        store = storeReference;
+        state = storeReference.state;
     },
-    mutations: {
-        setMIDIPortNumber(state, value) {
-            state.midiPortNumber = value;
-        },
-        setMIDIConnected(state, value) {
-            state.midiConnected = !!value;
-        },
-        createMIDIDeviceList(state, inputs) {
-            state.midiDeviceList = inputs.map((input, i) => ({
-                title : `${input.manufacturer} ${input.name}`,
-                value : i,
-            }));
-        },
+
+    /**
+     * MIDI message handler (received via zmidi library)
+     * this method is bound to the store state
+     *
+     * @param {zMIDIEvent} aEvent
+     */
+    handleMIDIMessage( aEvent ) {
+        const noteValue = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
+              pitch     = MIDINotes.getPitchByNoteNumber(noteValue);
+
+        switch ( aEvent.type )
+        {
+            case zMIDIEvent.NOTE_ON:
+                const instrumentId = state.editor.activeInstrument;
+                const instrument   = state.song.activeSong.instruments[ instrumentId ];
+                InstrumentUtil.noteOn( pitch, instrument, state.sequencer.recording, store );
+                break;
+
+            case zMIDIEvent.NOTE_OFF:
+                InstrumentUtil.noteOff( pitch, store );
+                break;
+        }
     }
 };

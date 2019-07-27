@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue          from 'vue';
+import AudioService from '../services/AudioService';
 import EventFactory from '../model/factory/EventFactory';
 import EventUtil    from './EventUtil';
 import Pubsub       from 'pubsub-js';
@@ -180,8 +181,8 @@ const InstrumentUtil =
         audioEvent.octave = pitch.octave;
         audioEvent.action = 1; // noteOn
 
-        playingNotes[ id ] = { event: audioEvent, instrument: instrument, recording: ( record === true )};
-        Pubsub.publishSync( Messages.NOTE_ON, [ audioEvent, instrument ]);
+        playingNotes[ id ] = { event: audioEvent, instrument: instrument, recording: record === true };
+        AudioService.noteOn(audioEvent, instrument);
 
         if ( record )
             recordEventIntoSong( audioEvent, store );
@@ -200,7 +201,7 @@ const InstrumentUtil =
         const eventVO = playingNotes[ id ];
 
         if ( eventVO ) {
-            Pubsub.publishSync( Messages.NOTE_OFF, [ eventVO.event, eventVO.instrument ]);
+            AudioService.noteOff(eventVO.event, eventVO.instrument);
 
             if ( eventVO.recording ) {
                 const offEvent = EventFactory.createAudioEvent( eventVO.instrument.id );
@@ -247,7 +248,7 @@ function recordEventIntoSong( audioEvent, store )
         Vue.set(channel, step, audioEvent );
 
         // update linked list for AudioEvents
-        EventUtil.linkEvent( audioEvent, store.state.sequencer.activeInstrument, song, store.state.editor.eventList );
+        EventUtil.linkEvent( audioEvent, store.state.editor.activeInstrument, song, store.state.editor.eventList );
 
         Pubsub.publish( Messages.REFRESH_PATTERN_VIEW ); // ensure we can see the note being added
     }

@@ -132,7 +132,7 @@ igorski.nl Analytics
 metronome
 recording events (also using MIDI)
 
-what is the difference between editor.recordingInput and sequencer.recording ???
+what is the difference between editor.recordingInput and sequencer.recording ??? -> one is for recording output, RENAME!!
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 

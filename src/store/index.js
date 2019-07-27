@@ -12,6 +12,7 @@ import sequencer from './modules/sequencerModule';
 import song from './modules/songModule';
 import AudioService from '../services/AudioService';
 import KeyboardService from '../services/KeyboardService';
+import MIDIService from '../services/MIDIService';
 
 Vue.use(Vuex);
 
@@ -149,6 +150,7 @@ export default new Vuex.Store({
             return new Promise(resolve => {
                 AudioService.init(storeReference);
                 KeyboardService.init(storeReference);
+                MIDIService.init(storeReference);
                 resolve();
             });
         },

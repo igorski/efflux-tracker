@@ -229,6 +229,7 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
+            activeInstrument: state => state.editor.activeInstrument,
             instrumentId: state => state.instrument.instrumentId,
             activeOscillatorIndex: state => state.instrument.activeOscillatorIndex,
         }),
@@ -244,6 +245,9 @@ export default {
         instrumentRef() {
             return this.activeSong.instruments[this.instrumentId];
         },
+    },
+    created() {
+        this.setInstrumentId(this.activeInstrument);
     },
     methods: {
         ...mapMutations([

@@ -65,8 +65,6 @@ export default
     STEP_POSITION_REACHED      : "SEQ:7", // payload is Array [ current step position, total step positions (per measure) ]
     TOGGLE_OUTPUT_RECORDING    : "SEQ:8",
     TOGGLE_INPUT_RECORDING     : "SEQ:9",
-    NOTE_ON                    : "SEQ:10", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
-    NOTE_OFF                   : "SEQ:11", // payload is Array [ AUDIO_EVENT, INSTRUMENT ]
 
     // editor messages
 

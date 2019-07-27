@@ -79,6 +79,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import MIDIService from '../services/MIDIService';
 import { zMIDI } from 'zmidi';
 
 export default {
@@ -158,21 +159,24 @@ export default {
             let amountOfPorts = zMIDI.getInChannels().length;
 
             while ( amountOfPorts-- )
-                zMIDI.removeMessageListener( amountOfPorts );
+                zMIDI.removeMessageListener(amountOfPorts);
 
-            zMIDI.addMessageListener( this.portNumber, this.midiMessageHandler );
+            // add listener and bind root store to MIDI event handler
+            zMIDI.addMessageListener(this.portNumber, MIDIService.handleMIDIMessage);
 
             const device = zMIDI.getInChannels()[ this.portNumber ];
             this.showNotification({ message:
-                this.getCopy( "MIDI_ENABLED", `${device.manufacturer} ${device.name}` )
+                this.getCopy( 'MIDI_ENABLED', `${device.manufacturer} ${device.name}` )
             });
         },
         showAvailableMIDIDevices(inputs) {
             this.createMIDIDeviceList(inputs);
 
             // auto select first device if there is only one available
-            if (this.midiDeviceList.length === 1 )
+            if (this.midiDeviceList.length === 1 ) {
                 this.portNumber = this.midiDeviceList[0].value;
+                this.handleMIDIDeviceSelect();
+            }
         }
     }
 };
