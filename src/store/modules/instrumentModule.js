@@ -57,16 +57,7 @@ export default {
             return state.instruments;
         },
         getInstrumentByPresetName: state => presetName => {
-            let i = state.instruments.length, instrument;
-
-            while ( i-- )
-            {
-                instrument = state.instruments[ i ];
-
-                if ( instrument.presetName === presetName )
-                    return instrument;
-            }
-            return null;
+            return state.instruments.find(instrument => instrument.presetName === presetName);
         }
     },
     mutations: {
@@ -76,8 +67,15 @@ export default {
         addInstrument(state, instrument) {
             state.instruments.push(instrument);
         },
+        setInstrumentId(state, id) {
+            state.instrumentId = id;
+        },
         setActiveOscillatorIndex(state, index) {
             state.activeOscillatorIndex = index;
+        },
+        invalidatePresetName(state, instrument) {
+            if (instrument.presetName !== null && !instrument.presetName.includes('*'))
+                instrument.presetName += '*';
         },
     },
     actions: {

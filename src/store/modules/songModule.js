@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Vue                 from 'vue';
 import Config              from '../../config';
 import SongFactory         from '../../model/factory/SongFactory';
 import StateFactory        from '../../model/factory/StateFactory';
@@ -121,6 +122,9 @@ export default {
             });
             if ( optStoreInUndoRedo )
                 store.commit('saveState', undoRedoAction );
+        },
+        updateOscillator(state, { instrumentIndex, oscillatorIndex, prop, value }) {
+            Vue.set(state.activeSong.instruments[instrumentIndex].oscillators[oscillatorIndex], prop, value);
         },
     },
     actions: {

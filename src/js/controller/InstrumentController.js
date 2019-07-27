@@ -115,9 +115,6 @@ function handleViewMessage( type, optPayload ) {
             model.activeOscillatorIndex = /** @type {number} */ ( optPayload );
             InstrumentController.update();
             break;
-        case View.EVENTS.CACHE_OSC:
-            cacheOscillatorWaveForm( model.instrumentRef.oscillators[ model.activeOscillatorIndex ]);
-            break;
         case View.EVENTS.SELECT_PRESET:
             handlePresetSelect( /** @type {string} */ ( optPayload ));
             break;
@@ -194,13 +191,6 @@ function cacheAllOscillators() {
     model.instrumentRef.oscillators.forEach(( oscillator ) => {
         cacheOscillatorWaveForm( oscillator );
     });
-}
-
-function cacheOscillatorWaveForm( oscillator ) {
-    if ( oscillator.enabled && oscillator.waveform === "CUSTOM" )
-        Pubsub.publishSync( Messages.SET_CUSTOM_WAVEFORM, [ model.instrumentId, model.activeOscillatorIndex, oscillator.table ]);
-    else
-        Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_WAVEFORM, [ model.instrumentId, model.activeOscillatorIndex, oscillator ]);
 }
 
 function updatePresetList() {

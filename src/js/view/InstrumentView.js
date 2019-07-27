@@ -20,9 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-const Config            = require( "../config" );
 const Form              = require( "../utils/Form" );
 const Manual            = require( "../definitions/Manual" );
 const Messages          = require( "../definitions/Messages" );
@@ -81,9 +78,6 @@ const self = module.exports = {
             presetSelect            = element.querySelector( "#presetSelect" );
             presetSave              = element.querySelector( "#presetSave" );
             presetNameInput         = element.querySelector( "#presetName" );
-            oscEnabledSelect        = element.querySelector( "#oscillatorEnabled" );
-            oscWaveformSelect       = element.querySelector( "#oscillatorWaveformSelect" );
-            oscVolumeControl        = element.querySelector( "#volume" );
             instrumentVolumeControl = element.querySelector( "#instrumentVolume" );
 
             // oscillator tuning
@@ -152,9 +146,6 @@ const self = module.exports = {
             presetSave.addEventListener       ( "click",  handlePresetSave );
             presetNameInput.addEventListener  ( "focus",  handlePresetFocus );
             presetNameInput.addEventListener  ( "blur",   handlePresetBlur );
-            oscEnabledSelect.addEventListener ( "change", handleOscillatorEnabledChange );
-            oscWaveformSelect.addEventListener( "change", handleOscillatorWaveformChange );
-            oscVolumeControl.addEventListener ( "input",  handleOscillatorVolumeChange );
 
             [ detuneControl, octaveShiftControl, fineShiftControl ].forEach(( control ) => {
                 control.addEventListener( "input", handleTuningChange );
@@ -488,35 +479,6 @@ function handlePresetBlur( aEvent ) {
     keyboardController.setSuspended( false );
 }
 
-function handleOscillatorEnabledChange( aEvent ) {
-    const oscillator = getActiveOscillator();
-    oscillator.enabled = ( Form.getSelectedOption( oscEnabledSelect ) === "true" );
-    listener( self.EVENTS.CACHE_OSC );
-    invalidatePresetName();
-}
-
-function handleOscillatorWaveformChange( aEvent ) {
-    const oscillator = getActiveOscillator();
-    getActiveOscillator().waveform = Form.getSelectedOption( oscWaveformSelect );
-    showWaveformForOscillator( oscillator );
-    listener( self.EVENTS.CACHE_OSC );
-
-    if ( !oscillator.enabled ) {
-        Form.setSelectedOption( oscEnabledSelect, true );
-        oscillator.enabled = true;
-    }
-    invalidatePresetName();
-}
-
-function handleOscillatorVolumeChange( aEvent ) {
-    getActiveOscillator().volume = parseFloat( oscVolumeControl.value );
-    Pubsub.publishSync(
-        Messages.ADJUST_OSCILLATOR_VOLUME,
-        [ model.instrumentId, model.activeOscillatorIndex, getActiveOscillator() ]
-    );
-    invalidatePresetName();
-}
-
 function handleInstrumentVolumeChange( aEvent ) {
     model.instrumentRef.volume = parseFloat( instrumentVolumeControl.value );
     Pubsub.publishSync(
@@ -526,11 +488,6 @@ function handleInstrumentVolumeChange( aEvent ) {
 }
 
 /* private methods */
-
-function invalidatePresetName() {
-    if ( model.instrumentRef.presetName !== null && presetNameInput.value.indexOf( "*" ) === -1 )
-        presetNameInput.value += "*";
-}
 
 /**
  * sets the active class in a tab list

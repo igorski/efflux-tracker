@@ -66,32 +66,30 @@ WaveTableDraw.prototype.setTable = function( aTableArray )
  */
 WaveTableDraw.prototype.generateAndSetTable = function( aType )
 {
-    let size  = Config.WAVE_TABLE_SIZE,
-        table = new Array( size ), i,
-        // all waveforms have their peak halfway through their cycle
-        // expect for PWM (Pulse Width Modulation)
-        m     = Math.round(( aType === 'PWM' ) ? size / 3 : size / 2 );
+    const size  = Config.WAVE_TABLE_SIZE,
+          table = new Array(size),
+          // all waveforms have their peak halfway through their cycle
+          // expect for PWM (Pulse Width Modulation)
+          m     = Math.round(( aType === 'PWM' ) ? size / 3 : size / 2 );
+
+    let phase = 0;
+    const phaseIncrement = ( 1 / size );
 
     // generate waveform for value range -1 to +1
     switch ( aType )
     {
         case 'SINE':
-            for ( i = 0; i < size; ++i )
+            for ( let i = 0; i < size; ++i )
                 table[ i ] = (( 180.0 - Math.sin( i * Math.PI / 180 ) * 180 ) / 180 ) - 1;
-
             break;
 
         case 'TRIANGLE':
-
-            for ( i = 0; i < size; ++i )
+            for ( let i = 0; i < size; ++i )
                 table[ i ] = ( m - Math.abs( i % ( 2 * m ) - m )) * ( 1 / ( m / 2 ) ) - 1;
-
             break;
 
         case 'SAW':
-
-            let phase = 0, phaseIncrement = ( 1 / size );
-            for ( i = 0; i < size; ++i ) {
+            for ( let i = 0; i < size; ++i ) {
                 table[ i ]  = ( phase < 0 ) ? phase - Math.round( phase - 1 ) : phase - Math.round( phase );
                 table[ i ] *= ( 1 / ( m / 2 )) - 2;
                 phase      += phaseIncrement;
@@ -100,15 +98,12 @@ WaveTableDraw.prototype.generateAndSetTable = function( aType )
 
         case 'SQUARE':
         case 'PWM':
-
-            for ( i = 0; i < size; ++i )
+            for ( let i = 0; i < size; ++i )
                 table[ i ] = ( i < m ) ? -1 : 1;
-
             break;
 
         case 'NOISE':
-
-            for ( i = 0; i < size; ++i )
+            for ( let i = 0; i < size; ++i )
                 table[ i ] = Math.random() * 2 - 1;
             break;
     }

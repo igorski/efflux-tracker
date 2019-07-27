@@ -156,10 +156,7 @@ const AudioService =
                 [   Messages.SONG_LOADED,
                     Messages.APPLY_INSTRUMENT_MODULES,
                     Messages.TOGGLE_OUTPUT_RECORDING,
-                    Messages.SET_CUSTOM_WAVEFORM,
                     Messages.ADJUST_OSCILLATOR_TUNING,
-                    Messages.ADJUST_OSCILLATOR_VOLUME,
-                    Messages.ADJUST_OSCILLATOR_WAVEFORM,
                     Messages.ADJUST_INSTRUMENT_VOLUME,
                     Messages.UPDATE_FILTER_SETTINGS,
                     Messages.UPDATE_DELAY_SETTINGS,
@@ -381,7 +378,27 @@ const AudioService =
             });
         }
         delete instrumentEvents[ event.instrument ][ event.id ];
-    }
+    },
+    updateOscillator(property, instrumentIndex, oscillatorIndex, oscillator) {
+        if (!/waveform|volume/.test(property))
+            throw new Error(`cannot update unsupported oscillator property ${property}`);
+
+        switch (property) {
+            case 'waveform':
+                if ( oscillator.enabled && oscillator.waveform === 'CUSTOM' ) {
+                    InstrumentUtil.adjustEventWaveForms( instrumentEvents[instrumentIndex], oscillatorIndex,
+                        createTableFromCustomGraph(instrumentIndex, oscillatorIndex, oscillator.table)
+                    );
+                }
+                else {
+                    InstrumentUtil.adjustEventWaveForms( instrumentEvents[instrumentIndex], oscillatorIndex, pool[oscillator.waveform] );
+                }
+                break;
+            case 'volume':
+                InstrumentUtil.adjustEventVolume(instrumentEvents[instrumentIndex], oscillatorIndex, oscillator);
+                break;
+        }
+    },
 };
 
 /* internal methods */
@@ -399,21 +416,8 @@ function handleBroadcast( type, payload )
             applyRecordingState();
             break;
 
-        case Messages.SET_CUSTOM_WAVEFORM:
-            const table = createTableFromCustomGraph( payload[ 0 ], payload[ 1 ], payload[ 2 ]);
-            InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], table );
-            break;
-
-        case Messages.ADJUST_OSCILLATOR_WAVEFORM:
-            InstrumentUtil.adjustEventWaveForms( instrumentEvents[ payload[ 0 ]], payload[ 1 ], pool[ payload[ 2 ].waveform ] );
-            break;
-
         case Messages.ADJUST_OSCILLATOR_TUNING:
             InstrumentUtil.adjustEventTunings( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
-            break;
-
-        case Messages.ADJUST_OSCILLATOR_VOLUME:
-            InstrumentUtil.adjustEventVolume( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
             break;
 
         case Messages.ADJUST_INSTRUMENT_VOLUME:

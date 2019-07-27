@@ -39,7 +39,6 @@ export default
     CLOSE_OVERLAYS               : "UI:1", // payload consists of optional ViewController (references controller of overlay that should remain unclosed)
     OVERLAY_OPENED               : "UI:2",
     TOGGLE_INSTRUMENT_EDITOR     : "UI:3", // payload consists of number describing selected instrument index
-    SET_CUSTOM_WAVEFORM          : "UI:4", // payload is Array [ instrument index, oscillator index, waveform table (Array.<number>) ]
     OPEN_SONG_BROWSER            : "UI:5",
     OPEN_MODULE_PARAM_PANEL      : "UI:8",  // payload is callback Function to be executed on panel close
     HIGHLIGHT_ACTIVE_STEP        : "UI:9",  // payload is optional number indicating currently active highlight (otherwise defaults to last active step)
@@ -73,7 +72,6 @@ export default
 
     ADJUST_OSCILLATOR_TUNING            : "ED:0", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
     ADJUST_OSCILLATOR_VOLUME            : "ED:1", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_WAVEFORM          : "ED:2", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
     ADJUST_INSTRUMENT_VOLUME            : "ED:3", // payload is Array [ instrument index, new volume ]
     UPDATE_FILTER_SETTINGS              : "ED:4", // payload is Array [ instrument index, filter properties Object ]
     UPDATE_DELAY_SETTINGS               : "ED:5", // payload is Array [ instrument index, delay properties Object ]
