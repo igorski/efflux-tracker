@@ -22,8 +22,12 @@
 */
 <template>
     <section id="patternTrackList">
-        <div id="patternTrackListContainer" ref="container">
-            <div class="wrapper" ref="wrapper"
+        <div id="patternTrackListContainer"
+             ref="container"
+             :class="{ follow: mustFollow }"
+        >
+            <div class="wrapper"
+                 ref="wrapper"
                  @click="handleInteraction"
                  @dblclick="handleInteraction"
                  @touchstart.passive="handleInteraction"
@@ -115,7 +119,8 @@
                    </li>
                 </ul>
             </div>
-            <div class="highlight"></div>
+            <!-- highlight following the playback step position -->
+            <div ref="highlight" class="highlight"></div>
         </div>
     </section>
 </template>
@@ -133,15 +138,21 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
+            currentStep: state => state.sequencer.currentStep,
             activeInstrument: state => state.editor.activeInstrument,
             activeStep: state => state.editor.activeStep,
             activeSlot: state => state.editor.activeSlot,
+            stepPrecision: state => state.sequencer.stepPrecision,
             selectedChannels: state => state.selection.selectedChannels,
+            minSelectedStep: state => state.selection.minSelectedStep,
+            firstSelectedChannel: state => state.selection.firstSelectedChannel,
             windowSize: state => state.windowSize,
+            PROPERTIES: state => state.settings.PROPERTIES,
         }),
         ...mapGetters([
             'amountOfSteps',
             'hasSelection',
+            'getSetting',
         ]),
         activeSongPattern() {
             return this.activeSong.patterns[this.activePattern];
@@ -149,6 +160,10 @@ export default {
     },
     data: () => ({
         container: null,
+        wrapper: null,
+        highlight: null,
+        lastFollowStep: 0,
+        mustFollow: false,
         paramFormat: null,
         containerWidth: 0,
         containerHeight: 0,
@@ -164,6 +179,26 @@ export default {
         activeStep() {
             this.focusActiveStep();
         },
+        currentStep(step) {
+            const diff  = this.stepPrecision / this.activeSong.patterns[this.activePattern].steps;
+
+            if ( step % diff !== 0 )
+                return;
+
+            const stepY = ( step / diff ) * SLOT_HEIGHT;
+            this.highlight.style.top = `${stepY}px`;
+
+            if (this.getSetting(this.PROPERTIES.FOLLOW_PLAYBACK) === 'true') {
+                // following activated, ensure the list auto scrolls
+                if ( stepY > this.containerHeight ) {
+                    this.mustFollow = (++this.lastFollowStep % 2 ) === 1;
+                    this.container.scrollTop = ( stepY + SLOT_HEIGHT ) - this.containerHeight;
+                } else {
+                    this.container.scrollTop = 0;
+                    this.lastFollowStep = 0;
+                }
+            }
+        },
         windowSize() {
             this.cacheDimensions();
         },
@@ -172,6 +207,7 @@ export default {
         this.$nextTick(() => {
             this.container = this.$refs.container;
             this.wrapper = this.$refs.wrapper;
+            this.highlight = this.$refs.highlight;
             this.cacheDimensions();
         });
     },
@@ -267,14 +303,6 @@ export default {
             }
             return out;
         },
-        removeEventAtHighlightedStep() {
-            this.saveState(
-                StateFactory.getAction( States.DELETE_EVENT, {
-                    store: this.$store,
-                    addHandler: this.addEventAtPosition
-                })
-            );
-        },
         removeModuleParamAutomationAtHighlightedStep() {
             // TODO: create shared getter function?
             const event = this.activeSong.patterns[ this.activePattern ]
@@ -335,11 +363,6 @@ export default {
                 keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
             });
         },
-        addOffEvent() {
-            const offEvent = EventFactory.createAudioEvent();
-            offEvent.action = 2; // noteOff;
-            this.addEventAtPosition({ event: offEvent, store: this.$store });
-        },
         handleInteraction(event) {
             // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
             if (event.type === 'touchstart' ) {
@@ -366,8 +389,8 @@ export default {
             let found = false;
 
             if (this.hasSelection) {
-                selectionChannelStart = selectionModel.firstSelectedChannel;
-                selectionStepStart    = selectionModel.minSelectedStep;
+                selectionChannelStart = this.firstSelectedChannel;
+                selectionStepStart    = this.minSelectedStep;
             }
 
             for ( let i = 0, l = pContainers.length; i < l; ++i ) {

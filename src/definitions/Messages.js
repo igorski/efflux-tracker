@@ -41,7 +41,6 @@ export default
     TOGGLE_INSTRUMENT_EDITOR     : "UI:3", // payload consists of number describing selected instrument index
     OPEN_SONG_BROWSER            : "UI:5",
     OPEN_MODULE_PARAM_PANEL      : "UI:8",  // payload is callback Function to be executed on panel close
-    HIGHLIGHT_ACTIVE_STEP        : "UI:9",  // payload is optional number indicating currently active highlight (otherwise defaults to last active step)
     MENU_INITIALIZED             : "UI:MI",
     HANDLE_KEYBOARD_MOVEMENT     : "UI:13",
 
@@ -62,7 +61,6 @@ export default
     PLAYBACK_STARTED           : "SEQ:2",
     PLAYBACK_STOPPED           : "SEQ:3",
     RECORDING_COMPLETE         : "SEQ:5",
-    STEP_POSITION_REACHED      : "SEQ:7", // payload is Array [ current step position, total step positions (per measure) ]
     TOGGLE_OUTPUT_RECORDING    : "SEQ:8",
     TOGGLE_INPUT_RECORDING     : "SEQ:9",
 
@@ -74,8 +72,6 @@ export default
     UPDATE_EQ_SETTINGS                  : "ED:6", // payload is Array [ instrument index, eq properties Object ]
     UPDATE_OVERDRIVE_SETTINGS           : "ED:7", // payload is Array [ instrument index, overdrive properties Object ]
     EDIT_NOTE_AT_POSITION               : "ED:8",
-    ADD_OFF_AT_POSITION                 : "ED:10",
-    REMOVE_NOTE_AT_POSITION             : "ED:11",
     REMOVE_PARAM_AUTOMATION_AT_POSITION : "ED:12",
     GLIDE_PARAM_AUTOMATIONS             : "ED:13",
     EDIT_MOD_PARAMS_FOR_STEP            : "ED:15",

@@ -50,6 +50,7 @@ const EN =
     WARNING_SONG_RESET      : `Are you sure you want to reset, you will lose all changes and undo history`,
     WARNING_UNLOAD          : `Are you sure you want to leave this page ? All unsaved changes will be lost.`,
     ERROR_TITLE             : `Error`,
+    SUCCESS_TITLE           : `Operation completed`,
     CONFIRM_TITLE           : `Confirm`,
     BUTTON_OK               : `OK`,
     BUTTON_CANCEL           : `Cancel`,
@@ -68,7 +69,6 @@ const EN =
     ERROR_PARAM_GLIDE       : `Could not automate module parameter glide. Define the start and end value for a
                                specific module parameter transition within your pattern, without defining other
                                module parameters in between.`,
-    SUCCESS_TITLE           : `Operation completed`,
     MIDI_ENABLED            : `Listening to MIDI messages coming from {0}`,
     MIDI_CONNECTED          : `MIDI Connection established successfully`,
     MIDI_FAILURE            : `MIDI Unavailable, Efflux could not connect to MIDI device(s)`,

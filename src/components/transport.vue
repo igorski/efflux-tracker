@@ -40,9 +40,13 @@
                     :class="{ active: isMetronomeEnabled }"
                     @click="setMetronomeEnabled(!isMetronomeEnabled)"
                 ></li>
-                <li class="icon-settings" @click="handleSettingsToggle"></li>
+                <li class="icon-settings"
+                    @click="handleSettingsToggle"
+                ></li>
                 <li class="section-divider"><!-- x --></li>
-                <li id="patternBack" @click="gotoPreviousPattern">&lt;&lt;</li>
+                <li id="patternBack"
+                    @click="gotoPreviousPattern()"
+                >&lt;&lt;</li>
                 <li id="currentPattern">
                     <input class="current"
                            v-model="currentPatternValue"
@@ -53,7 +57,7 @@
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
-                <li id="patternNext" @click="gotoNextPattern">&gt;&gt;</li>
+                <li id="patternNext" @click="gotoNextPattern(activeSong)">&gt;&gt;</li>
             </ul>
             <ul id="tempoControl" class="wrapper input range">
                 <li class="section-divider"><!-- x --></li>

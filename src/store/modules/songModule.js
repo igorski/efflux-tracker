@@ -95,7 +95,8 @@ export default {
             SongUtil.updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
         },
         /**
-         * adds given AudioEvent at the currently highlighted position or step defined in optData
+         * adds given AudioEvent at the currently highlighted position or by optionally defined
+         * offsets in optData { patternIndex, channelIndex, step }
          *
          * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
          */

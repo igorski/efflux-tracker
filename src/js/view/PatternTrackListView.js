@@ -28,9 +28,9 @@ const Pubsub        = require( "pubsub-js" );
 const Bowser        = require( "bowser" );
 
 let efflux, editorModel, selectionModel, settingsModel, wrapper, container,
-    pContainers, pContainerSteps, stepHighlight, slotHighlight;
+    pContainers, pContainerSteps, slotHighlight;
 
-let stepAmount = 0, rafPending = false, containerWidth = 0, containerHeight = 0, lastFollowStep = 0;
+let stepAmount = 0, rafPending = false, containerWidth = 0, containerHeight = 0;
 
 const self = module.exports = {
 
@@ -42,8 +42,6 @@ const self = module.exports = {
         selectionModel = efflux.SelectionModel;
         settingsModel  = efflux.SettingsModel;
         container      = containerRef;
-
-        stepHighlight = containerRef.querySelector( ".highlight" );
 
         // initialize
         updateStepAmount( 16 );
@@ -76,8 +74,6 @@ const self = module.exports = {
 
         [
             Messages.SONG_LOADED,
-            Messages.STEP_POSITION_REACHED,
-            Messages.HIGHLIGHT_ACTIVE_STEP
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -165,59 +161,9 @@ function handleBroadcast( type, payload ) {
         case Messages.SONG_LOADED:
             updateStepAmount( editorModel.amountOfSteps );
             break;
-
-        case Messages.HIGHLIGHT_ACTIVE_STEP:
-           handleStep( payload );
-           break;
-
-        case Messages.STEP_POSITION_REACHED:
-            if ( rafPending )
-                return;
-
-            rafPending = true;
-
-            requestAnimationFrame(() =>
-            {
-                rafPending = false;
-
-                const step  = payload[ 0 ],
-                      total = payload[ 1 ],
-                      diff  = total / activeSong.patterns[activePattern].steps;
-
-                if ( step % diff !== 0 )
-                    return;
-
-                handleStep( step / diff );
-            });
-            break;
     }
 }
 
-function handleStep( step ) {
-    if ( typeof step === "number" ) {
-        const stepY = step * SLOT_HEIGHT;
-
-        stepHighlight.style.top = `${stepY}px`;
-
-        const followPlayback = ( settingsModel.getSetting( SettingsModel.PROPERTIES.FOLLOW_PLAYBACK ) === "on" );
-        if ( followPlayback ) {
-            // following activated, ensure the list auto scrolls
-            if ( stepY > containerHeight ) {
-                if (( ++lastFollowStep % 2 ) === 1 )
-                    container.classList.add( "follow" );
-                else
-                    container.classList.remove( "follow" );
-
-                container.scrollTop = ( stepY + SLOT_HEIGHT ) - containerHeight;
-            }
-            else {
-                container.scrollTop = 0;
-                lastFollowStep = 0;
-            }
-        }
-    }
-    self.highlightActiveStep();
-}
 
 function updateStepAmount( amount ) {
     stepAmount = amount;

@@ -219,7 +219,6 @@ function step(store) {
         }
         store.commit('setActivePattern', state.activePattern );
     }
-   // Pubsub.publishSync( Messages.STEP_POSITION_REACHED, [ state.currentStep, state.stepPrecision ]);
 }
 
 /* store */

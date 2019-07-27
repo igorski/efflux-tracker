@@ -123,14 +123,12 @@ TODO VUE MIGRATION
 FONTS!
 Mouse and horizontal keyboard control
 Record output
-move instrumentModule active oscillator and instrument to editorModule
+move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
 check whether selections cut paste copy et al work
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 igorski.nl Analytics
-metronome
-recording events (also using MIDI)
 
 what is the difference between editor.recordingInput and sequencer.recording ??? -> one is for recording output, RENAME!!
 
@@ -141,6 +139,8 @@ activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
 store.setOverlay() -> should indicate its a modal component
 rename stateFactory and related stuff to historyState
+
+editormodule -> active/step/instrument should be renamed to reflect they are being edited
 
 TODO: force tracklist re-render (for instance toggle hex/pct in settings screen)
 

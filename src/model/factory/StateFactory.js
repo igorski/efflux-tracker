@@ -168,7 +168,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
  * removes a single AUDIO_EVENT or multiple AUDIO_EVENTS within a selection
  * from a pattern
  */
-function deleteSingleEventOrSelectionAction({ store, addHandler, updateHandler } ) {
+function deleteSingleEventOrSelectionAction({ store } ) {
 
     const song             = store.state.song.activeSong,
           eventList        = store.state.editor.eventList,
@@ -204,7 +204,6 @@ function deleteSingleEventOrSelectionAction({ store, addHandler, updateHandler }
                 eventList[ activeInstrument ]
             );
         }
-        updateHandler(); // syncs view with model changes
     }
 
     // delete the event as it was the trigger for this action
@@ -221,13 +220,17 @@ function deleteSingleEventOrSelectionAction({ store, addHandler, updateHandler }
                 });
             }
             else {
-                addHandler( event, {
-                    patternIndex: activePattern,
-                    channelIndex: activeInstrument,
-                    step: activeStep
-                }, false ); // false flag prevents storing in undo/redo again, kinda important!
+                store.commit('addEventAtPosition', {
+                    event,
+                    store,
+                    optData: {
+                        patternIndex: activePattern,
+                        channelIndex: activeInstrument,
+                        step: activeStep
+                    },
+                    optStoreInUndoRedo: false, // prevents storing in undo/redo again, kinda important!
+                });
             }
-            updateHandler(); // syncs view with model changes
         },
         redo() {
             remove( selection );

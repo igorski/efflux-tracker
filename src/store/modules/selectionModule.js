@@ -259,7 +259,7 @@ const module = {
          */
         getSelection: state => ({ song, activePattern }) => {
             const out = [];
-            copySelection( state, song, activePattern, out );
+            copySelection( state, { song, activePattern, out });
             return out;
         }
     },

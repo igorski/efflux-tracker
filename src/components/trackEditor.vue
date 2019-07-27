@@ -37,6 +37,9 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex';
+import States from '../definitions/States';
+import EventFactory from '../model/factory/EventFactory';
+import StateFactory from '../model/factory/StateFactory';
 
 import { DOM } from 'zjslib';
 
@@ -68,19 +71,25 @@ export default {
         }
     },
     methods: {
-        handleNoteAddClick( aEvent ) {
+        ...mapMutations([
+            'addEventAtPosition',
+            'saveState',
+        ]),
+        handleNoteAddClick() {
             Pubsub.publish( Messages.EDIT_NOTE_AT_POSITION );
         },
-        handleNoteOffClick( aEvent ){
-            Pubsub.publish( Messages.ADD_OFF_AT_POSITION );
+        handleNoteOffClick(){
+            const offEvent = EventFactory.createAudioEvent();
+            offEvent.action = 2; // noteOff;
+            this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
-        handleNoteDeleteClick( aEvent ) {
-            Pubsub.publish( Messages.REMOVE_NOTE_AT_POSITION );
+        handleNoteDeleteClick() {
+            this.saveState(StateFactory.getAction(States.DELETE_EVENT, { store: this.$store }));
         },
-        handleModuleParamsClick( aEvent ) {
+        handleModuleParamsClick() {
             Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );
         },
-        handleModuleGlideClick( aEvent ) {
+        handleModuleGlideClick() {
             Pubsub.publish( Messages.GLIDE_PARAM_AUTOMATIONS );
         }
     }

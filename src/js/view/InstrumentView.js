@@ -1,44 +1,3 @@
-/**
- * The MIT License (MIT)
- *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
- * the Software without restriction, including without limitation the rights to
- * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
- * the Software, and to permit persons to whom the Software is furnished to do so,
- * subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
- * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
- * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
- * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
- * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
- */
-const Form              = require( "../utils/Form" );
-const Manual            = require( "../definitions/Manual" );
-const Messages          = require( "../definitions/Messages" );
-const Pubsub            = require( "pubsub-js" );
-const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
-
-let efflux, model, listener, keyboardController;
-let element, canvas, wtDraw,
-    instrumentSelect, presetSelect, presetSave, presetNameInput,
-    oscEnabledSelect, oscWaveformSelect, oscVolumeControl, instrumentVolumeControl,
-    detuneControl, octaveShiftControl, fineShiftControl,
-    amplitudeEditor, pitchEditor,
-    attackControl, decayControl, sustainControl, releaseControl,
-    pitchRangeControl, pitchAttackControl, pitchDecayControl, pitchSustainControl, pitchReleaseControl,
-    moduleEditorPage1, moduleEditorPage2,
-    filterEnabledSelect, frequencyControl, qControl, lfoSelect, filterSelect, speedControl, depthControl,
-    eqEnabledSelect, eqLowControl, eqMidControl, eqHighControl,
-    odEnabledSelect, odDriveControl, odColorControl, odPreBandControl, odPostCutControl,
-    delayEnabledSelect, delayTypeSelect, delayTimeControl, delayFeedbackControl, delayCutoffControl, delayOffsetControl;
 
 const self = module.exports = {
 
@@ -163,57 +122,7 @@ const self = module.exports = {
     update( instrumentRef, activeOscillatorIndex ) {
 
         element.querySelector( "h2" ).innerHTML = "Editing " + instrumentRef.name;
-
-        showWaveformForOscillator( oscillator );
-
-        Form.setSelectedOption( oscEnabledSelect,  oscillator.enabled );
-        Form.setSelectedOption( oscWaveformSelect, oscillator.waveform );
-        Form.setSelectedOption( instrumentSelect,  instrumentRef.id );
-
-        detuneControl.value      = oscillator.detune;
-        octaveShiftControl.value = oscillator.octaveShift;
-        fineShiftControl.value   = oscillator.fineShift;
-        oscVolumeControl.value   = oscillator.volume;
-
-        attackControl.value  = oscillator.adsr.attack;
-        decayControl.value   = oscillator.adsr.decay;
-        sustainControl.value = oscillator.adsr.sustain;
-        releaseControl.value = oscillator.adsr.release;
-
-        pitchRangeControl.value   = oscillator.pitch.range;
-        pitchAttackControl.value  = oscillator.pitch.attack;
-        pitchDecayControl.value   = oscillator.pitch.decay;
-        pitchSustainControl.value = oscillator.pitch.sustain;
-        pitchReleaseControl.value = oscillator.pitch.release;
-
-        instrumentVolumeControl.value = instrumentRef.volume;
-
-        Form.setSelectedOption( filterEnabledSelect, instrumentRef.filter.enabled );
-        Form.setSelectedOption( lfoSelect,           instrumentRef.filter.lfoType );
-        Form.setSelectedOption( filterSelect,        instrumentRef.filter.type );
-        frequencyControl.value = instrumentRef.filter.frequency;
-        qControl.value         = instrumentRef.filter.q;
-        speedControl.value     = instrumentRef.filter.speed;
-        depthControl.value     = instrumentRef.filter.depth;
-
-        Form.setSelectedOption( delayEnabledSelect, instrumentRef.delay.enabled );
-        Form.setSelectedOption( delayTypeSelect,    instrumentRef.delay.type );
-        delayTimeControl.value     = instrumentRef.delay.time;
-        delayFeedbackControl.value = instrumentRef.delay.feedback;
-        delayCutoffControl.value   = instrumentRef.delay.cutoff;
-        delayOffsetControl.value   = instrumentRef.delay.offset + 0.5;
-
-        Form.setSelectedOption( eqEnabledSelect, instrumentRef.eq.enabled );
-        eqLowControl.value  = instrumentRef.eq.lowGain;
-        eqMidControl.value  = instrumentRef.eq.midGain;
-        eqHighControl.value = instrumentRef.eq.highGain;
-
-        Form.setSelectedOption( odEnabledSelect, instrumentRef.overdrive.enabled );
-        odDriveControl.value   = instrumentRef.overdrive.drive;
-        odColorControl.value   = instrumentRef.overdrive.color;
-        odPreBandControl.value = instrumentRef.overdrive.preBand;
-        odPostCutControl.value = instrumentRef.overdrive.postCut;
-    },
+    }
 
     /* public methods */
 

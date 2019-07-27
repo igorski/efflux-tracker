@@ -33,7 +33,7 @@ import EventUtil                  from '../utils/EventUtil';
 import Pubsub                     from 'pubsub-js';
 
 let store, state, listener,
-    suspended = false, blockDefaults = true, optionDown = false, shiftDown = false, minSelect = 0, maxSelect = 0;
+    suspended = false, blockDefaults = true, optionDown = false, shiftDown = false;
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
       MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
@@ -156,7 +156,6 @@ const KeyboardService =
         }
     },
 };
-
 export default KeyboardService;
 
 /* internal methods */
@@ -306,7 +305,6 @@ function handleKeyDown( aEvent )
                         }
 
                         if ( shiftDown ) {
-                            minSelect = Math.max( --maxSelect, 0 );
                             store.commit('handleHorizontalKeySelectAction', {
                                 keyCode,
                                 activeChannelOnStart: curChannel,
@@ -337,11 +335,19 @@ function handleKeyDown( aEvent )
                     handleKeyUp({ keyCode: 40, preventDefault: function() {} }); // move down to next slot
                     break;
 
+                case 65: // A
+                    // select all
+                    if ( hasOption ) {
+                        store.commit('setMinSelectedStep',0);
+                        store.commit('setMaxSelectedStep', state.song.activeSong.patterns[state.sequencer.activePattern].steps);
+                        store.commit('setSelectionChannelRange', { firstChannel: 0, lastChannel: Config.INSTRUMENT_AMOUNT - 1 });
+                    }
+                    break;
+
                 case 67: // C
 
                      // copy current selection
-                     if ( hasOption )
-                     {
+                     if ( hasOption ) {
                          if (!store.getters.hasSelection) {
                              store.commit('setSelectionChannelRange', { firstChannel: state.editor.activeInstrument });
                              store.commit('setSelection', state.editor.activeStep);
@@ -510,9 +516,9 @@ function setActiveSlot( targetValue ) {
 }
 
 function handleDeleteActionForCurrentMode() {
-    switch ( mode ) {
+    switch (mode) {
         default:
-            Pubsub.publishSync( Messages.REMOVE_NOTE_AT_POSITION );
+            store.commit('saveState', StateFactory.getAction(States.DELETE_EVENT, { store }));
             break;
         case MODES.PARAM_VALUE:
         case MODES.PARAM_SELECT:
@@ -522,6 +528,5 @@ function handleDeleteActionForCurrentMode() {
 }
 
 function handleKeyboardNavigation() {
-    Pubsub.publishSync( Messages.HIGHLIGHT_ACTIVE_STEP );
     Pubsub.publishSync( Messages.HANDLE_KEYBOARD_MOVEMENT );
 }

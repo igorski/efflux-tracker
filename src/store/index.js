@@ -94,7 +94,7 @@ export default new Vuex.Store({
          * confirmation and cancellation handler can be passed.
          */
         openDialog(state, { type = 'info', title = '', message = '', confirm = null, cancel = null }) {
-            state.dialog = { type, title, message, confirm, cancel };
+            state.dialog = { type, title , message, confirm, cancel };
         },
         closeDialog(state) {
             state.dialog = null;
@@ -109,8 +109,8 @@ export default new Vuex.Store({
          * shows a notification containing given title and message.
          * multiple notifications can be stacked.
          */
-        showNotification(state, { title, message }) {
-            state.notifications.push({ title, message });
+        showNotification(state, { message = '', title = null }) {
+            state.notifications.push({ title: title || getCopy('SUCCESS_TITLE'), message });
         },
         clearNotifications(state) {
             state.notifications = [];

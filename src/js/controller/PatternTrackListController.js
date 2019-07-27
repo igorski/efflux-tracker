@@ -69,8 +69,6 @@ const PatternTrackListController = module.exports =
             Messages.REFRESH_SONG,
             Messages.REFRESH_PATTERN_VIEW,
             Messages.EDIT_NOTE_AT_POSITION,
-            Messages.ADD_OFF_AT_POSITION,
-            Messages.REMOVE_NOTE_AT_POSITION,
             Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION,
             Messages.GLIDE_PARAM_AUTOMATIONS,
             Messages.EDIT_MOD_PARAMS_FOR_STEP,
@@ -107,14 +105,6 @@ function handleBroadcast( type, payload )
         case Messages.EDIT_NOTE_AT_POSITION:
         case Messages.EDIT_NOTE_FOR_STEP:
             PatternTrackListController.editNoteForStep();
-            break;
-
-        case Messages.ADD_OFF_AT_POSITION:
-            addOffEvent();
-            break;
-
-        case Messages.REMOVE_NOTE_AT_POSITION:
-            removeEventAtHighlightedStep();
             break;
 
         case Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION:
