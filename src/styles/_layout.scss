@@ -74,9 +74,85 @@ ul {
   margin: 80px auto 0; /* offset top margin by menu height */
 }
 
+.instrument-parameters {
+  display: inline-block;
+  vertical-align: top;
+  width: 45%;
+  margin-right: 1em;
+
+  h2 {
+    clear: both;
+    padding: .5em 0;
+  }
+
+  .wrapper.range {
+
+    width: 100%;
+    clear: both;
+
+    label {
+      width: 33%;
+      vertical-align: middle;
+      display: inline-block;
+      font-style: italic;
+    }
+
+    input {
+      width: 50%;
+      vertical-align: middle;
+      display: inline-block;
+    }
+  }
+}
+
+.tab-list {
+
+  display: inline-block;
+  margin: .5em 0 0;
+
+  li {
+    display: inline-block;
+    border: 1px solid #666;
+    border-bottom: 1px solid #393b40;
+    margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
+    padding: .25em 1em;
+    cursor: pointer;
+    background-color: #666;
+    font-size: 90%;
+    font-weight: bold;
+
+    &.active {
+      background-color: transparent;
+      color: #FFF;
+      position: relative;
+    }
+  }
+}
+
+.tabbed-content {
+  display: none;
+  border-top: 1px solid #666;
+
+  &.active {
+    display: block;
+  }
+}
+
 #editor {
   position: absolute;
   top: 134px; /* menu + song meta */
   bottom: $footer-height;
   overflow: hidden;
+}
+
+@media screen and ( max-width: $idealInstrumentEditorWidth ) {
+  .instrument-parameters {
+    @include boxSize();
+    padding: 1em;
+    width: 100%;
+    display: block;
+    border-radius: 7px;
+    border: 1px solid #666;
+    margin-bottom: .5em;
+  }
 }

@@ -28,6 +28,7 @@ export default
     LOCAL_STORAGE_INSTRUMENTS   : 'effluxInstruments',
     LOCAL_STORAGE_SETTINGS      : 'effluxSettings',
     INSTRUMENT_AMOUNT           : 8,
+    OSCILLATOR_AMOUNT           : 3,
     WAVE_TABLE_SIZE             : 512,
     MAX_PATTERN_AMOUNT          : 128,
     MAX_OCTAVE                  : 8,

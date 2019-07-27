@@ -51,17 +51,23 @@
                 <h2>Oscillator tuning</h2>
                 <div class="wrapper input range">
                     <label for="detune">Detune</label>
-                    <input type="range" id="detune" min="-50" max="50" step=".1" value="0">
+                    <input v-model.number="oscillatorDetune"
+                           type="range" id="detune" min="-50" max="50" step=".1" value="0"
+                           @input="handleOscillatorTuningChange('detune')">
                 </div>
                 <div class="wrapper input range">
                     <label for="octaveShift">Octave shift</label>
-                    <input type="range" id="octaveShift" min="-2" max="2" step="1" value="0"
-                    :disabled="{ disabled: oscillator.waveform === 'NOISE' }">
+                    <input v-model.number="oscillatorOctaveShift"
+                           type="range" id="octaveShift" min="-2" max="2" step="1" value="0"
+                           :disabled="oscillator.waveform === 'NOISE'"
+                           @input="handleOscillatorTuningChange('octave')">
                 </div>
                 <div class="wrapper input range">
                     <label for="fineShift">Fine shift</label>
-                    <input type="range" id="fineShift" min="-7" max="7" step="1" value="0"
-                           :disabled="{ disabled: oscillator.waveform === 'NOISE' }">
+                    <input v-model.number="oscillatorFineShift"
+                           type="range" id="fineShift" min="-7" max="7" step="1" value="0"
+                           :disabled="oscillator.waveform === 'NOISE'"
+                           @input="handleOscillatorTuningChange('fine')">
                 </div>
                 <div class="wrapper input range">
                     <label for="volume">Volume</label>
@@ -75,60 +81,86 @@
             <!-- envelopes -->
 
             <div id="envelopeEditor" class="instrument-parameters">
-                <ul id="envelopeTabs" class="tabList">
-                    <li data-type="amplitude" class="active">
+                <ul id="envelopeTabs" class="tab-list">
+                    <li :class="{ active: activeEnvelopeTab === 0 }"
+                        @click="activeEnvelopeTab = 0">
                         Amplitude
                     </li>
-                    <li data-type="pitch">
+                    <li :class="{ active: activeEnvelopeTab === 1 }"
+                        @click="activeEnvelopeTab = 1">
                         Pitch
                     </li>
                 </ul>
 
                 <!-- amplitude envelope -->
 
-                <div id="amplitudeEditor" class="tabbed-content active">
+                <div id="amplitudeEditor"
+                     class="tabbed-content"
+                     :class="{ active: activeEnvelopeTab === 0 }"
+                >
                     <h2>Amplitude envelope</h2>
                     <div class="wrapper input range">
                         <label for="attack">Attack</label>
-                        <input type="range" id="attack" min="0" max="1" step=".01" value="0">
+                        <input v-model.number="amplitudeAttack"
+                               type="range" id="attack" min="0" max="1" step=".01" value="0"
+                               @input="invalidate">
                     </div>
                     <div class="wrapper input range">
                         <label for="decay">Decay</label>
-                        <input type="range" id="decay" min="0" max="1" step=".01" value="0">
+                        <input v-model.number="amplitudeDecay"
+                               type="range" id="decay" min="0" max="1" step=".01" value="0"
+                               @input="invalidate">
                     </div>
                     <div class="wrapper input range">
                         <label for="sustain">Sustain</label>
-                        <input type="range" id="sustain" min="0" max="1" step=".01" value=".75">
+                        <input v-model.number="amplitudeSustain"
+                               type="range" id="sustain" min="0" max="1" step=".01" value=".75"
+                               @input="invalidate">
                     </div>
                     <div class="wrapper input range">
                         <label for="release">Release</label>
-                        <input type="range" id="release" min="0" max="1" step=".01" value="0">
+                        <input v-model.number="amplitudeRelease"
+                               type="range" id="release" min="0" max="1" step=".01" value="0"
+                               @input="invalidate" />
                     </div>
                 </div>
 
                 <!-- pitch envelope -->
 
-                <div id="pitchEditor" class="tabbed-content">
+                <div id="pitchEditor"
+                     class="tabbed-content"
+                     :class="{ active: activeEnvelopeTab === 1 }"
+                >
                     <h2>Pitch envelope</h2>
                     <div class="wrapper input range">
                         <label for="pitchRange">Range</label>
-                        <input type="range" id="pitchRange" min="-24" max="24" step="1" value="0" />
+                        <input v-model.number="pitchRange"
+                               type="range" id="pitchRange" min="-24" max="24" step="1" value="0"
+                               @input="invalidate" />
                     </div>
                     <div class="wrapper input range">
                         <label for="pitchAttack">Attack</label>
-                        <input type="range" id="pitchAttack" min="0" max="1" step=".01" value="0">
+                        <input v-model.number="pitchAttack"
+                               type="range" id="pitchAttack" min="0" max="1" step=".01" value="0"
+                               @input="invalidate" />
                     </div>
                     <div class="wrapper input range">
                         <label for="pitchDecay">Decay</label>
-                        <input type="range" id="pitchDecay" min="0" max="1" step=".01" value="1">
+                        <input v-model.number="pitchDecay"
+                               type="range" id="pitchDecay" min="0" max="1" step=".01" value="1"
+                               @input="invalidate">
                     </div>
                     <div class="wrapper input range">
                         <label for="pitchSustain">Sustain</label>
-                        <input type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75">
+                        <input v-model.number="pitchSustain"
+                               type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75"
+                               @input="invalidate">
                     </div>
                     <div class="wrapper input range">
                         <label for="pitchRelease">Release</label>
-                        <input type="range" id="pitchRelease" min="0" max="1" step=".01" value="0">
+                        <input v-model.number="pitchRelease"
+                               type="range" id="pitchRelease" min="0" max="1" step=".01" value="0"
+                               @input="invalidate">
                     </div>
                 </div>
             </div>
@@ -158,6 +190,9 @@ export default {
             required: true,
         },
     },
+    data: () => ({
+        activeEnvelopeTab: 0,
+    }),
     computed: {
         ...mapState([
             'windowSize',
@@ -165,30 +200,70 @@ export default {
         oscillator() {
             return this.instrumentRef.oscillators[this.oscillatorIndex];
         },
+        // generic oscillator properties
         oscillatorEnabled: {
-            get() {
-                return this.oscillator.enabled;
-            },
-            set(value) {
-                this.update('enabled', value);
-            }
+            get() { return this.oscillator.enabled; },
+            set(value) { this.update('enabled', value); }
         },
         oscillatorWaveform: {
-            get() {
-                return this.oscillator.waveform;
-            },
-            set(value) {
-                this.update('waveform', value);
-            }
+            get() { return this.oscillator.waveform; },
+            set(value) { this.update('waveform', value); }
         },
         oscillatorVolume: {
-            get() {
-                return this.oscillator.volume;
-            },
-            set(value) {
-                this.update('volume', value);
-            }
+            get() { return this.oscillator.volume; },
+            set(value) { this.update('volume', value); }
         },
+        // oscillator tuning
+        oscillatorDetune: {
+            get() { return this.oscillator.detune; },
+            set(value) { this.update('detune', value); }
+        },
+        oscillatorOctaveShift: {
+            get() { return this.oscillator.octaveShift; },
+            set(value) { this.oscillator.octaveShift = value; }
+        },
+        oscillatorFineShift: {
+            get() { return this.oscillator.fineShift; },
+            set(value) { this.oscillator.fineShift = value; }
+        },
+        // oscillator amplitude envelopes
+        amplitudeAttack: {
+            get() { return this.oscillator.adsr.attack; },
+            set(value) { this.update('adsr', { ...this.oscillator.adsr, attack: value }); }
+        },
+        amplitudeDecay: {
+            get() { return this.oscillator.adsr.decay; },
+            set(value) { this.update('adsr', { ...this.oscillator.adsr, decay: value }); }
+        },
+        amplitudeSustain: {
+            get() { return this.oscillator.adsr.sustain; },
+            set(value) { this.update('adsr', { ...this.oscillator.adsr, sustain: value }); }
+        },
+        amplitudeRelease: {
+            get() { return this.oscillator.adsr.release; },
+            set(value) { this.update('adsr', { ...this.oscillator.adsr, release: value }); }
+        },
+        // oscillator pitch envelopes
+        pitchRange: {
+            get() { return this.oscillator.pitch.range; },
+            set(value) { this.update('pitch', { ...this.oscillator.pitch, range: value }); }
+        },
+        pitchAttack: {
+            get() { return this.oscillator.pitch.attack; },
+            set(value) { this.update('pitch', { ...this.oscillator.pitch, attack: value }); }
+        },
+        pitchDecay: {
+            get() { return this.oscillator.pitch.decay; },
+            set(value) { this.update('pitch', { ...this.oscillator.pitch, decay: value }); }
+        },
+        pitchSustain: {
+            get() { return this.oscillator.pitch.sustain; },
+            set(value) { this.update('pitch', { ...this.oscillator.pitch, sustain: value }); }
+        },
+        pitchRelease: {
+            get() { return this.oscillator.pitch.release; },
+            set(value) { this.update('pitch', { ...this.oscillator.pitch, release: value }); }
+        },    
     },
     watch: {
         windowSize: {
@@ -199,11 +274,11 @@ export default {
                 }
             },
         },
-        oscillatorIndex: renderWaveform,
-        instrumentRef: renderWaveform,
+        oscillatorIndex() { this.renderWaveform(); },
+        instrumentRef() { this.renderWaveform(); }
     },
     mounted() {
-        this.canvas = new zCanvas.canvas(512, 200); // 512 equals the size of the wave table (see InstrumentFactory)
+        this.canvas = new zCanvas.canvas(Config.WAVE_TABLE_SIZE, 200);
         this.canvas.setBackgroundColor('#000000');
         this.canvas.insertInPage(this.$refs.canvasContainer);
         this.wtDraw = new WaveTableDraw(this.canvas.getWidth(), this.canvas.getHeight(), this.handleWaveformUpdate);
@@ -217,14 +292,13 @@ export default {
     methods: {
         ...mapMutations([
             'updateOscillator',
-            'invalidatePresetName',
         ]),
         update(prop, value) {
             this.updateOscillator({ instrumentIndex: this.instrumentId, oscillatorIndex: this.oscillatorIndex, prop, value });
         },
         handleOscillatorEnabledChange() {
             this.cacheOscillator();
-            this.invalidatePresetName(this.instrumentRef);
+            this.invalidate();
         },
         handleOscillatorWaveformChange() {
             this.renderWaveform(this.oscillator);
@@ -233,11 +307,15 @@ export default {
             if (!this.oscillator.enabled) {
                 this.update('enabled', true);
             }
-            this.invalidatePresetName(this.instrumentRef);
+            this.invalidate();
         },
         handleOscillatorVolumeChange() {
             AudioService.updateOscillator('volume', this.instrumentId, this.oscillatorIndex, this.oscillator);
-            this.invalidatePresetName(this.instrumentRef);
+            this.invalidate();
+        },
+        handleOscillatorTuningChange(tuningProperty) {
+            AudioService.updateOscillator('tuning', this.instrumentId, this.oscillatorIndex, this.oscillator);
+            this.invalidate();
         },
         resizeWaveTableDraw(width = window.innerWidth, height = window.innerHeight) {
             const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
@@ -261,7 +339,7 @@ export default {
                 }
                 this.cacheOscillator();
             }
-            this.invalidatePresetName(this.instrumentRef);
+            this.invalidate();
         },
         // render the current oscillators waveform into the WaveTableDraw renderer
         // (is a zCanvas sprite and not part of the Vue component render cycle)
@@ -275,6 +353,9 @@ export default {
         cacheOscillator() {
             AudioService.updateOscillator('waveform', this.instrumentId, this.oscillatorIndex, this.oscillator);
         },
+        invalidate() {
+            this.$emit('invalidate');
+        },
     }
 };
 </script>
@@ -287,6 +368,19 @@ export default {
       .oscillatorWaveforms {
 
       }
+    }
+
+    #canvasContainer {
+      margin: 1em 0 0;
+
+      canvas {
+        border-radius: 7px;
+        border: 4px solid #666;
+      }
+    }
+
+    .oscillatorWaveforms {
+      padding: .5em 0;
     }
 
     #oscillatorEditor {
@@ -304,6 +398,18 @@ export default {
         padding: .5em .75em;
         border: 1px solid #666;
         min-height: 165px;
+      }
+    }
+
+    @media screen and ( min-width: $idealInstrumentEditorWidth ) {
+      #instrumentOscillatorEditor {
+        display: inline-block;
+        width: 550px;
+        padding: 1em;
+        border: 1px solid #666;
+        border-top: 1px solid #666;
+        border-bottom-left-radius: 7px;
+        border-bottom-right-radius: 7px;
       }
     }
 </style>

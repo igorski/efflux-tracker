@@ -73,9 +73,8 @@ export default {
         setActiveOscillatorIndex(state, index) {
             state.activeOscillatorIndex = index;
         },
-        invalidatePresetName(state, instrument) {
-            if (instrument.presetName !== null && !instrument.presetName.includes('*'))
-                instrument.presetName += '*';
+        setPresetName(state, { instrument, presetName }) {
+            instrument.presetName = name;
         },
     },
     actions: {

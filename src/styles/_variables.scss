@@ -9,6 +9,8 @@ $mobile-width: 685px; // the threshold below which we start to use the mobile vi
 $menu-height: 46px;
 $toggle-width: 50px;
 $footer-height: 45px;
+$idealInstrumentEditorWidth: 855px;
+$idealInstrumentEditorHeight: 580px;
 
 @import '_mixins.scss';
 @import 'colors.scss';

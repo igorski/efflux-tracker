@@ -135,9 +135,6 @@ function handleViewMessage( type, optPayload ) {
                 }
             }
             break;
-        case View.EVENTS.SET_TUNING:
-            handleTuningChange( optPayload.type, optPayload.value );
-            break;
         case View.EVENTS.CLOSE:
             handleClose();
             break;
@@ -167,24 +164,6 @@ function handlePresetSelect( selectedPresetName ) {
             }
         }
     }
-}
-
-function handleTuningChange( type, value ) {
-    const oscillator = model.instrumentRef.oscillators[ model.activeOscillatorIndex ];
-    switch ( type ) {
-        case "detune":
-            oscillator.detune = value;
-            break;
-
-        case "octave":
-            oscillator.octaveShift = value;
-            break;
-
-        case "fine":
-            oscillator.fineShift = value;
-            break;
-    }
-    Pubsub.publishSync( Messages.ADJUST_OSCILLATOR_TUNING, [ model.instrumentId, model.activeOscillatorIndex, oscillator ]);
 }
 
 function cacheAllOscillators() {

@@ -70,8 +70,6 @@ export default
 
     // editor messages
 
-    ADJUST_OSCILLATOR_TUNING            : "ED:0", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
-    ADJUST_OSCILLATOR_VOLUME            : "ED:1", // payload is Array [ instrument index, oscillator index, INSTRUMENT_OSCILLATOR ]
     ADJUST_INSTRUMENT_VOLUME            : "ED:3", // payload is Array [ instrument index, new volume ]
     UPDATE_FILTER_SETTINGS              : "ED:4", // payload is Array [ instrument index, filter properties Object ]
     UPDATE_DELAY_SETTINGS               : "ED:5", // payload is Array [ instrument index, delay properties Object ]

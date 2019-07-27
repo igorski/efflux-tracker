@@ -156,7 +156,6 @@ const AudioService =
                 [   Messages.SONG_LOADED,
                     Messages.APPLY_INSTRUMENT_MODULES,
                     Messages.TOGGLE_OUTPUT_RECORDING,
-                    Messages.ADJUST_OSCILLATOR_TUNING,
                     Messages.ADJUST_INSTRUMENT_VOLUME,
                     Messages.UPDATE_FILTER_SETTINGS,
                     Messages.UPDATE_DELAY_SETTINGS,
@@ -380,22 +379,25 @@ const AudioService =
         delete instrumentEvents[ event.instrument ][ event.id ];
     },
     updateOscillator(property, instrumentIndex, oscillatorIndex, oscillator) {
-        if (!/waveform|volume/.test(property))
+        if (!/waveform|tuning|volume/.test(property))
             throw new Error(`cannot update unsupported oscillator property ${property}`);
-
+        const events = instrumentEvents[instrumentIndex];
         switch (property) {
             case 'waveform':
                 if ( oscillator.enabled && oscillator.waveform === 'CUSTOM' ) {
-                    InstrumentUtil.adjustEventWaveForms( instrumentEvents[instrumentIndex], oscillatorIndex,
+                    InstrumentUtil.adjustEventWaveForms(events, oscillatorIndex,
                         createTableFromCustomGraph(instrumentIndex, oscillatorIndex, oscillator.table)
                     );
                 }
                 else {
-                    InstrumentUtil.adjustEventWaveForms( instrumentEvents[instrumentIndex], oscillatorIndex, pool[oscillator.waveform] );
+                    InstrumentUtil.adjustEventWaveForms(events, oscillatorIndex, pool[oscillator.waveform] );
                 }
                 break;
             case 'volume':
-                InstrumentUtil.adjustEventVolume(instrumentEvents[instrumentIndex], oscillatorIndex, oscillator);
+                InstrumentUtil.adjustEventVolume(events, oscillatorIndex, oscillator);
+                break;
+            case 'tuning':
+                InstrumentUtil.adjustEventTunings(events, oscillatorIndex, oscillator);
                 break;
         }
     },
@@ -415,11 +417,6 @@ function handleBroadcast( type, payload )
             recording = !recording;
             applyRecordingState();
             break;
-
-        case Messages.ADJUST_OSCILLATOR_TUNING:
-            InstrumentUtil.adjustEventTunings( instrumentEvents[ payload[ 0 ]], payload[ 1 ], payload[ 2 ]);
-            break;
-
         case Messages.ADJUST_INSTRUMENT_VOLUME:
             instrumentModules[ payload[ 0 ]].output.gain.value = payload[ 1 ];
             break;

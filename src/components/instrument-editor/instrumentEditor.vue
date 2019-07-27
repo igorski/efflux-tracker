@@ -25,7 +25,7 @@
         <div class="header">
             <h2>Instrument editor</h2>
             <button class="help-button"
-                    @click="">?</button>
+                    @click="openHelp">?</button>
             <button class="close-button"
                     @click="$emit('close')">x</button>
 
@@ -34,28 +34,20 @@
                     v-model.number="instrument"
             >
                 <option v-for="(instrument, idx) in instrumentAmount"
-                        :key=`instrument_{$idx}`
+                        :key="`instrument_${idx}`"
                         :value="idx"
                 >Instrument {{ instrument }}</option>
             </select>
         </div>
 
         <!-- part 1 : oscillator editor -->
-        <ul id="oscillatorTabs" class="tabList">
-            <li :class="{ active: activeOscillatorIndex === 0 }"
-                @click="setActiveOscillatorIndex(0)"
+        <ul id="oscillatorTabs" class="tab-list">
+            <li v-for="(oscillator, idx) in oscillatorAmount"
+                :key="`oscillator_${idx}`"
+                :class="{ active: activeOscillatorIndex === idx }"
+                @click="setActiveOscillatorIndex(idx)"
             >
-                Oscillator 1
-            </li>
-            <li :class="{ active: activeOscillatorIndex === 1 }"
-                @click="setActiveOscillatorIndex(1)"
-            >
-                Oscillator 2
-            </li>
-            <li :class="{ active: activeOscillatorIndex === 2 }"
-                @click="setActiveOscillatorIndex(2)"
-            >
-                Oscillator 3
+                Oscillator {{ idx + 1 }}
             </li>
         </ul>
         <div class="horizontalGroup">
@@ -63,10 +55,11 @@
                 :instrumentRef="instrumentRef"
                 :instrumentId="instrumentId"
                 :oscillatorIndex="activeOscillatorIndex"
+                @invalidate="invalidatePreset"
             />
 
+            <!-- part 2: modules -->
             <section id="instrumentModulesEditor">
-
                 <div class="module-list">
                     <fieldset class="instrument-parameters">
                         <legend>Mixer</legend>
@@ -76,7 +69,7 @@
                         </div>
                     </fieldset>
 
-                    <ul id="modulesTabs" class="tabList">
+                    <ul id="modulesTabs" class="tab-list">
                         <li data-type="page1" class="active">
                             EQ / Filter
                         </li>
@@ -218,7 +211,7 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 import Config from '../../config';
 import Manual from '../../definitions/Manual';
 import OscillatorEditor from './components/oscillatorEditor';
@@ -229,6 +222,7 @@ export default {
     },
     data: () => ({
         instrumentAmount: Config.INSTRUMENT_AMOUNT,
+        oscillatorAmount: Config.OSCILLATOR_AMOUNT,
         canvas: null,
         wtDraw: null,
     }),
@@ -244,6 +238,7 @@ export default {
             },
             set(value) {
                 this.setInstrumentId(value);
+                this.setActiveInstrument(value); // allows live keyboard/MIDI playing to use new instrument
             },
         },
         instrumentRef() {
@@ -252,11 +247,18 @@ export default {
     },
     methods: {
         ...mapMutations([
+            'setActiveInstrument',
             'setActiveOscillatorIndex',
             'setInstrumentId',
+            'setPresetName',
         ]),
-        handleHelp() {
+        openHelp() {
             window.open(Manual.INSTRUMENT_EDITOR_HELP, '_blank');
+        },
+        invalidatePreset() {
+            if (this.instrument.presetName && !this.instrument.presetName.includes('*')) {
+                this.setPresetName({ instrument: this.instrument, presetName: `${instrument.presetName}*` });
+            }
         },
     }
 };
@@ -265,85 +267,12 @@ export default {
 <style lang="scss" scoped>
     @import '@/styles/_layout.scss';
 
-    $idealInstrumentEditorWidth: 855px;
-    $idealInstrumentEditorHeight: 580px;
-
     #instrumentEditor
     {
       @include EditorComponent();
       @include Overlay();
 
       height: auto;
-
-      canvas {
-        border-radius: 7px;
-        border: 4px solid #666;
-      }
-
-      .instrument-parameters {
-
-        display: inline-block;
-        vertical-align: top;
-        width: 45%;
-        margin-right: 1em;
-
-        h2 {
-          clear: both;
-          padding: .5em 0;
-        }
-
-        .wrapper.range {
-
-          width: 100%;
-          clear: both;
-
-          label {
-            width: 33%;
-            vertical-align: middle;
-            display: inline-block;
-            font-style: italic;
-          }
-
-          input {
-            width: 50%;
-            vertical-align: middle;
-            display: inline-block;
-          }
-        }
-      }
-
-      .tabbed-content {
-        display: none;
-        border-top: 1px solid #666;
-
-        &.active {
-          display: block;
-        }
-      }
-    }
-
-    .tabList {
-
-      display: inline-block;
-      margin: .5em 0 0;
-
-      li {
-        display: inline-block;
-        border: 1px solid #666;
-        border-bottom: 1px solid #393b40;
-        margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
-        padding: .25em 1em;
-        cursor: pointer;
-        background-color: #666;
-        font-size: 90%;
-        font-weight: bold;
-
-        &.active {
-          background-color: transparent;
-          color: #FFF;
-          position: relative;
-        }
-      }
     }
 
     #instrumentSelect {
@@ -397,14 +326,6 @@ export default {
       margin-right: 10px;
     }
 
-    #canvasContainer {
-      margin: 1em 0 0;
-    }
-
-    .oscillatorWaveforms {
-      padding: .5em 0;
-    }
-
     #instrumentPresets {
       display: inline-block;
       width: 100%;
@@ -426,16 +347,6 @@ export default {
         margin-top: -$idealInstrumentEditorHeight / 2;
       }
 
-      #instrumentOscillatorEditor {
-        display: inline-block;
-        width: 550px;
-        padding: 1em;
-        border: 1px solid #666;
-        border-top: 1px solid #666;
-        border-bottom-left-radius: 7px;
-        border-bottom-right-radius: 7px;
-      }
-
       #instrumentModulesEditor {
         display: inline-block;
 
@@ -451,16 +362,6 @@ export default {
     {
       #instrumentEditor {
         position: absolute;
-
-        .instrument-parameters {
-          @include boxSize();
-          padding: 1em;
-          width: 100%;
-          display: block;
-          border-radius: 7px;
-          border: 1px solid #666;
-          margin-bottom: .5em;
-        }
       }
 
       #instrumentModulesEditor {

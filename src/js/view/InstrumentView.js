@@ -80,23 +80,8 @@ const self = module.exports = {
             presetNameInput         = element.querySelector( "#presetName" );
             instrumentVolumeControl = element.querySelector( "#instrumentVolume" );
 
-            // oscillator tuning
-            detuneControl           = element.querySelector( "#detune" );
-            octaveShiftControl      = element.querySelector( "#octaveShift" );
-            fineShiftControl        = element.querySelector( "#fineShift" );
-
-            // amplitude envelope
-            attackControl           = element.querySelector( "#attack" );
-            decayControl            = element.querySelector( "#decay" );
-            sustainControl          = element.querySelector( "#sustain" );
-            releaseControl          = element.querySelector( "#release" );
 
             // pitch envelope
-            pitchRangeControl       = element.querySelector( "#pitchRange" );
-            pitchAttackControl      = element.querySelector( "#pitchAttack" );
-            pitchDecayControl       = element.querySelector( "#pitchDecay" );
-            pitchSustainControl     = element.querySelector( "#pitchSustain" );
-            pitchReleaseControl     = element.querySelector( "#pitchRelease" );
 
             amplitudeEditor = element.querySelector( "#amplitudeEditor" );
             pitchEditor     = element.querySelector( "#pitchEditor" );
@@ -139,28 +124,12 @@ const self = module.exports = {
             element.querySelector( ".close-button" ).addEventListener  ( "click", ( e ) => listener( self.EVENTS.CLOSE ));
             element.querySelector( ".help-button" ).addEventListener   ( "click", handleHelp );
             element.querySelector( "#oscillatorTabs" ).addEventListener( "click", handleOscillatorTabClick );
-            element.querySelector( "#envelopeTabs" ).addEventListener  ( "click", handleEnvelopeTabClick );
             element.querySelector( "#modulesTabs" ).addEventListener   ( "click", handleModulesTabClick );
             instrumentSelect.addEventListener ( "change", handleInstrumentSelect );
             presetSelect.addEventListener     ( "change", handlePresetSelect );
             presetSave.addEventListener       ( "click",  handlePresetSave );
             presetNameInput.addEventListener  ( "focus",  handlePresetFocus );
             presetNameInput.addEventListener  ( "blur",   handlePresetBlur );
-
-            [ detuneControl, octaveShiftControl, fineShiftControl ].forEach(( control ) => {
-                control.addEventListener( "input", handleTuningChange );
-            });
-
-            [ attackControl, decayControl, sustainControl, releaseControl ].forEach(( control ) => {
-                control.addEventListener( "input", handleAmplitudeEnvelopeChange );
-            });
-
-            [
-                pitchRangeControl, pitchAttackControl, pitchDecayControl,
-                pitchSustainControl, pitchReleaseControl
-            ].forEach(( control ) => {
-                control.addEventListener( "input", handlePitchEnvelopeChange );
-            });
 
             instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
 
@@ -246,19 +215,6 @@ const self = module.exports = {
         odPostCutControl.value = instrumentRef.overdrive.postCut;
     },
 
-
-    inject( container ) {
-        container.appendChild( element );
-        canvas.addChild( wtDraw );
-    },
-
-    remove() {
-        if ( element.parentNode ) {
-            element.parentNode.removeChild( element );
-            canvas.removeChild( wtDraw );
-        }
-    },
-
     /* public methods */
 
     setPresets( list, presetName ) {
@@ -282,26 +238,6 @@ function handleOscillatorTabClick( aEvent ) {
     }
 }
 
-function handleEnvelopeTabClick( aEvent ) {
-    const element = aEvent.target, activeClass = "active";
-    let tabIndex = 0;
-    if ( element.nodeName === "LI" ) {
-        switch( element.getAttribute( "data-type" )) {
-            default:
-            case "amplitude":
-                amplitudeEditor.classList.add( activeClass );
-                pitchEditor.classList.remove( activeClass );
-                break;
-            case "pitch":
-                amplitudeEditor.classList.remove( activeClass );
-                pitchEditor.classList.add( activeClass );
-                tabIndex = 1;
-                break;
-        }
-        setActiveTab( document.querySelectorAll( "#envelopeTabs li" ), tabIndex );
-    }
-}
-
 function handleModulesTabClick( aEvent ) {
     const element = aEvent.target, activeClass = "active";
     let tabIndex = 0;
@@ -320,83 +256,6 @@ function handleModulesTabClick( aEvent ) {
         }
         setActiveTab( document.querySelectorAll( "#modulesTabs li" ), tabIndex );
     }
-}
-
-function handleTuningChange( aEvent ) {
-    const target = aEvent.target,
-          value  = parseFloat( target.value );
-
-    let type;
-    switch ( target ) {
-        default:
-        case detuneControl:
-            type = "detune";
-            break;
-
-        case octaveShiftControl:
-            type = "octave";
-            break;
-
-        case fineShiftControl:
-            type = "fine";
-            break;
-    }
-    listener( self.EVENTS.SET_TUNING, { type: type, value: value });
-    invalidatePresetName();
-}
-
-function handleAmplitudeEnvelopeChange( aEvent ) {
-    const oscillator = getActiveOscillator(),
-          target     = aEvent.target,
-          value      = parseFloat( target.value );
-
-    switch ( target ) {
-        case attackControl:
-            oscillator.adsr.attack = value;
-            break;
-
-        case decayControl:
-            oscillator.adsr.decay = value;
-            break;
-
-        case sustainControl:
-            oscillator.adsr.sustain = value;
-            break;
-
-        case releaseControl:
-            oscillator.adsr.release = value;
-            break;
-    }
-    invalidatePresetName();
-}
-
-function handlePitchEnvelopeChange( aEvent ) {
-    const oscillator = getActiveOscillator(),
-          target     = aEvent.target,
-          value      = parseFloat( target.value );
-
-    switch ( target ) {
-        case pitchRangeControl:
-            oscillator.pitch.range = value;
-            break;
-
-        case pitchAttackControl:
-            oscillator.pitch.attack = value;
-            break;
-
-        case pitchDecayControl:
-            oscillator.pitch.decay = value;
-            break;
-
-        case pitchSustainControl:
-            oscillator.pitch.sustain = value;
-            break;
-
-        case pitchReleaseControl:
-            oscillator.pitch.release = value;
-            break;
-    }
-    invalidatePresetName();
 }
 
 function handleFilterChange( aEvent ) {
@@ -485,23 +344,4 @@ function handleInstrumentVolumeChange( aEvent ) {
         Messages.ADJUST_INSTRUMENT_VOLUME, [ model.instrumentId, model.instrumentRef.volume ]
     );
     invalidatePresetName();
-}
-
-/* private methods */
-
-/**
- * sets the active class in a tab list
- *
- * @param {NodeList} tabs of Nodes which are tabs
- * @param {number} activeTab index of the active tab
- */
-function setActiveTab( tabs, activeTab ) {
-    let i = tabs.length, tabCSSList;
-    while ( i-- ) {
-        tabCSSList = tabs[ i ].classList;
-        if ( i === activeTab )
-            tabCSSList.add( "active" );
-        else
-            tabCSSList.remove( "active" );
-    }
 }
