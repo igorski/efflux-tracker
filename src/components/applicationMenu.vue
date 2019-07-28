@@ -122,21 +122,16 @@ export default {
             'importInstruments',
             'exportInstruments',
         ]),
-        handleMouseOver( aEvent ) {
+        handleMouseOver() {
             this.setHelpTopic('menu');
         },
-        handleLoad( aEvent ) {
+        handleLoad() {
             this.setOverlay('sngbr');
         },
-        handleSave( aEvent ) {
-            if ( this.isValid( this.activeSong )) {
-                this.saveSong( this.activeSong )
-                    .then(() => {
-                        this.showNotification({ message: this.getCopy('SONG_SAVED', this.activeSong.meta.title) });
-                    });
-            }
+        handleSave() {
+            this.saveSong(this.activeSong);
         },
-        handleReset( aEvent ) {
+        handleReset() {
             const self = this;
             this.openDialog({
                 type: 'confirm',
@@ -147,33 +142,13 @@ export default {
                 },
             });
         },
-        handleSettings( aEvent ) {
+        handleSettings() {
             this.setOverlay('settings');
         },
-        handleHelp(aEvent) {
+        handleHelp() {
             window.open(Manual.ONLINE_MANUAL);
         },
-        /**
-         * validates whether the current state of the song is
-         * eligible for saving / exporting
-         */
-        isValid(song) {
-            let hasContent = SongUtil.hasContent(song);
-
-            if ( !hasContent ) {
-                this.showError(this.getCopy('ERROR_EMPTY_SONG'));
-                return false;
-            }
-
-            if (song.meta.author.length === 0 || song.meta.title.length === 0)
-                hasContent = false;
-
-            if (!hasContent)
-                this.showError(this.getCopy('ERROR_NO_META'));
-
-            return hasContent;
-        },
-        handleRecord( aEvent ) {
+        handleRecord() {
             Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
             this.showNotification({ message: this.getCopy('RECORDING_ENABLED') });
         },

@@ -127,6 +127,9 @@ export default {
         updateOscillator(state, { instrumentIndex, oscillatorIndex, prop, value }) {
             Vue.set(state.activeSong.instruments[instrumentIndex].oscillators[oscillatorIndex], prop, value);
         },
+        updateInstrument(state, { instrumentIndex, instrument }) {
+            Vue.set(state.activeSong.instruments, instrumentIndex, instrument);
+        },
     },
     actions: {
         loadStoredSongs({ state, commit }) {
@@ -160,8 +163,26 @@ export default {
                 resolve(SongFactory.createSong( Config.INSTRUMENT_AMOUNT ));
             });
         },
-        saveSong({ state, dispatch }, song ) {
-            return new Promise(async resolve => {
+        saveSong({ state, getters, commit, dispatch }, song) {
+            return new Promise(async (resolve, reject) => {
+                // validate song first
+                try {
+                    let hasContent = SongUtil.hasContent(song);
+                    if ( !hasContent ) {
+                        throw 'ERROR_EMPTY_SONG';
+                    }
+                    if (song.meta.author.length === 0 || song.meta.title.length === 0) {
+                        hasContent = false;
+                    }
+                    if (!hasContent) {
+                        throw 'ERROR_NO_META';
+                    }
+                } catch(errorKey) {
+                    commit('showError', getters.getCopy(errorKey));
+                    reject();
+                    return;
+                }
+                // all is well, delete existing song and save
                 try {
                     await dispatch('deleteSong', { song, persist: false }); // remove duplicate song if existed
                 }
@@ -169,9 +190,13 @@ export default {
                     // that's fine.
                 }
                 song.meta.modified = Date.now();    // update timestamp
-                state.songs.push( song );
+                state.songs.push(song);
                 persistState(state);
+                commit('showNotification', { message: getters.getCopy('SONG_SAVED', song.meta.title) });
                 resolve();
+            })
+            .catch(() => {
+                // handled above
             });
         },
         deleteSong({ state }, { song, persist = true }) {

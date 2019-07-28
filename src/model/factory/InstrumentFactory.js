@@ -165,8 +165,7 @@ const InstrumentFactory =
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array.<number>}
      */
-    getTableForOscillator( oscillator, size  )
-    {
+    getTableForOscillator(oscillator, size ) {
         if ( !oscillator.table ) {
 
             if ( typeof size !== "number" )
@@ -187,9 +186,8 @@ const InstrumentFactory =
      * @param {string} newInstrumentName
      * @return {INSTRUMENT}
      */
-    loadPreset( instrumentPreset, newInstrumentId, newInstrumentName )
-    {
-        const newInstrument = ObjectUtil.clone( instrumentPreset );
+    loadPreset( instrumentPreset, newInstrumentId, newInstrumentName ) {
+        const newInstrument = ObjectUtil.clone(instrumentPreset);
         newInstrument.id    = newInstrumentId;
         newInstrument.name  = newInstrumentName;
 
@@ -202,5 +200,4 @@ const InstrumentFactory =
         return newInstrument;
     }
 };
-
 export default InstrumentFactory;

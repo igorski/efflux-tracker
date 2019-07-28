@@ -96,7 +96,6 @@ const ModuleParamHandler = {
             ( event && event.mp ) ? event.mp.value : 50,
             selectedGlide
         );
-        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
     },
 
     getNextSelectedModule( keyCode, currentValue ) {

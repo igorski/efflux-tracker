@@ -136,17 +136,6 @@ const self = module.exports = {
 
 /* event handlers */
 
-
-function handleOscillatorTabClick( aEvent ) {
-    const element = aEvent.target;
-    if ( element.nodeName === "LI" ) {
-
-        const value = parseFloat( element.getAttribute( "data-oscillator" ));
-        if ( !isNaN( value ))
-            listener( self.EVENTS.SET_OSC, value - 1 );
-    }
-}
-
 function handleModulesTabClick( aEvent ) {
     const element = aEvent.target, activeClass = "active";
     let tabIndex = 0;

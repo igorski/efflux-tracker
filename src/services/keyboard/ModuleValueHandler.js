@@ -78,10 +78,7 @@ export default {
                 ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", 50, false
             );
         }
-
         event.mp.value = value;
-
-        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
     }
 };
 

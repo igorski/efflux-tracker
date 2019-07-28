@@ -78,7 +78,6 @@ export default {
         handlePatternClear() {
             efflux.activeSong.patterns[ this.activePattern ] = PatternFactory.createEmptyPattern(this.amountOfSteps);
             this.clearSelection();
-            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
             Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
         },
         handlePatternCopy() {
@@ -87,7 +86,6 @@ export default {
         handlePatternPaste() {
             if ( this.patternCopy ) {
                 PatternFactory.mergePatterns( this.activeSong.patterns[ this.activePattern ], this.patternCopy, this.activePattern );
-                Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                 Pubsub.publishSync( Messages.CREATE_LINKED_LISTS );
             }
         },
@@ -113,8 +111,6 @@ export default {
         
                 if ( this.activePattern > 0 )
                     this.setActivePattern(this.activePattern - 1);
-                else
-                    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
             }
         },
         handlePatternAdvanced() {

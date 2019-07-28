@@ -49,7 +49,6 @@ export default {
 
             if ( event ) {
                 event.instrument = keyCode - ZERO;
-                Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
             }
         }
     }

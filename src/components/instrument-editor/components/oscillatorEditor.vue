@@ -192,6 +192,8 @@ export default {
     },
     data: () => ({
         activeEnvelopeTab: 0,
+        canvas: null,
+        wtDraw: null,
     }),
     computed: {
         ...mapState([

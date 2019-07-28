@@ -249,8 +249,6 @@ function recordEventIntoSong( audioEvent, store )
 
         // update linked list for AudioEvents
         EventUtil.linkEvent( audioEvent, store.state.editor.activeInstrument, song, store.state.editor.eventList );
-
-        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW ); // ensure we can see the note being added
     }
     else {
         // sequencer isn't playing, add event at current editor step

@@ -67,13 +67,11 @@ const PatternTrackListController = module.exports =
         [
             Messages.SONG_LOADED,
             Messages.REFRESH_SONG,
-            Messages.REFRESH_PATTERN_VIEW,
             Messages.EDIT_NOTE_AT_POSITION,
             Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION,
             Messages.GLIDE_PARAM_AUTOMATIONS,
             Messages.EDIT_MOD_PARAMS_FOR_STEP,
             Messages.EDIT_NOTE_FOR_STEP,
-            Messages.HANDLE_KEYBOARD_MOVEMENT
 
         ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
     },
@@ -98,10 +96,6 @@ function handleBroadcast( type, payload )
             wrapper.focus();
             break;
 
-        case Messages.REFRESH_PATTERN_VIEW:
-            PatternTrackListController.update();
-            break;
-
         case Messages.EDIT_NOTE_AT_POSITION:
         case Messages.EDIT_NOTE_FOR_STEP:
             PatternTrackListController.editNoteForStep();
@@ -117,10 +111,6 @@ function handleBroadcast( type, payload )
 
         case Messages.EDIT_MOD_PARAMS_FOR_STEP:
             editModuleParamsForStep();
-            break;
-
-        case Messages.HANDLE_KEYBOARD_MOVEMENT:
-            View.focusActiveStep();
             break;
     }
 }

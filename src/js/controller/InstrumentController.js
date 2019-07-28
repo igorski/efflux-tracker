@@ -32,7 +32,6 @@ const Pubsub            = require( "pubsub-js" );
 /* private properties */
 
 let container, efflux, model, view;
-const EMPTY_PRESET_VALUE = "null";
 
 const InstrumentController = module.exports =
 {
@@ -72,51 +71,15 @@ const InstrumentController = module.exports =
             return;
 
         View.update( model.instrumentRef, model.activeOscillatorIndex );
-
-        updatePresetList();
     }
 };
 
-/* private methods */
-
-function handleBroadcast( type, payload ) {
-    switch ( type ) {
-        case Messages.TOGGLE_INSTRUMENT_EDITOR:
-
-            Pubsub.publishSync( Messages.CLOSE_OVERLAYS, InstrumentController );
-            Pubsub.publishSync( Messages.SHOW_BLIND );
-            Pubsub.publishSync( Messages.OVERLAY_OPENED );
-
-            View.inject( container );
-
-            model.instrumentId = payload;
-            InstrumentController.update(); // sync with model
-            break;
-
-        case Messages.CLOSE_OVERLAYS:
-
-            if ( payload !== InstrumentController )
-                View.remove();
-            break;
-
-        case Messages.SONG_LOADED:
-            updatePresetList();
-            model.activeOscillatorIndex = 0;
-            break;
-    }
-}
 
 function handleViewMessage( type, optPayload ) {
     switch ( type ) {
-        case View.EVENTS.READY:
-            updatePresetList();
-            break;
         case View.EVENTS.SET_OSC:
             model.activeOscillatorIndex = /** @type {number} */ ( optPayload );
             InstrumentController.update();
-            break;
-        case View.EVENTS.SELECT_PRESET:
-            handlePresetSelect( /** @type {string} */ ( optPayload ));
             break;
         case View.EVENTS.SELECT_INSTRUMENT:
             model.instrumentId = /** @type {number} */ ( optPayload );
@@ -135,57 +98,5 @@ function handleViewMessage( type, optPayload ) {
                 }
             }
             break;
-        case View.EVENTS.CLOSE:
-            handleClose();
-            break;
     }
-}
-
-function handleClose( aEvent ) {
-    Pubsub.publishSync( Messages.CLOSE_OVERLAYS );
-}
-
-function handlePresetSelect( selectedPresetName ) {
-    if ( selectedPresetName !== EMPTY_PRESET_VALUE ) {
-        if ( model.instrumentRef && model.instrumentRef.presetName !== selectedPresetName ) {
-            let instrumentPreset = model.getInstrumentByPresetName( selectedPresetName );
-
-            if ( instrumentPreset ) {
-                const newInstrument = InstrumentFactory.loadPreset(
-                    instrumentPreset,
-                    model.instrumentId,
-                    model.instrumentRef.name
-                );
-                model.instrumentRef = efflux.activeSong.instruments[ model.instrumentId ] = newInstrument;
-                model.activeOscillatorIndex = 0;
-                InstrumentController.update();
-                cacheAllOscillators();
-                Pubsub.publishSync( Messages.APPLY_INSTRUMENT_MODULES );
-            }
-        }
-    }
-}
-
-function cacheAllOscillators() {
-    model.instrumentRef.oscillators.forEach(( oscillator ) => {
-        cacheOscillatorWaveForm( oscillator );
-    });
-}
-
-function updatePresetList() {
-
-    const activeInstrument = efflux.activeSong.instruments[ model.instrumentId ];
-    const presets = model.getInstruments();
-    const list    = [];
-
-    list.push({ title: getCopy( "INPUT_PRESET" ), value: EMPTY_PRESET_VALUE });
-    presets.forEach(( preset ) => {
-        list.push({ title: preset.presetName, value: preset.presetName });
-    });
-    presets.sort(( a, b ) => {
-        if( a.presetName < b.presetName ) return -1;
-        if( a.presetName > b.presetName ) return 1;
-        return 0;
-    });
-    View.setPresets( list, activeInstrument.presetName );
 }

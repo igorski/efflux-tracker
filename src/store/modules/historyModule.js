@@ -74,13 +74,11 @@ const module = {
          * @return {boolean} whether an undo action took place
          */
         undo({ state, getters }) {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 if ( getters.canUndo ) {
                     state.undoManager.undo();
-                    resolve();
-                } else {
-                    reject();
                 }
+                resolve(); // always resolve, application should not break if history cannot be accessed
             });
         },
         /**
@@ -89,13 +87,11 @@ const module = {
          * @return {boolean} whether a redo action took place
          */
         redo({ state, getters }) {
-            return new Promise((resolve, reject) => {
+            return new Promise(resolve => {
                 if ( getters.canRedo ) {
                     state.undoManager.redo();
-                    resolve();
-                } else {
-                    reject();
                 }
+                resolve(); // always resolve, application should not break if history cannot be accesse
             });
         }
     }

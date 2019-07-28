@@ -42,7 +42,6 @@ export default
     OPEN_SONG_BROWSER            : "UI:5",
     OPEN_MODULE_PARAM_PANEL      : "UI:8",  // payload is callback Function to be executed on panel close
     MENU_INITIALIZED             : "UI:MI",
-    HANDLE_KEYBOARD_MOVEMENT     : "UI:13",
 
     // song messages
 
@@ -52,9 +51,7 @@ export default
     SONG_LOADED               : "SNGLDR", // payload consists of the Song that has been loaded
     TRANSFORM_LEGACY_SONG     : "SNGTF",  // payload is Song object
     REFRESH_SONG              : "SNG:3",
-    REFRESH_PATTERN_VIEW      : "SNG:4",
     CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
-    APPLY_INSTRUMENT_MODULES  : "SNG:7",
 
     // sequencer messages
 

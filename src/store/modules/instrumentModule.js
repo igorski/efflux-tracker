@@ -74,7 +74,7 @@ export default {
             state.activeOscillatorIndex = index;
         },
         setPresetName(state, { instrument, presetName }) {
-            instrument.presetName = name;
+            instrument.presetName = presetName;
         },
     },
     actions: {

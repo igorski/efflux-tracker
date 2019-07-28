@@ -223,10 +223,9 @@ function handleKeyDown( aEvent )
                             curStep,
                             activeStep: state.editor.activeStep
                         });
-                    } else
+                    } else {
                         store.commit('clearSelection');
-
-                    handleKeyboardNavigation();
+                    }
                     break;
 
                 case 40: // down
@@ -247,10 +246,9 @@ function handleKeyDown( aEvent )
                             activeStep: state.editor.activeStep
                         });
                     }
-                    else
+                    else {
                         store.commit('clearSelection');
-
-                    handleKeyboardNavigation();
+                    }
                     break;
 
                 case 39: // right
@@ -265,7 +263,6 @@ function handleKeyDown( aEvent )
                                 if (state.sequencer.activePattern < ( state.song.activeSong.patterns.length - 1 )) {
                                     store.commit('setActivePattern', state.sequencer.activePattern + 1);
                                     store.commit('setActiveInstrument', 0);
-                                    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
                             } else {
                                 store.commit('setActiveInstrument', state.editor.activeInstrument + 1);
@@ -280,8 +277,6 @@ function handleKeyDown( aEvent )
                             });
                         else
                             store.commit('clearSelection');
-
-                        handleKeyboardNavigation();
                     }
                     break;
 
@@ -297,7 +292,6 @@ function handleKeyDown( aEvent )
                                 if (state.editor.activePattern > 0 ) {
                                     store.commit('setActivePattern', state.sequencer.activePattern - 1);
                                     store.commit('setActiveInstrument', MAX_CHANNEL);
-                                    Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
                                 }
                             } else {
                                 store.commit('setActiveInstrument', state.editor.activeInstrument - 1);
@@ -311,10 +305,9 @@ function handleKeyDown( aEvent )
                                 activeStepOnStart: state.editor.activeStep
                             });
                         }
-                        else
+                        else {
                             store.commit('clearSelection');
-
-                        handleKeyboardNavigation();
+                        }
                     }
                     break;
 
@@ -324,7 +317,10 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 13: // enter
-                    if (hasOption)
+                    // confirm dialog (if existing)
+                    if (state.dialog)
+                        store.commit('closeDialog');
+                    else if (hasOption)
                         Pubsub.publishSync( Messages.EDIT_NOTE_FOR_STEP );
                     else
                         Pubsub.publishSync( Messages.EDIT_MOD_PARAMS_FOR_STEP );
@@ -386,14 +382,14 @@ function handleKeyDown( aEvent )
                 case 82: // R
                     if (hasOption) {
                         store.commit('setRecording', !state.sequencer.recording);
-                        aEvent.preventDefault();
+                        aEvent.preventDefault(); // otherwise page refreshes
                     }
                     break;
 
                 case 83: // S
                     if (hasOption) {
-                        Pubsub.publishSync( Messages.SAVE_SONG );
-                        aEvent.preventDefault();
+                        store.dispatch('saveSong', state.song.activeSong);
+                        aEvent.preventDefault(); // otherwise page is saved
                     }
                     break;
 
@@ -401,12 +397,7 @@ function handleKeyDown( aEvent )
 
                     // paste current selection
                     if (hasOption) {
-                        store.commit('saveState',
-                            StateFactory.getAction( States.PASTE_SELECTION, {
-                                store,
-                                updateHandler: () => Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW )
-                            })
-                        );
+                        store.commit('saveState', StateFactory.getAction( States.PASTE_SELECTION, { store }));
                     }
                     break;
 
@@ -415,12 +406,7 @@ function handleKeyDown( aEvent )
                     // cut current selection
 
                     if (hasOption) {
-                        store.commit('saveState',
-                            StateFactory.getAction( States.CUT_SELECTION, {
-                                store,
-                                updateHandler: () => Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW )
-                            })
-                        );
+                        store.commit('saveState', StateFactory.getAction( States.CUT_SELECTION, { store }));
                     }
                     break;
 
@@ -429,8 +415,6 @@ function handleKeyDown( aEvent )
                     if (hasOption) {
                         const action = !shiftDown ? 'undo' : 'redo';
                         store.dispatch(action).then(() => {
-                            Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
-
                             // TODO this is wasteful, can we do this more elegantly?
                             EventUtil.linkEvents( state.song.activeSong.patterns, state.editor.eventList );
                         });
@@ -535,8 +519,4 @@ function handleDeleteActionForCurrentMode() {
             Pubsub.publishSync( Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION );
             break;
     }
-}
-
-function handleKeyboardNavigation() {
-    Pubsub.publishSync( Messages.HANDLE_KEYBOARD_MOVEMENT );
 }

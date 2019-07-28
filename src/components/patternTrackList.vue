@@ -324,18 +324,14 @@ export default {
             const channelIndex  = efflux.EditorModel.activeInstrument;
             const channelEvents = this.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
             const event         = EventUtil.getFirstEventBeforeStep(
-                channelEvents, efflux.EditorModel.activeStep, ( compareEvent ) => {
-                    return !!compareEvent.mp;
-                });
+                                    channelEvents, this.activeStep, compareEvent => !!compareEvent.mp
+                                  );
             let createdEvents = null;
-        
             const addFn = () => {
                 const eventIndex = channelEvents.indexOf( event );
                 createdEvents = EventUtil.glideModuleParams(
                     this.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
                 );
-                if ( createdEvents )
-                    Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
             };
         
             if ( event ) {
@@ -351,7 +347,6 @@ export default {
                             else
                                 Vue.set(event, 'mp', null);
                         });
-                        Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
                     },
                     redo: addFn
                 });

@@ -262,7 +262,7 @@ function deleteModuleAutomationAction({ store, event, updateHandler }) {
     };
 }
 
-function cutSelectionAction({ store, updateHandler }) {
+function cutSelectionAction({ store }) {
 
     const song = store.state.song.activeSong;
 
@@ -287,7 +287,6 @@ function cutSelectionAction({ store, updateHandler }) {
             cutData = clonePattern( song, activePattern );
         }
         store.commit('clearSelection');
-        updateHandler(); // syncs view with model changes
     }
 
     // cut the data as it was the trigger for this action
@@ -304,8 +303,6 @@ function cutSelectionAction({ store, updateHandler }) {
             store.commit('setMinSelectedStep', selectedMinStep);
             store.commit('setMaxSelectedStep', selectedMaxStep);
             store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
-
-            updateHandler(); // syncs view with model changes
         },
         redo() {
             cut();
@@ -355,7 +352,7 @@ function deleteSelectionAction({ store }) {
     };
 }
 
-function pasteSelectionAction({ store, updateHandler }) {
+function pasteSelectionAction({ store }) {
     const song             = store.state.song.activeSong,
           eventList        = store.state.editor.eventList,
           activePattern    = store.state.sequencer.activePattern,
@@ -378,7 +375,6 @@ function pasteSelectionAction({ store, updateHandler }) {
             store.commit('pasteSelection', { song, eventList, activePattern, activeInstrument, activeStep });
             pastedData = clonePattern( song, activePattern );
         }
-        updateHandler(); // syncs view with model changes
     }
 
     // delete the data as it was the trigger for this action
@@ -398,8 +394,6 @@ function pasteSelectionAction({ store, updateHandler }) {
             store.commit('setMinSelectedStep', selectedMinStep);
             store.commit('setMaxSelectedStep', selectedMaxStep);
             store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
-
-            updateHandler(); // syncs view with model changes
         },
         redo() {
             paste( originalPatternData );

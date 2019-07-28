@@ -201,20 +201,32 @@
 
         <section id="instrumentPresets">
             <h2>Presets</h2>
-            <select id="presetSelect"></select>
+            <select v-model="currentPreset">
+                <option v-for="(instrument, idx) in presets"
+                        :key="`preset_${idx}`"
+                        :value="instrument.presetName"
+                >{{ instrument.presetName }}</option>
+            </select>
             <div class="save">
-                <input type="text" id="presetName" placeholder="preset name" />
-                <button id="presetSave">Save preset</button>
+                <input v-model.sync="presetName"
+                       type="text"
+                       placeholder="preset name"
+                />
+                <button>Save preset</button>
             </div>
         </section>
     </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 import Config from '../../config';
 import Manual from '../../definitions/Manual';
+import AudioService from '../../services/AudioService';
+import InstrumentFactory from '../../model/factory/InstrumentFactory';
 import OscillatorEditor from './components/oscillatorEditor';
+
+let EMPTY_PRESET_VALUE;
 
 export default {
     components: {
@@ -223,8 +235,7 @@ export default {
     data: () => ({
         instrumentAmount: Config.INSTRUMENT_AMOUNT,
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
-        canvas: null,
-        wtDraw: null,
+        currentPreset: null,
     }),
     computed: {
         ...mapState({
@@ -232,7 +243,12 @@ export default {
             activeInstrument: state => state.editor.activeInstrument,
             instrumentId: state => state.instrument.instrumentId,
             activeOscillatorIndex: state => state.instrument.activeOscillatorIndex,
+            instruments: state => state.instrument.instruments,
         }),
+        ...mapGetters([
+            'getCopy',
+            'getInstrumentByPresetName',
+        ]),
         instrument: {
             get() {
                 return this.instrumentId;
@@ -240,19 +256,65 @@ export default {
             set(value) {
                 this.setInstrumentId(value);
                 this.setActiveInstrument(value); // allows live keyboard/MIDI playing to use new instrument
+                const instrumentPresetName = this.instrumentRef.presetName;
+                if (this.presets.find(({ presetName }) => presetName === instrumentPresetName)) {
+                    this.currentPreset = instrumentPresetName;
+                } else {
+                    this.currentPreset = EMPTY_PRESET_VALUE;
+                }
             },
         },
         instrumentRef() {
             return this.activeSong.instruments[this.instrumentId];
         },
+        presets() {
+            const out = [
+                ...this.instruments,
+                { presetName: this.getCopy('INPUT_PRESET')}
+            ];
+            return out.sort(( a, b ) => {
+                if( a.presetName < b.presetName ) return -1;
+                if( a.presetName > b.presetName ) return 1;
+                return 0;
+            });
+        },
+        presetName: {
+            get() {
+                return this.instrumentRef.presetName;
+            },
+            set(value) {
+                this.setPresetName({ instrument: this.instrumentRef, presetName: value });
+            },
+        },
+    },
+    watch: {
+        currentPreset(selectedPresetName) {
+            if (selectedPresetName !== EMPTY_PRESET_VALUE &&
+                this.instrumentRef.presetName !== selectedPresetName) {
+                const instrumentPreset = this.getInstrumentByPresetName(selectedPresetName);
+                if (!instrumentPreset)
+                    return;
+
+                const newInstrument = InstrumentFactory.loadPreset(
+                    instrumentPreset, this.instrumentId, this.instrumentRef.name
+                );
+                this.updateInstrument({ instrumentIndex: this.instrumentId, instrument: newInstrument });
+                this.presetName = selectedPresetName;
+                this.setActiveOscillatorIndex(0);
+                AudioService.cacheAllOscillators(this.instrumentId, newInstrument);
+                AudioService.applyModules(this.activeSong);
+            }
+        },
     },
     created() {
-        this.setInstrumentId(this.activeInstrument);
+        EMPTY_PRESET_VALUE = this.getCopy('INPUT_PRESET');
+        this.instrument = this.activeInstrument; // last active instrument in editor will be opened
     },
     methods: {
         ...mapMutations([
             'setActiveInstrument',
             'setActiveOscillatorIndex',
+            'updateInstrument',
             'setInstrumentId',
             'setPresetName',
         ]),
@@ -260,8 +322,8 @@ export default {
             window.open(Manual.INSTRUMENT_EDITOR_HELP, '_blank');
         },
         invalidatePreset() {
-            if (this.instrument.presetName && !this.instrument.presetName.includes('*')) {
-                this.setPresetName({ instrument: this.instrument, presetName: `${instrument.presetName}*` });
+            if (this.instrumentRef.presetName && !this.instrumentRef.presetName.includes('*')) {
+                this.presetName = `${this.instrumentRef.presetName}*`;
             }
         },
     }

@@ -134,7 +134,6 @@ export default {
             this.saveSetting(
                 { name: this.settings.INPUT_FORMAT, value: this.paramFormat }
             );
-            // TODO:    Pubsub.publish( Messages.REFRESH_PATTERN_VIEW );
         },
         handleTrackFollowChange( aEvent ) {
             this.saveSetting(

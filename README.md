@@ -141,6 +141,7 @@ store.setOverlay() -> should indicate its a modal component
 rename stateFactory and related stuff to historyState
 
 editormodule -> active/step/instrument should be renamed to reflect they are being edited
+rename States to HistoryStates
 
 TODO: force tracklist re-render (for instance toggle hex/pct in settings screen)
 

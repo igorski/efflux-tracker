@@ -154,7 +154,6 @@ const AudioService =
                 // subscribe to messages
 
                 [   Messages.SONG_LOADED,
-                    Messages.APPLY_INSTRUMENT_MODULES,
                     Messages.TOGGLE_OUTPUT_RECORDING,
                     Messages.ADJUST_INSTRUMENT_VOLUME,
                     Messages.UPDATE_FILTER_SETTINGS,
@@ -189,7 +188,7 @@ const AudioService =
     togglePlayback(isPlaying, song) {
         playing = isPlaying;
         if (playing) {
-            applyModules(song);
+            AudioService.applyModules(song);
             applyRecordingState();
         } else {
             AudioService.reset();
@@ -376,6 +375,25 @@ const AudioService =
         }
         delete instrumentEvents[ event.instrument ][ event.id ];
     },
+    /**
+     * apply the module settings described in the currently active
+     * songs model onto the audio processing chain
+     */
+    applyModules(song) {
+        song.instruments.forEach(( instrument, index ) => {
+            const instrumentModule = instrumentModules[ index ];
+            instrumentModule.output.gain.value = instrument.volume;
+            ModuleFactory.applyConfiguration('filter', instrumentModule, instrument.filter, masterBus);
+            ModuleFactory.applyConfiguration('delay', instrumentModule, instrument.delay, masterBus);
+            ModuleFactory.applyConfiguration('eq', instrumentModule, instrument.eq, masterBus);
+            ModuleFactory.applyConfiguration('od', instrumentModule, instrument.overdrive, masterBus);
+        });
+    },
+    cacheAllOscillators(instrumentIndex, instrument) {
+        instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
+            AudioService.updateOscillator('waveform', instrumentIndex, oscillatorIndex, oscillator )
+        });
+    },
     updateOscillator(property, instrumentIndex, oscillatorIndex, oscillator) {
         if (!/waveform|tuning|volume/.test(property))
             throw new Error(`cannot update unsupported oscillator property ${property}`);
@@ -407,10 +425,6 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
-        case Messages.APPLY_INSTRUMENT_MODULES:
-            applyModules();
-            break;
-
         case Messages.TOGGLE_OUTPUT_RECORDING:
             recording = !recording;
             applyRecordingState();
@@ -473,21 +487,6 @@ function createModules()
         };
         ModuleUtil.applyRouting( module, masterBus );
     }
-}
-
-/**
- * apply the module settings described in the currently active
- * songs model onto the audio processing chain
- */
-function applyModules(song) {
-    song.instruments.forEach(( instrument, index ) => {
-        const instrumentModule = instrumentModules[ index ];
-        instrumentModule.output.gain.value = instrument.volume;
-        ModuleFactory.applyConfiguration('filter', instrumentModule, instrument.filter, masterBus);
-        ModuleFactory.applyConfiguration('delay', instrumentModule, instrument.delay, masterBus);
-        ModuleFactory.applyConfiguration('eq', instrumentModule, instrument.eq, masterBus);
-        ModuleFactory.applyConfiguration('od', instrumentModule, instrument.overdrive, masterBus);
-    });
 }
 
 function handleOscillatorStop( output, modules ) {
