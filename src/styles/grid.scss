@@ -114,15 +114,21 @@
   #editor {
     left: auto;
     margin-left: 0;
+
+    &.has-help-panel {
+      #patternTrackList {
+        width: 72%;
+      }
+      #helpSection {
+        width: 25%;
+      }
+    }
   }
   #trackEditor {
     width: 3%;
   }
   #patternTrackList {
-    width: 72%;
-  }
-  #helpSection {
-    width: 25%;
+    width: 96.8%;
   }
 }
 

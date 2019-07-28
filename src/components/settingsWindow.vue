@@ -24,7 +24,9 @@
     <div id="settings">
         <div class="header">
             <h2>Settings</h2>
-            <button class="close-button" @click="$emit('close')">x</button>
+            <button class="close-button"
+                    @click="$emit('close')"
+            >x</button>
         </div>
         <section id="generalSetup">
             <fieldset>
@@ -43,6 +45,15 @@
                     <select id="trackFollow"
                             v-model="trackFollow"
                             @change="handleTrackFollowChange">
+                        <option value="true">on</option>
+                        <option value="false" selected>off</option>
+                    </select>
+                </div>
+                <div class="wrapper checkbox">
+                    <label for="helpPanel">Show help panel</label>
+                    <select id="helpPanel"
+                            v-model="displayHelpPanel"
+                            @change="handleHelpPanelChange">
                         <option value="true">on</option>
                         <option value="false" selected>off</option>
                     </select>
@@ -85,7 +96,8 @@ import { zMIDI } from 'zmidi';
 export default {
     data: () => ({
         paramFormat: 'hex',
-        trackFollow: false,
+        trackFollow: 'false',
+        displayHelpPanel: 'true',
     }),
     computed: {
         ...mapState({
@@ -121,6 +133,10 @@ export default {
         if ( setting !== null )
             this.trackFollow = setting;
 
+        setting = this.getSetting( this.settings.DISPLAY_HELP );
+        if ( setting !== null )
+            this.displayHelpPanel = setting;
+
         this.portNumber = this.midiPortNumber;
     },
     methods: {
@@ -130,17 +146,22 @@ export default {
             'createMIDIDeviceList',
             'setMIDIPortNumber',
         ]),
-        handleParameterInputFormatChange( aEvent ) {
+        handleParameterInputFormatChange() {
             this.saveSetting(
                 { name: this.settings.INPUT_FORMAT, value: this.paramFormat }
             );
         },
-        handleTrackFollowChange( aEvent ) {
+        handleTrackFollowChange() {
             this.saveSetting(
                 { name: this.settings.FOLLOW_PLAYBACK, value: this.trackFollow }
             );
         },
-        handleMIDIConnect( aEvent ) {
+        handleHelpPanelChange() {
+            this.saveSetting(
+                { name: this.settings.DISPLAY_HELP, value: this.displayHelpPanel }
+            );
+        },
+        handleMIDIConnect() {
             zMIDI.connect(this.handleMIDIconnectSuccess, this.handleMIDIconnectFailure);
         },
         handleMIDIconnectSuccess() {

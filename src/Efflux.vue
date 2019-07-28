@@ -24,10 +24,12 @@
             </div>
 
             <div class="container">
-                <div id="editor">
+                <div id="editor"
+                     :class="{ 'has-help-panel': displayHelp }"
+                >
                     <track-editor />
                     <pattern-track-list />
-                    <help-section />
+                    <help-section v-if="displayHelp" />
                 </div>
             </div>
         </template>
@@ -53,7 +55,7 @@
             :cancel-handler="dialog.cancel"
         />
         <!-- notifications -->
-        <notification />
+        <notifications />
 
         <!-- loading animation -->
         <loader v-if="loading" />
@@ -81,7 +83,7 @@ import DialogWindow from './components/dialogWindow';
 import SettingsWindow from './components/settingsWindow';
 import SongBrowser from './components/songBrowser';
 import SongEditor from './components/songEditor';
-import Notification from './components/notification';
+import Notifications from './components/notifications';
 import Loader from './components/loader';
 import store from './store';
 
@@ -96,7 +98,7 @@ export default {
         HelpSection,
         InstrumentEditor,
         Loader,
-        Notification,
+        Notifications,
         PatternEditor,
         PatternTrackList,
         SettingsWindow,
@@ -118,6 +120,9 @@ export default {
             'dialog',
             'overlay',
         ]),
+        ...mapState({
+            displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== 'false',
+        }),
         ...mapGetters([
             'getCopy',
             'activeSong',
@@ -258,15 +263,15 @@ export default {
              * we need JavaScript to calculate to correct dimensions of the overflowed track list
              */
 
-                // grab references to DOM elements (we do this lazily)
+            // grab references to DOM elements (we do this lazily)
             // TODO: delegate these to the Vue components in question
 
-            this.mainSection   = this.mainSection   || document.querySelector( "#properties" );
-            this.centerSection = this.centerSection || document.querySelector( "#editor" );
+            this.mainSection   = this.mainSection   || document.querySelector( '#properties' );
+            this.centerSection = this.centerSection || document.querySelector( '#editor' );
 
             // synchronize pattern list width with mainsection width
 
-            this.centerSection.style.width = Style.getStyle( this.mainSection, "width" );
+            this.centerSection.style.width = Style.getStyle( this.mainSection, 'width' );
         },
         closeOverlay() {
             this.setBlindActive(false);

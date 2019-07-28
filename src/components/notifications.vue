@@ -24,7 +24,7 @@
     <div id="notifications">
         <div v-for="(notification, index) in queue"
              :key="`notification_${index}`"
-             class="notificationWindow"
+             class="notification-window"
              :class="{ active: notification.visible, destroyed: notification.destroyed }"
              @click="closeNotification(notification)"
         >
@@ -91,8 +91,7 @@ export default {
 <style lang="scss" scoped>
     @import '../styles/_variables.scss';
 
-    #notifications
-    {
+    #notifications {
       position: fixed;
       z-index: 1000;
       top: 45px;
@@ -100,8 +99,7 @@ export default {
       width: 33%;
       max-width: 300px;
 
-      .notificationWindow
-      {
+      .notification-window {
         display: block;
         position: relative;
         padding: .5em 1em;
@@ -134,15 +132,14 @@ export default {
       }
     }
 
-    @media screen and ( max-width: $mobile-width )
-    {
+    @media screen and ( max-width: $mobile-width ) {
       #notifications {
         width: 100%;
         max-width: 100%;
         left: 0;
         right: auto;
 
-        .notificationWindow {
+        .notification-window {
           width: 100%;
           right: auto;
           top: -500px;

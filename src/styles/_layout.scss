@@ -57,6 +57,10 @@
 
 /* Layout */
 
+html, body {
+  overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
+}
+
 ul {
   list-style-type: none;
   margin: 0;

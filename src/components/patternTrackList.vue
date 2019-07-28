@@ -300,7 +300,7 @@ export default {
          * handle the event when the user clicks/taps a slot within the pattern
          * WHY are we doing difficult manual calculations ? The easiest thing would be to
          * add the listener directly on the slots themselves, but consider the excessive
-         * amount of event listeners that would attached to a large amount of DOM elements.
+         * amount of event listeners that would be attached to a large amount of DOM elements...
          */
         handleSlotClick(event) {
             const pContainers = this.$refs.pattern;
@@ -395,15 +395,13 @@ export default {
     $indicesWidth: 30px;
     $fullPatternListWidth: (( 8 * $patternWidth ) + $indicesWidth );
 
-    #patternTrackListContainer
-    {
+    #patternTrackListContainer {
       position: relative;
       overflow: auto;
       background-color: #101015;
     }
 
-    #patternTrackList
-    {
+    #patternTrackList {
       background-color: #393b40;
 
       .wrapper {
@@ -599,8 +597,7 @@ export default {
 
     /* ideal view */
 
-    @media screen and ( min-width: $ideal-width )
-    {
+    @media screen and ( min-width: $ideal-width ) {
       #patternTrackListContainer {
         overflow-x: hidden; // no need to show scroll
       }
@@ -611,12 +608,10 @@ export default {
 
     /* phone view */
 
-    @media screen and ( max-width: $mobile-width )
-    {
+    @media screen and ( max-width: $mobile-width ) {
       #patternTrackList {
         padding-left: 50px; /* to make up for fixed position pattern editor */
       }
     }
-
 </style>
  

@@ -40,7 +40,8 @@ export default {
         _settings: {},
         PROPERTIES: {
             INPUT_FORMAT    : 'if',
-            FOLLOW_PLAYBACK : 'fp'
+            FOLLOW_PLAYBACK : 'fp',
+            DISPLAY_HELP    : 'dh',
         }
     },
     getters: {

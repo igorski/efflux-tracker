@@ -135,11 +135,11 @@ export default {
         ...mapState([
             'helpTopic'
         ])
-    }
+    },
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     @import '@/styles/_variables.scss';
     @import '@/styles/_layout.scss';
 
@@ -148,9 +148,9 @@ export default {
       border-top-left-radius: 0;
       border-bottom-left-radius: 0;
       vertical-align: top;
-      width: 285px;
       overflow-x: hidden;
       overflow-y: auto;
+      display: block;
 
       padding: 1em 1.5em;
 

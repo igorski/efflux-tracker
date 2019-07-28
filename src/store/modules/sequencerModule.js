@@ -298,7 +298,7 @@ export default {
         gotoNextPattern(state, activeSong) {
             const max = activeSong.patterns.length - 1;
 
-            if ( state.activePattern < max )
+            if ( state.activePattern <= max )
                 state.activePattern = state.activePattern + 1;
         },
         setCurrentStep(state, step) {

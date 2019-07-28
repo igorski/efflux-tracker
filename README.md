@@ -1,14 +1,11 @@
-efflux
-======
+# efflux
 
-What is it ?
-------------
+## What is it ?
 
 efflux is a JavaScript-based application that allows users to create music using user defined
 WaveTable synthesis, all inside a browser.
 
-Feature list
-------------
+## Feature list
 
 - Create custom waveforms for multiple synth instruments
 - Directly edit instrument output using the pattern editor
@@ -22,8 +19,16 @@ Sounds cool, but I don't want to build from source, I just want to tinker with t
 Of course, it was made to allow for easy composition, so let's cut the chatter!
 You can use the application right now from  your web browser by visiting [this link](https://www.igorski.nl/experiment/efflux).
 
-Project outline
----------------
+### The [Issue Tracker](https://github.com/igorski/efflux-tracker/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
+is your point of contact
+
+Bug reports, feature requests, questions and discussions are welcome on the GitHub Issue Tracker, please do not send
+e-mails through the development website. However, please search before posting to avoid duplicates, and limit to one
+issue per post.
+
+Please vote on feature requests by using the Thumbs Up/Down reaction on the first post.
+
+## Project outline
 
 All source code can be found in the _./src_-folder and is written in ES6 (transpiled to ES5 for use in the browser)
 
@@ -40,8 +45,7 @@ Additional folders:
    a single file that can be requested via Ajax on the first application start to provide demo content
    (see FixturesLoader.js)
  
-Application actors
-------------------
+## Application actors
 
 Efflux is written using [Vue](https://vuejs.org). While originally the application was written without adopting any
 framework, the design pattern adopted is similar to Vue and Vuex's reactivity model, with the benefit of Vue bringing
@@ -51,8 +55,7 @@ Each part of the application is self-contained. State changes are communicated u
 mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_). As such, each part of
 the application is a separate component only interested in the messages that can alter its state.
     
-Efflux model
-------------
+## Efflux model
 
 The model of Efflux' consists of the following actors (created via their respective factories):
 
@@ -78,8 +81,7 @@ _INSTRUMENT_OSCILLATORS_ which can be individually tuned and configured for play
 INSTRUMENTS also reference _MODULES_. A MODULE is basically an effects processor. Each instrument can have its output
 routed through multiple processors before its output is mixed into the master channel (by the _AudioController_).
  
-Build instructions
-------------------
+## Build instructions
 
 You will need Node.js in order to run the build scripts and resolve the dependencies.
 
@@ -98,18 +100,16 @@ A production build (minimizes CSS and JS output size) can be created using the f
  
 After which the build output is available in the _./dist/_-folder.
  
-Unit testing
-------------
+## Unit testing
 
-Unit tests are run via Jest, which is installed as a dependency. You can run the tests by using:
+Unit tests are run via Jest. You can run the tests by using:
 
     npm run test
  
 Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
 the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.js_.
 
-ROADMAP
--------
+## ROADMAP
 
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
  * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
@@ -117,15 +117,13 @@ ROADMAP
  * Add cut/paste icons for touch screen devices
  * Implement Instrument mute / solo
 
-TODO VUE MIGRATION
-------------------
+## TODO VUE MIGRATION
 
 FONTS!
 Mouse and horizontal keyboard control
 Record output
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
-check whether selections cut paste copy et al work
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 igorski.nl Analytics
@@ -143,12 +141,9 @@ rename stateFactory and related stuff to historyState
 editormodule -> active/step/instrument should be renamed to reflect they are being edited
 rename States to HistoryStates
 
-TODO: force tracklist re-render (for instance toggle hex/pct in settings screen)
-
 submit to madewithvue :D
 
-LONG TERM TODO (make Git issues once Vue migration is in master)
---------------
+## LONG TERM TODO (make Git issues once Vue migration is in master)
 
 vue i18n
 Create separate component for MIDI settings panel
