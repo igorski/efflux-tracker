@@ -24,7 +24,8 @@ export default
 {
     ADD_EVENT                : 'S:0',
     DELETE_EVENT             : 'S:1',
-    DELETE_MODULE_AUTOMATION : 'S:2',
-    CUT_SELECTION            : 'S:3',
-    PASTE_SELECTION          : 'S:4'
+    DELETE_SELECTION         : 'S:2',
+    DELETE_MODULE_AUTOMATION : 'S:3',
+    CUT_SELECTION            : 'S:4',
+    PASTE_SELECTION          : 'S:5'
 };

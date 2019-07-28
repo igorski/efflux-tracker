@@ -255,7 +255,7 @@ function handleKeyDown( aEvent )
 
                 case 39: // right
 
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('gotoNextPattern', state.song.activeSong);
                     }
                     else {
@@ -287,7 +287,7 @@ function handleKeyDown( aEvent )
 
                 case 37: // left
 
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('gotoPreviousPattern');
                     }
                     else {
@@ -324,7 +324,7 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 13: // enter
-                    if ( hasOption )
+                    if (hasOption)
                         Pubsub.publishSync( Messages.EDIT_NOTE_FOR_STEP );
                     else
                         Pubsub.publishSync( Messages.EDIT_MOD_PARAMS_FOR_STEP );
@@ -337,7 +337,7 @@ function handleKeyDown( aEvent )
 
                 case 65: // A
                     // select all
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('setMinSelectedStep',0);
                         store.commit('setMaxSelectedStep', state.song.activeSong.patterns[state.sequencer.activePattern].steps);
                         store.commit('setSelectionChannelRange', { firstChannel: 0, lastChannel: Config.INSTRUMENT_AMOUNT - 1 });
@@ -347,7 +347,7 @@ function handleKeyDown( aEvent )
                 case 67: // C
 
                      // copy current selection
-                     if ( hasOption ) {
+                     if (hasOption) {
                          if (!store.getters.hasSelection) {
                              store.commit('setSelectionChannelRange', { firstChannel: state.editor.activeInstrument });
                              store.commit('setSelection', state.editor.activeStep);
@@ -356,9 +356,17 @@ function handleKeyDown( aEvent )
                          store.commit('clearSelection');
                      }
                      break;
+                
+                case 68: // D
+                    // deselect all
+                    if (hasOption) {
+                        store.commit('clearSelection');
+                        aEvent.preventDefault();  // 'add to bookmark' :)
+                    }
+                    break;
 
                 case 71: // G
-                    if ( hasOption )
+                    if (hasOption)
                         Pubsub.publishSync( Messages.GLIDE_PARAM_AUTOMATIONS );
                     break;
 
@@ -369,21 +377,21 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 76: // L
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('setLooping', !state.sequencer.looping);
                         aEvent.preventDefault();
                     }
                     break;
 
                 case 82: // R
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('setRecording', !state.sequencer.recording);
                         aEvent.preventDefault();
                     }
                     break;
 
                 case 83: // S
-                    if ( hasOption ) {
+                    if (hasOption) {
                         Pubsub.publishSync( Messages.SAVE_SONG );
                         aEvent.preventDefault();
                     }
@@ -392,7 +400,7 @@ function handleKeyDown( aEvent )
                 case 86: // V
 
                     // paste current selection
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('saveState',
                             StateFactory.getAction( States.PASTE_SELECTION, {
                                 store,
@@ -406,7 +414,7 @@ function handleKeyDown( aEvent )
 
                     // cut current selection
 
-                    if ( hasOption ) {
+                    if (hasOption) {
                         store.commit('saveState',
                             StateFactory.getAction( States.CUT_SELECTION, {
                                 store,
@@ -418,7 +426,7 @@ function handleKeyDown( aEvent )
 
                 case 90: // Z
 
-                    if ( hasOption ) {
+                    if (hasOption) {
                         const action = !shiftDown ? 'undo' : 'redo';
                         store.dispatch(action).then(() => {
                             Pubsub.publishSync( Messages.REFRESH_PATTERN_VIEW );
@@ -518,7 +526,9 @@ function setActiveSlot( targetValue ) {
 function handleDeleteActionForCurrentMode() {
     switch (mode) {
         default:
-            store.commit('saveState', StateFactory.getAction(States.DELETE_EVENT, { store }));
+            store.commit('saveState', StateFactory.getAction(
+                store.getters.hasSelection ? States.DELETE_SELECTION : States.DELETE_EVENT, { store })
+            );
             break;
         case MODES.PARAM_VALUE:
         case MODES.PARAM_SELECT:

@@ -46,6 +46,9 @@ export default {
             case States.DELETE_EVENT:
                 return deleteSingleEventOrSelectionAction( data );
 
+            case States.DELETE_SELECTION:
+                return deleteSelectionAction( data );
+
             case States.DELETE_MODULE_AUTOMATION:
                 return deleteModuleAutomationAction( data );
 
@@ -310,8 +313,49 @@ function cutSelectionAction({ store, updateHandler }) {
     };
 }
 
-function pasteSelectionAction({ store, updateHandler }) {
+function deleteSelectionAction({ store }) {
+    const song = store.state.song.activeSong;
 
+    const activePattern   = store.state.sequencer.activePattern;
+    const firstChannel    = store.state.selection.firstSelectedChannel;
+    const lastChannel     = store.state.selection.lastSelectedChannel;
+    const selectedMinStep = store.state.selection.minSelectedStep;
+    const selectedMaxStep = store.state.selection.maxSelectedStep;
+
+    const originalPatternData = clonePattern( song, activePattern );
+    let cutData;
+    function deleteSelection() {
+        if ( cutData ) {
+            Vue.set(song.patterns, activePattern, cutData);
+        } else {
+            store.commit('deleteSelection', { song, activePattern, eventList: store.state.editor.eventList });
+            cutData = clonePattern( song, activePattern );
+        }
+        store.commit('clearSelection');
+    }
+
+    // cut the data as it was the trigger for this action
+    deleteSelection();
+
+    // return the state change handlers so the StateModel can store appropriate undo/redo actions
+
+    return {
+        undo() {
+            // set the cloned pattern data back
+            Vue.set(song.patterns, activePattern, originalPatternData);
+
+            // restore selection model to previous state
+            store.commit('setMinSelectedStep', selectedMinStep);
+            store.commit('setMaxSelectedStep', selectedMaxStep);
+            store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
+       },
+        redo() {
+            deleteSelection();
+        }
+    };
+}
+
+function pasteSelectionAction({ store, updateHandler }) {
     const song             = store.state.song.activeSong,
           eventList        = store.state.editor.eventList,
           activePattern    = store.state.sequencer.activePattern,
@@ -330,8 +374,7 @@ function pasteSelectionAction({ store, updateHandler }) {
     function paste() {
         if ( pastedData ) {
             Vue.set(song.patterns, activePattern, pastedData);
-        }
-        else {
+        } else {
             store.commit('pasteSelection', { song, eventList, activePattern, activeInstrument, activeStep });
             pastedData = clonePattern( song, activePattern );
         }
