@@ -34,14 +34,14 @@ export default
      * @param {number=} action optional action
      * @return {AUDIO_EVENT}
      */
-    createAudioEvent( instrument, note, octave, action )
+    createAudioEvent( instrument = 0, note = '', octave = 0, action = 0 )
     {
         return {
-            instrument : ( typeof instrument === 'number' ) ? instrument : 0,
-            note       : ( typeof note === 'string' )       ? note       : '',
-            octave     : ( typeof octave === 'number' )     ? octave     : 0,
-            action     : ( typeof action === 'number' )     ? action     : 0,
-            recording  : false,
+            instrument,
+            note,
+            octave,
+            action,
+            recording: false,
             seq : {
                 playing            : false,
                 startMeasure       : 0,

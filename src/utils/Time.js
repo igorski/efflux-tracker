@@ -20,10 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-module.exports =
-{
+export default {
     /**
      * convert a given timestamp into a formatted date string
      *
@@ -46,7 +43,8 @@ module.exports =
     }
 };
 
-function prependZero( value )
-{
-    return ( value < 10 ) ? "0" + value : value;
+/* internal methods */
+
+function prependZero( value ) {
+    return ( value < 10 ) ? `0${value}` : value;
 }

@@ -20,9 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
-import Config from "../config";
+import Config from '../config';
 
 /**
  * retrieve the localized content for given key
@@ -30,12 +28,12 @@ import Config from "../config";
  * @public
  * @param {string} aCopyKey
  * @param {string|number=} aReplacement optional string/number to replace
- *        key "{0}" that optionally exists in the retrieved copy
+ *        key '{0}' that optionally exists in the retrieved copy
  * @return {string}
  */
 export const getCopy = ( aCopyKey, aReplacement ) => {
-    const out = EN[ aCopyKey ] || "_i18n" + aCopyKey;
-    return out.replace( "{0}", aReplacement || "" );
+    const out = EN[ aCopyKey ] || '_i18n' + aCopyKey;
+    return out.replace( '{0}', aReplacement || '' );
 };
 
 // TODO? currently English only

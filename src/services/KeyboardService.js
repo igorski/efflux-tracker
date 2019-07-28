@@ -34,6 +34,7 @@ import Pubsub                     from 'pubsub-js';
 
 let store, state, listener,
     suspended = false, blockDefaults = true, optionDown = false, shiftDown = false;
+let maxStep, targetStep;
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
       MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
@@ -230,8 +231,8 @@ function handleKeyDown( aEvent )
 
                 case 40: // down
 
-                    const maxStep = state.song.activeSong.patterns[ state.sequencer.activePattern ].steps - 1;
-                    const targetStep = state.editor.activeStep + 1;
+                    maxStep = state.song.activeSong.patterns[ state.sequencer.activePattern ].steps - 1;
+                    targetStep = state.editor.activeStep + 1;
                     if (targetStep <= maxStep)
                         store.commit('setActiveStep', targetStep);
 
@@ -362,14 +363,17 @@ function handleKeyDown( aEvent )
                     break;
 
                 case 71: // G
-                    if (hasOption)
-                        Pubsub.publishSync( Messages.GLIDE_PARAM_AUTOMATIONS );
+                    if (hasOption) {
+                        EventUtil.glideParameterAutomations(
+                            state.song.activeSong, state.editor.activeStep, state.sequencer.activePattern,
+                            state.editor.activeInstrument, state.editor.eventList, store
+                        );
+                        aEvent.preventDefault(); // in-page search
+                    }
                     break;
 
                 case 75: // K
-                    const offEvent = EventFactory.createAudioEvent();
-                    offEvent.action = 2; // noteOff;
-                    store.commit('addEventAtPosition', { event: offEvent, store });
+                    store.commit('addEventAtPosition', { event: EventFactory.createAudioEvent(0, '', 0, 2), store });
                     break;
 
                 case 76: // L
@@ -470,8 +474,8 @@ function handleKeyUp( aEvent ) {
     }
 }
 
-function handleFocus( aEvent ) {
-    // when switching tabs it is possible these values are still active
+function handleFocus() {
+    // when switching browser tabs it is possible these values were left active
     shiftDown = optionDown = false;
 }
 
@@ -504,7 +508,7 @@ function setActiveSlot( targetValue ) {
 
     store.commit('setActiveSlot', value);
 
-    return ( value !== targetValue );
+    return value !== targetValue;
 }
 
 function handleDeleteActionForCurrentMode() {

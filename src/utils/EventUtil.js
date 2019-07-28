@@ -22,6 +22,7 @@
  */
 import Vue          from 'vue';
 import EventFactory from '../model/factory/EventFactory';
+import { getCopy }  from '../i18n/Copy';
 
 const EventUtil =
 {
@@ -184,7 +185,6 @@ const EventUtil =
             });
         });
     },
-
     /**
      * retrieve the first AudioEvent available before
      * given step in given channel event list
@@ -196,8 +196,7 @@ const EventUtil =
      *                    to filter events by
      * @return {AUDIO_EVENT|null}
      */
-    getFirstEventBeforeStep( channelEvents, step, optCompareFn )
-    {
+    getFirstEventBeforeStep( channelEvents, step, optCompareFn ) {
         let previousEvent;
         for ( let i = step - 1; i >= 0; --i ) {
             previousEvent = channelEvents[ i ];
@@ -208,7 +207,6 @@ const EventUtil =
         }
         return null;
     },
-
     /**
      * create a smooth glide for the module parameter changes from
      * one slot to another
@@ -328,8 +326,51 @@ const EventUtil =
             });
         }
         return events;
-    }
+    },
+    /**
+     * @public
+     * @param {SONG} song
+     * @param {number} step
+     * @param {number} patternIndex
+     * @param {number} channelIndex
+     * @param {Array.<LinkedList>} lists
+     * @param {Object} store the root Vuex store TODO: refactor so we don't need this here (to-Vue migration leftover)
+     * @return {Array.<AUDIO_EVENT>|null} created audio events
+     */
+    glideParameterAutomations(song, step, patternIndex, channelIndex, lists, store) {
+        const channelEvents = song.patterns[ patternIndex ].channels[ channelIndex ];
+        const event         = EventUtil.getFirstEventBeforeStep(
+                                channelEvents, step, compareEvent => !!compareEvent.mp
+                              );
+        let createdEvents = null;
+        const addFn = () => {
+            const eventIndex = channelEvents.indexOf(event);
+            createdEvents = EventUtil.glideModuleParams(
+                song, patternIndex, channelIndex, eventIndex, lists
+            );
+        };
+        if ( event ) {
+            addFn();
+        }
+        if ( createdEvents ) {
+            store.commit('saveState', {
+                undo: () => {
+                    createdEvents.forEach(( event ) => {
+                        if (event.note === '')
+                            EventUtil.clearEventByReference(song, event, lists);
+                        else
+                            Vue.set(event, 'mp', null);
+                    });
+                },
+                redo: addFn
+            });
+        } else
+            store.commit('showError', getCopy('ERROR_PARAM_GLIDE'));
+    },
 };
+export default EventUtil;
+
+/* internal methods */
 
 function updatePreviousEventLength( eventListNode, songTempo ) {
 
@@ -365,8 +406,5 @@ function updatePreviousEventLength( eventListNode, songTempo ) {
 }
 
 function calculateMeasureLength( tempo ) {
-
     return ( 60 / tempo ) * 4; // TODO: the 4 is implying all songs will be in 4/4 time
 }
-
-export default EventUtil;

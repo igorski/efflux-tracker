@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
+import PatternFactory from '../model/factory/PatternFactory';
 
-const PatternFactory = require( "../model/factory/PatternFactory" );
-
-module.exports =
-{
+export default {
     /**
      * create a new empty pattern and insert it at the given index
      * for the given pattern list
@@ -36,10 +33,9 @@ module.exports =
      * @param {number} amountOfSteps the amount of steps in the pattern to generate
      * @return {Array.<PATTERN>} updated list
      */
-    addEmptyPatternAtIndex( patterns, index, amountOfSteps )
-    {
-        let front = patterns.slice( 0, index );
-        let back  = patterns.slice( index );
+    addEmptyPatternAtIndex( patterns, index, amountOfSteps ) {
+        const front = patterns.slice( 0, index );
+        const back  = patterns.slice( index );
 
         front.push( PatternFactory.createEmptyPattern( amountOfSteps ));
 
@@ -68,12 +64,11 @@ module.exports =
      * @param {number} index where the generated pattern will be added
      * @return {Array.<PATTERN>} updated list
      */
-    removePatternAtIndex( patterns, index )
-    {
+    removePatternAtIndex( patterns, index ) {
         patterns.splice( index, 1 );
 
-        let front = patterns.slice( 0, index);
-        let back  = patterns.slice( index );
+        const front = patterns.slice( 0, index);
+        const back  = patterns.slice( index );
 
         // update event offset for back pattern (as it has now shifted)
 

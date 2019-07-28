@@ -208,7 +208,7 @@
                 >{{ instrument.presetName }}</option>
             </select>
             <div class="save">
-                <input v-model.sync="presetName"
+                <input v-model="presetName"
                        type="text"
                        placeholder="preset name"
                 />

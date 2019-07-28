@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 /**
  * translates a given value in the 0 - 100 range, scales it to the
  * length of given Array and returns the associated Array item with
@@ -29,4 +30,4 @@
  * @param {number} value in the 0 - 100 range
  * @return {*} associated array item to scaled value
  */
-export const rangeToIndex = ( array, value ) => array[ Math.round( value / ( 100 / ( array.length - 1 ))) ];
+export const rangeToIndex = (array, value) => array[ Math.round( value / ( 100 / ( array.length - 1 ))) ];

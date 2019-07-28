@@ -147,12 +147,12 @@ export default {
             minSelectedStep: state => state.selection.minSelectedStep,
             firstSelectedChannel: state => state.selection.firstSelectedChannel,
             windowSize: state => state.windowSize,
-            PROPERTIES: state => state.settings.PROPERTIES,
+            followPlayback: state => state.settings._settings[state.settings.PROPERTIES.FOLLOW_PLAYBACK],
+            paramFormat: state => state.settings._settings[state.settings.PROPERTIES.INPUT_FORMAT],
         }),
         ...mapGetters([
             'amountOfSteps',
             'hasSelection',
-            'getSetting',
         ]),
         activeSongPattern() {
             return this.activeSong.patterns[this.activePattern];
@@ -164,7 +164,6 @@ export default {
         highlight: null,
         lastFollowStep: 0,
         mustFollow: false,
-        paramFormat: null,
         containerWidth: 0,
         containerHeight: 0,
         interactionData: { offset: 0, time: 0 },
@@ -187,8 +186,7 @@ export default {
 
             const stepY = ( step / diff ) * SLOT_HEIGHT;
             this.highlight.style.top = `${stepY}px`;
-
-            if (this.getSetting(this.PROPERTIES.FOLLOW_PLAYBACK) === 'true') {
+            if (this.followPlayback === 'true') {
                 // following activated, ensure the list auto scrolls
                 if ( stepY > this.containerHeight ) {
                     this.mustFollow = (++this.lastFollowStep % 2 ) === 1;
@@ -233,23 +231,6 @@ export default {
         isSlotHighlighted(channelIndex, stepIndex, slotIndex) {
             return channelIndex === this.activeInstrument && stepIndex === this.activeStep && slotIndex === this.activeSlot;
         },
-        update() {
-            let activePattern = this.activePattern;
-
-            if ( activePattern >= this.activeSong.patterns.length )
-                activePattern = this.activeSong.patterns.length - 1;
-
-            // record the current scroll offset of the container so we can restore it after updating of the DOM
-            const coordinates = { x: this.container.scrollLeft, y: this.container.scrollTop };
-            const pattern = this.activeSong.patterns[ activePattern ];
-
-            this.paramFormat = settingsModel.getSetting( SettingsModel.PROPERTIES.INPUT_FORMAT ) || 'hex';
-
-            this.setActivePattern(activePattern);
-
-            this.container.scrollLeft = coordinates.x;
-            this.container.scrollTop  = coordinates.y;
-        },
         /**
          * ensure the currently active step (after a keyboard navigation)
          * is visible on screen
@@ -287,21 +268,16 @@ export default {
             }
             return out;
         },
-        formatModuleValue(data) {
-            let out = '', value;
-
-            if ( data ) {
-
-                // show parameter value in either hex or percentages
-                // TODO there is a bit of code duplication with NumberUtil here...
-                if ( this.paramFormat === 'pct' )
-                    value = Math.min( 99, parseInt( data.value, 10 )).toString();
-                else {
-                    value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
-                }
-                out += " " + (( value.length === 1 ) ? `0${value}` : value );
+        formatModuleValue(data = {}) {
+            let value;
+            // show parameter value in either hex or percentages
+            // TODO there is a bit of code duplication with NumberUtil here...
+            if ( this.paramFormat === 'pct' )
+                value = Math.min( 99, parseInt( data.value, 10 )).toString();
+            else {
+                value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
             }
-            return out;
+            return ( value.length === 1 ) ? ` 0${value}` : ` ${value}`;
         },
         removeModuleParamAutomationAtHighlightedStep() {
             // TODO: create shared getter function?
@@ -318,40 +294,6 @@ export default {
                     updateHandler: PatternTrackListController.update
                 })
             );
-        },
-        glideParameterAutomations() {
-            const patternIndex  = efflux.this.activePattern;
-            const channelIndex  = efflux.EditorModel.activeInstrument;
-            const channelEvents = this.activeSong.patterns[ patternIndex ].channels[ channelIndex ];
-            const event         = EventUtil.getFirstEventBeforeStep(
-                                    channelEvents, this.activeStep, compareEvent => !!compareEvent.mp
-                                  );
-            let createdEvents = null;
-            const addFn = () => {
-                const eventIndex = channelEvents.indexOf( event );
-                createdEvents = EventUtil.glideModuleParams(
-                    this.activeSong, patternIndex, channelIndex, eventIndex, efflux.eventList
-                );
-            };
-        
-            if ( event ) {
-                addFn();
-            }
-        
-            if ( createdEvents ) {
-                Pubsub.publish( Messages.SAVE_STATE, {
-                    undo: () => {
-                        createdEvents.forEach(( event ) => {
-                            if ( event.note === '' )
-                                EventUtil.clearEventByReference( this.activeSong, event, efflux.eventList );
-                            else
-                                Vue.set(event, 'mp', null);
-                        });
-                    },
-                    redo: addFn
-                });
-            } else
-                Pubsub.publish( Messages.SHOW_ERROR, getCopy( "ERROR_PARAM_GLIDE" ));
         },
         editModuleParamsForStep() {
             Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function() {

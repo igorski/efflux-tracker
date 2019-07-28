@@ -20,9 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Vue      from 'vue';
 import Config   from '../../config';
 import Messages from '../../definitions/Messages';
-import Pubsub   from 'pubsub-js';
 
 let store, state;
 
@@ -48,7 +48,7 @@ export default {
                             .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
 
             if ( event ) {
-                event.instrument = keyCode - ZERO;
+                Vue.set(event, 'instrument', keyCode - ZERO);
             }
         }
     }

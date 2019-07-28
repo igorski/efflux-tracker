@@ -241,7 +241,7 @@ function deleteSingleEventOrSelectionAction({ store } ) {
     };
 }
 
-function deleteModuleAutomationAction({ store, event, updateHandler }) {
+function deleteModuleAutomationAction({ event, updateHandler }) {
     const clonedAutomation = ObjectUtil.clone( event.mp );
     const remove = () => {
         Vue.delete(event, 'mp');

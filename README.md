@@ -134,7 +134,7 @@ what is the difference between editor.recordingInput and sequencer.recording ???
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 
-editormodule.activeStep > should become selected step (setter too)!
+editormodule.activeStep/activeInstrument > should become selected step/instrument (setters and mapped getters too)!
 activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
 store.setOverlay() -> should indicate its a modal component

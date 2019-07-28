@@ -90,7 +90,7 @@ export default {
          * NOTE: the linked list is NOT reactive, do not use
          * Vue.set/delete on its properties.
          */
-        list: null
+        eventList: null
     },
     getters: {
         activeSlot: state => state.activeSlot,

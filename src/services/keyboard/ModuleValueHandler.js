@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Vue          from 'vue';
 import EventFactory from '../../model/factory/EventFactory';
 import EventUtil    from '../../utils/EventUtil';
 import NumberUtil   from '../../utils/NumberUtil';
@@ -56,14 +57,14 @@ export default {
         // validate value
         switch ( store.getters.getSetting( state.settings.PROPERTIES.INPUT_FORMAT )) {
             default:
-            case "hex":
+            case 'hex':
                 if ( !NumberUtil.isHex( value ))
                     return;
                 else
                     value = NumberUtil.fromHex( value );
                     break;
 
-            case "pct":
+            case 'pct':
                 value = parseFloat( value );
                 if ( isNaN( value ) || value < 0 || value > 100 )
                     return;
@@ -73,12 +74,12 @@ export default {
 
         // no module param defined yet ? create as duplicate of previously defined property
         if ( !event.mp ) {
-            const prevEvent = getPreviousEventWithModuleAutomation( state.editor.activeStep );
-            event.mp = EventFactory.createModuleParam(
-                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", 50, false
-            );
+            const prevEvent = getPreviousEventWithModuleAutomation(state.editor.activeStep);
+            Vue.set(event, 'mp', EventFactory.createModuleParam(
+                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : 'volume', 50, false
+            ));
         }
-        event.mp.value = value;
+        Vue.set(event.mp, 'value', value);
     }
 };
 
@@ -110,9 +111,7 @@ function getEventForPosition( createIfNotExisting ) {
 
     if ( !event && createIfNotExisting === true ) {
 
-        event = EventFactory.createAudioEvent();
-
-        event.instrument = state.editor.activeInstrument;
+        event = EventFactory.createAudioEvent(state.editor.activeInstrument);
         store.commit('addEventAtPosition', {
             store, event,
             optData: {

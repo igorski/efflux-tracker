@@ -233,8 +233,8 @@ export default {
         ]),
         addListeners() {
             // no need to dispose as these will be active during application lifetime
-            window.addEventListener( "resize", this.handleResize );
-            ListenerUtil.listen( window,  "scroll", this.handleScroll );
+            window.addEventListener( 'resize', this.handleResize );
+            ListenerUtil.listen( window,  'scroll', this.handleScroll );
         },
         handleResize(event) {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });

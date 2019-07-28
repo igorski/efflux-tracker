@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import PatternFactory from "../model/factory/PatternFactory";
+import PatternFactory from '../model/factory/PatternFactory';
 
 export default
 {
@@ -31,8 +31,7 @@ export default
      * @param {SONG} song
      * @return {boolean}
      */
-    hasContent( song )
-    {
+    hasContent( song ) {
         let hasContent = false;
 
         song.patterns.forEach(( songPattern ) =>
@@ -58,8 +57,7 @@ export default
      * @param {Array.<PATTERN>} patterns the Songs patterns
      * @param {number} ratio by which to update the existing values
      */
-    updateEventOffsets( patterns, ratio )
-    {
+    updateEventOffsets( patterns, ratio ) {
         // reverse looping for speed
         let i, j, k, songPattern, channel, pattern;
 

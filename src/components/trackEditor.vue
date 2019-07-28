@@ -40,6 +40,7 @@ import { mapState, mapMutations } from 'vuex';
 import States from '../definitions/States';
 import EventFactory from '../model/factory/EventFactory';
 import StateFactory from '../model/factory/StateFactory';
+import EventUtil from '../utils/EventUtil';
 
 import { DOM } from 'zjslib';
 
@@ -53,7 +54,14 @@ export default {
         ...mapState([
             'windowSize',
             'windowScrollOffset',
-        ])
+        ]),
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            activeStep: state => state.editor.activeStep,
+            activePattern: state => state.sequencer.activePattern,
+            activeInstrument: state => state.editor.activeInstrument,
+            eventList: state => state.editor.eventList,
+        }),
     },
     watch: {
         windowSize() {
@@ -90,8 +98,11 @@ export default {
             Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );
         },
         handleModuleGlideClick() {
-            Pubsub.publish( Messages.GLIDE_PARAM_AUTOMATIONS );
-        }
+            EventUtil.glideParameterAutomations(
+                this.activeSong, this.activeStep, this.activePattern,
+                this.activeInstrument, this.eventList, this.$store,
+            );
+        },
     }
 };
 </script>

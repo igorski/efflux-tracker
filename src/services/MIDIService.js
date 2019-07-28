@@ -24,6 +24,7 @@ import { MIDINotes, zMIDIEvent } from 'zmidi';
 import InstrumentUtil from '../utils/InstrumentUtil';
 
 let store, state;
+let noteValue, pitch, instrumentId, instrument;
 
 export default {
     init(storeReference) {
@@ -38,14 +39,14 @@ export default {
      * @param {zMIDIEvent} aEvent
      */
     handleMIDIMessage( aEvent ) {
-        const noteValue = aEvent.value,   // we only deal with note on/off so these always reflect a NOTE
-              pitch     = MIDINotes.getPitchByNoteNumber(noteValue);
+        noteValue = aEvent.valuel // we only deal with note on/off so these always reflect a NOTE
+        pitch     = MIDINotes.getPitchByNoteNumber(noteValue);
 
         switch ( aEvent.type )
         {
             case zMIDIEvent.NOTE_ON:
-                const instrumentId = state.editor.activeInstrument;
-                const instrument   = state.song.activeSong.instruments[ instrumentId ];
+                instrumentId = state.editor.activeInstrument;
+                instrument   = state.song.activeSong.instruments[ instrumentId ];
                 InstrumentUtil.noteOn( pitch, instrument, state.sequencer.recording, store );
                 break;
 

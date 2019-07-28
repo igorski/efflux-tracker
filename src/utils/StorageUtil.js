@@ -24,8 +24,7 @@ import LZString from 'lz-string';
 
 let storage;
 
-const StorageUtil =
-{
+const StorageUtil = {
     /**
      * initializes the storage mechanism
      *
@@ -90,6 +89,9 @@ const StorageUtil =
         });
     }
 };
+export default StorageUtil;
+
+/* internal methods */
 
 // by compressing the stringified Objects we can maximize
 // the amount data we can save in the applications quota in LocalStorage
@@ -131,6 +133,3 @@ function decompress( string ) {
     else
         return decompressedString;
 }
-
-export default StorageUtil;
-

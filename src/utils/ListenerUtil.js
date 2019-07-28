@@ -20,12 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-"use strict";
-
 let supportsPassive = false;
 
-module.exports = {
-
+export default {
     /**
      * attach an event listener to given DOM Object
      * using this method allows use of passive listeners when supported
