@@ -28,22 +28,20 @@ const InstrumentFactory =
     /**
      * create a new instrument Object
      *
-     * @public
      * @param {number} aId unique identifier for instrument, relates to the
      *                 index of the instrument inside a song instrument-list
      * @param {string=} aName optional name to use
      * @return {INSTRUMENT}
      */
-    createInstrument( aId, aName )
-    {
+    createInstrument( aId, aName ) {
         const instrument = {
             id   : aId,
-            name : ( typeof aName === "string" ) ? aName : "Instrument " + aId.toString(),
+            name : ( typeof aName === 'string' ) ? aName : `'Instrument ${aId.toString()}`,
             presetName: null,
             oscillators : [
-                InstrumentFactory.createOscillator( true,  "TRIANGLE"  ),
-                InstrumentFactory.createOscillator( false, "SINE" ),
-                InstrumentFactory.createOscillator( false, "SAW" )
+                InstrumentFactory.createOscillator( true,  'TRIANGLE'  ),
+                InstrumentFactory.createOscillator( false, 'SINE' ),
+                InstrumentFactory.createOscillator( false, 'SAW' )
             ],
             volume: 1,
             filter : {
@@ -52,8 +50,8 @@ const InstrumentFactory =
                 q           : Config.DEFAULT_FILTER_Q,
                 speed       : Config.DEFAULT_FILTER_LFO_SPEED,
                 depth       : Config.DEFAULT_FILTER_LFO_DEPTH,
-                type        : "lowpass",
-                lfoType     : "off"
+                type        : 'lowpass',
+                lfoType     : 'off'
             },
             delay : {
                 enabled  : false,
@@ -73,7 +71,6 @@ const InstrumentFactory =
      * create default overdrive properties
      * this was not present in legacy instruments
      *
-     * @public
      * @param {INSTRUMENT} instrument
      */
     createOverdrive( instrument )
@@ -93,7 +90,6 @@ const InstrumentFactory =
      * create default equalizer properties
      * this was not present in legacy instruments
      *
-     * @public
      * @param {INSTRUMENT} instrument
      */
     createEQ( instrument )
@@ -107,16 +103,12 @@ const InstrumentFactory =
             highGain : 1
         };
     },
-
     /**
-     * @public
-     *
      * @param {boolean} aEnabled
      * @param {string} aWaveform
      * @return {INSTRUMENT_OSCILLATOR}
      */
-    createOscillator( aEnabled, aWaveform = "SAW" )
-    {
+    createOscillator( aEnabled, aWaveform = 'SAW' ) {
         const oscillator = {
             enabled     : aEnabled,
             waveform    : aWaveform,
@@ -136,17 +128,15 @@ const InstrumentFactory =
 
         return oscillator;
     },
-
     /**
      * create default pitch envelope properties in oscillator
      * this was not present in legacy instruments
      *
-     * @public
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
-    createPitchEnvelope( oscillator )
-    {
-        if ( typeof oscillator.pitch === "object" ) return;
+    createPitchEnvelope( oscillator ) {
+        if ( typeof oscillator.pitch === 'object' )
+            return;
 
         oscillator.pitch = {
             range   : 0,
@@ -156,7 +146,6 @@ const InstrumentFactory =
             release : 0
         };
     },
-
     /**
      * lazily retrieve the custom WaveTable for given oscillator, if
      * it wasn't created yet, it is created here
@@ -178,9 +167,7 @@ const InstrumentFactory =
         }
         return oscillator.table;
     },
-
     /**
-     * @public
      * @param {Object} instrumentPreset
      * @param {number} newInstrumentId
      * @param {string} newInstrumentName

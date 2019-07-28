@@ -37,13 +37,6 @@ const self = module.exports = {
             presetSelect            = element.querySelector( "#presetSelect" );
             presetSave              = element.querySelector( "#presetSave" );
             presetNameInput         = element.querySelector( "#presetName" );
-            instrumentVolumeControl = element.querySelector( "#instrumentVolume" );
-
-
-            // pitch envelope
-
-            amplitudeEditor = element.querySelector( "#amplitudeEditor" );
-            pitchEditor     = element.querySelector( "#pitchEditor" );
 
             moduleEditorPage1 = element.querySelector( "#modulesPage1" );
             moduleEditorPage2 = element.querySelector( "#modulesPage2" );
@@ -89,8 +82,6 @@ const self = module.exports = {
             presetSave.addEventListener       ( "click",  handlePresetSave );
             presetNameInput.addEventListener  ( "focus",  handlePresetFocus );
             presetNameInput.addEventListener  ( "blur",   handlePresetBlur );
-
-            instrumentVolumeControl.addEventListener( "input", handleInstrumentVolumeChange );
 
             filterEnabledSelect.addEventListener( "change", handleFilterChange );
             lfoSelect.addEventListener          ( "change", handleFilterChange );
@@ -234,12 +225,4 @@ function handlePresetFocus( aEvent ) {
 
 function handlePresetBlur( aEvent ) {
     keyboardController.setSuspended( false );
-}
-
-function handleInstrumentVolumeChange( aEvent ) {
-    model.instrumentRef.volume = parseFloat( instrumentVolumeControl.value );
-    Pubsub.publishSync(
-        Messages.ADJUST_INSTRUMENT_VOLUME, [ model.instrumentId, model.instrumentRef.volume ]
-    );
-    invalidatePresetName();
 }

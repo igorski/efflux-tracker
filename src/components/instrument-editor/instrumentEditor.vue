@@ -65,7 +65,10 @@
                         <legend>Mixer</legend>
                         <div class="wrapper input range">
                             <label for="instrumentVolume">Volume</label>
-                            <input type="range" id="instrumentVolume" min="0" max="1" step=".01" value="0">
+                            <input v-model="volume"
+                                   type="range"
+                                   id="instrumentVolume"
+                                   min="0" max="1" step=".01" value="0" />
                         </div>
                     </fieldset>
 
@@ -267,6 +270,16 @@ export default {
         instrumentRef() {
             return this.activeSong.instruments[this.instrumentId];
         },
+        volume: {
+            get() {
+                return this.instrumentRef.volume;
+            },
+            set(value) {
+                this.updateInstrument({ instrumentIndex: this.activeInstrument, prop: 'volume', value });
+                AudioService.adjustInstrumentVolume(this.activeInstrument, value);
+                this.invalidatePreset();
+            }
+        },
         presets() {
             const out = [
                 ...this.instruments,
@@ -298,7 +311,7 @@ export default {
                 const newInstrument = InstrumentFactory.loadPreset(
                     instrumentPreset, this.instrumentId, this.instrumentRef.name
                 );
-                this.updateInstrument({ instrumentIndex: this.instrumentId, instrument: newInstrument });
+                this.replaceInstrument({ instrumentIndex: this.instrumentId, instrument: newInstrument });
                 this.presetName = selectedPresetName;
                 this.setActiveOscillatorIndex(0);
                 AudioService.cacheAllOscillators(this.instrumentId, newInstrument);
@@ -315,6 +328,7 @@ export default {
             'setActiveInstrument',
             'setActiveOscillatorIndex',
             'updateInstrument',
+            'replaceInstrument',
             'setInstrumentId',
             'setPresetName',
         ]),
@@ -343,8 +357,8 @@ export default {
 
     #instrumentSelect {
       position: absolute;
-      top: .85em;
-      right: 6.5em;
+      top: 11px;
+      right: 78px;
     }
 
     #instrumentModulesEditor {

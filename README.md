@@ -11,16 +11,14 @@ WaveTable synthesis, all inside a browser.
 - Directly edit instrument output using the pattern editor
 - Copy / clone patterns for nice and easy arranging
 - Save songs locally to continue working on them later or export / import them between devices
-- Input notes using a MIDI controller and/or record them live during playback
+- Enter notes using an attached MIDI controller and/or record them live during playback
 
-Sounds cool, but I don't want to build from source, I just want to tinker with this!!
--------------------------------------------------------------------------------------
+### Sounds cool, but I don't want to build from source, I just want to tinker with this!!
 
 Of course, it was made to allow for easy composition, so let's cut the chatter!
 You can use the application right now from  your web browser by visiting [this link](https://www.igorski.nl/experiment/efflux).
 
-### The [Issue Tracker](https://github.com/igorski/efflux-tracker/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc)
-is your point of contact
+### The [Issue Tracker](https://github.com/igorski/efflux-tracker/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) is your point of contact
 
 Bug reports, feature requests, questions and discussions are welcome on the GitHub Issue Tracker, please do not send
 e-mails through the development website. However, please search before posting to avoid duplicates, and limit to one

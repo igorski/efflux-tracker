@@ -28,7 +28,6 @@
   height: 100%;
 
   .header {
-
     width: 100%;
     display: inline-block;
 
@@ -39,18 +38,16 @@
 
     .help-button {
       position: absolute;
-      top: .85em;
-      right: 3.5em;
+      top: 11px;
+      right: 45px;
     }
 
     .close-button {
       position: absolute;
-      top: 18px;
+      top: 11px;
       right: 12px;
       cursor: pointer;
-      border: 2px solid #000;
       background-color: $color-1;
-      border-radius: 4px;
     }
   }
 }

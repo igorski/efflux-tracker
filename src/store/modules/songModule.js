@@ -125,7 +125,10 @@ export default {
         updateOscillator(state, { instrumentIndex, oscillatorIndex, prop, value }) {
             Vue.set(state.activeSong.instruments[instrumentIndex].oscillators[oscillatorIndex], prop, value);
         },
-        updateInstrument(state, { instrumentIndex, instrument }) {
+        updateInstrument(state, { instrumentIndex, prop, value }) {
+            Vue.set(state.activeSong.instruments[instrumentIndex], prop, value);
+        },
+        replaceInstrument(state, { instrumentIndex, instrument }) {
             Vue.set(state.activeSong.instruments, instrumentIndex, instrument);
         },
     },

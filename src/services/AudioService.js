@@ -35,7 +35,6 @@ import ADSR           from '../model/modules/ADSR';
 import Recorder       from 'recorderjs';
 import Pubsub         from 'pubsub-js';
 
-
 /* private properties */
 
 let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
@@ -121,8 +120,8 @@ const AudioService =
         store = storeReference;
         state = store.state;
 
-        // NOTE: the audioContext is generated asynchronously after a user direction
-        // (e.g. click/touch/keydown anywhere in the document)
+        // NOTE: the audioContext is generated asynchronously after a user interaction
+        // (e.g. click/touch/keydown anywhere in the document) as browsers otherwise prevent audio playback
 
         return new Promise(resolve => {
             AudioUtil.init(( generatedContext ) => {
@@ -155,7 +154,6 @@ const AudioService =
 
                 [   Messages.SONG_LOADED,
                     Messages.TOGGLE_OUTPUT_RECORDING,
-                    Messages.ADJUST_INSTRUMENT_VOLUME,
                     Messages.UPDATE_FILTER_SETTINGS,
                     Messages.UPDATE_DELAY_SETTINGS,
                     Messages.UPDATE_EQ_SETTINGS,
@@ -417,6 +415,9 @@ const AudioService =
                 break;
         }
     },
+    adjustInstrumentVolume(instrumentIndex, volume) {
+        instrumentModules[instrumentIndex].output.gain.value = volume;
+    }
 };
 
 /* internal methods */
@@ -429,10 +430,6 @@ function handleBroadcast( type, payload )
             recording = !recording;
             applyRecordingState();
             break;
-        case Messages.ADJUST_INSTRUMENT_VOLUME:
-            instrumentModules[ payload[ 0 ]].output.gain.value = payload[ 1 ];
-            break;
-
         case Messages.UPDATE_FILTER_SETTINGS:
         case Messages.UPDATE_DELAY_SETTINGS:
         case Messages.UPDATE_EQ_SETTINGS:
@@ -515,16 +512,15 @@ function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
 }
 
 function applyRecordingState() {
-    if ( recording ) {
-        if ( !recorder ) {
+    if (recording) {
+        if (!recorder) {
             recorder = new Recorder( masterBus, {
                 callback : handleRecordingComplete
             });
         }
-        if ( playing )
+        if (playing)
             recorder.record();
-    }
-    else if ( recorder ) {
+    } else if (recorder) {
         recorder.stop();
         recorder.exportWAV();
     }

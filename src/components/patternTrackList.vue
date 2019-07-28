@@ -47,7 +47,8 @@
                         :key="`channel_${channelIndex}_${stepIndex}`"
                         :class="{
                             active: stepIndex === activeStep && channelIndex === activeInstrument,
-                            selected: isStepSelected(channelIndex, stepIndex)
+                            selected: isStepSelected(channelIndex, stepIndex),
+                            playing: stepIndex === playingStep
                         }"
                     >
                         <!-- note instruction -->
@@ -119,8 +120,6 @@
                    </li>
                 </ul>
             </div>
-            <!-- highlight following the playback step position -->
-            <div ref="highlight" class="highlight"></div>
         </div>
     </section>
 </template>
@@ -130,8 +129,8 @@ import { mapState, mapGetters, mapMutations } from 'vuex';
 import KeyboardService from '../services/KeyboardService';
 import Bowser from 'bowser';
 
-const SLOT_WIDTH  = 150;
-const SLOT_HEIGHT = 32;
+const STEP_WIDTH  = 150;
+const STEP_HEIGHT = 32;
 
 export default {
     computed: {
@@ -161,9 +160,9 @@ export default {
     data: () => ({
         container: null,
         wrapper: null,
-        highlight: null,
         lastFollowStep: 0,
         mustFollow: false,
+        playingStep: 0,
         containerWidth: 0,
         containerHeight: 0,
         interactionData: { offset: 0, time: 0 },
@@ -184,13 +183,14 @@ export default {
             if ( step % diff !== 0 )
                 return;
 
-            const stepY = ( step / diff ) * SLOT_HEIGHT;
-            this.highlight.style.top = `${stepY}px`;
+            this.playingStep = step / diff;
+            const stepY = this.playingStep * STEP_HEIGHT;
+
             if (this.followPlayback === 'true') {
                 // following activated, ensure the list auto scrolls
                 if ( stepY > this.containerHeight ) {
                     this.mustFollow = (++this.lastFollowStep % 2 ) === 1;
-                    this.container.scrollTop = ( stepY + SLOT_HEIGHT ) - this.containerHeight;
+                    this.container.scrollTop = ( stepY + STEP_HEIGHT * 1.5 ) - this.containerHeight;
                 } else {
                     this.container.scrollTop = 0;
                     this.lastFollowStep = 0;
@@ -205,7 +205,6 @@ export default {
         this.$nextTick(() => {
             this.container = this.$refs.container;
             this.wrapper = this.$refs.wrapper;
-            this.highlight = this.$refs.highlight;
             this.cacheDimensions();
         });
     },
@@ -240,10 +239,10 @@ export default {
             const left       = this.container.scrollLeft;
             const bottom     = top + this.containerHeight;
             const right      = left + this.containerWidth;
-            const slotLeft   = this.activeInstrument * SLOT_WIDTH;
-            const slotRight  = ( this.activeInstrument + 1 ) * SLOT_WIDTH;
-            const slotTop    = this.activeStep * SLOT_HEIGHT;
-            const slotBottom = ( this.activeStep + 1 ) * SLOT_HEIGHT;
+            const slotLeft   = this.activeInstrument * STEP_WIDTH;
+            const slotRight  = ( this.activeInstrument + 1 ) * STEP_WIDTH;
+            const slotTop    = this.activeStep * STEP_HEIGHT;
+            const slotBottom = ( this.activeStep + 1 ) * STEP_HEIGHT;
 
             if ( slotBottom >= bottom ) {
                 this.container.scrollTop = slotBottom - this.containerHeight;
@@ -253,7 +252,7 @@ export default {
             }
 
             if ( slotRight >= right ) {
-                this.container.scrollLeft = ( slotRight - this.containerWidth ) + SLOT_WIDTH;
+                this.container.scrollLeft = ( slotRight - this.containerWidth ) + STEP_WIDTH;
             }
             else if ( slotLeft < left ) {
                 this.container.scrollLeft = slotLeft;
@@ -394,6 +393,7 @@ export default {
     $patternWidth: 150px;
     $indicesWidth: 30px;
     $fullPatternListWidth: (( 8 * $patternWidth ) + $indicesWidth );
+    $stepHeight: 32px;
 
     #patternTrackListContainer {
       position: relative;
@@ -427,6 +427,7 @@ export default {
           border-top: 2px solid #000;
           padding: .25em 0;
           border-bottom: 2px solid #323234;
+          height: $stepHeight;
           @include noEvents();
           @include noSelect();
           @include boxSize();
@@ -497,7 +498,15 @@ export default {
           border-top: 2px solid #000;
           border-bottom: 2px solid #000;
           font-weight: bold;
+          height: $stepHeight;
           @include boxSize();
+
+          &.playing {
+            background-color: rgba(255,255,255,.35) !important;
+            * {
+                color: #FFF !important;
+            }
+          }
 
           &:nth-child(odd) {
             background-color: #323234;
@@ -564,17 +573,6 @@ export default {
             }
           }
         }
-      }
-
-      .highlight {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: $fullPatternListWidth;
-        height: 32px;
-        background-color: rgba(255,255,255,.35);
-        mix-blend-mode: screen;
-        @include noEvents();
       }
     }
 

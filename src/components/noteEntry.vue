@@ -258,8 +258,8 @@ export default {
 
       #instrument {
         position: absolute;
-        top: .85em;
-        right: 6.25em;
+        top: 11px;
+        right: 74px;
       }
 
       .confirm-button {
