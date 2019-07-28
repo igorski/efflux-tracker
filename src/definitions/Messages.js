@@ -69,8 +69,6 @@ export default
     UPDATE_EQ_SETTINGS                  : "ED:6", // payload is Array [ instrument index, eq properties Object ]
     UPDATE_OVERDRIVE_SETTINGS           : "ED:7", // payload is Array [ instrument index, overdrive properties Object ]
     EDIT_NOTE_AT_POSITION               : "ED:8",
-    REMOVE_PARAM_AUTOMATION_AT_POSITION : "ED:12",
-    GLIDE_PARAM_AUTOMATIONS             : "ED:13",
     EDIT_MOD_PARAMS_FOR_STEP            : "ED:15",
     EDIT_NOTE_FOR_STEP                  : "ED:16",
 };

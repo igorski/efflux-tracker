@@ -328,13 +328,19 @@ const EventUtil =
         return events;
     },
     /**
+     * glide the values between the event previous from the given step to the next event after
+     * the given step (this creates a smooth gradual glide lasting for the amount of steps in
+     * between the start- and endpoints described above)
+     *
+     * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
+     *
      * @public
      * @param {SONG} song
      * @param {number} step
      * @param {number} patternIndex
      * @param {number} channelIndex
      * @param {Array.<LinkedList>} lists
-     * @param {Object} store the root Vuex store TODO: refactor so we don't need this here (to-Vue migration leftover)
+     * @param {Object} store the root Vuex store
      * @return {Array.<AUDIO_EVENT>|null} created audio events
      */
     glideParameterAutomations(song, step, patternIndex, channelIndex, lists, store) {

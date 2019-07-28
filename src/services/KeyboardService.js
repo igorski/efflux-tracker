@@ -520,7 +520,12 @@ function handleDeleteActionForCurrentMode() {
             break;
         case MODES.PARAM_VALUE:
         case MODES.PARAM_SELECT:
-            Pubsub.publishSync( Messages.REMOVE_PARAM_AUTOMATION_AT_POSITION );
+            const event = state.song.activeSong.patterns[state.sequencer.activePattern]
+                              .channels[state.editor.activeInstrument ][state.editor.activeStep];
+            if ( !event || !event.mp )
+                return;
+
+            store.commit('saveState', StateFactory.getAction( States.DELETE_MODULE_AUTOMATION, { event }));
             break;
     }
 }

@@ -279,22 +279,6 @@ export default {
             }
             return ( value.length === 1 ) ? ` 0${value}` : ` ${value}`;
         },
-        removeModuleParamAutomationAtHighlightedStep() {
-            // TODO: create shared getter function?
-            const event = this.activeSong.patterns[ this.activePattern ]
-                                         .channels[ editorModel.activeInstrument ][ editorModel.activeStep ];
-        
-            if ( !event || !event.mp )
-                return;
-        
-            Pubsub.publishSync(
-                Messages.SAVE_STATE,
-                StateFactory.getAction( States.DELETE_MODULE_AUTOMATION, {
-                    event:   event,
-                    updateHandler: PatternTrackListController.update
-                })
-            );
-        },
         editModuleParamsForStep() {
             Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function() {
                 keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events

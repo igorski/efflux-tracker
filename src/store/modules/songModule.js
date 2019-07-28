@@ -116,8 +116,6 @@ export default {
                             store.commit('setActiveStep', targetStep);
 
                         store.commit('clearSelection');
-                        //View.highlightActiveStep();
-                        //View.focusActiveStep();
                     }
                 }
             });

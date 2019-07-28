@@ -241,12 +241,9 @@ function deleteSingleEventOrSelectionAction({ store } ) {
     };
 }
 
-function deleteModuleAutomationAction({ event, updateHandler }) {
+function deleteModuleAutomationAction({ event }) {
     const clonedAutomation = ObjectUtil.clone( event.mp );
-    const remove = () => {
-        Vue.delete(event, 'mp');
-        updateHandler(); // syncs view with model changes
-    };
+    const remove = () => Vue.delete(event, 'mp');
 
     // perform action
     remove();
@@ -254,7 +251,6 @@ function deleteModuleAutomationAction({ event, updateHandler }) {
     return {
         undo() {
             Vue.set(event, 'mp', clonedAutomation);
-            updateHandler(); // syncs view with model changes
         },
         redo() {
             remove();
