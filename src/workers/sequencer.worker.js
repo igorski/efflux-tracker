@@ -36,7 +36,7 @@ self.addEventListener( 'message', aEvent => {
                 clearInterval( timer );
 
                 timer = setInterval(() => {
-                    postMessage({ cmd: 'collect' });
+                    self.postMessage({ cmd: 'collect' });
                 }, POLLING_INTERVAL );
                 break;
 

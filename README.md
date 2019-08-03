@@ -117,7 +117,6 @@ the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.
 
 ## TODO VUE MIGRATION
 
-FONTS!
 Mouse and horizontal keyboard control
 Record output
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)

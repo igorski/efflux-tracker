@@ -26,7 +26,7 @@ import LinkedList from '../../utils/linked-list';
 import Metronome from '../../utils/metronome-util';
 import AudioUtil from '../../utils/audio-util';
 import AudioService from '../../services/audio-service';
-import SequencerWorker from '../../workers/sequencer-worker.js';
+import SequencerWorker from '../../workers/sequencer.worker.js';
 
 /* internal methods */
 
