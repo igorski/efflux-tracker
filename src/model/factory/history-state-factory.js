@@ -20,10 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue        from 'vue';
-import States     from '../../definitions/States';
-import EventUtil  from '../../utils/event-util';
-import ObjectUtil from '../../utils/object-util';
+import Vue           from 'vue';
+import HistoryStates from '../../definitions/history-states';
+import EventUtil     from '../../utils/event-util';
+import ObjectUtil    from '../../utils/object-util';
 
 export default {
 
@@ -40,22 +40,22 @@ export default {
             default:
                 return null;
 
-            case States.ADD_EVENT:
+            case HistoryStates.ADD_EVENT:
                 return addSingleEventAction( data );
 
-            case States.DELETE_EVENT:
+            case HistoryStates.DELETE_EVENT:
                 return deleteSingleEventOrSelectionAction( data );
 
-            case States.DELETE_SELECTION:
+            case HistoryStates.DELETE_SELECTION:
                 return deleteSelectionAction( data );
 
-            case States.DELETE_MODULE_AUTOMATION:
+            case HistoryStates.DELETE_MODULE_AUTOMATION:
                 return deleteModuleAutomationAction( data );
 
-            case States.CUT_SELECTION:
+            case HistoryStates.CUT_SELECTION:
                 return cutSelectionAction( data );
 
-            case States.PASTE_SELECTION:
+            case HistoryStates.PASTE_SELECTION:
                 return pasteSelectionAction( data );
         }
     }
