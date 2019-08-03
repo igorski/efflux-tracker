@@ -68,21 +68,21 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config';
-import ListenerUtil from './utils/ListenerUtil';
-import AudioService from './services/AudioService';
+import ListenerUtil from './utils/listener-util';
+import AudioService from './services/audio-service';
 import { Style } from 'zjslib';
-import ApplicationHeader from './components/applicationHeader';
-import ApplicationFooter from './components/applicationFooter';
-import AdvancedPatternEditor from './components/advancedPatternEditor';
-import InstrumentEditor from './components/instrument-editor/instrumentEditor';
-import PatternEditor from './components/patternEditor';
-import PatternTrackList from './components/patternTrackList';
-import TrackEditor from './components/trackEditor';
-import HelpSection from './components/helpSection';
-import DialogWindow from './components/dialogWindow';
-import SettingsWindow from './components/settingsWindow';
-import SongBrowser from './components/songBrowser';
-import SongEditor from './components/songEditor';
+import ApplicationHeader from './components/application-header';
+import ApplicationFooter from './components/application-footer';
+import AdvancedPatternEditor from './components/advanced-pattern-editor';
+import InstrumentEditor from './components/instrument-editor/instrument-editor';
+import PatternEditor from './components/pattern-editor';
+import PatternTrackList from './components/pattern-track-list';
+import TrackEditor from './components/track-editor';
+import HelpSection from './components/help-section';
+import DialogWindow from './components/dialog-window';
+import SettingsWindow from './components/settings-window';
+import SongBrowser from './components/song-browser';
+import SongEditor from './components/song-editor';
 import Notifications from './components/notifications';
 import Loader from './components/loader';
 import store from './store';
@@ -241,11 +241,11 @@ export default {
             window.addEventListener( 'resize', this.handleResize );
             ListenerUtil.listen( window,  'scroll', this.handleScroll );
         },
-        handleResize(event) {
+        handleResize() {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             this.calculateDimensions();
         },
-        handleScroll(event) {
+        handleScroll() {
             // only fire this event on next frame to avoid
             // DOM thrashing by all subscribed listeners
 

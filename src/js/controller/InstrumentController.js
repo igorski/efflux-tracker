@@ -24,9 +24,9 @@
 
 const Copy              = require( "../i18n/Copy" );
 const Messages          = require( "../definitions/Messages" );
-const InstrumentFactory = require( "../model/factory/InstrumentFactory" );
+const InstrumentFactory = require( "../model/factory/instrument-factory" );
 const View              = require( "../view/InstrumentView" );
-const ObjectUtil        = require( "../utils/ObjectUtil" );
+const ObjectUtil        = require( "../utils/object-util" );
 const Pubsub            = require( "pubsub-js" );
 
 /* private properties */

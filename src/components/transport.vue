@@ -81,12 +81,12 @@ import Vue from 'vue';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 
 import Config       from '../config';
-import AudioUtil    from '../utils/AudioUtil';
-import AudioService from '../services/AudioService';
-import EventUtil    from '../utils/EventUtil';
-import SongUtil     from '../utils/SongUtil';
+import AudioUtil    from '../utils/audio-util';
+import AudioService from '../services/audio-service';
+import EventUtil    from '../utils/event-util';
+import SongUtil     from '../utils/song-util';
 import Messages     from '../definitions/Messages';
-import AudioFactory from '../model/factory/AudioFactory';
+import AudioFactory from '../model/factory/audio-factory';
 import Bowser       from 'bowser';
 import Pubsub       from 'pubsub-js';
 

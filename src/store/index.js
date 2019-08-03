@@ -2,17 +2,17 @@ import Vue from 'vue';
 import Vuex from 'vuex';
 import Pubsub from 'pubsub-js';
 import { getCopy } from '../i18n/Copy';
-import editor from './modules/editorModule';
-import history from './modules/historyModule';
-import instrument from './modules/instrumentModule';
-import midi from './modules/midiModule';
-import selection from './modules/selectionModule';
-import settings from './modules/settingsModule';
-import sequencer from './modules/sequencerModule';
-import song from './modules/songModule';
-import AudioService from '../services/AudioService';
-import KeyboardService from '../services/KeyboardService';
-import MIDIService from '../services/MIDIService';
+import editor from './modules/editor-module';
+import history from './modules/history-module';
+import instrument from './modules/instrument-module';
+import midi from './modules/midi-module';
+import selection from './modules/selection-module';
+import settings from './modules/settings-module';
+import sequencer from './modules/sequencer-module';
+import song from './modules/song-module';
+import AudioService from '../services/audio-service';
+import KeyboardService from '../services/keyboard-service';
+import MIDIService from '../services/midi-service';
 
 Vue.use(Vuex);
 
@@ -25,7 +25,7 @@ export default new Vuex.Store({
         settings,
         sequencer,
         song,
-        midi,
+        midi
     },
     state: {
         menuOpened: false,
