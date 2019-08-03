@@ -23,8 +23,8 @@
 import Vue                 from 'vue';
 import Config              from '../../config';
 import SongFactory         from '../../model/factory/song-factory';
-import StateFactory        from '../../model/factory/state-factory';
-import States              from '../../definitions/States';
+import HistoryStateFactory from '../../model/factory/history-state-factory';
+import HistoryStates       from '../../definitions/history-states';
 import FixturesLoader      from '../../services/fixtures-loader';
 import SongAssemblyService from '../../services/song-assembly-service';
 import SongValidator       from '../../model/validators/song-validator';
@@ -101,7 +101,7 @@ export default {
          * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
          */
         addEventAtPosition(state, { event, store, optData, optStoreInUndoRedo = true }) {
-            const undoRedoAction = StateFactory.getAction( States.ADD_EVENT, {
+            const undoRedoAction = HistoryStateFactory.getAction( HistoryStates.ADD_EVENT, {
                 store,
                 event,
                 optEventData:  optData,

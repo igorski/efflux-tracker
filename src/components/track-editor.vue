@@ -37,9 +37,9 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex';
-import States from '../definitions/States';
+import HistoryStates from '../definitions/history-states';
 import EventFactory from '../model/factory/event-factory';
-import StateFactory from '../model/factory/state-factory';
+import HistoryStateFactory from '../model/factory/history-state-factory';
 import EventUtil from '../utils/event-util';
 
 import { DOM } from 'zjslib';
@@ -92,7 +92,7 @@ export default {
             this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
         handleNoteDeleteClick() {
-            this.saveState(StateFactory.getAction(States.DELETE_EVENT, { store: this.$store }));
+            this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_EVENT, { store: this.$store }));
         },
         handleModuleParamsClick() {
             Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );

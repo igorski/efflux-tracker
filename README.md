@@ -134,10 +134,8 @@ editormodule.activeStep/activeInstrument > should become selected step/instrumen
 activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
 store.setOverlay() -> should indicate its a modal component
-rename stateFactory and related stuff to historyState
 
 editormodule -> active/step/instrument should be renamed to reflect they are being edited
-rename States to HistoryStates
 
 submit to madewithvue :D
 

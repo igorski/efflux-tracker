@@ -25,11 +25,6 @@
 const Pubsub         = require( "pubsub-js" );
 const Copy           = require( "../i18n/Copy" );
 const Messages       = require( "../definitions/Messages" );
-const States         = require( "../definitions/States" );
-const EventFactory   = require( "../model/factory/event-factory" );
-const StateFactory   = require( "../model/factory/state-factory" );
-const ListenerUtil   = require( "../utils/ListenerUtil" );
-const EventUtil      = require( "../utils/event-util" );
 const View           = require( "../view/PatternTrackListView" );
 
 /* private properties */

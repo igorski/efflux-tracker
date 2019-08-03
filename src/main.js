@@ -1,7 +1,7 @@
 import dspjs from 'script-loader!dspjs'; // non CommonJS/ES6 module, provides "DFT" on window, see AudioUtil
 
 import Vue from 'vue';
-import Efflux from './Efflux.vue';
+import Efflux from './efflux-application';
 
 Vue.config.productionTip = false;
 

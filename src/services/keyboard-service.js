@@ -26,9 +26,9 @@ import InstrumentSelectionHandler from './keyboard/instrument-selection-handler'
 import ModuleParamHandler         from './keyboard/module-param-handler';
 import ModuleValueHandler         from './keyboard/module-value-handler';
 import Messages                   from '../definitions/Messages';
-import States                     from '../definitions/States';
+import HistoryStates              from '../definitions/history-states';
 import EventFactory               from '../model/factory/event-factory';
-import StateFactory               from '../model/factory/state-factory';
+import HistoryStateFactory        from '../model/factory/history-state-factory';
 import EventUtil                  from '../utils/event-util';
 import Pubsub                     from 'pubsub-js';
 
@@ -401,7 +401,7 @@ function handleKeyDown( aEvent )
 
                     // paste current selection
                     if (hasOption) {
-                        store.commit('saveState', StateFactory.getAction( States.PASTE_SELECTION, { store }));
+                        store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.PASTE_SELECTION, { store }));
                     }
                     break;
 
@@ -410,7 +410,7 @@ function handleKeyDown( aEvent )
                     // cut current selection
 
                     if (hasOption) {
-                        store.commit('saveState', StateFactory.getAction( States.CUT_SELECTION, { store }));
+                        store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.CUT_SELECTION, { store }));
                     }
                     break;
 
@@ -517,8 +517,8 @@ function handleDeleteActionForCurrentMode() {
     let event;
     switch (mode) {
         default:
-            store.commit('saveState', StateFactory.getAction(
-                store.getters.hasSelection ? States.DELETE_SELECTION : States.DELETE_EVENT, { store })
+            store.commit('saveState', HistoryStateFactory.getAction(
+                store.getters.hasSelection ? HistoryStates.DELETE_SELECTION : HistoryStates.DELETE_EVENT, { store })
             );
             break;
         case MODES.PARAM_VALUE:
@@ -529,7 +529,7 @@ function handleDeleteActionForCurrentMode() {
             if ( !event || !event.mp )
                 return;
 
-            store.commit('saveState', StateFactory.getAction( States.DELETE_MODULE_AUTOMATION, { event }));
+            store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.DELETE_MODULE_AUTOMATION, { event }));
             break;
     }
 }

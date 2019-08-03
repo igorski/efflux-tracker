@@ -70,12 +70,10 @@ const module = {
     actions: {
         /**
          * apply the previously stored state
-         *
-         * @return {boolean} whether an undo action took place
          */
         undo({ state, getters }) {
             return new Promise(resolve => {
-                if ( getters.canUndo ) {
+                if (getters.canUndo) {
                     state.undoManager.undo();
                 }
                 resolve(); // always resolve, application should not break if history cannot be accessed
@@ -83,12 +81,10 @@ const module = {
         },
         /**
          * apply the next stored state
-         *
-         * @return {boolean} whether a redo action took place
          */
         redo({ state, getters }) {
             return new Promise(resolve => {
-                if ( getters.canRedo ) {
+                if (getters.canRedo) {
                     state.undoManager.redo();
                 }
                 resolve(); // always resolve, application should not break if history cannot be accesse
