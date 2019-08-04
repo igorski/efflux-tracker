@@ -31,7 +31,7 @@ describe( 'History State module', () => {
         const redo = jest.fn();
         mutations.saveState(state, { undo: noop, redo: redo });
         return actions.undo({ state, getters: { canUndo: state.undoManager.hasUndo() }}).then(() => {
-            actions.redo(state).then(() => {
+            actions.redo({ state, getters: { canRedo: state.undoManager.hasRedo() }}).then(() => {
                 expect(redo).toHaveBeenCalled();
             });
         });
