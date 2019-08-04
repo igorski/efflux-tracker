@@ -214,6 +214,7 @@ export default {
             'setActivePattern',
             'setActiveSlot',
             'setActiveStep',
+            'setOverlay',
             'setHelpTopic',
             'clearSelection',
             'setSelectionChannelRange',
@@ -344,7 +345,7 @@ export default {
 
                         if (event.type === 'dblclick') {
                             event.preventDefault();
-                            this.setOverlay('nep'); // this.editNoteForStep
+                            this.setOverlay('nee'); // this.editNoteForStep
                             found = true;
                         }
                         break;

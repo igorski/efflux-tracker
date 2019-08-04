@@ -35,57 +35,28 @@ const V_MODULES = [ 'volume' ];
 let selectedGlide = false, selectedModule;
 let lastCharacter = "", lastTypeAction = 0;
 
-const ModuleParamHandler = {
-
+const ModuleParamHandler =
+{
     init(storeReference) {
         store = storeReference;
         state = store.state;
     },
-
     handleParam( keyCode ) {
-        const now = Date.now();
-        const previousTypeAction = lastTypeAction;
-
-        lastTypeAction = now;
-
         let event = getEventForPosition();
         const createEvent = !event;
 
         if ( !createEvent && event.mp )
             selectedGlide = event.mp.glide;
 
-        // if this character was typed shortly after the previous one,
-        // combine their values for more precise control
-        const character = String.fromCharCode(( 96 <= keyCode && keyCode <= 105 )? keyCode - 48 : keyCode );
+        if (keyCode === 71) {  // G
+            if ( event && event.mp )
+                selectedGlide = event.mp.glide;
 
-        if ( !character || !character.match( /^[a-z0-9]+$/i ))
-            return;
-
-        let value = ( now - previousTypeAction < 500 ) ? lastCharacter + character : character;
-        lastCharacter = character;
-
-        // if user is typing multiple characters in succession, attempt to retrieve module by characters
-        if ( value.length === 2 ) {
-            selectedModule = getModuleByFirstTwoLetters( value, selectedModule );
-        }
-        else {
-            switch ( keyCode ) {
-                case 68: // D
-                case 70: // F
-                case 80: // P
-                case 86: // V
-                    selectedModule = ModuleParamHandler.getNextSelectedModule( keyCode, selectedModule );
-                    break;
-
-                case 71: // G
-                    if ( event && event.mp )
-                        selectedGlide = event.mp.glide;
-                    selectedGlide = !selectedGlide;
-                    break;
-
-                default:
-                    return;
-            }
+            selectedGlide = !selectedGlide;
+        } else {
+            selectedModule = ModuleParamHandler.selectModuleByKeyAction(keyCode);
+            if (!selectedModule)
+                return;
         }
         // create event if it didn't exist yet
         if ( createEvent )
@@ -97,7 +68,39 @@ const ModuleParamHandler = {
             selectedGlide
         ));
     },
+    selectModuleByKeyAction(keyCode, currentModule = selectedModule) {
+        const now = Date.now();
+        const previousTypeAction = lastTypeAction;
 
+        lastTypeAction = now;
+
+        // if this character was typed shortly after the previous one,
+        // combine their values for more precise control
+        const character = String.fromCharCode(( 96 <= keyCode && keyCode <= 105 )? keyCode - 48 : keyCode );
+
+        if ( !character || !character.match( /^[a-z0-9]+$/i ))
+            return null;
+
+        let value = ( now - previousTypeAction < 500 ) ? lastCharacter + character : character;
+        lastCharacter = character;
+
+        // if user is typing multiple characters in succession, attempt to retrieve module by characters
+        if ( value.length === 2 ) {
+            return getModuleByFirstTwoLetters( value, currentModule );
+        }
+        else {
+            switch ( keyCode ) {
+                default:
+                    return null;
+
+                case 68: // D
+                case 70: // F
+                case 80: // P
+                case 86: // V
+                    return ModuleParamHandler.getNextSelectedModule(keyCode, currentModule);
+            }
+        }
+    },
     getNextSelectedModule( keyCode, currentValue ) {
         const list = getModuleListByKeyCode( keyCode );
 

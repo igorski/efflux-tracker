@@ -81,10 +81,11 @@ export default {
     methods: {
         ...mapMutations([
             'addEventAtPosition',
+            'setOverlay',
             'saveState',
         ]),
         handleNoteAddClick() {
-            Pubsub.publish( Messages.EDIT_NOTE_AT_POSITION );
+            this.setOverlay('nee');
         },
         handleNoteOffClick(){
             const offEvent = EventFactory.createAudioEvent();
@@ -95,7 +96,7 @@ export default {
             this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_EVENT, { store: this.$store }));
         },
         handleModuleParamsClick() {
-            Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL );
+            this.setOverlay('mpe');
         },
         handleModuleGlideClick() {
             EventUtil.glideParameterAutomations(

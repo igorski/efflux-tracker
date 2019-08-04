@@ -1,6 +1,6 @@
 /**
- * Adapted from Matt Diamonds recorderjs.
- * Separated from node_modules to allow inlining of worker through Webpack.
+ * Adapted from Matt Diamonds abandoned recorderjs.
+ * Separated from /node_modules to allow inlining of worker through Webpack.
  */
 let recLength = 0,
     recBuffersL = [],
@@ -41,17 +41,17 @@ function record(inputBuffer) {
 }
 
 function exportWAV(type) {
-    var bufferL = mergeBuffers(recBuffersL, recLength);
-    var bufferR = mergeBuffers(recBuffersR, recLength);
-    var interleaved = interleave(bufferL, bufferR);
-    var dataview = encodeWAV(interleaved);
-    var audioBlob = new Blob([dataview], {type: type});
+    const bufferL = mergeBuffers(recBuffersL, recLength);
+    const bufferR = mergeBuffers(recBuffersR, recLength);
+    const interleaved = interleave(bufferL, bufferR);
+    const dataview = encodeWAV(interleaved);
+    const audioBlob = new Blob([dataview], {type: type});
 
     self.postMessage(audioBlob);
 }
 
 function getBuffer() {
-    var buffers = [];
+    const buffers = [];
     buffers.push(mergeBuffers(recBuffersL, recLength));
     buffers.push(mergeBuffers(recBuffersR, recLength));
     self.postMessage(buffers);
@@ -64,9 +64,9 @@ function clear() {
 }
 
 function mergeBuffers(recBuffers, recLength) {
-    var result = new Float32Array(recLength);
-    var offset = 0;
-    for (var i = 0; i < recBuffers.length; i++) {
+    const result = new Float32Array(recLength);
+    let offset = 0;
+    for (let i = 0; i < recBuffers.length; i++) {
         result.set(recBuffers[i], offset);
         offset += recBuffers[i].length;
     }
@@ -74,10 +74,10 @@ function mergeBuffers(recBuffers, recLength) {
 }
 
 function interleave(inputL, inputR) {
-    var length = inputL.length + inputR.length;
-    var result = new Float32Array(length);
+    const length = inputL.length + inputR.length;
+    const result = new Float32Array(length);
 
-    var index = 0,
+    let index = 0,
         inputIndex = 0;
 
     while (index < length) {
@@ -89,21 +89,21 @@ function interleave(inputL, inputR) {
 }
 
 function floatTo16BitPCM(output, offset, input) {
-    for (var i = 0; i < input.length; i++, offset += 2) {
-        var s = Math.max(-1, Math.min(1, input[i]));
+    for (let i = 0; i < input.length; i++, offset += 2) {
+        const s = Math.max(-1, Math.min(1, input[i]));
         output.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
     }
 }
 
 function writeString(view, offset, string) {
-    for (var i = 0; i < string.length; i++) {
+    for (let i = 0; i < string.length; i++) {
         view.setUint8(offset + i, string.charCodeAt(i));
     }
 }
 
 function encodeWAV(samples) {
-    var buffer = new ArrayBuffer(44 + samples.length * 2);
-    var view = new DataView(buffer);
+    const buffer = new ArrayBuffer(44 + samples.length * 2);
+    const view = new DataView(buffer);
 
     /* RIFF identifier */
     writeString(view, 0, 'RIFF');

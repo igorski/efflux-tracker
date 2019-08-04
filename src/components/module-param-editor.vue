@@ -27,39 +27,53 @@
             <button class="close-button" @click="handleClose">x</button>
         </div>
         <h4>Module Parameter Change editor</h4>
-        <ul id="moduleSelect" :ref="moduleSelect" @click="handleModuleClick">
+        <ul id="moduleSelect">
             <ul class="event">
-                <li data-value="volume">volume</li>
-                <li data-value="pitchUp">pitch +8ve</li>
-                <li data-value="pitchDown">pitch -8ve</li>
+                <form-list-item v-model="module" option-value="volume">volume</form-list-item>
+                <form-list-item v-model="module" option-value="pitchUp">pitch +8ve</form-list-item>
+                <form-list-item v-model="module" option-value="pitchDown">pitch -8ve</form-list-item>
             </ul>
             <ul class="filter">
-                <li data-value="filterEnabled">filter on/off</li>
-                <li data-value="filterFreq">filter frequency</li>
-                <li data-value="filterQ">filter q</li>
-                <li data-value="filterLFOEnabled">filter LFO on/off</li>
-                <li data-value="filterLFOSpeed">filter LFO speed</li>
-                <li data-value="filterLFODepth">filter LFO depth</li>
+                <form-list-item v-model="module" option-value="filterEnabled">filter on/off</form-list-item>
+                <form-list-item v-model="module" option-value="filterFreq">filter frequency</form-list-item>
+                <form-list-item v-model="module" option-value="filterQ">filter q</form-list-item>
+                <form-list-item v-model="module" option-value="filterLFOEnabled">filter LFO on/off</form-list-item>
+                <form-list-item v-model="module" option-value="filterLFOSpeed">filter LFO speed</form-list-item>
+                <form-list-item v-model="module" option-value="filterLFODepth">filter LFO depth</form-list-item>
             </ul>
             <ul class="delay">
-                <li data-value="delayEnabled">delay on/off</li>
-                <li data-value="delayTime">delay time</li>
-                <li data-value="delayFeedback">delay feedback</li>
-                <li data-value="delayCutoff">delay cutoff</li>
-                <li data-value="delayOffset">delay offset</li>
+                <form-list-item v-model="module" option-value="delayEnabled">delay on/off</form-list-item>
+                <form-list-item v-model="module" option-value="delayTime">delay time</form-list-item>
+                <form-list-item v-model="module" option-value="delayFeedback">delay feedback</form-list-item>
+                <form-list-item v-model="module" option-value="delayCutoff">delay cutoff</form-list-item>
+                <form-list-item v-model="module" option-value="delayOffset">delay offset</form-list-item>
             </ul>
         </ul>
         <fieldset>
             <div class="wrapper input radio">
                 <h2>Glide ?</h2>
                 <label for="glideTrue">On</label>
-                <input type="radio" id="glideTrue" name="glide" value="true" v-model-="glide">
+                <input type="radio"
+                       v-model="glide"
+                       id="glideTrue"
+                       name="glide"
+                       :value="true"
+                />
                 <label for="glideFalse">Off</label>
-                <input type="radio" id="glideFalse" name="glide" value="false" v-model="glide">
+                <input type="radio"
+                       v-model="glide"
+                       id="glideFalse"
+                       name="glide"
+                       :value="false"
+                />
             </div>
             <div class="wrapper input range">
                 <label for="moduleValue">Parameter value</label>
-                <input type="range" id="moduleValue" min="0" max="100" step="1" v-model.number="value">
+                <input v-model.number="value"
+                       type="range"
+                       id="moduleValue"
+                       min="0" max="100" step="1"
+                />
                 <div id="moduleInputValue" v-html="valueText"></div>
             </div>
             <p>
@@ -67,19 +81,32 @@
                 use the "G" key to toggle glide on/off and type a numerical value between 0 to 99
                 for its parameter value. Hit enter to confirm.
             </p>
-            <button class="confirm-button" @click="handleReady">OK</button>
+            <button type="button"
+                    class="confirm-button"
+                    @click="handleSubmit"
+            >OK</button>
         </fieldset>
     </div>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import Pubsub from 'pubsub-js';
+import { mapState, mapMutations } from 'vuex';
+import FormListItem from './forms/form-list-item';
+import EventFactory from '../model/factory/event-factory';
+import KeyboardService from '../services/keyboard-service';
+import ModuleParamHandler from '../services/keyboard/module-param-handler';
+import Manual from '../definitions/Manual';
+
+const DEFAULT_MODULE = 'volume';
+let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
+    components: {
+        FormListItem,
+    },
     data: () => ({
         instrument: null,
-        module: null,
+        module: DEFAULT_MODULE,
         glide: false,
         value: 0,
         patternIndex: 0,
@@ -87,22 +114,16 @@ export default {
         step: 0,
     }),
     computed: {
-        ...mapState([
-            'activePattern',
-            'activeInstrument',
-            'activeStep',
-        ]),
-        ...mapGetters([
-            'activeSong',
-        ]),
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            activePattern: state => state.sequencer.activePattern,
+            activeInstrument: state => state.editor.activeInstrument,
+            activeStep: state => state.editor.activeStep,
+        }),
         valueText() {
-            return ( this.value < 10 ) ? `0${this.value}` : this.value;
+            const value = this.value.toFixed(2);
+            return ( this.value < 10 ) ? `0${value}` : value;
         },
-        moduleList() {
-            // TODO: this is absolutely ridiculous. This component should mimic a form with
-            // bound v-models instead of having to traverse DOM nodes and update their state!!
-            this.$refs.moduleSelect && this.$refs.moduleSelect.querySelectorAll('li');
-        }
     },
     mounted() {
         const pattern = this.activeSong.patterns[ this.activePattern ],
@@ -110,88 +131,116 @@ export default {
               event   = channel[ this.activeStep ];
     
         this.instrument   = ( event ) ? event.instrument : this.activeInstrument;
-        this.module       = ( event && event.mp ) ? event.mp.module  : null; // TODO: keep track of last edited module instead of allowing null ??
+        this.module       = ( event && event.mp ) ? event.mp.module  : DEFAULT_MODULE;
         this.glide        = ( event && event.mp ) ? event.mp.glide   : false;
         this.value        = ( event && event.mp ) ? event.mp.value   : 50;
+
+        // we define these upfront as we assume that the position the sequencer had (when running) is
+        // where we would like to add/edit a module parameter change event
+
         this.patternIndex = ( event ) ? event.seq.startMeasure : this.activePattern;
         this.channelIndex = this.activeInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
-        this.step         = editorModel.activeStep;
-    
-        Pubsub.publishSync( Messages.CLOSE_OVERLAYS, ModuleParamController ); // close open overlays
-        Pubsub.publish( Messages.SHOW_BLIND );
-    
-//        keyboardController.setBlockDefaults( false );
-//        keyboardController.setListener( ModuleParamController );
-    
-        this.setSelectedValueInList( this.moduleList, this.module );
+        this.step         = this.activeStep;
+
+        KeyboardService.setBlockDefaults(false);
+        KeyboardService.setListener(this.handleKey);
+    },
+    beforeDestroy() {
+        KeyboardService.reset();
     },
     methods: {
-        ...mapActions([
+        ...mapMutations([
             'addEventAtPosition',
         ]),
         handleClose() {
             this.$emit('close');
         },
-        handleReady() {
-        //    if ( EventValidator.hasContent( data )) {
-        
-                const pattern = this.activeSong.patterns[ this.patternIndex ],
-                      channel = pattern.channels[ this.channelIndex ];
-        
-                let event        = channel[ this.step ];
-                const isNewEvent = !event;
-        
-                if ( isNewEvent )
-                    event = EventFactory.createAudioEvent();
-        
-                event.mp         = { ...this.$data }; // serialize data into event module param property
-                event.instrument = this.instrument;
-        
-                this.addEventAtPosition({
-                    store: this.$store, event,
-                    optData: {
-                        patternIndex : this.patternIndex,
-                        channelIndex : this.channelIndex,
-                        step         : this.step,
-                        newEvent     : isNewEvent
-                    }
-                });
-        //    }
-            
+        /**
+         * invoked by KeyboardService
+         */
+        handleKey( type, keyCode, event ) {
+            if ( type !== 'down' )
+                return;
+
+            switch ( keyCode ) {
+                // modules and parameters
+
+                default:
+                    this.module = ModuleParamHandler.selectModuleByKeyAction(keyCode, this.module) || DEFAULT_MODULE;
+                    break;
+
+                case 27: // escape
+                    this.handleClose();
+                    break;
+    
+                case 13: // enter
+                    this.handleSubmit();
+                    break;
+    
+                case 71: // G
+                    this.glide = !this.glide;
+                    break;
+    
+                // module parameter value
+    
+                case 48: // 0 through 9
+                case 49:
+                case 50:
+                case 51:
+                case 52:
+                case 53:
+                case 54:
+                case 55:
+                case 56:
+                case 57:
+    
+                    const now = Date.now();
+                    const num = parseFloat( String.fromCharCode( keyCode ));
+                    let value = num * 10;
+    
+                    // if this character was typed shortly after the previous one, combine
+                    // their numerical values for more precise control
+    
+                    if ( now - lastValueTypeAction < 500 )
+                        value = parseFloat( '' + lastValueChar + num );
+    
+                    this.value = value;
+                    lastValueTypeAction = now;
+                    lastValueChar = num;
+                    break;
+            }
+        },
+        handleSubmit() {
+            const pattern = this.activeSong.patterns[ this.patternIndex ],
+                  channel = pattern.channels[ this.channelIndex ];
+
+            let event        = channel[ this.step ];
+            const isNewEvent = !event;
+
+            if ( isNewEvent )
+                event = EventFactory.createAudioEvent();
+
+            event.mp = {
+                module: this.module,
+                value: this.value,
+                glide: this.glide
+            };
+            event.instrument = this.instrument;
+
+            this.addEventAtPosition({
+                event,
+                store: this.$store,
+                optData: {
+                    patternIndex : this.patternIndex,
+                    channelIndex : this.channelIndex,
+                    step         : this.step,
+                    newEvent     : isNewEvent
+                }
+            });
             this.handleClose();
         },
         handleHelp() {
-            window.open( Manual.PARAM_ENTRY_HELP, "_blank" );
-        },
-        // TODO: refactor below to use v-model
-        handleModuleClick(aEvent) {
-            debugger; // TODO: get HTML element from event
-            const target = aEvent.target;
-            if ( target.nodeName === "LI" ) {
-                self.setSelectedValueInList( this.moduleList, target.getAttribute( "data-value" ));
-            }
-        },
-        setSelectedValueInList( list, value ) {
-            value = value.toString();
-            let i = list.length, option;
-
-            while ( i-- ) {
-                option = list[ i ];
-
-                if ( option.getAttribute( "data-value" ) === value )
-                    option.classList.add( "selected" );
-                else
-                    option.classList.remove( "selected" );
-            }
-        },
-        getSelectedValueFromList( list ) {
-            let i = list.length, option;
-            while ( i-- ) {
-                option = list[ i ];
-                if ( option.classList.contains( "selected" ))
-                    return option.getAttribute( "data-value" );
-            }
-            return null;
+            window.open( Manual.PARAM_ENTRY_HELP, '_blank' );
         },
     },
 };
@@ -199,9 +248,9 @@ export default {
 
 <style lang="scss" scoped>
     @import '@/styles/_variables.scss';
+    @import '@/styles/_layout.scss';
 
     #moduleParamEntry {
-
       @include EditorComponent();
       @include Overlay();
       @include noSelect();
@@ -227,7 +276,7 @@ export default {
 
         ul {
           list-style-type: none;
-          .Flex;
+          @include Flex();
         }
 
         li {
@@ -289,8 +338,7 @@ export default {
       }
     }
 
-    @media screen and ( max-width: $mobile-width )
-    {
+    @media screen and ( max-width: $mobile-width ) {
       #moduleParamEntry {
         border-radius: 0;
       }
@@ -299,8 +347,7 @@ export default {
     $mpeWidth: 450px;
     $mpeHeight: 420px;
 
-    @media screen and ( min-width: $mpeWidth )
-    {
+    @media screen and ( min-width: $mpeWidth ) {
       #moduleParamEntry {
         top: 50%;
         left: 50%;

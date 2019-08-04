@@ -117,7 +117,10 @@ the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.
 
 ## TODO VUE MIGRATION
 
-Mouse and horizontal keyboard control
+pattern  editor
+advanced pattern editor
+horizontal keyboard control (moving to out of bounds channels)
+mouse control (clicking to channels outside of initial view)
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
 unit tests > jest
@@ -133,11 +136,15 @@ store.setOverlay() -> should indicate its a modal component
 
 editormodule -> active/step/instrument should be renamed to reflect they are being edited
 
+model/modules/ADSR and third_party/delay > move to separate folder
+
+check mobile styles ?
 submit to madewithvue :D
 
 ## LONG TERM TODO (make Git issues once Vue migration is in master)
 
 vue i18n
+move overlay into enum (exposed store state property)
 Create separate component for MIDI settings panel
 Clean up helpSection (do not inline all topics)
 CSS no tag selectors in critical areas (replace ids with classes in scoped components)

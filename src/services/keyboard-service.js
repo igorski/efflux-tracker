@@ -25,12 +25,10 @@ import NoteInputHandler           from './keyboard/note-input-handler';
 import InstrumentSelectionHandler from './keyboard/instrument-selection-handler';
 import ModuleParamHandler         from './keyboard/module-param-handler';
 import ModuleValueHandler         from './keyboard/module-value-handler';
-import Messages                   from '../definitions/Messages';
 import HistoryStates              from '../definitions/history-states';
 import EventFactory               from '../model/factory/event-factory';
 import HistoryStateFactory        from '../model/factory/history-state-factory';
 import EventUtil                  from '../utils/event-util';
-import Pubsub                     from 'pubsub-js';
 
 let store, state, listener,
     suspended = false, blockDefaults = true, optionDown = false, shiftDown = false;
@@ -107,7 +105,7 @@ const KeyboardService =
      * {number} keyCode, the keys keyCode
      * {Event} event, the keyboard event
      *
-     * the listener is usually another Controller
+     * the listener is usually a Vue component
      *
      * @param {Object|Function} listenerRef
      */
@@ -128,7 +126,7 @@ const KeyboardService =
     /**
      * whether to block default behaviour on certain keys
      *
-     * @param value
+     * @param {boolean} value
      */
     setBlockDefaults( value ) {
         blockDefaults = value;
@@ -177,7 +175,7 @@ function handleKeyDown( aEvent )
             aEvent.preventDefault();
 
         if ( typeof listener === 'function' ) {
-            listener( "down", keyCode, aEvent );
+            listener( 'down', keyCode, aEvent );
         }
         else {
 
@@ -322,9 +320,9 @@ function handleKeyDown( aEvent )
                     if (state.dialog)
                         store.commit('closeDialog');
                     else if (hasOption)
-                        Pubsub.publishSync( Messages.EDIT_NOTE_FOR_STEP );
+                        store.commit('setOverlay', 'nee');
                     else
-                        Pubsub.publishSync( Messages.EDIT_MOD_PARAMS_FOR_STEP );
+                        store.commit('setOverlay', 'mpe');
                     break;
 
                 case 46: // delete
