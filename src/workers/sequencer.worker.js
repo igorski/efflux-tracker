@@ -26,8 +26,8 @@ let timer, data;
 // SequencerWorker leverages the intervallic polling
 // of the Sequencer events off the main execution thread
 
-self.addEventListener( 'message', aEvent => {
-    data = aEvent.data;
+self.addEventListener('message', event => {
+    data = event.data;
 
     if ( data !== undefined ) {
         switch ( data.cmd ) {

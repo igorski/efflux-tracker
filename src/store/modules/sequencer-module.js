@@ -195,9 +195,8 @@ function step(store) {
 
             // stop playing if we're recording and looping is disabled
 
-            if ( state.recording && !state.editor.loopedRecording ) {
+            if ( state.recording && !state.looping ) {
                 store.commit('setPlaying', false );
-               // Pubsub.publishSync( Messages.RECORDING_COMPLETE );
                 return;
             }
         }

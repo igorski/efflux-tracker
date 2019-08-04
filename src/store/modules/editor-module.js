@@ -54,22 +54,6 @@ export default {
         activeSlot: -1,
     
         /**
-         * whether the editor is recording notes
-         * from the MIDI input device or computer keyboard
-         *
-         * @type {boolean}
-         */
-        recordingInput: false,
-    
-        /**
-         * whether the sequencer should loop its
-         * current range during recording
-         *
-         * @type {boolean}
-         */
-        loopedRecording: true,
-    
-        /**
          * the root octave of the lower keyboard note range
          *
          * @type {number}
@@ -105,9 +89,6 @@ export default {
         setActiveStep(state, value) {
             state.activeStep = Math.max(0, value);
         },
-        setRecordingInput(state, value) {
-            state.recordingInput = !value;
-        },
         setHigherKeyboardOctave(state, value) {
             state.higherKeyboardOctave = value;
         },
@@ -127,7 +108,6 @@ export default {
         resetEditor(state) {
             state.activeInstrument =
             state.activeStep       = 0;
-            state.recordingInput   = false;
         }
     }
 };

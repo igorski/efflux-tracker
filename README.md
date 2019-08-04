@@ -118,14 +118,11 @@ the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.
 ## TODO VUE MIGRATION
 
 Mouse and horizontal keyboard control
-Record output
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
 unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 igorski.nl Analytics
-
-what is the difference between editor.recordingInput and sequencer.recording ??? -> one is for recording output, RENAME!!
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 

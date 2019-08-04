@@ -24,6 +24,7 @@ import Vue            from 'vue';
 import AudioFactory   from '../model/factory/audio-factory';
 import ModuleFactory  from '../model/factory/module-factory';
 import AudioUtil      from '../utils/audio-util';
+import RecordingUtil  from '../utils/audio-recording-util';
 import ModuleUtil     from '../utils/module-util';
 import InstrumentUtil from '../utils/instrument-util';
 import Config         from '../config';
@@ -31,13 +32,12 @@ import Messages       from '../definitions/Messages';
 import Pitch          from '../definitions/Pitch';
 import WaveTables     from '../definitions/WaveTables';
 import ADSR           from '../model/modules/ADSR';
-import Recorder       from 'recorderjs';
 import Pubsub         from 'pubsub-js';
 
 /* private properties */
 
 let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
-    playing = false, recording = false, recorder;
+    playing = false, recordOutput = false, recorder;
 
 /* type definitions */
 
@@ -152,7 +152,6 @@ const AudioService =
                 // subscribe to messages
 
                 [   Messages.SONG_LOADED,
-                    Messages.TOGGLE_OUTPUT_RECORDING,
                     Messages.UPDATE_FILTER_SETTINGS,
                     Messages.UPDATE_DELAY_SETTINGS,
                     Messages.UPDATE_EQ_SETTINGS,
@@ -186,10 +185,12 @@ const AudioService =
         playing = isPlaying;
         if (playing) {
             AudioService.applyModules(song);
-            applyRecordingState();
+            // in case we were recording, unset the state to store the buffer
+            recordOutput = !recordOutput;
+            AudioService.toggleRecordingState();
         } else {
             AudioService.reset();
-            if (recording && recorder) {
+            if (recordOutput && recorder) {
                 recorder.stop();
                 recorder.exportWAV();
             }
@@ -416,8 +417,24 @@ const AudioService =
     },
     adjustInstrumentVolume(instrumentIndex, volume) {
         instrumentModules[instrumentIndex].output.gain.value = volume;
+    },
+    toggleRecordingState() {
+        recordOutput = !recordOutput;
+        if (recordOutput) {
+            if (!recorder) {
+                recorder = new RecordingUtil(masterBus, {
+                    callback : handleRecordingComplete
+                });
+            }
+            if (playing)
+                recorder.record();
+        } else if (recorder) {
+            recorder.stop();
+            recorder.exportWAV();
+        }
     }
 };
+export default AudioService;
 
 /* internal methods */
 
@@ -425,10 +442,6 @@ function handleBroadcast( type, payload )
 {
     switch ( type )
     {
-        case Messages.TOGGLE_OUTPUT_RECORDING:
-            recording = !recording;
-            applyRecordingState();
-            break;
         case Messages.UPDATE_FILTER_SETTINGS:
         case Messages.UPDATE_DELAY_SETTINGS:
         case Messages.UPDATE_EQ_SETTINGS:
@@ -510,21 +523,6 @@ function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
     return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioUtil.createWaveTableFromGraph( audioContext, table );
 }
 
-function applyRecordingState() {
-    if (recording) {
-        if (!recorder) {
-            recorder = new Recorder( masterBus, {
-                callback : handleRecordingComplete
-            });
-        }
-        if (playing)
-            recorder.record();
-    } else if (recorder) {
-        recorder.stop();
-        recorder.exportWAV();
-    }
-}
-
 function handleRecordingComplete(blob) {
     // download file to disk
 
@@ -538,10 +536,9 @@ function handleRecordingComplete(blob) {
 
     recorder.clear();
     recorder  = null;
-    recording = false;
+    recordOutput = false;
 
     window.URL.revokeObjectURL(blob);
 
     store.commit('showNotification', { message: store.getters.getCopy('RECORDING_SAVED') });
 }
-export default AudioService;

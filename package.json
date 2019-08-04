@@ -34,7 +34,6 @@
     "mock-browser": "^0.91.34",
     "node-sass": "^4.9.0",
     "pubsub-js": "^1.5.0",
-    "recorderjs": "^1.0.1",
     "sass-loader": "^7.1.0",
     "script-loader": "^0.7.2",
     "undo-manager": "^1.0.5",

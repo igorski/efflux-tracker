@@ -53,14 +53,6 @@ export default
     REFRESH_SONG              : "SNG:3",
     CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
 
-    // sequencer messages
-
-    PLAYBACK_STARTED           : "SEQ:2",
-    PLAYBACK_STOPPED           : "SEQ:3",
-    RECORDING_COMPLETE         : "SEQ:5",
-    TOGGLE_OUTPUT_RECORDING    : "SEQ:8",
-    TOGGLE_INPUT_RECORDING     : "SEQ:9",
-
     // editor messages
 
     UPDATE_FILTER_SETTINGS              : "ED:4", // payload is Array [ instrument index, filter properties Object ]

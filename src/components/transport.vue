@@ -149,8 +149,7 @@ export default {
             }
         },
         isRecording(recording, wasRecording) {
-            this.setRecordingInput(recording);
-            if ( wasRecording ) {
+            if (wasRecording) {
                 // unflag the recorded state of all the events
                 const patterns = this.activeSong.patterns;
                 let event, i;
@@ -183,7 +182,6 @@ export default {
             'setPosition',
             'setLooping',
             'setRecording',
-            'setRecordingInput',    // TODO: why track this in both sequencer and editor modules??
             'setCurrentStep',
             'setCurrentMeasure',
             'setMetronomeEnabled',

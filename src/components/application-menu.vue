@@ -49,7 +49,8 @@
                     </ul>
                 </li>
                 <li @click="handleSettings">Settings</li>
-                <li v-if="hasRecord" @click="handleRecord">Record output</li>
+                <li v-if="hasRecord"
+                    @click="handleRecord">Record output</li>
                 <li @click="handleHelp">Help</li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"
@@ -65,6 +66,7 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/fullscreen-util';
 import { getCopy } from '../i18n/Copy';
+import AudioService from '../services/audio-service';
 import Manual from '../definitions/Manual';
 import Messages from '../definitions/Messages';
 import SongUtil from '../utils/song-util';
@@ -149,7 +151,7 @@ export default {
             window.open(Manual.ONLINE_MANUAL);
         },
         handleRecord() {
-            Pubsub.publish( Messages.TOGGLE_OUTPUT_RECORDING );
+            AudioService.toggleRecordingState();
             this.showNotification({ message: this.getCopy('RECORDING_ENABLED') });
         },
         handleSongImport() {
