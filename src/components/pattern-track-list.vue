@@ -279,11 +279,6 @@ export default {
             }
             return ( value.length === 1 ) ? ` 0${value}` : ` ${value}`;
         },
-        editModuleParamsForStep() {
-            Pubsub.publish( Messages.OPEN_MODULE_PARAM_PANEL, function() {
-                keyboardController.setListener( PatternTrackListController ); // restore interest in keyboard controller events
-            });
-        },
         handleInteraction(event) {
             // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
             if (event.type === 'touchstart' ) {

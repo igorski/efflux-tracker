@@ -50,7 +50,6 @@ export default
     SAVE_SONG                 : "SNGSV",
     SONG_LOADED               : "SNGLDR", // payload consists of the Song that has been loaded
     TRANSFORM_LEGACY_SONG     : "SNGTF",  // payload is Song object
-    REFRESH_SONG              : "SNG:3",
     CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
 
     // editor messages
@@ -59,7 +58,4 @@ export default
     UPDATE_DELAY_SETTINGS               : "ED:5", // payload is Array [ instrument index, delay properties Object ]
     UPDATE_EQ_SETTINGS                  : "ED:6", // payload is Array [ instrument index, eq properties Object ]
     UPDATE_OVERDRIVE_SETTINGS           : "ED:7", // payload is Array [ instrument index, overdrive properties Object ]
-    EDIT_NOTE_AT_POSITION               : "ED:8",
-    EDIT_MOD_PARAMS_FOR_STEP            : "ED:15",
-    EDIT_NOTE_FOR_STEP                  : "ED:16",
 };

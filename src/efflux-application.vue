@@ -158,6 +158,7 @@ export default {
             this.setActivePattern(0);
             this.setActiveStep(0);
             this.setPlaying(false);
+            this.clearSelection();
 
             if (!song.meta.title)
                 return;
@@ -233,6 +234,7 @@ export default {
             'closeDialog',
             'showNotification',
             'syncKeyboard',
+            'clearSelection'
         ]),
         ...mapActions([
             'setupServices',

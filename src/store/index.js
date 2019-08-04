@@ -142,7 +142,7 @@ export default new Vuex.Store({
          * (audio outputs/inputs, keyboard, etc.) connected to the device
          * the application is running on.
          */
-        setupServices({ commit }) {
+        setupServices() {
             // cheat a little by giving the services access to the root store.
             // when synthesizing audio we need instant access to song events
             // nextTick()-based reactivity is too large of a latency

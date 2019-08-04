@@ -22,7 +22,6 @@
  */
 import Vue      from 'vue';
 import Config   from '../../config';
-import Messages from '../../definitions/Messages';
 
 let store, state;
 

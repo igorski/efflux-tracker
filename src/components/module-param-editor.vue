@@ -158,11 +158,11 @@ export default {
         /**
          * invoked by KeyboardService
          */
-        handleKey( type, keyCode, event ) {
+        handleKey(type, keyCode/*, event*/) {
             if ( type !== 'down' )
                 return;
 
-            switch ( keyCode ) {
+            switch (keyCode) {
                 // modules and parameters
 
                 default:

@@ -164,9 +164,6 @@ export default {
 
             Pubsub.publish( Messages.CREATE_LINKED_LISTS );
 
-            // update UI
-
-            Pubsub.publish( Messages.REFRESH_SONG );
 
             this.handleClose();
         },

@@ -24,8 +24,6 @@ import Vue          from 'vue';
 import EventFactory from '../../model/factory/event-factory';
 import EventUtil    from '../../utils/event-util';
 import NumberUtil   from '../../utils/number-util';
-import Messages     from '../../definitions/Messages';
-import Pubsub       from 'pubsub-js';
 
 let store, state;
 let lastCharacter = "", lastTypeAction = 0;

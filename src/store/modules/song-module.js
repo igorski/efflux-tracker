@@ -166,20 +166,9 @@ export default {
         },
         saveSong({ state, getters, commit, dispatch }, song) {
             return new Promise(async (resolve, reject) => {
-                // validate song first
                 try {
-                    let hasContent = SongUtil.hasContent(song);
-                    if ( !hasContent ) {
-                        throw 'ERROR_EMPTY_SONG';
-                    }
-                    if (song.meta.author.length === 0 || song.meta.title.length === 0) {
-                        hasContent = false;
-                    }
-                    if (!hasContent) {
-                        throw 'ERROR_NO_META';
-                    }
-                } catch(errorKey) {
-                    commit('showError', getters.getCopy(errorKey));
+                    await dispatch('validateSong', song);
+                } catch(e) {
                     reject();
                     return;
                 }
@@ -198,6 +187,26 @@ export default {
             })
             .catch(() => {
                 // handled above
+            });
+        },
+        validateSong({ getters, commit }, song) {
+            return new Promise(async (resolve, reject) => {
+                try {
+                    let hasContent = SongUtil.hasContent(song);
+                    if ( !hasContent ) {
+                        throw 'ERROR_EMPTY_SONG';
+                    }
+                    if (song.meta.author.length === 0 || song.meta.title.length === 0) {
+                        hasContent = false;
+                    }
+                    if (!hasContent) {
+                        throw 'ERROR_NO_META';
+                    }
+                    resolve();
+                } catch(errorKey) {
+                    commit('showError', getters.getCopy(errorKey));
+                    reject();
+                }
             });
         },
         deleteSong({ state }, { song, persist = true }) {

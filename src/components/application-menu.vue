@@ -117,6 +117,7 @@ export default {
         ]),
         ...mapActions([
             'createSong',
+            'validateSong',
             'saveSong',
             'importSong',
             'exportSong',
@@ -159,11 +160,13 @@ export default {
                 .catch(error => this.showError(error));
         },
         handleSongExport() {
-            if ( this.isValid(this.activeSong)) {
+            this.validateSong(this.activeSong).then(() => {
                 this.exportSong(this.activeSong)
                     .then(() => this.showNotification({ message: this.getCopy('SONG_EXPORTED', this.activeSong.meta.title) }))
                     .catch(error => this.showError(error));
-            }
+            }).catch(() => {
+                // nowt. error has been shown through store validator action.
+            });
         },
         handleInstrumentImport() {
             this.importInstruments()
