@@ -21,8 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config    from '../config';
-import Messages  from '../definitions/Messages';
-import Pubsub    from 'pubsub-js';
 import { rangeToIndex } from '../utils/array-util';
 
 const ModuleUtil =
@@ -119,7 +117,7 @@ const ModuleUtil =
 
             case 'filterLFOEnabled':
                 instrument.filter.lfoType = rangeToIndex([ 'off', 'sine', 'square', 'sawtooth', 'triangle' ], audioEvent.mp.value );
-                Pubsub.publishSync( Messages.UPDATE_FILTER_SETTINGS, [ instrument.id, instrument.filter ]);
+                ModuleUtil.applyRouting(modules, output);
                 break;
 
             case 'filterFreq':
@@ -132,7 +130,7 @@ const ModuleUtil =
             // delay effects
             case 'delayEnabled':
                 modules.delay.delayEnabled = ( audioEvent.mp.value >= 50 );
-                ModuleUtil.applyRouting( modules, output );
+                ModuleUtil.applyRouting(modules, output);
                 break;
 
             case 'delayTime':

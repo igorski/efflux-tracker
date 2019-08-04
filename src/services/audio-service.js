@@ -366,7 +366,7 @@ const AudioService =
         const events = instrumentEvents[instrumentIndex];
         switch (property) {
             case 'waveform':
-                if ( oscillator.enabled && oscillator.waveform === 'CUSTOM' ) {
+                if ( oscillator.enabled   && oscillator.waveform === 'CUSTOM' ) {
                     InstrumentUtil.adjustEventWaveForms(events, oscillatorIndex,
                         createTableFromCustomGraph(instrumentIndex, oscillatorIndex, oscillator.table)
                     );

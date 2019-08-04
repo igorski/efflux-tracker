@@ -30,32 +30,39 @@ Please vote on feature requests by using the Thumbs Up/Down reaction on the firs
 
 All source code can be found in the _./src_-folder and is written in ES6 (transpiled to ES5 for use in the browser)
 
- * _./src/assets_ contains all CSS style declarations in .less format as well fonts
- * _./src/js_ contains all JavaScript sourcecode with _main.js_ being the application entry point
- * _./src/js/workers_ contains all Workers (will be inlined using Blob URLs via Workerify for ease of deployment)
- * _./src/templates_ contains all HMTL snippets used by the application in Handlebars format
- * _./src/public_html_ contains the main HTML page that will link to the source output 
+ * _./src/_ contains all JavaScript sourcecode with _main.js_ being the application entry point
+ * _./src/assets_ contains all used fonts and images
+ * _./src/services_ contains a variety of services used to integrate hardware interaction with the application
+ * _./src/workers_ contains all Workers (will be inlined and loaded using Blob URLs) 
+ * _./src/utils_ contains utilities for common operations or to orchestrate batch changes
 
 Additional folders:
 
  * _./design_ contains SVG icons that are combined into an icon font (by fontello)
- * _./fixtures_ can be filled with separate JSON files containing Song data, these will be concatenated into
+ * _./src/fixtures_ can be filled with separate JSON files containing Song data, these will be concatenated into
    a single file that can be requested via Ajax on the first application start to provide demo content
-   (see FixturesLoader.js)
+   (see _fixtures-loaders.js_)
  
 ## Application actors
 
 Efflux is written using [Vue](https://vuejs.org). While originally the application was written without adopting any
 framework, the design pattern adopted is similar to Vue and Vuex's reactivity model, with the benefit of Vue bringing
-easier templating, data binding and event handling.
+easier templating, data binding and event handling. As such the application has been migrated to use Vue and Vuex.
 
-Each part of the application is self-contained. State changes are communicated using the _publish / subscribe_
-mechanism (using _pubsub-js_, with the messages defined in _./src/js/definitions/Messages_). As such, each part of
-the application is a separate component only interested in the messages that can alter its state.
+The Vuex store is defined in _./src/store/_ and its submodules in the _./src/store/modules/_-folder. Each part of
+the application has its own module, these are:
+
+ * _editor-module_ used to keep track of variables used for writing and editing patterns
+ * _history-module_ used to keep track of mutation history to provide undo/redo functionality
+ * _instrument-module_ provides a store to save, load and edit instruments
+ * _midi-module_ used to link MIDI hardware to the application (currently Google Chromeo nly)
+ * _selection-module_ used to keep track of selections made in the pattern editor
+ * _settings-module_ used to maintain persistent configurations
+ * _song-module_ provides a store to save, load and edit songs
     
-## Efflux model
+## Efflux song model
 
-The model of Efflux' consists of the following actors (created via their respective factories):
+The model of an Efflux song consists of the following actors (created via their respective factories):
 
  * Song
  * Patterns
@@ -78,6 +85,15 @@ _INSTRUMENT_OSCILLATORS_ which can be individually tuned and configured for play
 
 INSTRUMENTS also reference _MODULES_. A MODULE is basically an effects processor. Each instrument can have its output
 routed through multiple processors before its output is mixed into the master channel (by the _AudioController_).
+
+### Efflux song model and Vuex
+
+In Vuex, the song is stored in the _"song"_ store module. The editors bind directly to this reactive model, but for
+audio playback, an additional Object structure (e.g. _AudioEvent.seq_) is used. This separates the _data_ aspect (maintained
+by the Vuex store mutations) from the _audio rendering_.
+
+The history module provides custom methods for saving and restoring individual actions for specific sections of a song.
+While Vuex makes it easy to simply save an entire song upon each mutation, this will consume a lot of memory fast.
  
 ## Build instructions
 
@@ -85,38 +101,56 @@ You will need Node.js in order to run the build scripts and resolve the dependen
 
 To build efflux, first resolve all dependencies using NPM:
 
-    npm install
+```
+npm install
+```
  
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
 location at _http://localhost:8080_) using the following Node command:
 
-    npm run serve
- 
+```
+npm run serve
+``` 
+
 A production build (minimizes CSS and JS output size) can be created using the following command:
 
-    npm run build
- 
+```
+npm run build
+``` 
+
 After which the build output is available in the _./dist/_-folder.
  
 ## Unit testing
 
 Unit tests are run via Jest. You can run the tests by using:
 
-    npm run test
- 
-Unit tests go in the _./test_-folder. The file name for a unit test must be equal to the file it is testing, but contain
-the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.js_.
+```
+npm run test
+``` 
+
+Unit tests go in the _./tests_-folder. The file name for a unit test should equal the file it is testing, but contain
+the suffix "_.spec_", e.g. _functions.js_ will have a test file _functions.spec.js_.
 
 ## ROADMAP
 
+See the Issue Tracker on GitHub. Apart from bug reports, it can also be used to request improvements or new features.
+Please read the existing entries to avoid posting duplicates.
+
  * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
- * Move linked list update logic from PatternTrackListController to EventUtil (_linkEvent()_ & _clearEvent()_)
  * Add pattern jump instructions
- * Add cut/paste icons for touch screen devices
+ * Add cut/paste/undo/redo icons for touch screen devices
  * Implement Instrument mute / solo
+ * vue i18n
+ * add pattern insert/delete/paste actions into undo/redo history
+ * move overlay into enum (exposed store state property)
+ * Create separate component for MIDI settings panel
+ * Clean up helpSection (do not inline all topics)
+ * CSS no tag selectors in critical areas (replace ids with classes in scoped components)
 
 ## TODO VUE MIGRATION
 
+cut/paste single events doesn't work
+entering instrument number using keyboard doesn't work
 songs don't loop correctly
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
@@ -138,12 +172,3 @@ model/modules/ADSR and third_party/delay > move to separate folder
 
 check mobile styles ?
 submit to madewithvue :D
-
-## LONG TERM TODO (make Git issues once Vue migration is in master)
-
-vue i18n
-add pattern insert/delete/paste actions into undo/redo history
-move overlay into enum (exposed store state property)
-Create separate component for MIDI settings panel
-Clean up helpSection (do not inline all topics)
-CSS no tag selectors in critical areas (replace ids with classes in scoped components)
