@@ -36,11 +36,10 @@ export default
      * @param {Array.<number>} graphPoints
      * @return {PeriodicWave}
      */
-    createWaveTableFromGraph( audioContext, graphPoints )
-    {
+    createWaveTableFromGraph( audioContext, graphPoints ) {
         // DFT provided by dsp.js
 
-        const dft = new DFT( graphPoints.length );
+        const dft = new window["DFT"]( graphPoints.length );
         dft.forward( graphPoints );
 
         return audioContext.createPeriodicWave( dft.real, dft.imag );
@@ -57,8 +56,7 @@ export default
      * @param {!Function} callback function to execute
      * @return {OscillatorNode}
      */
-    createTimer( audioContext, time, callback )
-    {
+    createTimer( audioContext, time, callback ) {
         const timer = audioContext.createOscillator();
 
         timer.onended = callback;
@@ -86,8 +84,7 @@ export default
      *
      * @return {OscillatorNode} created Oscillator
      */
-    beep( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds )
-    {
+    beep( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds ) {
         const oscillator = audioContext.createOscillator();
         oscillator.connect( audioContext.destination );
 
@@ -101,7 +98,7 @@ export default
 
         // oscillator will start, stop and can be garbage collected after going out of scope
 
-        oscillator.onended = ( oscillatorEvent ) => oscillator.disconnect();
+        oscillator.onended = () => oscillator.disconnect();
 
         AudioFactory.startOscillation( oscillator, startTimeInSeconds );
         AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
@@ -118,11 +115,9 @@ export default
      * @param {Function} readyHandler to invoke when audioContext is created
      *        this handler will receive the generated AudioContext
      */
-    init( readyHandler )
-    {
+    init( readyHandler ) {
         let audioContext;
-        const handler = event =>
-        {
+        const handler = () => {
             d.removeEventListener( 'click',   handler, false );
             d.removeEventListener( 'keydown', handler, false );
 

@@ -131,6 +131,12 @@ export default {
         replaceInstrument(state, { instrumentIndex, instrument }) {
             Vue.set(state.activeSong.instruments, instrumentIndex, instrument);
         },
+        replacePattern(state, { patternIndex, pattern }) {
+            Vue.set(state.activeSong.patterns, patternIndex, pattern);
+        },
+        replacePatterns(state, patterns) {
+            Vue.set(state.activeSong, 'patterns', patterns);
+        },
     },
     actions: {
         loadStoredSongs({ state, commit }) {
@@ -244,8 +250,7 @@ export default {
                 }
             });
         },
-        importSong({ commit, dispatch, getters })
-        {
+        importSong({ commit, dispatch, getters }) {
             // inline handler to overcome blocking of the file select popup by the browser
     
             const fileBrowser = document.createElement('input');

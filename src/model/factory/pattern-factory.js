@@ -4,7 +4,7 @@
  * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
+ * this software and associated documentation files (the 'Software'), to deal in
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
@@ -13,7 +13,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
@@ -33,18 +33,16 @@ const PatternFactory =
      *
      * @return {PATTERN}
      */
-    createEmptyPattern( amountOfSteps )
-    {
-        amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
+    createEmptyPattern( amountOfSteps ) {
+        amountOfSteps = ( typeof amountOfSteps === 'number' ) ? amountOfSteps : 16;
 
         return {
             steps    : amountOfSteps,
             channels : generateEmptyChannelPatterns( amountOfSteps )
         };
     },
-
     /**
-     * merge the contents of given sourcePattern into the
+     * merge the contents of given sourcePattern with the
      * contents of given targetPattern. when content overlaps (e.g.
      * occupies the same step slot) it will be replaced by the ones
      * defined in given sourcePattern
@@ -53,9 +51,9 @@ const PatternFactory =
      * @param {PATTERN} targetPattern
      * @param {PATTERN} sourcePattern
      * @param {number} targetPatternIndex
+     * @return {PATTERN} new pattern with merged contents
      */
-    mergePatterns( targetPattern, sourcePattern, targetPatternIndex )
-    {
+    mergePatterns( targetPattern, sourcePattern, targetPatternIndex ) {
         let targetLength = targetPattern.steps;
         let sourceLength = sourcePattern.steps;
         let sourceChannel, i, j;
@@ -64,8 +62,7 @@ const PatternFactory =
 
         let replacement, increment;
 
-        if ( sourceLength > targetLength )
-        {
+        if ( sourceLength > targetLength ) {
             // source is bigger than target pattern, increase target pattern size
             // while keeping existing content at relative positions
 
@@ -81,8 +78,7 @@ const PatternFactory =
             targetPattern.channels = replacement;
             targetLength = targetPattern.steps = sourceLength;
         }
-        else if ( targetLength > sourceLength )
-        {
+        else if ( targetLength > sourceLength ) {
             // target is bigger than source pattern, increase source pattern size
             // while keeping existing content at relative positions
 
@@ -101,14 +97,14 @@ const PatternFactory =
 
         let sourceEvent, targetEvent;
 
-        targetPattern.channels.forEach(( targetChannel, index ) =>
-        {
+        const merged = ObjectUtil.clone(targetPattern);
+
+        merged.channels.forEach(( targetChannel, index ) => {
             sourceChannel = sourcePattern.channels[ index ];
 
             i = targetLength;
 
             while ( i-- ) {
-
                 sourceEvent = sourceChannel[ i ];
 
                 // copy source content into the target channel (only when it has a note action or module parameter automation)
@@ -128,12 +124,12 @@ const PatternFactory =
                 }
             }
         });
+        return merged;
     }
 };
-
 export default PatternFactory;
 
-/* private methods */
+/* internal methods */
 
 /**
  * @private
@@ -141,8 +137,7 @@ export default PatternFactory;
  * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
  * @returns {Array.<Array.<AUDIO_EVENT>>}
  */
-function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
-{
+function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep ) {
     let out = [], i;
 
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
@@ -157,7 +152,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep )
             if ( addEmptyPatternStep === true )
                 channel[ i ] = EventFactory.createAudioEvent();
             else
-                channel[ i ] = 0; // stringifies nicely in JSON save (otherwise is recorded as "null")
+                channel[ i ] = 0; // stringifies nicely in JSON save (otherwise is recorded as 'null')
         }
     });
     return out;

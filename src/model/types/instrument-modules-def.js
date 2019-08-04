@@ -20,24 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default {
-    state: {
-        midiPortNumber: -1,
-        midiConnected: false,
-        midiDeviceList: [],
-    },
-    mutations: {
-        setMIDIPortNumber(state, value) {
-            state.midiPortNumber = value;
-        },
-        setMIDIConnected(state, value) {
-            state.midiConnected = !!value;
-        },
-        createMIDIDeviceList(state, inputs) {
-            state.midiDeviceList = inputs.map((input, i) => ({
-                title : `${input.manufacturer} ${input.name}`,
-                value : i,
-            }));
-        },
-    }
-};
+
+/**
+ * @typedef {{
+ *              overdrive: OVERDRIVE_MODULE,
+ *              eq: EQ_MODULE,
+ *              filter: FILTER_MODULE,
+ *              delay: DELAY_MODULE,
+ *              output: AudioParam
+ *          }}
+ */
+let INSTRUMENT_MODULES;

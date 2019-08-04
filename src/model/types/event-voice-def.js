@@ -20,24 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default {
-    state: {
-        midiPortNumber: -1,
-        midiConnected: false,
-        midiDeviceList: [],
-    },
-    mutations: {
-        setMIDIPortNumber(state, value) {
-            state.midiPortNumber = value;
-        },
-        setMIDIConnected(state, value) {
-            state.midiConnected = !!value;
-        },
-        createMIDIDeviceList(state, inputs) {
-            state.midiDeviceList = inputs.map((input, i) => ({
-                title : `${input.manufacturer} ${input.name}`,
-                value : i,
-            }));
-        },
-    }
-};
+
+/**
+ * describes a single voice for an event (an event is
+ * a note being triggered for an instrument, however the
+ * instrument can have multiple voices / oscillators)
+ * which are bundled for a single event in an EVENT_OBJECT
+ *
+ * @typedef {{
+ *              generator: OscillatorNode|AudioBufferSourceNode,
+ *              gain: AudioParam,
+ *              outputNode: AudioParam,
+ *              frequency: number,
+ *              vo: INSTRUMENT_OSCILLATOR,
+ *              gliding: false
+ *          }}
+ */
+let EVENT_VOICE;

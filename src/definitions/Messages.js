@@ -50,7 +50,6 @@ export default
     SAVE_SONG                 : "SNGSV",
     SONG_LOADED               : "SNGLDR", // payload consists of the Song that has been loaded
     TRANSFORM_LEGACY_SONG     : "SNGTF",  // payload is Song object
-    CREATE_LINKED_LISTS       : "SNG:6",  // (re)generate the linked lists for all song pattern events
 
     // editor messages
 

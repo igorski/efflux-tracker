@@ -169,9 +169,9 @@ function collect(store) {
  * pattern will either loop or we the Sequencer will progress onto the next pattern
  */
 function step(store) {
-    const activeSong    = store.state.song.activeSong;
-    const totalMeasures = activeSong.patterns.length;
-    const state         = store.state.sequencer;
+    const activeSong = store.state.song.activeSong;
+    const maxMeasure = activeSong.patterns.length - 1;
+    const state      = store.state.sequencer;
 
     // Advance current note and time by the given subdivision...
     state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
@@ -189,7 +189,7 @@ function step(store) {
         if (!state.looping)
             store.commit('gotoNextPattern', activeSong);
 
-        if (state.activePattern === totalMeasures) {
+        if (state.activePattern > maxMeasure) {
             // last measure reached, jump back to first
             store.commit('setActivePattern', 0);
 
@@ -202,8 +202,7 @@ function step(store) {
         }
         store.commit('setPosition', { activeSong, pattern: state.activePattern, currentTime: state.nextNoteTime });
 
-        if ( state.recording )
-        {
+        if ( state.recording ) {
             // one bar metronome count in ?
 
             if ( state.metronome.countIn && !state.metronome.countInComplete ) {
@@ -295,8 +294,7 @@ export default {
         },
         gotoNextPattern(state, activeSong) {
             const max = activeSong.patterns.length - 1;
-
-            if ( state.activePattern <= max )
+            if ( state.activePattern < max )
                 state.activePattern = state.activePattern + 1;
         },
         setCurrentStep(state, step) {

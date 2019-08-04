@@ -92,9 +92,6 @@ import EventUtil      from '../utils/event-util';
 import EventFactory   from '../model/factory/event-factory';
 import EventValidator from '../model/validators/event-validator';
 import Manual         from '../definitions/Manual';
-import Messages       from '../definitions/Messages';
-import Pitch          from '../definitions/Pitch';
-import Pubsub         from 'pubsub-js';
 
 const DEFAULT_NOTE   = 'C';
 const DEFAULT_OCTAVE = 3;
@@ -167,7 +164,7 @@ export default {
         handleHelp() {
             window.open( Manual.NOTE_ENTRY_HELP, "_blank" );
         },
-        handleKey(type, keyCode, event) {
+        handleKey(type, keyCode/*, event*/) {
             if (type !== 'down') {
                 return;
             }

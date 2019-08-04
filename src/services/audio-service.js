@@ -37,44 +37,6 @@ import ADSR           from '../model/modules/ADSR';
 let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
     playing = false, recordOutput = false, recorder;
 
-/* type definitions */
-
-/**
- * describes a single voice for an event (an event is
- * a note being triggered for an instrument, however the
- * instrument can have multiple voices / oscillators)
- * which are bundled for a single event in an EVENT_OBJECT
- *
- * @typedef {{
- *              generator: OscillatorNode|AudioBufferSourceNode,
- *              gain: AudioParam,
- *              outputNode: AudioParam,
- *              frequency: number,
- *              vo: INSTRUMENT_OSCILLATOR,
- *              gliding: false
- *          }}
- */
-let EVENT_VOICE;
-
-/**
- * a single noteOn / noteOff event (can contain
- * multiple voices)
- *
- * @typedef {Array.<EVENT_VOICE>}
- */
-let EVENT_OBJECT;
-
-/**
- * @typedef {{
- *              overdrive: OVERDRIVE_MODULE,
- *              eq: EQ_MODULE,
- *              filter: FILTER_MODULE,
- *              delay: DELAY_MODULE,
- *              output: AudioParam
- *          }}
- */
-let INSTRUMENT_MODULES;
-
 /**
  * list that will contain all modules
  * for each instantiated instrument

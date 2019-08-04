@@ -67,8 +67,6 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/fullscreen-util';
 import AudioService from '../services/audio-service';
 import Manual from '../definitions/Manual';
-import Messages from '../definitions/Messages';
-import SongUtil from '../utils/song-util';
 
 export default {
     computed: {

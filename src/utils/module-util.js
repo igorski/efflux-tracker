@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config    from '../config';
-import Delay     from '../third_party/delay-module';
 import Messages  from '../definitions/Messages';
 import Pubsub    from 'pubsub-js';
 import { rangeToIndex } from '../utils/array-util';
@@ -38,8 +37,7 @@ const ModuleUtil =
      * @param {INSTRUMENT_MODULES} modules
      * @param {AudioParam} output
      */
-    applyRouting( modules, output )
-    {
+    applyRouting( modules, output ) {
         const moduleOutput = modules.output,
               eq           = modules.eq,
               overdrive    = modules.overdrive.overdrive,
@@ -99,8 +97,7 @@ const ModuleUtil =
      * @param {number} startTimeInSeconds
      * @param {AudioGainNode} output
      */
-    applyModuleParamChange( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output )
-    {
+    applyModuleParamChange( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output ) {
         switch ( audioEvent.mp.module )
         {
             // gain effects
@@ -147,13 +144,11 @@ const ModuleUtil =
         }
     }
 };
-
 export default ModuleUtil;
 
 /* internal methods */
 
-function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
-{
+function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds ) {
     const mp = audioEvent.mp, doGlide = mp.glide,
           durationInSeconds = audioEvent.seq.mpLength,
           target = ( mp.value / 100 );
@@ -182,8 +177,7 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
     }
 }
 
-function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
-{
+function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
     const mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
         goingUp = ( mp.module === 'pitchUp' );
@@ -233,14 +227,12 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds )
     }
 }
 
-function applyFilter( audioEvent, modules, startTimeInSeconds )
-{
+function applyFilter( audioEvent, modules, startTimeInSeconds ) {
     const mp = audioEvent.mp, doGlide = mp.glide,
           durationInSeconds = audioEvent.seq.mpLength,
           module = modules.filter, target = ( mp.value / 100 );
 
-    switch ( mp.module )
-    {
+    switch ( mp.module ) {
         case 'filterFreq':
             scheduleParameterChange( module.filter.frequency, target * Config.MAX_FILTER_FREQ, startTimeInSeconds, durationInSeconds, doGlide );
             break;
@@ -262,8 +254,7 @@ function applyFilter( audioEvent, modules, startTimeInSeconds )
     }
 }
 
-function applyDelay( audioEvent, modules, startTimeInSeconds )
-{
+function applyDelay( audioEvent, modules ) {
     const mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
 
     switch ( mp.module )
@@ -295,8 +286,7 @@ function applyDelay( audioEvent, modules, startTimeInSeconds )
  * @param {Object=} data optional data Object to track the status of the scheduled parameter changes (can for instance
  *                  be EVENT_OBJECT which shouldn't cancel previously scheduled changes upon repeated invocation)
  */
-function scheduleParameterChange( param, value, startTimeInSeconds, durationInSeconds, doGlide, data )
-{
+function scheduleParameterChange( param, value, startTimeInSeconds, durationInSeconds, doGlide, data ) {
     if ( !doGlide || ( data && !data.gliding )) {
 
         param.cancelScheduledValues( startTimeInSeconds );

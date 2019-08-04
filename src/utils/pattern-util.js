@@ -41,11 +41,9 @@ export default {
 
         // update event offset for back patterns (as their start offset should now shift)
 
-        back.forEach(( pattern, patternIndex ) =>
-        {
-            pattern.channels.forEach(( channel, channelIndex ) =>
-            {
-                channel.forEach(( event, eventIndex ) => {
+        back.forEach(pattern => {
+            pattern.channels.forEach(channel => {
+                channel.forEach(event => {
                     if ( event ) {
                         ++event.seq.startMeasure;
                         ++event.seq.endMeasure;
@@ -72,11 +70,10 @@ export default {
 
         // update event offset for back pattern (as it has now shifted)
 
-        back.forEach(( pattern, patternIndex ) =>
-        {
-            pattern.channels.forEach(( channel, channelIndex ) =>
+        back.forEach(pattern => {
+            pattern.channels.forEach(channel =>
             {
-                channel.forEach(( event, eventIndex ) => {
+                channel.forEach(event => {
                     if ( event ) {
                         --event.seq.startMeasure;
                         --event.seq.endMeasure;

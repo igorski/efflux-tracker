@@ -117,8 +117,7 @@ the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.
 
 ## TODO VUE MIGRATION
 
-pattern editor
-advanced pattern editor
+songs don't loop correctly
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
 unit tests > jest
@@ -132,6 +131,7 @@ activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
 store.setOverlay() -> should indicate its a modal component
 
+animate pattern input on switch
 editormodule -> active/step/instrument should be renamed to reflect they are being edited
 
 model/modules/ADSR and third_party/delay > move to separate folder
@@ -142,6 +142,7 @@ submit to madewithvue :D
 ## LONG TERM TODO (make Git issues once Vue migration is in master)
 
 vue i18n
+add pattern insert/delete/paste actions into undo/redo history
 move overlay into enum (exposed store state property)
 Create separate component for MIDI settings panel
 Clean up helpSection (do not inline all topics)

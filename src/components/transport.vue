@@ -49,7 +49,7 @@
                 >&lt;&lt;</li>
                 <li id="currentPattern">
                     <input class="current"
-                           v-model="currentPatternValue"
+                           v-model.number="currentPatternValue"
                            maxlength="3"
                            @focus="suspendKeyboardService(true)"
                            @blur="suspendKeyboardService(false)"
@@ -80,15 +80,9 @@
 import Vue from 'vue';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 
-import Config       from '../config';
-import AudioUtil    from '../utils/audio-util';
 import AudioService from '../services/audio-service';
-import EventUtil    from '../utils/event-util';
 import SongUtil     from '../utils/song-util';
-import Messages     from '../definitions/Messages';
-import AudioFactory from '../model/factory/audio-factory';
 import Bowser       from 'bowser';
-import Pubsub       from 'pubsub-js';
 
 export default {
     computed: {
@@ -123,7 +117,7 @@ export default {
                 return `${this.activePattern + 1}`;
             },
             set(patternValue) {
-                let value = Math.min( parseInt( patternValue, 10 ), this.activeSong.patterns.length );
+                let value = Math.min(patternValue - 1, this.activeSong.patterns.length );
 
                 if ( isNaN( value ))
                     value = this.activePattern;

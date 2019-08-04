@@ -22,7 +22,6 @@
  */
 import Vue          from 'vue';
 import EventFactory from '../../model/factory/event-factory';
-import Messages     from '../../definitions/Messages';
 
 let store, state;
 

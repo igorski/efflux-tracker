@@ -20,24 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default {
-    state: {
-        midiPortNumber: -1,
-        midiConnected: false,
-        midiDeviceList: [],
-    },
-    mutations: {
-        setMIDIPortNumber(state, value) {
-            state.midiPortNumber = value;
-        },
-        setMIDIConnected(state, value) {
-            state.midiConnected = !!value;
-        },
-        createMIDIDeviceList(state, inputs) {
-            state.midiDeviceList = inputs.map((input, i) => ({
-                title : `${input.manufacturer} ${input.name}`,
-                value : i,
-            }));
-        },
-    }
-};
+
+/**
+ * a single noteOn / noteOff event (can contain
+ * multiple voices)
+ *
+ * @typedef {Array.<EVENT_VOICE>}
+ */
+let EVENT_OBJECT;
