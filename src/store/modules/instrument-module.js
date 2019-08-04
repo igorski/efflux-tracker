@@ -111,7 +111,8 @@ export default {
                    ( typeof instrument.presetName === 'string' && instrument.presetName.length > 0 )) {
 
                     try {
-                        await dispatch('deleteInstrument', { instrument, persist: false }); // remove duplicate instrument if existed
+                        // remove duplicate instrument if existed
+                        await dispatch('deleteInstrument', { instrument, persist: false });
                     }
                     catch(e) {
                         // that's fine...
@@ -138,7 +139,7 @@ export default {
         deleteInstrument({ state }, { instrument, persist }) {
             return new Promise((resolve, reject) => {
                 let deleted = false;
-                let i = this.instruments.length;
+                let i = state.instruments.length;
 
                 persist = ( typeof persist === 'boolean' ) ? persist : true;
 

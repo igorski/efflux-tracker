@@ -40,9 +40,9 @@ export default
         if ( !song )
             return false;
 
-        return typeof song.id      === "string"    &&
-               typeof song.version === "number"    &&
-               typeof song.meta    !== "undefined" &&
+        return typeof song.id      === 'string'    &&
+               typeof song.version === 'number'    &&
+               typeof song.meta    !== 'undefined' &&
                Array.isArray( song.instruments )   &&
                Array.isArray( song.patterns );
     },
@@ -61,21 +61,21 @@ export default
             // pitch envelope was added in version 2 of SongAssemblyService
 
             instrument.oscillators.forEach(( oscillator ) => {
-                if ( typeof oscillator.pitch !== "object" )
+                if ( typeof oscillator.pitch !== 'object' )
                     InstrumentFactory.createPitchEnvelope( oscillator );
             });
 
             // EQ and OD were added in version 3 of SongAssemblyService
 
-            if ( typeof instrument.eq !== "object" )
+            if ( typeof instrument.eq !== 'object' )
                 InstrumentFactory.createEQ( instrument );
 
-            if ( typeof instrument.od !== "object" )
+            if ( typeof instrument.od !== 'object' )
                 InstrumentFactory.createOverdrive( instrument );
         });
 
         // fix bug where copied channels have the wrong startMeasure offset
-        // we probably want to remove this at a certain bug as the source of the bug has been fixed...
+        // we probably want to remove this at a certain point as the source of the bug has been fixed...
 
         song.patterns.forEach(( pattern, patternIndex ) => {
             pattern.channels.forEach(( channel ) => {

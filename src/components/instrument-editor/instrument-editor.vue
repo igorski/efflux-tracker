@@ -4,7 +4,7 @@
 * Igor Zinken 2019 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
-* this software and associated documentation files (the "Software"), to deal in
+* this software and associated documentation files (the 'Software'), to deal in
 * the Software without restriction, including without limitation the rights to
 * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
 * the Software, and to permit persons to whom the Software is furnished to do so,
@@ -13,7 +13,7 @@
 * The above copyright notice and this permission notice shall be included in all
 * copies or substantial portions of the Software.
 *
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
 * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
@@ -80,21 +80,25 @@
                        placeholder="preset name"
                        @focus="handleFocusIn"
                        @blur="handleFocusOut"
+                       @keyup.enter="savePreset"
                 />
-                <button>Save preset</button>
+                <button type="button"
+                        @click="savePreset"
+                >Save preset</button>
             </div>
         </section>
     </div>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Config from '../../config';
 import Manual from '../../definitions/Manual';
 import AudioService from '../../services/audio-service';
 import InstrumentFactory from '../../model/factory/instrument-factory';
 import OscillatorEditor from './components/oscillator-editor';
 import ModuleEditor from './components/module-editor';
+import ObjectUtil from '../../utils/object-util';
 
 let EMPTY_PRESET_VALUE;
 
@@ -186,10 +190,15 @@ export default {
             'setActiveInstrument',
             'setActiveOscillatorIndex',
             'suspendKeyboardService',
+            'showError',
+            'showNotification',
             'updateInstrument',
             'replaceInstrument',
             'setInstrumentId',
             'setPresetName',
+        ]),
+        ...mapActions([
+            'saveInstrument',
         ]),
         openHelp() {
             window.open(Manual.INSTRUMENT_EDITOR_HELP, '_blank');
@@ -197,6 +206,18 @@ export default {
         invalidatePreset() {
             if (this.instrumentRef.presetName && !this.instrumentRef.presetName.includes('*')) {
                 this.presetName = `${this.instrumentRef.presetName}*`;
+            }
+        },
+        savePreset() {
+            const newPresetName = this.presetName || '';
+            if (newPresetName.trim().length === 0) {
+                this.showError(this.getCopy('ERROR_NO_INS_NAME'));
+            }
+            else {
+                this.presetName = newPresetName.replace('*', '');
+                if (this.saveInstrument( ObjectUtil.clone( this.instrumentRef ) )) {
+                    this.showNotification({ message: this.getCopy('INSTRUMENT_SAVED', newPresetName ) });
+                }
             }
         },
         /**
@@ -216,7 +237,7 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style lang='scss' scoped>
     @import '@/styles/_layout.scss';
 
     #instrumentEditor {
