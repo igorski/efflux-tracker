@@ -117,10 +117,8 @@ the suffix "_.spec_", e.g. _Functions.js_ will have a test file _Functions.spec.
 
 ## TODO VUE MIGRATION
 
-pattern  editor
+pattern editor
 advanced pattern editor
-horizontal keyboard control (moving to out of bounds channels)
-mouse control (clicking to channels outside of initial view)
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
 unit tests > jest

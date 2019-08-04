@@ -36,7 +36,8 @@ let maxStep, targetStep;
 
 const DEFAULT_BLOCKED = [ 8, 32, 37, 38, 39, 40 ],
       MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
-      MAX_SLOT        = 3;
+      MAX_SLOT        = 3,
+      noop            = () => {};
 
 // the different operating modes inside the PatternTrackList
 
@@ -56,8 +57,7 @@ let mode = MODES.NOTE_INPUT;
  */
 const KeyboardService =
 {
-    init(storeReference)
-    {
+    init(storeReference) {
         store = storeReference;
         state = store.state;
 
@@ -75,7 +75,6 @@ const KeyboardService =
         ModuleParamHandler.init(storeReference);
         ModuleValueHandler.init(storeReference);
     },
-
     /**
      * whether the Apple option or a control key is
      * currently held down for the given event
@@ -86,7 +85,6 @@ const KeyboardService =
     hasOption( aEvent ) {
         return ( optionDown === true ) || aEvent.ctrlKey;
     },
-
     /**
      * whether the shift key is currently held down
      *
@@ -95,7 +93,6 @@ const KeyboardService =
     hasShift() {
         return ( shiftDown === true );
     },
-
     /**
      * attach a listener to receive updates whenever a key
      * has been released. listenerRef is a function
@@ -112,7 +109,6 @@ const KeyboardService =
     setListener( listenerRef ) {
         listener = listenerRef;
     },
-
     /**
      * the KeyboardService can be suspended so it
      * will not fire its callback to the listeners
@@ -122,7 +118,6 @@ const KeyboardService =
     setSuspended( value ) {
         suspended = value;
     },
-
     /**
      * whether to block default behaviour on certain keys
      *
@@ -131,13 +126,11 @@ const KeyboardService =
     setBlockDefaults( value ) {
         blockDefaults = value;
     },
-
     reset() {
         KeyboardService.setListener( null );
         KeyboardService.setSuspended( false );
         KeyboardService.setBlockDefaults( true );
     },
-
     syncEditorSlot() {
         switch (state.editor.activeSlot) {
             default:
@@ -153,294 +146,296 @@ const KeyboardService =
                 mode = MODES.PARAM_VALUE;
                 break;
         }
-    },
+    }
 };
 export default KeyboardService;
 
 /* internal methods */
 
-function handleKeyDown( aEvent )
-{
-    if ( !suspended )
-    {
-        const keyCode    = aEvent.keyCode,
-              curStep    = state.editor.activeStep,
-              curChannel = state.editor.activeInstrument; // the current step position and channel within the pattern
+function handleKeyDown( aEvent ) {
+    if (suspended) {
+        return;
+    }
+    const keyCode    = aEvent.keyCode,
+          curStep    = state.editor.activeStep,
+          curChannel = state.editor.activeInstrument; // the current step position and channel within the pattern
 
-        shiftDown = !!aEvent.shiftKey;
+    shiftDown = !!aEvent.shiftKey;
 
-        // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
+    // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
 
-        if ( blockDefaults && DEFAULT_BLOCKED.indexOf( keyCode ) > -1 )
-            aEvent.preventDefault();
+    if ( blockDefaults && DEFAULT_BLOCKED.indexOf( keyCode ) > -1 )
+        aEvent.preventDefault();
 
-        if ( typeof listener === 'function' ) {
-            listener( 'down', keyCode, aEvent );
-        }
-        else {
+    if ( typeof listener === 'function' ) {
+        listener( 'down', keyCode, aEvent );
+    }
+    else {
+        const hasOption = KeyboardService.hasOption( aEvent );
 
-            const hasOption = KeyboardService.hasOption( aEvent );
+        if ( !hasOption && !shiftDown )
+            handleInputForMode( keyCode );
 
-            if ( !hasOption && !shiftDown )
-                handleInputForMode( keyCode );
+        switch ( keyCode )
+        {
+            case 27: // escape
 
-            switch ( keyCode )
-            {
-                case 27: // escape
+                // close dialog (if existing), else close overlay (if existing)
+                if (state.dialog)
+                    store.commit('closeDialog');
+                else if (state.overlay)
+                    store.commit('setOverlay', null);
+                break;
 
-                    // close dialog (if existing), else close overlay (if existing)
-                    if (state.dialog)
-                        store.commit('closeDialog');
-                    else if (state.overlay)
-                        store.commit('setOverlay', null);
-                    break;
+            case 32: // spacebar
+                store.commit('setPlaying', !state.sequencer.playing);
+                break;
 
-                case 32: // spacebar
-                    store.commit('setPlaying', !state.sequencer.playing);
-                    break;
+            // capture the apple key here as it is not recognized as a modifier
 
-                // capture the apple key here as it is not recognized as a modifier
+            case 224:   // Firefox
+            case 17:    // Opera
+            case 91:    // WebKit left key
+            case 93:    // Webkit right key
+                optionDown = true;
+                break;
 
-                case 224:   // Firefox
-                case 17:    // Opera
-                case 91:    // WebKit left key
-                case 93:    // Webkit right key
-                    optionDown = true;
-                    break;
+            case 38: // up
 
-                case 38: // up
+                store.commit('setActiveStep', state.editor.activeStep - 1);
 
-                    store.commit('setActiveStep', state.editor.activeStep - 1);
+                // when holding down shift make a selection, otherwise clear selection
 
-                    // when holding down shift make a selection, otherwise clear selection
+                if ( aEvent && shiftDown ) {
+                    setActiveSlot(); // will unset selected slot
+                    store.commit('handleVerticalKeySelectAction', {
+                        keyCode,
+                        activeChannel: state.editor.activeInstrument,
+                        curStep,
+                        activeStep: state.editor.activeStep
+                    });
+                } else {
+                    store.commit('clearSelection');
+                }
+                break;
 
-                    if ( aEvent && shiftDown ) {
-                        setActiveSlot(); // will unset selected slot
-                        store.commit('handleVerticalKeySelectAction', {
+            case 40: // down
+
+                maxStep = state.song.activeSong.patterns[ state.sequencer.activePattern ].steps - 1;
+                targetStep = state.editor.activeStep + 1;
+                if (targetStep <= maxStep)
+                    store.commit('setActiveStep', targetStep);
+
+                // when holding down shift make a selection, otherwise clear existing selection
+
+                if ( aEvent && shiftDown ) {
+                    setActiveSlot(); // will unset selected slot
+                    store.commit('handleVerticalKeySelectAction', {
+                        keyCode,
+                        activeChannel: state.editor.activeInstrument,
+                        curStep,
+                        activeStep: state.editor.activeStep
+                    });
+                }
+                else {
+                    store.commit('clearSelection');
+                }
+                break;
+
+            case 39: // right
+
+                if (hasOption) {
+                    store.commit('gotoNextPattern', state.song.activeSong);
+                }
+                else {
+                    if (setActiveSlot(state.editor.activeSlot + 1)) {
+                        // when we go right from the most right lane, move to the next pattern (when existing)
+                        if (state.editor.activeInstrument + 1 > MAX_CHANNEL ) {
+                            if (state.sequencer.activePattern < ( state.song.activeSong.patterns.length - 1 )) {
+                                store.commit('setActivePattern', state.sequencer.activePattern + 1);
+                                store.commit('setActiveInstrument', 0);
+                            } else {
+                                store.commit('setActiveSlot', MAX_SLOT);
+                            }
+                        } else {
+                            store.commit('setActiveInstrument', state.editor.activeInstrument + 1);
+                        }
+                    }
+                    if ( shiftDown ) {
+                        store.commit('handleHorizontalKeySelectAction', {
                             keyCode,
-                            activeChannel: state.editor.activeInstrument,
-                            curStep,
-                            activeStep: state.editor.activeStep
+                            activeChannelOnStart: curChannel,
+                            activeStepOnStart: state.editor.activeStep
                         });
                     } else {
                         store.commit('clearSelection');
                     }
-                    break;
+                }
+                break;
 
-                case 40: // down
+            case 37: // left
 
-                    maxStep = state.song.activeSong.patterns[ state.sequencer.activePattern ].steps - 1;
-                    targetStep = state.editor.activeStep + 1;
-                    if (targetStep <= maxStep)
-                        store.commit('setActiveStep', targetStep);
-
-                    // when holding down shift make a selection, otherwise clear existing selection
-
-                    if ( aEvent && shiftDown ) {
-                        setActiveSlot(); // will unset selected slot
-                        store.commit('handleVerticalKeySelectAction', {
+                if (hasOption) {
+                    store.commit('gotoPreviousPattern');
+                }
+                else {
+                    if (setActiveSlot(state.editor.activeSlot - 1)) {
+                        // when we go left from the most left lane, move to the previous pattern (when existing)
+                        if (state.editor.activeInstrument - 1 < 0 ) {
+                            if (state.sequencer.activePattern > 0 ) {
+                                store.commit('setActivePattern', state.sequencer.activePattern - 1);
+                                store.commit('setActiveInstrument', MAX_CHANNEL);
+                                store.commit('setActiveSlot', MAX_SLOT);
+                            } else {
+                                store.commit('setActiveSlot', 0);
+                            }
+                        } else {
+                            store.commit('setActiveInstrument', state.editor.activeInstrument - 1);
+                        }
+                    }
+                    if ( shiftDown ) {
+                        store.commit('handleHorizontalKeySelectAction', {
                             keyCode,
-                            activeChannel: state.editor.activeInstrument,
-                            curStep,
-                            activeStep: state.editor.activeStep
+                            activeChannelOnStart: curChannel,
+                            activeStepOnStart: state.editor.activeStep
                         });
                     }
                     else {
                         store.commit('clearSelection');
                     }
-                    break;
+                }
+                break;
 
-                case 39: // right
+            case 8:  // backspace
+                handleDeleteActionForCurrentMode();
+                handleKeyUp({ keyCode: 38, preventDefault: noop }); // move up to previous slot
+                break;
 
-                    if (hasOption) {
-                        store.commit('gotoNextPattern', state.song.activeSong);
-                    }
-                    else {
-                        if (setActiveSlot(state.editor.activeSlot + 1)) {
-                            // when we go right from the most right lane, move to the next pattern (when existing)
-                            if (state.editor.activeInstrument + 1 > MAX_CHANNEL ) {
-                                if (state.sequencer.activePattern < ( state.song.activeSong.patterns.length - 1 )) {
-                                    store.commit('setActivePattern', state.sequencer.activePattern + 1);
-                                    store.commit('setActiveInstrument', 0);
-                                }
-                            } else {
-                                store.commit('setActiveInstrument', state.editor.activeInstrument + 1);
-                            }
-                        }
+            case 13: // enter
+                // confirm dialog (if existing)
+                if (state.dialog)
+                    store.commit('closeDialog');
+                else if (hasOption)
+                    store.commit('setOverlay', 'nee');
+                else
+                    store.commit('setOverlay', 'mpe');
+                break;
 
-                        if ( shiftDown )
-                            store.commit('handleHorizontalKeySelectAction', {
-                                keyCode,
-                                activeChannelOnStart: curChannel,
-                                activeStepOnStart: state.editor.activeStep
-                            });
-                        else
-                            store.commit('clearSelection');
-                    }
-                    break;
+            case 46: // delete
+                handleDeleteActionForCurrentMode();
+                handleKeyUp({ keyCode: 40, preventDefault: noop }); // move down to next slot
+                break;
 
-                case 37: // left
+            case 65: // A
+                // select all
+                if (hasOption) {
+                    store.commit('setMinSelectedStep',0);
+                    store.commit('setMaxSelectedStep', state.song.activeSong.patterns[state.sequencer.activePattern].steps);
+                    store.commit('setSelectionChannelRange', { firstChannel: 0, lastChannel: Config.INSTRUMENT_AMOUNT - 1 });
+                }
+                break;
 
-                    if (hasOption) {
-                        store.commit('gotoPreviousPattern');
-                    }
-                    else {
-                        if (setActiveSlot(state.editor.activeSlot - 1)) {
-                            // when we go left from the most left lane, move to the previous pattern (when existing)
-                            if (state.editor.activeInstrument - 1 < 0 ) {
-                                if (state.editor.activePattern > 0 ) {
-                                    store.commit('setActivePattern', state.sequencer.activePattern - 1);
-                                    store.commit('setActiveInstrument', MAX_CHANNEL);
-                                }
-                            } else {
-                                store.commit('setActiveInstrument', state.editor.activeInstrument - 1);
-                            }
-                        }
+            case 67: // C
 
-                        if ( shiftDown ) {
-                            store.commit('handleHorizontalKeySelectAction', {
-                                keyCode,
-                                activeChannelOnStart: curChannel,
-                                activeStepOnStart: state.editor.activeStep
-                            });
-                        }
-                        else {
-                            store.commit('clearSelection');
-                        }
-                    }
-                    break;
-
-                case 8:  // backspace
-                    handleDeleteActionForCurrentMode();
-                    handleKeyUp({ keyCode: 38, preventDefault: function() {} }); // move up to previous slot
-                    break;
-
-                case 13: // enter
-                    // confirm dialog (if existing)
-                    if (state.dialog)
-                        store.commit('closeDialog');
-                    else if (hasOption)
-                        store.commit('setOverlay', 'nee');
-                    else
-                        store.commit('setOverlay', 'mpe');
-                    break;
-
-                case 46: // delete
-                    handleDeleteActionForCurrentMode();
-                    handleKeyUp({ keyCode: 40, preventDefault: function() {} }); // move down to next slot
-                    break;
-
-                case 65: // A
-                    // select all
-                    if (hasOption) {
-                        store.commit('setMinSelectedStep',0);
-                        store.commit('setMaxSelectedStep', state.song.activeSong.patterns[state.sequencer.activePattern].steps);
-                        store.commit('setSelectionChannelRange', { firstChannel: 0, lastChannel: Config.INSTRUMENT_AMOUNT - 1 });
-                    }
-                    break;
-
-                case 67: // C
-
-                     // copy current selection
-                     if (hasOption) {
-                         if (!store.getters.hasSelection) {
-                             store.commit('setSelectionChannelRange', { firstChannel: state.editor.activeInstrument });
-                             store.commit('setSelection', state.editor.activeStep);
-                         }
-                         store.commit('copySelection', { song: state.song.activeSong, activePattern: state.sequencer.activePattern });
-                         store.commit('clearSelection');
+                 // copy current selection
+                 if (hasOption) {
+                     if (!store.getters.hasSelection) {
+                         store.commit('setSelectionChannelRange', { firstChannel: state.editor.activeInstrument });
+                         store.commit('setSelection', state.editor.activeStep);
                      }
-                     break;
-                
-                case 68: // D
-                    // deselect all
-                    if (hasOption) {
-                        store.commit('clearSelection');
-                        aEvent.preventDefault();  // 'add to bookmark' :)
-                    }
-                    break;
+                     store.commit('copySelection', { song: state.song.activeSong, activePattern: state.sequencer.activePattern });
+                     store.commit('clearSelection');
+                 }
+                 break;
 
-                case 71: // G
-                    if (hasOption) {
-                        EventUtil.glideParameterAutomations(
-                            state.song.activeSong, state.editor.activeStep, state.sequencer.activePattern,
-                            state.editor.activeInstrument, state.editor.eventList, store
-                        );
-                        aEvent.preventDefault(); // in-page search
-                    }
-                    break;
+            case 68: // D
+                // deselect all
+                if (hasOption) {
+                    store.commit('clearSelection');
+                    aEvent.preventDefault();  // 'add to bookmark' :)
+                }
+                break;
 
-                case 75: // K
-                    store.commit('addEventAtPosition', { event: EventFactory.createAudioEvent(0, '', 0, 2), store });
-                    break;
+            case 71: // G
+                if (hasOption) {
+                    EventUtil.glideParameterAutomations(
+                        state.song.activeSong, state.editor.activeStep, state.sequencer.activePattern,
+                        state.editor.activeInstrument, state.editor.eventList, store
+                    );
+                    aEvent.preventDefault(); // in-page search
+                }
+                break;
 
-                case 76: // L
-                    if (hasOption) {
-                        store.commit('setLooping', !state.sequencer.looping);
-                        aEvent.preventDefault();
-                    }
-                    break;
+            case 75: // K
+                store.commit('addEventAtPosition', { event: EventFactory.createAudioEvent(0, '', 0, 2), store });
+                break;
 
-                case 82: // R
-                    if (hasOption) {
-                        store.commit('setRecording', !state.sequencer.recording);
-                        aEvent.preventDefault(); // otherwise page refreshes
-                    }
-                    break;
+            case 76: // L
+                if (hasOption) {
+                    store.commit('setLooping', !state.sequencer.looping);
+                    aEvent.preventDefault();
+                }
+                break;
 
-                case 83: // S
-                    if (hasOption) {
-                        store.dispatch('saveSong', state.song.activeSong);
-                        aEvent.preventDefault(); // otherwise page is saved
-                    }
-                    break;
+            case 82: // R
+                if (hasOption) {
+                    store.commit('setRecording', !state.sequencer.recording);
+                    aEvent.preventDefault(); // otherwise page refreshes
+                }
+                break;
 
-                case 86: // V
+            case 83: // S
+                if (hasOption) {
+                    store.dispatch('saveSong', state.song.activeSong);
+                    aEvent.preventDefault(); // otherwise page is saved
+                }
+                break;
 
-                    // paste current selection
-                    if (hasOption) {
-                        store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.PASTE_SELECTION, { store }));
-                    }
-                    break;
+            case 86: // V
 
-                case 88: // X
+                // paste current selection
+                if (hasOption) {
+                    store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.PASTE_SELECTION, { store }));
+                }
+                break;
 
-                    // cut current selection
+            case 88: // X
 
-                    if (hasOption) {
-                        store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.CUT_SELECTION, { store }));
-                    }
-                    break;
+                // cut current selection
 
-                case 90: // Z
+                if (hasOption) {
+                    store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.CUT_SELECTION, { store }));
+                }
+                break;
 
-                    if (hasOption) {
-                        const action = !shiftDown ? 'undo' : 'redo';
-                        store.dispatch(action).then(() => {
-                            // TODO this is wasteful, can we do this more elegantly?
-                            EventUtil.linkEvents( state.song.activeSong.patterns, state.editor.eventList );
-                        });
-                    }
-                    break;
+            case 90: // Z
 
-                case 189: // +
-                    store.commit('setHigherKeyboardOctave', Math.max(state.editor.higherKeyboardOctave - 1, 1));
-                    break;
+                if (hasOption) {
+                    const action = !shiftDown ? 'undo' : 'redo';
+                    store.dispatch(action).then(() => {
+                        // TODO this is wasteful, can we do this more elegantly?
+                        EventUtil.linkEvents( state.song.activeSong.patterns, state.editor.eventList );
+                    });
+                }
+                break;
 
-                case 187: // -
-                    store.commit('setHigherKeyboardOctave', Math.min(state.editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE));
-                    break;
+            case 189: // +
+                store.commit('setHigherKeyboardOctave', Math.max(state.editor.higherKeyboardOctave - 1, 1));
+                break;
 
-                case 219: // [
-                    store.commit('setLowerKeyboardOctave', Math.max( state.editor.lowerKeyboardOctave - 1, 1));
-                    break;
+            case 187: // -
+                store.commit('setHigherKeyboardOctave', Math.min(state.editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE));
+                break;
 
-                case 221: // ]
-                    store.commit('setLowerKeyboardOctave', Math.min( state.editor.lowerKeyboardOctave + 1, Config.MAX_OCTAVE));
-                    break;
-            }
+            case 219: // [
+                store.commit('setLowerKeyboardOctave', Math.max( state.editor.lowerKeyboardOctave - 1, 1));
+                break;
+
+            case 221: // ]
+                store.commit('setLowerKeyboardOctave', Math.min( state.editor.lowerKeyboardOctave + 1, Config.MAX_OCTAVE));
+                break;
         }
-   }
+    }
 }
 
 function handleKeyUp( aEvent ) {
@@ -498,8 +493,6 @@ function setActiveSlot( targetValue ) {
     let value = targetValue;
     // moved into first slot of next instrument ? jump to next instrument
     if ( targetValue > MAX_SLOT )
-    if ( targetValue > MAX_SLOT )
-    if ( targetValue > MAX_SLOT )
         value = 0;
     else if ( targetValue < 0 )
         value = MAX_SLOT;
@@ -507,7 +500,6 @@ function setActiveSlot( targetValue ) {
         value = -1;
 
     store.commit('setActiveSlot', value);
-
     return value !== targetValue;
 }
 

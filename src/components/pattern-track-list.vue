@@ -174,9 +174,6 @@ export default {
             this.setActiveSlot(-1);
             this.pContainerSteps = [];
         },
-        activeStep() {
-            this.focusActiveStep();
-        },
         currentStep(step) {
             const diff  = this.stepPrecision / this.activeSong.patterns[this.activePattern].steps;
 
@@ -200,6 +197,8 @@ export default {
         windowSize() {
             this.cacheDimensions();
         },
+        activeStep() { this.focusActiveStep() },
+        activeSlot() { this.focusActiveStep() },
     },
     mounted() {
         this.$nextTick(() => {
@@ -251,7 +250,6 @@ export default {
             else if ( slotTop < top ) {
                 this.container.scrollTop = slotTop;
             }
-
             if ( slotRight >= right ) {
                 this.container.scrollLeft = ( slotRight - this.containerWidth ) + STEP_WIDTH;
             }
