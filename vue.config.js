@@ -3,7 +3,8 @@ const MergeJsonWebpackPlugin = require('merge-jsons-webpack-plugin');
 
 module.exports = {
 
-    // Webpack configuration
+    filenameHashing: false,
+    productionSourceMap: false,
 
     configureWebpack: {
         module: {
