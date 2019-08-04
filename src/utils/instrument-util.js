@@ -24,8 +24,6 @@ import Vue          from 'vue';
 import AudioService from '../services/audio-service';
 import EventFactory from '../model/factory/event-factory';
 import EventUtil    from './event-util';
-import Pubsub       from 'pubsub-js';
-import Messages     from '../definitions/Messages';
 
 let playingNotes = {};
 

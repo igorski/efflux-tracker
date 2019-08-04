@@ -28,11 +28,9 @@ import RecordingUtil  from '../utils/audio-recording-util';
 import ModuleUtil     from '../utils/module-util';
 import InstrumentUtil from '../utils/instrument-util';
 import Config         from '../config';
-import Messages       from '../definitions/Messages';
 import Pitch          from '../definitions/Pitch';
 import WaveTables     from '../definitions/WaveTables';
 import ADSR           from '../model/modules/ADSR';
-import Pubsub         from 'pubsub-js';
 
 /* private properties */
 
@@ -107,7 +105,6 @@ const AudioService =
         return ( typeof AudioContext !== 'undefined' ||
                  typeof webkitAudioContext !== 'undefined' );
     },
-
     /**
      * initializes the audioContext so we can
      * synthesize audio using the WebAudio API
@@ -148,21 +145,19 @@ const AudioService =
                 });
                 AudioService.reset();
                 AudioService.cacheCustomTables(state.song.activeSong.instruments);
-
-                // subscribe to messages
-
-                [   Messages.SONG_LOADED,
-                    Messages.UPDATE_FILTER_SETTINGS,
-                    Messages.UPDATE_DELAY_SETTINGS,
-                    Messages.UPDATE_EQ_SETTINGS,
-                    Messages.UPDATE_OVERDRIVE_SETTINGS,
-
-                ].forEach(( msg ) => Pubsub.subscribe( msg, handleBroadcast ));
-
                 AudioService.initialized = true;
+
                 resolve(audioContext);
             });
         });
+    },
+    /**
+     * retrieve a reference to the applications AudioContext
+     *
+     * @return {AudioContext}
+     */
+    getAudioContext() {
+        return audioContext;
     },
     /**
      * cache the custom WaveTables that are available to the instruments
@@ -220,13 +215,20 @@ const AudioService =
 
         UNIQUE_EVENT_ID = 0;
     },
-    /**
-     * retrieve a reference to the AudioContext
-     *
-     * @return {AudioContext}
-     */
-    getAudioContext() {
-        return audioContext;
+    toggleRecordingState() {
+        recordOutput = !recordOutput;
+        if (recordOutput) {
+            if (!recorder) {
+                recorder = new RecordingUtil(masterBus, {
+                    callback : handleRecordingComplete
+                });
+            }
+            if (playing)
+                recorder.record();
+        } else if (recorder) {
+            recorder.stop();
+            recorder.exportWAV();
+        }
     },
     /**
      * synthesize the audio for given event at given startTime
@@ -384,8 +386,11 @@ const AudioService =
             ModuleFactory.applyConfiguration('filter', instrumentModule, instrument.filter, masterBus);
             ModuleFactory.applyConfiguration('delay', instrumentModule, instrument.delay, masterBus);
             ModuleFactory.applyConfiguration('eq', instrumentModule, instrument.eq, masterBus);
-            ModuleFactory.applyConfiguration('od', instrumentModule, instrument.overdrive, masterBus);
+            ModuleFactory.applyConfiguration('overdrive', instrumentModule, instrument.overdrive, masterBus);
         });
+    },
+    applyModule(type, instrumentIndex, props) {
+        ModuleFactory.applyConfiguration(type, instrumentModules[instrumentIndex], props, masterBus);
     },
     cacheAllOscillators(instrumentIndex, instrument) {
         instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
@@ -395,6 +400,7 @@ const AudioService =
     updateOscillator(property, instrumentIndex, oscillatorIndex, oscillator) {
         if (!/waveform|tuning|volume/.test(property))
             throw new Error(`cannot update unsupported oscillator property ${property}`);
+
         const events = instrumentEvents[instrumentIndex];
         switch (property) {
             case 'waveform':
@@ -417,42 +423,11 @@ const AudioService =
     },
     adjustInstrumentVolume(instrumentIndex, volume) {
         instrumentModules[instrumentIndex].output.gain.value = volume;
-    },
-    toggleRecordingState() {
-        recordOutput = !recordOutput;
-        if (recordOutput) {
-            if (!recorder) {
-                recorder = new RecordingUtil(masterBus, {
-                    callback : handleRecordingComplete
-                });
-            }
-            if (playing)
-                recorder.record();
-        } else if (recorder) {
-            recorder.stop();
-            recorder.exportWAV();
-        }
     }
 };
 export default AudioService;
 
 /* internal methods */
-
-function handleBroadcast( type, payload )
-{
-    switch ( type )
-    {
-        case Messages.UPDATE_FILTER_SETTINGS:
-        case Messages.UPDATE_DELAY_SETTINGS:
-        case Messages.UPDATE_EQ_SETTINGS:
-        case Messages.UPDATE_OVERDRIVE_SETTINGS:
-            ModuleFactory.applyConfiguration(type,
-                instrumentModules[ payload[ 0 ]],
-                payload[ 1 ], masterBus
-            );
-            break;
-    }
-}
 
 function setupRouting()
 {

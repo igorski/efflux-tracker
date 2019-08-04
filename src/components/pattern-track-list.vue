@@ -186,7 +186,7 @@ export default {
             this.playingStep = step / diff;
             const stepY = this.playingStep * STEP_HEIGHT;
 
-            if (this.followPlayback === 'true') {
+            if (this.followPlayback) {
                 // following activated, ensure the list auto scrolls
                 if ( stepY > this.containerHeight ) {
                     this.mustFollow = (++this.lastFollowStep % 2 ) === 1;

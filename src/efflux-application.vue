@@ -121,7 +121,7 @@ export default {
             'overlay',
         ]),
         ...mapState({
-            displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== 'false',
+            displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== false,
         }),
         ...mapGetters([
             'getCopy',

@@ -45,8 +45,8 @@
                     <select id="trackFollow"
                             v-model="trackFollow"
                             @change="handleTrackFollowChange">
-                        <option value="true">on</option>
-                        <option value="false" selected>off</option>
+                        <option :value="true">on</option>
+                        <option :value="false" selected>off</option>
                     </select>
                 </div>
                 <div class="wrapper checkbox">
@@ -54,8 +54,8 @@
                     <select id="helpPanel"
                             v-model="displayHelpPanel"
                             @change="handleHelpPanelChange">
-                        <option value="true">on</option>
-                        <option value="false" selected>off</option>
+                        <option :value="true">on</option>
+                        <option :value="false" selected>off</option>
                     </select>
                 </div>
             </fieldset>
@@ -96,8 +96,8 @@ import { zMIDI } from 'zmidi';
 export default {
     data: () => ({
         paramFormat: 'hex',
-        trackFollow: 'false',
-        displayHelpPanel: 'true',
+        trackFollow: false,
+        displayHelpPanel: true,
     }),
     computed: {
         ...mapState({

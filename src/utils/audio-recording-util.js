@@ -37,10 +37,10 @@ const Recorder = function (source, cfg = {}) {
         });
     };
 
-    this.configure = function (cfg) {
-        for (var prop in cfg) {
+    this.configure = function (config) {
+        for (var prop in config) {
             if (cfg.hasOwnProperty(prop)) {
-                cfg[prop] = cfg[prop];
+                cfg[prop] = config[prop];
             }
         }
     };

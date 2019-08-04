@@ -65,7 +65,6 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/fullscreen-util';
-import { getCopy } from '../i18n/Copy';
 import AudioService from '../services/audio-service';
 import Manual from '../definitions/Manual';
 import Messages from '../definitions/Messages';

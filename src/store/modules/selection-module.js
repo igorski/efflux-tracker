@@ -128,16 +128,10 @@ const deleteSelection = (state, { song, eventList, activePattern,
     }
     const selectedChannels = ( Array.isArray( optSelectionContent )) ? optSelectionContent : state.selectedChannels;
     const pattern = song.patterns[ activePattern ];
-    let event;
 
-    for ( let channelIndex = firstSelectedChannel; channelIndex <= lastSelectedChannel; ++channelIndex )
-    {
-        if ( selectedChannels[ channelIndex ].length > 0 )
-        {
+    for ( let channelIndex = firstSelectedChannel; channelIndex <= lastSelectedChannel; ++channelIndex ) {
+        if ( selectedChannels[ channelIndex ].length > 0 ) {
             for ( let sIndex = minSelectedStep, l = maxSelectedStep; sIndex <= l; ++sIndex ) {
-
-                event = pattern.channels[ channelIndex ][ sIndex ];
-
                 EventUtil.clearEvent(
                     song,
                     activePattern,

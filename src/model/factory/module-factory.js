@@ -45,7 +45,7 @@ const ModuleFactory = {
                 return ModuleFactory.applyDelayConfiguration(modules, props, output);
             case 'eq':
                 return ModuleFactory.applyEQConfiguration(modules, props, output);
-            case 'od':
+            case 'overdrive':
                 return ModuleFactory.applyODConfiguration(modules, props, output);
         }
     },

@@ -28,8 +28,8 @@
             <select v-model="oscillatorEnabled"
                     @change="handleOscillatorEnabledChange"
             >
-                <option value="true">Enabled</option>
-                <option value="false">Disabled</option>
+                <option :value="true">Enabled</option>
+                <option :value="false">Disabled</option>
             </select>
             <select v-model="oscillatorWaveform"
                     @change="handleOscillatorWaveformChange"
@@ -46,7 +46,7 @@
 
         <!-- oscillator tuning and volume -->
 
-        <div class="horizontalGroup">
+        <div>
             <div id="oscillatorEditor" class="instrument-parameters">
                 <h2>Oscillator tuning</h2>
                 <div class="wrapper input range">
@@ -168,7 +168,7 @@
     </section>
 </template>
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 import zCanvas from 'zcanvas';
 import Config from '../../../config';
 import AudioService from '../../../services/audio-service';
@@ -315,11 +315,11 @@ export default {
             AudioService.updateOscillator('volume', this.instrumentId, this.oscillatorIndex, this.oscillator);
             this.invalidate();
         },
-        handleOscillatorTuningChange(tuningProperty) {
+        handleOscillatorTuningChange() {
             AudioService.updateOscillator('tuning', this.instrumentId, this.oscillatorIndex, this.oscillator);
             this.invalidate();
         },
-        resizeWaveTableDraw(width = window.innerWidth, height = window.innerHeight) {
+        resizeWaveTableDraw(width = window.innerWidth) {
             const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
             const targetWidth = ( width < ideal ) ? width *  0.9: ideal;
 
