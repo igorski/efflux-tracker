@@ -336,11 +336,9 @@ export default {
                         if (!shiftDown && event.type === 'click')
                             this.selectSlotWithinClickedStep(event);
 
-                        //keyboardController.setListener( patternTrackListController );
-
                         if (event.type === 'dblclick') {
                             event.preventDefault();
-                            this.setOverlay('nee'); // this.editNoteForStep
+                            this.setOverlay('nee');
                             found = true;
                         }
                         break;
