@@ -259,12 +259,11 @@ function deleteModuleAutomationAction({ event }) {
 }
 
 function cutSelectionAction({ store }) {
-
     const song = store.state.song.activeSong;
 
     if ( !store.getters.hasSelection) {
         store.commit('setSelectionChannelRange', { firstChannel: store.state.editor.activeInstrument });
-        store.commit('setSelection', store.state.editor.activeStep);
+        store.commit('setSelection', { selectionStart: store.state.editor.activeStep });
     }
     const activePattern   = store.state.sequencer.activePattern;
     const firstChannel    = store.state.selection.firstSelectedChannel;

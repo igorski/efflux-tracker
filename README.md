@@ -149,8 +149,6 @@ Please read the existing entries to avoid posting duplicates.
 
 ## TODO VUE MIGRATION
 
-cut/paste single events doesn't work
-entering instrument number using keyboard doesn't work
 songs don't loop correctly
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration

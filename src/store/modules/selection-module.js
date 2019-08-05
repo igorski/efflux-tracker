@@ -191,7 +191,7 @@ const setSelection = ( state, selectionStart, selectionEnd ) => {
     //if ( !state.selectedChannels.length > 0 )
         //throw new Error( "cannot set selection range if no selection channel range had been specified" );
 
-    if ( typeof selectionEnd !== "number" )
+    if ( typeof selectionEnd !== 'number' )
         selectionEnd = selectionStart;
 
     // update to new values
@@ -407,7 +407,7 @@ const module = {
                   hadSelection = hasSelection(state);
 
             if ( !hadSelection ) {
-                state.minSelectedStep     = activeStepOnStart;
+                state.minSelectedStep      = activeStepOnStart;
                 state.maxSelectedStep      = activeStepOnStart;
                 state.lastSelectedChannel  = activeChannelOnStart;
                 state.firstSelectedChannel = activeChannelOnStart;
