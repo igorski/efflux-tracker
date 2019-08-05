@@ -85,8 +85,7 @@ const PatternFactory =
             replacement = generateEmptyChannelPatterns( targetLength );
             increment   = Math.round( targetLength / sourceLength );
 
-            replacement.forEach(( channel, index ) =>
-            {
+            replacement.forEach(( channel, index ) => {
                 for ( i = 0, j = 0; i < sourceLength; ++i, j += increment )
                     channel[ j ] = sourcePattern.channels[ index ][ i ];
             });
@@ -94,24 +93,20 @@ const PatternFactory =
             sourcePattern.channels = replacement;
             sourceLength = sourcePattern.steps = targetLength;
         }
-
-        let sourceEvent, targetEvent;
-
         const merged = ObjectUtil.clone(targetPattern);
 
         merged.channels.forEach(( targetChannel, index ) => {
             sourceChannel = sourcePattern.channels[ index ];
-
             i = targetLength;
 
             while ( i-- ) {
-                sourceEvent = sourceChannel[ i ];
+                const sourceEvent = sourceChannel[ i ];
 
                 // copy source content into the target channel (only when it has a note action or module parameter automation)
 
                 if ( sourceEvent && ( sourceEvent.action !== 0 || sourceEvent.mp )) {
 
-                    targetEvent = targetChannel[ i ] = ObjectUtil.clone( sourceEvent );
+                    const targetEvent = targetChannel[ i ] = ObjectUtil.clone( sourceEvent );
 
                     // update the start measure of the event
 

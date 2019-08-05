@@ -54,8 +54,8 @@ the application has its own module, these are:
 
  * _editor-module_ used to keep track of variables used for writing and editing patterns
  * _history-module_ used to keep track of mutation history to provide undo/redo functionality
- * _instrument-module_ provides a store to save, load and edit instruments
- * _midi-module_ used to link MIDI hardware to the application (currently Google Chromeo nly)
+ * _instrument-module_ provides a store to save, load and edit preset instruments (to be reused across songs)
+ * _midi-module_ used to link MIDI hardware to the application (currently Google Chrome only)
  * _selection-module_ used to keep track of selections made in the pattern editor
  * _settings-module_ used to maintain persistent configurations
  * _song-module_ provides a store to save, load and edit songs
@@ -154,7 +154,6 @@ entering instrument number using keyboard doesn't work
 songs don't loop correctly
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
-unit tests > jest
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 igorski.nl Analytics
 
