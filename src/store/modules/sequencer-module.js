@@ -184,12 +184,8 @@ function step(store) {
     if (currentStep === state.stepPrecision) {
         store.commit('setCurrentStep', 0);
 
-        // advance the measure if the Sequencer wasn't looping
-
-        if (!state.looping)
-            store.commit('gotoNextPattern', activeSong);
-
-        if (state.activePattern > maxMeasure) {
+        const nextPattern = state.activePattern + 1;
+        if (nextPattern > maxMeasure) {
             // last measure reached, jump back to first
             store.commit('setActivePattern', 0);
 
@@ -199,6 +195,9 @@ function step(store) {
                 store.commit('setPlaying', false );
                 return;
             }
+        } else if (!state.looping) {
+            // advance the measure only when the Sequencer isn't looping
+            store.commit('gotoNextPattern', activeSong);
         }
         store.commit('setPosition', { activeSong, pattern: state.activePattern, currentTime: state.nextNoteTime });
 

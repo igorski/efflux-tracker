@@ -3,15 +3,16 @@
 ## What is it ?
 
 efflux is a JavaScript-based application that allows users to create music using user defined
-WaveTable synthesis, all inside a browser.
+WaveTable synthesis, all inside a browser. All sounds are oscillator based, therefor Efflux is a
+modular synthesis environment, where the synths are driven by the tracker.
 
 ## Feature list
 
-- Create custom waveforms for multiple synth instruments
-- Directly edit instrument output using the pattern editor
-- Copy / clone patterns for nice and easy arranging
-- Save songs locally to continue working on them later or export / import them between devices
-- Enter notes using an attached MIDI controller and/or record them live during playback
+* Create custom waveforms for multiple synth instruments
+* Directly edit instrument output using the pattern editor
+* Copy / clone patterns for nice and easy arranging
+* Save songs locally to continue working on them later or export / import them between devices
+* Enter notes using an attached MIDI controller and/or record them live during playback
 
 ### Sounds cool, but I don't want to build from source, I just want to tinker with this!!
 
@@ -60,7 +61,7 @@ the application has its own module, these are:
  * _settings-module_ used to maintain persistent configurations
  * _song-module_ provides a store to save, load and edit songs
     
-## Efflux song model
+### Efflux song model
 
 The model of an Efflux song consists of the following actors (created via their respective factories):
 
@@ -94,6 +95,14 @@ by the Vuex store mutations) from the _audio rendering_.
 
 The history module provides custom methods for saving and restoring individual actions for specific sections of a song.
 While Vuex makes it easy to simply save an entire song upon each mutation, this will consume a lot of memory fast.
+
+### Audio rendering
+
+The synthesizer itself renders its output by use of the Web Audio API's _OscillatorNodes_ with _PeriodicWave_'s. All of
+this logic is determined by _noteOn_ and _noteOff_ events (similar to the MIDI spec) that is handle by the _AudioService_.
+
+The routing of audio paths and effect modules takes place in the same _AudioService_ via use of several utils. When in
+doubt, the Vuex song model defines _what it should sound like_ while the AudioService takes care of actual sound rendering.
  
 ## Build instructions
 
@@ -149,7 +158,6 @@ Please read the existing entries to avoid posting duplicates.
 
 ## TODO VUE MIGRATION
 
-songs don't loop correctly
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
 igorski.nl share integration
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
