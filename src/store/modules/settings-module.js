@@ -50,7 +50,9 @@ export default {
                 return state._settings[ name ];
             }
             return null;
-        }
+        },
+        followPlayback: state => state._settings[state.PROPERTIES.FOLLOW_PLAYBACK] || false,
+        paramFormat: state => state._settings[state.PROPERTIES.INPUT_FORMAT],
     },
     mutations: {
         saveSetting(state, { name, value }) {

@@ -146,12 +146,12 @@ export default {
             minSelectedStep: state => state.selection.minSelectedStep,
             firstSelectedChannel: state => state.selection.firstSelectedChannel,
             windowSize: state => state.windowSize,
-            followPlayback: state => state.settings._settings[state.settings.PROPERTIES.FOLLOW_PLAYBACK],
-            paramFormat: state => state.settings._settings[state.settings.PROPERTIES.INPUT_FORMAT],
         }),
         ...mapGetters([
             'amountOfSteps',
             'hasSelection',
+            'followPlayback',
+            'paramFormat',
         ]),
         activeSongPattern() {
             return this.activeSong.patterns[this.activePattern];
