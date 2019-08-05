@@ -341,7 +341,7 @@ function handleKeyDown( aEvent ) {
                  if (hasOption) {
                      if (!store.getters.hasSelection) {
                          store.commit('setSelectionChannelRange', { firstChannel: state.editor.activeInstrument });
-                         store.commit('setSelection', state.editor.activeStep);
+                         store.commit('setSelection', { selectionStart: state.editor.activeStep });
                      }
                      store.commit('copySelection', { song: state.song.activeSong, activePattern: state.sequencer.activePattern });
                      store.commit('clearSelection');
