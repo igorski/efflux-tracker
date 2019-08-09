@@ -1,0 +1,161 @@
+@import '_variables.scss';
+@import 'scrollbars.scss';
+@import 'grid.scss';
+@import 'forms.scss';
+
+/* mixins */
+
+@mixin editorComponent {
+  padding: $spacing-small;
+  background-color: #393b40;
+  border: 3px solid #28292d;
+  border-radius: $spacing-small;
+  margin-bottom: $spacing-small;
+  @include boxSize();
+}
+
+@mixin overlay {
+  // mobile first, override in custom inheriting classes
+  // what the desktop / tablet views should look like
+
+  position: fixed;
+  z-index: 500;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  .header {
+    width: 100%;
+    display: inline-block;
+
+    h2 {
+      float: left;
+      margin: 0;
+    }
+
+    .help-button {
+      position: absolute;
+      top: $spacing-small;
+      right: ($spacing-xlarge + $spacing-medium);
+    }
+
+    .close-button {
+      position: absolute;
+      top: $spacing-small;
+      right: $spacing-large;
+      cursor: pointer;
+      background-color: $color-1;
+    }
+  }
+}
+
+/* Layout */
+
+html, body {
+  overscroll-behavior-x: none; /* disable navigation back/forward swipe on Chrome */
+}
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+#properties {
+  @include editorComponent();
+  padding: $spacing-small 0;
+  margin: 80px auto 0; /* offset top margin by menu height */
+}
+
+.instrument-parameters {
+  display: inline-block;
+  vertical-align: top;
+  width: 45%;
+  margin-right: $spacing-medium;
+
+  h2 {
+    clear: both;
+    padding: $spacing-medium 0;
+  }
+
+  .wrapper.range {
+
+    width: 100%;
+    clear: both;
+
+    label {
+      width: 33%;
+      vertical-align: middle;
+      display: inline-block;
+      font-style: italic;
+    }
+
+    input {
+      width: 50%;
+      vertical-align: middle;
+      display: inline-block;
+    }
+  }
+}
+
+.tab-list {
+  display: inline-block;
+  margin: $spacing-medium 0 0;
+
+  li {
+    display: inline-block;
+    border: 1px solid #666;
+    border-bottom: 1px solid #393b40;
+    margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
+    padding: $spacing-small $spacing-medium;
+    cursor: pointer;
+    background-color: #666;
+    font-size: 90%;
+    font-weight: bold;
+    border-right: 2px solid #444;
+
+    &.active {
+      background-color: transparent;
+      color: #FFF;
+      position: relative;
+    }
+
+    &:first-child {
+      border-top-left-radius: $spacing-medium;
+    }
+  }
+}
+
+.tabbed-content {
+  display: none;
+  border-top: 1px solid #666;
+
+  &.active {
+    display: block;
+  }
+}
+
+#editor {
+  position: absolute;
+  top: 134px; /* menu + song meta */
+  bottom: $footer-height;
+  overflow: hidden;
+}
+
+@media screen and ( max-width: $ideal-instrument-editor-width ) {
+  .instrument-parameters {
+    @include boxSize();
+    padding: $spacing-large;
+    width: 100%;
+    display: block;
+    border-radius: $spacing-small;
+    border: 1px solid #666;
+    margin-bottom: $spacing-medium;
+  }
+}

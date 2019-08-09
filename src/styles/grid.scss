@@ -1,0 +1,130 @@
+/* equal column heights for editor section */
+
+#editor {
+  @include flex();
+}
+
+#trackEditor,
+#helpSection {
+  @include inlineFlex();
+}
+
+/* standard width: large TABLET/LAPTOP */
+
+@media screen and (min-width: $app-width) {
+  .container {
+    width: inherit;
+    max-width: $ideal-width;
+    padding: 0;
+  }
+
+  #editor {
+    left: 50%;
+    margin-left: -($ideal-width / 2);
+  }
+}
+
+/* PHONE */
+
+@media screen and (max-width: $mobile-width) {
+  .container {
+    padding: 0;
+    margin: 0;
+  }
+  #editor {
+    width: inherit;
+    top: 85px !important;
+  }
+  footer {
+    position: relative;
+  }
+}
+
+/* everything LARGER than a PHONE */
+
+@media screen and (min-width: $mobile-width) {
+  .container {
+    padding: 0 $spacing-large;
+    left: auto;
+    @include boxSize();
+
+    /* menu contains submenu */
+
+    &.padded {
+      padding-left: $spacing-large;
+      padding-right: $spacing-large;
+
+      &:before, &:after {
+        height: 1 $spacing-large;
+      }
+    }
+  }
+}
+
+/* TABLET: portrait orientation */
+
+@media screen and (max-width: $tablet-portrait-width) {
+
+}
+
+/* TABLET/DESKTOP portrait width (everything smaller than app width) */
+
+@media screen and (max-width: $app-width) {
+  // allow scrolling as we can expect the overlays to have scrollable content
+  html {
+    overflow: auto;
+  }
+
+  #helpSection {
+    display: none;
+    width: 0;
+  }
+  #editor {
+    overflow-x: scroll !important;
+    overflow-y: hidden !important; // body scrolls instead
+  }
+}
+
+/* everything from app width and above */
+
+@media screen and (min-width: $app-width) {
+
+}
+
+/* TABLET/DESKTOP ideal height */
+
+@media screen and (min-height: $ideal-height) {
+
+}
+
+/* TABLET/DESKTOP medium to large */
+
+@media screen and (min-width: $app-width) and (max-width: $ideal-width) {
+  #editor {
+    left: auto;
+    margin-left: 0;
+
+    &.has-help-panel {
+      .pattern-track-list {
+        width: 72%;
+      }
+      #helpSection {
+        width: 25%;
+      }
+    }
+  }
+  #trackEditor {
+    width: 3%;
+  }
+  .pattern-track-list {
+    width: 96.8%;
+  }
+}
+
+/* DESKTOP wide screen */
+
+@media screen and (min-width: $ideal-width) {
+  #editor {
+    margin-left: -766px;
+  }
+}
