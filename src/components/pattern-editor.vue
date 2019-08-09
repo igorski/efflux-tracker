@@ -69,6 +69,7 @@
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import PatternFactory from '../model/factory/pattern-factory';
 import Config from '../config';
+import ModalWindows from '../definitions/modal-windows';
 import ObjectUtil from '../utils/object-util';
 import PatternUtil from '../utils/pattern-util';
 
@@ -106,7 +107,7 @@ export default {
             'replacePatterns',
             'setActivePattern',
             'setPatternSteps',
-            'setOverlay',
+            'openModal',
             'showError',
         ]),
         handlePatternClear() {
@@ -150,7 +151,7 @@ export default {
             }
         },
         handlePatternAdvanced() {
-            this.setOverlay('ape');
+            this.openModal(ModalWindows.ADVANCED_PATTERN_EDITOR);
         },
     },
 };

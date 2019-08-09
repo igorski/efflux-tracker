@@ -140,22 +140,6 @@ npm run test
 Unit tests go in the _./tests_-folder. The file name for a unit test should equal the file it is testing, but contain
 the suffix "_.spec_", e.g. _functions.js_ will have a test file _functions.spec.js_.
 
-## ROADMAP
-
-See the Issue Tracker on GitHub. Apart from bug reports, it can also be used to request improvements or new features.
-Please read the existing entries to avoid posting duplicates.
-
- * When copy pasting a pattern in the same channels, don't adjust the note's channels indices
- * Add pattern jump instructions
- * Add cut/paste/undo/redo icons for touch screen devices
- * Implement Instrument mute / solo
- * vue i18n
- * add pattern insert/delete/paste actions into undo/redo history
- * move overlay into enum (exposed store state property)
- * Create separate component for MIDI settings panel
- * Clean up helpSection (do not inline all topics)
- * CSS no tag selectors in critical areas (replace ids with classes in scoped components)
-
 ## TODO VUE MIGRATION
 
 move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
@@ -168,7 +152,6 @@ HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in men
 editormodule.activeStep/activeInstrument > should become selected step/instrument (setters and mapped getters too)!
 activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
-store.setOverlay() -> should indicate its a modal component
 
 animate pattern input on switch
 editormodule -> active/step/instrument should be renamed to reflect they are being edited

@@ -38,13 +38,25 @@
 
         <!-- overlays -->
         <div v-if="blindActive" id="blind">
-            <template v-if="overlay">
-                <advanced-pattern-editor v-if="overlay === 'ape'" @close="closeOverlay" />
-                <note-entry-editor v-if="overlay === 'nee'" @close="closeOverlay" />
-                <module-param-editor v-if="overlay === 'mpe'" @close="closeOverlay" />
-                <instrument-editor v-if="overlay === 'ie'" @close="closeOverlay" />
-                <song-browser v-if="overlay === 'sngbr'" @close="closeOverlay" />
-                <settings-window v-if="overlay === 'settings'" @close="closeOverlay" />
+            <template v-if="modal">
+                <advanced-pattern-editor
+                    v-if="modal === modalWindows.ADVANCED_PATTERN_EDITOR" @close="closeModal"
+                />
+                <note-entry-editor
+                    v-if="modal === modalWindows.NOTE_ENTRY_EDITOR" @close="closeModal"
+                />
+                <module-param-editor
+                    v-if="modal === modalWindows.MODULE_PARAM_EDITOR" @close="closeModal"
+                />
+                <instrument-editor
+                    v-if="modal === modalWindows.INSTRUMENT_EDITOR" @close="closeModal"
+                />
+                <song-browser
+                    v-if="modal === modalWindows.SONG_BROWSER" @close="closeModal"
+                />
+                <settings-window
+                    v-if="modal === modalWindows.SETTINGS_WINDOW" @close="closeModal"
+                />
             </template>
         </div>
 
@@ -66,10 +78,13 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import Vue from 'vue';
+import Vuex from 'vuex';
 
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import Config from './config';
+import ModalWindows from './definitions/modal-windows';
 import ListenerUtil from './utils/listener-util';
 import AudioService from './services/audio-service';
 import { Style } from 'zjslib';
@@ -91,9 +106,11 @@ import Notifications from './components/notifications';
 import Loader from './components/loader';
 import store from './store';
 
+Vue.use(Vuex);
+
 export default {
     name: 'Efflux',
-    store,
+    store: new Vuex.Store(store),
     components: {
         ApplicationHeader,
         ApplicationFooter,
@@ -110,13 +127,14 @@ export default {
         SettingsWindow,
         SongBrowser,
         SongEditor,
-        TrackEditor,
+        TrackEditor
     },
     data: () => ({
         prepared: false,
         scrollPending: false,
         mainSection: null,
         centerSection: null,
+        modalWindows: ModalWindows
     }),
     computed: {
         ...mapState([
@@ -124,7 +142,8 @@ export default {
             'blindActive',
             'loading',
             'dialog',
-            'overlay',
+            'modals',
+            'modal'
         ]),
         ...mapState({
             displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== false,
@@ -231,7 +250,7 @@ export default {
             'setBlindActive',
             'resetEditor',
             'resetHistory',
-            'closeDialog',
+            'closeModal',
             'showNotification',
             'syncKeyboard',
             'clearSelection'
@@ -280,10 +299,6 @@ export default {
             // synchronize pattern list width with mainsection width
 
             this.centerSection.style.width = Style.getStyle( this.mainSection, 'width' );
-        },
-        closeOverlay() {
-            this.setBlindActive(false);
-            this.closeDialog();
         }
     }
 };

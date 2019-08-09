@@ -38,6 +38,7 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 import HistoryStates from '../definitions/history-states';
+import ModalWindows from '../definitions/modal-windows';
 import EventFactory from '../model/factory/event-factory';
 import HistoryStateFactory from '../model/factory/history-state-factory';
 import EventUtil from '../utils/event-util';
@@ -48,7 +49,7 @@ export default {
     data: () => ({
         controlOffsetY: 0,
         lastWindowScrollY: 0,
-        isFixed: false,
+        isFixed: false
     }),
     computed: {
         ...mapState([
@@ -61,7 +62,7 @@ export default {
             activePattern: state => state.sequencer.activePattern,
             activeInstrument: state => state.editor.activeInstrument,
             eventList: state => state.editor.eventList,
-        }),
+        })
     },
     watch: {
         windowSize() {
@@ -81,11 +82,11 @@ export default {
     methods: {
         ...mapMutations([
             'addEventAtPosition',
-            'setOverlay',
+            'openModal',
             'saveState',
         ]),
         handleNoteAddClick() {
-            this.setOverlay('nee');
+            this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
         },
         handleNoteOffClick(){
             const offEvent = EventFactory.createAudioEvent();
@@ -96,7 +97,7 @@ export default {
             this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_EVENT, { store: this.$store }));
         },
         handleModuleParamsClick() {
-            this.setOverlay('mpe');
+            this.openModal(ModalWindows.MODULE_PARAM_EDITOR);
         },
         handleModuleGlideClick() {
             EventUtil.glideParameterAutomations(

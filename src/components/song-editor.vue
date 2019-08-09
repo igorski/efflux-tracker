@@ -47,6 +47,7 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex';
+import ModalWindows from '../definitions/modal-windows';
 
 export default {
     computed: {
@@ -76,7 +77,7 @@ export default {
             'setActiveSongTitle',
             'setHelpTopic',
             'suspendKeyboardService',
-            'setOverlay',
+            'openModal',
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
@@ -92,7 +93,7 @@ export default {
             this.suspendKeyboardService(false);
         },
         handleInstrumentEditorClick() {
-            this.setOverlay('ie');
+            this.openModal(ModalWindows.INSTRUMENT_EDITOR);
         },
     }
 };

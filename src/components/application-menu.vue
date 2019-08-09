@@ -67,17 +67,18 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/fullscreen-util';
 import AudioService from '../services/audio-service';
 import ManualURLs from '../definitions/manual-urls';
+import ModalWindows from '../definitions/modal-windows';
 
 export default {
     computed: {
         ...mapState([
             'menuOpened',
-            'blindActive',
+            'blindActive'
         ]),
         ...mapGetters([
             'activeSong',
             'getInstruments',
-            'getCopy',
+            'getCopy'
         ]),
         hasImportExport() {
             return typeof window.btoa !== 'undefined' && typeof window.FileReader !== 'undefined';
@@ -107,7 +108,7 @@ export default {
         ...mapMutations([
             'setMenuOpened',
             'setHelpTopic',
-            'setOverlay',
+            'openModal',
             'openDialog',
             'showError',
             'showNotification',
@@ -126,7 +127,7 @@ export default {
             this.setHelpTopic('menu');
         },
         handleLoad() {
-            this.setOverlay('sngbr');
+            this.openModal(ModalWindows.SONG_BROWSER);
         },
         handleSave() {
             this.saveSong(this.activeSong);
@@ -143,7 +144,7 @@ export default {
             });
         },
         handleSettings() {
-            this.setOverlay('settings');
+            this.openModal(ModalWindows.SETTINGS_WINDOW);
         },
         handleHelp() {
             window.open(ManualURLs.ONLINE_MANUAL);

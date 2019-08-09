@@ -127,6 +127,7 @@
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import KeyboardService from '../services/keyboard-service';
+import ModalWindows from '../definitions/modal-windows';
 import Bowser from 'bowser';
 
 const STEP_WIDTH  = 150;
@@ -213,7 +214,7 @@ export default {
             'setActivePattern',
             'setActiveSlot',
             'setActiveStep',
-            'setOverlay',
+            'openModal',
             'setHelpTopic',
             'clearSelection',
             'setSelectionChannelRange',
@@ -336,7 +337,7 @@ export default {
 
                         if (event.type === 'dblclick') {
                             event.preventDefault();
-                            this.setOverlay('nee');
+                            this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
                             found = true;
                         }
                         break;

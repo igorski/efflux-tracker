@@ -26,6 +26,7 @@ import InstrumentSelectionHandler from './keyboard/instrument-selection-handler'
 import ModuleParamHandler         from './keyboard/module-param-handler';
 import ModuleValueHandler         from './keyboard/module-value-handler';
 import HistoryStates              from '../definitions/history-states';
+import ModalWindows               from '../definitions/modal-windows';
 import EventFactory               from '../model/factory/event-factory';
 import HistoryStateFactory        from '../model/factory/history-state-factory';
 import EventUtil                  from '../utils/event-util';
@@ -183,8 +184,8 @@ function handleKeyDown( aEvent ) {
                 // close dialog (if existing), else close overlay (if existing)
                 if (state.dialog)
                     store.commit('closeDialog');
-                else if (state.overlay)
-                    store.commit('setOverlay', null);
+                else if (state.modal)
+                    store.commit('closeModal');
                 break;
 
             case 32: // spacebar
@@ -316,9 +317,9 @@ function handleKeyDown( aEvent ) {
                 if (state.dialog)
                     store.commit('closeDialog');
                 else if (hasOption)
-                    store.commit('setOverlay', 'nee');
+                    store.commit('openModal', ModalWindows.NOTE_ENTRY_EDITOR);
                 else
-                    store.commit('setOverlay', 'mpe');
+                    store.commit('openModal', ModalWindows.MODULE_PARAM_EDITOR);
                 break;
 
             case 46: // delete

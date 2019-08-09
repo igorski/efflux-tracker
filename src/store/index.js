@@ -1,5 +1,3 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
 import Pubsub from 'pubsub-js';
 import { getCopy } from '../i18n/Copy';
 import editor from './modules/editor-module';
@@ -14,9 +12,8 @@ import AudioService from '../services/audio-service';
 import KeyboardService from '../services/keyboard-service';
 import MIDIService from '../services/midi-service';
 
-Vue.use(Vuex);
-
-export default new Vuex.Store({
+export default
+{
     modules: {
         editor,
         history,
@@ -35,8 +32,8 @@ export default new Vuex.Store({
         windowSize: { width: window.innerWidth, height: window.innerHeight },
         windowScrollOffset: 0,
         dialog: null,
-        overlay: null, /* string name of overlay window @see Efflux.vue */
         notifications: [],
+        modal: null, /* string name of modal window to open, see modal-windows.js */
     },
     getters: {
         /**
@@ -68,9 +65,13 @@ export default new Vuex.Store({
         setBlindActive(state, active) {
             state.blindActive = !!active;
         },
-        setOverlay(state, overlayName) {
-            state.blindActive = !!overlayName;
-            state.overlay = overlayName;
+        openModal(state, modalName) {
+            state.blindActive = !!modalName;
+            state.modal = modalName;
+        },
+        closeModal(state) {
+            state.blindActive = false;
+            state.modal = null;
         },
         setHelpTopic(state, topic) {
             if (typeof topic === 'string') {
@@ -153,6 +154,6 @@ export default new Vuex.Store({
                 MIDIService.init(storeReference);
                 resolve();
             });
-        },
+        }
     }
-});
+};
