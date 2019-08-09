@@ -53,9 +53,13 @@ export default
      *
      * @public
      * @param {SONG} song
+     * @return {SONG}
      */
     transformLegacy( song )
     {
+        if (!song || !song.instruments) {
+            return null;
+        }
         song.instruments.forEach(( instrument ) => {
 
             // pitch envelope was added in version 2 of SongAssemblyService
@@ -91,5 +95,6 @@ export default
                 });
             });
         });
+        return song;
     }
 };

@@ -136,7 +136,7 @@ export default {
         },
         replacePatterns(state, patterns) {
             Vue.set(state.activeSong, 'patterns', patterns);
-        },
+        }
     },
     actions: {
         loadStoredSongs({ state, commit }) {
@@ -307,6 +307,6 @@ export default {
 
                 resolve();
             });
-        },
+        }
     }
 };

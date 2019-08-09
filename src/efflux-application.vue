@@ -87,6 +87,7 @@ import Config from './config';
 import ModalWindows from './definitions/modal-windows';
 import ListenerUtil from './utils/listener-util';
 import AudioService from './services/audio-service';
+import PubSubService from './services/pubsub-service';
 import { Style } from 'zjslib';
 import ApplicationHeader from './components/application-header';
 import ApplicationFooter from './components/application-footer';
@@ -193,9 +194,10 @@ export default {
         }
     },
     async created() {
-        // expose publish / subscribe bus to integrate with outside API's
 
+        // expose publish / subscribe bus to integrate with outside API's
         window.efflux = { ...window.efflux, Pubsub };
+        PubSubService.init(this.$store, window.efflux.Pubsub);
 
         // load both persistent model data as well as data fixtures
 
