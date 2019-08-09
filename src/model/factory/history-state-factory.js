@@ -173,12 +173,12 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
  */
 function deleteSingleEventOrSelectionAction({ store } ) {
 
-    const song             = store.state.song.activeSong,
-          eventList        = store.state.editor.eventList,
-          activePattern    = store.state.sequencer.activePattern,
+    const song               = store.state.song.activeSong,
+          eventList          = store.state.editor.eventList,
+          activePattern      = store.state.sequencer.activePattern,
           selectedInstrument = store.state.editor.selectedInstrument,
           selectedStep       = store.state.editor.selectedStep,
-          event            = song.patterns[ activePattern ].channels[ selectedInstrument ][ selectedStep ];
+          event              = song.patterns[activePattern].channels[selectedInstrument][selectedStep];
 
     // if a selection is set, store its state for redo purposes
 
@@ -219,7 +219,7 @@ function deleteSingleEventOrSelectionAction({ store } ) {
             if ( hadSelection ) {
 
                 store.commit('pasteSelection', {
-                    song, activePattern, selectedInstrument, selectedStep, eventList, optSelectionContent: selection
+                    song, eventList, activePattern, selectedInstrument, selectedStep, optSelectionContent: selection
                 });
             }
             else {
@@ -348,9 +348,9 @@ function deleteSelectionAction({ store }) {
 }
 
 function pasteSelectionAction({ store }) {
-    const song             = store.state.song.activeSong,
-          eventList        = store.state.editor.eventList,
-          activePattern    = store.state.sequencer.activePattern,
+    const song               = store.state.song.activeSong,
+          eventList          = store.state.editor.eventList,
+          activePattern      = store.state.sequencer.activePattern,
           selectedInstrument = store.state.editor.selectedInstrument,
           selectedStep       = store.state.editor.selectedStep;
 

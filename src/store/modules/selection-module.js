@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Vue from 'vue';
 import EventUtil from '../../utils/event-util';
 import ObjectUtil from '../../utils/object-util';
 
@@ -296,31 +297,31 @@ const module = {
          * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
          *        will by default paste from the selection stored inside this model
          */
-        pasteSelection(state, { song, eventList, selectedInstrument, activePattern, selectedStep, optSelectionContent = null }) {
+        pasteSelection(state, { song, eventList, activePattern, selectedInstrument, selectedStep, optSelectionContent = null }) {
             if ( !Array.isArray( optSelectionContent )) {
                 optSelectionContent = state.copySelection;
             }
 
             if ( Array.isArray( optSelectionContent ) && optSelectionContent.length > 0 ) {
-                let target = song.patterns[ activePattern ];
-                let targetPattern, writeIndex, clone;
-                let selectionLength = optSelectionContent.length;
+                const targetPattern   = song.patterns[activePattern];
+                const selectionLength = optSelectionContent.length;
 
-                for ( let cIndex = selectedInstrument, max = target.channels.length, j = 0;
+                for ( let cIndex = selectedInstrument, max = targetPattern.channels.length, j = 0;
                       cIndex < max && j < selectionLength; ++cIndex, ++j ) {
-                    targetPattern = target.channels[ cIndex ];
+                    const targetChannel = targetPattern.channels[ cIndex ];
 
                     optSelectionContent[ j ].forEach(( event, index ) => {
-                        writeIndex = selectedStep + index;
+                        const writeIndex = selectedStep + index;
 
-                        if ( writeIndex < targetPattern.length ) {
+                        if ( writeIndex < targetChannel.length ) {
                             if ( event && ( event.action !== 0 || event.mp )) {
 
-                                clone = ObjectUtil.clone( event );
+                                const clone = ObjectUtil.clone( event );
                                 clone.instrument  = cIndex;
                                 clone.seq.playing = false;
-                                EventUtil.setPosition( clone, target, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
-                                targetPattern[ writeIndex ] = clone;
+                                
+                                EventUtil.setPosition( clone, targetPattern, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
+                                Vue.set(targetChannel, writeIndex, clone);
                                 EventUtil.linkEvent( clone, cIndex, song, eventList );
                             }
                         }
@@ -333,17 +334,16 @@ const module = {
          * hook for KeyboardController
          *
          * @param {number} keyCode determining the vertical direction we're moving in (38 = up, 40 = down)
-         * @param {number} activeChannel the active channel in the track list
-         * @param {number} curStep the current active step within the current pattern
-         * @param {number} selectedStep the next active step within the current pattern
+         * @param {number} selectedChannel the active channel in the track list
+         * @param {number} selectedStep the currently selected step within the current pattern
          */
-        handleVerticalKeySelectAction( state, { keyCode, activeChannel, curStep, selectedStep }) {
+        handleVerticalKeySelectAction(state, { keyCode, selectedChannel, selectedStep }) {
             const ac           = state.actionCache,
                   isUp         = ( keyCode === 38 ),
                   hadSelection = hasSelection(state);
 
             if ( !hadSelection )
-                ac.channelOnSelection = activeChannel;
+                ac.channelOnSelection = selectedChannel;
 
             if ( isUp )
             {
@@ -351,14 +351,14 @@ const module = {
 
                 if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode )
                 {
-                    ac.shrinkSelection = ( curStep === ( state.maxSelectedStep ));
+                    ac.shrinkSelection = ( selectedStep === ( state.maxSelectedStep ));
                     ac.minOnSelection  = state.minSelectedStep;
                     ac.maxOnSelection  = state.maxSelectedStep;
-                    ac.stepOnSelection = (( ac.minOnSelection === curStep ) ? ac.minOnSelection : selectedStep ) + 2;
+                    ac.stepOnSelection = (( ac.minOnSelection === selectedStep ) ? ac.minOnSelection : selectedStep ) + 2;
                 }
 
                 if ( !hadSelection )
-                    setSelectionChannelRange( state, activeChannel );
+                    setSelectionChannelRange( state, selectedChannel );
 
                 if ( ac.shrinkSelection ) {
                     if ( ac.minOnSelection === selectedStep ) {
@@ -373,14 +373,14 @@ const module = {
                 // moving down
 
                 if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode ) {
-                    ac.shrinkSelection = ( ac.prevVerticalKey !== keyCode && curStep === state.minSelectedStep && selectedStep !== 1 );
+                    ac.shrinkSelection = ( ac.prevVerticalKey !== keyCode && selectedStep === state.minSelectedStep && selectedStep !== 1 );
                     ac.minOnSelection  = state.minSelectedStep;
                     ac.maxOnSelection  = state.maxSelectedStep;
                     ac.stepOnSelection = ( ac.maxOnSelection === ( selectedStep - 1 )) ? ac.minOnSelection : selectedStep - 1;
                 }
 
                 if ( !hadSelection )
-                    setSelectionChannelRange( state, activeChannel );
+                    setSelectionChannelRange( state, selectedChannel );
 
                 if ( ac.shrinkSelection )
                 {
@@ -398,10 +398,10 @@ const module = {
          * hook for KeyboardController
          *
          * @param {number} keyCode the horizontal direction we're moving in (37 = left, 39 = right)
-         * @param {number} activeChannelOnStart the active channel when the horizontal selection started
-         * @param {number} selectedStepOnStart the active step when the horizontal selection started
+         * @param {number} selectedChannelOnStart the selected channel when the horizontal selection started
+         * @param {number} selectedStepOnStart the selected step when the horizontal selection started
          */
-        handleHorizontalKeySelectAction( state, { keyCode, activeChannelOnStart, selectedStepOnStart }) {
+        handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart }) {
             const ac           = state.actionCache,
                   isLeft       = ( keyCode === 37 ),
                   hadSelection = hasSelection(state);
@@ -409,17 +409,17 @@ const module = {
             if ( !hadSelection ) {
                 state.minSelectedStep      = selectedStepOnStart;
                 state.maxSelectedStep      = selectedStepOnStart;
-                state.lastSelectedChannel  = activeChannelOnStart;
-                state.firstSelectedChannel = activeChannelOnStart;
-                state.lastSelectedChannel  = activeChannelOnStart;
-                ac.channelOnSelection      = activeChannelOnStart;
+                state.lastSelectedChannel  = selectedChannelOnStart;
+                state.firstSelectedChannel = selectedChannelOnStart;
+                state.lastSelectedChannel  = selectedChannelOnStart;
+                ac.channelOnSelection      = selectedChannelOnStart;
                 ac.directionOnSelection    = keyCode;
             }
 
             let targetLastSelectedChannel = ( isLeft ) ? state.lastSelectedChannel - 1 : state.lastSelectedChannel + 1;
 
             if ( hadSelection && ac.prevHorizontalKey !== keyCode )
-                targetLastSelectedChannel = ( isLeft ) ? state.lastSelectedChannel - 1 : activeChannelOnStart + 1;
+                targetLastSelectedChannel = ( isLeft ) ? state.lastSelectedChannel - 1 : selectedChannelOnStart + 1;
 
             // scenario : shrinking a selection that started with left movement, by moving to the right
 
@@ -441,7 +441,7 @@ const module = {
         equalizeSelection,
         copySelection,
         clearSelection,
-        deleteSelection,
+        deleteSelection
     }
 };
 

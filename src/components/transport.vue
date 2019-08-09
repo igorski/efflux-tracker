@@ -177,7 +177,6 @@ export default {
             'setLooping',
             'setRecording',
             'setCurrentStep',
-            'setCurrentMeasure',
             'setMetronomeEnabled',
             'setTempo',
             'setActivePattern',

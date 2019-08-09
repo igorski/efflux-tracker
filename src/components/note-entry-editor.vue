@@ -121,8 +121,9 @@ export default {
         // where we would like to add/edit a note event
 
         this.patternIndex = this.activePattern;
-        this.channelIndex = this.selectedInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
         this.step         = this.selectedStep;
+        // always use selected channel index (the events instrument might be associated w/ different channel lane)
+        this.channelIndex = this.selectedInstrument;
 
         // use our own custom keyboard handler for easy editing
 
