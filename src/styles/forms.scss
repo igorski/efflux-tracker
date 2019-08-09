@@ -19,13 +19,13 @@ input[type=range] {
 select, .selector, button {
   display: inline-block;
   -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   background-color: $color-1;
   color: #000;
   font-size: 85%;
   cursor: pointer;
-  border: 3px solid #333;
+  border: 2px solid #333;
   font-weight: bold;
 }
 
@@ -43,10 +43,10 @@ select {
     top: $spacing-small;
     content: '<>';
     color: #aaa;
-    -webkit-transform:rotate(90deg);
-       -moz-transform:rotate(90deg);
-        -ms-transform:rotate(90deg);
-            transform:rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    transform: rotate(90deg);
     padding: 0 0 2px;
     border-top: 1px solid #ddd;
   }
@@ -79,7 +79,7 @@ $mobile-thumb-width: 40px;
 $thumb-shadow-size: 1px;
 $thumb-shadow-blur: 2px;
 $thumb-shadow-color: #111;
-$thumb-border-width: 3px;
+$thumb-border-width: 2px;
 $thumb-border-color: darken($color-1, 5%);
 
 $track-width: 100%;
@@ -94,7 +94,7 @@ $track-radius: 5px;
 $contrast: 5%;
 
 @mixin shadow($shadow-size, $shadow-blur, $shadow-color) {
-  box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0 0 $shadow-size lighten($shadow-color,5%);
+  box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0 0 $shadow-size lighten($shadow-color, 5%);
 }
 
 @mixin track() {
@@ -104,7 +104,7 @@ $contrast: 5%;
 }
 
 @mixin thumb() {
-  @include shadow($thumb-shadow-size,$thumb-shadow-blur,$thumb-shadow-color);
+  @include shadow($thumb-shadow-size, $thumb-shadow-blur, $thumb-shadow-color);
   border: $thumb-border-width solid $thumb-border-color;
   height: $thumb-height;
   width: $thumb-width;
@@ -124,7 +124,7 @@ input[type=range] {
 
   &::-webkit-slider-runnable-track {
     @include track;
-    @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color);
     background: $track-color;
     border-radius: $track-radius;
     border: $track-border-width solid $track-border-color;
@@ -142,13 +142,13 @@ input[type=range] {
 
   &::-moz-range-track {
     @include track;
-    @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color);
     background: $track-color;
     border-radius: $track-radius;
-     border: $track-border-width solid $track-border-color;
+    border: $track-border-width solid $track-border-color;
   }
   &::-moz-range-thumb {
-     @include thumb;;
+    @include thumb;;
   }
 
   &::-ms-track {
@@ -163,13 +163,13 @@ input[type=range] {
     background: darken($track-color, $contrast);
     border: $track-border-width solid $track-border-color;
     border-radius: $track-radius*2;
-    @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color);
   }
   &::-ms-fill-upper {
     background: $track-color;
     border: $track-border-width solid $track-border-color;
     border-radius: $track-radius*2;
-    @include shadow($track-shadow-size,$track-shadow-blur,$track-shadow-color);
+    @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color);
   }
   &::-ms-thumb {
     @include thumb;;
@@ -199,7 +199,7 @@ input[type=range] {
   }
 }
 
-@media screen and ( max-width: $mobile-width ) {
+@media screen and (max-width: $mobile-width) {
   input[type=range] {
     &::-webkit-slider-thumb {
       width: $mobile-thumb-width;

@@ -353,7 +353,7 @@ export default {
         display: inline-block;
         text-decoration: inherit;
         width: $spacing-large;
-        margin-right: .2em;
+        margin-right: $spacing-small;
         text-align: center;
         /* opacity: .8; */
 
@@ -366,7 +366,7 @@ export default {
 
         /* Animation center compensation - margins should be symmetric */
         /* remove if not needed */
-        margin-left: .2em;
+        margin-left: $spacing-small;
 
         /* you can be more comfortable with increased icons size */
         /* font-size: 120%; */

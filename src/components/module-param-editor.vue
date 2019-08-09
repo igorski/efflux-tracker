@@ -276,7 +276,7 @@ export default {
 
         ul {
           list-style-type: none;
-          @include Flex();
+          @include flex();
         }
 
         li {

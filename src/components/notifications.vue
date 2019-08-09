@@ -39,11 +39,11 @@ import { mapState, mapMutations } from 'vuex';
 
 export default {
     data: () => ({
-        queue: [],
+        queue: []
     }),
     computed: {
         ...mapState([
-            'notifications',
+            'notifications'
         ])
     },
     watch: {
@@ -61,8 +61,8 @@ export default {
                     window.setTimeout( this.closeNotification.bind(this, notificationVO), 5000 );
                 });
                 this.clearNotifications();
-            },
-        },
+            }
+        }
     },
     methods: {
         ...mapMutations([
@@ -83,7 +83,7 @@ export default {
             if (!this.queue.find(notificationVO => !notificationVO.destroyed)) {
                 this.queue = [];
             }
-        },
+        }
     }
 };
 </script>
@@ -100,14 +100,14 @@ export default {
       max-width: 300px;
 
       .notification-window {
+        @include boxSize();
         display: block;
         position: relative;
-        padding: $spacing-medium $spacing-large;
-        margin-bottom: $spacing-medium;
+        padding: $spacing-small $spacing-large;
+        margin-bottom: $spacing-small;
         right: -500px;
         background-color: #393b40;
         border: 3px solid #28292d;
-        border-radius: $spacing-small;
         color: #FFF;
         transition: 1.0s ease-in-out;
         cursor: pointer;
@@ -118,18 +118,25 @@ export default {
         }
 
         &.active {
-          right: $spacing-large;
+          right: $spacing-medium;
           box-shadow: 0 0 $spacing-small rgba(0,255,255,.35);
         }
 
         h3 {
-          color: $color-1;
+            color: $color-1;
+            margin: 0;
         }
 
         p {
-          margin: $spacing-medium 0;
+          margin: $spacing-xsmall 0;
         }
       }
+    }
+
+    @media screen and ( min-width: $app-width ) {
+        .notification-window {
+           border-radius: $spacing-small;
+        }
     }
 
     @media screen and ( max-width: $mobile-width ) {
@@ -141,9 +148,11 @@ export default {
 
         .notification-window {
           width: 100%;
+          left: 0;
           right: auto;
           top: -500px;
-          padding: $spacing-large 2em;
+          padding: $spacing-medium;
+          margin: 0;
 
           &.active {
             top: 0;

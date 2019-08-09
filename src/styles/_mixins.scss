@@ -19,12 +19,22 @@
           box-sizing: border-box;
 }
 
-@mixin Flex {
+@mixin textOverflow {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@mixin flex {
   display: -webkit-flex;
   display: flex;
 }
 
-@mixin InlineFlex {
+@mixin inlineFlex {
   display: -webkit-inline-flex;
   display: inline-flex;
+}
+
+@mixin animate($property: all, $delay: .5s) {
+  transition: $property $delay cubic-bezier(0.455, 0.030, 0.515, 0.955);
 }

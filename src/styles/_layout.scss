@@ -8,7 +8,7 @@
 
 @mixin EditorComponent
 {
-  padding: .4em $spacing-small;
+  padding: $spacing-small;
   background-color: #393b40;
   border: 3px solid #28292d;
   border-radius: $spacing-small;
@@ -44,8 +44,8 @@
 
     .close-button {
       position: absolute;
-      top: 11px;
-      right: 12px;
+      top: $spacing-small;
+      right: $spacing-small;
       cursor: pointer;
       background-color: $color-1;
     }

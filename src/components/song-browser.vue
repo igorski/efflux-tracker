@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="songBrowser">
+    <div class="song-browser">
         <div class="header">
             <h2>Songs</h2>
             <button type="button"
@@ -82,9 +82,9 @@ export default {
         deleteSongClick(songId) {
             const song = this.getSongById(songId);
 
-            if (!song)
+            if (!song) {
                 return;
-
+            }
             const self = this;
             this.openDialog({
                 type: 'confirm',
@@ -93,7 +93,7 @@ export default {
                     self.deleteSong({ song });
                 }
             });
-        },
+        }
     }
 };
 </script>
@@ -102,98 +102,100 @@ export default {
     @import '../styles/_variables.scss';
     @import '../styles/_layout.scss';
 
-    $songBrowserWidth: 600px;
+    $songBrowserWidth: 800px;
     $songBrowserHeight: 600px;
 
-    #songBrowser {
-      @include Overlay();
-      @include noSelect();
-      border-radius: $spacing-medium;
-      box-shadow: 0 0 $spacing-small rgba(0,0,0,.5);
-      padding: 0;
-      top: 50%;
-      left: 50%;
-      width: $songBrowserWidth;
-      margin-left: -( $songBrowserWidth / 2 );
-      height: $songBrowserHeight;
-      margin-top: -( $songBrowserHeight / 2 );
-      overflow: scroll;
-      background-color: #FFF;
-      color: #000;
-      overflow-x: hidden;
-      overflow-y: auto;
+    .song-browser {
+        @include Overlay();
+        @include noSelect();
+        box-shadow: 0 0 $spacing-small rgba(0, 0, 0, .5);
+        padding: 0;
+        top: 50%;
+        left: 50%;
+        width: $songBrowserWidth;
+        margin-left: -($songBrowserWidth / 2);
+        height: $songBrowserHeight;
+        margin-top: -($songBrowserHeight / 2);
+        overflow: scroll;
+        background-color: #323234;
+        color: #b6b6b6;
+        overflow-x: hidden;
+        overflow-y: auto;
 
-      .header {
-        @include boxSize();
-        padding: $spacing-large;
-        background-color: $color-1;
-        float: left;
-        width: 100%;
+        .header {
+            @include boxSize();
+            background-color: $color-1;
+            padding: $spacing-small 0;
+            border-bottom: 2px solid #333;
+            width: 100%;
 
-        h2 {
-          color: #000;
-        }
-      }
-
-      ul {
-        width: 100%;
-        list-style-type: none;
-      }
-
-      li {
-        @include boxSize();
-        float: left;
-        width: 100%;
-        padding: $spacing-large 2em;
-        cursor: pointer;
-        transition: all 75ms ease-out;
-        border-bottom: 1px solid #53565c;
-        font-family: Montserrat, Helvetica, sans-serif;
-
-        .title, .date, .delete {
-          display: inline-block;
+            h2 {
+                color: #000;
+            }
         }
 
-        .title, .date {
-            @include noEvents();
+        ul {
+            width: 100%;
+            list-style-type: none;
         }
 
-        .title {
-          width: 55%;
-        }
+        li {
+            @include boxSize();
+            @include animate(padding, .1s);
+            float: left;
+            width: 100%;
+            padding: $spacing-small $spacing-large;
+            cursor: pointer;
+            border-bottom: 1px solid #53565c;
+            font-family: Montserrat, Helvetica, sans-serif;
 
-        .date {
-          width: 40%;
-        }
+            .title, .date, .delete {
+                display: inline-block;
+            }
 
-        .delete {
-          width: 5%;
-        }
+            .title, .date {
+                @include noEvents();
+            }
 
-        &:nth-child(even) {
-          background-color: #53565c;
-          color: #FFF;
-        }
+            .title {
+                width: 55%;
+                @include textOverflow();
+                vertical-align: middle;
+            }
 
-        &:hover {
-          background-color: $color-1;
-          color: #000;
+            .date {
+                width: 40%;
+                padding-left: $spacing-small;
+                @include boxSize();
+            }
+
+            .delete {
+                width: 5%;
+            }
+
+            &:nth-child(even) {
+                background-color: #53565c;
+                /*color: #FFF;*/
+            }
+
+            &:hover {
+                background-color: $color-5;
+                color: #000;
+                padding: $spacing-medium $spacing-large;
+            }
         }
-      }
     }
 
-    @media screen and ( max-width: $songBrowserWidth )
-    {
-      #songBrowser {
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        border-radius: 0;
-        z-index: 2000;
-      }
+    @media screen and ( max-width: $songBrowserWidth ) {
+        .song-browser {
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            border-radius: 0;
+            z-index: 2000;
+        }
     }
-
 </style>
  
