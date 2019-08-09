@@ -203,14 +203,8 @@ export default {
         padding: $spacing-medium $spacing-large;
       }
     }
-    
-    @media screen and ( max-width: $mobile-width ) {
-      #advancedPatternEditor {
-        border-radius: 0;
-      }
-    }
-    
-    @media screen and ( min-width: $width ) {
+
+    @media screen and ( min-width: $width ), ( min-height: $height ) {
       #advancedPatternEditor {
         top: 50%;
         left: 50%;
@@ -218,6 +212,18 @@ export default {
         height: $height;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2);
+      }
+    }
+
+    @media screen and ( max-width: $width ), ( max-height: $height ) {
+      #advancedPatternEditor {
+        @include verticalScrollOnMobile();
+        border-radius: 0;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        margin: 0;
       }
     }
 </style>

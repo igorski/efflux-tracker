@@ -186,7 +186,7 @@ export default {
         }
     }
 
-    @media screen and ( max-width: $songBrowserWidth ) {
+    @media screen and ( max-width: $songBrowserWidth ), ( max-height: $songBrowserHeight ) {
         .song-browser {
             top: 0;
             left: 0;

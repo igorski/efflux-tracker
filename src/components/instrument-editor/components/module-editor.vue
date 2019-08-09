@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="instrumentModulesEditor">
+    <section class="module-editor">
         <div class="module-list">
             <fieldset class="instrument-parameters">
                 <legend>Mixer</legend>
@@ -34,7 +34,7 @@
                 </div>
             </fieldset>
 
-            <ul id="modulesTabs" class="tab-list">
+            <ul class="modules-tabs tab-list">
                 <li :class="{ active: activeModuleTab === 0 }"
                     @click="activeModuleTab = 0">
                     EQ / Filter
@@ -45,13 +45,12 @@
                 </li>
             </ul>
 
-            <div id="modulesPage1"
-                 class="tabbed-content"
+            <div class="tabbed-content"
                  :class="{ active: activeModuleTab === 0 }"
              >
                 <fieldset id="eqEditor" class="instrument-parameters">
                     <legend>Equalizer</legend>
-                    <select v-model="eqEnabled">
+                    <select v-model="eqEnabled" class="enable-selector">
                         <option :value="true">Enabled</option>
                         <option :value="false">Disabled</option>
                     </select>
@@ -71,7 +70,7 @@
 
                 <fieldset id="filterEditor" class="instrument-parameters">
                     <legend>Filter</legend>
-                    <select v-model="filterEnabled">
+                    <select v-model="filterEnabled" class="enable-selector">
                         <option :value="true">Enabled</option>
                         <option :value="false">Disabled</option>
                     </select>
@@ -110,13 +109,12 @@
                     </div>
                 </fieldset>
             </div>
-            <div id="modulesPage2"
-                 class="tabbed-content"
+            <div class="tabbed-content"
                  :class="{ active: activeModuleTab === 1 }"
             >
                 <fieldset id="odEditor" class="instrument-parameters">
                     <legend>Overdrive</legend>
-                    <select v-model="odEnabled">
+                    <select v-model="odEnabled" class="enable-selector">
                         <option :value="true">Enabled</option>
                         <option :value="false">Disabled</option>
                     </select>
@@ -140,11 +138,12 @@
 
                 <fieldset id="delayEditor" class="instrument-parameters">
                     <legend>Delay</legend>
-                    <select v-model="delayEnabled">
+                    <select v-model="delayEnabled" class="enable-selector">
                         <option :value="true">Enabled</option>
                         <option :value="false">Disabled</option>
                     </select>
-                    <select v-model.number="delayType">
+                    <!-- not sure if this offers any flexibility -->
+                    <select v-if="false" v-model.number="delayType">
                         <option value="0">Delay 0</option>
                         <option value="1">Delay 1</option>
                         <option value="2">Delay 2</option>
@@ -312,24 +311,34 @@ export default {
 <style lang="scss" scoped>
     @import '@/styles/_layout.scss';
 
-    #instrumentModulesEditor {
-
+    .module-editor {
       vertical-align: top;
       padding: 0 $spacing-large;
       margin-top: -$spacing-medium;
       @include boxSize();
 
+      .modules-tabs {
+        margin: 0;
+      }
+
       .instrument-parameters {
+        @include boxSize();
         width: 100%;
         border-bottom-right-radius: $spacing-medium;
-        padding-top: 0;
+        padding: $spacing-small 0 $spacing-small $spacing-medium;
         margin-bottom: $spacing-medium;
-        @include boxSize();
+        position: relative;
+      }
+
+      .enable-selector {
+        position: absolute;
+        top: -$spacing-small;
+        right: $spacing-small;
       }
 
       .tabbed-content {
         border: 1px solid grey;
-        padding: $spacing-large;
+        padding: $spacing-medium;
         @include boxSize();
       }
 
@@ -337,6 +346,7 @@ export default {
         display: inline-block;
         vertical-align: top;
         width: 100%;
+        margin-top: -$spacing-large;
       }
     }
 
@@ -344,19 +354,10 @@ export default {
       margin-bottom: .7em;
     }
 
-    #eqEnabled,
-    #odEnabled,
-    #filterEnabled,
-    #delayEnabled {
-      float: right;
-      margin-top: -25px;
-      margin-right: $spacing-medium;
-    }
-
     /* ideal size and above (tablet/desktop) */
 
     @media screen and ( min-width: $ideal-instrument-editor-width ) {
-      #instrumentModulesEditor {
+      .module-editor {
         display: inline-block;
 
         .module-list {
@@ -368,7 +369,7 @@ export default {
     /* mobile */
 
     @media screen and ( max-width: $ideal-instrument-editor-width ) {
-      #instrumentModulesEditor {
+      .module-editor {
         width: 100%;
         padding: 0;
       }

@@ -257,7 +257,7 @@ export default {
       }
     }
 
-    @media screen and ( max-width: $mobile-width) {
+    @media screen and ( max-width: $width ), ( max-height: $height ) {
         .settings {
             @include verticalScrollOnMobile();
         }

@@ -21,10 +21,10 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="instrumentOscillatorEditor">
-        <div id="canvasContainer" ref="canvasContainer"><!-- x --></div>
+    <section class="instrument-oscillator-editor">
+        <div class="canvas-container" ref="canvasContainer"><!-- x --></div>
         <!-- waveform selection -->
-        <div class="oscillatorWaveforms">
+        <div class="oscillator-waveforms">
             <select v-model="oscillatorEnabled"
                     @change="handleOscillatorEnabledChange"
             >
@@ -47,7 +47,7 @@
         <!-- oscillator tuning and volume -->
 
         <div>
-            <div id="oscillatorEditor" class="instrument-parameters">
+            <div class="oscillator-editor instrument-parameters">
                 <h2>Oscillator tuning</h2>
                 <div class="wrapper input range">
                     <label for="detune">Detune</label>
@@ -80,8 +80,8 @@
 
             <!-- envelopes -->
 
-            <div id="envelopeEditor" class="instrument-parameters">
-                <ul id="envelopeTabs" class="tab-list">
+            <div class="envelope-editor instrument-parameters">
+                <ul class="tab-list">
                     <li :class="{ active: activeEnvelopeTab === 0 }"
                         @click="activeEnvelopeTab = 0">
                         Amplitude
@@ -365,15 +365,15 @@ export default {
 <style lang="scss">
     @import '@/styles/_layout.scss';
 
-    #instrumentOscillatorEditor {
+    .instrument-oscillator-editor {
       @include boxSize();
-      .oscillatorWaveforms {
+      .oscillator-waveforms {
 
       }
     }
 
-    #canvasContainer {
-      margin: $spacing-large 0 0;
+    .canvas-container {
+      margin: $spacing-xsmall 0 0;
 
       canvas {
         border-radius: $spacing-small;
@@ -381,11 +381,11 @@ export default {
       }
     }
 
-    .oscillatorWaveforms {
+    .oscillator-waveforms {
       padding: $spacing-medium 0;
     }
 
-    #oscillatorEditor {
+    .oscillator-editor {
       display: inline-block;
       padding: $spacing-medium $spacing-medium;
       @include boxSize();
@@ -393,8 +393,8 @@ export default {
       min-height: 174px;
     }
 
-    #envelopeEditor {
-      margin-top: -3em;
+    .envelope-editor {
+      margin-top: (-$spacing-xlarge + $spacing-medium);
 
       .tabbed-content {
         padding: $spacing-medium $spacing-medium;
@@ -404,14 +404,15 @@ export default {
     }
 
     @media screen and ( min-width: $ideal-instrument-editor-width ) {
-      #instrumentOscillatorEditor {
+      .instrument-oscillator-editor {
         display: inline-block;
         width: 550px;
-        padding: $spacing-large;
+        padding: ($spacing-large - $spacing-medium);
         border: 1px solid #666;
         border-top: 1px solid #666;
         border-bottom-left-radius: $spacing-small;
         border-bottom-right-radius: $spacing-small;
+        border-right-style: dashed;
       }
     }
 </style>

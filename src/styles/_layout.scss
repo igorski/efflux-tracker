@@ -36,14 +36,14 @@
 
     .help-button {
       position: absolute;
-      top: 11px;
-      right: 45px;
+      top: $spacing-small;
+      right: ($spacing-xlarge + $spacing-medium);
     }
 
     .close-button {
       position: absolute;
       top: $spacing-small;
-      right: $spacing-small;
+      right: $spacing-large;
       cursor: pointer;
       background-color: $color-1;
     }
@@ -77,7 +77,7 @@ ul {
   display: inline-block;
   vertical-align: top;
   width: 45%;
-  margin-right: $spacing-large;
+  margin-right: $spacing-medium;
 
   h2 {
     clear: both;
@@ -113,16 +113,21 @@ ul {
     border: 1px solid #666;
     border-bottom: 1px solid #393b40;
     margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
-    padding: $spacing-small $spacing-large;
+    padding: $spacing-small $spacing-medium;
     cursor: pointer;
     background-color: #666;
     font-size: 90%;
     font-weight: bold;
+    border-right: 2px solid #444;
 
     &.active {
       background-color: transparent;
       color: #FFF;
       position: relative;
+    }
+
+    &:first-child {
+      border-top-left-radius: $spacing-medium;
     }
   }
 }

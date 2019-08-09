@@ -30,7 +30,7 @@
                     @click="$emit('close')">x</button>
 
             <!-- selector that switches between available instruments -->
-            <select id="instrumentSelect"
+            <select class="instrument-selector"
                     v-model.number="instrument"
             >
                 <option v-for="(instrument, idx) in instrumentAmount"
@@ -41,7 +41,7 @@
         </div>
 
         <!-- part 1 : oscillator editor -->
-        <ul id="oscillatorTabs" class="tab-list">
+        <ul class="oscillator-tabs tab-list">
             <li v-for="(oscillator, idx) in oscillatorAmount"
                 :key="`oscillator_${idx}`"
                 :class="{ active: selectedOscillatorIndex === idx }"
@@ -66,7 +66,7 @@
             />
         </div>
 
-        <section id="instrumentPresets">
+        <section class="instrument-presets">
             <h2>Presets</h2>
             <select v-model="currentPreset">
                 <option v-for="(instrument, idx) in presets"
@@ -76,6 +76,7 @@
             </select>
             <div class="save">
                 <input v-model="presetName"
+                       class="preset-name-input"
                        type="text"
                        placeholder="preset name"
                        @focus="handleFocusIn"
@@ -243,22 +244,23 @@ export default {
     .instrument-editor {
       @include editorComponent();
       @include overlay();
-
       height: auto;
     }
 
-    #instrumentSelect {
+    .instrument-selector {
       position: absolute;
-      top: 11px;
-      right: 78px;
+      top: $spacing-small;
+      right: ($spacing-xlarge + $spacing-xlarge);
     }
 
-    #instrumentPresets {
+    .instrument-presets {
       display: inline-block;
       width: 100%;
+      margin-top: $spacing-small;
 
       .save {
         float: right;
+        margin-right: $spacing-xlarge;
       }
     }
 
@@ -274,19 +276,22 @@ export default {
       }
     }
 
-    /* mobile */
+    /* small screen / mobile, etc. */
 
-    @media screen and ( max-width: $ideal-instrument-editor-width ) {
+    @media screen and ( max-height: $ideal-instrument-editor-height ), ( max-width: $ideal-instrument-editor-width ) {
       .instrument-editor {
         position: absolute;
+        height: 100%;
+        top: 0;
+        margin-top: 0;
         @include verticalScrollOnMobile();
       }
 
-      #instrumentSelect {
+      .instrument-selector {
         top: $spacing-small;
       }
 
-      #instrumentPresets {
+      .instrument-presets {
         @include boxSize();
         padding: 0 $spacing-large;
 
@@ -301,13 +306,14 @@ export default {
         .save {
           float: none;
           margin-top: $spacing-medium;
-          input {
-            width: auto;
-          }
           button {
             float: right;
           }
         }
+      }
+
+      .preset-name-input {
+          width: calc(100% - 120px);
       }
     }
 </style>

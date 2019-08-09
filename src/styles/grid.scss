@@ -5,7 +5,6 @@
 }
 
 #trackEditor,
-#patternTrackList,
 #helpSection {
   @include inlineFlex();
 }
@@ -106,7 +105,7 @@
     margin-left: 0;
 
     &.has-help-panel {
-      #patternTrackList {
+      .pattern-track-list {
         width: 72%;
       }
       #helpSection {
@@ -117,7 +116,7 @@
   #trackEditor {
     width: 3%;
   }
-  #patternTrackList {
+  .pattern-track-list {
     width: 96.8%;
   }
 }

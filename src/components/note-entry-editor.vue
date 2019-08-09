@@ -22,7 +22,7 @@
 */
 <template>
     <div>
-        <div id="noteEntry">
+        <div class="note-entry-editor">
             <div class="header">
                 <button type="button"
                         class="help-button"
@@ -58,7 +58,7 @@
                 <form-list-item v-model.number="octave" :option-value="7">7</form-list-item>
                 <form-list-item v-model.number="octave" :option-value="8">8</form-list-item>
             </ul>
-            <select id="instrument"
+            <select class="instrument-selector"
                     v-model.number="instrument"
             >
                 <option value="0">Instrument 0</option>
@@ -259,7 +259,10 @@ export default {
     @import '@/styles/_variables.scss';
     @import '@/styles/_layout.scss';
 
-    #noteEntry {
+    $width: 445px;
+    $height: 350px;
+
+    .note-entry-editor {
       @include editorComponent();
       @include overlay();
       @include noSelect();
@@ -272,7 +275,10 @@ export default {
         margin: $spacing-medium 0;
       }
 
-      #instrument {
+      .instrument-selector {
+        position: absolute;
+        top: $spacing-small;
+        right: ( $spacing-xlarge + $spacing-xlarge);
         width: 120px;
       }
 
@@ -280,7 +286,7 @@ export default {
         position: relative;
         width: 100%;
         height: 100px;
-        margin-bottom: $spacing-large;
+        margin-bottom: $spacing-small;
         margin-left: 6.5%;
 
         li {
@@ -291,6 +297,7 @@ export default {
           height: 100%;
           background-color: #666;
           vertical-align: top;
+          margin-right: $spacing-small;
 
           &.sharp {
             position: absolute;
@@ -361,8 +368,8 @@ export default {
         li {
           float: left;
           border: 2px solid #666;
-          padding: $spacing-medium $spacing-large $spacing-medium $spacing-small;
-          margin: $spacing-small;
+          padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
+          margin: $spacing-xsmall;
           cursor: pointer;
 
           &.selected, &:hover {
@@ -372,35 +379,31 @@ export default {
         }
       }
 
-      #instrument {
-        position: absolute;
-        top: 11px;
-        right: 74px;
-      }
-
       .confirm-button {
         width: 100%;
         padding: $spacing-medium $spacing-large;
       }
     }
 
-    @media screen and ( max-width: $mobile-width ) {
-      #noteEntry {
-        border-radius: 0;
-      }
-    }
-
-    $width: 450px;
-    $height: 350px;
-
-    @media screen and ( min-width: $width ) {
-      #noteEntry {
+    @media screen and ( min-width: $width ) and ( min-height: $height ) {
+      .note-entry-editor {
         top: 50%;
         left: 50%;
         width: $width;
         height: $height;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2);
+      }
+    }
+
+    @media screen and ( max-width: $width ), ( max-height: $height ) {
+      .note-entry-editor {
+        top: 0;
+        left: 0;
+        margin: 0;
+        border-radius: 0;
+        width: 100%;
+        @include verticalScrollOnMobile();
       }
     }
 </style>

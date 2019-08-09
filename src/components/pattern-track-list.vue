@@ -21,9 +21,9 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="patternTrackList">
-        <div id="patternTrackListContainer"
-             ref="container"
+    <section class="pattern-track-list">
+        <div ref="container"
+             class="pattern-track-list-container"
              :class="{ follow: mustFollow }"
         >
             <div class="wrapper"
@@ -388,13 +388,14 @@ export default {
     $fullPatternListWidth: (( 8 * $patternWidth ) + $indicesWidth );
     $stepHeight: 32px;
 
-    #patternTrackListContainer {
+    .pattern-track-list-container {
       position: relative;
       overflow: auto;
       background-color: #101015;
     }
 
-    #patternTrackList {
+    .pattern-track-list {
+      @include inlineFlex();
       background-color: #393b40;
 
       .wrapper {
@@ -523,7 +524,7 @@ export default {
 
           span {
             display: inline-block;
-            padding: $spacing-small;
+            padding: $spacing-xsmall;
             white-space: nowrap;
             @include boxSize();
             @include noEvents();
@@ -569,7 +570,7 @@ export default {
       }
     }
 
-    #patternTrackListContainer {
+    .pattern-track-list-container {
       // when the view should be following the sequencer we switch the odd/even pattern
       // of the list for less eye strain (only the instructions will seem to be scrolling)
       &.follow {
@@ -589,10 +590,10 @@ export default {
     /* ideal view */
 
     @media screen and ( min-width: $ideal-width ) {
-      #patternTrackListContainer {
+      .pattern-track-list-container {
         overflow-x: hidden; // no need to show scroll
       }
-      #patternTrackList {
+      .pattern-track-list {
         width: $fullPatternListWidth !important;
       }
     }
@@ -600,8 +601,8 @@ export default {
     /* phone view */
 
     @media screen and ( max-width: $mobile-width ) {
-      #patternTrackList {
-        padding-left: 50px; /* to make up for fixed position pattern editor */
+      .pattern-track-list {
+        padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
       }
     }
 </style>

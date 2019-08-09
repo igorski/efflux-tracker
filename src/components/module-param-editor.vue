@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="moduleParamEntry">
+    <div class="module-param-editor">
         <div class="header">
             <button class="help-button" @click="handleHelp">?</button>
             <button class="close-button" @click="handleClose">x</button>
@@ -249,8 +249,11 @@ export default {
 <style lang="scss" scoped>
     @import '@/styles/_variables.scss';
     @import '@/styles/_layout.scss';
+    
+    $width: 450px;
+    $height: 450px;
 
-    #moduleParamEntry {
+    .module-param-editor {
       @include editorComponent();
       @include overlay();
       @include noSelect();
@@ -287,7 +290,7 @@ export default {
           vertical-align: top;
           color: #000;
           font-weight: bold;
-          padding: $spacing-medium $spacing-large;
+          padding: $spacing-small $spacing-medium;
           border-right: 1px solid #000;
           border-bottom: 1px solid #000;
           flex-grow: 1;
@@ -338,27 +341,26 @@ export default {
       }
     }
 
-    @media screen and ( max-width: $mobile-width ) {
-      #moduleParamEntry {
-        border-radius: 0;
-      }
-    }
-
-    $mpeWidth: 450px;
-    $mpeHeight: 420px;
-
-    @media screen and ( min-width: $mpeWidth ) {
-      #moduleParamEntry {
+    @media screen and ( min-width: $width ) and ( min-height: $height ) {
+      .module-param-editor {
         top: 50%;
         left: 50%;
-        width: $mpeWidth;
-        height: $mpeHeight;
-        margin-left: -( $mpeWidth / 2 );
-        margin-top: -( $mpeHeight / 2);
+        width: $width;
+        height: $height;
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2);
 
         .wrapper.range input {
           width: 55%;
         }
+      }
+    }
+
+    @media screen and ( max-width: $mobile-width ) {
+      .module-param-editor {
+        border-radius: 0;
+        width: 100%;
+        @include verticalScrollOnMobile();
       }
     }
 </style>
