@@ -373,21 +373,21 @@ export default {
     }
 
     #canvasContainer {
-      margin: 1em 0 0;
+      margin: $spacing-large 0 0;
 
       canvas {
-        border-radius: 7px;
+        border-radius: $spacing-small;
         border: 4px solid #666;
       }
     }
 
     .oscillatorWaveforms {
-      padding: .5em 0;
+      padding: $spacing-medium 0;
     }
 
     #oscillatorEditor {
       display: inline-block;
-      padding: .5em .75em;
+      padding: $spacing-medium $spacing-medium;
       @include boxSize();
       border: 1px solid #666;
       min-height: 174px;
@@ -397,7 +397,7 @@ export default {
       margin-top: -3em;
 
       .tabbed-content {
-        padding: .5em .75em;
+        padding: $spacing-medium $spacing-medium;
         border: 1px solid #666;
         min-height: 165px;
       }
@@ -407,11 +407,11 @@ export default {
       #instrumentOscillatorEditor {
         display: inline-block;
         width: 550px;
-        padding: 1em;
+        padding: $spacing-large;
         border: 1px solid #666;
         border-top: 1px solid #666;
-        border-bottom-left-radius: 7px;
-        border-bottom-right-radius: 7px;
+        border-bottom-left-radius: $spacing-small;
+        border-bottom-right-radius: $spacing-small;
       }
     }
 </style>

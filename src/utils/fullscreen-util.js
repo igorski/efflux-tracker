@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { getCopy } from '../i18n/Copy';
+import { getCopy } from '../i18n/translations';
 import Bowser from 'bowser';
 
 const d = window.document;
@@ -30,7 +30,7 @@ export const isSupported = () => !Bowser.ios;
 
 export const setToggleButton = ( element )=> {
     fsToggle = element;
-    fsToggle.addEventListener( "click",           toggleFullscreen );
+    fsToggle.addEventListener( "click", toggleFullscreen );
 
     d.addEventListener( "webkitfullscreenchange", handleFullscreenChange, false );
     d.addEventListener( "mozfullscreenchange",    handleFullscreenChange, false );

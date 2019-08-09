@@ -1,4 +1,4 @@
-import { getCopy } from '../i18n/Copy';
+import { getCopy } from '../i18n/translations';
 import editor from './modules/editor-module';
 import history from './modules/history-module';
 import instrument from './modules/instrument-module';

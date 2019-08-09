@@ -50,18 +50,18 @@
 {
   .container
   {
-    padding: 0 1em;
+    padding: 0 $spacing-large;
     left: auto;
     @include boxSize();
 
     /* menu contains submenu */
 
     &.padded {
-      padding-left: 1em;
-      padding-right: 1em;
+      padding-left: $spacing-large;
+      padding-right: $spacing-large;
 
       &:before, &:after {
-        height: 128px;
+        height: 1$spacing-large;
       }
     }
   }

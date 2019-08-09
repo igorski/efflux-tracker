@@ -315,21 +315,21 @@ export default {
     #instrumentModulesEditor {
 
       vertical-align: top;
-      padding: 0 1em;
-      margin-top: -10px;
+      padding: 0 $spacing-large;
+      margin-top: -$spacing-medium;
       @include boxSize();
 
       .instrument-parameters {
         width: 100%;
-        border-bottom-right-radius: 14px;
+        border-bottom-right-radius: $spacing-medium;
         padding-top: 0;
-        margin-bottom: .5em;
+        margin-bottom: $spacing-medium;
         @include boxSize();
       }
 
       .tabbed-content {
         border: 1px solid grey;
-        padding: 1em;
+        padding: $spacing-large;
         @include boxSize();
       }
 
@@ -350,7 +350,7 @@ export default {
     #delayEnabled {
       float: right;
       margin-top: -25px;
-      margin-right: 10px;
+      margin-right: $spacing-medium;
     }
 
     /* ideal size and above (tablet/desktop) */

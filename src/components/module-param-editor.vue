@@ -254,17 +254,17 @@ export default {
       @include EditorComponent();
       @include Overlay();
       @include noSelect();
-      padding: .25em 1em;
-      border-radius: 7px;
+      padding: $spacing-small $spacing-large;
+      border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
 
       h4 {
-        margin: .75em 0;
+        margin: $spacing-medium 0;
       }
 
       fieldset {
         border: none;
-        padding: .5em 0;
+        padding: $spacing-medium 0;
       }
 
       #instrument {
@@ -287,7 +287,7 @@ export default {
           vertical-align: top;
           color: #000;
           font-weight: bold;
-          padding: .5em 1em;
+          padding: $spacing-medium $spacing-large;
           border-right: 1px solid #000;
           border-bottom: 1px solid #000;
           flex-grow: 1;
@@ -299,8 +299,8 @@ export default {
 
           &:after {
             position: absolute;
-            bottom: 7px;
-            left: 7px;
+            bottom: $spacing-small;
+            left: $spacing-small;
             pointer-events: none;
           }
         }
@@ -320,7 +320,7 @@ export default {
         input {
           width: 90%;
           display: inline;
-          margin-left: .5em;
+          margin-left: $spacing-medium;
         }
       }
 
@@ -329,12 +329,12 @@ export default {
         font-weight: bold;
         font-style: italic;
         display: inline;
-        margin-left: .5em;
+        margin-left: $spacing-medium;
       }
 
       .confirm-button {
         width: 100%;
-        padding: .5em 1em;
+        padding: $spacing-medium $spacing-large;
       }
     }
 

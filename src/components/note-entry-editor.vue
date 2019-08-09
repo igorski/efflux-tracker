@@ -264,12 +264,12 @@ export default {
       @include Overlay();
       @include noSelect();
       @include boxSize();
-      padding: .25em 1em;
-      border-radius: 7px;
+      padding: $spacing-small $spacing-large;
+      border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
 
       h4 {
-        margin: .75em 0;
+        margin: $spacing-medium 0;
       }
 
       #instrument {
@@ -280,7 +280,7 @@ export default {
         position: relative;
         width: 100%;
         height: 100px;
-        margin-bottom: 1em;
+        margin-bottom: $spacing-large;
         margin-left: 6.5%;
 
         li {
@@ -307,8 +307,8 @@ export default {
 
           &:after {
             position: absolute;
-            bottom: 7px;
-            left: 7px;
+            bottom: $spacing-small;
+            left: $spacing-small;
             pointer-events: none;
           }
 
@@ -353,7 +353,7 @@ export default {
 
       #octaves {
         text-transform: uppercase;
-        text-indent: 7px;
+        text-indent: $spacing-small;
         float: left;
         width: 100%;
         margin-left: 5%;
@@ -361,8 +361,8 @@ export default {
         li {
           float: left;
           border: 2px solid #666;
-          padding: .5em 1em .5em .25em;
-          margin: .25em;
+          padding: $spacing-medium $spacing-large $spacing-medium $spacing-small;
+          margin: $spacing-small;
           cursor: pointer;
 
           &.selected, &:hover {
@@ -380,7 +380,7 @@ export default {
 
       .confirm-button {
         width: 100%;
-        padding: .5em 1em;
+        padding: $spacing-medium $spacing-large;
       }
     }
 

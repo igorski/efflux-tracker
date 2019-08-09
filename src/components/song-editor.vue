@@ -131,7 +131,7 @@ export default {
         input, button {
           @include boxSize();
           display: block;
-          margin: .25em 0;
+          margin: $spacing-small 0;
           width: 100%;
         }
       }

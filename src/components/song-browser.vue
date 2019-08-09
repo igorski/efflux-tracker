@@ -108,8 +108,8 @@ export default {
     #songBrowser {
       @include Overlay();
       @include noSelect();
-      border-radius: 14px;
-      box-shadow: 0 0 7px rgba(0,0,0,.5);
+      border-radius: $spacing-medium;
+      box-shadow: 0 0 $spacing-small rgba(0,0,0,.5);
       padding: 0;
       top: 50%;
       left: 50%;
@@ -125,7 +125,7 @@ export default {
 
       .header {
         @include boxSize();
-        padding: 1em;
+        padding: $spacing-large;
         background-color: $color-1;
         float: left;
         width: 100%;
@@ -144,7 +144,7 @@ export default {
         @include boxSize();
         float: left;
         width: 100%;
-        padding: 1em 2em;
+        padding: $spacing-large 2em;
         cursor: pointer;
         transition: all 75ms ease-out;
         border-bottom: 1px solid #53565c;

@@ -165,7 +165,7 @@ export default {
     }
 
     #patternEditor {
-      margin: 0 0 0 10px;
+      margin: 0 0 0 $spacing-medium;
 
       h4 {
         display: inline;
@@ -202,7 +202,7 @@ export default {
           content: "";
           position: absolute;
           border-left: 1px solid #666;
-          margin-top: -10px;
+          margin-top: -$spacing-medium;
           height: 100%;
         }
       }

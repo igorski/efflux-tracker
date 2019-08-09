@@ -2,7 +2,7 @@
 
 body {
   color: #b7babe;
-  font-size: 14px;
+  font-size: $spacing-medium;
   font-family: "Helvetica Neue", Helvetica, Verdana, sans-serif;
   line-height: 1.5;
 }
@@ -16,13 +16,13 @@ h2 {
   font-size: 100%;
   font-weight: bold;
   color: #b6babe;
-  padding: .25em 1em;
+  padding: $spacing-small $spacing-large;
   display: inline;
 }
 
 h3 {
   font-size: 110%;
-  margin: .25em 0;
+  margin: $spacing-small 0;
 }
 
 p {

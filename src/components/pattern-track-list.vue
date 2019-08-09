@@ -418,7 +418,7 @@ export default {
           font-weight: bold;
           text-align: center;
           border-top: 2px solid #000;
-          padding: .25em 0;
+          padding: $spacing-small 0;
           border-bottom: 2px solid #323234;
           height: $stepHeight;
           @include noEvents();
@@ -523,7 +523,7 @@ export default {
 
           span {
             display: inline-block;
-            padding: .25em;
+            padding: $spacing-small;
             white-space: nowrap;
             @include boxSize();
             @include noEvents();

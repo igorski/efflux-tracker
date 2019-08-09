@@ -22,7 +22,7 @@
  */
 import Vue          from 'vue';
 import EventFactory from '../model/factory/event-factory';
-import { getCopy }  from '../i18n/Copy';
+import { getCopy }  from '../i18n/translations';
 
 const EventUtil =
 {

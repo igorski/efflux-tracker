@@ -109,12 +109,12 @@ export default {
       -webkit-transform: translate(-50%,-50%);
       transform: translate(-50%,-50%);
 
-      padding: .25em 1em;
-      border-radius: 7px;
+      padding: $spacing-small $spacing-large;
+      border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
 
       h4 {
-        margin: .75em 0;
+        margin: $spacing-medium 0;
         color: $color-1;
         font-weight: bold;
       }
@@ -122,7 +122,7 @@ export default {
       button {
         display: inline;
         width: 48%;
-        padding: .5em 1em;
+        padding: $spacing-medium $spacing-large;
       }
     }
 

@@ -102,12 +102,12 @@ export default {
       .notification-window {
         display: block;
         position: relative;
-        padding: .5em 1em;
-        margin-bottom: .5em;
+        padding: $spacing-medium $spacing-large;
+        margin-bottom: $spacing-medium;
         right: -500px;
         background-color: #393b40;
         border: 3px solid #28292d;
-        border-radius: 7px;
+        border-radius: $spacing-small;
         color: #FFF;
         transition: 1.0s ease-in-out;
         cursor: pointer;
@@ -118,8 +118,8 @@ export default {
         }
 
         &.active {
-          right: 1em;
-          box-shadow: 0 0 7px rgba(0,255,255,.35);
+          right: $spacing-large;
+          box-shadow: 0 0 $spacing-small rgba(0,255,255,.35);
         }
 
         h3 {
@@ -127,7 +127,7 @@ export default {
         }
 
         p {
-          margin: .5em 0;
+          margin: $spacing-medium 0;
         }
       }
     }
@@ -143,7 +143,7 @@ export default {
           width: 100%;
           right: auto;
           top: -500px;
-          padding: 1em 2em;
+          padding: $spacing-large 2em;
 
           &.active {
             top: 0;

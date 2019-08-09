@@ -9,12 +9,6 @@ describe('MIDI module', () => {
             expect(state.midiPortNumber).toEqual(1);
         });
 
-        it('should be able to set the MIDI connection flag', () => {
-            const state = { midiConnected: false };
-            mutations.setMIDIConnected(state, true);
-            expect(state.midiConnected).toEqual(true);
-        });
-
         it('should be able to format a MIDI connection list', () => {
             const state = { midiDeviceList: [] };
             mutations.createMIDIDeviceList(state, [

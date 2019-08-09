@@ -1,7 +1,7 @@
 import store from '@/store';
 const { mutations }  = store;
 
-jest.mock('@/i18n/Copy', () => ({
+jest.mock('@/i18n/translations', () => ({
     getCopy: key => key,
 }));
 

@@ -3,13 +3,17 @@
 input, select, button {
   border: none;
   font-size: 100%;
-  padding: .3em .75em;
-  margin-right: .25em;
+  padding: $spacing-small $spacing-medium;
+  margin-right: $spacing-small;
 }
 
 input {
   background-color: #101015;
   color: #bfbfbf;
+}
+
+input[type=range] {
+  padding: $spacing-xsmall $spacing-small;
 }
 
 select, .selector, button {
@@ -35,8 +39,8 @@ select {
 
   &:after {
     position: absolute;
-    right: 7px;
-    top: 8px;
+    right: $spacing-small;
+    top: $spacing-small;
     content: '<>';
     color: #aaa;
     -webkit-transform:rotate(90deg);
@@ -55,9 +59,9 @@ fieldset {
     color: $color-1;
   }
   border: 1px solid grey;
-  border-radius: 7px;
-  padding: .5em 1em;
-  margin-bottom: .5em;
+  border-radius: $spacing-small;
+  padding: $spacing-medium $spacing-large;
+  margin-bottom: $spacing-medium;
   @include boxSize;
 }
 
@@ -68,8 +72,8 @@ $thumb-color: $color-1;
 $thumb-color-disabled: #666;
 
 $thumb-radius: 2px;
-$thumb-height: 15px;
-$thumb-width: 15px;
+$thumb-height: $spacing-medium;
+$thumb-width: $spacing-medium;
 $mobile-thumb-height: 40px;
 $mobile-thumb-width: 40px;
 $thumb-shadow-size: 1px;

@@ -21,9 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <section id="transportSection">
+    <section class="transport-section">
         <div id="transportControls">
-            <ul>
+            <ul class="inline-block">
                 <li id="playBTN"
                     :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
                     @click="setPlaying(!isPlaying)"
@@ -44,10 +44,10 @@
                     @click="handleSettingsToggle"
                 ></li>
                 <li class="section-divider"><!-- x --></li>
-                <li id="patternBack"
+                <li class="pattern-back"
                     @click="gotoPreviousPattern()"
                 >&lt;&lt;</li>
-                <li id="currentPattern">
+                <li class="current-pattern">
                     <input class="current"
                            v-model.number="currentPatternValue"
                            maxlength="3"
@@ -57,9 +57,9 @@
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
-                <li id="patternNext" @click="gotoNextPattern(activeSong)">&gt;&gt;</li>
+                <li class="pattern-next" @click="gotoNextPattern(activeSong)">&gt;&gt;</li>
             </ul>
-            <ul id="tempoControl" class="wrapper input range">
+            <ul class="tempo-control wrapper input range">
                 <li class="section-divider"><!-- x --></li>
                 <li>
                     <label for="songTempo">Tempo</label>
@@ -114,17 +114,12 @@ export default {
         },
         currentPatternValue: {
             get() {
-                return `${this.activePattern + 1}`;
+                return this.activePattern + 1;
             },
             set(patternValue) {
-                let value = Math.min(patternValue - 1, this.activeSong.patterns.length );
-
-                if ( isNaN( value ))
-                    value = this.activePattern;
-                else
-                    --value; // normalize to Array indices (0 == first, not 1)
-
-                if ( value !== this.activePattern ) {
+                // normalize to Array indices (0 == first, not 1)
+                const value = Math.min(patternValue, this.activeSong.patterns.length) - 1;
+                if (value > 0 && value !== this.activePattern) {
                     this.setActivePattern(value);
                 }
             }
@@ -219,119 +214,117 @@ export default {
 
     $transport-height: 42px; /* height + border bottom */
 
-    #transportSection {
+    .transport-section {
       background-color: #393b40;
     }
 
     #transportControls {
-      font-family: Montserrat, Helvetica, Verdana, sans-serif;
-      padding: 0;
-      border: none;
-      border-radius: 0;
-      margin: 0 auto;
-      min-width: 100%;
-      max-width: $ideal-width;
+        font-family: Montserrat, Helvetica, Verdana, sans-serif;
+        border: none;
+        border-radius: 0;
+        margin: 0 auto;
+        min-width: 100%;
+        max-width: $ideal-width;
 
-      ul {
-        list-style-type: none;
+        ul {
+            list-style-type: none;
+            padding-left: $spacing-medium;
 
-        li {
-          display: inline;
-          padding: .5em 0 .5em .5em;
-          font-weight: bold;
-          cursor: pointer;
+            li {
+                display: inline;
+                margin: $spacing-small 0;
+                padding: 0;
+                font-weight: bold;
+                cursor: pointer;
 
-          /* loop button */
-          &#loopBTN {
-            padding-left: 0;
-          }
+                &:first-child {
+                    padding-left: $spacing-xsmall;
+                }
 
-          /* record button */
-          &#recordBTN {
-            background-color: #d00e57;
-            padding: 0 .65em;
-            border-radius: 50%;
-            margin-left: .75em;
+                /* loop button */
+                &#loopBTN {
+                    padding-left: 0;
+                }
 
-            &.active {
-              background-color: #FFF;
+                /* record button */
+                &#recordBTN {
+                    background-color: #d00e57;
+                    padding: 0 .65em;
+                    border-radius: 50%;
+                    margin-left: $spacing-small;
+
+                    &.active {
+                        background-color: #FFF;
+                    }
+
+                    &.disabled {
+                        display: none;
+                    }
+                }
+
+                /* measure indicator */
+                &.current-pattern {
+                    display: inline-block;
+                    padding: 0;
+                    color: #FFF;
+
+                    .current {
+                        width: $spacing-xlarge; /* fits "333" */
+                        height: $spacing-large;
+                        border: 1px solid #999;
+                        font-weight: bold;
+                        margin: 0 $spacing-small;
+                        color: #FFF;
+                        background-color: transparent;
+                        text-align: center;
+                    }
+
+                    .total {
+                        background-color: #333;
+                        height: $spacing-large;
+                        text-align: center;
+                        padding: 0 $spacing-medium;
+                        margin: 0 $spacing-small;
+                    }
+                }
+
+                /* pattern jump buttons */
+                &.pattern-next {
+                    padding-left: 0;
+                }
+
+                &.icon-metronome.active {
+                    color: #FFF;
+                }
+
+                &.icon-settings {
+                    display: none; /* mobile only (see below) */
+                }
+
+                &.icon-settings {
+                    padding: 0 $spacing-small;
+                }
+
+                &.enabled {
+                    color: red;
+                }
             }
-
-            &.disabled {
-              display: none;
-            }
-          }
-
-          /* measure indicator */
-          &#currentPattern {
-            display: inline-flex;
-            width: 95px;
-            color: #FFF;
-
-            span {
-              flex-grow: 1;
-              margin-top: 2px;
-            }
-
-            .current {
-              width: 28px; /* fits "333" */
-              height: 15px;
-              border: 1px solid #999;
-              font-weight: bold;
-              margin-right: .5em;
-              color: #FFF;
-              background-color: transparent;
-              text-align: center;
-            }
-
-            .total {
-              background-color: #333;
-              text-align: center;
-              padding: 0 .5em;
-            }
-          }
-
-          /* pattern jump buttons */
-          &#patternNext {
-            padding-left: 0;
-          }
-
-          &.icon-metronome {
-            padding: 0 0 0 .5em;
-
-            &.active {
-              color: #FFF;
-            }
-          }
-
-          &.icon-settings {
-            display: none; /* mobile only (see below) */
-          }
-
-          &.icon-settings {
-            padding: 0 .25em;
-          }
-
-          &.enabled {
-            color: red;
-          }
         }
-      }
 
       /* tempo control */
 
-      #tempoControl {
-        padding: .5em 0 0 .5em;
+      .tempo-control {
+        padding: $spacing-medium 0 0 $spacing-small;
         display: inline;
 
         label {
-          margin-right: 1em;
+          margin-right: $spacing-medium;
           display: inline-block;
         }
 
         input {
           display: inline-block;
-          margin: 0 .5em 0 0;
+          margin: 0 $spacing-medium 0 0;
           vertical-align: middle;
         }
 
@@ -359,7 +352,7 @@ export default {
 
         display: inline-block;
         text-decoration: inherit;
-        width: 1em;
+        width: $spacing-large;
         margin-right: .2em;
         text-align: center;
         /* opacity: .8; */
@@ -369,7 +362,7 @@ export default {
         text-transform: none;
 
         /* fix buttons height, for twitter bootstrap */
-        line-height: 1em;
+        line-height: $spacing-large;
 
         /* Animation center compensation - margins should be symmetric */
         /* remove if not needed */
@@ -401,15 +394,12 @@ export default {
       }
     }
 
-    /* everything above median  app size */
+    /* everything above median app size */
 
     @media screen and ( min-width: $app-width ) {
-      #transportControls
-      {
-        /* divides sections of the list */
-
+      #transportControls {
         .section-divider {
-          padding: 0 .5em;
+          padding: 0 $spacing-medium $spacing-xsmall;
 
           &:before {
             position: absolute;
@@ -427,14 +417,15 @@ export default {
     @media screen and ( max-width: $mobile-width ) {
       #transportControls {
         background-color: inherit;
+        margin-top: $transport-height;
 
         label {
           display: none !important;
         }
-        #currentPattern {
+        .current-pattern {
           width: auto;
         }
-        #tempoControl {
+        .tempo-control {
           display: none;
         }
         ul li.icon-settings {

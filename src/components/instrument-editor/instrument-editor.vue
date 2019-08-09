@@ -282,12 +282,12 @@ export default {
       }
 
       #instrumentSelect {
-        top: .25em;
+        top: $spacing-small;
       }
 
       #instrumentPresets {
         @include boxSize();
-        padding: 0 1em;
+        padding: 0 $spacing-large;
 
         h2 {
           width: 100%;
@@ -299,7 +299,7 @@ export default {
         }
         .save {
           float: none;
-          margin-top: .5em;
+          margin-top: $spacing-medium;
           input {
             width: auto;
           }

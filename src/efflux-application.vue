@@ -1,6 +1,11 @@
 <template>
     <div v-if="prepared" id="efflux">
-        <application-header />
+        <header class="application-header"
+                :class="{ expanded: menuOpened }"
+        >
+            <header-menu />
+            <transport />
+        </header>
         <!-- message of disappointment in case environment does not support appropriate web API's -->
         <template v-if="!canLaunch">
             <h1>Whoops...</h1>
@@ -34,7 +39,11 @@
             </div>
         </template>
 
-        <application-footer />
+        <div class="application-footer">
+            <span>
+                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2016 - 2019
+            </span>
+        </div>
 
         <!-- overlays -->
         <div v-if="blindActive" id="blind">
@@ -90,8 +99,8 @@ import AudioService from './services/audio-service';
 import PubSubService from './services/pubsub-service';
 import PubSubMessages from './services/pubsub/messages';
 import { Style } from 'zjslib';
-import ApplicationHeader from './components/application-header';
-import ApplicationFooter from './components/application-footer';
+import HeaderMenu from './components/header-menu';
+import Transport from './components/transport';
 import AdvancedPatternEditor from './components/advanced-pattern-editor';
 import ModuleParamEditor from './components/module-param-editor';
 import NoteEntryEditor from './components/note-entry-editor';
@@ -114,12 +123,11 @@ export default {
     name: 'Efflux',
     store: new Vuex.Store(store),
     components: {
-        ApplicationHeader,
-        ApplicationFooter,
         AdvancedPatternEditor,
         ModuleParamEditor,
         NoteEntryEditor,
         DialogWindow,
+        HeaderMenu,
         HelpSection,
         InstrumentEditor,
         Loader,
@@ -129,7 +137,8 @@ export default {
         SettingsWindow,
         SongBrowser,
         SongEditor,
-        TrackEditor
+        TrackEditor,
+        Transport
     },
     data: () => ({
         prepared: false,
@@ -307,20 +316,42 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '@/styles/_layout.scss';
-
+    /* global page stying */
     html, body {
         height: 100%;
-        min-width: 100%; // fullscreen mode
+        min-width: 100%;
         background-color: #53565c;
-        // everything should fit on a single screen (not always though, see grid.less)
+        /* everything should fit on a single screen (unless mobile view) */
         overflow: hidden;
+        /* disable navigation back/forward swipe on Chrome */
+        overscroll-behavior-x: none;
     }
 
     body {
         margin: 0;
         padding: 0;
+    }
+</style>
+
+<style lang="scss" scoped>
+    /* component specific stylings should always be scoped */
+    @import '@/styles/_layout.scss';
+
+    #efflux {
         @include noSelect;
+    }
+
+    .application-header {
+      box-shadow: 0 0 5px rgba(0,0,0,.5);
+      background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
+      background-repeat: repeat-x;
+      padding: $spacing-small 0 0;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      z-index: 200;
+      border-bottom: 3px solid #53565d;
+      @include boxSize;
     }
 
     #blind {
@@ -331,5 +362,48 @@ export default {
       height: 100%;
       background-color: rgba(0,0,0,.5);
       z-index: 400; // below overlays (see _variables.scss)
+    }
+
+    .application-footer {
+      position: absolute;
+      bottom: 0;
+      background-image: linear-gradient(to bottom,#474747 0,#303030 100%);
+      width: 100%;
+      height: $footer-height;
+      color: #EEE;
+      font-family: Montserrat, Helvetica, Verdana;
+
+      span {
+        width: auto;
+        margin: 0 auto;
+        text-align: center;
+        display: block;
+        margin-top: $spacing-medium;
+      }
+    }
+
+    /* ideal app width and up */
+
+    @media screen and ( min-width: $app-width ) {
+        .application-footer span {
+            width: $app-width;
+        }
+    }
+
+    /* mobile view */
+
+    @media screen and ( max-width: $mobile-width ) {
+        .application-header {
+            height: 50px;
+
+            &.expanded {
+                height: 100%;
+            }
+        }
+        .application-footer {
+            padding: 0 $spacing-large;
+            z-index: 11;
+            @include boxSize;
+        }
     }
 </style>

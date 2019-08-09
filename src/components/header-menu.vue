@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <nav id="menu"
+    <nav class="menu"
          :class="{ opened: menuOpened }"
          @mouseover="handleMouseOver"
     >
@@ -29,11 +29,11 @@
             <span>&#9776;</span>
         </div>
         <h1>efflux</h1>
-        <section id="menuSection">
-            <ul id="menuList">
+        <section class="inline">
+            <ul class="menu-list">
                 <li>
                     <a class="title" @click.prevent="">File</a>
-                    <ul id="fileMenu">
+                    <ul class="file-menu">
                         <li @click="handleLoad" data-api-song-load>Load song</li>
                         <li @click="handleSave">Save song</li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
@@ -55,7 +55,8 @@
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"
                     ref="fullscreenBtn"
-                    id="fullscreenBtn"
+                    class="fullscreen-button"
+                    data-api-fullscreen
                 >Maximize</li>
             </ul>
         </section>
@@ -89,7 +90,7 @@ export default {
         hasRecord() {
             // on iOS and Safari recording isn't working as expected...
             const userAgent = window.navigator.userAgent;
-            return ( "Blob" in window && ( !userAgent.match(/(iPad|iPhone|iPod)/g ) && userAgent.match( /(Chrome)/g )) );
+            return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome)/g);
         }
     },
     watch: {
@@ -112,7 +113,7 @@ export default {
             'openDialog',
             'showError',
             'showNotification',
-            'setActiveSong',
+            'setActiveSong'
         ]),
         ...mapActions([
             'createSong',
@@ -121,7 +122,7 @@ export default {
             'importSong',
             'exportSong',
             'importInstruments',
-            'exportInstruments',
+            'exportInstruments'
         ]),
         handleMouseOver() {
             this.setHelpTopic('menu');
@@ -181,64 +182,70 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
     @import "../styles/_variables.scss";
 
-    #menuSection {
-        display: inline;
-    }
-
-    #menu {
+    .menu {
       color: #b6b6b6;
       display: block;
       margin: 0 auto;
-      padding: .5em 0;
+      padding: 0 $spacing-medium $spacing-small;
       width: 100%;
       @include boxSize;
+    }
 
-      .toggle {
+    .toggle {
+      position: absolute;
+      display: none;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      width: $toggle-width;
+      height: $menu-height;
+
+      span {
         position: absolute;
-        display: none;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        width: $toggle-width;
-        height: $menu-height;
-
-        span {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          margin-top: -10px;
-          margin-left: -10px;
-        }
+        top: 50%;
+        left: 50%;
+        margin-top: -$spacing-medium;
+        margin-left: -$spacing-medium;
       }
+    }
 
-      ul {
-        padding: 0;
-        display: inline;
+    h1 {
+      color: #FFF;
+      display: inline;
+      margin: 0;
+      padding: 0;
+      padding-right: $spacing-medium;
+      font-size: 110%;
+    }
 
-        h1 {
-          display: inline;
-
-          a {
-            color: $color-1;
-            text-decoration: none;
-          }
-        }
-      }
+    .menu-list {
+      display: inline;
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+      @include boxSize;
 
       li {
+        display: inline-block;
+        padding: 0 $spacing-medium 0 0;
+        margin: 0;
+        font-family: Montserrat, Helvetica, Verdana;
+        cursor: pointer;
+
         a {
           color: #b6b6b6;
           text-decoration: none;
-          padding-bottom: 1em;
+          padding-bottom: $spacing-large;
+        }
 
-          &:hover {
+        &:hover,
+        &:hover a {
             color: $color-1;
             border-bottom: none;
             text-decoration: none;
-          }
         }
 
         &.active {
@@ -246,97 +253,161 @@ export default {
             border-bottom: 3px solid #555;
           }
         }
+
+        ul {
+          list-style: none;
+        }
+
+        &.fullscreen-button {
+          float: right;
+          margin-right: 1$spacing-medium;
+        }
       }
     }
 
     /* tablet / desktop (everything larger than a phone) */
 
     @media screen and ( min-width: $mobile-width ) {
-      #menu {
-        min-width: 100%;
-        max-width: $ideal-width;
-        margin: 0 auto;
-        padding-left: 1em;
-      }
+        .menu {
+            min-width: 100%;
+            max-width: $ideal-width;
+            margin: 0 auto;
+            padding-left: $spacing-large;
+        }
+
+        .menu-list li {
+          &:hover, &:focus {
+            a {
+              color: $color-1;
+            }
+            ul {
+              display: block;
+              z-index: 2;
+            }
+          }
+          ul {
+            display: none;
+            position: absolute;
+            box-shadow: 0 0 5px rgba(0,0,0,.5);
+            padding: $spacing-medium;
+            background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
+            background-repeat: repeat-x;
+            @include boxSize;
+          }
+        }
+        .file-menu li {
+            display: block;
+            color: #b6b6b6;
+            padding: $spacing-xsmall $spacing-medium;
+
+            &:hover {
+                color: #FFF;
+            }
+        }
     }
 
     /* ideal view */
 
     @media screen and ( min-width: $ideal-width ) {
-      #menu {
-        min-width: auto;
-      }
+        .menu {
+            min-width: auto;
+        }
     }
 
     /* mobile view */
 
     @media screen and ( max-width: $mobile-width ) {
-      #menu {
-        position: fixed;
-        z-index: 2; // above transport controls
-        overflow-x: hidden;
-        overflow-y: auto;
-        width: 100%;
-        height: inherit;
-        top: 0;
-        left: 0;
+        .menu {
+            position: fixed;
+            z-index: 2; // above transport controls
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100%;
+            height: inherit;
+            top: 0;
+            left: 0;
 
-        .toggle {
-          display: block; // because we have toggle!
-        }
-
-        ul {
-          h1 {
-            display: none;
-          }
-
-          li {
-            padding: .5em 1em;
-
-            a {
-              display: block;
-              width: 100%;
-              padding: .5em 1em;
-              color: #000;
-
-              &:hover {
-                color: #000;
-              }
+            &.opened {
+                position: absolute;
+                .menu-list {
+                    left: 0;
+                    display: block;
+                    height: 100%;
+                }
             }
-            &.active a {
-              border-bottom: none;
-              color: #FFF;
-              font-weight: bold;
-              font-style: italic;
-              background-color: $color-1;
+
+            .toggle {
+                display: block;
             }
-          }
-        }
 
-        #menuList {
-          position: absolute;
-          top: $menu-height;
-          background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
-          background-repeat: repeat-x;
-          display: none;
+            h1 {
+                display: none;
+            }
 
-          .title {
-            display: none;
-          }
-        }
+            ul {
+                display: block;
+                width: 100%;
 
-        #fileMenu li {
-          padding-left: 0;
-        }
+                padding: 0;
 
-        &.opened {
-          //height: 100%;
-          position: absolute;
-          #menuList {
-            display: block;
-            height: 100%;
-          }
+                li {
+                    display: block;
+                    width: 100%;
+
+                        a {
+                            width: 100%;
+                        }
+                    }
+                }
+
+                ul {
+                    h1 {
+                       display: none;
+                    }
+
+                    li {
+                        padding: $spacing-small $spacing-large;
+
+                        .file-menu li {
+                            padding: $spacing-small 0;
+                        }
+
+                        a {
+                            display: block;
+                            width: 100%;
+                            padding: $spacing-medium $spacing-large;
+                            color: #000;
+
+                            &:hover {
+                                color: #000;
+                            }
+                        }
+
+                        &.active a {
+                            border-bottom: none;
+                            color: #FFF;
+                            font-weight: bold;
+                            font-style: italic;
+                            background-color: $color-1;
+                        }
+
+                        &.fullscreen-button {
+                            float: left;
+                        }
+                    }
+                }
+
+                .menu-list {
+                    position: absolute;
+                    top: $menu-height;
+                    background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
+                    background-repeat: repeat-x;
+                    display: none;
+
+                    .title {
+                        display: none;
+                    }
+                }
+            }
         }
-      }
-    }
 </style>

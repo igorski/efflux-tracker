@@ -24,7 +24,7 @@ export default {
     state: {
         midiPortNumber: -1,
         midiConnected: false,
-        midiDeviceList: [],
+        midiDeviceList: []
     },
     mutations: {
         setMIDIPortNumber(state, value) {
@@ -35,6 +35,6 @@ export default {
                 title : `${input.manufacturer} ${input.name}`,
                 value : i,
             }));
-        },
+        }
     }
 };

@@ -8,11 +8,11 @@
 
 @mixin EditorComponent
 {
-  padding: .4em .25em;
+  padding: .4em $spacing-small;
   background-color: #393b40;
   border: 3px solid #28292d;
-  border-radius: 7px;
-  margin-bottom: .25em;
+  border-radius: $spacing-small;
+  margin-bottom: $spacing-small;
   @include boxSize;
 }
 
@@ -71,7 +71,7 @@ ul {
 
 #properties {
   @include EditorComponent();
-  padding: 8px 0;
+  padding: $spacing-small 0;
   margin: 80px auto 0; /* offset top margin by menu height */
 }
 
@@ -79,11 +79,11 @@ ul {
   display: inline-block;
   vertical-align: top;
   width: 45%;
-  margin-right: 1em;
+  margin-right: $spacing-large;
 
   h2 {
     clear: both;
-    padding: .5em 0;
+    padding: $spacing-medium 0;
   }
 
   .wrapper.range {
@@ -109,14 +109,14 @@ ul {
 .tab-list {
 
   display: inline-block;
-  margin: .5em 0 0;
+  margin: $spacing-medium 0 0;
 
   li {
     display: inline-block;
     border: 1px solid #666;
     border-bottom: 1px solid #393b40;
     margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
-    padding: .25em 1em;
+    padding: $spacing-small $spacing-large;
     cursor: pointer;
     background-color: #666;
     font-size: 90%;
@@ -149,11 +149,11 @@ ul {
 @media screen and ( max-width: $idealInstrumentEditorWidth ) {
   .instrument-parameters {
     @include boxSize();
-    padding: 1em;
+    padding: $spacing-large;
     width: 100%;
     display: block;
-    border-radius: 7px;
+    border-radius: $spacing-small;
     border: 1px solid #666;
-    margin-bottom: .5em;
+    margin-bottom: $spacing-medium;
   }
 }

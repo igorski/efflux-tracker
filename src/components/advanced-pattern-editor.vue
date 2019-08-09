@@ -171,12 +171,12 @@ export default {
       @include EditorComponent();
       @include Overlay();
       @include noSelect();
-      padding: .25em 1em;
-      border-radius: 7px;
+      padding: $spacing-small $spacing-large;
+      border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
     
       h4 {
-        margin: .75em 0;
+        margin: $spacing-medium 0;
       }
     
       fieldset {
@@ -197,7 +197,7 @@ export default {
     
       .confirm-button {
         width: 100%;
-        padding: .5em 1em;
+        padding: $spacing-medium $spacing-large;
       }
     }
     
