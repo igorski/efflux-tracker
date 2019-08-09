@@ -88,6 +88,7 @@ import ModalWindows from './definitions/modal-windows';
 import ListenerUtil from './utils/listener-util';
 import AudioService from './services/audio-service';
 import PubSubService from './services/pubsub-service';
+import PubSubMessages from './services/pubsub/messages';
 import { Style } from 'zjslib';
 import ApplicationHeader from './components/application-header';
 import ApplicationFooter from './components/application-footer';
@@ -185,6 +186,7 @@ export default {
                 title: this.getCopy('SONG_LOADED_TITLE'),
                 message: this.getCopy('SONG_LOADED', song.meta.title)
             });
+            this.publishMessage(PubSubMessages.SONG_LOADED);
         },
         /**
          * synchronize editor module changes with keyboard service
@@ -214,6 +216,8 @@ export default {
         this.addListeners();
 
         this.prepared = true;
+
+        this.publishMessage(PubSubMessages.EFFLUX_READY);
 
         // show confirmation message on page reload
 
@@ -250,7 +254,8 @@ export default {
             'closeModal',
             'showNotification',
             'syncKeyboard',
-            'clearSelection'
+            'clearSelection',
+            'publishMessage',
         ]),
         ...mapActions([
             'setupServices',

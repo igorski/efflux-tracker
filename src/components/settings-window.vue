@@ -91,6 +91,7 @@
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import MIDIService from '../services/midi-service';
+import PubSubMessages from '../services/pubsub/messages';
 import { zMIDI } from 'zmidi';
 
 export default {
@@ -145,6 +146,7 @@ export default {
             'showNotification',
             'createMIDIDeviceList',
             'setMIDIPortNumber',
+            'publishMessage',
         ]),
         handleParameterInputFormatChange() {
             this.saveSetting(
@@ -169,6 +171,7 @@ export default {
                 return this.handleMIDIconnectFailure();
             }
             this.showAvailableMIDIDevices(zMIDI.getInChannels());
+            this.publishMessage(PubSubMessages.MIDI_CONNECTED);
             this.showNotification({ message: this.getCopy('MIDI_CONNECTED') });
         },
         handleMIDIconnectFailure() {

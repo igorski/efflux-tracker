@@ -30,9 +30,6 @@ export default {
         setMIDIPortNumber(state, value) {
             state.midiPortNumber = value;
         },
-        setMIDIConnected(state, value) {
-            state.midiConnected = !!value;
-        },
         createMIDIDeviceList(state, inputs) {
             state.midiDeviceList = inputs.map((input, i) => ({
                 title : `${input.manufacturer} ${input.name}`,

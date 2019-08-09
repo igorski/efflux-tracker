@@ -10,6 +10,7 @@ import song from './modules/song-module';
 import AudioService from '../services/audio-service';
 import KeyboardService from '../services/keyboard-service';
 import MIDIService from '../services/midi-service';
+import PubSubService from '../services/pubsub-service';
 
 export default
 {
@@ -45,6 +46,9 @@ export default
         getCopy: state => (copyKey, optReplacement) => getCopy(copyKey, optReplacement)
     },
     mutations: {
+        publishMessage(state, message) {
+            PubSubService.publish(message);
+        },
         setMenuOpened(state, value) {
             state.menuOpened = !!value;
         },

@@ -32,11 +32,11 @@ export default
 
     // broadcasts
 
-    EFFLUX_READY      : 'B:ER',
-    SONG_LOADED       : 'B:SL',
-    SONG_SAVED        : 'B:SS',
-    SONG_IMPORTED     : 'B:SI',
-    SONG_EXPORTED     : 'B:SE',
-    INSTRUMENT_EDITED : 'B:IE',
-    MIDI_CONNECTED    : 'B:MC'
+    EFFLUX_READY             : 'B:ER',
+    SONG_LOADED              : 'B:SL',
+    SONG_SAVED               : 'B:SS',
+    SONG_IMPORTED            : 'B:SI',
+    SONG_EXPORTED            : 'B:SE',
+    INSTRUMENT_EDITOR_OPENED : 'B:IE',
+    MIDI_CONNECTED           : 'B:MC'
 };

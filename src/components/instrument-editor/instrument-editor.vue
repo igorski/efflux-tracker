@@ -95,6 +95,7 @@ import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Config from '../../config';
 import ManualURLs from '../../definitions/manual-urls';
 import AudioService from '../../services/audio-service';
+import PubSubMessages from '../../services/pubsub/messages';
 import InstrumentFactory from '../../model/factory/instrument-factory';
 import OscillatorEditor from './components/oscillator-editor';
 import ModuleEditor from './components/module-editor';
@@ -105,23 +106,23 @@ let EMPTY_PRESET_VALUE;
 export default {
     components: {
         OscillatorEditor,
-        ModuleEditor,
+        ModuleEditor
     },
     data: () => ({
         instrumentAmount: Config.INSTRUMENT_AMOUNT,
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
-        currentPreset: null,
+        currentPreset: null
     }),
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
             selectedInstrument: state => state.editor.selectedInstrument,
             selectedOscillatorIndex: state => state.editor.selectedOscillatorIndex,
-            instruments: state => state.instrument.instruments,
+            instruments: state => state.instrument.instruments
         }),
         ...mapGetters([
             'getCopy',
-            'getInstrumentByPresetName',
+            'getInstrumentByPresetName'
         ]),
         instrument: {
             get() {
@@ -182,6 +183,7 @@ export default {
     created() {
         EMPTY_PRESET_VALUE = this.getCopy('INPUT_PRESET');
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
+        this.publishMessage(PubSubMessages.INSTRUMENT_EDITOR_OPENED);
     },
     methods: {
         ...mapMutations([
@@ -193,9 +195,10 @@ export default {
             'updateInstrument',
             'replaceInstrument',
             'setPresetName',
+            'publishMessage'
         ]),
         ...mapActions([
-            'saveInstrument',
+            'saveInstrument'
         ]),
         openHelp() {
             window.open(ManualURLs.INSTRUMENT_EDITOR_HELP, '_blank');

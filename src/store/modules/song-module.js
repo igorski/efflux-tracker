@@ -27,6 +27,7 @@ import HistoryStateFactory from '../../model/factory/history-state-factory';
 import HistoryStates       from '../../definitions/history-states';
 import FixturesLoader      from '../../services/fixtures-loader';
 import SongAssemblyService from '../../services/song-assembly-service';
+import PubSubMessages      from '../../services/pubsub/messages';
 import SongValidator       from '../../model/validators/song-validator';
 import SongUtil            from '../../utils/song-util';
 import ObjectUtil          from '../../utils/object-util';
@@ -188,6 +189,7 @@ export default {
                 song.meta.modified = Date.now();    // update timestamp
                 state.songs.push(song);
                 persistState(state);
+                commit('publishMessage', PubSubMessages.SONG_SAVED);
                 commit('showNotification', { message: getters.getCopy('SONG_SAVED', song.meta.title) });
                 resolve();
             })
@@ -282,6 +284,7 @@ export default {
                         if (SongValidator.isValid(song)) {
                             await dispatch('saveSong', song);
                             commit('setActiveSong', song);
+                            commit('publishMessage', PubSubMessages.SONG_IMPORTED);
                             resolve();
                         }
                         else {
@@ -293,7 +296,7 @@ export default {
                 });
             });
         },
-        exportSong(store, song) {
+        exportSong({ commit }, song) {
             return new Promise(resolve => {
                 const base64encodedSong = window.btoa(SongAssemblyService.disassemble(song));
 
@@ -304,6 +307,8 @@ export default {
                 pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
                 pom.setAttribute('download', `${song.meta.title}${Config.SONG_FILE_EXTENSION}` );
                 pom.click();
+
+                commit('publishMessage', PubSubMessages.SONG_EXPORTED);
 
                 resolve();
             });
