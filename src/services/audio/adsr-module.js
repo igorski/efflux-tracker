@@ -23,8 +23,8 @@
 let ADSR, envelope, attack, release, attackEnd, decayEnd, step;
 const MAX_PITCH_ENVELOPE_VALUE = 24; // max value we expect for the pitch envelope's range
 
-export default {
-
+export default
+{
     /**
      * apply attack, decay and sustain amplitude envelopes to given gain Node
      *
@@ -33,8 +33,7 @@ export default {
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
      */
-    applyAmpEnvelope( oscillator, output, startTimeInSeconds )
-    {
+    applyAmpEnvelope( oscillator, output, startTimeInSeconds ) {
         ADSR = /** @type {Object} */ ( oscillator.adsr );
 
         switch ( oscillator.waveform ) {
@@ -68,8 +67,7 @@ export default {
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
      */
-    applyAmpRelease( oscillator, output, startTimeInSeconds )
-    {
+    applyAmpRelease( oscillator, output, startTimeInSeconds ) {
         ADSR = /** @type {Object} */ ( oscillator.adsr );
 
         switch ( oscillator.waveform ) {
@@ -102,8 +100,7 @@ export default {
      * @param {OscillatorNode|AudioBufferSourceNode} generator
      * @param {number} startTimeInSeconds
      */
-    applyPitchEnvelope( oscillator, generator, startTimeInSeconds )
-    {
+    applyPitchEnvelope( oscillator, generator, startTimeInSeconds ) {
         ADSR = /** @type {Object} */ ( oscillator.pitch );
 
         if ( ADSR.range === 0 )
@@ -141,8 +138,7 @@ export default {
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
      */
-    applyPitchRelease( oscillator, generator, startTimeInSeconds )
-    {
+    applyPitchRelease( oscillator, generator, startTimeInSeconds ) {
         ADSR = /** @type {Object} */ ( oscillator.pitch );
 
         if ( ADSR.range === 0 || typeof ADSR.org !== 'number' )

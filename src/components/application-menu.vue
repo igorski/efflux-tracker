@@ -66,7 +66,7 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import { isSupported, setToggleButton } from '../utils/fullscreen-util';
 import AudioService from '../services/audio-service';
-import Manual from '../definitions/Manual';
+import ManualURLs from '../definitions/manual-urls';
 
 export default {
     computed: {
@@ -146,7 +146,7 @@ export default {
             this.setOverlay('settings');
         },
         handleHelp() {
-            window.open(Manual.ONLINE_MANUAL);
+            window.open(ManualURLs.ONLINE_MANUAL);
         },
         handleRecord() {
             AudioService.toggleRecordingState();

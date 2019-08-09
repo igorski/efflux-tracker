@@ -95,7 +95,7 @@ import FormListItem from './forms/form-list-item';
 import EventFactory from '../model/factory/event-factory';
 import KeyboardService from '../services/keyboard-service';
 import ModuleParamHandler from '../services/keyboard/module-param-handler';
-import Manual from '../definitions/Manual';
+import ManualURLs from '../definitions/manual-urls';
 
 const DEFAULT_MODULE = 'volume';
 let lastValueTypeAction = 0, lastValueChar = 0;
@@ -240,7 +240,7 @@ export default {
             this.handleClose();
         },
         handleHelp() {
-            window.open( Manual.PARAM_ENTRY_HELP, '_blank' );
+            window.open( ManualURLs.PARAM_ENTRY_HELP, '_blank' );
         },
     },
 };

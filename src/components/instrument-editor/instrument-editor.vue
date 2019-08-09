@@ -93,7 +93,7 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Config from '../../config';
-import Manual from '../../definitions/Manual';
+import ManualURLs from '../../definitions/manual-urls';
 import AudioService from '../../services/audio-service';
 import InstrumentFactory from '../../model/factory/instrument-factory';
 import OscillatorEditor from './components/oscillator-editor';
@@ -201,7 +201,7 @@ export default {
             'saveInstrument',
         ]),
         openHelp() {
-            window.open(Manual.INSTRUMENT_EDITOR_HELP, '_blank');
+            window.open(ManualURLs.INSTRUMENT_EDITOR_HELP, '_blank');
         },
         invalidatePreset() {
             if (this.instrumentRef.presetName && !this.instrumentRef.presetName.includes('*')) {

@@ -91,7 +91,7 @@ import FormListItem from './forms/form-list-item.vue';
 import EventUtil      from '../utils/event-util';
 import EventFactory   from '../model/factory/event-factory';
 import EventValidator from '../model/validators/event-validator';
-import Manual         from '../definitions/Manual';
+import ManualURLs     from '../definitions/manual-urls';
 
 const DEFAULT_NOTE   = 'C';
 const DEFAULT_OCTAVE = 3;
@@ -162,7 +162,7 @@ export default {
             this.$emit('close');
         },
         handleHelp() {
-            window.open( Manual.NOTE_ENTRY_HELP, "_blank" );
+            window.open( ManualURLs.NOTE_ENTRY_HELP, "_blank" );
         },
         handleKey(type, keyCode/*, event*/) {
             if (type !== 'down') {

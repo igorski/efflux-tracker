@@ -173,7 +173,5 @@ store.setOverlay() -> should indicate its a modal component
 animate pattern input on switch
 editormodule -> active/step/instrument should be renamed to reflect they are being edited
 
-model/modules/ADSR and third_party/delay > move to separate folder
-
 check mobile styles ?
 submit to madewithvue :D

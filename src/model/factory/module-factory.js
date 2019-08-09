@@ -23,7 +23,7 @@
 import AudioFactory from './audio-factory';
 import ModuleUtil   from '../../utils/module-util';
 import Config       from '../../config';
-import Delay        from '../../third_party/delay-module';
+import Delay        from '../../services/audio/delay-module';
 import Overdrive    from 'wa-overdrive';
 
 const ModuleFactory = {

@@ -28,9 +28,9 @@ import RecordingUtil  from '../utils/audio-recording-util';
 import ModuleUtil     from '../utils/module-util';
 import InstrumentUtil from '../utils/instrument-util';
 import Config         from '../config';
-import Pitch          from '../definitions/Pitch';
-import WaveTables     from '../definitions/WaveTables';
-import ADSR           from '../model/modules/ADSR';
+import PitchConverter from './audio/pitch-converter';
+import WaveTables     from './audio/wave-tables';
+import ADSR           from './audio/adsr-module';
 
 /* private properties */
 
@@ -205,7 +205,7 @@ const AudioService =
 
             //console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
 
-            const frequency = Pitch.getFrequency( event.note, event.octave );
+            const frequency = PitchConverter.getFrequency( event.note, event.octave );
 
             if ( typeof startTimeInSeconds !== 'number' )
                 startTimeInSeconds = audioContext.currentTime;

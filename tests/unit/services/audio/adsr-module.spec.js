@@ -1,4 +1,4 @@
-import ADSR from '../../../../src/model/modules/ADSR';
+import ADSR from '../../../../src/services/audio/adsr-module';
 
 describe( 'ADSR', () => {
     // mock AudioGainNode

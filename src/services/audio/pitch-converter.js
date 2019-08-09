@@ -48,8 +48,7 @@ const Pitch =
      * @param {number} aOctave - the octave to return ( accepted range 0 - 9 )
      * @return {number} containing exact frequency in Hz for requested note
      */
-    getFrequency( aNote, aOctave )
-    {
+    getFrequency( aNote, aOctave ) {
         let freq;
         let enharmonic = 0;
 
@@ -72,11 +71,9 @@ const Pitch =
         if ( aOctave === 4 ) {
             return freq;
         }
-        else
-        {
+        else {
             // translate the pitches to the requested octave
-
-            let d = aOctave - 4;
+            const d = aOctave - 4;
             let j = Math.abs( d );
 
             for ( i = 0; i < j; ++i ) {
@@ -103,8 +100,7 @@ const Pitch =
      *             cents: number
      *         }}
     */
-    getPitchByFrequency( frequency )
-    {
+    getPitchByFrequency( frequency ) {
         let theNote;
 
         const lnote       = ( Math.log ( frequency ) - Math.log( 261.626 )) / Math.log( 2 ) + 4.0;
@@ -124,10 +120,8 @@ const Pitch =
             ++oct;
         }
         else {
-            for ( let j = 1; j <= 11 ; ++j )
-            {
-                if ( theCents >= offset && theCents < ( offset + 100 ))
-                {
+            for ( let j = 1; j <= 11 ; ++j ) {
+                if ( theCents >= offset && theCents < ( offset + 100 )) {
                     theNote = note_table.charAt( x ) + note_table.charAt( x + 1 );
                     theCents -= ( j * 100 );
                     break;
@@ -150,23 +144,19 @@ const Pitch =
      * @param {number=} aEnharmonic optional, defaults to 0 ( 0, -1 for flat, 1 for sharp )
      * @return {number}
      */
-    getOctaveIndex( aNote, aEnharmonic )
-    {
-        if ( typeof aEnharmonic !== "number" )
+    getOctaveIndex( aNote, aEnharmonic ) {
+        if ( typeof aEnharmonic !== 'number' )
             aEnharmonic = 0;
 
         const octave = Pitch.OCTAVE;
         const scale  = Pitch.OCTAVE_SCALE;
 
-        for ( let i = 0, j = octave.length; i < j; ++i )
-        {
-            if ( scale[ i ] === aNote )
-            {
+        for ( let i = 0, j = octave.length; i < j; ++i ) {
+            if ( scale[ i ] === aNote ) {
                 let k = i + aEnharmonic;
 
                 if ( k > j )
                     return octave[ 0 ];
-
                 if ( k < 0 )
                     return octave[ octave.length - 1 ];
 
@@ -176,5 +166,4 @@ const Pitch =
         return NaN;
     }
 };
-
 export default Pitch;

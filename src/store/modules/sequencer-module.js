@@ -23,9 +23,9 @@
 import Vue from 'vue';
 import Config from '../../config';
 import LinkedList from '../../utils/linked-list';
-import Metronome from '../../utils/metronome-util';
 import AudioUtil from '../../utils/audio-util';
 import AudioService from '../../services/audio-service';
+import Metronome from '../../services/audio/metronome';
 import SequencerWorker from '../../workers/sequencer.worker.js';
 
 /* internal methods */
