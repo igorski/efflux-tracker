@@ -22,7 +22,9 @@
  */
 <template>
     <section class="transport-section">
-        <div id="transportControls">
+        <div class="transport-controls"
+             :class="{ 'settings-mode': mobileMode === 'settings' }"
+        >
             <ul class="inline-block">
                 <li id="playBTN"
                     :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
@@ -90,13 +92,14 @@ export default {
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
             midiConnected: state => state.midi.midiConnected,
+            mobileMode: state => state.mobileMode,
         }),
         ...mapGetters([
             'isPlaying',
             'isLooping',
             'isRecording',
             'isMetronomeEnabled',
-            'amountOfSteps',
+            'amountOfSteps'
         ]),
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
@@ -179,19 +182,11 @@ export default {
             'suspendKeyboardService',
             'gotoPreviousPattern',
             'gotoNextPattern',
+            'setMobileMode'
         ]),
-        handleSettingsToggle(e) {
-            const body     = window.document.body,
-                  cssClass = "settings-mode",
-                  enabled  = !body.classList.contains( cssClass );
-
-            if ( enabled )
-                e.target.classList.add( "active" );
-            else
-                e.target.classList.remove( "active" );
-
-            body.classList.toggle( cssClass );
-        },
+        handleSettingsToggle() {
+            this.setMobileMode(this.mobileMode ? null : 'settings');
+        }
     }
 };
 </script>
@@ -212,13 +207,11 @@ export default {
       font-style: normal;
     }
 
-    $transport-height: 42px; /* height + border bottom */
-
     .transport-section {
       background-color: #393b40;
     }
 
-    #transportControls {
+    .transport-controls {
         font-family: Montserrat, Helvetica, Verdana, sans-serif;
         border: none;
         border-radius: 0;
@@ -389,7 +382,7 @@ export default {
     /* ideal view */
 
     @media screen and ( min-width: $ideal-width ) {
-      #transportControls {
+      .transport-controls {
         min-width: auto;
       }
     }
@@ -397,7 +390,7 @@ export default {
     /* everything above median app size */
 
     @media screen and ( min-width: $app-width ) {
-      #transportControls {
+      .transport-controls {
         .section-divider {
           padding: 0 $spacing-medium $spacing-xsmall;
 
@@ -415,9 +408,9 @@ export default {
     /* mobile view */
 
     @media screen and ( max-width: $mobile-width ) {
-      #transportControls {
+      .transport-controls {
         background-color: inherit;
-        margin-top: $transport-height;
+        margin-top: ($transport-height - $spacing-small);
 
         label {
           display: none !important;
@@ -427,6 +420,10 @@ export default {
         }
         .tempo-control {
           display: none;
+        }
+        &.settings-mode .tempo-control {
+          display: inline-block;
+          margin: $spacing-small;
         }
         ul li.icon-settings {
           display: inline;

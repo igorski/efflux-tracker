@@ -30,7 +30,7 @@
 
             <div class="container">
                 <div id="editor"
-                     :class="{ 'has-help-panel': displayHelp }"
+                     :class="{ 'has-help-panel': displayHelp, 'settings-mode': mobileMode === 'settings' }"
                 >
                     <track-editor />
                     <pattern-track-list />
@@ -154,7 +154,8 @@ export default {
             'loading',
             'dialog',
             'modals',
-            'modal'
+            'modal',
+            'mobileMode',
         ]),
         ...mapState({
             displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== false,
@@ -394,8 +395,7 @@ export default {
 
     @media screen and ( max-width: $mobile-width ) {
         .application-header {
-            height: 50px;
-
+            height: $transport-height;
             &.expanded {
                 height: 100%;
             }
@@ -404,6 +404,13 @@ export default {
             padding: 0 $spacing-large;
             z-index: 11;
             @include boxSize;
+        }
+        /* when mobileMode is 'settings' we show the tempo control and song editor by expanding these */
+        #properties {
+            margin: 125px auto 0;
+        }
+        #editor.settings-mode {
+            top: 260px !important;
         }
     }
 </style>

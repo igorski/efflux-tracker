@@ -21,11 +21,13 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section class="song-editor">
+    <section
+        class="song-editor"
+        :class="{ 'settings-mode': mobileMode === 'settings' }"
+    >
         <div class="meta-editor"
              @mouseover="setHelpTopic('meta')"
         >
-            <h2>Song</h2>
             <input type="text"
                    v-model="title"
                    placeholder="song title"
@@ -46,11 +48,14 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 import ModalWindows from '../definitions/modal-windows';
 
 export default {
     computed: {
+        ...mapState([
+            'mobileMode',
+        ]),
         ...mapGetters([
             'activeSong',
         ]),
@@ -110,29 +115,38 @@ export default {
       display: inline;
 
       input {
-        border-radius: 0;
-        width: 100px;
-        height: 20px;
-        margin: 0;
+        width: 150px;
+        /*height: 20px;*/
+        margin: 0 $spacing-xsmall;
       }
     }
 
+    /* everything above phone */
+
+    @media screen and ( min-width: $mobile-width ) {
+        .meta-editor input {
+            &:first-child {
+              margin-left: $spacing-medium;
+            }
+        }
+    }
     /* phone view */
 
     @media screen and ( max-width: $mobile-width ) {
       .song-editor {
-        display: none; // only visible when settings mode is active
+        display: none; /* only visible when settings mode is active */
+
+          &.settings-mode {
+            display: block;
+          }
       }
 
       .meta-editor {
-        h2 {
-          display: none;
-        }
         input, button {
           @include boxSize();
           display: block;
-          margin: $spacing-small 0;
-          width: 100%;
+          margin: $spacing-small auto;
+          width: 95%;
         }
       }
     }

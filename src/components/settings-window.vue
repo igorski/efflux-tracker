@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="settings">
+    <div class="settings">
         <div class="header">
             <h2>Settings</h2>
             <button class="close-button"
@@ -208,11 +208,18 @@ export default {
 <style lang="scss">
     @import '@/styles/_variables.scss';
     @import '@/styles/_layout.scss';
+    
+    $width: 500px;
+    $height: 500px;
 
-    #settings
-    {
-      @include EditorComponent();
-      @include Overlay();
+    .settings {
+      @include editorComponent();
+      @include overlay();
+      padding: $spacing-small $spacing-large;
+
+      h2 {
+          padding-left: 0;
+      }
 
       label {
         min-width: 150px;
@@ -220,8 +227,7 @@ export default {
       }
     }
     
-    #midiSetup
-    {
+    #midiSetup {
       .wrapper {
         label, select {
           display: block;
@@ -240,20 +246,21 @@ export default {
       }
     }
     
-    $settingsWidth: 500px;
-    $settingsHeight: 500px;
-    
-    @media screen and ( min-width: $settingsWidth) and ( min-height: $settingsHeight )
-    {
-      #settings {
-        width: $settingsWidth;
-        height: $settingsHeight;
+    @media screen and ( min-width: $width) and ( min-height: $height ) {
+      .settings {
+        width: $width;
+        height: $height;
         top: 50%;
         left: 50%;
-        margin-left: -( $settingsWidth / 2 );
-        margin-top: -( $settingsHeight / 2 );
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2 );
       }
     }
 
+    @media screen and ( max-width: $mobile-width) {
+        .settings {
+            @include verticalScrollOnMobile();
+        }
+    }
 </style>
  

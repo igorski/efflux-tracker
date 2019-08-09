@@ -21,7 +21,8 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="patternEditor"
+    <section class="pattern-editor"
+             :class="{ 'settings-mode': mobileMode === 'settings' }"
              @mouseover="setHelpTopic('pattern')"
     >
         <h2>Pattern</h2>
@@ -81,6 +82,7 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
+            mobileMode: state => state.mobileMode,
         }),
         ...mapGetters([
             'amountOfSteps',
@@ -160,12 +162,13 @@ export default {
 <style lang="scss">
     @import '../styles/_variables.scss';
 
-    #patternEditor {
+    .pattern-editor {
       display: inline-block;
-    }
-
-    #patternEditor {
       margin: 0 0 0 $spacing-medium;
+
+      h2 {
+          padding: 0 $spacing-large;
+      }
 
       h4 {
         display: inline;
@@ -180,8 +183,8 @@ export default {
         }
 
         button, select {
-          margin: 0;
-          background-color: #666;
+          margin: 0 0 0 $spacing-xsmall;
+          background-color: #333;
           color: #b6b6b6;
           border-radius: 0;
           border: 0;
@@ -196,7 +199,7 @@ export default {
     /* tablet view */
 
     @media screen and ( min-width: $app-width ) {
-      #patternEditor {
+      .pattern-editor {
         /* show divider before section content */
         &:before {
           content: "";
@@ -211,7 +214,7 @@ export default {
     /* everything above mobile view and below app width */
 
     @media screen and ( min-width: $mobile-width ) and ( max-width: $app-width ) {
-      #patternEditor {
+      .pattern-editor {
         /* TODO: we're now hiding our interface from these users... */
         display: none;
       }
@@ -220,11 +223,15 @@ export default {
     /* phone view */
 
     @media screen and ( max-width: $mobile-width ) {
-      #patternEditor  {
+      .pattern-editor  {
         display: none; /* only visible when settings mode is active */
+
+        &.settings-mode {
+          display: block;
+        }
       }
 
-      #patternEditor {
+      .pattern-editor {
         h2 {
           display: none;
         }

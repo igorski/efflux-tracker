@@ -146,7 +146,7 @@ export default {
     @import '@/styles/_layout.scss';
 
     #helpSection {
-        @include EditorComponent();
+        @include editorComponent();
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         vertical-align: top;

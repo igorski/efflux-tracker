@@ -403,7 +403,7 @@ export default {
       }
     }
 
-    @media screen and ( min-width: $idealInstrumentEditorWidth ) {
+    @media screen and ( min-width: $ideal-instrument-editor-width ) {
       #instrumentOscillatorEditor {
         display: inline-block;
         width: 550px;

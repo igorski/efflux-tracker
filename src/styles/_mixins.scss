@@ -38,3 +38,9 @@
 @mixin animate($property: all, $delay: .5s) {
   transition: $property $delay cubic-bezier(0.455, 0.030, 0.515, 0.955);
 }
+
+@mixin verticalScrollOnMobile() {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden; /* we should never want this in modal windows */
+}

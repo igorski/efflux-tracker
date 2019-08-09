@@ -31,8 +31,8 @@
         <fieldset>
             <div class="wrapper input">
                 <label>Copy pattern range:</label>
-                <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" max="maxPattern">
-                <input type="number" v-model.number="lastPattern" min="1" max="maxPattern">
+                <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
+                <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
             </div>
         </fieldset>
         <fieldset>
@@ -45,7 +45,7 @@
         <fieldset>
             <div class="wrapper input">
                 <label>Insert after pattern:</label>
-                <input type="number" min="1" max="maxPattern" v-model.number="pastePattern">
+                <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
         </fieldset>
         <button type="button"
@@ -167,9 +167,12 @@ export default {
     @import '@/styles/_variables.scss';
     @import '@/styles/_layout.scss';
 
+    $width: 450px;
+    $height: 350px;
+
     #advancedPatternEditor {
-      @include EditorComponent();
-      @include Overlay();
+      @include editorComponent();
+      @include overlay();
       @include noSelect();
       padding: $spacing-small $spacing-large;
       border-radius: $spacing-small;
@@ -207,17 +210,14 @@ export default {
       }
     }
     
-    $apeWidth: 450px;
-    $apeHeight: 240px;
-    
-    @media screen and ( min-width: $apeWidth ) {
+    @media screen and ( min-width: $width ) {
       #advancedPatternEditor {
         top: 50%;
         left: 50%;
-        width: $apeWidth;
-        height: $apeHeight;
-        margin-left: -( $apeWidth / 2 );
-        margin-top: -( $apeHeight / 2);
+        width: $width;
+        height: $height;
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2);
       }
     }
 </style>

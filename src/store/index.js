@@ -34,6 +34,7 @@ export default
         dialog: null,
         notifications: [],
         modal: null, /* string name of modal window to open, see modal-windows.js */
+        mobileMode: null, /* string name of mobile view state */
     },
     getters: {
         /**
@@ -125,7 +126,10 @@ export default
         },
         setWindowScrollOffset(state, value) {
             state.windowScrollOffset = value;
-        }
+        },
+        setMobileMode(state, mode) {
+            state.mobileMode = mode;
+        },
     },
     actions: {
         /**

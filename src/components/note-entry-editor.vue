@@ -260,8 +260,8 @@ export default {
     @import '@/styles/_layout.scss';
 
     #noteEntry {
-      @include EditorComponent();
-      @include Overlay();
+      @include editorComponent();
+      @include overlay();
       @include noSelect();
       @include boxSize();
       padding: $spacing-small $spacing-large;

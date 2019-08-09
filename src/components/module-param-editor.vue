@@ -251,8 +251,8 @@ export default {
     @import '@/styles/_layout.scss';
 
     #moduleParamEntry {
-      @include EditorComponent();
-      @include Overlay();
+      @include editorComponent();
+      @include overlay();
       @include noSelect();
       padding: $spacing-small $spacing-large;
       border-radius: $spacing-small;

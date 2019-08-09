@@ -106,7 +106,7 @@ export default {
     $songBrowserHeight: 600px;
 
     .song-browser {
-        @include Overlay();
+        @include overlay();
         @include noSelect();
         box-shadow: 0 0 $spacing-small rgba(0, 0, 0, .5);
         padding: 0;

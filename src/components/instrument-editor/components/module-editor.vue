@@ -355,7 +355,7 @@ export default {
 
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $idealInstrumentEditorWidth ) {
+    @media screen and ( min-width: $ideal-instrument-editor-width ) {
       #instrumentModulesEditor {
         display: inline-block;
 
@@ -367,7 +367,7 @@ export default {
 
     /* mobile */
 
-    @media screen and ( max-width: $idealInstrumentEditorWidth ) {
+    @media screen and ( max-width: $ideal-instrument-editor-width ) {
       #instrumentModulesEditor {
         width: 100%;
         padding: 0;

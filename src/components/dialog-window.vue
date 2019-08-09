@@ -95,8 +95,8 @@ export default {
 
     #dialogWindow {
 
-      @include EditorComponent;
-      @include Overlay;
+      @include editorComponent;
+      @include overlay;
       @include noSelect;
       @include boxSize;
 

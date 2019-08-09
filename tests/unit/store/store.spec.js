@@ -170,5 +170,11 @@ describe('Application Vuex store root', () => {
             mutations.setWindowScrollOffset(state, 300);
             expect(state.windowScrollOffset).toEqual(300);
         });
+
+        it('should be able to set the mobile view mode', () => {
+            const state = { mobileMode: null };
+            mutations.setMobileMode(state, 'foo');
+            expect(state.mobileMode).toEqual('foo');
+        })
     });
 });

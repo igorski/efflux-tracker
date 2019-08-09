@@ -21,7 +21,7 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="instrumentEditor">
+    <div class="instrument-editor">
         <div class="header">
             <h2>Instrument editor</h2>
             <button class="help-button"
@@ -240,9 +240,9 @@ export default {
 <style lang='scss' scoped>
     @import '@/styles/_layout.scss';
 
-    #instrumentEditor {
-      @include EditorComponent();
-      @include Overlay();
+    .instrument-editor {
+      @include editorComponent();
+      @include overlay();
 
       height: auto;
     }
@@ -264,21 +264,22 @@ export default {
 
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $idealInstrumentEditorWidth ) {
-      #instrumentEditor {
+    @media screen and ( min-width: $ideal-instrument-editor-width ) {
+      .instrument-editor {
         top: 50%;
         left: 50%;
-        width: $idealInstrumentEditorWidth;
-        margin-left: -$idealInstrumentEditorWidth / 2;
-        margin-top: -$idealInstrumentEditorHeight / 2;
+        width: $ideal-instrument-editor-width;
+        margin-left: -$ideal-instrument-editor-width / 2;
+        margin-top: -$ideal-instrument-editor-height / 2;
       }
     }
 
     /* mobile */
 
-    @media screen and ( max-width: $idealInstrumentEditorWidth ) {
-      #instrumentEditor {
+    @media screen and ( max-width: $ideal-instrument-editor-width ) {
+      .instrument-editor {
         position: absolute;
+        @include verticalScrollOnMobile();
       }
 
       #instrumentSelect {
