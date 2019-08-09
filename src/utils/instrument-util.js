@@ -174,7 +174,7 @@ const InstrumentUtil =
         if ( playingNotes[ id ])
             return null; // note already playing
 
-        const audioEvent  = EventFactory.createAudioEvent( instrument.id );
+        const audioEvent  = EventFactory.createAudioEvent(instrument.id);
         audioEvent.note   = pitch.note;
         audioEvent.octave = pitch.octave;
         audioEvent.action = 1; // noteOn
@@ -183,7 +183,7 @@ const InstrumentUtil =
         AudioService.noteOn(audioEvent, instrument);
 
         if ( record )
-            recordEventIntoSong( audioEvent, store );
+            recordEventIntoSong(audioEvent, store);
 
         return audioEvent;
     },
@@ -202,9 +202,9 @@ const InstrumentUtil =
             AudioService.noteOff(eventVO.event, eventVO.instrument);
 
             if ( eventVO.recording ) {
-                const offEvent = EventFactory.createAudioEvent( eventVO.instrument.id );
+                const offEvent = EventFactory.createAudioEvent(eventVO.instrument.id);
                 offEvent.action = 2; // noteOff
-                recordEventIntoSong( offEvent, store );
+                recordEventIntoSong(offEvent, store);
             }
             Vue.set(eventVO.event, 'recording', false);
            // audioEvent.event.seq.playing = false;
@@ -221,8 +221,7 @@ function pitchToUniqueId( pitch ) {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent, store )
-{
+function recordEventIntoSong( audioEvent, store ) {
     if ( store.state.sequencer.playing ) {
 
         // sequencer is playing, add event at current step
@@ -240,7 +239,7 @@ function recordEventIntoSong( audioEvent, store )
         const existingEvent  = channel[ step ];
 
         // if an event was present at given position, retain it's module parameter actions
-        if ( existingEvent )
+        if ( existingEvent && audioEvent.mp )
             audioEvent.mp = { ...existingEvent.mp };
 
         Vue.set(channel, step, audioEvent );
@@ -255,8 +254,8 @@ function recordEventIntoSong( audioEvent, store )
             store.commit('addEventAtPosition', {
                 store, event: audioEvent,
                 optData: {
-                    newEvent: true,
-                },
+                    newEvent: true
+                }
             });
     }
 }

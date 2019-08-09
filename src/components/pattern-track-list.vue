@@ -103,10 +103,10 @@
                             <template v-if="!event.action">
                                 <span class="moduleParam empty"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
-                                >---</span>
+                                >--</span>
                                 <span class="moduleValue empty"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
-                                >---</span>
+                                >--</span>
                             </template>
                             <template v-else-if="event.note">
                                 <span class="moduleParam empty"
