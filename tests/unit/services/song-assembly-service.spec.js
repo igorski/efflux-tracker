@@ -1,6 +1,6 @@
-import SongFactory         from '../../../src/model/factory/song-factory';
-import SongValidator       from '../../../src/model/validators/song-validator';
-import SongAssemblyService from '../../../src/services/song-assembly-service';
+import SongFactory         from '@/model/factory/song-factory';
+import SongValidator       from '@/model/validators/song-validator';
+import SongAssemblyService from '@/services/song-assembly-service';
 
 describe( 'SongAssemblyService', () => {
     it( 'should be able to disassemble a Song into a Stringified XTK', () => {

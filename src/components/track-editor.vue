@@ -58,9 +58,9 @@ export default {
         ]),
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activeStep: state => state.editor.activeStep,
+            selectedStep: state => state.editor.selectedStep,
             activePattern: state => state.sequencer.activePattern,
-            activeInstrument: state => state.editor.activeInstrument,
+            selectedInstrument: state => state.editor.selectedInstrument,
             eventList: state => state.editor.eventList,
         })
     },
@@ -101,8 +101,8 @@ export default {
         },
         handleModuleGlideClick() {
             EventUtil.glideParameterAutomations(
-                this.activeSong, this.activeStep, this.activePattern,
-                this.activeInstrument, this.eventList, this.$store,
+                this.activeSong, this.selectedStep, this.activePattern,
+                this.selectedInstrument, this.eventList, this.$store,
             );
         },
     }

@@ -1,4 +1,4 @@
-import NumberUtil from '../../../src/utils/number-util';
+import NumberUtil from '@/utils/number-util';
 
 describe( 'NumberUtil', () => {
     /* actual unit tests */

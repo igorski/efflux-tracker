@@ -117,8 +117,8 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
-            activeInstrument: state => state.editor.activeInstrument,
-            activeStep: state => state.editor.activeStep,
+            selectedInstrument: state => state.editor.selectedInstrument,
+            selectedStep: state => state.editor.selectedStep,
         }),
         valueText() {
             const value = this.value.toFixed(2);
@@ -127,10 +127,10 @@ export default {
     },
     mounted() {
         const pattern = this.activeSong.patterns[ this.activePattern ],
-              channel = pattern.channels[ this.activeInstrument ],
-              event   = channel[ this.activeStep ];
+              channel = pattern.channels[ this.selectedInstrument ],
+              event   = channel[ this.selectedStep ];
     
-        this.instrument   = ( event ) ? event.instrument : this.activeInstrument;
+        this.instrument   = ( event ) ? event.instrument : this.selectedInstrument;
         this.module       = ( event && event.mp ) ? event.mp.module  : DEFAULT_MODULE;
         this.glide        = ( event && event.mp ) ? event.mp.glide   : false;
         this.value        = ( event && event.mp ) ? event.mp.value   : 50;
@@ -139,8 +139,8 @@ export default {
         // where we would like to add/edit a module parameter change event
 
         this.patternIndex = ( event ) ? event.seq.startMeasure : this.activePattern;
-        this.channelIndex = this.activeInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
-        this.step         = this.activeStep;
+        this.channelIndex = this.selectedInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
+        this.step         = this.selectedStep;
 
         KeyboardService.setBlockDefaults(false);
         KeyboardService.setListener(this.handleKey);

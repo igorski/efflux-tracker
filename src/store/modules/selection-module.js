@@ -296,7 +296,7 @@ const module = {
          * @param {Array=} optSelectionContent optional selection content to paste from, when null this method
          *        will by default paste from the selection stored inside this model
          */
-        pasteSelection(state, { song, eventList, activeInstrument, activePattern, activeStep, optSelectionContent = null }) {
+        pasteSelection(state, { song, eventList, selectedInstrument, activePattern, selectedStep, optSelectionContent = null }) {
             if ( !Array.isArray( optSelectionContent )) {
                 optSelectionContent = state.copySelection;
             }
@@ -306,12 +306,12 @@ const module = {
                 let targetPattern, writeIndex, clone;
                 let selectionLength = optSelectionContent.length;
 
-                for ( let cIndex = activeInstrument, max = target.channels.length, j = 0;
+                for ( let cIndex = selectedInstrument, max = target.channels.length, j = 0;
                       cIndex < max && j < selectionLength; ++cIndex, ++j ) {
                     targetPattern = target.channels[ cIndex ];
 
                     optSelectionContent[ j ].forEach(( event, index ) => {
-                        writeIndex = activeStep + index;
+                        writeIndex = selectedStep + index;
 
                         if ( writeIndex < targetPattern.length ) {
                             if ( event && ( event.action !== 0 || event.mp )) {
@@ -335,9 +335,9 @@ const module = {
          * @param {number} keyCode determining the vertical direction we're moving in (38 = up, 40 = down)
          * @param {number} activeChannel the active channel in the track list
          * @param {number} curStep the current active step within the current pattern
-         * @param {number} activeStep the next active step within the current pattern
+         * @param {number} selectedStep the next active step within the current pattern
          */
-        handleVerticalKeySelectAction( state, { keyCode, activeChannel, curStep, activeStep }) {
+        handleVerticalKeySelectAction( state, { keyCode, activeChannel, curStep, selectedStep }) {
             const ac           = state.actionCache,
                   isUp         = ( keyCode === 38 ),
                   hadSelection = hasSelection(state);
@@ -354,29 +354,29 @@ const module = {
                     ac.shrinkSelection = ( curStep === ( state.maxSelectedStep ));
                     ac.minOnSelection  = state.minSelectedStep;
                     ac.maxOnSelection  = state.maxSelectedStep;
-                    ac.stepOnSelection = (( ac.minOnSelection === curStep ) ? ac.minOnSelection : activeStep ) + 2;
+                    ac.stepOnSelection = (( ac.minOnSelection === curStep ) ? ac.minOnSelection : selectedStep ) + 2;
                 }
 
                 if ( !hadSelection )
                     setSelectionChannelRange( state, activeChannel );
 
                 if ( ac.shrinkSelection ) {
-                    if ( ac.minOnSelection === activeStep ) {
+                    if ( ac.minOnSelection === selectedStep ) {
                         ac.stepOnSelection = -1;
                     }
-                    setSelection( state, ac.minOnSelection, activeStep );
+                    setSelection( state, ac.minOnSelection, selectedStep );
                 }
                 else
-                    setSelection( state, activeStep, ac.stepOnSelection - 1 );
+                    setSelection( state, selectedStep, ac.stepOnSelection - 1 );
             }
             else {
                 // moving down
 
                 if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode ) {
-                    ac.shrinkSelection = ( ac.prevVerticalKey !== keyCode && curStep === state.minSelectedStep && activeStep !== 1 );
+                    ac.shrinkSelection = ( ac.prevVerticalKey !== keyCode && curStep === state.minSelectedStep && selectedStep !== 1 );
                     ac.minOnSelection  = state.minSelectedStep;
                     ac.maxOnSelection  = state.maxSelectedStep;
-                    ac.stepOnSelection = ( ac.maxOnSelection === ( activeStep - 1 )) ? ac.minOnSelection : activeStep - 1;
+                    ac.stepOnSelection = ( ac.maxOnSelection === ( selectedStep - 1 )) ? ac.minOnSelection : selectedStep - 1;
                 }
 
                 if ( !hadSelection )
@@ -384,13 +384,13 @@ const module = {
 
                 if ( ac.shrinkSelection )
                 {
-                    if ( ac.maxOnSelection === activeStep + 1 )
+                    if ( ac.maxOnSelection === selectedStep + 1 )
                         ac.stepOnSelection = -1;
 
-                    setSelection( state, activeStep, ac.maxOnSelection );
+                    setSelection( state, selectedStep, ac.maxOnSelection );
                 }
                 else
-                    setSelection( state, ac.stepOnSelection, Math.max( state.maxSelectedStep, activeStep ));
+                    setSelection( state, ac.stepOnSelection, Math.max( state.maxSelectedStep, selectedStep ));
             }
             ac.prevVerticalKey = keyCode;
         },
@@ -399,16 +399,16 @@ const module = {
          *
          * @param {number} keyCode the horizontal direction we're moving in (37 = left, 39 = right)
          * @param {number} activeChannelOnStart the active channel when the horizontal selection started
-         * @param {number} activeStepOnStart the active step when the horizontal selection started
+         * @param {number} selectedStepOnStart the active step when the horizontal selection started
          */
-        handleHorizontalKeySelectAction( state, { keyCode, activeChannelOnStart, activeStepOnStart }) {
+        handleHorizontalKeySelectAction( state, { keyCode, activeChannelOnStart, selectedStepOnStart }) {
             const ac           = state.actionCache,
                   isLeft       = ( keyCode === 37 ),
                   hadSelection = hasSelection(state);
 
             if ( !hadSelection ) {
-                state.minSelectedStep      = activeStepOnStart;
-                state.maxSelectedStep      = activeStepOnStart;
+                state.minSelectedStep      = selectedStepOnStart;
+                state.maxSelectedStep      = selectedStepOnStart;
                 state.lastSelectedChannel  = activeChannelOnStart;
                 state.firstSelectedChannel = activeChannelOnStart;
                 state.lastSelectedChannel  = activeChannelOnStart;

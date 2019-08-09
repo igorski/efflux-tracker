@@ -147,15 +147,15 @@ export default {
         ]),
         ...mapState({
             displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== false,
+            selectedSlot: state => state.editor.selectedSlot
         }),
         ...mapGetters([
             'getCopy',
-            'activeSong',
-            'activeSlot',
+            'activeSong'
         ]),
         canLaunch() {
             return AudioService.isSupported();
-        },
+        }
     },
     watch: {
         menuOpened(isOpen) {
@@ -173,9 +173,7 @@ export default {
             this.resetEditor();
             this.resetHistory();
             this.createLinkedList(song);
-            this.setActiveInstrument(0);
             this.setActivePattern(0);
-            this.setActiveStep(0);
             this.setPlaying(false);
             this.clearSelection();
 
@@ -190,9 +188,9 @@ export default {
         /**
          * synchronize editor module changes with keyboard service
          */
-        activeSlot() {
+        selectedSlot() {
             this.syncKeyboard();
-        },
+        }
     },
     async created() {
         // expose publish / subscribe bus to integrate with outside API's
@@ -239,10 +237,7 @@ export default {
             'prepareLinkedList',
             'createLinkedList',
             'setActiveSong',
-            'setActiveInstrument',
             'setActivePattern',
-            'setActiveStep',
-            'setActiveInstrument',
             'setAmountOfSteps',
             'setPlaying',
             'setWindowSize',

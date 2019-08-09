@@ -72,7 +72,7 @@ export default {
 
         // no module param defined yet ? create as duplicate of previously defined property
         if ( !event.mp ) {
-            const prevEvent = getPreviousEventWithModuleAutomation(state.editor.activeStep);
+            const prevEvent = getPreviousEventWithModuleAutomation(state.editor.selectedStep);
             Vue.set(event, 'mp', EventFactory.createModuleParam(
                 ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : 'volume', 50, false
             ));
@@ -93,7 +93,7 @@ function getPreviousEventWithModuleAutomation( step ) {
         prevEvent = EventUtil.getFirstEventBeforeStep(
             state.song.activeSong
                 .patterns[ state.sequencer.activePattern ]
-                .channels[ state.editor.activeInstrument ], step
+                .channels[ state.editor.selectedInstrument ], step
         );
         step = ( prevEvent ) ? step - 1 : 0;
     }
@@ -105,17 +105,17 @@ function getPreviousEventWithModuleAutomation( step ) {
 function getEventForPosition( createIfNotExisting ) {
     let event = state.song.activeSong
                     .patterns[ state.sequencer.activePattern ]
-                    .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
+                    .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
     if ( !event && createIfNotExisting === true ) {
 
-        event = EventFactory.createAudioEvent(state.editor.activeInstrument);
+        event = EventFactory.createAudioEvent(state.editor.selectedInstrument);
         store.commit('addEventAtPosition', {
             store, event,
             optData: {
                 patternIndex      : state.sequencer.activePattern,
-                channelIndex      : state.editor.activeInstrument,
-                step              : state.editor.activeStep,
+                channelIndex      : state.editor.selectedInstrument,
+                step              : state.editor.selectedStep,
                 newEvent          : true,
                 advanceOnAddition : false
             }

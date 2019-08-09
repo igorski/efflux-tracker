@@ -170,16 +170,16 @@ function getModuleByFirstTwoLetters( letters, selectedModule ) {
 function getEventForPosition( createIfNotExisting ) {
     let event = state.song.activeSong
                     .patterns[ state.sequencer.activePattern ]
-                    .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
+                    .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
     if ( !event && createIfNotExisting === true ) {
 
-        event = EventFactory.createAudioEvent(state.editor.activeInstrument);
+        event = EventFactory.createAudioEvent(state.editor.selectedInstrument);
         store.commit('addEventAtPosition', {
             event, store, optData: {
                 patternIndex      : state.sequencer.activePattern,
-                channelIndex      : state.editor.activeInstrument,
-                step              : state.editor.activeStep,
+                channelIndex      : state.editor.selectedInstrument,
+                step              : state.editor.selectedStep,
                 newEvent          : true,
                 advanceOnAddition : false
             }

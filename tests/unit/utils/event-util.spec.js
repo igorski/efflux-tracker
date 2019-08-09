@@ -1,8 +1,8 @@
-import EventUtil      from '../../../src/utils/event-util';
-import LinkedList     from '../../../src/utils/linked-list';
-import EventFactory   from '../../../src/model/factory/event-factory';
-import PatternFactory from '../../../src/model/factory/pattern-factory';
-import SongFactory    from '../../../src/model/factory/song-factory';
+import EventUtil      from '@/utils/event-util';
+import LinkedList     from '@/utils/linked-list';
+import EventFactory   from '@/model/factory/event-factory';
+import PatternFactory from '@/model/factory/pattern-factory';
+import SongFactory    from '@/model/factory/song-factory';
 
 describe( 'EventUtil', () => {
     let song;

@@ -1,6 +1,6 @@
-import Config         from '../../../../src/config';
-import EventFactory   from '../../../../src/model/factory/event-factory';
-import EventValidator from '../../../../src/model/validators/event-validator';
+import Config         from '@/config';
+import EventFactory   from '@/model/factory/event-factory';
+import EventValidator from '@/model/validators/event-validator';
 
 describe('EventFactory', () => {
     it('should be able to generate a valid Event Object', () => {

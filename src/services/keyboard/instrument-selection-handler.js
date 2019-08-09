@@ -44,7 +44,7 @@ export default {
         if ( keyCode >= ZERO && keyCode <= MAX_ACCEPTED_KEYCODE ) {
             const event = state.song.activeSong
                             .patterns[ state.sequencer.activePattern ]
-                            .channels[ state.editor.activeInstrument ][ state.editor.activeStep ];
+                            .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
             if ( event ) {
                 Vue.set(event, 'instrument', keyCode - ZERO);

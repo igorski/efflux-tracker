@@ -142,20 +142,15 @@ the suffix "_.spec_", e.g. _functions.js_ will have a test file _functions.spec.
 
 ## TODO VUE MIGRATION
 
-move instrumentModule active oscillator and instrument to editorModule
-
 igorski.nl share integration
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 igorski.nl Analytics
 
 HANDLE_SAVE and VALIDATE_AND_GET_SONG message from outside > trigger save in menu
 
-editormodule.activeStep/activeInstrument > should become selected step/instrument (setters and mapped getters too)!
-activeInstrument > name activeChannel across the app
 currentMeasure SHOULD BE REPLACED WITH activePattern (these wre tracked twice!?)
 
 animate pattern input on switch
-editormodule -> active/step/instrument should be renamed to reflect they are being edited
 
 check mobile styles ?
 submit to madewithvue :D

@@ -32,26 +32,31 @@ export default {
     state: {
         /**
          * which instrument is currently selected
+         * this is represented in the track list as a column
+         * as each instrument has it dedicated output channel, this
+         * is also analogous to the currently selected channel
          *
          * @type {number}
          */
-        activeInstrument: 0,
+        selectedInstrument: 0,
     
         /**
          * which pattern step is currently selected
+         * this is represented in the track list as a row
          *
          * @type {number}
          */
-        activeStep: 0,
+        selectedStep: 0,
     
         /**
          * which parameter slot within an instruments step
          * is currently selected (e.g. note 0, instrument 1, module parameter 2 or module parameter value 3)
          * -1 indicates no deliberate slot was selected
+         * this is represented in the track list as a column within the selected row
          *
          * @type {number}
          */
-        activeSlot: -1,
+        selectedSlot: -1,
     
         /**
          * the root octave of the lower keyboard note range
@@ -67,6 +72,15 @@ export default {
          */
         lowerKeyboardOctave: 2,
 
+
+        /**
+         * the oscillator that is currently being edited
+         * in the instrument-editor
+         *
+         * @type {number}
+         */
+        selectedOscillatorIndex : 0,
+
         /**
          * linked list that is used to chain all song pattern
          * events sequentially, used for fast lookup and editing
@@ -76,24 +90,24 @@ export default {
          */
         eventList: null
     },
-    getters: {
-        activeSlot: state => state.activeSlot
-    },
     mutations: {
-        setActiveSlot(state, value) {
-            state.activeSlot = Math.max(-1, Math.min(3, value));
+        setSelectedInstrument(state, value) {
+            state.selectedInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
         },
-        setActiveInstrument(state, value) {
-            state.activeInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
+        setSelectedStep(state, value) {
+            state.selectedStep = Math.max(0, value);
         },
-        setActiveStep(state, value) {
-            state.activeStep = Math.max(0, value);
+        setSelectedSlot(state, value) {
+            state.selectedSlot = Math.max(-1, Math.min(3, value));
         },
         setHigherKeyboardOctave(state, value) {
             state.higherKeyboardOctave = value;
         },
         setLowerKeyboardOctave(state, value) {
             state.lowerKeyboardOctave = value;
+        },
+        setSelectedOscillatorIndex(state, index) {
+            state.selectedOscillatorIndex = index;
         },
         prepareLinkedList(state) {
             state.eventList = new Array(Config.INSTRUMENT_AMOUNT);
@@ -106,8 +120,8 @@ export default {
             EventUtil.linkEvents(song.patterns, state.eventList);
         },
         resetEditor(state) {
-            state.activeInstrument =
-            state.activeStep       = 0;
+            state.selectedInstrument =
+            state.selectedStep       = 0;
         }
     }
 };

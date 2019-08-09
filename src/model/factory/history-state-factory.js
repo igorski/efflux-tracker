@@ -75,8 +75,8 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
     // e.g. undo/redo action performed when viewing another pattern)
 
     let patternIndex = store.state.sequencer.activePattern,
-        channelIndex = store.state.editor.activeInstrument,
-        step         = store.state.editor.activeStep;
+        channelIndex = store.state.editor.selectedInstrument,
+        step         = store.state.editor.selectedStep;
 
     // currently active instrument and pattern (e.g. visible on screen)
 
@@ -176,9 +176,9 @@ function deleteSingleEventOrSelectionAction({ store } ) {
     const song             = store.state.song.activeSong,
           eventList        = store.state.editor.eventList,
           activePattern    = store.state.sequencer.activePattern,
-          activeInstrument = store.state.editor.activeInstrument,
-          activeStep       = store.state.editor.activeStep,
-          event            = song.patterns[ activePattern ].channels[ activeInstrument ][ activeStep ];
+          selectedInstrument = store.state.editor.selectedInstrument,
+          selectedStep       = store.state.editor.selectedStep,
+          event            = song.patterns[ activePattern ].channels[ selectedInstrument ][ selectedStep ];
 
     // if a selection is set, store its state for redo purposes
 
@@ -202,9 +202,9 @@ function deleteSingleEventOrSelectionAction({ store } ) {
             EventUtil.clearEvent(
                 song,
                 activePattern,
-                activeInstrument,
-                activeStep,
-                eventList[ activeInstrument ]
+                selectedInstrument,
+                selectedStep,
+                eventList[ selectedInstrument ]
             );
         }
     }
@@ -219,7 +219,7 @@ function deleteSingleEventOrSelectionAction({ store } ) {
             if ( hadSelection ) {
 
                 store.commit('pasteSelection', {
-                    song, activePattern, activeInstrument, activeStep, eventList, optSelectionContent: selection
+                    song, activePattern, selectedInstrument, selectedStep, eventList, optSelectionContent: selection
                 });
             }
             else {
@@ -228,8 +228,8 @@ function deleteSingleEventOrSelectionAction({ store } ) {
                     store,
                     optData: {
                         patternIndex: activePattern,
-                        channelIndex: activeInstrument,
-                        step: activeStep
+                        channelIndex: selectedInstrument,
+                        step: selectedStep
                     },
                     optStoreInUndoRedo: false, // prevents storing in undo/redo again, kinda important!
                 });
@@ -262,8 +262,8 @@ function cutSelectionAction({ store }) {
     const song = store.state.song.activeSong;
 
     if ( !store.getters.hasSelection) {
-        store.commit('setSelectionChannelRange', { firstChannel: store.state.editor.activeInstrument });
-        store.commit('setSelection', { selectionStart: store.state.editor.activeStep });
+        store.commit('setSelectionChannelRange', { firstChannel: store.state.editor.selectedInstrument });
+        store.commit('setSelection', { selectionStart: store.state.editor.selectedStep });
     }
     const activePattern   = store.state.sequencer.activePattern;
     const firstChannel    = store.state.selection.firstSelectedChannel;
@@ -351,8 +351,8 @@ function pasteSelectionAction({ store }) {
     const song             = store.state.song.activeSong,
           eventList        = store.state.editor.eventList,
           activePattern    = store.state.sequencer.activePattern,
-          activeInstrument = store.state.editor.activeInstrument,
-          activeStep       = store.state.editor.activeStep;
+          selectedInstrument = store.state.editor.selectedInstrument,
+          selectedStep       = store.state.editor.selectedStep;
 
     const originalPatternData = clonePattern( song, activePattern );
 
@@ -367,7 +367,7 @@ function pasteSelectionAction({ store }) {
         if ( pastedData ) {
             Vue.set(song.patterns, activePattern, pastedData);
         } else {
-            store.commit('pasteSelection', { song, eventList, activePattern, activeInstrument, activeStep });
+            store.commit('pasteSelection', { song, eventList, activePattern, selectedInstrument, selectedStep });
             pastedData = clonePattern( song, activePattern );
         }
     }

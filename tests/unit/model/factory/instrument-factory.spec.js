@@ -1,5 +1,5 @@
-import InstrumentFactory   from '../../../../src/model/factory/instrument-factory';
-import InstrumentValidator from '../../../../src/model/validators/instrument-validator';
+import InstrumentFactory   from '@/model/factory/instrument-factory';
+import InstrumentValidator from '@/model/validators/instrument-validator';
 
 describe('InstrumentFactory', () => {
     it('should be able to create a valid Instrument', () => {

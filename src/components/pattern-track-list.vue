@@ -46,7 +46,7 @@
                     <li v-for="(event, stepIndex) in channel"
                         :key="`channel_${channelIndex}_${stepIndex}`"
                         :class="{
-                            active: stepIndex === activeStep && channelIndex === activeInstrument,
+                            active: stepIndex === selectedStep && channelIndex === selectedInstrument,
                             selected: isStepSelected(channelIndex, stepIndex),
                             playing: stepIndex === playingStep
                         }"
@@ -139,9 +139,9 @@ export default {
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
             currentStep: state => state.sequencer.currentStep,
-            activeInstrument: state => state.editor.activeInstrument,
-            activeStep: state => state.editor.activeStep,
-            activeSlot: state => state.editor.activeSlot,
+            selectedInstrument: state => state.editor.selectedInstrument,
+            selectedStep: state => state.editor.selectedStep,
+            selectedSlot: state => state.editor.selectedSlot,
             stepPrecision: state => state.sequencer.stepPrecision,
             selectedChannels: state => state.selection.selectedChannels,
             minSelectedStep: state => state.selection.minSelectedStep,
@@ -172,7 +172,7 @@ export default {
     watch: {
         activePattern() {
             this.clearSelection();
-            this.setActiveSlot(-1);
+            this.setSelectedSlot(-1);
             this.pContainerSteps = [];
         },
         currentStep(step) {
@@ -198,8 +198,8 @@ export default {
         windowSize() {
             this.cacheDimensions();
         },
-        activeStep() { this.focusActiveStep() },
-        activeSlot() { this.focusActiveStep() },
+        selectedStep() { this.focusActiveStep() },
+        selectedSlot() { this.focusActiveStep() },
     },
     mounted() {
         this.$nextTick(() => {
@@ -210,10 +210,10 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setActiveInstrument',
+            'setSelectedInstrument',
             'setActivePattern',
-            'setActiveSlot',
-            'setActiveStep',
+            'setSelectedSlot',
+            'setSelectedStep',
             'openModal',
             'setHelpTopic',
             'clearSelection',
@@ -229,7 +229,7 @@ export default {
             return this.selectedChannels[channelIndex] && this.selectedChannels[channelIndex].includes(stepIndex);
         },
         isSlotHighlighted(channelIndex, stepIndex, slotIndex) {
-            return channelIndex === this.activeInstrument && stepIndex === this.activeStep && slotIndex === this.activeSlot;
+            return channelIndex === this.selectedInstrument && stepIndex === this.selectedStep && slotIndex === this.selectedSlot;
         },
         /**
          * ensure the currently active step (after a keyboard navigation)
@@ -240,10 +240,10 @@ export default {
             const left       = this.container.scrollLeft;
             const bottom     = top + this.containerHeight;
             const right      = left + this.containerWidth;
-            const slotLeft   = this.activeInstrument * STEP_WIDTH;
-            const slotRight  = ( this.activeInstrument + 1 ) * STEP_WIDTH;
-            const slotTop    = this.activeStep * STEP_HEIGHT;
-            const slotBottom = ( this.activeStep + 1 ) * STEP_HEIGHT;
+            const slotLeft   = this.selectedInstrument * STEP_WIDTH;
+            const slotRight  = ( this.selectedInstrument + 1 ) * STEP_WIDTH;
+            const slotTop    = this.selectedStep * STEP_HEIGHT;
+            const slotBottom = ( this.selectedStep + 1 ) * STEP_HEIGHT;
 
             if ( slotBottom >= bottom ) {
                 this.container.scrollTop = slotBottom - this.containerHeight;
@@ -299,8 +299,8 @@ export default {
         handleSlotClick(event) {
             const pContainers = this.$refs.pattern;
             const shiftDown = KeyboardService.hasShift();
-            let selectionChannelStart = this.activeInstrument,
-                selectionStepStart    = this.activeStep;
+            let selectionChannelStart = this.selectedInstrument,
+                selectionStepStart    = this.selectedStep;
             let found = false;
 
             if (this.hasSelection) {
@@ -317,8 +317,8 @@ export default {
                 let j = items.length;
                 while ( j-- ) {
                     if ( items[ j ] === event.target ) {
-                        if ( i !== this.activeInstrument ) {
-                            this.setActiveInstrument(i); // when entering a new channel lane, make default instrument match index
+                        if ( i !== this.selectedInstrument ) {
+                            this.setSelectedInstrument(i); // when entering a new channel lane, make default instrument match index
                         }
 
                         // if shift was held down, we're making a selection
@@ -329,8 +329,8 @@ export default {
                         else
                             this.clearSelection();
 
-                        this.setActiveStep(j);
-                        this.setActiveSlot(-1);
+                        this.setSelectedStep(j);
+                        this.setSelectedSlot(-1);
 
                         if (!shiftDown && event.type === 'click')
                             this.selectSlotWithinClickedStep(event);
@@ -365,7 +365,7 @@ export default {
                 else if (startContainer.classList.contains('instrument'))
                     slot = 1;
             }
-            this.setActiveSlot(slot);
+            this.setSelectedSlot(slot);
         },
         /**
          * maintain a cache for step slots within a single pattern container

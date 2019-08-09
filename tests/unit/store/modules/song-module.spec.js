@@ -1,11 +1,11 @@
-import songModule    from '../../../../src/store/modules/song-module';
-import SongValidator from '../../../../src/model/validators/song-validator';
+import songModule    from '@/store/modules/song-module';
+import SongValidator from '@/model/validators/song-validator';
 
 const { getters, actions } = songModule;
 
 // mock storage
 
-jest.mock('../../../../src/utils/storage-util', () => ({
+jest.mock('@/utils/storage-util', () => ({
     setItem: jest.fn()
 }));
 

@@ -44,8 +44,8 @@
         <ul id="oscillatorTabs" class="tab-list">
             <li v-for="(oscillator, idx) in oscillatorAmount"
                 :key="`oscillator_${idx}`"
-                :class="{ active: activeOscillatorIndex === idx }"
-                @click="setActiveOscillatorIndex(idx)"
+                :class="{ active: selectedOscillatorIndex === idx }"
+                @click="setSelectedOscillatorIndex(idx)"
             >
                 Oscillator {{ idx + 1 }}
             </li>
@@ -53,15 +53,15 @@
         <div>
             <oscillator-editor
                 :instrument-ref="instrumentRef"
-                :instrument-id="activeInstrument"
-                :oscillator-index="activeOscillatorIndex"
+                :instrument-id="selectedInstrument"
+                :oscillator-index="selectedOscillatorIndex"
                 @invalidate="invalidatePreset"
             />
 
             <!-- part 2: modules -->
             <module-editor
                 :instrument-ref="instrumentRef"
-                :instrument-id="activeInstrument"
+                :instrument-id="selectedInstrument"
                 @invalidate="invalidatePreset"
             />
         </div>
@@ -115,8 +115,8 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activeInstrument: state => state.editor.activeInstrument,
-            activeOscillatorIndex: state => state.instrument.activeOscillatorIndex,
+            selectedInstrument: state => state.editor.selectedInstrument,
+            selectedOscillatorIndex: state => state.editor.selectedOscillatorIndex,
             instruments: state => state.instrument.instruments,
         }),
         ...mapGetters([
@@ -125,10 +125,10 @@ export default {
         ]),
         instrument: {
             get() {
-                return this.activeInstrument;
+                return this.selectedInstrument;
             },
             set(value) {
-                this.setActiveInstrument(value); // allows live keyboard/MIDI playing to use new instrument
+                this.setSelectedInstrument(value); // allows live keyboard/MIDI playing to use new instrument
                 const instrumentPresetName = this.instrumentRef.presetName;
                 if (this.presets.find(({ presetName }) => presetName === instrumentPresetName)) {
                     this.currentPreset = instrumentPresetName;
@@ -138,7 +138,7 @@ export default {
             },
         },
         instrumentRef() {
-            return this.activeSong.instruments[this.activeInstrument];
+            return this.activeSong.instruments[this.selectedInstrument];
         },
         presets() {
             const out = [
@@ -169,24 +169,24 @@ export default {
                     return;
                 }
                 const newInstrument = InstrumentFactory.loadPreset(
-                    instrumentPreset, this.activeInstrument, this.instrumentRef.name
+                    instrumentPreset, this.selectedInstrument, this.instrumentRef.name
                 );
-                this.replaceInstrument({ instrumentIndex: this.activeInstrument, instrument: newInstrument });
+                this.replaceInstrument({ instrumentIndex: this.selectedInstrument, instrument: newInstrument });
                 this.presetName = selectedPresetName;
-                this.setActiveOscillatorIndex(0);
-                AudioService.cacheAllOscillators(this.activeInstrument, newInstrument);
+                this.setSelectedOscillatorIndex(0);
+                AudioService.cacheAllOscillators(this.selectedInstrument, newInstrument);
                 AudioService.applyModules(this.activeSong);
             }
         },
     },
     created() {
         EMPTY_PRESET_VALUE = this.getCopy('INPUT_PRESET');
-        this.instrument = this.activeInstrument; // last active instrument in editor will be opened
+        this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
     },
     methods: {
         ...mapMutations([
-            'setActiveInstrument',
-            'setActiveOscillatorIndex',
+            'setSelectedInstrument',
+            'setSelectedOscillatorIndex',
             'suspendKeyboardService',
             'showError',
             'showNotification',

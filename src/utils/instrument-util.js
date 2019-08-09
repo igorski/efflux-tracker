@@ -229,7 +229,7 @@ function recordEventIntoSong( audioEvent, store ) {
         const song          = store.state.song.activeSong;
         const activePattern = store.state.sequencer.activePattern;
         const pattern       = song.patterns[ activePattern ];
-        const channel       = pattern.channels[ store.state.editor.activeInstrument ];
+        const channel       = pattern.channels[ store.state.editor.selectedInstrument ];
         const step          = Math.round( store.getters.position.step / 64 * store.getters.amountOfSteps );
 
         EventUtil.setPosition(
@@ -245,7 +245,7 @@ function recordEventIntoSong( audioEvent, store ) {
         Vue.set(channel, step, audioEvent );
 
         // update linked list for AudioEvents
-        EventUtil.linkEvent( audioEvent, store.state.editor.activeInstrument, song, store.state.editor.eventList );
+        EventUtil.linkEvent( audioEvent, store.state.editor.selectedInstrument, song, store.state.editor.eventList );
     }
     else {
         // sequencer isn't playing, add event at current editor step

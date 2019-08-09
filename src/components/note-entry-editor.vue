@@ -112,8 +112,8 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
-            activeInstrument: state => state.editor.activeInstrument,
-            activeStep: state => state.editor.activeStep,
+            selectedInstrument: state => state.editor.selectedInstrument,
+            selectedStep: state => state.editor.selectedStep,
         }),
     },
     created() {
@@ -121,8 +121,8 @@ export default {
         // where we would like to add/edit a note event
 
         this.patternIndex = this.activePattern;
-        this.channelIndex = this.activeInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
-        this.step         = this.activeStep;
+        this.channelIndex = this.selectedInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
+        this.step         = this.selectedStep;
 
         // use our own custom keyboard handler for easy editing
 
@@ -133,16 +133,16 @@ export default {
 
         const pattern = this.activeSong.patterns[this.patternIndex],
               channel = pattern.channels[this.channelIndex],
-              event   = channel[this.activeStep];
+              event   = channel[this.selectedStep];
 
         // by default take the previously declared events instrument as the target instrument for the new event
         // otherwise take the active instrument as the target instrument
 
-        const previousEvent = EventUtil.getFirstEventBeforeStep(channel, this.activeStep, previousEvent => {
+        const previousEvent = EventUtil.getFirstEventBeforeStep(channel, this.selectedStep, previousEvent => {
             // ignore off events as they do not specify an instrument
             return previousEvent.action !== 2;
         });
-        this.instrument = ( previousEvent ) ? previousEvent.instrument : this.activeInstrument;
+        this.instrument = ( previousEvent ) ? previousEvent.instrument : this.selectedInstrument;
 
         if (event) {
             this.instrument = event.instrument;

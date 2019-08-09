@@ -1,6 +1,6 @@
-import PatternUtil    from '../../../src/utils/pattern-util';
-import EventFactory   from '../../../src/model/factory/event-factory';
-import PatternFactory from '../../../src/model/factory/pattern-factory';
+import PatternUtil    from '@/utils/pattern-util';
+import EventFactory   from '@/model/factory/event-factory';
+import PatternFactory from '@/model/factory/pattern-factory';
 
 describe( 'PatternUtil', () => {
     it( 'should be able to add a new pattern at the given insertion index', () => {

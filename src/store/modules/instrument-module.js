@@ -39,13 +39,6 @@ export default {
          * @type {Array.<Object>}
          */
         instruments : [],
-
-        /* used when editing Instruments */
-
-        /**
-         * @type {number}
-         */
-        activeOscillatorIndex : 0,
     },
     getters: {
         getInstruments(state) {
@@ -61,9 +54,6 @@ export default {
         },
         addInstrument(state, instrument) {
             state.instruments.push(instrument);
-        },
-        setActiveOscillatorIndex(state, index) {
-            state.activeOscillatorIndex = index;
         },
         setPresetName(state, { instrument, presetName }) {
             instrument.presetName = presetName;

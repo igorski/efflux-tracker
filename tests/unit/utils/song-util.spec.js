@@ -1,7 +1,7 @@
-import EventFactory   from '../../../src/model/factory/event-factory';
-import PatternFactory from '../../../src/model/factory/pattern-factory';
-import SongFactory    from '../../../src/model/factory/song-factory';
-import SongUtil       from '../../../src/utils/song-util';
+import EventFactory   from '@/model/factory/event-factory';
+import PatternFactory from '@/model/factory/pattern-factory';
+import SongFactory    from '@/model/factory/song-factory';
+import SongUtil       from '@/utils/song-util';
 
 describe( 'SongUtil', () => {
     let song;

@@ -1,5 +1,5 @@
-import EventFactory   from '../../../../src/model/factory/event-factory';
-import EventValidator from '../../../../src/model/validators/event-validator';
+import EventFactory   from '@/model/factory/event-factory';
+import EventValidator from '@/model/validators/event-validator';
 
 describe('EventValidator', () => {
 

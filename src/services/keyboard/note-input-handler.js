@@ -44,7 +44,7 @@ export default {
         if ( note !== null ) {
             InstrumentUtil.noteOn(
                 note,
-                state.song.activeSong.instruments[state.editor.activeInstrument],
+                state.song.activeSong.instruments[state.editor.selectedInstrument],
                 state.sequencer.recording,
                 store
             );

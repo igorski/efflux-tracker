@@ -1,7 +1,7 @@
-import Config           from '../../../../src/config';
-import EventFactory     from '../../../../src/model/factory/event-factory';
-import PatternFactory   from '../../../../src/model/factory/pattern-factory';
-import PatternValidator from '../../../../src/model/validators/pattern-validator';
+import Config           from '@/config';
+import EventFactory     from '@/model/factory/event-factory';
+import PatternFactory   from '@/model/factory/pattern-factory';
+import PatternValidator from '@/model/validators/pattern-validator';
 
 describe('PatternFactory', () => {
     it('should be able to generate a valid pattern', () => {
