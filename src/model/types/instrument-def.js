@@ -23,6 +23,7 @@
 
 /**
  * type definition for an instrument
+ * id matches the index in the songs instrument list
  *
  * @typedef {{
  *     id: number,

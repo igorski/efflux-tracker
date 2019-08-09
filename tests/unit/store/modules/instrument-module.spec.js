@@ -47,12 +47,6 @@ describe('InstrumentModel', () => {
             expect(state.instruments).toEqual([{ foo: 'bar' }, { baz: 'qux' }]);
         });
 
-        it('should be able to set the currently editing instrument id', () => {
-            const state = { instrumentId: 0 };
-            mutations.setInstrumentId(state, 1);
-            expect(state.instrumentId).toEqual(1);
-        });
-
         it('should be able to set the currently editing oscillator index', () => {
             const state = { activeOscillatorIndex: 0 };
             mutations.setActiveOscillatorIndex(state, 1);

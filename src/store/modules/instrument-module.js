@@ -46,11 +46,6 @@ export default {
          * @type {number}
          */
         activeOscillatorIndex : 0,
-
-        /**
-         * @type {number}
-         */
-        instrumentId : 0,
     },
     getters: {
         getInstruments(state) {
@@ -67,15 +62,12 @@ export default {
         addInstrument(state, instrument) {
             state.instruments.push(instrument);
         },
-        setInstrumentId(state, id) {
-            state.instrumentId = id;
-        },
         setActiveOscillatorIndex(state, index) {
             state.activeOscillatorIndex = index;
         },
         setPresetName(state, { instrument, presetName }) {
             instrument.presetName = presetName;
-        },
+        }
     },
     actions: {
         loadStoredInstruments({ state, commit }) {

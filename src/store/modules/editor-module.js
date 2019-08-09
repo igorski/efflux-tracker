@@ -77,7 +77,7 @@ export default {
         eventList: null
     },
     getters: {
-        activeSlot: state => state.activeSlot,
+        activeSlot: state => state.activeSlot
     },
     mutations: {
         setActiveSlot(state, value) {

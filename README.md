@@ -142,7 +142,8 @@ the suffix "_.spec_", e.g. _functions.js_ will have a test file _functions.spec.
 
 ## TODO VUE MIGRATION
 
-move instrumentModule active oscillator and instrument to editorModule (can we remove instrumentModule.instrumentId and rely on editor.activeInstrument instead??)
+move instrumentModule active oscillator and instrument to editorModule
+
 igorski.nl share integration
 ensure Message.js is replaced with appropriate state mutations / minimize pubsub
 igorski.nl Analytics

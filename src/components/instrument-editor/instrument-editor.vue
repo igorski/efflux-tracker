@@ -53,7 +53,7 @@
         <div>
             <oscillator-editor
                 :instrument-ref="instrumentRef"
-                :instrument-id="instrumentId"
+                :instrument-id="activeInstrument"
                 :oscillator-index="activeOscillatorIndex"
                 @invalidate="invalidatePreset"
             />
@@ -61,7 +61,7 @@
             <!-- part 2: modules -->
             <module-editor
                 :instrument-ref="instrumentRef"
-                :instrument-id="instrumentId"
+                :instrument-id="activeInstrument"
                 @invalidate="invalidatePreset"
             />
         </div>
@@ -116,7 +116,6 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activeInstrument: state => state.editor.activeInstrument,
-            instrumentId: state => state.instrument.instrumentId,
             activeOscillatorIndex: state => state.instrument.activeOscillatorIndex,
             instruments: state => state.instrument.instruments,
         }),
@@ -126,10 +125,9 @@ export default {
         ]),
         instrument: {
             get() {
-                return this.instrumentId;
+                return this.activeInstrument;
             },
             set(value) {
-                this.setInstrumentId(value);
                 this.setActiveInstrument(value); // allows live keyboard/MIDI playing to use new instrument
                 const instrumentPresetName = this.instrumentRef.presetName;
                 if (this.presets.find(({ presetName }) => presetName === instrumentPresetName)) {
@@ -140,7 +138,7 @@ export default {
             },
         },
         instrumentRef() {
-            return this.activeSong.instruments[this.instrumentId];
+            return this.activeSong.instruments[this.activeInstrument];
         },
         presets() {
             const out = [
@@ -167,16 +165,16 @@ export default {
             if (selectedPresetName !== EMPTY_PRESET_VALUE &&
                 this.instrumentRef.presetName !== selectedPresetName) {
                 const instrumentPreset = this.getInstrumentByPresetName(selectedPresetName);
-                if (!instrumentPreset)
+                if (!instrumentPreset) {
                     return;
-
+                }
                 const newInstrument = InstrumentFactory.loadPreset(
-                    instrumentPreset, this.instrumentId, this.instrumentRef.name
+                    instrumentPreset, this.activeInstrument, this.instrumentRef.name
                 );
-                this.replaceInstrument({ instrumentIndex: this.instrumentId, instrument: newInstrument });
+                this.replaceInstrument({ instrumentIndex: this.activeInstrument, instrument: newInstrument });
                 this.presetName = selectedPresetName;
                 this.setActiveOscillatorIndex(0);
-                AudioService.cacheAllOscillators(this.instrumentId, newInstrument);
+                AudioService.cacheAllOscillators(this.activeInstrument, newInstrument);
                 AudioService.applyModules(this.activeSong);
             }
         },
@@ -194,7 +192,6 @@ export default {
             'showNotification',
             'updateInstrument',
             'replaceInstrument',
-            'setInstrumentId',
             'setPresetName',
         ]),
         ...mapActions([
