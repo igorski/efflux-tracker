@@ -34,24 +34,24 @@
                 <li>
                     <a class="title" @click.prevent="">File</a>
                     <ul id="fileMenu">
-                        <li @click="handleLoad">Load song</li>
+                        <li @click="handleLoad" data-api-song-load>Load song</li>
                         <li @click="handleSave">Save song</li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
                         <template v-if="hasImportExport">
                             <li @click="handleSongImport">Import song</li>
                             <li @click="handleSongExport">Export song</li>
                         </template>
-                        <li id="songReset" @click="handleReset">Reset song</li>
+                        <li id="songReset" @click="handleReset" data-api-song-reset>Reset song</li>
                         <template v-if="hasImportExport">
                             <li @click="handleInstrumentImport">Import instrument presets</li>
                             <li @click="handleInstrumentExport">Export instrument presets</li>
                         </template>
                     </ul>
                 </li>
-                <li @click="handleSettings">Settings</li>
+                <li @click="handleSettings" data-api-settings>Settings</li>
                 <li v-if="hasRecord"
-                    @click="handleRecord">Record output</li>
-                <li @click="handleHelp">Help</li>
+                    @click="handleRecord" data-api-record>Record output</li>
+                <li @click="handleHelp" data-api-help>Help</li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"
                     ref="fullscreenBtn"
