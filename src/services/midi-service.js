@@ -39,7 +39,7 @@ export default {
      * @param {zMIDIEvent} aEvent
      */
     handleMIDIMessage( aEvent ) {
-        noteValue = aEvent.valuel // we only deal with note on/off so these always reflect a NOTE
+        noteValue = aEvent.value; // we only deal with note on/off so these always reflect a NOTE
         pitch     = MIDINotes.getPitchByNoteNumber(noteValue);
 
         switch ( aEvent.type )
