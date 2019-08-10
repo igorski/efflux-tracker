@@ -494,11 +494,18 @@ export default {
           font-weight: bold;
           height: $stepHeight;
           @include boxSize();
+          @include animate(background-color, .75s); /* animated background highlight during playback */
+
+          span {
+            @include animate(color, .1s); /* animated text highlight during playback */
+          }
 
           &.playing {
-            background-color: rgba(255,255,255,.35) !important;
-            * {
-                color: #FFF !important;
+            transition: none;
+            background-color: rgba(255,255,255,.15) !important;
+            span {
+              color: #FFF !important;
+              transition: none;
             }
           }
 
@@ -513,12 +520,14 @@ export default {
           }
 
           &.selected {
+            transition: none;
             background-color: $color-2;
             border-color: $color-2;
             color: #000 !important;
 
             span {
               color: #000 !important;
+              transition: none;
             }
           }
 
@@ -571,8 +580,8 @@ export default {
     }
 
     .pattern-track-list-container {
-      // when the view should be following the sequencer we switch the odd/even pattern
-      // of the list for less eye strain (only the instructions will seem to be scrolling)
+      /* when the view should be following the sequencer we switch the odd/even pattern */
+      /* of the list for less eye strain (only the instructions will seem to be scrolling) */
       &.follow {
         .pattern li {
           &:nth-child(even) {
