@@ -154,20 +154,21 @@ export default {
         },
         handlePatternAdvanced() {
             this.openModal(ModalWindows.ADVANCED_PATTERN_EDITOR);
-        },
-    },
+        }
+    }
 };
 </script>
 
 <style lang="scss">
     @import '../styles/_variables.scss';
+    $width: 1150px;
 
     .pattern-editor {
       display: inline-block;
-      margin: 0 0 0 $spacing-medium;
+      margin: 0;
 
       h2 {
-          padding: 0 $spacing-large;
+          padding: 0 $spacing-small;
       }
 
       h4 {
@@ -196,10 +197,16 @@ export default {
       }
     }
 
-    /* tablet view */
+    /* large views and above */
 
-    @media screen and ( min-width: $app-width ) {
+    @media screen and ( min-width: $width ) {
       .pattern-editor {
+        margin: 0 0 0 $spacing-medium;
+
+        h2 {
+          padding: 0 $spacing-large;
+        }
+
         /* show divider before section content */
         &:before {
           content: "";

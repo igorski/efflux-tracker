@@ -339,7 +339,7 @@ export default {
     @import '@/styles/_layout.scss';
 
     #efflux {
-        @include noSelect;
+        @include noSelect();
     }
 
     .application-header {
@@ -352,7 +352,11 @@ export default {
       top: 0;
       z-index: 200;
       border-bottom: 3px solid #53565d;
-      @include boxSize;
+      @include boxSize();
+    }
+
+    #editor {
+      @include flex();
     }
 
     #blind {

@@ -147,6 +147,7 @@ export default {
 
     #helpSection {
         @include editorComponent();
+        @include inlineFlex();
         border-top-left-radius: 0;
         border-bottom-left-radius: 0;
         vertical-align: top;

@@ -104,7 +104,7 @@ export default {
                 this.activeSong, this.selectedStep, this.activePattern,
                 this.selectedInstrument, this.eventList, this.$store,
             );
-        },
+        }
     }
 };
 </script>
@@ -112,8 +112,8 @@ export default {
 <style lang="scss" scoped>
     @import '@/styles/_variables.scss';
 
-    #trackEditor
-    {
+    #trackEditor {
+      @include inlineFlex();
       background-color: #000;
       vertical-align: top;
       position: relative;

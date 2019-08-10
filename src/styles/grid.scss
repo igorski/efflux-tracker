@@ -1,14 +1,3 @@
-/* equal column heights for editor section */
-
-#editor {
-  @include flex();
-}
-
-#trackEditor,
-#helpSection {
-  @include inlineFlex();
-}
-
 /* standard width: large TABLET/LAPTOP */
 
 @media screen and (min-width: $app-width) {
@@ -125,6 +114,6 @@
 
 @media screen and (min-width: $ideal-width) {
   #editor {
-    margin-left: -766px;
+    margin-left: -( $ideal-width - $spacing-xlarge) / 2;
   }
 }
