@@ -5,6 +5,7 @@ input, select, button {
   font-size: 100%;
   padding: $spacing-small $spacing-medium;
   margin-right: $spacing-small;
+  @include boxSize();
 }
 
 input {
