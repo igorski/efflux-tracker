@@ -68,8 +68,10 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import HistoryStateFactory from '../model/factory/history-state-factory';
 import PatternFactory from '../model/factory/pattern-factory';
 import Config from '../config';
+import HistoryStates from '../definitions/history-states';
 import ModalWindows from '../definitions/modal-windows';
 import ObjectUtil from '../utils/object-util';
 import PatternUtil from '../utils/pattern-util';
@@ -82,11 +84,11 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
             activePattern: state => state.sequencer.activePattern,
-            mobileMode: state => state.mobileMode,
+            mobileMode: state => state.mobileMode
         }),
         ...mapGetters([
             'amountOfSteps',
-            'getCopy',
+            'getCopy'
         ]),
         patternStep: {
             get() {
@@ -101,9 +103,9 @@ export default {
     methods: {
         ...mapMutations([
             'setHelpTopic',
+            'saveState',
             'clearSelection',
             'createLinkedList',
-            'replacePattern',
             'replacePatterns',
             'setActivePattern',
             'setPatternSteps',
@@ -111,9 +113,8 @@ export default {
             'showError'
         ]),
         handlePatternClear() {
-            this.replacePattern({ patternIndex: this.activePattern, pattern: PatternFactory.createEmptyPattern(this.amountOfSteps) });
             this.clearSelection();
-            this.createLinkedList(this.activeSong);
+            this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_PATTERN, { store: this.$store }));
         },
         handlePatternCopy() {
             this.patternCopy = ObjectUtil.clone(this.activeSong.patterns[this.activePattern]);

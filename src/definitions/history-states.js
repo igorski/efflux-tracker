@@ -20,12 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+/**
+ * These define which actions can be added to state history, allowing to
+ * undo/redo them at will.
+ *
+ * @see history-state-factory and history-module
+ */
 export default
 {
     ADD_EVENT                : 'S:0',
     DELETE_EVENT             : 'S:1',
     DELETE_SELECTION         : 'S:2',
     DELETE_MODULE_AUTOMATION : 'S:3',
-    CUT_SELECTION            : 'S:4',
-    PASTE_SELECTION          : 'S:5'
+    DELETE_PATTERN           : 'S:4',
+    CUT_SELECTION            : 'S:5',
+    PASTE_SELECTION          : 'S:6'
 };
