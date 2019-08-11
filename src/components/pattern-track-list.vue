@@ -28,7 +28,7 @@
         >
             <div class="wrapper"
                  ref="wrapper"
-                 @click="handleInteraction"
+                 @mousedown="handleInteraction"
                  @dblclick="handleInteraction"
                  @touchstart.passive="handleInteraction"
                  @touchend.passive="handleInteraction"
@@ -332,7 +332,8 @@ export default {
                         this.setSelectedStep(j);
                         this.setSelectedSlot(-1);
 
-                        if (!shiftDown && event.type === 'click')
+                        // when using a mouse, select the clicked slot. on touch screens there is no benefit in slot selection
+                        if (!shiftDown && event.type === 'mousedown')
                             this.selectSlotWithinClickedStep(event);
 
                         if (event.type === 'dblclick') {
