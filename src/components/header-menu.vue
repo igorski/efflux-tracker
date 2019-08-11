@@ -320,8 +320,7 @@ export default {
         .menu {
             position: fixed;
             z-index: 2; // above transport controls
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden;
             width: 100%;
             height: inherit;
             top: 0;
@@ -329,6 +328,7 @@ export default {
 
             &.opened {
                 position: absolute;
+                 overflow-y: auto;
                 .menu-list {
                     left: 0;
                     display: block;
