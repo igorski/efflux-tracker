@@ -134,7 +134,7 @@ export default {
                             // convert the storage to the new memory-friendly format
 
                             for (let i = 0; i < songs.length; ++i) {
-                                if (typeof song !== 'string') {
+                                if (typeof songs[i] !== 'string') {
                                     break;
                                 }
                                 const song = JSON.parse(songs[i]);
