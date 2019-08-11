@@ -26,8 +26,8 @@
              :class="{ fixed: isFixed }"
     >
         <ul class="controls">
-            <li class="undo" :class="{ disabled: !canUndo }" @click="undo"></li>
-            <li class="redo" :class="{ disabled: !canRedo }" @click="redo"></li>
+            <li class="undo" :class="{ disabled: !canUndo }" @click="navigateHistory('undo')"></li>
+            <li class="redo" :class="{ disabled: !canRedo }" @click="navigateHistory('redo')"></li>
             <li class="add-on" @click="addNoteOn"></li>
             <li class="add-off" @click="addNoteOnOff"></li>
             <li class="remove-note" @click="deleteNote"></li>
@@ -54,6 +54,10 @@ export default {
         isFixed: false
     }),
     computed: {
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            eventList: state => state.editor.eventList
+        }),
         ...mapState([
             'windowSize',
             'windowScrollOffset',
@@ -114,6 +118,11 @@ export default {
                 this.activeSong, this.selectedStep, this.activePattern,
                 this.selectedInstrument, this.eventList, this.$store,
             );
+        },
+        async navigateHistory(action = 'undo') {
+            await this.$store.dispatch(action);
+            // TODO this is wasteful, can we do this more elegantly?
+            EventUtil.linkEvents(this.activeSong.patterns, this.eventList);
         }
     }
 };
