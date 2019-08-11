@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Vue         from 'vue';
 import Config      from '../../config';
 import StorageUtil from '../../utils/storage-util';
 
@@ -41,7 +42,7 @@ export default {
         PROPERTIES: {
             INPUT_FORMAT    : 'if',
             FOLLOW_PLAYBACK : 'fp',
-            DISPLAY_HELP    : 'dh',
+            DISPLAY_HELP    : 'dh'
         }
     },
     getters: {
@@ -52,11 +53,11 @@ export default {
             return null;
         },
         followPlayback: state => state._settings[state.PROPERTIES.FOLLOW_PLAYBACK] || false,
-        paramFormat: state => state._settings[state.PROPERTIES.INPUT_FORMAT],
+        paramFormat: state => state._settings[state.PROPERTIES.INPUT_FORMAT]
     },
     mutations: {
         saveSetting(state, { name, value }) {
-            state._settings[ name ] = value;
+            Vue.set(state._settings, name, value);
             persistState(state);
         },
         setStoredSettings(state, settings) {
