@@ -43,16 +43,14 @@ export default
      * @return {Object}
      */
     assemble( xtk ) {
-
         try {
-
-            xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
+            xtk = ( typeof xtk === 'string' ) ? JSON.parse( xtk ) : xtk;
 
             const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
 
             // first check if XTK had been saved after having been disassembled
 
-            if ( typeof xtkVersion === "number" ) {
+            if ( typeof xtkVersion === 'number' ) {
 
                 const song = {};
 
@@ -101,7 +99,7 @@ export default
     }
 };
 
-/* private conversion properties */
+/* internal methods */
 
 const ASSEMBLER_VERSION_CODE = "av",
 

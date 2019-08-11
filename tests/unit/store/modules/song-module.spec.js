@@ -6,7 +6,9 @@ const { getters, actions } = songModule;
 // mock storage
 
 jest.mock('@/utils/storage-util', () => ({
-    setItem: jest.fn()
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn()
 }));
 
 describe('Song module', () => {
@@ -53,7 +55,11 @@ describe('Song module', () => {
 
                 await actions.saveSong({ state, getters: mockedGetters, commit, dispatch }, song);
 
-                expect(state.songs).toEqual([song]);
+                // expected songs meta to have been saved into the song list
+                expect(state.songs).toEqual([{
+                    id: song.id,
+                    meta: song.meta
+                }]);
             });
 
             it('should update the modified timestamp when saving a song', async done => {
@@ -73,6 +79,11 @@ describe('Song module', () => {
                 }, 1);
             });
         });
+    });
+
+    xit('should be able to load songs from storage', async() => {
+        const song = await actions.createSong();
+        await actions.loadSong({}, song);
     });
 
     it('should be able to delete songs from storage', async () => {
