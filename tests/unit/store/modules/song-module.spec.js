@@ -1,7 +1,7 @@
 import songModule    from '@/store/modules/song-module';
 import SongValidator from '@/model/validators/song-validator';
 
-const { getters, actions } = songModule;
+const { getters, mutations, actions } = songModule;
 
 // mock storage
 
@@ -31,6 +31,14 @@ describe('Song module', () => {
         });
     });
 
+    describe('mutations', () => {
+        it('should be able to toggle the song save message state', () => {
+            const state = { showSaveMessage: false };
+            mutations.setShowSaveMessage(state, true);
+            expect(state.showSaveMessage).toBe(true);
+        })
+    });
+
     describe('actions', () => {
         it('should be able to create songs', async () => {
             const song = await actions.createSong();
@@ -46,12 +54,13 @@ describe('Song module', () => {
 
         describe('when saving songs', () => {
             const mockedGetters = { getCopy: jest.fn() };
-            const commit = jest.fn();
             const dispatch = jest.fn();
+            let commit;
 
-            it('should be able to save songs in storage', async () => {
+            it('should be able to save songs in storage and show a save message', async () => {
+                commit = jest.fn();
                 const song = await actions.createSong();
-                const state = { songs: [] };
+                const state = { songs: [], showSaveMessage: true };
 
                 await actions.saveSong({ state, getters: mockedGetters, commit, dispatch }, song);
 
@@ -60,9 +69,21 @@ describe('Song module', () => {
                     id: song.id,
                     meta: song.meta
                 }]);
+                expect(commit).toHaveBeenNthCalledWith(2, 'showNotification', { message: undefined });
+            });
+
+            it('should be able to save songs in storage and suppress the save message when requested', async () => {
+                commit = jest.fn();
+                const song = await actions.createSong();
+                const state = { songs: [], showSaveMessage: false };
+
+                await actions.saveSong({ state, getters: mockedGetters, commit, dispatch }, song);
+
+                expect(commit).not.toHaveBeenNthCalledWith(2, 'showNotification');
             });
 
             it('should update the modified timestamp when saving a song', async done => {
+                commit = jest.fn();
                 const song = await actions.createSong();
                 const state = { songs: [song] };
                 const org = song.meta.modified;

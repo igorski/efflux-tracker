@@ -38,7 +38,8 @@ const SONG_STORAGE_KEY = 'Efflux_Song_';
 export default {
     state: {
         songs: [], /** @type {Array.<Object>} */
-        activeSong: null
+        activeSong: null,
+        showSaveMessage: true
     },
     getters: {
         activeSong(state) {
@@ -119,6 +120,9 @@ export default {
         },
         replacePatterns(state, patterns) {
             Vue.set(state.activeSong, 'patterns', patterns);
+        },
+        setShowSaveMessage(state, value) {
+            state.showSaveMessage = !!value;
         }
     },
     actions: {
@@ -160,9 +164,11 @@ export default {
                     const songs = await FixturesLoader.load('Songs.json');
                     commit('setLoading', false);
                     if (Array.isArray(songs)) {
+                        commit('setShowSaveMessage', false);
                         for (let i = 0; i < songs.length; ++i) {
                             await dispatch('saveSong', SongAssemblyService.assemble(songs[i]));
                         }
+                        commit('setShowSaveMessage', true);
                     }
                 }
             );
@@ -197,7 +203,9 @@ export default {
                 StorageUtil.setItem(getStorageKeyForSong(song), SongAssemblyService.disassemble(song));
 
                 commit('publishMessage', PubSubMessages.SONG_SAVED);
-                commit('showNotification', { message: getters.getCopy('SONG_SAVED', song.meta.title) });
+                if (state.showSaveMessage) {
+                    commit('showNotification', { message: getters.getCopy('SONG_SAVED', song.meta.title) });
+                }
                 resolve();
             })
             .catch(() => {
@@ -302,9 +310,11 @@ export default {
                         // rudimentary check if we're dealing with a valid song
 
                         if (SongValidator.isValid(song)) {
+                            commit('setShowSaveMessage', false);
                             await dispatch('saveSong', song);
                             commit('setActiveSong', song);
                             commit('publishMessage', PubSubMessages.SONG_IMPORTED);
+                            commit('setShowSaveMessage', true);
                             resolve();
                         }
                         else {
