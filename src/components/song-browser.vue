@@ -139,6 +139,10 @@ export default {
             h2 {
                 color: #000;
             }
+
+            .close-button {
+                top: $spacing-small;
+            }
         }
 
         ul {

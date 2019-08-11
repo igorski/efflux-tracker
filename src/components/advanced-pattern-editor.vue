@@ -23,11 +23,11 @@
 <template>
     <div id="advancedPatternEditor">
         <div class="header">
+            <h4 class="title">Advanced pattern editor</h4>
             <button type="button"
                     class="close-button"
                     @click="handleClose">x</button>
         </div>
-        <h4>Advanced pattern editor</h4>
         <fieldset>
             <div class="wrapper input">
                 <label>Copy pattern range:</label>
@@ -178,7 +178,7 @@ export default {
       border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
     
-      h4 {
+      .title {
         margin: $spacing-medium 0;
       }
     

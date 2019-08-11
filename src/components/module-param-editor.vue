@@ -23,10 +23,10 @@
 <template>
     <div class="module-param-editor">
         <div class="header">
+            <h4 class="title">Module Parameter Change editor</h4>
             <button class="help-button" @click="handleHelp">?</button>
             <button class="close-button" @click="handleClose">x</button>
         </div>
-        <h4>Module Parameter Change editor</h4>
         <ul id="moduleSelect">
             <ul class="event">
                 <form-list-item v-model="module" option-value="volume">volume</form-list-item>
@@ -261,7 +261,7 @@ export default {
       border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-      h4 {
+      .title {
         margin: $spacing-medium 0;
       }
 

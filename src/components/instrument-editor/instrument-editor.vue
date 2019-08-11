@@ -23,7 +23,7 @@
 <template>
     <div class="instrument-editor">
         <div class="header">
-            <h2>Instrument editor</h2>
+            <h4 class="title">Instrument editor</h4>
             <button class="help-button"
                     @click="openHelp">?</button>
             <button class="close-button"
@@ -247,9 +247,13 @@ export default {
       height: auto;
     }
 
+    .title {
+      margin: $spacing-medium;
+    }
+
     .instrument-selector {
       position: absolute;
-      top: $spacing-small;
+      top: $spacing-medium;
       right: ($spacing-xlarge + $spacing-xlarge);
     }
 
@@ -287,17 +291,10 @@ export default {
         @include verticalScrollOnMobile();
       }
 
-      .instrument-selector {
-        top: $spacing-small;
-      }
-
       .instrument-presets {
         @include boxSize();
         padding: 0 $spacing-large;
 
-        h2 {
-          width: 100%;
-        }
         select {
           display: block;
           width: 100%;

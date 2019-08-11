@@ -24,6 +24,7 @@
     <div>
         <div class="note-entry-editor">
             <div class="header">
+                <h4 class="title">Note entry editor</h4>
                 <button type="button"
                         class="help-button"
                         @click="handleHelp"
@@ -33,7 +34,6 @@
                         @click="handleClose"
                 >x</button>
             </div>
-            <h4>Note entry editor</h4>
             <ul id="keyboardNotes">
                 <form-list-item v-model="note" option-value="C"  class="C"></form-list-item>
                 <form-list-item v-model="note" option-value="C#" class="CS sharp"></form-list-item>
@@ -271,13 +271,13 @@ export default {
       border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-      h4 {
+      .title {
         margin: $spacing-medium 0;
       }
 
       .instrument-selector {
         position: absolute;
-        top: $spacing-small;
+        top: $spacing-medium;
         right: ( $spacing-xlarge + $spacing-xlarge);
         width: 120px;
       }
