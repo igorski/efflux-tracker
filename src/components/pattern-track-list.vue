@@ -188,7 +188,7 @@ export default {
                 // following activated, ensure the list auto scrolls
                 if ( stepY > this.containerHeight ) {
                     this.mustFollow = (++this.lastFollowStep % 2 ) === 1;
-                    this.container.scrollTop = ( stepY + STEP_HEIGHT * 1.5 ) - this.containerHeight;
+                    this.container.scrollTop = (stepY + STEP_HEIGHT * 2) - this.containerHeight;
                 } else {
                     this.container.scrollTop = 0;
                     this.lastFollowStep = 0;
