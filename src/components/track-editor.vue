@@ -26,17 +26,19 @@
              :class="{ fixed: isFixed }"
     >
         <ul class="controls">
-            <li class="addNote" @click="handleNoteAddClick"></li>
-            <li class="addOff" @click="handleNoteOffClick"></li>
-            <li class="removeNote" @click="handleNoteDeleteClick"></li>
-            <li class="moduleParams" @click="handleModuleParamsClick"></li>
-            <li class="moduleGlide" @click="handleModuleGlideClick"></li>
+            <li class="undo" :class="{ disabled: !canUndo }" @click="undo"></li>
+            <li class="redo" :class="{ disabled: !canRedo }" @click="redo"></li>
+            <li class="add-on" @click="addNoteOn"></li>
+            <li class="add-off" @click="addNoteOnOff"></li>
+            <li class="remove-note" @click="deleteNote"></li>
+            <li class="module-params" @click="editModuleParams"></li>
+            <li class="module-glide" @click="glideParams"></li>
         </ul>
     </section>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import HistoryStates from '../definitions/history-states';
 import ModalWindows from '../definitions/modal-windows';
 import EventFactory from '../model/factory/event-factory';
@@ -55,6 +57,10 @@ export default {
         ...mapState([
             'windowSize',
             'windowScrollOffset',
+        ]),
+        ...mapGetters([
+            'canUndo',
+            'canRedo'
         ]),
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -83,23 +89,27 @@ export default {
         ...mapMutations([
             'addEventAtPosition',
             'openModal',
-            'saveState',
+            'saveState'
         ]),
-        handleNoteAddClick() {
+        ...mapActions([
+            'undo',
+            'redo'
+        ]),
+        addNoteOn() {
             this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
         },
-        handleNoteOffClick(){
+        addNoteOnOff(){
             const offEvent = EventFactory.createAudioEvent();
             offEvent.action = 2; // noteOff;
             this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
-        handleNoteDeleteClick() {
+        deleteNote() {
             this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_EVENT, { store: this.$store }));
         },
-        handleModuleParamsClick() {
+        editModuleParams() {
             this.openModal(ModalWindows.MODULE_PARAM_EDITOR);
         },
-        handleModuleGlideClick() {
+        glideParams() {
             EventUtil.glideParameterAutomations(
                 this.activeSong, this.selectedStep, this.activePattern,
                 this.selectedInstrument, this.eventList, this.$store,
@@ -120,9 +130,7 @@ export default {
       min-width: 40px;
 
       .controls {
-
         li {
-
           width: 40px;
           height: 40px;
           margin: 0 0 1px;
@@ -132,24 +140,35 @@ export default {
           background-size: 50%;
           cursor: pointer;
 
-          &.addNote {
+          &.add-on {
             background-image: url('../assets/images/icon-note-add.png');
           }
-          &.addOff {
+          &.add-off {
             background-image: url('../assets/images/icon-note-mute.png');
           }
-          &.removeNote {
+          &.remove-note {
             background-image: url('../assets/images/icon-note-delete.png');
           }
-          &.moduleParams {
+          &.module-params {
             background-image: url('../assets/images/icon-module-params.png');
           }
-          &.moduleGlide {
+          &.module-glide {
             background-image: url('../assets/images/icon-module-glide.png');
+          }
+          &.undo {
+            background-image: url('../assets/images/icon-undo.png');
+          }
+          &.redo {
+            background-image: url('../assets/images/icon-redo.png');
           }
 
           &:hover {
             background-color: $color-1;
+          }
+
+          &.disabled {
+            opacity: .25;
+            @include noEvents();
           }
         }
       }
@@ -164,8 +183,7 @@ export default {
 
     /* mobile view */
 
-    @media screen and ( max-width: $mobile-width )
-    {
+    @media screen and ( max-width: $mobile-width ) {
       #trackEditor {
         position: fixed; /* keep pattern editor in static position */
         left: 0;
