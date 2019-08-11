@@ -20,13 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-/* private properties */
-
 // we assume that the audioContext works according to the newest standards
 // if its is available as window.AudioContext
 // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
 // method names according to spec
-const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && typeof (new window.webkitAudioContext()).createGain === "function"));
+const isStandards = ( !!( 'AudioContext' in window ) || ( 'webkitAudioContext' in window && typeof (new window.webkitAudioContext()).createGain === 'function'));
 
 /* internal methods */
 
@@ -165,5 +163,4 @@ const AudioFactory =
         return pulseOsc;
    }
 };
-
 export default AudioFactory;

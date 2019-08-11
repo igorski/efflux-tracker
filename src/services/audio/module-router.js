@@ -20,10 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config    from '../config';
-import { rangeToIndex } from '../utils/array-util';
+import Config    from '../../config';
+import { rangeToIndex } from '../../utils/array-util';
 
-const ModuleUtil =
+const ModuleRouter =
 {
     /**
      * apply the routing for the given instrument modules
@@ -112,12 +112,12 @@ const ModuleUtil =
             // filter effects
             case 'filterEnabled':
                 modules.filter.filterEnabled = ( audioEvent.mp.value >= 50 );
-                ModuleUtil.applyRouting( modules, output );
+                ModuleRouter.applyRouting( modules, output );
                 break;
 
             case 'filterLFOEnabled':
                 instrument.filter.lfoType = rangeToIndex([ 'off', 'sine', 'square', 'sawtooth', 'triangle' ], audioEvent.mp.value );
-                ModuleUtil.applyRouting(modules, output);
+                ModuleRouter.applyRouting(modules, output);
                 break;
 
             case 'filterFreq':
@@ -130,7 +130,7 @@ const ModuleUtil =
             // delay effects
             case 'delayEnabled':
                 modules.delay.delayEnabled = ( audioEvent.mp.value >= 50 );
-                ModuleUtil.applyRouting(modules, output);
+                ModuleRouter.applyRouting(modules, output);
                 break;
 
             case 'delayTime':
@@ -142,7 +142,7 @@ const ModuleUtil =
         }
     }
 };
-export default ModuleUtil;
+export default ModuleRouter;
 
 /* internal methods */
 

@@ -3,7 +3,7 @@
  * Separated from node_modules to allow inlining of worker through Webpack
  * as well as freeing allocated memory to recording.
  */
-import RecorderWorker from '../workers/recorder.worker.js';
+import RecorderWorker from '../../workers/recorder.worker.js';
 
 const Recorder = function (source, cfg = {}) {
     const bufferLen = cfg.bufferLen || 4096;
@@ -23,7 +23,7 @@ const Recorder = function (source, cfg = {}) {
             sampleRate: this.context.sampleRate
         }
     });
-    var recording = false,
+    let recording = false,
         currCallback;
 
     this.node.onaudioprocess = function (e) {

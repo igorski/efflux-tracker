@@ -20,12 +20,12 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import Vue from 'vue';
-import Config from '../../config';
-import LinkedList from '../../utils/linked-list';
-import AudioUtil from '../../utils/audio-util';
-import AudioService from '../../services/audio-service';
-import Metronome from '../../services/audio/metronome';
+import Vue             from 'vue';
+import Config          from '../../config';
+import LinkedList      from '../../utils/linked-list';
+import AudioHelper     from '../../services/audio/audio-helper';
+import AudioService    from '../../services/audio-service';
+import Metronome       from '../../services/audio/metronome';
 import SequencerWorker from '../../workers/sequencer.worker.js';
 
 /* internal methods */
@@ -95,7 +95,7 @@ function dequeueEvent(state, event, time ) {
     if (!event.seq.playing)
         return;
 
-    const clock = AudioUtil.createTimer( AudioService.getAudioContext(), time, () => {
+    const clock = AudioHelper.createTimer( AudioService.getAudioContext(), time, () => {
         event.seq.playing = false;
         AudioService.noteOff(event);
         freeHandler(state, clock ); // clear reference to this timed event

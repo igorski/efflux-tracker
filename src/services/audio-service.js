@@ -23,9 +23,9 @@
 import Vue            from 'vue';
 import AudioFactory   from '../model/factory/audio-factory';
 import ModuleFactory  from '../model/factory/module-factory';
-import AudioUtil      from '../utils/audio-util';
-import RecordingUtil  from '../utils/audio-recording-util';
-import ModuleUtil     from '../utils/module-util';
+import AudioHelper    from './audio/audio-helper';
+import OutputRecorder from './audio/output-recorder';
+import ModuleRouter   from './audio/module-router';
 import InstrumentUtil from '../utils/instrument-util';
 import Config         from '../config';
 import PitchConverter from './audio/pitch-converter';
@@ -82,7 +82,7 @@ const AudioService =
         // (e.g. click/touch/keydown anywhere in the document) as browsers otherwise prevent audio playback
 
         return new Promise(resolve => {
-            AudioUtil.init(( generatedContext ) => {
+            AudioHelper.init((generatedContext ) => {
                 audioContext = generatedContext;
                 setupRouting();
 
@@ -181,7 +181,7 @@ const AudioService =
         recordOutput = !recordOutput;
         if (recordOutput) {
             if (!recorder) {
-                recorder = new RecordingUtil(masterBus, {
+                recorder = new OutputRecorder(masterBus, {
                     callback : handleRecordingComplete
                 });
             }
@@ -292,10 +292,10 @@ const AudioService =
             instrumentEvents[ instrument.id ][ event.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
         }
 
-        // module parameter change specified ? process it inside the ModuleUtil
+        // module parameter change specified ? process it inside the ModuleRouter
 
         if (event.mp) {
-            ModuleUtil.applyModuleParamChange(
+            ModuleRouter.applyModuleParamChange(
                 event,
                 instrumentModules[ instrument.id ],
                 instrument,
@@ -331,7 +331,7 @@ const AudioService =
 
                 // stop synthesis and remove note on release end
 
-                AudioUtil.createTimer( audioContext, audioContext.currentTime + event.vo.adsr.release,
+                AudioHelper.createTimer( audioContext, audioContext.currentTime + event.vo.adsr.release,
                     handleOscillatorStop.bind( oscillator, output, modules ));
             });
         }
@@ -431,7 +431,7 @@ function createModules()
             filter    : ModuleFactory.createFilter( audioContext ),
             delay     : ModuleFactory.createDelay( audioContext )
         };
-        ModuleUtil.applyRouting( module, masterBus );
+        ModuleRouter.applyRouting( module, masterBus );
     }
 }
 
@@ -457,7 +457,7 @@ function handleOscillatorStop( output, modules ) {
  * @return {PeriodicWave} the created WaveTable
  */
 function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
-    return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioUtil.createWaveTableFromGraph( audioContext, table );
+    return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioHelper.createWaveTableFromGraph( audioContext, table );
 }
 
 function handleRecordingComplete(blob) {

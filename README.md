@@ -100,10 +100,10 @@ While Vuex makes it easy to simply save an entire song upon each mutation, this 
 The synthesizer itself renders its output by use of the Web Audio API's _OscillatorNodes_ and _PeriodicWave_. All of
 this logic is determined by _noteOn_ and _noteOff_ events (similar to the MIDI spec) that is handled by the _AudioService_.
 
-The routing of audio paths and effect modules takes place in the same _AudioService_ via use of several sub-modules.
-
-When in doubt, remember that the Vuex song model defines _what it should sound like_ while the AudioService takes care
-of the actual sound rendering.
+The routing of audio paths, connecting of nodes and effect modules takes place in the same _AudioService_, see the
+_./services/audio/_-folder. When in doubt of how the audio output relates to the visual interface, remember that the Vuex
+song model defines _what it should sound like_ (as in: defines the properties of the instruments) while the AudioService
+takes care of the actual sound rendering, outside of Vue.
  
 ## Build instructions
 

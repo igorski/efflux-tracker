@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import AudioFactory from './audio-factory';
-import ModuleUtil   from '../../utils/module-util';
+import ModuleRouter from '../../services/audio/module-router';
 import Config       from '../../config';
 import Delay        from '../../services/audio/delay-module';
 import Overdrive    from 'wa-overdrive';
@@ -195,7 +195,7 @@ const ModuleFactory = {
         eq.midGain.gain.value  = props.midGain;
         eq.highGain.gain.value = props.highGain;
 
-        ModuleUtil.applyRouting( modules, output );
+        ModuleRouter.applyRouting( modules, output );
     },
 
     /**
@@ -215,7 +215,7 @@ const ModuleFactory = {
         overdrive.overdrive.preBand = props.preBand;
         overdrive.overdrive.postCut = props.postCut;
 
-        ModuleUtil.applyRouting( modules, output );
+        ModuleRouter.applyRouting( modules, output );
     },
 
     /**
@@ -242,7 +242,7 @@ const ModuleFactory = {
         filter.filter.type   = props.type;
         filter.filterEnabled = props.enabled;
 
-        ModuleUtil.applyRouting( modules, output );
+        ModuleRouter.applyRouting( modules, output );
 
         if ( filterEnabled )
         {
@@ -280,7 +280,7 @@ const ModuleFactory = {
         delay.cutoff   = props.cutoff;
 
         modules.delay.delayEnabled = props.enabled;
-        ModuleUtil.applyRouting( modules, output );
+        ModuleRouter.applyRouting( modules, output );
     }
 };
 export default ModuleFactory;
