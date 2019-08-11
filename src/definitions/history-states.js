@@ -33,7 +33,10 @@ export default
     DELETE_EVENT             : 'S:1',
     DELETE_SELECTION         : 'S:2',
     DELETE_MODULE_AUTOMATION : 'S:3',
-    DELETE_PATTERN           : 'S:4',
-    CUT_SELECTION            : 'S:5',
-    PASTE_SELECTION          : 'S:6'
+    CLEAR_PATTERN            : 'S:4',
+    PASTE_PATTERN            : 'S:5',
+    ADD_PATTERN              : 'S:6',
+    DELETE_PATTERN           : 'S:7',
+    CUT_SELECTION            : 'S:8',
+    PASTE_SELECTION          : 'S:9'
 };

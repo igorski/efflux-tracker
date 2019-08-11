@@ -114,18 +114,15 @@ export default {
         ]),
         handlePatternClear() {
             this.clearSelection();
-            this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_PATTERN, { store: this.$store }));
+            this.saveState(HistoryStateFactory.getAction(HistoryStates.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy() {
             this.patternCopy = ObjectUtil.clone(this.activeSong.patterns[this.activePattern]);
         },
         handlePatternPaste() {
             if (this.patternCopy) {
-                this.replacePattern({
-                    patternIndex: this.activePattern,
-                    pattern: PatternFactory.mergePatterns(this.activeSong.patterns[this.activePattern], this.patternCopy, this.activePattern)
-                });
-                this.createLinkedList(this.activeSong);
+                this.clearSelection();
+                this.saveState(HistoryStateFactory.getAction(HistoryStates.PASTE_PATTERN, { store: this.$store, patternCopy: this.patternCopy }));
             }
         },
         handlePatternAdd() {

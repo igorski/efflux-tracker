@@ -53,8 +53,11 @@ export default {
             case HistoryStates.DELETE_MODULE_AUTOMATION:
                 return deleteModuleAutomationAction( data );
 
-            case HistoryStates.DELETE_PATTERN:
-                return deletePattern( data );
+            case HistoryStates.CLEAR_PATTERN:
+                return clearPattern( data );
+
+            case HistoryStates.PASTE_PATTERN:
+                return pastePattern( data );
 
             case HistoryStates.CUT_SELECTION:
                 return cutSelectionAction( data );
@@ -147,11 +150,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         updateHandler( advanceStepOnAddition );
         advanceStepOnAddition = false;
     }
-
-    // add the event as it was the trigger for this action
-    add();
-
-    // return the state change handlers so the StateModel can store appropriate undo/redo actions
+    add(); // perform action
 
     return {
         undo() {
@@ -214,8 +213,6 @@ function deleteSingleEventOrSelectionAction({ store }) {
     // delete the event(s)
     remove(selection);
 
-    // return the state change handlers so the StateModel can store appropriate undo/redo actions
-
     return {
         undo() {
             if ( hadSelection ) {
@@ -247,8 +244,7 @@ function deleteModuleAutomationAction({ event }) {
     const clonedAutomation = ObjectUtil.clone( event.mp );
     const remove = () => Vue.delete(event, 'mp');
 
-    // perform action
-    remove();
+    remove(); // perform action
 
     return {
         undo() {
@@ -260,7 +256,7 @@ function deleteModuleAutomationAction({ event }) {
     };
 }
 
-function deletePattern({ store }) {
+function clearPattern({ store }) {
     const song          = store.state.song.activeSong,
           patternIndex  = store.state.sequencer.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
@@ -271,11 +267,7 @@ function deletePattern({ store }) {
         store.commit('replacePattern', { patternIndex, pattern: PatternFactory.createEmptyPattern(amountOfSteps) });
         store.commit('createLinkedList', song);
     }
-
-    // delete the pattern as it was the trigger for this action
-    remove();
-
-    // return the state change handlers so the StateModel can store appropriate undo/redo actions
+    remove(); // perform action
 
     return {
         undo() {
@@ -284,6 +276,30 @@ function deletePattern({ store }) {
         },
         redo() {
             remove();
+        }
+    };
+}
+
+function pastePattern({ store, patternCopy }) {
+    const song          = store.state.song.activeSong,
+          patternIndex  = store.state.sequencer.activePattern;
+
+    const targetPattern = song.patterns[patternIndex];
+    const pastedPattern = PatternFactory.mergePatterns(targetPattern, patternCopy, patternIndex);
+
+    function paste() {
+        store.commit('replacePattern', { patternIndex, pattern: pastedPattern });
+        store.commit('createLinkedList', song);
+    }
+    paste(); // perform action
+
+    return {
+        undo() {
+            store.commit('replacePattern', { patternIndex, pattern: targetPattern });
+            store.commit('createLinkedList', song);
+        },
+        redo() {
+            paste();
         }
     };
 }
@@ -313,11 +329,7 @@ function cutSelectionAction({ store }) {
         }
         store.commit('clearSelection');
     }
-
-    // cut the data as it was the trigger for this action
-    cut();
-
-    // return the state change handlers so the StateModel can store appropriate undo/redo actions
+    cut(); // perform action
 
     return {
         undo() {
@@ -355,11 +367,7 @@ function deleteSelectionAction({ store }) {
         }
         store.commit('clearSelection');
     }
-
-    // cut the data as it was the trigger for this action
-    deleteSelection();
-
-    // return the state change handlers so the StateModel can store appropriate undo/redo actions
+    deleteSelection(); // perform action
 
     return {
         undo() {
@@ -401,11 +409,7 @@ function pasteSelectionAction({ store }) {
             pastedData = song.patterns[activePattern];
         }
     }
-
-    // delete the data as it was the trigger for this action
-    paste();
-
-    // return the state change handlers so the StateModel can store appropriate undo/redo actions
+    paste(); // perform action
 
     return {
         undo() {
