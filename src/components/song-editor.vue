@@ -82,7 +82,7 @@ export default {
             'setActiveSongTitle',
             'setHelpTopic',
             'suspendKeyboardService',
-            'openModal',
+            'openModal'
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
@@ -99,7 +99,7 @@ export default {
         },
         handleInstrumentEditorClick() {
             this.openModal(ModalWindows.INSTRUMENT_EDITOR);
-        },
+        }
     }
 };
 </script>
@@ -115,10 +115,17 @@ export default {
       display: inline;
 
       input {
-        width: 150px;
-        /*height: 20px;*/
+        width: 110px;
         margin: 0 $spacing-xsmall;
       }
+    }
+
+    /* everything above tablet */
+
+    @media screen and ( min-width: $ideal-pattern-editor-width ) {
+        .meta-editor input {
+            width: 150px;
+        }
     }
 
     /* everything above phone */
@@ -130,6 +137,7 @@ export default {
             }
         }
     }
+
     /* phone view */
 
     @media screen and ( max-width: $mobile-width ) {

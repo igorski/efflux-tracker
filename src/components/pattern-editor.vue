@@ -94,8 +94,6 @@ export default {
             },
             set(value) {
                 const pattern = this.activeSong.patterns[this.activePattern];
-
-                // update model values
                 this.setPatternSteps({ pattern, steps: value });
             }
         }
@@ -110,7 +108,7 @@ export default {
             'setActivePattern',
             'setPatternSteps',
             'openModal',
-            'showError',
+            'showError'
         ]),
         handlePatternClear() {
             this.replacePattern({ patternIndex: this.activePattern, pattern: PatternFactory.createEmptyPattern(this.amountOfSteps) });
@@ -161,7 +159,6 @@ export default {
 
 <style lang="scss">
     @import '../styles/_variables.scss';
-    $width: 1150px;
 
     .pattern-editor {
       display: inline-block;
@@ -199,7 +196,7 @@ export default {
 
     /* large views and above */
 
-    @media screen and ( min-width: $width ) {
+    @media screen and ( min-width: $ideal-pattern-editor-width ) {
       .pattern-editor {
         margin: 0 0 0 $spacing-medium;
 
@@ -218,12 +215,12 @@ export default {
       }
     }
 
-    /* everything above mobile view and below app width */
+    /* everything above mobile view and below ideal pattern editor width */
 
-    @media screen and ( min-width: $mobile-width ) and ( max-width: $app-width ) {
+    @media screen and ( min-width: $mobile-width ) and ( max-width: $ideal-pattern-editor-width ) {
       .pattern-editor {
         /* TODO: we're now hiding our interface from these users... */
-        display: none;
+        /*display: none;*/
       }
     }
 
