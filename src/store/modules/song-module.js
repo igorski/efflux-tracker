@@ -4,7 +4,7 @@
  * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
- * this software and associated documentation files (the "Software"), to deal in
+ * this software and associated documentation files (the 'Software'), to deal in
  * the Software without restriction, including without limitation the rights to
  * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
  * the Software, and to permit persons to whom the Software is furnished to do so,
@@ -13,7 +13,7 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
@@ -33,16 +33,7 @@ import SongUtil            from '../../utils/song-util';
 import ObjectUtil          from '../../utils/object-util';
 import StorageUtil         from '../../utils/storage-util';
 
-/* internal methods */
-
-const persistState = state => {
-    // convert all Songs into XTK format (uses less storage)
-    const xtkSongs = new Array( state.songs.length );
-    state.songs.forEach(( song, index ) => {
-        xtkSongs[ index ] = SongAssemblyService.disassemble( song );
-    });
-    StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( xtkSongs ));
-};
+const SONG_STORAGE_KEY = 'Efflux_Song_';
 
 export default {
     state: {
@@ -56,26 +47,17 @@ export default {
         songs(state) {
             return state.songs;
         },
-        getSongById: state => id => state.songs.find(song => song.id === id) || null,
+        getSongById: state => id => state.songs.find(song => song.id === id) || null
     },
     mutations: {
-        /**
-         * @param {Object} state
-         * @param {Object} xtkSongs (in XTK format)
-         */
-        setSongs(state, xtkSongs) {
-            // convert XTK songs into Song Objects
-            const songs = new Array(xtkSongs.length);
-            xtkSongs.forEach((xtk, index) => {
-                songs[index] = SongAssemblyService.assemble(xtk);
-            });
+        setSongs(state, songs) {
             state.songs = songs;
         },
         setActiveSong(state, song) {
             if (song && song.meta && song.patterns) {
                 // close song as we do not want to modify the original song stored in list
                 state.activeSong = ObjectUtil.clone(song);
-                SongUtil.resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got "frozen" events
+                SongUtil.resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got 'frozen' events
             }
         },
         setActiveSongAuthor(state, author) {
@@ -140,12 +122,30 @@ export default {
         }
     },
     actions: {
-        loadStoredSongs({ state, commit }) {
-            StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then(
-                ( result ) => {
-                    if ( typeof result === "string" ) {
+        loadStoredSongs({ commit, dispatch }) {
+            StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then(async result => {
+                    if ( typeof result === 'string' ) {
                         try {
-                            commit('setSongs', JSON.parse( result ));
+                            const songs = JSON.parse(result);
+                            let wasLegacyStorageFormat = false;
+
+                            // if song contained patterns, we know that the storage was using
+                            // the legacy format where all songs were serialized in a single list
+                            // convert the storage to the new memory-friendly format
+
+                            for (let i = 0; i < songs.length; ++i) {
+                                if (typeof song !== 'string') {
+                                    break;
+                                }
+                                const song = JSON.parse(songs[i]);
+                                if (Array.isArray(song.p)) {
+                                    await dispatch('saveSong', SongAssemblyService.assemble(song));
+                                    wasLegacyStorageFormat = true;
+                                }
+                            }
+                            if (!wasLegacyStorageFormat) {
+                                commit('setSongs', songs);
+                            }
                         }
                         catch ( e ) {
                             // that's fine...
@@ -154,14 +154,15 @@ export default {
                 },
                 async () => {
 
-                    // no songs available ? load fixtures with "factory content"
+                    // no songs available ? load fixtures with 'factory content'
 
                     commit('setLoading', true);
                     const songs = await FixturesLoader.load('Songs.json');
                     commit('setLoading', false);
                     if (Array.isArray(songs)) {
-                        commit('setSongs', songs);
-                        persistState(state);
+                        for (let i = 0; i < songs.length; ++i) {
+                            await dispatch('saveSong', SongAssemblyService.assemble(songs[i]));
+                        }
                     }
                 }
             );
@@ -186,9 +187,15 @@ export default {
                 catch(e) {
                     // that's fine.
                 }
-                song.meta.modified = Date.now();    // update timestamp
-                state.songs.push(song);
+                song.meta.modified = Date.now(); // update timestamp
+
+                // push song into song list
+                state.songs.push(getMetaForSong(song));
                 persistState(state);
+
+                // save song into storage
+                StorageUtil.setItem(getStorageKeyForSong(song), SongAssemblyService.disassemble(song));
+
                 commit('publishMessage', PubSubMessages.SONG_SAVED);
                 commit('showNotification', { message: getters.getCopy('SONG_SAVED', song.meta.title) });
                 resolve();
@@ -217,6 +224,15 @@ export default {
                 }
             });
         },
+        loadSong(store, song) {
+            return new Promise(async (resolve, reject) => {
+                const storedSong = await StorageUtil.getItem(getStorageKeyForSong(song));
+                if (!storedSong) {
+                    reject();
+                }
+                resolve(SongAssemblyService.assemble(storedSong));
+            });
+        },
         deleteSong({ state }, { song, persist = true }) {
             return new Promise((resolve, reject) => {
                 let deleted = false;
@@ -229,14 +245,18 @@ export default {
                 while ( i-- ) {
                     const compareSong = state.songs[ i ];
                     if ( compareSong.id === song.id ) {
+                        // song existed, name is equal, remove old song so we can fully replace it
                         if ( compareSong.meta.title === song.meta.title ) {
-                            // song existed, name is equal, remove old song so we can fully replace it
+                            // remove entry from song list
                             state.songs.splice( i, 1 );
+
+                            // remove song storage entry
+                            StorageUtil.removeItem(getStorageKeyForSong(song));
                             deleted = true;
                         }
                         else {
                             // song existed, but was renamed, make id unique for renamed song (will be treated as new entry)
-                            song.id += "b";
+                            song.id = `${song.id}b`;
                         }
                         break;
                     }
@@ -315,3 +335,13 @@ export default {
         }
     }
 };
+
+/* internal methods */
+
+const getMetaForSong = song => ({
+    id: song.id,
+    meta: { ...song.meta }
+});
+
+const getStorageKeyForSong = song => `${SONG_STORAGE_KEY}${song.id}`;
+const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify(state.songs));

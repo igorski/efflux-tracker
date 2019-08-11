@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,29 +24,26 @@ import LZString from 'lz-string';
 
 let storage;
 
-const StorageUtil = {
+const StorageUtil =
+{
     /**
      * initializes the storage mechanism
      *
      * @public
      */
-    init()
-    {
+    init() {
         // use LocalStorage
         storage = window.localStorage;
     },
-
     /**
      * verifies whether storage is available
      *
      * @public
      * @return {boolean}
      */
-    isAvailable()
-    {
-        return ( typeof storage !== "undefined" );
+    isAvailable() {
+        return typeof storage !== 'undefined';
     },
-
     /**
      * get an item from storage, returns a Promise
      *
@@ -54,21 +51,19 @@ const StorageUtil = {
      * @param {string} key
      * @return {Promise}
      */
-    getItem( key )
-    {
-        return new Promise(( resolve, reject ) =>
-        {
+    getItem( key ) {
+        return new Promise(( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
-                reject( Error( "Storage not available" ));
+                reject( Error( 'Storage not available' ));
             }
             const data = storage.getItem( key );
-            if ( data )
+            if ( data ) {
                 resolve( decompress( data ));
-            else
-                reject( Error( "Data for '" + key + "' not found" ));
+            } else {
+                reject( Error( `Data for '${key}' not found'` ));
+            }
         });
     },
-
     /**
      * set an item in storage, returns a Promise
      *
@@ -76,16 +71,27 @@ const StorageUtil = {
      * @param {*} data
      * @return {Promise}
      */
-    setItem( key, data )
-    {
+    setItem( key, data ){
         const compressedData = compress( data );
-
-        return new Promise(( resolve, reject ) =>
-        {
+        return new Promise(( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
-                reject( Error( "Storage not available" ));
+                reject( Error( 'Storage not available' ));
             }
             resolve( storage.setItem( key, compressedData ));
+        });
+    },
+    /**
+     * removes an item from storage, returns a Promise
+     *
+     * @param {string} key
+     * @returns {Promise}
+     */
+    removeItem(key) {
+        return new Promise(( resolve, reject ) => {
+            if ( !StorageUtil.isAvailable() ) {
+                reject( Error( 'Storage not available' ));
+            }
+            resolve(storage.removeItem(key));
         });
     }
 };
@@ -97,7 +103,6 @@ export default StorageUtil;
 // the amount data we can save in the applications quota in LocalStorage
 
 function compress( string ) {
-
     let compressedString;
     try {
         compressedString = LZString.compressToUTF16( string );
@@ -115,7 +120,6 @@ function compress( string ) {
 }
 
 function decompress( string ) {
-
     let decompressedString;
 
     try {

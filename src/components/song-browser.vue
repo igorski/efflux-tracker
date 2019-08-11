@@ -51,7 +51,7 @@ export default {
         ...mapGetters([
             'getCopy',
             'getSongById',
-            'songs',
+            'songs'
         ]),
     },
     watch: {
@@ -68,16 +68,23 @@ export default {
         ...mapMutations([
             'openDialog',
             'setActiveSong',
+            'showError'
         ]),
         ...mapActions([
-            'deleteSong',
+            'loadSong',
+            'deleteSong'
         ]),
         getSongDate(song) {
             return Time.timestampToDate(song.meta.modified);
         },
-        openSongClick(songId) {
-            this.setActiveSong(this.getSongById(songId));
-            this.$emit('close');
+        async openSongClick(songId) {
+            try {
+                const song = await this.loadSong(this.getSongById(songId));
+                this.setActiveSong(song);
+                this.$emit('close');
+            } catch(e) {
+                this.showError(this.getCopy('ERROR_SONG_IMPORT'));
+            }
         },
         deleteSongClick(songId) {
             const song = this.getSongById(songId);
