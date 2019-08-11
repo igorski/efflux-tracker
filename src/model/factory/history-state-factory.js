@@ -25,6 +25,7 @@ import HistoryStates  from '../../definitions/history-states';
 import PatternFactory from './pattern-factory';
 import EventUtil      from '../../utils/event-util';
 import ObjectUtil     from '../../utils/object-util';
+import PatternUtil    from '../../utils/pattern-util';
 
 export default {
 
@@ -58,6 +59,12 @@ export default {
 
             case HistoryStates.PASTE_PATTERN:
                 return pastePattern( data );
+
+            case HistoryStates.ADD_PATTERN:
+                return addPattern( data );
+
+            case HistoryStates.DELETE_PATTERN:
+                return deletePattern( data );
 
             case HistoryStates.CUT_SELECTION:
                 return cutSelectionAction( data );
@@ -230,7 +237,7 @@ function deleteSingleEventOrSelectionAction({ store }) {
                         channelIndex: selectedInstrument,
                         step: selectedStep
                     },
-                    optStoreInUndoRedo: false, // prevents storing in undo/redo again, kinda important!
+                    optStoreInUndoRedo: false // prevents storing in undo/redo again, kinda important!
                 });
             }
         },
@@ -304,6 +311,59 @@ function pastePattern({ store, patternCopy }) {
     };
 }
 
+function addPattern({ store }) {
+    const song            = store.state.song.activeSong,
+          patterns        = song.patterns,
+          patternIndex    = store.state.sequencer.activePattern,
+          amountOfSteps   = store.getters.amountOfSteps;
+
+    const pattern = PatternFactory.createEmptyPattern(amountOfSteps);
+
+    function add() {
+        store.commit('replacePatterns', PatternUtil.addPatternAtIndex(patterns, patternIndex, amountOfSteps, pattern));
+        store.commit('createLinkedList', song);
+    }
+    add(); // perform action
+
+    return {
+        undo() {
+            store.commit('setActivePattern', patternIndex);
+            store.commit('replacePatterns', PatternUtil.removePatternAtIndex(patterns, patternIndex + 1));
+            store.commit('createLinkedList', song);
+        },
+        redo() {
+            add();
+        }
+    };
+}
+
+function deletePattern({ store }) {
+    const song            = store.state.song.activeSong,
+          patterns        = song.patterns,
+          patternIndex    = store.state.sequencer.activePattern,
+          amountOfSteps   = store.getters.amountOfSteps,
+          targetIndex     = patternIndex === (patterns.length - 1) ? patternIndex - 1 : patternIndex,
+          pattern         = patterns[patternIndex];
+
+    function deleteP() {
+        store.commit('setActivePattern', targetIndex);
+        store.commit('replacePatterns', PatternUtil.removePatternAtIndex(patterns, patternIndex));
+        store.commit('createLinkedList', song);
+    }
+    deleteP(); // perform action
+
+    return {
+        undo() {
+            store.commit('setActivePattern', targetIndex);
+            store.commit('replacePatterns', PatternUtil.addPatternAtIndex(patterns, patternIndex, amountOfSteps, pattern));
+            store.commit('createLinkedList', song);
+        },
+        redo() {
+            deleteP();
+        }
+    };
+}
+
 function cutSelectionAction({ store }) {
     const song = store.state.song.activeSong;
 
@@ -317,7 +377,7 @@ function cutSelectionAction({ store }) {
     const selectedMinStep = store.state.selection.minSelectedStep;
     const selectedMaxStep = store.state.selection.maxSelectedStep;
 
-    const originalPatternData = song.patterns[activePattern];
+    const originalPatternData = clonePattern(song, activePattern);
     let cutData;
     function cut() {
         if ( cutData ) {
@@ -325,7 +385,7 @@ function cutSelectionAction({ store }) {
         }
         else {
             store.commit('cutSelection', { song, activePattern, eventList: store.state.editor.eventList });
-            cutData = song.patterns[activePattern];
+            cutData = clonePattern(song, activePattern);
         }
         store.commit('clearSelection');
     }
@@ -392,7 +452,7 @@ function pasteSelectionAction({ store }) {
           selectedInstrument = store.state.editor.selectedInstrument,
           selectedStep       = store.state.editor.selectedStep;
 
-    const originalPatternData = song.patterns[activePattern];
+    const originalPatternData = clonePattern(song, activePattern);
 
     const firstChannel    = store.state.selection.firstSelectedChannel;
     const lastChannel     = store.state.selection.lastSelectedChannel;
@@ -428,4 +488,18 @@ function pasteSelectionAction({ store }) {
             paste( originalPatternData );
         }
     };
+}
+
+/**
+ * convenience method to clone all event and channel data
+ * for given pattern
+ *
+ * @param {SONG} song
+ * @param {number} activePattern
+ * @returns {Object}
+ */
+function clonePattern( song, activePattern ) {
+    return ObjectUtil.clone(
+        song.patterns[ activePattern ]
+    );
 }

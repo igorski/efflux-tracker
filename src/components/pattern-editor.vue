@@ -69,12 +69,10 @@
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import HistoryStateFactory from '../model/factory/history-state-factory';
-import PatternFactory from '../model/factory/pattern-factory';
 import Config from '../config';
 import HistoryStates from '../definitions/history-states';
 import ModalWindows from '../definitions/modal-windows';
 import ObjectUtil from '../utils/object-util';
-import PatternUtil from '../utils/pattern-util';
 
 export default {
     data: () => ({
@@ -105,9 +103,6 @@ export default {
             'setHelpTopic',
             'saveState',
             'clearSelection',
-            'createLinkedList',
-            'replacePatterns',
-            'setActivePattern',
             'setPatternSteps',
             'openModal',
             'showError'
@@ -131,21 +126,15 @@ export default {
                 this.showError(this.getCopy('ERROR_MAX_PATTERNS', Config.MAX_PATTERN_AMOUNT));
                 return;
             }
-            const newPatterns = PatternUtil.addEmptyPatternAtIndex(patterns, this.activePattern + 1, this.amountOfSteps);
-            this.replacePatterns(newPatterns);
-            this.setActivePattern(this.activePattern + 1);
+            this.saveState(HistoryStateFactory.getAction(HistoryStates.ADD_PATTERN, { store: this.$store }));
         },
         handlePatternDelete() {
             const patterns = this.activeSong.patterns;
-        
             if ( patterns.length === 1 ) {
                 this.handlePatternClear();
             }
             else {
-                this.activeSong.patterns = PatternUtil.removePatternAtIndex(patterns, this.activePattern);
-        
-                if ( this.activePattern > 0 )
-                    this.setActivePattern(this.activePattern - 1);
+                this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_PATTERN, { store: this.$store }));
             }
         },
         handlePatternAdvanced() {

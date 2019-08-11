@@ -24,20 +24,20 @@ import PatternFactory from '../model/factory/pattern-factory';
 
 export default {
     /**
-     * create a new empty pattern and insert it at the given index
-     * for the given pattern list
+     * insert a pattern at the given index for the given pattern list
      *
      * @public
      * @param {Array.<PATTERN>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
      * @param {number} amountOfSteps the amount of steps in the pattern to generate
+     * @param {PATTERN=} pattern optional pattern to inject, otherwise empty pattern is created
      * @return {Array.<PATTERN>} updated list
      */
-    addEmptyPatternAtIndex( patterns, index, amountOfSteps ) {
+    addPatternAtIndex( patterns, index, amountOfSteps, pattern ) {
         const front = patterns.slice( 0, index );
         const back  = patterns.slice( index );
 
-        front.push( PatternFactory.createEmptyPattern( amountOfSteps ));
+        front.push( pattern ? pattern : PatternFactory.createEmptyPattern( amountOfSteps ));
 
         // update event offset for back patterns (as their start offset should now shift)
 
@@ -71,8 +71,7 @@ export default {
         // update event offset for back pattern (as it has now shifted)
 
         back.forEach(pattern => {
-            pattern.channels.forEach(channel =>
-            {
+            pattern.channels.forEach(channel => {
                 channel.forEach(event => {
                     if ( event ) {
                         --event.seq.startMeasure;
