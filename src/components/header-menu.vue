@@ -50,7 +50,10 @@
                 </li>
                 <li @click="handleSettings" data-api-settings>Settings</li>
                 <li v-if="hasRecord"
-                    @click="handleRecord" data-api-record>Record output</li>
+                    @click="handleRecord" data-api-record
+                >
+                    {{ recordingButtonText }}
+                </li>
                 <li @click="handleHelp" data-api-help>Help</li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"
@@ -79,6 +82,7 @@ export default {
         ...mapGetters([
             'activeSong',
             'getInstruments',
+            'isPlaying',
             'getCopy'
         ]),
         hasImportExport() {
@@ -91,7 +95,10 @@ export default {
             // on iOS and Safari recording isn't working as expected...
             const userAgent = window.navigator.userAgent;
             return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome)/g);
-        }
+        },
+        recordingButtonText() {
+            return this.isPlaying && AudioService.isRecording() ? 'Stop recording' : 'Record output';
+        },
     },
     watch: {
         blindActive(isOpen, wasOpen) {
@@ -113,7 +120,8 @@ export default {
             'openDialog',
             'showError',
             'showNotification',
-            'setActiveSong'
+            'setActiveSong',
+            'setPlaying'
         ]),
         ...mapActions([
             'createSong',
@@ -151,8 +159,21 @@ export default {
             window.open(ManualURLs.ONLINE_MANUAL);
         },
         handleRecord() {
-            AudioService.toggleRecordingState();
-            this.showNotification({ message: this.getCopy('RECORDING_ENABLED') });
+            if (AudioService.isRecording()) {
+                return AudioService.toggleRecordingState();
+            }
+            const self = this;
+            this.openDialog({
+                type: 'confirm',
+                title: this.getCopy('RECORD_OUTPUT'),
+                message: this.getCopy('RECORD_OUTPUT_EXPL'),
+                confirm() {
+                    AudioService.toggleRecordingState();
+                    if (!self.isPlaying) {
+                        self.setPlaying(true);
+                    }
+                },
+            });
         },
         handleSongImport() {
             this.importSong()

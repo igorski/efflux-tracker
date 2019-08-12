@@ -330,6 +330,7 @@ export default {
       }
 
       .enable-selector {
+        position: absolute;
         margin-top: -($spacing-large + $spacing-xsmall);
         margin-left: 95px;
       }

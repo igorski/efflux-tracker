@@ -189,9 +189,9 @@ function step(store) {
             // last measure reached, jump back to first
             store.commit('setActivePattern', 0);
 
-            // stop playing if we're recording and looping is disabled
+            // stop playing if we're recording output and looping is disabled
 
-            if ( state.recording && !state.looping ) {
+            if ( AudioService.isRecording() && !state.looping ) {
                 store.commit('setPlaying', false );
                 return;
             }
@@ -223,7 +223,7 @@ export default {
     state: {
         playing               : false,
         looping               : false,
-        recording             : false,
+        recording             : false, // whether we should record non-sequenced noteOn/noteOff events into the patterns
         scheduleAheadTime     : 0.2,
         stepPrecision         : 64,
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature

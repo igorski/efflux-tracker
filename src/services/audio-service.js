@@ -192,6 +192,9 @@ const AudioService =
             recorder.exportWAV();
         }
     },
+    isRecording() {
+        return recordOutput;
+    },
     /**
      * synthesize the audio for given event at given startTime
      *
