@@ -153,23 +153,23 @@ export default KeyboardService;
 
 /* internal methods */
 
-function handleKeyDown( aEvent ) {
+function handleKeyDown(event) {
     if (suspended) {
         return;
     }
-    const keyCode = aEvent.keyCode; // the current step position and channel within the pattern
-    shiftDown     = !!aEvent.shiftKey;
+    const keyCode = event.keyCode; // the current step position and channel within the pattern
+    shiftDown     = !!event.shiftKey;
 
     // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
 
     if (blockDefaults && DEFAULT_BLOCKED.includes(keyCode))
-        aEvent.preventDefault();
+        preventDefault(event);
 
     if ( typeof listener === 'function' ) {
-        listener( 'down', keyCode, aEvent );
+        listener( 'down', keyCode, event );
         return;
     }
-    const hasOption = KeyboardService.hasOption( aEvent );
+    const hasOption = KeyboardService.hasOption( event );
 
     if ( !hasOption && !shiftDown )
         handleInputForMode( keyCode );
@@ -204,7 +204,7 @@ function handleKeyDown( aEvent ) {
 
             // when holding down shift make a selection, otherwise clear selection
 
-            if ( aEvent && shiftDown ) {
+            if ( event && shiftDown ) {
                 setSelectedSlot(); // will unset selected slot
                 store.commit('handleVerticalKeySelectAction', {
                     keyCode,
@@ -225,7 +225,7 @@ function handleKeyDown( aEvent ) {
 
             // when holding down shift make a selection, otherwise clear existing selection
 
-            if ( aEvent && shiftDown ) {
+            if ( event && shiftDown ) {
                 setSelectedSlot(); // will unset selected slot
                 store.commit('handleVerticalKeySelectAction', {
                     keyCode,
@@ -348,7 +348,7 @@ function handleKeyDown( aEvent ) {
             // deselect all
             if (hasOption) {
                 store.commit('clearSelection');
-                aEvent.preventDefault();  // 'add to bookmark' :)
+                preventDefault(event);  // 'add to bookmark' :)
             }
             break;
 
@@ -358,7 +358,7 @@ function handleKeyDown( aEvent ) {
                     state.song.activeSong, state.editor.selectedStep, state.sequencer.activePattern,
                     state.editor.selectedInstrument, state.editor.eventList, store
                 );
-                aEvent.preventDefault(); // in-page search
+                preventDefault(event); // in-page search
             }
             break;
 
@@ -369,21 +369,21 @@ function handleKeyDown( aEvent ) {
         case 76: // L
             if (hasOption) {
                 store.commit('setLooping', !state.sequencer.looping);
-                aEvent.preventDefault();
+                preventDefault(event); // location bar
             }
             break;
 
         case 82: // R
             if (hasOption) {
                 store.commit('setRecording', !state.sequencer.recording);
-                aEvent.preventDefault(); // otherwise page refreshes
+                preventDefault(event); // page refresh
             }
             break;
 
         case 83: // S
             if (hasOption) {
                 store.dispatch('saveSong', state.song.activeSong);
-                aEvent.preventDefault(); // otherwise page is saved
+                preventDefault(event); // page save
             }
             break;
 
@@ -392,6 +392,7 @@ function handleKeyDown( aEvent ) {
             // paste current selection
             if (hasOption) {
                 store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.PASTE_SELECTION, { store }));
+                preventDefault(event); // override browser paste
             }
             break;
 
@@ -401,6 +402,7 @@ function handleKeyDown( aEvent ) {
 
             if (hasOption) {
                 store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.CUT_SELECTION, { store }));
+                preventDefault(event); // override browser cut
             }
             break;
 
@@ -412,6 +414,7 @@ function handleKeyDown( aEvent ) {
                     // TODO this is wasteful, can we do this more elegantly?
                     EventUtil.linkEvents( state.song.activeSong.patterns, state.editor.eventList );
                 });
+                preventDefault(event); // override browser undo
             }
             break;
 
@@ -496,6 +499,11 @@ function setSelectedSlot( targetValue ) {
 
     store.commit('setSelectedSlot', value);
     return value !== targetValue;
+}
+
+function preventDefault(event) {
+    event.preventDefault();
+    event.stopPropagation();
 }
 
 function handleDeleteActionForCurrentMode() {
