@@ -242,7 +242,7 @@ export default {
                 /* record button */
                 &#recordBTN {
                     background-color: #d00e57;
-                    padding: 0 .65em;
+                    padding: 0 9px;
                     border-radius: 50%;
                     margin-left: $spacing-small;
 

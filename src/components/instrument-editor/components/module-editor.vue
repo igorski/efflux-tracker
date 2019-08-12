@@ -327,13 +327,11 @@ export default {
         border-bottom-right-radius: $spacing-medium;
         padding: $spacing-small 0 $spacing-small $spacing-medium;
         margin-bottom: $spacing-medium;
-        position: relative;
       }
 
       .enable-selector {
-        position: absolute;
-        top: -$spacing-small;
-        right: $spacing-small;
+        margin-top: -($spacing-large + $spacing-xsmall);
+        margin-left: 95px;
       }
 
       .tabbed-content {
@@ -351,7 +349,7 @@ export default {
     }
 
     #filterEditor {
-      margin-bottom: .7em;
+      margin-bottom: $spacing-medium;
     }
 
     /* ideal size and above (tablet/desktop) */
