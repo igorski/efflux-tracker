@@ -194,7 +194,7 @@ export default {
                         reject(getters.getCopy('ERROR_FILE_LOAD'));
                     };
 
-                    reader.onload = readerEvent => {
+                    reader.onload = async readerEvent => {
                         const fileData    = readerEvent.target.result;
                         const instruments = JSON.parse(window.atob(fileData));
 
@@ -202,12 +202,13 @@ export default {
 
                         if (Array.isArray(instruments)) {
                             let amountImported = 0;
-                            instruments.forEach(async instrument => {
+                            for (let i = 0; i < instruments.length; ++i) {
+                                const instrument = instruments[i];
                                 if (InstrumentValidator.isValid(instrument)) {
                                     await dispatch('saveInstrument', instrument);
                                     ++amountImported;
                                 }
-                            });
+                            }
                             resolve(amountImported);
                         } else {
                             resolve(getters.getCopy('ERROR_INSTRUMENT_IMPORT'));
@@ -218,13 +219,19 @@ export default {
                 });
             });
         },
-        exportInstruments({ state }) {
-            return new Promise((resolve, reject) => {
+        exportInstruments({ state, getters, dispatch }) {
+            return new Promise(async (resolve, reject) => {
                 if (Array.isArray(state.instruments ) && state.instruments.length > 0) {
+                    // retrieve all instrument data
+                    const instruments = [];
+                    for (let i = 0; i < state.instruments.length; ++i) {
+                        const ins = state.instruments[i];
+                        const instrument = await dispatch('loadInstrument', getters.getInstrumentByPresetName(ins.presetName));
+                        instruments.push(instrument);
+                    }
 
                     // encode instrument data
-
-                    const data = window.btoa(JSON.stringify(state.instruments));
+                    const data = window.btoa(JSON.stringify(instruments));
 
                     // download file to disk
 
