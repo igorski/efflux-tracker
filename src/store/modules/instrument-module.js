@@ -25,20 +25,16 @@ import FixturesLoader      from '../../services/fixtures-loader';
 import StorageUtil         from '../../utils/storage-util';
 import InstrumentValidator from '../../model/validators/instrument-validator';
 
-/* internal methods */
+const INSTRUMENT_STORAGE_KEY = 'Efflux_Ins_';
 
-const persistState = state => {
-    StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
-};
-
-// a module that can store and retrieve saved instrument presets
+// module that can store and retrieve saved instrument presets
 
 export default {
     state: {
         /**
          * @type {Array.<Object>}
          */
-        instruments : [],
+        instruments : []
     },
     getters: {
         getInstruments(state) {
@@ -52,21 +48,33 @@ export default {
         setInstruments(state, instruments ) {
             state.instruments = instruments;
         },
-        addInstrument(state, instrument) {
-            state.instruments.push(instrument);
-        },
         setPresetName(state, { instrument, presetName }) {
             instrument.presetName = presetName;
         }
     },
     actions: {
-        loadStoredInstruments({ state, commit }) {
+        loadStoredInstruments({ commit, dispatch }) {
             StorageUtil.init();
-            StorageUtil.getItem( Config.LOCAL_STORAGE_INSTRUMENTS ).then(
-               ( result ) => {
-                   if ( typeof result === "string" ) {
+            StorageUtil.getItem( Config.LOCAL_STORAGE_INSTRUMENTS ).then(async result => {
+                   if ( typeof result === 'string' ) {
                        try {
-                           commit('setInstruments', JSON.parse( result ));
+                           const instruments = JSON.parse(result);
+                           let wasLegacyStorageFormat = false;
+
+                           // if instrument contained oscillators, we know that the storage was using
+                           // the legacy format where all instruments were serialized in a single list
+                           // convert the storage to the new memory-friendly format
+
+                           for (let i = 0; i < instruments.length; ++i) {
+                               const instrument = instruments[i];
+                               if (Array.isArray(instrument.oscillators)) {
+                                   await dispatch('saveInstrument', instrument);
+                                   wasLegacyStorageFormat = true;
+                               }
+                           }
+                           if (!wasLegacyStorageFormat) {
+                               commit('setInstruments', instruments);
+                           }
                        }
                        catch ( e ) {
                            // that's fine...
@@ -74,20 +82,28 @@ export default {
                    }
                },
                async () => {
-
                    // no instruments available ? load fixtures with "factory content"
                    commit('setLoading', true);
                    const instruments = await FixturesLoader.load('Instruments.json');
                    commit('setLoading', false);
-
                    if (Array.isArray(instruments)) {
-                       commit('setInstruments', instruments);
-                       persistState(state);
+                       for (let i = 0; i < instruments.length; ++i) {
+                           await dispatch('saveInstrument', instruments[i]);
+                       }
                    }
                }
             );
         },
-        saveInstrument({ state, commit, dispatch }, instrument) {
+        loadInstrument(store, instrument) {
+            return new Promise(async (resolve, reject) => {
+                const storedInstrument = await StorageUtil.getItem(getStorageKeyForInstrument(instrument));
+                if (!storedInstrument) {
+                    reject();
+                }
+                resolve(JSON.parse(storedInstrument));
+            });
+        },
+        saveInstrument({ state, dispatch }, instrument) {
             return new Promise(async (resolve, reject) => {
                 if ( InstrumentValidator.isValid( instrument ) &&
                    ( typeof instrument.presetName === 'string' && instrument.presetName.length > 0 )) {
@@ -99,15 +115,20 @@ export default {
                     catch(e) {
                         // that's fine...
                     }
-                    commit('addInstrument', instrument );
+
+                    // push instrument into instrument list
+                    state.instruments.push(getMetaForInstrument(instrument));
                     persistState(state);
+
+                    // save instrument into storage
+                    StorageUtil.setItem(getStorageKeyForInstrument(instrument), JSON.stringify(instrument));
+
                     resolve();
                 } else {
                     reject();
                 }
             });
         },
-
         /**
          * delete given instrument from the model
          *
@@ -127,13 +148,14 @@ export default {
 
                 // remove duplicate instrument if existed
 
-                while ( i-- )
-                {
-                    const compareInstrument = state.instruments[ i ];
-
+                while ( i-- ) {
+                    const compareInstrument = state.instruments[i];
                     if ( compareInstrument.presetName === instrument.presetName ) {
-                        // instrument existed, name is equal, remove old instrument so we can replace it
+                        // instrument existed, name is equal, remove old instrument from list so we can replace it
                         state.instruments.splice( i, 1 );
+
+                        // remove instrument storage entry
+                        StorageUtil.removeItem(getStorageKeyForInstrument(instrument));
                         deleted = true;
                         break;
                     }
@@ -163,21 +185,21 @@ export default {
                  false, false, false, 0, null
             );
             fileBrowser.dispatchEvent(simulatedEvent);
-            
+
             return new Promise((resolve, reject) => {
                 fileBrowser.addEventListener( 'change', fileBrowserEvent => {
                     const reader = new FileReader();
-    
+
                     reader.onerror = () => {
                         reject(getters.getCopy('ERROR_FILE_LOAD'));
                     };
-    
+
                     reader.onload = readerEvent => {
                         const fileData    = readerEvent.target.result;
                         const instruments = JSON.parse(window.atob(fileData));
-    
+
                         // check if we're dealing with valid instruments
-    
+
                         if (Array.isArray(instruments)) {
                             let amountImported = 0;
                             instruments.forEach(async instrument => {
@@ -220,3 +242,12 @@ export default {
         }
     }
 };
+
+/* internal methods */
+
+const getMetaForInstrument = instrument => ({
+    presetName: instrument.presetName,
+});
+
+const getStorageKeyForInstrument = instrument => `${INSTRUMENT_STORAGE_KEY}${instrument.presetName.replace(/\s/g, '')}`;
+const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify(state.instruments));

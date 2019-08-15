@@ -7,7 +7,9 @@ const { getters, mutations, actions } = InstrumentModule;
 // mock storage
 
 jest.mock('@/utils/storage-util', () => ({
-    setItem: jest.fn()
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn()
 }));
 
 describe('InstrumentModel', () => {
@@ -40,13 +42,6 @@ describe('InstrumentModel', () => {
             expect(state.instruments).toEqual(instruments);
         });
 
-        it('should be able to add individual instruments', () => {
-            const state = { instruments: [{ foo: 'bar' }] };
-            const newInstrument = { baz: 'qux' };
-            mutations.addInstrument(state, newInstrument);
-            expect(state.instruments).toEqual([{ foo: 'bar' }, { baz: 'qux' }]);
-        });
-
         it('should be able to set the given instruments preset name', () => {
             const ins = InstrumentFactory.createInstrument(0);
             mutations.setPresetName(state, { instrument: ins, presetName: 'quux' });
@@ -65,7 +60,6 @@ describe('InstrumentModel', () => {
                 } catch (e) {
                     // expected instrument without preset name not to have been saved
                 }
-                expect(commit).not.toHaveBeenCalledWith('addInstrument', invalidInstrument);
             });
 
             it('should be able to save instruments in storage', async () => {
@@ -74,7 +68,10 @@ describe('InstrumentModel', () => {
 
                 await actions.saveInstrument({ state, commit, dispatch }, instrument);
 
-                expect(commit).toHaveBeenCalledWith('addInstrument', instrument);
+                // expected instruments meta to have been saved into the instruments list
+                expect(state.instruments).toEqual([
+                    { presetName: instrument.presetName }
+                ]);
             });
         });
 
@@ -83,7 +80,7 @@ describe('InstrumentModel', () => {
 
             await actions.deleteInstrument({ state }, { instrument });
 
-            expect(0).toEqual(getters.getInstruments(state).length);
+            expect(state.instruments).toHaveLength(0);
         });
     });
 });

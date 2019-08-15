@@ -163,11 +163,13 @@ export default {
         },
     },
     watch: {
-        currentPreset(selectedPresetName) {
+        async currentPreset(selectedPresetName) {
             if (selectedPresetName !== EMPTY_PRESET_VALUE &&
                 this.instrumentRef.presetName !== selectedPresetName) {
-                const instrumentPreset = this.getInstrumentByPresetName(selectedPresetName);
-                if (!instrumentPreset) {
+                let instrumentPreset;
+                try {
+                    instrumentPreset = await this.loadInstrument(this.getInstrumentByPresetName(selectedPresetName));
+                } catch (e) {
                     return;
                 }
                 const newInstrument = InstrumentFactory.loadPreset(
@@ -199,6 +201,7 @@ export default {
             'publishMessage'
         ]),
         ...mapActions([
+            'loadInstrument',
             'saveInstrument'
         ]),
         openHelp() {
