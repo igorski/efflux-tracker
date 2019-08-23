@@ -59,19 +59,20 @@
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
-                <li class="pattern-next" @click="gotoNextPattern(activeSong)">&gt;&gt;</li>
+                <li class="pattern-next"
+                    @click="gotoNextPattern(activeSong)">&gt;&gt;</li>
             </ul>
             <ul class="tempo-control wrapper input range">
                 <li class="section-divider"><!-- x --></li>
                 <li>
-                    <label for="songTempo">Tempo</label>
+                    <label v-t="'tempoLabel'" for="songTempo"></label>
                     <input type="range"
                            id="songTempo"
                            name="tempo"
                            v-model="tempo"
                            min="40" max="300" step="0.1"
                     />
-                    <span class="value">{{ tempo }} BPM</span>
+                    <span class="value">{{ $t('tempo', { tempo }) }}</span>
                 </li>
             </ul>
         </div>
@@ -81,12 +82,14 @@
 <script>
 import Vue from 'vue';
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import Bowser from 'bowser';
 
-import AudioService from '../services/audio-service';
-import SongUtil     from '../utils/song-util';
-import Bowser       from 'bowser';
+import AudioService from '@/services/audio-service';
+import SongUtil     from '@/utils/song-util';
+import messages     from './messages.json';
 
 export default {
+    i18n: { messages },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -198,11 +201,11 @@ export default {
 
     @font-face {
       font-family: 'transporter';
-      src: url('../assets/fonts/transporter.eot');
-      src: url('../assets/fonts/transporter.eot#iefix') format('embedded-opentype'),
-           url('../assets/fonts/transporter.woff') format('woff'),
-           url('../assets/fonts/transporter.ttf') format('truetype'),
-           url('../assets/fonts/transporter.svg#transporter') format('svg');
+      src: url('../../assets/fonts/transporter.eot');
+      src: url('../../assets/fonts/transporter.eot#iefix') format('embedded-opentype'),
+           url('../../assets/fonts/transporter.woff') format('woff'),
+           url('../../assets/fonts/transporter.ttf') format('truetype'),
+           url('../../assets/fonts/transporter.svg#transporter') format('svg');
       font-weight: normal;
       font-style: normal;
     }

@@ -1,0 +1,9 @@
+{
+  "en-US": {
+    "title": "Instrument editor",
+    "instrument": "Instrument {index}",
+    "oscillator": "Oscillator {index}",
+    "presets": "Presets",
+    "savePreset": "Save preset"
+  }
+}

@@ -36,6 +36,7 @@
     "sass-loader": "^7.1.0",
     "script-loader": "^0.7.2",
     "undo-manager": "^1.0.5",
+    "vue-i18n": "^8.14.0",
     "vue-template-compiler": "^2.5.21",
     "wa-overdrive": "^0.0.3",
     "worker-loader": "^2.0.0",

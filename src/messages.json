@@ -1,0 +1,10 @@
+{
+  "en-US": {
+    "unsupported": {
+      "title": "Whoops...",
+      "message": "Either the WebAudio API is not supported in this browser or it does not match the required standards. Sadly, Efflux depends on these standards in order to actually output sound!",
+      "download": "Luckily, you can get a web browser that offers support for free. We recommend {0} for an optimal experience.",
+      "googleChrome": "Google Chrome"
+    }
+  }
+}

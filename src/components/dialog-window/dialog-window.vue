@@ -24,20 +24,24 @@
     <div id="dialogWindow">
         <h4>{{ title }}</h4>
         <p>{{ message }}</p>
-        <button type="button"
+        <button v-t="'ok'"
+                type="button"
                 @click="handleConfirm"
-        >{{ getCopy('BUTTON_OK') }}</button>
-        <button v-if="type === 'confirm'"
+        ></button>
+        <button v-t="'cancel'"
+                v-if="type === 'confirm'"
                 type="button"
                 @click="handleCancel"
-        >{{ getCopy('BUTTON_CANCEL') }}</button>
+        ></button>
     </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations } from 'vuex';
+import { mapMutations } from 'vuex';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     props: {
         title: {
             type: String,
@@ -60,11 +64,6 @@ export default {
             type: Function,
             default: null,
         }
-    },
-    computed: {
-        ...mapGetters([
-            'getCopy',
-        ])
     },
     methods: {
         ...mapMutations([
@@ -90,8 +89,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import "../styles/_variables.scss";
-    @import "../styles/_layout.scss";
+    @import "@/styles/_variables.scss";
+    @import "@/styles/_layout.scss";
 
     #dialogWindow {
 

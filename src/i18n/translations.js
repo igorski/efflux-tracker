@@ -50,8 +50,6 @@ const EN =
     ERROR_TITLE             : `Error`,
     SUCCESS_TITLE           : `Operation completed`,
     CONFIRM_TITLE           : `Confirm`,
-    BUTTON_OK               : `OK`,
-    BUTTON_CANCEL           : `Cancel`,
     BUTTON_FS_ACTIVATE      : `Maximize`,
     BUTTON_FS_CANCEL        : `Exit fullscreen`,
     ERROR_SONG_IMPORT       : `Could not import song, file was possibly not a valid ${Config.SONG_FILE_EXTENSION} ` +

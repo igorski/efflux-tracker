@@ -1,25 +1,23 @@
 <template>
     <div v-if="prepared" id="efflux">
-        <header class="application-header"
-                :class="{ expanded: menuOpened }"
-        >
-            <header-menu />
-            <transport />
-        </header>
         <!-- message of disappointment in case environment does not support appropriate web API's -->
-        <template v-if="!canLaunch">
-            <h1>Whoops...</h1>
-            <p>
-                Either the WebAudio API is not supported in this browser or it does not match the
-                required standards. Sadly, Efflux depends on these standards in order to actually output sound!
-            </p>
-            <p>
-                Luckily, you can get a web browser that offers support for free.
-                We recommend <a href="https://www.google.com/chrome" rel="noopener" target="_blank">Google Chrome</a> for an
-                optimal experience.
-            </p>
-        </template>
+        <div v-if="!canLaunch"
+             class="container"
+        >
+            <h1 v-t="'unsupported.title'"></h1>
+            <p v-t="'unsupported.message'"></p>
+            <i18n path="unsupported.download">
+                <a v-t="'unsupported.googleChrome'"
+                   href="https://www.google.com/chrome" rel="noopener" target="_blank"></a>
+            </i18n>
+        </div>
         <template v-else>
+            <header class="application-header"
+                    :class="{ expanded: menuOpened }"
+            >
+                <header-menu />
+                <transport />
+            </header>
             <!-- actual application -->
             <div class="container">
                 <div id="properties">
@@ -89,39 +87,43 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Vue from 'vue';
 import Vuex from 'vuex';
+import VueI18n from 'vue-i18n';
 
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
-import Config from './config';
-import ModalWindows from './definitions/modal-windows';
-import ListenerUtil from './utils/listener-util';
-import AudioService from './services/audio-service';
-import PubSubService from './services/pubsub-service';
-import PubSubMessages from './services/pubsub/messages';
 import { Style } from 'zjslib';
-import HeaderMenu from './components/header-menu';
-import Transport from './components/transport';
-import AdvancedPatternEditor from './components/advanced-pattern-editor';
-import ModuleParamEditor from './components/module-param-editor';
-import NoteEntryEditor from './components/note-entry-editor';
-import InstrumentEditor from './components/instrument-editor/instrument-editor';
-import PatternEditor from './components/pattern-editor';
-import PatternTrackList from './components/pattern-track-list';
-import TrackEditor from './components/track-editor';
-import HelpSection from './components/help-section';
-import DialogWindow from './components/dialog-window';
-import SettingsWindow from './components/settings-window';
-import SongBrowser from './components/song-browser';
-import SongEditor from './components/song-editor';
-import Notifications from './components/notifications';
-import Loader from './components/loader';
-import store from './store';
+import Config from '@/config';
+import AdvancedPatternEditor from '@/components/advanced-pattern-editor';
+import AudioService from '@/services/audio-service';
+import DialogWindow from '@/components/dialog-window/dialog-window';
+import HeaderMenu from '@/components/header-menu';
+import HelpSection from '@/components/help-section';
+import InstrumentEditor from '@/components/instrument-editor/instrument-editor';
+import Loader from '@/components/loader';
+import ListenerUtil from '@/utils/listener-util';
+import ModalWindows from '@/definitions/modal-windows';
+import ModuleParamEditor from '@/components/module-param-editor';
+import NoteEntryEditor from '@/components/note-entry-editor';
+import Notifications from '@/components/notifications';
+import PatternEditor from '@/components/pattern-editor';
+import PatternTrackList from '@/components/pattern-track-list';
+import PubSubService from '@/services/pubsub-service';
+import PubSubMessages from '@/services/pubsub/messages';
+import SettingsWindow from '@/components/settings-window';
+import SongBrowser from '@/components/song-browser';
+import SongEditor from '@/components/song-editor';
+import TrackEditor from '@/components/track-editor';
+import Transport from '@/components/transport/transport';
+import store from '@/store';
+import messages from '@/messages.json';
 
 Vue.use(Vuex);
+Vue.use(VueI18n);
 
 export default {
     name: 'Efflux',
     store: new Vuex.Store(store),
+    i18n: { messages },
     components: {
         AdvancedPatternEditor,
         ModuleParamEditor,
@@ -226,6 +228,10 @@ export default {
         this.addListeners();
 
         this.prepared = true;
+
+        if (!this.canLaunch) {
+            return;
+        }
 
         this.publishMessage(PubSubMessages.EFFLUX_READY);
 
