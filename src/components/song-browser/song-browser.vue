@@ -23,7 +23,7 @@
 <template>
     <div class="song-browser">
         <div class="header">
-            <h2>Songs</h2>
+            <h2 v-t="'songs'"></h2>
             <button type="button"
                     class="close-button"
                     @click="$emit('close')"
@@ -36,7 +36,9 @@
             >
                 <span class="title">{{ `${song.meta.title}, by ${song.meta.author}` }}</span>
                 <span class="date">{{ getSongDate(song) }}</span>
-                <span class="delete" @click.stop.prevent="deleteSongClick(song.id)">x</span>
+                <span class="delete"
+                      @click.stop.prevent="deleteSongClick(song.id)"
+                >x</span>
             </li>
         </ul>
     </div>
@@ -44,12 +46,13 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
-import Time from '../utils/time-util';
+import Time from '@/utils/time-util';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     computed: {
         ...mapGetters([
-            'getCopy',
             'getSongById',
             'songs'
         ]),
@@ -59,7 +62,7 @@ export default {
             immediate: true,
             handler(songs) {
                 if (songs.length === 0 ) {
-                    this.openDialog({ title: this.getCopy('ERROR_TITLE'), message: this.getCopy('ERROR_NO_SONGS') });
+                    this.openDialog({ title: this.$t('error'), message: this.$t('errorNoSongs') });
                 }
             }
         },
@@ -83,7 +86,7 @@ export default {
                 this.setActiveSong(song);
                 this.$emit('close');
             } catch(e) {
-                this.showError(this.getCopy('ERROR_SONG_IMPORT'));
+                this.showError(this.$t('errorSongImport', { extension: Config.SONG_FILE_EXTENSION }));
             }
         },
         deleteSongClick(songId) {
@@ -95,7 +98,7 @@ export default {
             const self = this;
             this.openDialog({
                 type: 'confirm',
-                message:  this.getCopy('SONG_DELETE_CONFIRM', song.meta.title),
+                message:  this.$t('confirmSongDelete', { song: song.meta.title }),
                 confirm() {
                     self.deleteSong({ song });
                 }

@@ -23,46 +23,49 @@
 <template>
     <div id="advancedPatternEditor">
         <div class="header">
-            <h4 class="title">Advanced pattern editor</h4>
+            <h4 v-t="'title'" class="title"></h4>
             <button type="button"
                     class="close-button"
                     @click="handleClose">x</button>
         </div>
         <fieldset>
             <div class="wrapper input">
-                <label>Copy pattern range:</label>
+                <label v-t="'copyPatternRangeLabel'"></label>
                 <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
             </div>
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label>Copy channel range:</label>
+                <label v-t="'copyChanngelRangeLabel'"></label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label>Insert after pattern:</label>
+                <label v-t="'insertAfterLabel'"></label>
                 <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
         </fieldset>
-        <button type="button"
+        <button v-t="'copyContent'"
+                type="button"
                 class="confirm-button"
                 @keyup.enter="handleConfirm"
                 @click="handleConfirm"
-        >Copy content</button>
+        ></button>
     </div>
 </template>
 
 <script>
 import { mapState, mapMutations } from 'vuex';
 
-import PatternFactory  from '../model/factory/pattern-factory';
-import ObjectUtil      from '../utils/object-util';
+import PatternFactory from '@/model/factory/pattern-factory';
+import ObjectUtil     from '@/utils/object-util';
+import messages       from './messages.json';
 
 export default {
+    i18n: { messages },
     data: () => ({
         firstPattern: 1,
         lastPattern: 1,
