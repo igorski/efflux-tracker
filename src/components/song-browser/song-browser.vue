@@ -46,6 +46,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex';
+import Config from '@/config';
 import Time from '@/utils/time-util';
 import messages from './messages.json';
 
@@ -109,8 +110,8 @@ export default {
 </script>
 
 <style lang='scss' scoped>
-    @import '../styles/_variables.scss';
-    @import '../styles/_layout.scss';
+    @import '@/styles/_variables.scss';
+    @import '@/styles/_layout.scss';
 
     $songBrowserWidth: 800px;
     $songBrowserHeight: 600px;

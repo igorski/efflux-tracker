@@ -23,43 +23,57 @@
 <template>
     <div class="module-param-editor">
         <div class="header">
-            <h4 class="title">Module Parameter Change editor</h4>
-            <button class="help-button" @click="handleHelp">?</button>
+            <h4 v-t="'title'" class="title"></h4>
+            <button class="help-button"  @click="handleHelp">?</button>
             <button class="close-button" @click="handleClose">x</button>
         </div>
         <ul id="moduleSelect">
             <ul class="event">
-                <form-list-item v-model="module" option-value="volume">volume</form-list-item>
-                <form-list-item v-model="module" option-value="pitchUp">pitch +8ve</form-list-item>
-                <form-list-item v-model="module" option-value="pitchDown">pitch -8ve</form-list-item>
+                <form-list-item v-t="'volume'"
+                                v-model="module" option-value="volume" />
+                <form-list-item v-t="'pitchUp'"
+                                v-model="module" option-value="pitchUp" />
+                <form-list-item v-t="'pitchDown'"
+                                v-model="module" option-value="pitchDown" />
             </ul>
             <ul class="filter">
-                <form-list-item v-model="module" option-value="filterEnabled">filter on/off</form-list-item>
-                <form-list-item v-model="module" option-value="filterFreq">filter frequency</form-list-item>
-                <form-list-item v-model="module" option-value="filterQ">filter q</form-list-item>
-                <form-list-item v-model="module" option-value="filterLFOEnabled">filter LFO on/off</form-list-item>
-                <form-list-item v-model="module" option-value="filterLFOSpeed">filter LFO speed</form-list-item>
-                <form-list-item v-model="module" option-value="filterLFODepth">filter LFO depth</form-list-item>
+                <form-list-item v-t="'filterOnOff'"
+                                v-model="module" option-value="filterEnabled" />
+                <form-list-item v-t="'filterFreq'"
+                                v-model="module" option-value="filterFreq" />
+                <form-list-item v-t="'filterQ'"
+                                v-model="module" option-value="filterQ" />
+                <form-list-item v-t="'filterLfoOnOff'"
+                                v-model="module" option-value="filterLFOEnabled" />
+                <form-list-item v-t="'filterLfoSpeed'"
+                                v-model="module" option-value="filterLFOSpeed" />
+                <form-list-item v-t="'filterLfoDepth'"
+                                v-model="module" option-value="filterLFODepth" />
             </ul>
             <ul class="delay">
-                <form-list-item v-model="module" option-value="delayEnabled">delay on/off</form-list-item>
-                <form-list-item v-model="module" option-value="delayTime">delay time</form-list-item>
-                <form-list-item v-model="module" option-value="delayFeedback">delay feedback</form-list-item>
-                <form-list-item v-model="module" option-value="delayCutoff">delay cutoff</form-list-item>
-                <form-list-item v-model="module" option-value="delayOffset">delay offset</form-list-item>
+                <form-list-item v-t="'delayOnOff'"
+                                v-model="module" option-value="delayEnabled" />
+                <form-list-item v-t="'delayTime'"
+                                v-model="module" option-value="delayTime" />
+                <form-list-item v-t="'delayFeedback'"
+                                v-model="module" option-value="delayFeedback" />
+                <form-list-item v-t="'delayCutoff'"
+                                v-model="module" option-value="delayCutoff" />
+                <form-list-item v-t="'delayOffset'"
+                                v-model="module" option-value="delayOffset" />
             </ul>
         </ul>
         <fieldset>
             <div class="wrapper input radio">
-                <h2>Glide ?</h2>
-                <label for="glideTrue">On</label>
+                <h2 v-t="'useGlide'"></h2>
+                <label v-t="'on'" for="glideTrue"></label>
                 <input type="radio"
                        v-model="glide"
                        id="glideTrue"
                        name="glide"
                        :value="true"
                 />
-                <label for="glideFalse">Off</label>
+                <label v-t="'off'" for="glideFalse"></label>
                 <input type="radio"
                        v-model="glide"
                        id="glideFalse"
@@ -68,7 +82,7 @@
                 />
             </div>
             <div class="wrapper input range">
-                <label for="moduleValue">Parameter value</label>
+                <label v-t="'parameterValue'" for="moduleValue"></label>
                 <input v-model.number="value"
                        type="range"
                        id="moduleValue"
@@ -76,31 +90,30 @@
                 />
                 <div id="moduleInputValue" v-html="valueText"></div>
             </div>
-            <p>
-                For fast editing: use the keyboard to type a module parameter (first letter),
-                use the "G" key to toggle glide on/off and type a numerical value between 0 to 99
-                for its parameter value. Hit enter to confirm.
-            </p>
-            <button type="button"
+            <p v-t="'fastEditDescr'"></p>
+            <button v-t="'ok'"
+                    type="button"
                     class="confirm-button"
                     @click="handleSubmit"
-            >OK</button>
+            ></button>
         </fieldset>
     </div>
 </template>
 
 <script>
 import { mapState, mapMutations } from 'vuex';
-import FormListItem from './forms/form-list-item';
-import EventFactory from '../model/factory/event-factory';
-import KeyboardService from '../services/keyboard-service';
-import ModuleParamHandler from '../services/keyboard/module-param-handler';
-import ManualURLs from '../definitions/manual-urls';
+import FormListItem from '../forms/form-list-item';
+import EventFactory from '@/model/factory/event-factory';
+import KeyboardService from '@/services/keyboard-service';
+import ModuleParamHandler from '@/services/keyboard/module-param-handler';
+import ManualURLs from '@/definitions/manual-urls';
+import messages from './messages.json';
 
 const DEFAULT_MODULE = 'volume';
 let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
+    i18n: { messages },
     components: {
         FormListItem,
     },

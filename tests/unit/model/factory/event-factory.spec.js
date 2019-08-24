@@ -1,4 +1,3 @@
-import Config         from '@/config';
 import EventFactory   from '@/model/factory/event-factory';
 import EventValidator from '@/model/validators/event-validator';
 

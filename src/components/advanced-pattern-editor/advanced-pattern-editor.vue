@@ -37,7 +37,7 @@
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label v-t="'copyChanngelRangeLabel'"></label>
+                <label v-t="'copyChannelRangeLabel'"></label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>

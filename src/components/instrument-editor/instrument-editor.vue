@@ -36,7 +36,7 @@
                 <option v-for="(instrument, idx) in instrumentAmount"
                         :key="`instrument_${idx}`"
                         :value="idx"
-                >{{ $t('instrument', { index: instrument }) }}</option>
+                >{{ $t('instrument', { index: idx }) }}</option>
             </select>
         </div>
 
@@ -78,7 +78,7 @@
                 <input v-model="presetName"
                        class="preset-name-input"
                        type="text"
-                       placeholder="preset name"
+                       :placeholder="$t('presetName')"
                        @focus="handleFocusIn"
                        @blur="handleFocusOut"
                        @keyup.enter="savePreset"
@@ -125,7 +125,6 @@ export default {
             instruments: state => state.instrument.instruments
         }),
         ...mapGetters([
-            'getCopy',
             'getInstrumentByPresetName'
         ]),
         instrument: {
@@ -148,7 +147,7 @@ export default {
         presets() {
             const out = [
                 ...this.instruments,
-                { presetName: this.getCopy('INPUT_PRESET')}
+                { presetName: this.$t('defaultPresetName') }
             ];
             return out.sort(( a, b ) => {
                 if( a.presetName < b.presetName ) return -1;
@@ -187,7 +186,7 @@ export default {
         },
     },
     created() {
-        EMPTY_PRESET_VALUE = this.getCopy('INPUT_PRESET');
+        EMPTY_PRESET_VALUE = this.$t('defaultPresetName');
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
         this.publishMessage(PubSubMessages.INSTRUMENT_EDITOR_OPENED);
     },
@@ -218,12 +217,12 @@ export default {
         savePreset() {
             const newPresetName = this.presetName || '';
             if (newPresetName.trim().length === 0) {
-                this.showError(this.getCopy('ERROR_NO_INS_NAME'));
+                this.showError(this.$t('errorNoName'));
             }
             else {
                 this.presetName = newPresetName.replace('*', '');
                 if (this.saveInstrument( ObjectUtil.clone( this.instrumentRef ) )) {
-                    this.showNotification({ message: this.getCopy('INSTRUMENT_SAVED', newPresetName ) });
+                    this.showNotification({ message: this.$t('instrumentSaved', { name: newPresetName }) });
                 }
             }
         },

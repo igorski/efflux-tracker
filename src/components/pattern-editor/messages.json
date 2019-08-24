@@ -1,0 +1,13 @@
+{
+  "en-US": {
+    "title": "Pattern",
+    "clear": "clear",
+    "copy": "copy",
+    "paste": "paste",
+    "add": "add",
+    "delete": "delete",
+    "steps": "steps",
+    "advanced": "advanced",
+    "errorMaxExceeded": "Cannot exceed the allowed maximum of {amount} patterns"
+  }
+}

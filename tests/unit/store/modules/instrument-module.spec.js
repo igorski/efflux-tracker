@@ -1,6 +1,5 @@
-import InstrumentModule    from '@/store/modules/instrument-module';
-import InstrumentValidator from '@/model/validators/instrument-validator';
-import InstrumentFactory   from '@/model/factory/instrument-factory';
+import InstrumentModule  from '@/store/modules/instrument-module';
+import InstrumentFactory from '@/model/factory/instrument-factory';
 
 const { getters, mutations, actions } = InstrumentModule;
 

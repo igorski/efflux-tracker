@@ -21,6 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/* eslint-disable no-unused-vars */
+
 /**
  * describes a single voice for an event (an event is
  * a note being triggered for an instrument, however the

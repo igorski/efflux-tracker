@@ -93,25 +93,25 @@ import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
 import { Style } from 'zjslib';
 import Config from '@/config';
-import AdvancedPatternEditor from '@/components/advanced-pattern-editor';
+import AdvancedPatternEditor from '@/components/advanced-pattern-editor/advanced-pattern-editor';
 import AudioService from '@/services/audio-service';
 import DialogWindow from '@/components/dialog-window/dialog-window';
-import HeaderMenu from '@/components/header-menu';
+import HeaderMenu from '@/components/header-menu/header-menu';
 import HelpSection from '@/components/help-section';
 import InstrumentEditor from '@/components/instrument-editor/instrument-editor';
 import Loader from '@/components/loader';
 import ListenerUtil from '@/utils/listener-util';
 import ModalWindows from '@/definitions/modal-windows';
-import ModuleParamEditor from '@/components/module-param-editor';
-import NoteEntryEditor from '@/components/note-entry-editor';
+import ModuleParamEditor from '@/components/module-param-editor/module-param-editor';
+import NoteEntryEditor from '@/components/note-entry-editor/note-entry-editor';
 import Notifications from '@/components/notifications';
-import PatternEditor from '@/components/pattern-editor';
+import PatternEditor from '@/components/pattern-editor/pattern-editor';
 import PatternTrackList from '@/components/pattern-track-list';
 import PubSubService from '@/services/pubsub-service';
 import PubSubMessages from '@/services/pubsub/messages';
-import SettingsWindow from '@/components/settings-window';
-import SongBrowser from '@/components/song-browser';
-import SongEditor from '@/components/song-editor';
+import SettingsWindow from '@/components/settings-window/settings-window';
+import SongBrowser from '@/components/song-browser/song-browser';
+import SongEditor from '@/components/song-editor/song-editor';
 import TrackEditor from '@/components/track-editor';
 import Transport from '@/components/transport/transport';
 import store from '@/store';
@@ -164,7 +164,6 @@ export default {
             selectedSlot: state => state.editor.selectedSlot
         }),
         ...mapGetters([
-            'getCopy',
             'activeSong'
         ]),
         canLaunch() {
@@ -195,8 +194,8 @@ export default {
                 return;
 
             this.showNotification({
-                title: this.getCopy('SONG_LOADED_TITLE'),
-                message: this.getCopy('SONG_LOADED', song.meta.title)
+                title: this.$t('songLoadedTitle'),
+                message: this.$t('songLoaded', { name: song.meta.title })
             });
             this.publishMessage(PubSubMessages.SONG_LOADED);
         },
@@ -238,7 +237,7 @@ export default {
         // show confirmation message on page reload
 
         if ( !Config.isDevMode() ) {
-            const handleUnload = () => this.getCopy('WARNING_UNLOAD');
+            const handleUnload = () => this.$t('warningUnload');
             if ( Bowser.ios ) {
                 window.addEventListener('popstate', handleUnload);
             }

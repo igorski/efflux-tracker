@@ -24,7 +24,7 @@
     <div>
         <div class="note-entry-editor">
             <div class="header">
-                <h4 class="title">Note entry editor</h4>
+                <h4 v-t="'title'" class="title"></h4>
                 <button type="button"
                         class="help-button"
                         @click="handleHelp"
@@ -61,23 +61,21 @@
             <select class="instrument-selector"
                     v-model.number="instrument"
             >
-                <option value="0">Instrument 0</option>
-                <option value="1">Instrument 1</option>
-                <option value="2">Instrument 2</option>
-                <option value="3">Instrument 3</option>
-                <option value="4">Instrument 4</option>
-                <option value="5">Instrument 5</option>
-                <option value="6">Instrument 6</option>
-                <option value="7">Instrument 7</option>
+                <option value="0">{{ $t('instrument') }} 0</option>
+                <option value="1">{{ $t('instrument') }} 1</option>
+                <option value="2">{{ $t('instrument') }} 2</option>
+                <option value="3">{{ $t('instrument') }} 3</option>
+                <option value="4">{{ $t('instrument') }} 4</option>
+                <option value="5">{{ $t('instrument') }} 5</option>
+                <option value="6">{{ $t('instrument') }} 6</option>
+                <option value="7">{{ $t('instrument') }} 7</option>
             </select>
-            <p>
-                For fast editing: use the keyboard to type a note name and
-                octave number for easy pitch selection. Hit enter to confirm.
-            </p>
-            <button type="button"
+            <p v-t="'fastEditExpl'" class="explanation"></p>
+            <button v-t="'ok'"
+                    type="button"
                     class="confirm-button"
                     @click="handleSubmit"
-            >OK</button>
+            ></button>
         </div>
     </div>
 </template>
@@ -85,20 +83,21 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 
-import KeyboardService from '../services/keyboard-service';
-import FormListItem from './forms/form-list-item.vue';
-
-import EventUtil      from '../utils/event-util';
-import EventFactory   from '../model/factory/event-factory';
-import EventValidator from '../model/validators/event-validator';
-import ManualURLs     from '../definitions/manual-urls';
+import KeyboardService from '@/services/keyboard-service';
+import EventUtil       from '@/utils/event-util';
+import EventFactory    from '@/model/factory/event-factory';
+import EventValidator  from '@/model/validators/event-validator';
+import ManualURLs      from '@/definitions/manual-urls';
+import FormListItem    from '../forms/form-list-item.vue';
+import messages        from './messages.json';
 
 const DEFAULT_NOTE   = 'C';
 const DEFAULT_OCTAVE = 3;
 
 export default {
+    i18n: { messages },
     components: {
-        FormListItem,
+        FormListItem
     },
     data: () => ({
         instrument: 0,
@@ -270,120 +269,125 @@ export default {
       padding: $spacing-small $spacing-large;
       border-radius: $spacing-small;
       box-shadow: 0 0 25px rgba(0,0,0,.5);
+    }
 
-      .title {
-        margin: $spacing-medium 0;
-      }
+    .title {
+      margin: $spacing-medium 0;
+    }
 
-      .instrument-selector {
-        position: absolute;
-        top: $spacing-medium;
-        right: ( $spacing-xlarge + $spacing-xlarge);
-        width: 120px;
-      }
+    .explanation {
+        margin-top: $spacing-medium;
+        display: inline-block;
+    }
 
-      #keyboardNotes {
+    .instrument-selector {
+      position: absolute;
+      top: $spacing-medium;
+      right: ( $spacing-xlarge + $spacing-xlarge);
+      width: 120px;
+    }
+
+    #keyboardNotes {
+      position: relative;
+      width: 100%;
+      height: 100px;
+      margin-bottom: $spacing-small;
+      margin-left: 6.5%;
+
+      li {
+        display: inline-block;
+        cursor: pointer;
         position: relative;
-        width: 100%;
-        height: 100px;
-        margin-bottom: $spacing-small;
-        margin-left: 6.5%;
+        width: 11.111%;
+        height: 100%;
+        background-color: #666;
+        vertical-align: top;
+        margin-right: $spacing-small;
 
-        li {
-          display: inline-block;
-          cursor: pointer;
-          position: relative;
-          width: 11.111%;
-          height: 100%;
-          background-color: #666;
-          vertical-align: top;
-          margin-right: $spacing-small;
-
-          &.sharp {
-            position: absolute;
-            z-index: 100;
-            width: 12.5%;
-            background-color: #000;
-            transform-origin: center top;
-            transform: translateX( -50% ) scale( 0.6 );
-          }
-
-          &.selected, &:hover {
-            background-color: #FFF;
-          }
-
-          &:after {
-            position: absolute;
-            bottom: $spacing-small;
-            left: $spacing-small;
-            pointer-events: none;
-          }
-
-          &.C:after {
-            content: "C";
-          }
-          &.CS:after {
-            content: "C#";
-          }
-          &.D:after {
-            content: "D";
-          }
-          &.DS:after {
-            content: "D#";
-          }
-          &.E:after {
-            content: "E";
-          }
-          &.F:after {
-            content: "F";
-          }
-          &.FS:after {
-            content: "F#";
-          }
-          &.G:after {
-            content: "G";
-          }
-          &.GS:after {
-            content: "G#";
-          }
-          &.A:after {
-            content: "A";
-          }
-          &.AS:after {
-            content: "A#";
-          }
-          &.B:after {
-            content: "B";
-          }
+        &.sharp {
+          position: absolute;
+          z-index: 100;
+          width: 12.5%;
+          background-color: #000;
+          transform-origin: center top;
+          transform: translateX( -50% ) scale( 0.6 );
         }
-      }
 
-      #octaves {
-        text-transform: uppercase;
-        text-indent: $spacing-small;
-        float: left;
-        width: 100%;
-        margin-left: 5%;
-
-        li {
-          float: left;
-          border: 2px solid #666;
-          padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
-          margin: $spacing-xsmall;
-          cursor: pointer;
-
-          &.selected, &:hover {
-            background-color: #FFF;
-            color: #000;
-          }
+        &.selected, &:hover {
+          background-color: #FFF;
         }
-      }
 
-      .confirm-button {
-        width: 100%;
-        padding: $spacing-medium $spacing-large;
+        &:after {
+          position: absolute;
+          bottom: $spacing-small;
+          left: $spacing-small;
+          pointer-events: none;
+        }
+
+        &.C:after {
+          content: "C";
+        }
+        &.CS:after {
+          content: "C#";
+        }
+        &.D:after {
+          content: "D";
+        }
+        &.DS:after {
+          content: "D#";
+        }
+        &.E:after {
+          content: "E";
+        }
+        &.F:after {
+          content: "F";
+        }
+        &.FS:after {
+          content: "F#";
+        }
+        &.G:after {
+          content: "G";
+        }
+        &.GS:after {
+          content: "G#";
+        }
+        &.A:after {
+          content: "A";
+        }
+        &.AS:after {
+          content: "A#";
+        }
+        &.B:after {
+          content: "B";
+        }
       }
     }
+
+    #octaves {
+      text-transform: uppercase;
+      text-indent: $spacing-small;
+      float: left;
+      width: 100%;
+      margin-left: 5%;
+
+      li {
+        float: left;
+        border: 2px solid #666;
+        padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
+        margin: $spacing-xsmall;
+        cursor: pointer;
+
+        &.selected, &:hover {
+          background-color: #FFF;
+          color: #000;
+        }
+      }
+    }
+
+   .confirm-button {
+     width: 100%;
+     padding: $spacing-medium $spacing-large;
+   }
 
     @media screen and ( min-width: $width ) and ( min-height: $height ) {
       .note-entry-editor {

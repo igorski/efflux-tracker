@@ -36,8 +36,8 @@
                     <select id="parameterInputFormat"
                             v-model="paramFormat"
                             @change="handleParameterInputFormatChange">
-                        <option v-t="'hex" value="hex"></option>
-                        <option v-t="'pct" value="pct"></option>
+                        <option v-t="'hex'" value="hex"></option>
+                        <option v-t="'pct'" value="pct"></option>
                     </select>
                 </div>
                 <div class="wrapper checkbox">
