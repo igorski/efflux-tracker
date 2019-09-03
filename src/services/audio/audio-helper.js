@@ -22,6 +22,9 @@
  */
 import AudioFactory from '../../model/factory/audio-factory';
 const d = window.document;
+const features = {
+    panning: false
+};
 
 export default
 {
@@ -44,7 +47,6 @@ export default
 
         return audioContext.createPeriodicWave( dft.real, dft.imag );
     },
-
     /**
      * creates a silent node that uses the accuracy of the Web Audio
      * clock to strictly time a callback event
@@ -71,7 +73,6 @@ export default
 
         return timer;
     },
-
     /**
      * sound a sine wave at given frequency (can be used for testing)
      *
@@ -105,34 +106,48 @@ export default
 
         return oscillator;
     },
-
     /**
      * On mobile (and an increasing number of desktop environments) all audio is muted
      * unless the engine has been initialized directly after a user interaction.
      * This method will lazily create the AudioContext on the first click/touch/
      * keyboard interaction.
      *
-     * @param {Function} readyHandler to invoke when audioContext is created
-     *        this handler will receive the generated AudioContext
+     * @return {Promise} with generated AudioContext
      */
-    init( readyHandler ) {
-        let audioContext;
-        const handler = () => {
-            d.removeEventListener( 'click',   handler, false );
-            d.removeEventListener( 'keydown', handler, false );
+    init() {
+        return new Promise((resolve, reject) => {
+            let audioContext;
+            const handler = () => {
+                d.removeEventListener('click',   handler, false);
+                d.removeEventListener('keydown', handler, false);
 
-            if ( typeof window.AudioContext !== 'undefined' )
-                audioContext = new window.AudioContext();
+                if ( typeof window.AudioContext !== 'undefined' ) {
+                    audioContext = new window.AudioContext();
+                }
+                else if ( typeof window.webkitAudioContext !== 'undefined' ) {
+                    audioContext = new window.webkitAudioContext();
+                }
+                else {
+                    reject(new Error('WebAudio API not supported'));
+                    return;
+                }
 
-            else if ( typeof window.webkitAudioContext !== 'undefined' )
-                audioContext = new window.webkitAudioContext();
+                // not all environments support the same features
+                // within the AudioContext, check them here
 
-            else
-                throw new Error( 'WebAudio API not supported' );
+                features.panning = typeof audioContext.createStereoPanner === 'function';
 
-            readyHandler( audioContext );
-        };
-        d.addEventListener( 'click',   handler );
-        d.addEventListener( 'keydown', handler );
+                resolve(audioContext);
+            };
+            d.addEventListener('click',   handler);
+            d.addEventListener('keydown', handler);
+        });
+    },
+    /**
+     * verify whether given feature is supported by the
+     * audioContext in the current environment
+     */
+    supports(feature) {
+        return !!features[feature];
     }
 };

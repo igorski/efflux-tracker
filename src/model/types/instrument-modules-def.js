@@ -23,6 +23,7 @@
 
 /**
  * @typedef {{
+ *              panner: PAN_MODULE,
  *              overdrive: OVERDRIVE_MODULE,
  *              eq: EQ_MODULE,
  *              filter: FILTER_MODULE,

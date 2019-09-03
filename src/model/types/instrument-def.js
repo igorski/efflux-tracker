@@ -31,6 +31,7 @@
  *     presetName: string,
  *     oscillators: Array.<INSTRUMENT_OSCILLATOR>,
  *     volume: number,
+ *     panning: number,
  *     overdrive: {
  *         enabled: boolean,
  *         preBand: number,

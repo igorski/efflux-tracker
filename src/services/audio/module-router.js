@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config    from '../../config';
-import { rangeToIndex } from '../../utils/array-util';
+import Config from '@/config';
+import { rangeToIndex } from '@/utils/array-util';
+
+const filterTypes = ['off', 'sine', 'square', 'sawtooth', 'triangle'];
 
 const ModuleRouter =
 {
@@ -30,13 +32,13 @@ const ModuleRouter =
      * (e.g. toggling devices on/off and connecting them
      * to the corresponding devices)
      *
-     * @public
-     *
      * @param {INSTRUMENT_MODULES} modules
      * @param {AudioParam} output
      */
     applyRouting( modules, output ) {
+        const routes   = [];
         const moduleOutput = modules.output,
+              panner       = modules.panner, // can be null when unsupported
               eq           = modules.eq,
               overdrive    = modules.overdrive.overdrive,
               filter       = modules.filter.filter,
@@ -48,9 +50,12 @@ const ModuleRouter =
         filter.disconnect();
         delay.output.disconnect();
 
-        const routes   = [];
-        let lastOutput = moduleOutput;
+        if (panner) {
+            panner.disconnect();
+            routes.push(panner); // all other modules are applied post-pan
+        }
 
+        let lastOutput = moduleOutput;
         if ( eq.eqEnabled ) {
             lastOutput.connect( eq.lowBand );
             lastOutput.connect( eq.midBand );
@@ -70,23 +75,20 @@ const ModuleRouter =
         routes.push( output );
 
         let input;
-        routes.forEach(( mod ) => {
+        routes.forEach(mod => {
 
             // some signatures are different here
             // Delay and Overdrive have "input" and "output" GainNodes
-            // for any other type of connection (e.g. filter) "mod" is a GainNode
+            // for any other type of connection (e.g. filter) mod is the node
 
             input = ( mod.input instanceof GainNode ) ? mod.input : mod;
             lastOutput.connect( input );
             lastOutput = ( mod.output instanceof GainNode ) ? mod.output : mod;
         });
     },
-
     /**
      * apply a module parameter change defined inside an
      * audioEvent during playback
-     *
-     * @public
      *
      * @param {AUDIO_EVENT} audioEvent
      * @param {INSTRUMENT_MODULES} modules
@@ -96,11 +98,16 @@ const ModuleRouter =
      * @param {AudioGainNode} output
      */
     applyModuleParamChange( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output ) {
-        switch ( audioEvent.mp.module )
-        {
+        switch ( audioEvent.mp.module ) {
             // gain effects
             case 'volume':
                 applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds );
+                break;
+
+            // panning effects
+            case 'panLeft':
+            case 'panRight':
+                applyPanning(audioEvent, modules, startTimeInSeconds);
                 break;
 
             // pitch effects
@@ -116,7 +123,7 @@ const ModuleRouter =
                 break;
 
             case 'filterLFOEnabled':
-                instrument.filter.lfoType = rangeToIndex([ 'off', 'sine', 'square', 'sawtooth', 'triangle' ], audioEvent.mp.value );
+                instrument.filter.lfoType = rangeToIndex(filterTypes, audioEvent.mp.value);
                 ModuleRouter.applyRouting(modules, output);
                 break;
 
@@ -152,25 +159,18 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
           target = ( mp.value / 100 );
 
     let i, j, event, voice;
-
     i = instrumentEvents.length;
 
     while ( i-- ) {
-
         event = instrumentEvents[ i ];
+        if ( !event ) continue;
 
-        if ( event ) {
-
-            j = event.length;
-
-            while ( j-- ) {
-
-                voice  = event[ j ];
-
-                scheduleParameterChange(
-                    voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-                );
-            }
+        j = event.length;
+        while ( j-- ) {
+            voice  = event[ j ];
+            scheduleParameterChange(
+                voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+            );
         }
     }
 }
@@ -181,48 +181,52 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
         goingUp = ( mp.module === 'pitchUp' );
 
     let i, j, event, voice, generator, tmp, target;
-
     i = instrumentEvents.length;
 
     while ( i-- ) {
-
         event = instrumentEvents[ i ];
+        if ( !event ) continue;
 
-        if ( event ) {
+        j = event.length;
 
-            j = event.length;
+        while ( j-- ) {
+            voice = event[ j ];
+            generator = voice.generator;
 
-            while ( j-- ) {
+            if ( generator instanceof OscillatorNode ) {
+                tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
+                target = ( tmp * ( mp.value / 100 ));
 
-                voice = event[ j ];
-                generator = voice.generator;
+                if ( goingUp )
+                    target += voice.frequency;
+                else
+                    target = voice.frequency - ( target / 2 );
 
-                if ( generator instanceof OscillatorNode ) {
-
-                    tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                    target = ( tmp * ( mp.value / 100 ));
-
-                    if ( goingUp )
-                        target += voice.frequency;
-                    else
-                        target = voice.frequency - ( target / 2 );
-
-                    scheduleParameterChange(
-                        generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-                    );
-
-                }
-                else if ( generator instanceof AudioBufferSourceNode ) {
-
-                    tmp    = ( mp.value / 100 );
-                    target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
-                    scheduleParameterChange(
-                        generator.playbackRate, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-                    );
-                }
+                scheduleParameterChange(
+                    generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+                );
+            }
+            else if ( generator instanceof AudioBufferSourceNode ) {
+                tmp    = ( mp.value / 100 );
+                target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
+                scheduleParameterChange(
+                    generator.playbackRate, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+                );
             }
         }
     }
+}
+
+function applyPanning( audioEvent, modules, startTimeInSeconds ) {
+    const mp = audioEvent.mp, doGlide = mp.glide,
+          durationInSeconds = audioEvent.seq.mpLength,
+          target = ( mp.value / 100 );
+
+    scheduleParameterChange(
+        modules.panner.pan,
+        mp.module === 'panLeft' ? -target : target,
+        startTimeInSeconds, durationInSeconds, doGlide
+    );
 }
 
 function applyFilter( audioEvent, modules, startTimeInSeconds ) {
@@ -234,15 +238,12 @@ function applyFilter( audioEvent, modules, startTimeInSeconds ) {
         case 'filterFreq':
             scheduleParameterChange( module.filter.frequency, target * Config.MAX_FILTER_FREQ, startTimeInSeconds, durationInSeconds, doGlide );
             break;
-
         case 'filterQ':
             scheduleParameterChange( module.filter.Q, target * Config.MAX_FILTER_Q, startTimeInSeconds, durationInSeconds, doGlide );
             break;
-
         case 'filterLFOSpeed':
             scheduleParameterChange( module.lfo.frequency, target * Config.MAX_FILTER_LFO_SPEED, startTimeInSeconds, durationInSeconds, doGlide );
             break;
-
         case 'filterLFODepth':
             scheduleParameterChange( module.lfoAmp.gain,
                 ( target * Config.MAX_FILTER_LFO_DEPTH ) / 100 * module.filter.frequency.value,
@@ -254,21 +255,16 @@ function applyFilter( audioEvent, modules, startTimeInSeconds ) {
 
 function applyDelay( audioEvent, modules ) {
     const mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
-
-    switch ( mp.module )
-    {
+    switch ( mp.module ) {
         case 'delayTime':
             module.delay = target * Config.MAX_DELAY_TIME;
             break;
-
         case 'delayFeedback':
             module.feedback = target * Config.MAX_DELAY_FEEDBACK;
             break;
-
         case 'delayCutoff':
             module.cutoff = target * Config.MAX_DELAY_CUTOFF;
             break;
-
         case 'delayOffset':
             module.offset = target * Config.MAX_DELAY_OFFSET;
             break;
@@ -286,15 +282,11 @@ function applyDelay( audioEvent, modules ) {
  */
 function scheduleParameterChange( param, value, startTimeInSeconds, durationInSeconds, doGlide, data ) {
     if ( !doGlide || ( data && !data.gliding )) {
-
         param.cancelScheduledValues( startTimeInSeconds );
         param.setValueAtTime(( doGlide ) ? param.value : value, startTimeInSeconds );
     }
-
     if ( doGlide ) {
-
         param.linearRampToValueAtTime( value, startTimeInSeconds + durationInSeconds );
-
         if ( data )
             data.gliding = true;
     }

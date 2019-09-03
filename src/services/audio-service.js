@@ -72,46 +72,39 @@ const AudioService =
      * synthesize audio using the WebAudio API
      *
      * @param {Object} storeReference the root Vuex store
-     * @return Promise
      */
-    init(storeReference) {
+    async init(storeReference) {
         store = storeReference;
         state = store.state;
 
         // NOTE: the audioContext is generated asynchronously after a user interaction
         // (e.g. click/touch/keydown anywhere in the document) as browsers otherwise prevent audio playback
 
-        return new Promise(resolve => {
-            AudioHelper.init((generatedContext ) => {
-                audioContext = generatedContext;
-                setupRouting();
+        audioContext = await AudioHelper.init();
+        setupRouting();
 
-                // initialize the WaveTable / AudioBuffer pool
+        // initialize the WaveTable / AudioBuffer pool
 
-                pool = {
-                    NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
-                    CUSTOM: [] // content created and maintained by "cacheCustomTables()"
-                };
+        pool = {
+            NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
+            CUSTOM: [] // content created and maintained by "cacheCustomTables()"
+        };
 
-                const noiseChannel = pool.NOISE.getChannelData( 0 );
-                for ( let i = 0, l = noiseChannel.length; i < l; ++i )
-                  noiseChannel[ i ] = Math.random() * 2 - 1;
+        const noiseChannel = pool.NOISE.getChannelData( 0 );
+        for ( let i = 0, l = noiseChannel.length; i < l; ++i )
+          noiseChannel[ i ] = Math.random() * 2 - 1;
 
-                // create periodic waves from the entries in the WaveTables definitions file
+        // create periodic waves from the entries in the WaveTables definitions file
 
-                Object.keys(WaveTables).forEach(waveIdentifier => {
-                    pool[ waveIdentifier ] = audioContext.createPeriodicWave(
-                        new Float32Array( WaveTables[ waveIdentifier ].real ),
-                        new Float32Array( WaveTables[ waveIdentifier ].imag )
-                    );
-                });
-                AudioService.reset();
-                AudioService.cacheCustomTables(state.song.activeSong.instruments);
-                AudioService.initialized = true;
-
-                resolve(audioContext);
-            });
+        Object.keys(WaveTables).forEach(waveIdentifier => {
+            pool[ waveIdentifier ] = audioContext.createPeriodicWave(
+                new Float32Array( WaveTables[ waveIdentifier ].real ),
+                new Float32Array( WaveTables[ waveIdentifier ].imag )
+            );
         });
+        AudioService.reset();
+        AudioService.cacheCustomTables(state.song.activeSong.instruments);
+        AudioService.initialized = true;
     },
     /**
      * retrieve a reference to the applications AudioContext
@@ -388,51 +381,49 @@ const AudioService =
     },
     adjustInstrumentVolume(instrumentIndex, volume) {
         instrumentModules[instrumentIndex].output.gain.value = volume;
+    },
+    adjustInstrumentPanning(instrumentIndex, pan) {
+        instrumentModules[instrumentIndex].panner.pan.value = pan;
     }
 };
 export default AudioService;
 
 /* internal methods */
 
-function setupRouting()
-{
+function setupRouting() {
     masterBus  = AudioFactory.createGainNode( audioContext );
     eq         = audioContext.createBiquadFilter();
-    eq.type    = "highpass";
-    eq.frequency.value = 30;
+    eq.type    = 'highpass';
+    eq.frequency.value = 30; // remove sub-30 Hz rumbling
     compressor = audioContext.createDynamicsCompressor();
     masterBus.connect( eq );
     eq.connect( compressor );
     compressor.connect( audioContext.destination );
 }
 
-function createModules()
-{
+function createModules() {
     let i, module;
 
     // clean up and disconnect old modules (if existed)
-    if ( instrumentModules && instrumentModules.length > 0 )
-    {
+    if ( instrumentModules && instrumentModules.length > 0 ) {
         i = instrumentModules.length;
-        while ( i-- )
-        {
+        while ( i-- ) {
             module = instrumentModules[ i ];
             module.output.disconnect();
             module.filter.filter.disconnect();
         }
     }
-
     // create new modules
     instrumentModules = new Array( Config.INSTRUMENT_AMOUNT );
 
-    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-    {
+    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
         module = instrumentModules[ i ] = {
-            output    : AudioFactory.createGainNode( audioContext ),
-            overdrive : ModuleFactory.createOverdrive( audioContext ),
-            eq        : ModuleFactory.createEQ( audioContext ),
-            filter    : ModuleFactory.createFilter( audioContext ),
-            delay     : ModuleFactory.createDelay( audioContext )
+            panner    : AudioFactory.createStereoPanner(audioContext),
+            output    : AudioFactory.createGainNode(audioContext),
+            overdrive : ModuleFactory.createOverdrive(audioContext),
+            eq        : ModuleFactory.createEQ(audioContext),
+            filter    : ModuleFactory.createFilter(audioContext),
+            delay     : ModuleFactory.createDelay(audioContext)
         };
         ModuleRouter.applyRouting( module, masterBus );
     }
