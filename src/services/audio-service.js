@@ -341,6 +341,9 @@ const AudioService =
         song.instruments.forEach(( instrument, index ) => {
             const instrumentModule = instrumentModules[ index ];
             instrumentModule.output.gain.value = instrument.volume;
+            if (instrumentModule.panner) {
+                instrumentModule.panner.pan.value = instrument.panning;
+            }
             ModuleFactory.applyConfiguration('filter', instrumentModule, instrument.filter, masterBus);
             ModuleFactory.applyConfiguration('delay', instrumentModule, instrument.delay, masterBus);
             ModuleFactory.applyConfiguration('eq', instrumentModule, instrument.eq, masterBus);
