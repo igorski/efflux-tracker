@@ -21,17 +21,17 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue                 from 'vue';
-import Config              from '../../config';
-import SongFactory         from '../../model/factory/song-factory';
-import HistoryStateFactory from '../../model/factory/history-state-factory';
-import HistoryStates       from '../../definitions/history-states';
-import FixturesLoader      from '../../services/fixtures-loader';
-import SongAssemblyService from '../../services/song-assembly-service';
-import PubSubMessages      from '../../services/pubsub/messages';
-import SongValidator       from '../../model/validators/song-validator';
-import SongUtil            from '../../utils/song-util';
-import ObjectUtil          from '../../utils/object-util';
-import StorageUtil         from '../../utils/storage-util';
+import Config              from '@/config';
+import SongFactory         from '@/model/factory/song-factory';
+import HistoryStateFactory from '@/model/factory/history-state-factory';
+import HistoryStates       from '@/definitions/history-states';
+import FixturesLoader      from '@/services/fixtures-loader';
+import SongAssemblyService from '@/services/song-assembly-service';
+import PubSubMessages      from '@/services/pubsub/messages';
+import SongValidator       from '@/model/validators/song-validator';
+import SongUtil            from '@/utils/song-util';
+import ObjectUtil          from '@/utils/object-util';
+import StorageUtil         from '@/utils/storage-util';
 
 const SONG_STORAGE_KEY = 'Efflux_Song_';
 
@@ -204,7 +204,7 @@ export default {
 
                 commit('publishMessage', PubSubMessages.SONG_SAVED);
                 if (state.showSaveMessage) {
-                    commit('showNotification', { message: getters.getCopy('SONG_SAVED', song.meta.title) });
+                    commit('showNotification', { message: getters.t('messages.songSaved', { title: song.meta.title }) });
                 }
                 resolve();
             })
@@ -217,17 +217,17 @@ export default {
                 try {
                     let hasContent = SongUtil.hasContent(song);
                     if ( !hasContent ) {
-                        throw 'ERROR_EMPTY_SONG';
+                        throw 'emptySong';
                     }
                     if (song.meta.author.length === 0 || song.meta.title.length === 0) {
                         hasContent = false;
                     }
                     if (!hasContent) {
-                        throw 'ERROR_NO_META';
+                        throw 'emptyMeta';
                     }
                     resolve();
                 } catch(errorKey) {
-                    commit('showError', getters.getCopy(errorKey));
+                    commit('showError', getters.t(`error.${errorKey}`));
                     reject();
                 }
             });
@@ -282,11 +282,11 @@ export default {
         },
         importSong({ commit, dispatch, getters }) {
             // inline handler to overcome blocking of the file select popup by the browser
-    
+
             const fileBrowser = document.createElement('input');
             fileBrowser.setAttribute('type',   'file');
             fileBrowser.setAttribute('accept', Config.SONG_FILE_EXTENSION);
-    
+
             const simulatedEvent = document.createEvent('MouseEvent');
             simulatedEvent.initMouseEvent(
                 'click', true, true, window, 1,
@@ -300,7 +300,7 @@ export default {
                     const reader = new FileReader();
 
                     reader.onerror = () => {
-                        reject(getters.getCopy('ERROR_FILE_LOAD'));
+                        reject(getters.t('error.fileLoad'));
                     };
 
                     reader.onload = async readerEvent => {
@@ -318,7 +318,7 @@ export default {
                             resolve();
                         }
                         else {
-                            reject(getters.getCopy('ERROR_SONG_IMPORT'));
+                            reject(getters.t('error.songImport', { extension: Config.SONG_FILE_EXTENSION }));
                         }
                     };
                     // start reading file contents

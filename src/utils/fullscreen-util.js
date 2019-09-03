@@ -20,17 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { getCopy } from '../i18n/translations';
 import Bowser from 'bowser';
 
 const d = window.document;
 let fsToggle;
+let maximizeText, minimizeText;
 
 export const isSupported = () => !Bowser.ios;
 
-export const setToggleButton = ( element )=> {
+export const setToggleButton = (element, maximizeCopy, minimizeCopy) => {
     fsToggle = element;
     fsToggle.addEventListener( "click", toggleFullscreen );
+
+    maximizeText = maximizeCopy;
+    minimizeText = minimizeCopy;
 
     d.addEventListener( "webkitfullscreenchange", handleFullscreenChange, false );
     d.addEventListener( "mozfullscreenchange",    handleFullscreenChange, false );
@@ -57,7 +60,7 @@ function toggleFullscreen() {
 function handleFullscreenChange() {
 
     if ( document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement === true )
-        fsToggle.innerHTML = getCopy( "BUTTON_FS_CANCEL" );
+        fsToggle.innerHTML = minimizeText;
     else
-        fsToggle.innerHTML = getCopy( "BUTTON_FS_ACTIVATE" );
+        fsToggle.innerHTML = maximizeText;
 }

@@ -120,10 +120,15 @@ import messages from '@/messages.json';
 Vue.use(Vuex);
 Vue.use(VueI18n);
 
+// Create VueI18n instance with options
+const i18n = new VueI18n({
+    messages
+});
+
 export default {
     name: 'Efflux',
     store: new Vuex.Store(store),
-    i18n: { messages },
+    i18n,
     components: {
         AdvancedPatternEditor,
         ModuleParamEditor,
@@ -223,7 +228,7 @@ export default {
         this.prepareLinkedList();
         this.setActiveSong(await this.createSong());
         await this.prepareSequencer(this.$store);
-        await this.setupServices();
+        await this.setupServices(i18n);
         this.addListeners();
 
         this.prepared = true;

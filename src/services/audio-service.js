@@ -86,7 +86,7 @@ const AudioService =
         // initialize the WaveTable / AudioBuffer pool
 
         pool = {
-            NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
+            NOISE : audioContext.createBuffer(1, audioContext.sampleRate / 10, audioContext.sampleRate),
             CUSTOM: [] // content created and maintained by "cacheCustomTables()"
         };
 
@@ -474,5 +474,5 @@ function handleRecordingComplete(blob) {
 
     window.URL.revokeObjectURL(blob);
 
-    store.commit('showNotification', { message: store.getters.getCopy('RECORDING_SAVED') });
+    store.commit('showNotification', { message: store.getters.t('messages.recordingSaved') });
 }

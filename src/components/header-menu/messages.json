@@ -12,6 +12,7 @@
     "settings": "Settings",
     "help": "Help",
     "maximize": "Maximize",
+    "minimize": "Exit fullscreen",
     "warningSongReset": "Are you sure you want to reset, you will lose all changes and undo history",
     "recordOutputTitle": "Record output",
     "recordOutputExpl": "You can record your song as a .WAV file and download it onto your device. Recording takes place during playback and will stop automatically once the end of the song is reached. Enjoy your listen or grab a drink while waiting.",

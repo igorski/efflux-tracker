@@ -114,7 +114,7 @@ export default {
     },
     mounted() {
         if (this.$refs.fullscreenBtn) {
-            setToggleButton(this.$refs.fullscreenBtn);
+            setToggleButton(this.$refs.fullscreenBtn, this.$t('maximize'), this.$t('minimize'));
         }
     },
     methods: {
