@@ -21,13 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue            from 'vue';
-import AudioFactory   from '../model/factory/audio-factory';
-import ModuleFactory  from '../model/factory/module-factory';
+import Config         from '@/config';
+import AudioFactory   from '@/model/factory/audio-factory';
+import ModuleFactory  from '@/model/factory/module-factory';
+import InstrumentUtil from '@/utils/instrument-util';
 import AudioHelper    from './audio/audio-helper';
 import OutputRecorder from './audio/output-recorder';
 import ModuleRouter   from './audio/module-router';
-import InstrumentUtil from '../utils/instrument-util';
-import Config         from '../config';
 import PitchConverter from './audio/pitch-converter';
 import WaveTables     from './audio/wave-tables';
 import ADSR           from './audio/adsr-module';

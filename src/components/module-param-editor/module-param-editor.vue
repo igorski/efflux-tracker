@@ -31,6 +31,10 @@
             <ul class="event">
                 <form-list-item v-t="'volume'"
                                 v-model="module" option-value="volume" />
+                <form-list-item v-t="'panLeft'"
+                                v-model="module" option-value="panLeft" />
+                <form-list-item v-t="'panRight'"
+                                v-model="module" option-value="panRight" />
                 <form-list-item v-t="'pitchUp'"
                                 v-model="module" option-value="pitchUp" />
                 <form-list-item v-t="'pitchDown'"
@@ -142,7 +146,7 @@ export default {
         const pattern = this.activeSong.patterns[ this.activePattern ],
               channel = pattern.channels[ this.selectedInstrument ],
               event   = channel[ this.selectedStep ];
-    
+
         this.instrument   = ( event ) ? event.instrument : this.selectedInstrument;
         this.module       = ( event && event.mp ) ? event.mp.module  : DEFAULT_MODULE;
         this.glide        = ( event && event.mp ) ? event.mp.glide   : false;
@@ -185,17 +189,17 @@ export default {
                 case 27: // escape
                     this.handleClose();
                     break;
-    
+
                 case 13: // enter
                     this.handleSubmit();
                     break;
-    
+
                 case 71: // G
                     this.glide = !this.glide;
                     break;
-    
+
                 // module parameter value
-    
+
                 case 48: // 0 through 9
                 case 49:
                 case 50:
@@ -206,17 +210,17 @@ export default {
                 case 55:
                 case 56:
                 case 57:
-    
+
                     const now = Date.now();
                     const num = parseFloat( String.fromCharCode( keyCode ));
                     let value = num * 10;
-    
+
                     // if this character was typed shortly after the previous one, combine
                     // their numerical values for more precise control
-    
+
                     if ( now - lastValueTypeAction < 500 )
                         value = parseFloat( '' + lastValueChar + num );
-    
+
                     this.value = value;
                     lastValueTypeAction = now;
                     lastValueChar = num;
@@ -262,7 +266,7 @@ export default {
 <style lang="scss" scoped>
     @import '@/styles/_variables.scss';
     @import '@/styles/_layout.scss';
-    
+
     $width: 450px;
     $height: 450px;
 
@@ -377,4 +381,3 @@ export default {
       }
     }
 </style>
- 

@@ -8,6 +8,7 @@
     "triangle": "Triangle",
     "mixer": "Mixer",
     "volumeTitle": "Volume",
+    "panTitle": "Panning",
     "filterTitle": "EQ / Filter",
     "odDelayTitle": "Overdrive / Delay",
     "eqLegend": "Equalizer",

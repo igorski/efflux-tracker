@@ -2,6 +2,8 @@
   "en-US": {
     "title": "Module Parameter Change editor",
     "volume": "volume",
+    "panLeft": "pan L",
+    "panRight": "pan R",
     "pitchUp": "pitch +8ve",
     "pitchDown": "pitch -8ve",
     "filterOnOff": "filter on/off",

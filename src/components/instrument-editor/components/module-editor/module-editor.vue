@@ -35,7 +35,7 @@
                 <div v-if="supportsPanning"
                      class="wrapper input range"
                 >
-                    <label for="instrumentPanning">Pan</label>
+                    <label v-t="'panTitle'" for="instrumentPanning"></label>
                     <input v-model="panning"
                            type="range"
                            id="instrumentPanning"
