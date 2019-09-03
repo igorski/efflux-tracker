@@ -21,6 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/* eslint-disable no-unused-vars */
+
 /**
  * type definition for an instrument
  * id matches the index in the songs instrument list

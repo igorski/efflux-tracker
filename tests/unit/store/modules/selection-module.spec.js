@@ -1,5 +1,4 @@
 import SelectionModule from '@/store/modules/selection-module';
-import SongModel       from '@/store/modules/song-module';
 
 const { getters, mutations } = SelectionModule;
 

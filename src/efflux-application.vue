@@ -1,25 +1,45 @@
+/**
+ * The MIT License (MIT)
+ *
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the 'Software'), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 <template>
     <div v-if="prepared" id="efflux">
-        <header class="application-header"
-                :class="{ expanded: menuOpened }"
-        >
-            <header-menu />
-            <transport />
-        </header>
         <!-- message of disappointment in case environment does not support appropriate web API's -->
-        <template v-if="!canLaunch">
-            <h1>Whoops...</h1>
-            <p>
-                Either the WebAudio API is not supported in this browser or it does not match the
-                required standards. Sadly, Efflux depends on these standards in order to actually output sound!
-            </p>
-            <p>
-                Luckily, you can get a web browser that offers support for free.
-                We recommend <a href="https://www.google.com/chrome" rel="noopener" target="_blank">Google Chrome</a> for an
-                optimal experience.
-            </p>
-        </template>
+        <div v-if="!canLaunch"
+             class="container"
+        >
+            <h1 v-t="'unsupported.title'"></h1>
+            <p v-t="'unsupported.message'"></p>
+            <i18n path="unsupported.download">
+                <a v-t="'unsupported.googleChrome'"
+                   href="https://www.google.com/chrome" rel="noopener" target="_blank"></a>
+            </i18n>
+        </div>
         <template v-else>
+            <header class="application-header"
+                    :class="{ expanded: menuOpened }"
+            >
+                <header-menu />
+                <transport />
+            </header>
             <!-- actual application -->
             <div class="container">
                 <div id="properties">
@@ -89,39 +109,48 @@
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
 import Vue from 'vue';
 import Vuex from 'vuex';
+import VueI18n from 'vue-i18n';
 
 import Bowser from 'bowser';
 import Pubsub from 'pubsub-js';
-import Config from './config';
-import ModalWindows from './definitions/modal-windows';
-import ListenerUtil from './utils/listener-util';
-import AudioService from './services/audio-service';
-import PubSubService from './services/pubsub-service';
-import PubSubMessages from './services/pubsub/messages';
 import { Style } from 'zjslib';
-import HeaderMenu from './components/header-menu';
-import Transport from './components/transport';
-import AdvancedPatternEditor from './components/advanced-pattern-editor';
-import ModuleParamEditor from './components/module-param-editor';
-import NoteEntryEditor from './components/note-entry-editor';
-import InstrumentEditor from './components/instrument-editor/instrument-editor';
-import PatternEditor from './components/pattern-editor';
-import PatternTrackList from './components/pattern-track-list';
-import TrackEditor from './components/track-editor';
-import HelpSection from './components/help-section';
-import DialogWindow from './components/dialog-window';
-import SettingsWindow from './components/settings-window';
-import SongBrowser from './components/song-browser';
-import SongEditor from './components/song-editor';
-import Notifications from './components/notifications';
-import Loader from './components/loader';
-import store from './store';
+import Config from '@/config';
+import AdvancedPatternEditor from '@/components/advanced-pattern-editor/advanced-pattern-editor';
+import AudioService from '@/services/audio-service';
+import DialogWindow from '@/components/dialog-window/dialog-window';
+import HeaderMenu from '@/components/header-menu/header-menu';
+import HelpSection from '@/components/help-section';
+import InstrumentEditor from '@/components/instrument-editor/instrument-editor';
+import Loader from '@/components/loader';
+import ListenerUtil from '@/utils/listener-util';
+import ModalWindows from '@/definitions/modal-windows';
+import ModuleParamEditor from '@/components/module-param-editor/module-param-editor';
+import NoteEntryEditor from '@/components/note-entry-editor/note-entry-editor';
+import Notifications from '@/components/notifications';
+import PatternEditor from '@/components/pattern-editor/pattern-editor';
+import PatternTrackList from '@/components/pattern-track-list';
+import PubSubService from '@/services/pubsub-service';
+import PubSubMessages from '@/services/pubsub/messages';
+import SettingsWindow from '@/components/settings-window/settings-window';
+import SongBrowser from '@/components/song-browser/song-browser';
+import SongEditor from '@/components/song-editor/song-editor';
+import TrackEditor from '@/components/track-editor';
+import Transport from '@/components/transport/transport';
+import store from '@/store';
+import messages from '@/messages.json';
 
 Vue.use(Vuex);
+Vue.use(VueI18n);
+
+// Create VueI18n instance with options
+const i18n = new VueI18n({
+    messages
+});
 
 export default {
     name: 'Efflux',
     store: new Vuex.Store(store),
+    i18n,
     components: {
         AdvancedPatternEditor,
         ModuleParamEditor,
@@ -163,7 +192,6 @@ export default {
             selectedSlot: state => state.editor.selectedSlot
         }),
         ...mapGetters([
-            'getCopy',
             'activeSong'
         ])
     },
@@ -179,6 +207,7 @@ export default {
             if (AudioService.initialized) {
                 AudioService.reset();
                 AudioService.cacheCustomTables(song.instruments);
+                AudioService.applyModules(song);
             }
             this.resetEditor();
             this.resetHistory();
@@ -191,8 +220,8 @@ export default {
                 return;
 
             this.showNotification({
-                title: this.getCopy('SONG_LOADED_TITLE'),
-                message: this.getCopy('SONG_LOADED', song.meta.title)
+                title: this.$t('songLoadedTitle'),
+                message: this.$t('songLoaded', { name: song.meta.title })
             });
             this.publishMessage(PubSubMessages.SONG_LOADED);
         },
@@ -222,17 +251,21 @@ export default {
         this.prepareLinkedList();
         this.setActiveSong(await this.createSong());
         await this.prepareSequencer(this.$store);
-        await this.setupServices();
+        await this.setupServices(i18n);
         this.addListeners();
 
         this.prepared = true;
+
+        if (!this.canLaunch) {
+            return;
+        }
 
         this.publishMessage(PubSubMessages.EFFLUX_READY);
 
         // show confirmation message on page reload
 
         if ( !Config.isDevMode() ) {
-            const handleUnload = () => this.getCopy('WARNING_UNLOAD');
+            const handleUnload = () => this.$t('warningUnload');
             if ( Bowser.ios ) {
                 window.addEventListener('popstate', handleUnload);
             }

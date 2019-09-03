@@ -177,7 +177,7 @@ describe('Linked list', () => {
         const obj1 = { title: 'foo' };
         const obj1node = list.add(obj1);
         const obj2 = { title: 'bar' };
-        const obj2node = list.add(obj2);
+        list.add(obj2);
 
         list.remove(1);
 
@@ -190,7 +190,6 @@ describe('Linked list', () => {
         const obj1 = { title: 'foo' };
         const obj1node = list.add(obj1);
         const obj2 = { title: 'bar' };
-        const obj2node = list.add(obj2);
 
         list.remove(obj2);
 

@@ -20,10 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config              from '../../config';
-import FixturesLoader      from '../../services/fixtures-loader';
-import StorageUtil         from '../../utils/storage-util';
-import InstrumentValidator from '../../model/validators/instrument-validator';
+import Config              from '@/config';
+import FixturesLoader      from '@/services/fixtures-loader';
+import StorageUtil         from '@/utils/storage-util';
+import InstrumentValidator from '@/model/validators/instrument-validator';
 
 const INSTRUMENT_STORAGE_KEY = 'Efflux_Ins_';
 
@@ -187,11 +187,11 @@ export default {
             fileBrowser.dispatchEvent(simulatedEvent);
 
             return new Promise((resolve, reject) => {
-                fileBrowser.addEventListener( 'change', fileBrowserEvent => {
+                fileBrowser.addEventListener('change', fileBrowserEvent => {
                     const reader = new FileReader();
 
                     reader.onerror = () => {
-                        reject(getters.getCopy('ERROR_FILE_LOAD'));
+                        reject(getters.t('error.fileLoad'));
                     };
 
                     reader.onload = async readerEvent => {
@@ -211,7 +211,7 @@ export default {
                             }
                             resolve(amountImported);
                         } else {
-                            resolve(getters.getCopy('ERROR_INSTRUMENT_IMPORT'));
+                            resolve(getters.t('error.instrumentImport', { extension: Config.INSTRUMENT_FILE_EXTENSION }));
                         }
                     };
                     // start reading file contents

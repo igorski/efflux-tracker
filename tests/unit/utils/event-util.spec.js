@@ -124,7 +124,6 @@ describe( 'EventUtil', () => {
 
         const list = new LinkedList();
 
-        const expected1node = list.add( expected1 );
         const expected2node = list.add( expected2 );
 
         EventUtil.clearEvent( song, patternIndex, 0, 0, list );
@@ -182,14 +181,15 @@ describe( 'EventUtil', () => {
         const event2step = 8; // step 8 is at start offset of 1 second (half a 16 step measure at 120 BPM)
 
         const event1 = createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
-        const event2 = createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
+
+        createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
 
         expect(1).toEqual(event1.seq.length); // expected event 1 sequence length to have been updated to match
 
         // insert new event in between
 
         const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
-        const event3 = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
+        createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
 
         expect(.5).toEqual(event1.seq.length); // expected event 1 sequence length to have been updated to match insertion before previous next Node
     });
@@ -213,14 +213,14 @@ describe( 'EventUtil', () => {
                               // pattern, meaning we expect two full measures between event1 and event2 (4 seconds at 120 BPM)
 
         const event1 = createNoteOnEvent( event1step, song, pattern1Index, channelIndex, lists );
-        const event2 = createNoteOnEvent( event2step, song, pattern2Index, channelIndex, lists );
+        createNoteOnEvent( event2step, song, pattern2Index, channelIndex, lists );
 
         expect(4.5).toEqual(event1.seq.length); // expected event 1 sequence length to stretch across several measures
 
         // insert new event in between
 
         const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
-        const event3 = createNoteOnEvent( event3step, song, pattern1Index, channelIndex, lists );
+        createNoteOnEvent( event3step, song, pattern1Index, channelIndex, lists );
 
         expect(.5).toEqual(event1.seq.length); // expected event 1 sequence length to have been updated to match insertion before previous next Node
     });
@@ -236,8 +236,9 @@ describe( 'EventUtil', () => {
         const event3step = 12; // step 12 is at start offset of 1.5 second (three quarters of a 16 step measure at 120 BPM)
 
         const event1 = createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
-        const event2 = createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
-        const event3 = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
+
+        createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
+        createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
 
         expect(0.5).toEqual(event1.seq.length);
 

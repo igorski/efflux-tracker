@@ -24,9 +24,9 @@
     <section class="module-editor">
         <div class="module-list">
             <fieldset class="instrument-parameters">
-                <legend>Mixer</legend>
+                <legend v-t="'mixer'"></legend>
                 <div class="wrapper input range">
-                    <label for="instrumentVolume">Volume</label>
+                    <label v-t="'volumeTitle'" for="instrumentVolume"></label>
                     <input v-model="volume"
                            type="range"
                            id="instrumentVolume"
@@ -35,7 +35,7 @@
                 <div v-if="supportsPanning"
                      class="wrapper input range"
                 >
-                    <label for="instrumentPanning">Pan</label>
+                    <label v-t="'panTitle'" for="instrumentPanning"></label>
                     <input v-model="panning"
                            type="range"
                            id="instrumentPanning"
@@ -44,13 +44,13 @@
             </fieldset>
 
             <ul class="modules-tabs tab-list">
-                <li :class="{ active: activeModuleTab === 0 }"
+                <li v-t="'filterTitle'"
+                    :class="{ active: activeModuleTab === 0 }"
                     @click="activeModuleTab = 0">
-                    EQ / Filter
                 </li>
-                <li :class="{ active: activeModuleTab === 1 }"
+                <li v-t="'odDelayTitle'"
+                    :class="{ active: activeModuleTab === 1 }"
                     @click="activeModuleTab = 1">
-                    Overdrive / Delay
                 </li>
             </ul>
 
@@ -58,63 +58,65 @@
                  :class="{ active: activeModuleTab === 0 }"
              >
                 <fieldset id="eqEditor" class="instrument-parameters">
-                    <legend>Equalizer</legend>
+                    <legend v-t="'eqLegend'"></legend>
                     <select v-model="eqEnabled" class="enable-selector">
-                        <option :value="true">Enabled</option>
-                        <option :value="false">Disabled</option>
+                        <option v-t="'enabled'" :value="true"></option>
+                        <option v-t="'disabled'" :value="false"></option>
                     </select>
                     <div class="wrapper input range">
-                        <label for="eqLow">Low</label>
+                        <label v-t="'low'" for="eqLow"></label>
                         <input type="range" id="eqLow" v-model.number="eqLow" min="0" max="1" step=".01" value="1">
                     </div>
                     <div class="wrapper input range">
-                        <label for="eqMid">Mid</label>
+                        <label v-t="'mid'" for="eqMid"></label>
                         <input type="range" id="eqMid" v-model.number="eqMid" min="0" max="1" step=".01" value="1">
                     </div>
                     <div class="wrapper input range">
-                        <label for="eqHigh">High</label>
+                        <label v-t="'high'" for="eqHigh"></label>
                         <input type="range" id="eqHigh" v-model.number="eqHigh" min="0" max="1" step=".01" value="1">
                     </div>
                 </fieldset>
 
                 <fieldset id="filterEditor" class="instrument-parameters">
-                    <legend>Filter</legend>
+                    <legend v-t="'filterLegend'"></legend>
                     <select v-model="filterEnabled" class="enable-selector">
-                        <option :value="true">Enabled</option>
-                        <option :value="false">Disabled</option>
+                        <option v-t="'enabled'" :value="true"></option>
+                        <option v-t="'disabled'" :value="false"></option>
                     </select>
                     <div class="wrapper input range">
-                        <label for="filterFrequency">Frequency</label>
+                        <label v-t="'frequency'" for="filterFrequency"></label>
                         <input type="range" id="filterFrequency" v-model.number="filterFrequency" min="40" max="24000" step=".01" value="880">
                     </div>
                     <div class="wrapper input range">
-                        <label for="filterQ">Q</label>
+                        <label v-t="'q'" for="filterQ"></label>
                         <input type="range" id="filterQ" v-model.number="filterQ" min="0" max="40" step="1" value="5">
                     </div>
                     <select v-model="filterLFO">
-                        <option value="off">LFO off</option>
-                        <option value="sine">Sine</option>
-                        <option value="square">Square</option>
-                        <option value="sawtooth">Sawtooth</option>
-                        <option value="triangle">Triangle</option>
+                        <option v-t="'lfoOff'" value="off"></option>
+                        <option v-t="'sine'" value="sine"></option>
+                        <option v-t="'square'" value="square"></option>
+                        <option v-t="'sawtooth'" value="sawtooth"></option>
+                        <option v-t="'triangle'" value="triangle"></option>
                     </select>
                     <select v-model="filterType">
-                        <option value="lowpass">Lowpass</option>
-                        <option value="highpass">Highpass</option>
-                        <option value="bandpass">Bandpass</option>
-                        <option value="lowshelf">Lowshelf</option>
-                        <option value="highshelf">Highshelf</option>
-                        <option value="peaking">Peaking</option>
-                        <option value="notch">Notch</option>
-                        <option value="allpass">Allpass</option>
+                        <option v-t="'lowpass'" value="lowpass"></option>
+                        <option v-t="'highpass'" value="highpass"></option>
+                        <option v-t="'bandpass'" value="bandpass"></option>
+                        <option v-t="'lowshelf'" value="lowshelf"></option>
+                        <option v-t="'highshelf'" value="highshelf"></option>
+                        <option v-t="'peaking'" value="peaking"></option>
+                        <option v-t="'notch'" value="notch"></option>
+                        <option v-t="'allpass'" value="allpass"></option>
                     </select>
                     <div class="wrapper input range">
-                        <label for="filterSpeed">LFO Speed</label>
-                        <input type="range" id="filterSpeed" v-model.number="filterSpeed" min="0.1" max="25" step=".01" value="0.5">
+                        <label v-t="'lfoSpeed'" for="filterSpeed"></label>
+                        <input type="range" id="filterSpeed"
+                               v-model.number="filterSpeed" min="0.1" max="25" step=".01" value="0.5">
                     </div>
                     <div class="wrapper input range">
-                        <label for="filterDepth">LFO Depth</label>
-                        <input type="range" id="filterDepth" v-model.number="filterDepth" min="0" max="100" step=".01" value="50">
+                        <label v-t="'lfoDepth'" for="filterDepth"></label>
+                        <input type="range" id="filterDepth"
+                               v-model.number="filterDepth" min="0" max="100" step=".01" value="50">
                     </div>
                 </fieldset>
             </div>
@@ -122,55 +124,59 @@
                  :class="{ active: activeModuleTab === 1 }"
             >
                 <fieldset id="odEditor" class="instrument-parameters">
-                    <legend>Overdrive</legend>
+                    <legend v-t="'odLegend'"></legend>
                     <select v-model="odEnabled" class="enable-selector">
-                        <option :value="true">Enabled</option>
-                        <option :value="false">Disabled</option>
+                        <option v-t="'enabled'" :value="true"></option>
+                        <option v-t="'disabled'" :value="false"></option>
                     </select>
                     <div class="wrapper input range">
-                        <label for="odDrive">Drive</label>
-                        <input type="range" id="odDrive" v-model.number="odDrive" min="0" max="1" step=".01" value="0.5">
+                        <label v-t="'drive'" for="odDrive"></label>
+                        <input type="range" id="odDrive"
+                               v-model.number="odDrive" min="0" max="1" step=".01" value="0.5">
                     </div>
                     <div class="wrapper input range">
-                        <label for="odPreBand">BP (pre)</label>
-                        <input type="range" id="odPreBand" v-model.number="odPreBand" min="0" max="1" step=".01" value="0.5">
+                        <label v-t="'bandpassPre'" for="odPreBand"></label>
+                        <input type="range" id="odPreBand"
+                               v-model.number="odPreBand" min="0" max="1" step=".01" value="0.5">
                     </div>
                     <div class="wrapper input range">
-                        <label for="odColor">BP (post)</label>
-                        <input type="range" id="odColor" v-model.number="odColor" min="0" max="22050" step="1" value="800">
+                        <label v-t="'bandpassPost'" for="odColor"></label>
+                        <input type="range" id="odColor"
+                               v-model.number="odColor" min="0" max="22050" step="1" value="800">
                     </div>
                     <div class="wrapper input range">
-                        <label for="odPostCut">LP (post)</label>
-                        <input type="range" id="odPostCut" v-model.number="odPostCut" min="0" max="22050" step=".01" value="3000">
+                        <label v-t="'lpPost'" for="odPostCut"></label>
+                        <input type="range" id="odPostCut"
+                               v-model.number="odPostCut" min="0" max="22050" step=".01" value="3000">
                     </div>
                 </fieldset>
 
                 <fieldset id="delayEditor" class="instrument-parameters">
-                    <legend>Delay</legend>
+                    <legend v-t="'delayLegend'"></legend>
                     <select v-model="delayEnabled" class="enable-selector">
-                        <option :value="true">Enabled</option>
-                        <option :value="false">Disabled</option>
+                        <option v-t="'enabled'" :value="true"></option>
+                        <option v-t="'disabled'" :value="false"></option>
                     </select>
                     <!-- not sure if this offers any flexibility -->
                     <select v-if="false" v-model.number="delayType">
-                        <option value="0">Delay 0</option>
-                        <option value="1">Delay 1</option>
-                        <option value="2">Delay 2</option>
+                        <option v-t="'delay0'" value="0"></option>
+                        <option v-t="'delay1'" value="1"></option>
+                        <option v-t="'delay2'" value="2"></option>
                     </select>
                     <div class="wrapper input range">
-                        <label for="delayTime">Delay time</label>
+                        <label v-t="'delayTime'" for="delayTime"></label>
                         <input type="range" id="delayTime" v-model.number="delayTime" min="0" max="2" step=".001" value=".5">
                     </div>
                     <div class="wrapper input range">
-                        <label for="delayFeedback">Feedback</label>
+                        <label v-t="'feedback'" for="delayFeedback"></label>
                         <input type="range" id="delayFeedback" v-model.number="delayFeedback" min="0" max="1" step=".01" value="0.5">
                     </div>
                     <div class="wrapper input range">
-                        <label for="delayCutoff">Cutoff</label>
+                        <label v-t="'cutoff'" for="delayCutoff"></label>
                         <input type="range" id="delayCutoff" v-model.number="delayCutoff" min="0" max="22050" step="1" value="880">
                     </div>
                     <div class="wrapper input range">
-                        <label for="delayOffset">Offset</label>
+                        <label v-t="'offset'" for="delayOffset"></label>
                         <input type="range" id="delayOffset" v-model.number="delayOffset" min="0" max="1" step=".01" value="0">
                     </div>
                 </fieldset>
@@ -181,10 +187,12 @@
 
 <script>
 import { mapMutations } from 'vuex';
-import AudioService from '../../../services/audio-service';
+import AudioService from '@/services/audio-service';
 import AudioHelper from '@/services/audio/audio-helper';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     props: {
         instrumentId: {
             type: Number,

@@ -23,7 +23,7 @@
 <template>
     <div class="instrument-editor">
         <div class="header">
-            <h4 class="title">Instrument editor</h4>
+            <h4 v-t="'title'" class="title"></h4>
             <button class="help-button"
                     @click="openHelp">?</button>
             <button class="close-button"
@@ -36,7 +36,7 @@
                 <option v-for="(instrument, idx) in instrumentAmount"
                         :key="`instrument_${idx}`"
                         :value="idx"
-                >Instrument {{ instrument }}</option>
+                >{{ $t('instrument', { index: idx }) }}</option>
             </select>
         </div>
 
@@ -47,7 +47,7 @@
                 :class="{ active: selectedOscillatorIndex === idx }"
                 @click="setSelectedOscillatorIndex(idx)"
             >
-                Oscillator {{ idx + 1 }}
+                {{ $t('oscillator', { index: idx + 1 }) }}
             </li>
         </ul>
         <div>
@@ -67,7 +67,7 @@
         </div>
 
         <section class="instrument-presets">
-            <h2>Presets</h2>
+            <h2 v-t="'presets'"></h2>
             <select v-model="currentPreset">
                 <option v-for="(instrument, idx) in presets"
                         :key="`preset_${idx}`"
@@ -78,14 +78,15 @@
                 <input v-model="presetName"
                        class="preset-name-input"
                        type="text"
-                       placeholder="preset name"
+                       :placeholder="$t('presetName')"
                        @focus="handleFocusIn"
                        @blur="handleFocusOut"
                        @keyup.enter="savePreset"
                 />
-                <button type="button"
+                <button v-t="'savePreset'"
+                        type="button"
                         @click="savePreset"
-                >Save preset</button>
+                ></button>
             </div>
         </section>
     </div>
@@ -93,18 +94,20 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import Config from '../../config';
-import ManualURLs from '../../definitions/manual-urls';
-import AudioService from '../../services/audio-service';
-import PubSubMessages from '../../services/pubsub/messages';
-import InstrumentFactory from '../../model/factory/instrument-factory';
-import OscillatorEditor from './components/oscillator-editor';
-import ModuleEditor from './components/module-editor';
-import ObjectUtil from '../../utils/object-util';
+import Config from '@/config';
+import ManualURLs from '@/definitions/manual-urls';
+import AudioService from '@/services/audio-service';
+import PubSubMessages from '@/services/pubsub/messages';
+import InstrumentFactory from '@/model/factory/instrument-factory';
+import ObjectUtil from '@/utils/object-util';
+import OscillatorEditor from './components/oscillator-editor/oscillator-editor';
+import ModuleEditor from './components/module-editor/module-editor';
+import messages from './messages.json';
 
 let EMPTY_PRESET_VALUE;
 
 export default {
+    i18n: { messages },
     components: {
         OscillatorEditor,
         ModuleEditor
@@ -122,7 +125,6 @@ export default {
             instruments: state => state.instrument.instruments
         }),
         ...mapGetters([
-            'getCopy',
             'getInstrumentByPresetName'
         ]),
         instrument: {
@@ -145,7 +147,7 @@ export default {
         presets() {
             const out = [
                 ...this.instruments,
-                { presetName: this.getCopy('INPUT_PRESET')}
+                { presetName: this.$t('defaultPresetName') }
             ];
             return out.sort(( a, b ) => {
                 if( a.presetName < b.presetName ) return -1;
@@ -184,7 +186,7 @@ export default {
         },
     },
     created() {
-        EMPTY_PRESET_VALUE = this.getCopy('INPUT_PRESET');
+        EMPTY_PRESET_VALUE = this.$t('defaultPresetName');
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
         this.publishMessage(PubSubMessages.INSTRUMENT_EDITOR_OPENED);
     },
@@ -215,12 +217,12 @@ export default {
         savePreset() {
             const newPresetName = this.presetName || '';
             if (newPresetName.trim().length === 0) {
-                this.showError(this.getCopy('ERROR_NO_INS_NAME'));
+                this.showError(this.$t('errorNoName'));
             }
             else {
                 this.presetName = newPresetName.replace('*', '');
                 if (this.saveInstrument( ObjectUtil.clone( this.instrumentRef ) )) {
-                    this.showNotification({ message: this.getCopy('INSTRUMENT_SAVED', newPresetName ) });
+                    this.showNotification({ message: this.$t('instrumentSaved', { name: newPresetName }) });
                 }
             }
         },

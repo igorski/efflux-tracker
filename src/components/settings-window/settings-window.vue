@@ -23,30 +23,30 @@
 <template>
     <div class="settings">
         <div class="header">
-            <h2>Settings</h2>
+            <h2 v-t="'title'"></h2>
             <button class="close-button"
                     @click="$emit('close')"
             >x</button>
         </div>
         <section id="generalSetup">
             <fieldset>
-                <legend>General settings</legend>
+                <legend v-t="'generalSettings'"></legend>
                 <div class="wrapper select">
-                    <label for="parameterInputFormat">Parameter input format</label>
+                    <label v-t="'parameterInputFormat'" for="parameterInputFormat"></label>
                     <select id="parameterInputFormat"
                             v-model="paramFormat"
                             @change="handleParameterInputFormatChange">
-                        <option value="hex">Hexadecimal (00 to FF)</option>
-                        <option value="pct">Percentage (0 to 100)</option>
+                        <option v-t="'hex'" value="hex"></option>
+                        <option v-t="'pct'" value="pct"></option>
                     </select>
                 </div>
                 <div class="wrapper checkbox">
-                    <label for="trackFollow">Follow playback</label>
+                    <label v-t="'followPlayback'" for="trackFollow"></label>
                     <select id="trackFollow"
                             v-model="trackFollow"
                             @change="handleTrackFollowChange">
-                        <option :value="true">on</option>
-                        <option :value="false" selected>off</option>
+                        <option v-t="'on'" :value="true"></option>
+                        <option v-t="'off'" :value="false"></option>
                     </select>
                 </div>
                 <div class="wrapper checkbox">
@@ -55,17 +55,17 @@
                             v-model="displayHelpPanel"
                             @change="handleHelpPanelChange">
                         <option :value="true">on</option>
-                        <option :value="false" selected>off</option>
+                        <option :value="false">off</option>
                     </select>
                 </div>
             </fieldset>
         </section>
         <section id="midiSetup" v-if="hasMIDIsupport">
             <fieldset>
-                <legend>MIDI setup</legend>
-                <button @click="handleMIDIConnect">Connect to MIDI API</button>
+                <legend v-t="'midiSetup'"></legend>
+                <button v-t="'midiConnectToAPI'" @click="handleMIDIConnect"></button>
                 <div class="wrapper select">
-                    <label for="midiDevices">Select a MIDI input device:</label>
+                    <label v-t="'deviceSelectLabel'" for="midiDevices"></label>
                     <select id="midiDevices"
                             v-model="portNumber"
                             @change="handleMIDIDeviceSelect">
@@ -75,14 +75,12 @@
                                     :value="device.value"
                             >{{ device.title }}</option>
                         </template>
-                        <option v-else value="-1">Connect to MIDI API first.</option>
+                        <option v-else
+                                v-t="'connectMidiFirst'"
+                                value="-1"></option>
                     </select>
                 </div>
-                <p>
-                    Note: you can record incoming MIDI notes straight into the patterns by clicking
-                    the record button in the transport controls. You can also record live during playback, but
-                    keep in mind that the notes will be quantized to the step resolution of the current pattern.
-                </p>
+                <p v-t="'midiDescription'"></p>
             </fieldset>
         </section>
     </div>
@@ -90,11 +88,13 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
-import MIDIService from '../services/midi-service';
-import PubSubMessages from '../services/pubsub/messages';
 import { zMIDI } from 'zmidi';
+import MIDIService from '@/services/midi-service';
+import PubSubMessages from '@/services/pubsub/messages';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     data: () => ({
         paramFormat: 'hex',
         trackFollow: false,
@@ -107,7 +107,6 @@ export default {
             settings: state => state.settings.PROPERTIES,
         }),
         ...mapGetters([
-            'getCopy',
             'getSetting',
             'midiMessageHandler',
         ]),
@@ -172,10 +171,10 @@ export default {
             }
             this.showAvailableMIDIDevices(zMIDI.getInChannels());
             this.publishMessage(PubSubMessages.MIDI_CONNECTED);
-            this.showNotification({ message: this.getCopy('MIDI_CONNECTED') });
+            this.showNotification({ message: this.$t('midiConnected') });
         },
         handleMIDIconnectFailure() {
-            this.showNotification({ title: this.getCopy('ERROR'), message: this.getCopy('MIDI_FAILURE') });
+            this.showNotification({ title: this.$t('error'), message: this.$t('midiFailure') });
         },
         handleMIDIDeviceSelect() {
             // first clean up all old listeners
@@ -189,7 +188,7 @@ export default {
 
             const device = zMIDI.getInChannels()[ this.portNumber ];
             this.showNotification({ message:
-                this.getCopy( 'MIDI_ENABLED', `${device.manufacturer} ${device.name}` )
+                this.$t('midiEnabled', { device: `${device.manufacturer} ${device.name}` })
             });
         },
         showAvailableMIDIDevices(inputs) {

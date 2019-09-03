@@ -21,13 +21,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue            from 'vue';
-import AudioFactory   from '../model/factory/audio-factory';
-import ModuleFactory  from '../model/factory/module-factory';
+import Config         from '@/config';
+import AudioFactory   from '@/model/factory/audio-factory';
+import ModuleFactory  from '@/model/factory/module-factory';
+import InstrumentUtil from '@/utils/instrument-util';
 import AudioHelper    from './audio/audio-helper';
 import OutputRecorder from './audio/output-recorder';
 import ModuleRouter   from './audio/module-router';
-import InstrumentUtil from '../utils/instrument-util';
-import Config         from '../config';
 import PitchConverter from './audio/pitch-converter';
 import WaveTables     from './audio/wave-tables';
 import ADSR           from './audio/adsr-module';
@@ -86,7 +86,7 @@ const AudioService =
         // initialize the WaveTable / AudioBuffer pool
 
         pool = {
-            NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
+            NOISE : audioContext.createBuffer(1, audioContext.sampleRate / 10, audioContext.sampleRate),
             CUSTOM: [] // content created and maintained by "cacheCustomTables()"
         };
 
@@ -131,10 +131,9 @@ const AudioService =
             });
         });
     },
-    togglePlayback(isPlaying, song) {
+    togglePlayback(isPlaying) {
         playing = isPlaying;
         if (playing) {
-            AudioService.applyModules(song);
             // in case we were recording, unset the state to store the buffer
             recordOutput = !recordOutput;
             AudioService.toggleRecordingState();
@@ -414,6 +413,7 @@ function createModules() {
             module = instrumentModules[ i ];
             module.output.disconnect();
             module.filter.filter.disconnect();
+            if (module.panner) module.panner.disconnect();
         }
     }
     // create new modules
@@ -474,5 +474,5 @@ function handleRecordingComplete(blob) {
 
     window.URL.revokeObjectURL(blob);
 
-    store.commit('showNotification', { message: store.getters.getCopy('RECORDING_SAVED') });
+    store.commit('showNotification', { message: store.getters.t('messages.recordingSaved') });
 }

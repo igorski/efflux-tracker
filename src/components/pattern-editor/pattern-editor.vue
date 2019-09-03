@@ -25,42 +25,43 @@
              :class="{ 'settings-mode': mobileMode === 'settings' }"
              @mouseover="setHelpTopic('pattern')"
     >
-        <h2>Pattern</h2>
+        <h2 v-t="'title'"></h2>
         <ul>
             <li>
-                <button type="button"
-                        @click="handlePatternClear">clear</button>
+                <button v-t="'clear'" type="button"
+                        @click="handlePatternClear"></button>
             </li>
             <li>
-                <button type="button"
-                        @click="handlePatternCopy">copy</button>
+                <button v-t="'copy'" type="button"
+                        @click="handlePatternCopy"></button>
             </li>
             <li>
-                <button type="button"
-                        @click="handlePatternPaste">paste</button>
+                <button v-t="'paste'" type="button"
+                        @click="handlePatternPaste"></button>
             </li>
             <li>
-                <button type="button"
-                        @click="handlePatternAdd">add</button>
+                <button v-t="'add'" type="button"
+                        @click="handlePatternAdd"></button>
             </li>
             <li>
-                <button type="button"
-                        @click="handlePatternDelete">delete</button>
+                <button v-t="'delete'" type="button"
+                        @click="handlePatternDelete"></button>
             </li>
             <li>
                 <select id="patternSteps"
                         v-model.number="patternStep"
                 >
-                    <option :value="16">16 steps</option>
-                    <option :value="32">32 steps</option>
-                    <option :value="64">64 steps</option>
-                    <option :value="128">128 steps</option>
+                    <option :value="16">16 {{ $t('steps') }}</option>
+                    <option :value="32">32 {{ $t('steps') }}</option>
+                    <option :value="64">64 {{ $t('steps') }}</option>
+                    <option :value="128">128 {{ $t('steps') }}</option>
                 </select>
             </li>
             <li>
-                <button type="button"
+                <button v-t="'advanced'"
+                        type="button"
                         @click="handlePatternAdvanced"
-                >advanced</button>
+                ></button>
             </li>
         </ul>
     </section>
@@ -68,13 +69,15 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
-import HistoryStateFactory from '../model/factory/history-state-factory';
-import Config from '../config';
-import HistoryStates from '../definitions/history-states';
-import ModalWindows from '../definitions/modal-windows';
-import ObjectUtil from '../utils/object-util';
+import HistoryStateFactory from '@/model/factory/history-state-factory';
+import Config from '@/config';
+import HistoryStates from '@/definitions/history-states';
+import ModalWindows from '@/definitions/modal-windows';
+import ObjectUtil from '@/utils/object-util';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     data: () => ({
         patternCopy: null
     }),
@@ -86,7 +89,6 @@ export default {
         }),
         ...mapGetters([
             'amountOfSteps',
-            'getCopy'
         ]),
         patternStep: {
             get() {
@@ -123,7 +125,7 @@ export default {
         handlePatternAdd() {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-                this.showError(this.getCopy('ERROR_MAX_PATTERNS', Config.MAX_PATTERN_AMOUNT));
+                this.showError(this.$t('errorMaxExceeded', { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
             this.saveState(HistoryStateFactory.getAction(HistoryStates.ADD_PATTERN, { store: this.$store }));
@@ -145,7 +147,7 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '../styles/_variables.scss';
+    @import '@/styles/_variables.scss';
 
     .pattern-editor {
       display: inline-block;

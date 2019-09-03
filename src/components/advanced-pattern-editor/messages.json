@@ -1,0 +1,9 @@
+{
+  "en-US": {
+    "title": "Advanced pattern editor",
+    "copyPatternRangeLabel": "Copy pattern range",
+    "copyChannelRangeLabel": "Copy channel range:",
+    "insertAfterLabel": "Insert after pattern:",
+    "copyContent": "Copy content"
+  }
+}

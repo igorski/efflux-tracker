@@ -1,10 +1,6 @@
 import store from '@/store';
 const { mutations }  = store;
 
-jest.mock('@/i18n/translations', () => ({
-    getCopy: key => key,
-}));
-
 jest.mock('@/services/keyboard-service', () => ({
     syncEditorSlot: () => 'synced',
     setSuspended: value => value,
@@ -112,7 +108,7 @@ describe('Application Vuex store root', () => {
                 mutations.showError(state, 'qux');
                 expect(state.dialog).toEqual({
                     type: 'error',
-                    title: 'ERROR_TITLE',
+                    title: 'title.error',
                     message: 'qux'
                 })
             });
@@ -128,7 +124,7 @@ describe('Application Vuex store root', () => {
             it('should be able to show a notification using a default title when none was specified', () => {
                 const state = { notifications: [] };
                 mutations.showNotification(state, { message: 'foo' });
-                expect(state.notifications).toEqual([{ title: 'SUCCESS_TITLE', message: 'foo' }]);
+                expect(state.notifications).toEqual([{ title: 'title.success', message: 'foo' }]);
             });
 
             it('should be able to queue multiple notifications', () => {
@@ -136,8 +132,8 @@ describe('Application Vuex store root', () => {
                 mutations.showNotification(state, { message: 'foo' });
                 mutations.showNotification(state, { message: 'bar' });
                 expect(state.notifications).toEqual([
-                    { title: 'SUCCESS_TITLE', message: 'foo' },
-                    { title: 'SUCCESS_TITLE', message: 'bar' }
+                    { title: 'title.success', message: 'foo' },
+                    { title: 'title.success', message: 'bar' }
                 ]);
             });
 

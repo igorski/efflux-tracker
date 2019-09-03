@@ -22,14 +22,12 @@
  */
 import Vue          from 'vue';
 import EventFactory from '../model/factory/event-factory';
-import { getCopy }  from '../i18n/translations';
 
 const EventUtil =
 {
     /**
      * update the position properties of given AudioEvent
      *
-     * @public
      * @param {AUDIO_EVENT} event
      * @param {PATTERN} pattern
      * @param {number} patternNum index of the pattern within the entire Song (e.g. "measure")
@@ -38,8 +36,7 @@ const EventUtil =
      * @param {number=} length optional duration (in seconds) of the audioEvent, defaults to
      *                  the smallest unit available for given patterns length
      */
-    setPosition( event, pattern, patternNum, patternStep, tempo, length )
-    {
+    setPosition( event, pattern, patternNum, patternStep, tempo, length ) {
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
 
@@ -50,7 +47,6 @@ const EventUtil =
         Vue.set(seq, 'startMeasureOffset', eventOffset);
         Vue.set(seq, 'endMeasure', patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength )));
     },
-
     /**
      * add a (new) event at the correct position within the
      * LinkedList queried by the SequencerController
@@ -60,8 +56,7 @@ const EventUtil =
      * @param {SONG} song
      * @param {Array.<LinkedList>} lists
      */
-    linkEvent( event, channelIndex, song, lists )
-    {
+    linkEvent( event, channelIndex, song, lists ) {
         const list     = lists[ channelIndex ];
         const existed  = list.getNodeByData( event );
         const patterns = song.patterns;
@@ -73,16 +68,13 @@ const EventUtil =
 
         let foundEvent = false, compareEvent, channel, i, l, j, jl, insertedNode;
 
-        for ( i = event.seq.startMeasure, l = patterns.length; i < l; ++i )
-        {
+        for ( i = event.seq.startMeasure, l = patterns.length; i < l; ++i ) {
             channel = patterns[ i ].channels[ channelIndex ];
 
-            for ( j = 0, jl = channel.length; j < jl; ++j )
-            {
+            for ( j = 0, jl = channel.length; j < jl; ++j ) {
                 compareEvent = channel[ j ];
 
                 if ( !foundEvent ) {
-
                     if ( compareEvent === event )
                         foundEvent = true;
                 }
@@ -104,42 +96,36 @@ const EventUtil =
 
         return insertedNode;
     },
-
     /**
      * create LinkedLists for all events present in given
      * pattern lists. The sequencer will read
      * from the LinkedList for more performant results
      *
-     * @public
      * @param {Array.<PATTERN>} patterns
      * @param {Array.<LinkedList>} lists
      */
-    linkEvents( patterns, lists )
-    {
+    linkEvents( patterns, lists ) {
         lists.forEach(( list, channelIndex ) => {
             list.flush(); // clear existing list contents
-            patterns.forEach(( pattern ) => {
-                pattern.channels[ channelIndex ].forEach(( event ) => {
+            patterns.forEach(pattern => {
+                pattern.channels[ channelIndex ].forEach(event => {
                     if ( event )
                         list.add( event );
                 });
             });
         });
     },
-
     /**
      * clears the AudioEvent at requested step position in
      * the given channel for the given pattern
      *
-     * @public
      * @param {SONG} song
      * @param {number} patternIndex
      * @param {number} channelNum
      * @param {number} step
      * @param {LinkedList=} list
      */
-    clearEvent( song, patternIndex, channelNum, step, list )
-    {
+    clearEvent( song, patternIndex, channelNum, step, list ) {
         const pattern = song.patterns[ patternIndex ];
         const channel = pattern.channels[ channelNum ];
 
@@ -148,7 +134,6 @@ const EventUtil =
             const listNode = list.getNodeByData( channel[ step ]);
 
             if ( listNode ) {
-
                 const next = listNode.next;
                 listNode.remove();
 
@@ -158,17 +143,14 @@ const EventUtil =
         }
         Vue.set(channel, step, 0);
     },
-
     /**
      * Brute force way to remove an event from a song
      *
-     * @public
      * @param {SONG} song
      * @param {AUDIO_EVENT} event
      * @param {Array.<LinkedList>} lists
      */
-    clearEventByReference( song, event, lists )
-    {
+    clearEventByReference( song, event, lists ) {
         let found = false;
         song.patterns.forEach(( pattern, patternIndex ) => {
             pattern.channels.forEach(( channel, channelIndex ) => {
@@ -189,7 +171,6 @@ const EventUtil =
      * retrieve the first AudioEvent available before
      * given step in given channel event list
      *
-     * @public
      * @param {Array.<AUDIO_EVENT>} channelEvents
      * @param {number} step
      * @param {Function=} optCompareFn optional function to use
@@ -211,7 +192,6 @@ const EventUtil =
      * create a smooth glide for the module parameter changes from
      * one slot to another
      *
-     * @public
      * @param {SONG} song
      * @param {number} patternIndex
      * @param {number} channelIndex
@@ -334,7 +314,6 @@ const EventUtil =
      *
      * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
      *
-     * @public
      * @param {SONG} song
      * @param {number} step
      * @param {number} patternIndex
@@ -371,7 +350,7 @@ const EventUtil =
                 redo: addFn
             });
         } else
-            store.commit('showError', getCopy('ERROR_PARAM_GLIDE'));
+            store.commit('showError', store.getters.t('error.paramGlide'));
     },
 };
 export default EventUtil;

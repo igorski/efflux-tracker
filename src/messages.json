@@ -1,0 +1,29 @@
+{
+  "en-US": {
+    "unsupported": {
+      "title": "Whoops...",
+      "message": "Either the WebAudio API is not supported in this browser or it does not meet the required standards. Sadly, Efflux depends on these standards in order to actually output sound!",
+      "download": "Luckily, you can get a web browser that offers support for free. We recommend {0} for an optimal experience.",
+      "googleChrome": "Google Chrome"
+    },
+    "error": {
+      "emptySong": "Song has no pattern content!",
+      "emptyMeta": "Song has no title or author name, take pride in your work!",
+      "fileLoad": "Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.",
+      "songImport": "Could not import song, file was possibly not a valid {extension} file, or made in an incompatible version of Efflux",
+      "instrumentImport": "Could not import instruments, file was possible not a valid {extension} file, or made in an incompatible version of Efflux",
+      "paramGlide": "Could not automate module parameter glide. Define the start and end value for a specific module parameter transition within your pattern, without defining other module parameters in between."
+    },
+    "title": {
+      "error": "Error",
+      "success": "Operation completed"
+    },
+    "messages": {
+      "songSaved": "Song '{name}' saved",
+      "recordingSaved": "Recording saved to your download folder"
+    },
+    "songLoadedTitle": "Song loaded",
+    "songLoaded": "Loaded song '{name}'",
+    "warningUnload": "Are you sure you want to leave this page ? All unsaved changes will be lost."
+  }
+}

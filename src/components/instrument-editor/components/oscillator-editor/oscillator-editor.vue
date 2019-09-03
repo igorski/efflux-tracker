@@ -28,19 +28,19 @@
             <select v-model="oscillatorEnabled"
                     @change="handleOscillatorEnabledChange"
             >
-                <option :value="true">Enabled</option>
-                <option :value="false">Disabled</option>
+                <option v-t="'enabled'" :value="true"></option>
+                <option v-t="'disabled'" :value="false"></option>
             </select>
             <select v-model="oscillatorWaveform"
                     @change="handleOscillatorWaveformChange"
             >
-                <option value="SAW">Sawtooth</option>
-                <option value="SINE">Sine</option>
-                <option value="TRIANGLE">Triangle</option>
-                <option value="SQUARE">Square</option>
-                <option value="PWM">PWM</option>
-                <option value="NOISE">Noise</option>
-                <option value="CUSTOM">Custom</option>
+                <option v-t="'sawtooth'" value="SAW"></option>
+                <option v-t="'sine'" value="SINE"></option>
+                <option v-t="'triangle'" value="TRIANGLE"></option>
+                <option v-t="'square'" value="SQUARE"></option>
+                <option v-t="'pwm'" value="PWM"></option>
+                <option v-t="'noise'" value="NOISE"></option>
+                <option v-t="'custom'" value="CUSTOM"></option>
             </select>
         </div>
 
@@ -48,29 +48,29 @@
 
         <div>
             <div class="oscillator-editor instrument-parameters">
-                <h2>Oscillator tuning</h2>
+                <h2 v-t="'oscillatorTuning'"></h2>
                 <div class="wrapper input range">
-                    <label for="detune">Detune</label>
+                    <label v-t="'detuneLabel'" for="detune"></label>
                     <input v-model.number="oscillatorDetune"
                            type="range" id="detune" min="-50" max="50" step=".1" value="0"
                            @input="handleOscillatorTuningChange('detune')">
                 </div>
                 <div class="wrapper input range">
-                    <label for="octaveShift">Octave shift</label>
+                    <label v-t="'octaveShiftLabel'" for="octaveShift"></label>
                     <input v-model.number="oscillatorOctaveShift"
                            type="range" id="octaveShift" min="-2" max="2" step="1" value="0"
                            :disabled="oscillator.waveform === 'NOISE'"
                            @input="handleOscillatorTuningChange('octave')">
                 </div>
                 <div class="wrapper input range">
-                    <label for="fineShift">Fine shift</label>
+                    <label v-t="'fineShiftLabel'" for="fineShift"></label>
                     <input v-model.number="oscillatorFineShift"
                            type="range" id="fineShift" min="-7" max="7" step="1" value="0"
                            :disabled="oscillator.waveform === 'NOISE'"
                            @input="handleOscillatorTuningChange('fine')">
                 </div>
                 <div class="wrapper input range">
-                    <label for="volume">Volume</label>
+                    <label v-t="'volumeLabel'" for="volume"></label>
                     <input type="range"
                            v-model.number="oscillatorVolume"
                            id="volume" min="0" max="1" step=".01" value="0"
@@ -82,13 +82,13 @@
 
             <div class="envelope-editor instrument-parameters">
                 <ul class="tab-list">
-                    <li :class="{ active: activeEnvelopeTab === 0 }"
+                    <li v-t="'amplitude'"
+                        :class="{ active: activeEnvelopeTab === 0 }"
                         @click="activeEnvelopeTab = 0">
-                        Amplitude
                     </li>
-                    <li :class="{ active: activeEnvelopeTab === 1 }"
+                    <li v-t="'pitch'"
+                        :class="{ active: activeEnvelopeTab === 1 }"
                         @click="activeEnvelopeTab = 1">
-                        Pitch
                     </li>
                 </ul>
 
@@ -98,27 +98,27 @@
                      class="tabbed-content"
                      :class="{ active: activeEnvelopeTab === 0 }"
                 >
-                    <h2>Amplitude envelope</h2>
+                    <h2 v-t="'amplitudeEnvelope'"></h2>
                     <div class="wrapper input range">
-                        <label for="attack">Attack</label>
+                        <label v-t="'attack'" for="attack"></label>
                         <input v-model.number="amplitudeAttack"
                                type="range" id="attack" min="0" max="1" step=".01" value="0"
                                @input="invalidate">
                     </div>
                     <div class="wrapper input range">
-                        <label for="decay">Decay</label>
+                        <label v-t="'decay'" for="decay"></label>
                         <input v-model.number="amplitudeDecay"
                                type="range" id="decay" min="0" max="1" step=".01" value="0"
                                @input="invalidate">
                     </div>
                     <div class="wrapper input range">
-                        <label for="sustain">Sustain</label>
+                        <label v-t="'sustain'" for="sustain"></label>
                         <input v-model.number="amplitudeSustain"
                                type="range" id="sustain" min="0" max="1" step=".01" value=".75"
                                @input="invalidate">
                     </div>
                     <div class="wrapper input range">
-                        <label for="release">Release</label>
+                        <label v-t="'release'" for="release"></label>
                         <input v-model.number="amplitudeRelease"
                                type="range" id="release" min="0" max="1" step=".01" value="0"
                                @input="invalidate" />
@@ -131,33 +131,33 @@
                      class="tabbed-content"
                      :class="{ active: activeEnvelopeTab === 1 }"
                 >
-                    <h2>Pitch envelope</h2>
+                    <h2 v-t="'pitchEnvelope'"></h2>
                     <div class="wrapper input range">
-                        <label for="pitchRange">Range</label>
+                        <label v-t="'range'" for="pitchRange"></label>
                         <input v-model.number="pitchRange"
                                type="range" id="pitchRange" min="-24" max="24" step="1" value="0"
                                @input="invalidate" />
                     </div>
                     <div class="wrapper input range">
-                        <label for="pitchAttack">Attack</label>
+                        <label v-t="'attack'" for="pitchAttack"></label>
                         <input v-model.number="pitchAttack"
                                type="range" id="pitchAttack" min="0" max="1" step=".01" value="0"
                                @input="invalidate" />
                     </div>
                     <div class="wrapper input range">
-                        <label for="pitchDecay">Decay</label>
+                        <label v-t="'decay'" for="pitchDecay"></label>
                         <input v-model.number="pitchDecay"
                                type="range" id="pitchDecay" min="0" max="1" step=".01" value="1"
                                @input="invalidate">
                     </div>
                     <div class="wrapper input range">
-                        <label for="pitchSustain">Sustain</label>
+                        <label v-t="'sustain'" for="pitchSustain"></label>
                         <input v-model.number="pitchSustain"
                                type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75"
                                @input="invalidate">
                     </div>
                     <div class="wrapper input range">
-                        <label for="pitchRelease">Release</label>
+                        <label v-t="'release'" for="pitchRelease"></label>
                         <input v-model.number="pitchRelease"
                                type="range" id="pitchRelease" min="0" max="1" step=".01" value="0"
                                @input="invalidate">
@@ -170,12 +170,14 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 import zCanvas from 'zcanvas';
-import Config from '../../../config';
-import AudioService from '../../../services/audio-service';
-import InstrumentFactory from '../../../model/factory/instrument-factory';
-import WaveTableDraw from './wave-table-draw';
+import Config from '@/config';
+import AudioService from '@/services/audio-service';
+import InstrumentFactory from '@/model/factory/instrument-factory';
+import WaveTableDraw from '../wave-table-draw';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     props: {
         oscillatorIndex: {
             type: Number,

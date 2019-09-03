@@ -37,7 +37,7 @@ const ModuleRouter =
      */
     applyRouting( modules, output ) {
         const routes   = [];
-        const moduleOutput = modules.output,
+        const moduleOutput = modules.output, // is voice channel output (pre-FX)
               panner       = modules.panner, // can be null when unsupported
               eq           = modules.eq,
               overdrive    = modules.overdrive.overdrive,
@@ -50,12 +50,13 @@ const ModuleRouter =
         filter.disconnect();
         delay.output.disconnect();
 
+        let lastOutput = moduleOutput;
         if (panner) {
             panner.disconnect();
-            routes.push(panner); // all other modules are applied post-pan
+            lastOutput.connect(panner);
+            lastOutput = panner; // all other modules are applied post-pan
         }
 
-        let lastOutput = moduleOutput;
         if ( eq.eqEnabled ) {
             lastOutput.connect( eq.lowBand );
             lastOutput.connect( eq.midBand );

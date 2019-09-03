@@ -1,0 +1,24 @@
+{
+  "en-US": {
+    "title": "efflux",
+    "file": "File",
+    "loadSong": "Load song",
+    "saveSong": "Save song",
+    "importSong": "Import song",
+    "exportSong": "Export song",
+    "resetSong": "Reset song",
+    "importInstruments": "Import instrument presets",
+    "exportInstruments": "Export instrument presets",
+    "settings": "Settings",
+    "help": "Help",
+    "maximize": "Maximize",
+    "minimize": "Exit fullscreen",
+    "warningSongReset": "Are you sure you want to reset, you will lose all changes and undo history",
+    "recordOutputTitle": "Record output",
+    "recordOutputExpl": "You can record your song as a .WAV file and download it onto your device. Recording takes place during playback and will stop automatically once the end of the song is reached. Enjoy your listen or grab a drink while waiting.",
+    "songImported": "Song imported successfully.",
+    "songExported": "Song '{song}' exported to your download folder",
+    "instrumentsImported": "{amount} instrument presets have been imported",
+    "instrumentsExported": "Instrument presets exported to your download folder"
+  }
+}

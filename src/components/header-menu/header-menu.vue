@@ -28,39 +28,43 @@
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
             <span>&#9776;</span>
         </div>
-        <h1>efflux</h1>
+        <h1 v-t="'title'"></h1>
         <section class="inline">
             <ul class="menu-list">
                 <li>
-                    <a class="title" @click.prevent="">File</a>
+                    <a v-t="'file'" class="title" @click.prevent=""></a>
                     <ul class="file-menu">
-                        <li @click="handleLoad" data-api-song-load>Load song</li>
-                        <li @click="handleSave">Save song</li>
+                        <li v-t="'loadSong'" @click="handleLoad" data-api-song-load></li>
+                        <li v-t="'saveSong'" @click="handleSave"></li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
                         <template v-if="hasImportExport">
-                            <li @click="handleSongImport">Import song</li>
-                            <li @click="handleSongExport">Export song</li>
+                            <li v-t="'importSong'" @click="handleSongImport"></li>
+                            <li v-t="'exportSong'" @click="handleSongExport"></li>
                         </template>
-                        <li id="songReset" @click="handleReset" data-api-song-reset>Reset song</li>
+                        <li v-t="'resetSong'" id="songReset"
+                            @click="handleReset" data-api-song-reset></li>
                         <template v-if="hasImportExport">
-                            <li @click="handleInstrumentImport">Import instrument presets</li>
-                            <li @click="handleInstrumentExport">Export instrument presets</li>
+                            <li v-t="'importInstruments'" @click="handleInstrumentImport"></li>
+                            <li v-t="'exportInstruments'" @click="handleInstrumentExport"></li>
                         </template>
                     </ul>
                 </li>
-                <li @click="handleSettings" data-api-settings>Settings</li>
+                <li v-t="'settings'"
+                    @click="handleSettings" data-api-settings></li>
                 <li v-if="hasRecord"
                     @click="handleRecord" data-api-record
                 >
                     {{ recordingButtonText }}
                 </li>
-                <li @click="handleHelp" data-api-help>Help</li>
+                <li v-t="'help'"
+                    @click="handleHelp" data-api-help></li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"
+                    v-t="'maximize'"
                     ref="fullscreenBtn"
                     class="fullscreen-button"
                     data-api-fullscreen
-                >Maximize</li>
+                ></li>
             </ul>
         </section>
     </nav>
@@ -68,12 +72,14 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import { isSupported, setToggleButton } from '../utils/fullscreen-util';
-import AudioService from '../services/audio-service';
-import ManualURLs from '../definitions/manual-urls';
-import ModalWindows from '../definitions/modal-windows';
+import { isSupported, setToggleButton } from '@/utils/fullscreen-util';
+import AudioService from '@/services/audio-service';
+import ManualURLs from '@/definitions/manual-urls';
+import ModalWindows from '@/definitions/modal-windows';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     computed: {
         ...mapState([
             'menuOpened',
@@ -83,7 +89,6 @@ export default {
             'activeSong',
             'getInstruments',
             'isPlaying',
-            'getCopy'
         ]),
         hasImportExport() {
             return typeof window.btoa !== 'undefined' && typeof window.FileReader !== 'undefined';
@@ -94,7 +99,7 @@ export default {
         hasRecord() {
             // on iOS and Safari recording isn't working as expected...
             const userAgent = window.navigator.userAgent;
-            return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome)/g);
+            return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome|Firefox)/g);
         },
         recordingButtonText() {
             return this.isPlaying && AudioService.isRecording() ? 'Stop recording' : 'Record output';
@@ -109,7 +114,7 @@ export default {
     },
     mounted() {
         if (this.$refs.fullscreenBtn) {
-            setToggleButton(this.$refs.fullscreenBtn);
+            setToggleButton(this.$refs.fullscreenBtn, this.$t('maximize'), this.$t('minimize'));
         }
     },
     methods: {
@@ -145,7 +150,7 @@ export default {
             const self = this;
             this.openDialog({
                 type: 'confirm',
-                message: this.getCopy('WARNING_SONG_RESET'),
+                message: this.$t('warningSongReset'),
                 confirm() {
                     self.createSong()
                         .then(song => self.setActiveSong(song));
@@ -165,8 +170,8 @@ export default {
             const self = this;
             this.openDialog({
                 type: 'confirm',
-                title: this.getCopy('RECORD_OUTPUT'),
-                message: this.getCopy('RECORD_OUTPUT_EXPL'),
+                title: this.$t('recordOutputTitle'),
+                message: this.$t('recordOutputExpl'),
                 confirm() {
                     AudioService.toggleRecordingState();
                     if (!self.isPlaying) {
@@ -177,13 +182,13 @@ export default {
         },
         handleSongImport() {
             this.importSong()
-                .then(() => this.showNotification({ message: this.getCopy('SONG_IMPORTED') }))
+                .then(() => this.showNotification({ message: this.$t('songImported') }))
                 .catch(error => this.showError(error));
         },
         handleSongExport() {
             this.validateSong(this.activeSong).then(() => {
                 this.exportSong(this.activeSong)
-                    .then(() => this.showNotification({ message: this.getCopy('SONG_EXPORTED', this.activeSong.meta.title) }))
+                    .then(() => this.showNotification({ message: this.$t('songExported', { song: this.activeSong.meta.title }) }))
                     .catch(error => this.showError(error));
             }).catch(() => {
                 // nowt. error has been shown through store validator action.
@@ -191,12 +196,12 @@ export default {
         },
         handleInstrumentImport() {
             this.importInstruments()
-                .then(amountImported => this.showNotification({ message: this.getCopy('INSTRUMENTS_IMPORTED', amountImported.toString()) }))
+                .then(amountImported => this.showNotification({ message: this.$t('instrumentsImported', { amount: amountImported.toString() }) }))
                 .catch(error => this.showError(error));
         },
         handleInstrumentExport() {
             this.exportInstruments()
-                .then(() => this.showNotification({ message: this.getCopy('INSTRUMENTS_EXPORTED') }))
+                .then(() => this.showNotification({ message: this.$t('instrumentsExported') }))
                 .catch();
         },
     }
@@ -204,7 +209,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import "../styles/_variables.scss";
+    @import '@/styles/_variables.scss';
 
     .menu {
       color: #b6b6b6;

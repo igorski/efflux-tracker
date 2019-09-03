@@ -1,0 +1,13 @@
+{
+  "en-US": {
+    "title": "Instrument editor",
+    "instrument": "Instrument {index}",
+    "oscillator": "Oscillator {index}",
+    "presets": "Presets",
+    "presetName": "preset name",
+    "savePreset": "Save preset",
+    "defaultPresetName": "--- new preset ---",
+    "errorNoName": "Please enter a name for the instrument preset",
+    "instrumentSaved": "Instrument '{name}' saved"
+  }
+}

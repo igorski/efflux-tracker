@@ -30,28 +30,31 @@
         >
             <input type="text"
                    v-model="title"
-                   placeholder="song title"
+                   :placeholder="$t('songTitle')"
                    @focus="handleFocusIn"
                    @blur="handleFocusOut"
             />
             <input type="text"
                    v-model="author"
-                   placeholder="song author"
+                   :placeholder="$t('songAuthor')"
                    @focus="handleFocusIn"
                    @blur="handleFocusOut"
             />
-            <button id="instrumentEditBtn"
+            <button v-t="'instrumentEditor'"
+                    id="instrumentEditBtn"
                     @click="handleInstrumentEditorClick"
-            >Instrument editor</button>
+            ></button>
         </div>
     </section>
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex';
-import ModalWindows from '../definitions/modal-windows';
+import ModalWindows from '@/definitions/modal-windows';
+import messages from './messages.json';
 
 export default {
+    i18n: { messages },
     computed: {
         ...mapState([
             'mobileMode',

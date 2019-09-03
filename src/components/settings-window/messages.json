@@ -1,0 +1,21 @@
+{
+  "en-US": {
+    "title": "Settings",
+    "generalSettings": "General settings",
+    "parameterInputFormat": "Parameter input format",
+    "hex": "Hexadecimal (00 to FF)",
+    "pct": "Percentile (0 to 100)",
+    "followPlayback": "Follow playback",
+    "on": "on",
+    "off": "off",
+    "midiSetup": "MIDI setup",
+    "midiConnectToAPI": "Connect to MIDI API",
+    "deviceSelectLabel": "Select a MIDI input device:",
+    "connectMidiFirst": "Connect to MIDI API first.",
+    "midiDescription": "Note: you can record incoming MIDI notes straight into the patterns by clicking the record button in the transport controls. You can also record live during playback, but keep in mind that the notes will be quantized to the step resolution of the current pattern.",
+    "midiConnected": "MIDI Connection established successfully",
+    "error": "Error",
+    "midiFailure": "MIDI Unavailable, Efflux could not connect to MIDI device(s)",
+    "midiEnabled": "Listening to MIDI messages coming from {device}"
+  }
+}

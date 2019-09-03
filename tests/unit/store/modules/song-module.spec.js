@@ -53,7 +53,7 @@ describe('Song module', () => {
         });
 
         describe('when saving songs', () => {
-            const mockedGetters = { getCopy: jest.fn() };
+            const mockedGetters = { t: jest.fn() };
             const dispatch = jest.fn();
             let commit;
 

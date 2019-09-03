@@ -1,0 +1,27 @@
+{
+  "en-US": {
+    "title": "Module Parameter Change editor",
+    "volume": "volume",
+    "panLeft": "pan L",
+    "panRight": "pan R",
+    "pitchUp": "pitch +8ve",
+    "pitchDown": "pitch -8ve",
+    "filterOnOff": "filter on/off",
+    "filterFreq": "filter frequency",
+    "filterQ": "filter Q",
+    "filterLfoOnOff": "filter LFO on/off",
+    "filterLfoSpeed": "filter LFO speed",
+    "filterLfoDepth": "filter LDO depth",
+    "delayOnOff": "delay on/off",
+    "delayTime": "delay time",
+    "delayFeedback": "delay feedback",
+    "delayCutoff": "delay cutoff",
+    "delayOffset": "delay offset",
+    "useGlide": "Glide ?",
+    "on": "On",
+    "off": "Off",
+    "parameterValue": "Parameter value",
+    "fastEditDescr": "For fast editing: use the keyboard to type a module parameter (first letter), use the \"G\" key to toggle glide on/off and type a numerical value between 0 to 99 for its parameter value. Hit enter to confirm.",
+    "ok": "OK"
+  }
+}
