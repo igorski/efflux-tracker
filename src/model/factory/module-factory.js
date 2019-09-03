@@ -49,13 +49,11 @@ const ModuleFactory = {
                 return ModuleFactory.applyODConfiguration(modules, props, output);
         }
     },
-
     /**
      * create an equalizer with low/mid/high bands, to change the emphasis
      * of the equalizers frequency range, alter the gain values of the
      * low/mid/high GainNodes to alter the balance
      *
-     * @public
      * @param {AudioContext} audioContext
      * @return {EQ_MODULE}
      */
@@ -64,17 +62,17 @@ const ModuleFactory = {
         hBand.type            = 'lowshelf';
         hBand.frequency.value = 360; // TODO make band range configurable?
         hBand.gain.value      = Config.MIN_EQ_GAIN;
-        
+
         const hInvert      = AudioFactory.createGainNode( audioContext );
         hInvert.gain.value = -1.0;
-        
+
         const mBand = AudioFactory.createGainNode( audioContext );
-        
+
         const lBand           = audioContext.createBiquadFilter();
         lBand.type            = 'highshelf';
         lBand.frequency.value = 3600; // TODO make band range configurable?
         lBand.gain.value      = Config.MIN_EQ_GAIN;
-        
+
         const lInvert      = AudioFactory.createGainNode( audioContext );
         lInvert.gain.value = -1.0;
 
@@ -108,12 +106,9 @@ const ModuleFactory = {
             eqEnabled : false
         };
     },
-
     /**
      * create a filter that can be modulated by a
      * low frequency oscillator
-     *
-     * @public
      *
      * @param {AudioContext} audioContext
      * @return {FILTER_MODULE}
@@ -140,7 +135,6 @@ const ModuleFactory = {
             filterEnabled : false
         };
     },
-
     /**
      * @param {AudioContext} audioContext
      * @return {DELAY_MODULE}
@@ -159,7 +153,6 @@ const ModuleFactory = {
             delayEnabled: false
         };
     },
-
     /**
      * @param {Audiocontext} audioContext
      * @return {OVERDRIVE_MODULE}
@@ -177,7 +170,6 @@ const ModuleFactory = {
             overdriveEnabled: false
         };
     },
-
     /**
      * apply a EQ configuration (see INSTRUMENT in InstrumentFactory)
      * onto a EQ module
@@ -197,7 +189,6 @@ const ModuleFactory = {
 
         ModuleRouter.applyRouting( modules, output );
     },
-
     /**
      * apply a Overdrive configuration onto an Overdrive module
      *
@@ -205,8 +196,7 @@ const ModuleFactory = {
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyODConfiguration( modules, props, output )
-    {
+    applyODConfiguration( modules, props, output ) {
         const overdrive = modules.overdrive;
 
         overdrive.overdriveEnabled  = props.enabled;
@@ -217,7 +207,6 @@ const ModuleFactory = {
 
         ModuleRouter.applyRouting( modules, output );
     },
-
     /**
      * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Filter module
@@ -261,7 +250,6 @@ const ModuleFactory = {
             filter.lfo.disconnect();
         }
     },
-
     /**
      * apply a Delay configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Delay module

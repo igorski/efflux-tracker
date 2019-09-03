@@ -20,8 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config     from '../../config';
-import ObjectUtil from '../../utils/object-util';
+import Config     from '@/config';
+import ObjectUtil from '@/utils/object-util';
 
 const InstrumentFactory =
 {
@@ -44,6 +44,7 @@ const InstrumentFactory =
                 InstrumentFactory.createOscillator( false, 'SAW' )
             ],
             volume: 1,
+            panning: 0, // -1 = left, 0 = center, 1 = right
             filter : {
                 enabled     : false,
                 frequency   : Config.DEFAULT_FILTER_FREQ,
@@ -66,15 +67,13 @@ const InstrumentFactory =
         InstrumentFactory.createEQ( instrument );
         return instrument;
     },
-
     /**
      * create default overdrive properties
      * this was not present in legacy instruments
      *
      * @param {INSTRUMENT} instrument
      */
-    createOverdrive( instrument )
-    {
+    createOverdrive( instrument ) {
         if ( typeof instrument.overdrive === "object" ) return;
 
         instrument.overdrive = {
@@ -85,16 +84,14 @@ const InstrumentFactory =
             drive:   0.8
         };
     },
-
     /**
      * create default equalizer properties
      * this was not present in legacy instruments
      *
      * @param {INSTRUMENT} instrument
      */
-    createEQ( instrument )
-    {
-        if ( typeof instrument.eq === "object" ) return;
+    createEQ( instrument ) {
+        if ( typeof instrument.eq === 'object' ) return;
 
         instrument.eq = {
             enabled  : false,
@@ -178,8 +175,9 @@ const InstrumentFactory =
         newInstrument.id    = newInstrumentId;
         newInstrument.name  = newInstrumentName;
 
-        // legacy presets have no pitch envelopes, EQ or overdrive, create now
+        // legacy presets have no pitch envelopes, pan, EQ or overdrive, create now
 
+        newInstrument.panning = newInstrument.panning || 0;
         newInstrument.oscillators.forEach(( oscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
         InstrumentFactory.createOverdrive( newInstrument );
         InstrumentFactory.createEQ( newInstrument );

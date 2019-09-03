@@ -61,3 +61,10 @@ let DELAY_MODULE;
  *          }}
  */
 let OVERDRIVE_MODULE;
+
+/**
+ * @typedef {{
+ *              panner: StereoPannerNode
+ *          }}
+ */
+let PAN_MODULE;
