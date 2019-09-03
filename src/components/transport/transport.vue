@@ -133,7 +133,7 @@ export default {
     },
     watch: {
         isPlaying(playing) {
-            AudioService.togglePlayback(playing, this.activeSong);
+            AudioService.togglePlayback(playing);
             if (playing) {
                 this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
             } else {

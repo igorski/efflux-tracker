@@ -131,10 +131,9 @@ const AudioService =
             });
         });
     },
-    togglePlayback(isPlaying, song) {
+    togglePlayback(isPlaying) {
         playing = isPlaying;
         if (playing) {
-            AudioService.applyModules(song);
             // in case we were recording, unset the state to store the buffer
             recordOutput = !recordOutput;
             AudioService.toggleRecordingState();
@@ -414,6 +413,7 @@ function createModules() {
             module = instrumentModules[ i ];
             module.output.disconnect();
             module.filter.filter.disconnect();
+            if (module.panner) module.panner.disconnect();
         }
     }
     // create new modules

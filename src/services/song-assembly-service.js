@@ -66,7 +66,7 @@ export default
                 return song;
             }
             else {
-                // no assembly present on the XTK, assume legacy Song
+                // no assembly present on the XTK, assume legacy Song (is Object)
                 return xtk;
             }
         }

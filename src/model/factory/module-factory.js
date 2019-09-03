@@ -21,9 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import AudioFactory from './audio-factory';
-import ModuleRouter from '../../services/audio/module-router';
-import Config       from '../../config';
-import Delay        from '../../services/audio/delay-module';
+import ModuleRouter from '@/services/audio/module-router';
+import Config       from '@/config';
+import Delay        from '@/services/audio/delay-module';
 import Overdrive    from 'wa-overdrive';
 
 const ModuleFactory = {

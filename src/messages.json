@@ -19,7 +19,7 @@
       "success": "Operation completed"
     },
     "messages": {
-      "songSaved": "Song '{title}' saved",
+      "songSaved": "Song '{name}' saved",
       "recordingSaved": "Recording saved to your download folder"
     },
     "songLoadedTitle": "Song loaded",

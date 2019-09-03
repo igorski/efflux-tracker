@@ -15,7 +15,7 @@ import PubSubService from '@/services/pubsub-service';
 // store so we can commit translated error/success messages from actions
 
 let i18n;
-const translate = key => i18n ? i18n.t(key) : key;
+const translate = (key, optArgs) => i18n && typeof i18n.t === 'function' ? i18n.t(key, optArgs) : key;
 
 export default
 {
@@ -43,7 +43,7 @@ export default
     },
     getters: {
         // eslint-disable-next-line no-unused-vars
-        t: state => key => translate(key),
+        t: state => (key, optArgs) => translate(key, optArgs),
     },
     mutations: {
         publishMessage(state, message) {
@@ -139,12 +139,13 @@ export default
          * @param {Object} i18nReference vue-i18n Object instance so we can
          *                 access translations inside Vuex store modules
          */
-        setupServices(i18nReference) {
+        setupServices(store, i18nReference) {
             // cheat a little by giving the services access to the root store.
             // when synthesizing audio we need instant access to song events
             // nextTick()-based reactivity is too large of a latency
             const storeReference = this;
             i18n = i18nReference;
+
             return new Promise(resolve => {
                 AudioService.init(storeReference);
                 KeyboardService.init(storeReference);

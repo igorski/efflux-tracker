@@ -99,7 +99,7 @@ export default {
         hasRecord() {
             // on iOS and Safari recording isn't working as expected...
             const userAgent = window.navigator.userAgent;
-            return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome)/g);
+            return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome|Firefox)/g);
         },
         recordingButtonText() {
             return this.isPlaying && AudioService.isRecording() ? 'Stop recording' : 'Record output';

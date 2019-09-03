@@ -204,7 +204,7 @@ export default {
 
                 commit('publishMessage', PubSubMessages.SONG_SAVED);
                 if (state.showSaveMessage) {
-                    commit('showNotification', { message: getters.t('messages.songSaved', { title: song.meta.title }) });
+                    commit('showNotification', { message: getters.t('messages.songSaved', { name: song.meta.title }) });
                 }
                 resolve();
             })
