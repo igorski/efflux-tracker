@@ -45,58 +45,57 @@ constantOneCurve[ 1 ] = 1;
 const AudioFactory =
 {
     /**
-     * @public
-     *
      * @param {OscillatorNode} aOscillator
      * @param {number} aValue time value when to start
      */
-    startOscillation( aOscillator, aValue )
-    {
+    startOscillation( aOscillator, aValue ) {
         if ( isStandards )
             aOscillator.start( aValue );
         else
             aOscillator.noteOn( aValue );
     },
-
     /**
-     * @public
-     *
      * @param {OscillatorNode} aOscillator
      * @param {number} aValue time value when to stop
      */
-    stopOscillation( aOscillator, aValue )
-    {
+    stopOscillation( aOscillator, aValue ) {
         try {
-
             if ( isStandards)
                 aOscillator.stop( aValue );
             else
                 aOscillator.noteOff( aValue );
-        }
-        catch ( e ) {
+        } catch ( e ) {
             // likely Safari DOM Exception 11 if oscillator was previously stopped
         }
     },
-    
     /**
-     * @public
-     *
      * @param {webkitAudioContext|AudioContext} aContext
      * @return {AudioGainNode}
      */
-    createGainNode( aContext )
-    {
+    createGainNode( aContext ) {
         if ( isStandards )
             return aContext.createGain();
 
         return aContext.createGainNode();
     },
-
+    /**
+     * At the moment of writing, StereoPannerNode is not supported
+     * in Safari, so this can return null!
+     *
+     * @param {webkitAudioContext|AudioContext} audioContext
+     * @return {StereoPannerNode|null}
+     */
+    createStereoPanner(audioContext) {
+        // last minute checks on feature support
+        if (typeof audioContext.createStereoPanner !== 'function') {
+            return null;
+        }
+        return audioContext.createStereoPanner();
+    },
     /**
      * Create a Pulse Width Modulator
      * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
      *
-     * @public
      * @param {AudioContext} audioContext
      * @param {number} startTime
      * @param {number} endTime

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -38,7 +38,6 @@ export default
     /**
      * assembles a song Object from an .XTK file
      *
-     * @public
      * @param {string} xtk
      * @return {Object}
      */
@@ -75,11 +74,9 @@ export default
             return null;
         }
     },
-
     /**
      * disassembles a song Object into an .XTK file
      *
-     * @public
      * @param {SONG} song
      * @return {string}
      */
@@ -118,6 +115,7 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_NAME             = "n",
       INSTRUMENT_PRESET_NAME      = "pn",
       INSTRUMENT_VOLUME           = "v",
+      INSTRUMENT_PANNING          = "ip",
       INSTRUMENT_DELAY            = "d",
       INSTRUMENT_DELAY_ENABLED    = "e",
       INSTRUMENT_DELAY_CUTOFF     = "c",
@@ -218,6 +216,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
             name       : xtkInstrument[ INSTRUMENT_NAME ],
             presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
+            panning    : xtkInstrument[ INSTRUMENT_PANNING ] || 0,
             delay      : {
                 enabled  : xtkDelay[ INSTRUMENT_DELAY_ENABLED ],
                 type     : xtkDelay[ INSTRUMENT_DELAY_TYPE ],
@@ -313,6 +312,7 @@ function disassembleInstruments( xtk, instruments ) {
         xtkInstrument[ INSTRUMENT_NAME ]        = instrument.name;
         xtkInstrument[ INSTRUMENT_PRESET_NAME ] = instrument.presetName;
         xtkInstrument[ INSTRUMENT_VOLUME ]      = instrument.volume;
+        xtkInstrument[ INSTRUMENT_PANNING ]     = instrument.panning;
 
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ]  = {};
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ] = {};

@@ -147,7 +147,8 @@ export default {
         scrollPending: false,
         mainSection: null,
         centerSection: null,
-        modalWindows: ModalWindows
+        modalWindows: ModalWindows,
+        canLaunch: true,
     }),
     computed: {
         ...mapState([
@@ -165,10 +166,7 @@ export default {
         }),
         ...mapGetters([
             'activeSong'
-        ]),
-        canLaunch() {
-            return AudioService.isSupported();
-        }
+        ])
     },
     watch: {
         menuOpened(isOpen) {
@@ -211,6 +209,8 @@ export default {
         // expose publish / subscribe bus to integrate with outside API's
         window.efflux = { ...window.efflux, Pubsub };
         PubSubService.init(this.$store, window.efflux.Pubsub);
+
+        this.canLaunch = AudioService.isSupported();
 
         // load both persistent model data as well as data fixtures
 

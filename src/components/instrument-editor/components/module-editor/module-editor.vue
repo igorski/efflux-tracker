@@ -32,6 +32,15 @@
                            id="instrumentVolume"
                            min="0" max="1" step=".01" value="0" />
                 </div>
+                <div v-if="supportsPanning"
+                     class="wrapper input range"
+                >
+                    <label for="instrumentPanning">Pan</label>
+                    <input v-model="panning"
+                           type="range"
+                           id="instrumentPanning"
+                           min="-1" max="1" step=".01" value="0" />
+                </div>
             </fieldset>
 
             <ul class="modules-tabs tab-list">
@@ -179,6 +188,7 @@
 <script>
 import { mapMutations } from 'vuex';
 import AudioService from '@/services/audio-service';
+import AudioHelper from '@/services/audio/audio-helper';
 import messages from './messages.json';
 
 export default {
@@ -195,15 +205,22 @@ export default {
     },
     data: () => ({
         activeModuleTab: 0,
+        supportsPanning: true,
     }),
     computed: {
         volume: {
-            get() {
-                return this.instrumentRef.volume;
-            },
+            get() { return this.instrumentRef.volume; },
             set(value) {
                 this.updateInstrument({ instrumentIndex: this.instrumentId, prop: 'volume', value });
                 AudioService.adjustInstrumentVolume(this.instrumentId, value);
+                this.invalidate();
+            }
+        },
+        panning: {
+            get() { return this.instrumentRef.panning; },
+            set(value) {
+                this.updateInstrument({ instrumentIndex: this.instrumentId, prop: 'panning', value });
+                AudioService.adjustInstrumentPanning(this.instrumentId, value);
                 this.invalidate();
             }
         },
@@ -300,6 +317,9 @@ export default {
             set(value) { this.update('delay', { ...this.instrumentRef.delay, offset: value }); }
         },
     },
+    created() {
+        this.supportsPanning = AudioHelper.supports('panning');
+    },
     methods: {
         ...mapMutations([
             'updateInstrument',
@@ -383,4 +403,3 @@ export default {
     }
 
 </style>
- 

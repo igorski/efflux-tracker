@@ -38,7 +38,7 @@ using [Vue](https://vuejs.org).
  * _./src/assets_ contains all used fonts and images
  * _./src/model_ contains factories and utilities to create an Efflux song (see _"Efflux song model"_ below)
  * _./src/services_ contains a variety of services used to integrate hardware interaction within the application
- * _./src/workers_ contains all Workers (which will be inlined into the compiled output and loaded as Blobs) 
+ * _./src/workers_ contains all Workers (which will be inlined into the compiled output and loaded as Blobs)
  * _./src/utils_ contains utilities for common operations or to orchestrate batch changes
 
 Additional folders:
@@ -47,7 +47,7 @@ Additional folders:
  * _./src/fixtures_ can be filled with separate JSON files containing Song data, these will be concatenated into
    a single file that can be requested via Ajax on the first application start to provide demo content
    (see _fixtures-loader.js_)
- 
+
 ## Application actors
 
 The Vuex store is defined in _./src/store/_ and its submodules in the _./src/store/modules/_-folder. Each part of
@@ -60,7 +60,7 @@ the application has its own module, these are:
  * _selection-module_ used to keep track of selections made in the pattern editor
  * _settings-module_ used to maintain persistent configurations
  * _song-module_ provides a store to save, load and edit songs
-    
+
 ### Efflux song model
 
 The model of an Efflux song consists of the following actors (created via their respective factories):
@@ -70,7 +70,7 @@ The model of an Efflux song consists of the following actors (created via their 
  * Events
  * Instruments
  * Modules
- 
+
 A song contains a list of _PATTERNS_. A Pattern contains a list of _channels_ (one for each available track) and a
 descriptor for the amount of _steps_ the pattern contains (e.g. 16, 32, 64, etc.).
 
@@ -105,7 +105,11 @@ _./services/audio/_-folder.
 When in doubt of how the audio output relates to the visual interface, remember that the Vuex song model defines _what it
 should sound like_ (as in: defines the properties of the instruments) while the AudioService takes care of the actual
 sound rendering, outside of Vue.
- 
+
+### Wiki
+
+For more in-depth topics, you can consult the [Wiki on GitHub](https://github.com/igorski/efflux-tracker/wiki).
+
 ## Build instructions
 
 You will need Node.js in order to run the build scripts and resolve the dependencies.
@@ -115,29 +119,29 @@ To build Efflux, first resolve all dependencies using NPM:
 ```
 npm install
 ```
- 
+
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
 location at _http://localhost:8080_) using the following Node command:
 
 ```
 npm run serve
-``` 
+```
 
 A minified and transpiled production build can be created using the following command:
 
 ```
 npm run build
-``` 
+```
 
 After which the build output is available in the _./dist/_-folder.
- 
+
 ## Unit testing
 
 Unit tests are run via Jest. You can run the tests by using:
 
 ```
 npm run test
-``` 
+```
 
 Unit tests go in the _./tests_-folder. The file name for a unit test should equal the file it is testing, but contain
 the _.spec_-suffix, e.g. _functions.js_ will have a test file _functions.spec.js_.

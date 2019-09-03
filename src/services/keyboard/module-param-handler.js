@@ -28,7 +28,7 @@ let store, state;
 // modules parameters available to Efflux, we map keyCode to the first letter(s) of their name
 const D_MODULES = [ 'delayEnabled', 'delayTime', 'delayFeedback', 'delayCutoff', 'delayOffset' ];
 const F_MODULES = [ 'filterEnabled', 'filterFreq', 'filterQ', 'filterLFOEnabled', 'filterLFOSpeed', 'filterLFODepth' ];
-const P_MODULES = [ 'pitchUp', 'pitchDown' ];
+const P_MODULES = [ 'panLeft', 'panRight', 'pitchUp', 'pitchDown' ];
 const V_MODULES = [ 'volume' ];
 
 let selectedGlide = false, selectedModule;
