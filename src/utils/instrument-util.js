@@ -21,8 +21,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue          from 'vue';
-import AudioService from '../services/audio-service';
-import EventFactory from '../model/factory/event-factory';
+import AudioService from '@/services/audio-service';
+import EventFactory from '@/model/factory/event-factory';
 import EventUtil    from './event-util';
 
 let playingNotes = {};
@@ -32,27 +32,21 @@ const InstrumentUtil =
     /**
      * tune given frequency to given oscillators tuning
      *
-     * @public
-     *
      * @param {number} frequency in Hz
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @return {number} tuned frequency in Hz
      */
-    tuneToOscillator( frequency, oscillator )
-    {
+    tuneToOscillator( frequency, oscillator ) {
         // tune event frequency to oscillator tuning
-
         const tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
         let outFreq = tmpFreq;
 
-        if ( oscillator.octaveShift !== 0 )
-        {
+        if ( oscillator.octaveShift !== 0 ) {
             if ( oscillator.octaveShift < 0 )
                 outFreq = tmpFreq / Math.abs( oscillator.octaveShift * 2 );
             else
                 outFreq += ( tmpFreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
         }
-
         const fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
 
         if ( oscillator.fineShift < 0 )
@@ -62,7 +56,6 @@ const InstrumentUtil =
 
         return outFreq;
     },
-
     /**
      * get a buffer playback speed in the -1 to +1 range
      * for given oscillator tuning
@@ -70,25 +63,19 @@ const InstrumentUtil =
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @return {number}
      */
-    tuneBufferPlayback( oscillator )
-    {
+    tuneBufferPlayback( oscillator ) {
         return 1 + ( oscillator.detune / 50 );
     },
-
     /**
      * alter the frequency of currently playing events to match changes
      * made to the tuning of given oscillator
-     *
-     * @public
      *
      * @param {Array.<EVENT_OBJECT>} events
      * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
-    adjustEventTunings( events, oscillatorIndex, oscillator )
-    {
+    adjustEventTunings( events, oscillatorIndex, oscillator ) {
         events.forEach(event => {
-
             if (!event)
                 return;
 
@@ -105,21 +92,16 @@ const InstrumentUtil =
             }
         });
     },
-
     /**
      * alter the volume of currently playing events to match changes
      * made to the volume of given oscillator
-     *
-     * @public
      *
      * @param {Array.<EVENT_OBJECT>} events
      * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
-    adjustEventVolume( events, oscillatorIndex, oscillator )
-    {
+    adjustEventVolume( events, oscillatorIndex, oscillator ) {
         events.forEach(event => {
-
             if (!event)
                 return;
 
@@ -129,24 +111,19 @@ const InstrumentUtil =
             }
         });
     },
-
     /**
      * alter the wavetable of currently playing events to match
      * changes made to the waveform of given oscillator
-     *
-     * @public
      *
      * @param {Array.<EVENT_OBJECT>} events
      * @param {number} oscillatorIndex
      * @param {PeriodicWave} table
      */
-    adjustEventWaveForms( events, oscillatorIndex, table )
-    {
+    adjustEventWaveForms( events, oscillatorIndex, table ) {
         if ( !( table instanceof PeriodicWave ))
             return;
 
         events.forEach(event => {
-
             if (!event)
                 return;
 
@@ -157,18 +134,15 @@ const InstrumentUtil =
             }
         });
     },
-
     /**
-     * @public
-     *
+     * handle the instruments key up event (will trigger noteOn)
      * @param {{ note: string, octave: number }} pitch
      * @param {INSTRUMENT} instrument to play back the note on
      * @param {boolean=} record whether to record the note into given instruments pattern list
      * @param {Object} store root Vuex store
      * @return {AUDIO_EVENT|null}
      */
-    noteOn( pitch, instrument, record, store )
-    {
+    onKeyDown( pitch, instrument, record, store ) {
         const id = pitchToUniqueId( pitch );
 
         if ( playingNotes[ id ])
@@ -187,19 +161,17 @@ const InstrumentUtil =
 
         return audioEvent;
     },
-
     /**
-     * @public
+     * handle the instruments "key up" event (will trigger noteOff)
      * @param {{ note: string, octave: number }} pitch
      * @param {Object} store root Vuex store
     */
-    noteOff( pitch, store )
-    {
+    onKeyUp( pitch, store ) {
         const id      = pitchToUniqueId( pitch );
         const eventVO = playingNotes[ id ];
 
         if ( eventVO ) {
-            AudioService.noteOff(eventVO.event, eventVO.instrument);
+            AudioService.noteOff(eventVO.event);
 
             if ( eventVO.recording ) {
                 const offEvent = EventFactory.createAudioEvent(eventVO.instrument.id);

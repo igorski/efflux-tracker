@@ -21,12 +21,11 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 import Vue             from 'vue';
-import Config          from '../../config';
-import LinkedList      from '../../utils/linked-list';
-import AudioHelper     from '../../services/audio/audio-helper';
-import AudioService    from '../../services/audio-service';
-import Metronome       from '../../services/audio/metronome';
-import SequencerWorker from '../../workers/sequencer.worker.js';
+import Config          from '@/config';
+import LinkedList      from '@/utils/linked-list';
+import AudioService    from '@/services/audio-service';
+import Metronome       from '@/services/audio/metronome';
+import SequencerWorker from '@/workers/sequencer.worker.js';
 
 /* internal methods */
 
@@ -95,30 +94,9 @@ function dequeueEvent(state, event, time ) {
     if (!event.seq.playing)
         return;
 
-    const clock = AudioHelper.createTimer( AudioService.getAudioContext(), time, () => {
+    AudioService.noteOff(event, time, () => {
         event.seq.playing = false;
-        AudioService.noteOff(event);
-        freeHandler(state, clock ); // clear reference to this timed event
     });
-
-    // store reference to prevent garbage collection prior to callback execution !
-    state.queueHandlers.push( clock );
-}
-
-/**
- * free reference to given "clock" (makes it
- * eligible for garbage collection)
- *
- * @param {Object} state sequencer Vuex module state
- * @param {OscillatorNode} node
- */
-function freeHandler(state, node) {
-    node.disconnect();
-    node.onended = null;
-
-    const i = state.queueHandlers.indexOf(node);
-    if ( i !== -1 )
-        state.queueHandlers.splice(i, 1);
 }
 
 function collect(store) {
@@ -128,20 +106,16 @@ function collect(store) {
     const sequenceEvents = !( state.recording && state.metronome.countIn && !state.metronome.countInComplete );
     let i, j, channel, event, compareTime;
 
-    while ( state.nextNoteTime < ( AudioService.getAudioContext().currentTime + state.scheduleAheadTime ))
-    {
-        if ( sequenceEvents )
-        {
+    while ( state.nextNoteTime < ( AudioService.getAudioContext().currentTime + state.scheduleAheadTime )) {
+        if ( sequenceEvents ) {
             compareTime = ( state.nextNoteTime - state.measureStartTime );
             i = state.channels.length;
 
-            while ( i-- )
-            {
+            while ( i-- ) {
                 channel = state.channels[ i ];
                 j = channel.length;
 
-                while ( j-- )
-                {
+                while ( j-- ) {
                     event = channel[ j ];
 
                     if ( event && !event.seq.playing && !event.recording &&
@@ -228,7 +202,6 @@ export default {
         stepPrecision         : 64,
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
         beatUnit              : 4,
-        queueHandlers         : [],
         channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
         activePattern         : 0,
         measureStartTime      : 0,
@@ -260,7 +233,6 @@ export default {
     mutations: {
         setPlaying(state, isPlaying) {
             state.playing = !!isPlaying;
-
             if (state.playing) {
                 if ( state.recording && state.metronome.countIn ) {
                     state.metronome.countInComplete = false;
@@ -270,11 +242,7 @@ export default {
                 state.worker.postMessage({ 'cmd' : 'start' });
             } else {
                 state.worker.postMessage({ 'cmd' : 'stop' });
-                let i = state.queueHandlers.length;
-                while ( i-- )
-                    freeHandler(state, state.queueHandlers[ i ]);
-
-                for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+                for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
                     state.channelQueue[i].flush();
             }
         },

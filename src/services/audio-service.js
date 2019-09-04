@@ -194,40 +194,31 @@ const AudioService =
      * @param {INSTRUMENT} instrument to playback the event
      * @param {number=} startTimeInSeconds optional, defaults to current time
      */
-    noteOn( event, instrument, startTimeInSeconds ) {
+    noteOn( event, instrument, startTimeInSeconds = audioContext.currentTime ) {
         if ( event.action === 1 ) { // 1 == noteOn
             Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
 
-            //console.log(`NOTE ON FOR ${event.id} (${event.note}${event.octave}) @ ${audioContext.currentTime}`);
+            // console.log(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
 
             const frequency = PitchConverter.getFrequency( event.note, event.octave );
-
-            if ( typeof startTimeInSeconds !== 'number' )
-                startTimeInSeconds = audioContext.currentTime;
 
             let oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
             const modules   = instrumentModules[ instrument.id ];
 
             instrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) => {
                 if ( oscillatorVO.enabled ) {
-
                     voice = instrument.oscillators[ oscillatorIndex ];
                     const oscillatorGain = AudioFactory.createGainNode( audioContext );
                     let generatorNode;
 
-                    // buffer source ? assign it to the oscillator
-
                     if ( oscillatorVO.waveform === 'NOISE' ) {
-
+                        // buffer source ? assign it to the oscillator
                         generatorNode = audioContext.createBufferSource();
                         generatorNode.buffer = pool.NOISE;
                         generatorNode.loop = true;
                         generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback( voice );
-                    }
-                    else {
-
+                    } else {
                         // has oscillator source
-
                         if ( oscillatorVO.waveform === 'PWM' ) {
                             // PWM uses a custom Oscillator type
                             generatorNode = AudioFactory.createPWM(
@@ -257,7 +248,7 @@ const AudioService =
                     // apply envelopes
 
                     const adsrNode = AudioFactory.createGainNode( audioContext );
-                    ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode, startTimeInSeconds );
+                    ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode,      startTimeInSeconds );
                     ADSR.applyPitchEnvelope( oscillatorVO, generatorNode, startTimeInSeconds );
 
                     // route oscillator to track gain > envelope gain > instrument gain
@@ -301,33 +292,42 @@ const AudioService =
         }
     },
     /**
-     * immediately stop playing audio for the given event
+     * immediately stop playing audio for the given event (or after a small
+     * delay in case a positive release envelope is set)
      *
      * @param {AUDIO_EVENT} event
+     * @param {number=} startTimeInSeconds optional time to start the noteOff,
+     *                  this will default to the current time. This time should
+     *                  equal the end of the note's sustain period as release
+     *                  will be applied automatically
+     * @param {!Function} optCallback optional callback to execute after note
+     *                    has finished playing (post release envelope)
      */
-    noteOff(event) {
+    noteOff(event, startTimeInSeconds = audioContext.currentTime, optCallback) {
         const eventObject = instrumentEvents[ event.instrument ][ event.id ];
 
-        //console.log(`NOTE OFF FOR ${event.id} ( ${event.note}${event.octave} @ ${audioContext.currentTime}`);
+        // console.log(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
         if ( eventObject ) {
-
             const modules = instrumentModules[ event.instrument ];
-
-            eventObject.forEach(( event ) =>
-            {
-                const oscillator = event.generator,
-                      output     = event.outputNode;
+            eventObject.forEach(event => {
+                const oscillator = event.generator;
 
                 // apply release envelopes
 
-                ADSR.applyAmpRelease  ( event.vo, output,     audioContext.currentTime );
-                ADSR.applyPitchRelease( event.vo, oscillator, audioContext.currentTime );
+                ADSR.applyAmpRelease  ( event.vo, event.outputNode, startTimeInSeconds );
+                ADSR.applyPitchRelease( event.vo, oscillator,       startTimeInSeconds );
 
                 // stop synthesis and remove note on release end
-
-                AudioHelper.createTimer( audioContext, audioContext.currentTime + event.vo.adsr.release,
-                    handleOscillatorStop.bind( oscillator, output, modules ));
+                // disconnect oscillator and its output node from the instrument output
+                // TODO: is this necessary (will oscillator.stop() disconnect all nodes?)
+                // and do we only need to attach optCallback??
+                oscillator.onended = () => {
+                    oscillator.disconnect();
+                    event.outputNode.disconnect(modules.output);
+                    typeof optCallback === 'function' && optCallback();
+                };
+                AudioFactory.stopOscillation(oscillator, startTimeInSeconds + event.vo.adsr.release);
             });
         }
         delete instrumentEvents[ event.instrument ][ event.id ];
@@ -430,16 +430,6 @@ function createModules() {
         };
         ModuleRouter.applyRouting( module, masterBus );
     }
-}
-
-function handleOscillatorStop( output, modules ) {
-    // this === an OscillatorNode (this function invocation is bound by the noteOff()-method)
-    AudioFactory.stopOscillation(/** @type {OscillatorNode} */( this ), audioContext.currentTime);
-
-    // disconnect oscillator and its output node from the instrument output
-
-    this.disconnect();
-    output.disconnect(modules.output);
 }
 
 /**

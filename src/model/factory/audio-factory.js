@@ -103,7 +103,6 @@ const AudioFactory =
      * @return {OscillatorNode}
      */
    createPWM( audioContext, startTime, endTime, destination = audioContext.destination ) {
-
         const pulseOsc = audioContext.createOscillator();
         pulseOsc.type  = 'sawtooth';
 

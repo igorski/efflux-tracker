@@ -47,11 +47,11 @@ export default {
             case zMIDIEvent.NOTE_ON:
                 instrumentId = state.editor.selectedInstrument;
                 instrument   = state.song.activeSong.instruments[ instrumentId ];
-                InstrumentUtil.noteOn( pitch, instrument, state.sequencer.recording, store );
+                InstrumentUtil.onKeyDown( pitch, instrument, state.sequencer.recording, store );
                 break;
 
             case zMIDIEvent.NOTE_OFF:
-                InstrumentUtil.noteOff( pitch, store );
+                InstrumentUtil.onKeyUp( pitch, store );
                 break;
         }
     }

@@ -42,7 +42,7 @@ export default {
     createNoteOnEvent( keyCode ) {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
-            InstrumentUtil.noteOn(
+            InstrumentUtil.onKeyDown(
                 note,
                 state.song.activeSong.instruments[state.editor.selectedInstrument],
                 state.sequencer.recording,
@@ -54,7 +54,7 @@ export default {
     createNoteOffEvent( keyCode ) {
         const note = getNoteForKey(keyCode);
         if ( note !== null )
-            InstrumentUtil.noteOff(note, store);
+            InstrumentUtil.onKeyUp(note, store);
     }
 };
 
