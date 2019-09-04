@@ -31,10 +31,12 @@
             <ul class="event">
                 <form-list-item v-t="'volume'"
                                 v-model="module" option-value="volume" />
-                <form-list-item v-t="'panLeft'"
-                                v-model="module" option-value="panLeft" />
-                <form-list-item v-t="'panRight'"
-                                v-model="module" option-value="panRight" />
+                <template v-if="supportsPanning">
+                    <form-list-item v-t="'panLeft'"
+                                    v-model="module" option-value="panLeft" />
+                    <form-list-item v-t="'panRight'"
+                                    v-model="module" option-value="panRight" />
+                </template>
                 <form-list-item v-t="'pitchUp'"
                                 v-model="module" option-value="pitchUp" />
                 <form-list-item v-t="'pitchDown'"
@@ -111,6 +113,7 @@ import EventFactory from '@/model/factory/event-factory';
 import KeyboardService from '@/services/keyboard-service';
 import ModuleParamHandler from '@/services/keyboard/module-param-handler';
 import ManualURLs from '@/definitions/manual-urls';
+import AudioHelper from '@/services/audio/audio-helper';
 import messages from './messages.json';
 
 const DEFAULT_MODULE = 'volume';
@@ -129,6 +132,7 @@ export default {
         patternIndex: 0,
         channelIndex: 0,
         step: 0,
+        supportsPanning: false,
     }),
     computed: {
         ...mapState({
@@ -161,6 +165,8 @@ export default {
 
         KeyboardService.setBlockDefaults(false);
         KeyboardService.setListener(this.handleKey);
+
+        this.supportsPanning = AudioHelper.supports('panning');
     },
     beforeDestroy() {
         KeyboardService.reset();
