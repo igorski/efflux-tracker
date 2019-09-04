@@ -6,7 +6,7 @@
     "paste": "paste",
     "add": "add",
     "delete": "delete",
-    "steps": "steps",
+    "steps": "{amount} steps",
     "advanced": "advanced",
     "errorMaxExceeded": "Cannot exceed the allowed maximum of {amount} patterns"
   }

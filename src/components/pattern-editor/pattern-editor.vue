@@ -51,10 +51,10 @@
                 <select id="patternSteps"
                         v-model.number="patternStep"
                 >
-                    <option :value="16">16 {{ $t('steps') }}</option>
-                    <option :value="32">32 {{ $t('steps') }}</option>
-                    <option :value="64">64 {{ $t('steps') }}</option>
-                    <option :value="128">128 {{ $t('steps') }}</option>
+                    <option :value="16">{{ $t('steps', { amount: 16 }) }}</option>
+                    <option :value="32">{{ $t('steps', { amount: 32 }) }}</option>
+                    <option :value="64">{{ $t('steps', { amount: 64 }) }}</option>
+                    <option :value="128">{{ $t('steps', { amount: 128 }) }}</option>
                 </select>
             </li>
             <li>

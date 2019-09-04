@@ -61,14 +61,14 @@
             <select class="instrument-selector"
                     v-model.number="instrument"
             >
-                <option value="0">{{ $t('instrument') }} 0</option>
-                <option value="1">{{ $t('instrument') }} 1</option>
-                <option value="2">{{ $t('instrument') }} 2</option>
-                <option value="3">{{ $t('instrument') }} 3</option>
-                <option value="4">{{ $t('instrument') }} 4</option>
-                <option value="5">{{ $t('instrument') }} 5</option>
-                <option value="6">{{ $t('instrument') }} 6</option>
-                <option value="7">{{ $t('instrument') }} 7</option>
+                <option value="0">{{ $t('instrument', { num: 0 }) }}</option>
+                <option value="1">{{ $t('instrument', { num: 1 }) }}</option>
+                <option value="2">{{ $t('instrument', { num: 2 }) }}</option>
+                <option value="3">{{ $t('instrument', { num: 3 }) }}</option>
+                <option value="4">{{ $t('instrument', { num: 4 }) }}</option>
+                <option value="5">{{ $t('instrument', { num: 5 }) }}</option>
+                <option value="6">{{ $t('instrument', { num: 6 }) }}</option>
+                <option value="7">{{ $t('instrument', { num: 7 }) }}</option>
             </select>
             <p v-t="'fastEditExpl'" class="explanation"></p>
             <button v-t="'ok'"
@@ -411,4 +411,3 @@ export default {
       }
     }
 </style>
- 
