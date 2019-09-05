@@ -30,6 +30,7 @@
  *              eq: EQ_MODULE,
  *              filter: FILTER_MODULE,
  *              delay: DELAY_MODULE,
+ *              voices: Array<Array<GainNode>>,
  *              output: AudioParam
  *          }}
  */

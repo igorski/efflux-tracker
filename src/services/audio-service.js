@@ -41,7 +41,7 @@ let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID
  * list that will contain all modules
  * for each instantiated instrument
  *
- * @type {Array.<INSTRUMENT_MODULES>}
+ * @type {Array<INSTRUMENT_MODULES>}
  */
 let instrumentModules;
 
@@ -49,7 +49,7 @@ let instrumentModules;
  * list that will contain all EVENT_OBJECTs
  * playing back for any of the Songs instruments
  *
- * @type {Array.<Array.<EVENT_OBJECT>>}
+ * @type {Array<Array<EVENT_OBJECT>>}
  */
 let instrumentEvents = [];
 
@@ -104,6 +104,7 @@ const AudioService =
         });
         AudioService.reset();
         AudioService.cacheCustomTables(state.song.activeSong.instruments);
+        createModules();
         AudioService.initialized = true;
     },
     /**
@@ -152,10 +153,8 @@ const AudioService =
     reset() {
         instrumentEvents.forEach(events => {
             let i = events.length, event;
-
             while ( i-- ) {
                 event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
-
                 if ( event ) {
                     event.forEach(voice => AudioFactory.stopOscillation(voice.generator));
                 }
@@ -164,8 +163,6 @@ const AudioService =
         instrumentEvents = new Array( Config.INSTRUMENT_AMOUNT );
         for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
             instrumentEvents[ i ] = [];
-
-        createModules();
 
         UNIQUE_EVENT_ID = 0;
     },
@@ -206,74 +203,78 @@ const AudioService =
             const modules   = instrumentModules[ instrument.id ];
 
             instrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) => {
-                if ( oscillatorVO.enabled ) {
-                    voice = instrument.oscillators[ oscillatorIndex ];
-                    const oscillatorGain = AudioFactory.createGainNode( audioContext );
-                    let generatorNode;
-
-                    if ( oscillatorVO.waveform === 'NOISE' ) {
-                        // buffer source ? assign it to the oscillator
-                        generatorNode = audioContext.createBufferSource();
-                        generatorNode.buffer = pool.NOISE;
-                        generatorNode.loop = true;
-                        generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback( voice );
-                    } else {
-                        // has oscillator source
-                        if ( oscillatorVO.waveform === 'PWM' ) {
-                            // PWM uses a custom Oscillator type
-                            generatorNode = AudioFactory.createPWM(
-                                audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorGain
-                            );
-                        }
-                        else {
-                            // all other waveforms have WaveTables which are defined in the pools
-
-                            generatorNode = audioContext.createOscillator();
-                            let table;
-
-                            if ( oscillatorVO.waveform !== 'CUSTOM' )
-                                table = pool[ oscillatorVO.waveform ];
-                            else
-                                table = pool.CUSTOM[ instrument.id ][ oscillatorIndex ];
-
-                            if ( !table ) // no table ? that's a bit of a problem. what did you break!?
-                                return;
-
-                            generatorNode.setPeriodicWave( table );
-                        }
-                        // tune event frequency to oscillator tuning and apply pitch envelopes
-                        generatorNode.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
-                    }
-
-                    // apply envelopes
-
-                    const adsrNode = AudioFactory.createGainNode( audioContext );
-                    ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode,      startTimeInSeconds );
-                    ADSR.applyPitchEnvelope( oscillatorVO, generatorNode, startTimeInSeconds );
-
-                    // route oscillator to track gain > envelope gain > instrument gain
-
-                    oscillatorGain.gain.value = oscillatorVO.volume;
-
-                    if ( oscillatorVO.waveform !== 'PWM' )
-                        generatorNode.connect( oscillatorGain );
-
-                    oscillatorGain.connect( adsrNode );
-                    adsrNode.connect( modules.output );
-
-                    // start playback
-
-                    AudioFactory.startOscillation( generatorNode, startTimeInSeconds );
-
-                    oscillators.push( /** @type {EVENT_VOICE} */ ({
-                        generator: generatorNode,
-                        vo: oscillatorVO,
-                        frequency: frequency,
-                        gain: oscillatorGain,
-                        outputNode: adsrNode,
-                        gliding: false
-                    }));
+                if ( !oscillatorVO.enabled ) {
+                    return;
                 }
+                voice = instrument.oscillators[ oscillatorIndex ];
+
+                // retrieve from pool GainNodes for the oscillator voice and its envelope gain structure
+                const oscillatorNodes = getOscillatorGainNodesFromPool(modules, oscillatorIndex);
+                if (oscillatorNodes === null) {
+                    console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.id}`);
+                    return;
+                }
+                const { oscillatorNode, adsrNode } = oscillatorNodes;
+                let generatorNode;
+
+                if ( oscillatorVO.waveform === 'NOISE' ) {
+                    // buffer source ? assign it to the oscillator
+                    generatorNode = audioContext.createBufferSource();
+                    generatorNode.buffer = pool.NOISE;
+                    generatorNode.loop = true;
+                    generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback( voice );
+                } else {
+                    // has oscillator source
+                    if ( oscillatorVO.waveform === 'PWM' ) {
+                        // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
+                        generatorNode = AudioFactory.createPWM(
+                            audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
+                        );
+                    }
+                    else {
+                        // all other waveforms have WaveTables which are defined in the pools
+
+                        generatorNode = audioContext.createOscillator();
+                        let table;
+
+                        if ( oscillatorVO.waveform !== 'CUSTOM' )
+                            table = pool[ oscillatorVO.waveform ];
+                        else
+                            table = pool.CUSTOM[ instrument.id ][ oscillatorIndex ];
+
+                        if ( !table ) // no table ? that's a bit of a problem. what did you break!?
+                            return;
+
+                        generatorNode.setPeriodicWave( table );
+                    }
+                    // tune event frequency to oscillator tuning and apply pitch envelopes
+                    generatorNode.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
+                }
+
+                // apply envelopes
+
+                oscillatorNode.gain.value = oscillatorVO.volume;
+
+                ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode,      startTimeInSeconds );
+                ADSR.applyPitchEnvelope( oscillatorVO, generatorNode, startTimeInSeconds );
+
+                // route oscillator to track gain > envelope gain > instrument gain
+
+                if ( oscillatorVO.waveform !== 'PWM' )
+                    generatorNode.connect(oscillatorNode);
+
+                // start playback
+
+                AudioFactory.startOscillation(generatorNode, startTimeInSeconds);
+
+                oscillators.push( /** @type {EVENT_VOICE} */ ({
+                    generator: generatorNode,
+                    vo: oscillatorVO,
+                    frequency: frequency,
+                    gain: oscillatorNode,
+                    outputNode: adsrNode,
+                    gliding: false
+                }));
             });
             instrumentEvents[ instrument.id ][ event.id ] = oscillators;
         }
@@ -309,24 +310,29 @@ const AudioService =
 
         if ( eventObject ) {
             const modules = instrumentModules[instrumentId];
-            eventObject.forEach(event => {
-                const oscillator = event.generator;
+            eventObject.forEach((voice, oscillatorIndex) => {
+                const oscillator = voice.generator;
 
                 // apply release envelopes
 
-                ADSR.applyAmpRelease  ( event.vo, event.outputNode, startTimeInSeconds );
-                ADSR.applyPitchRelease( event.vo, oscillator,       startTimeInSeconds );
-
-                // stop synthesis and remove note on release end
-                // disconnect oscillator and its output node from the instrument output
+                ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
+                ADSR.applyPitchRelease(voice.vo, oscillator,       startTimeInSeconds);
 
                 oscillator.onended = () => {
-                    oscillator.disconnect(); // should happen automatically for stopped OscillatorNodes
-                    event.outputNode.disconnect(modules.output);
-                    delete instrumentEvents[instrumentId][eventId];
+                    if (voice.vo.waveform === 'PWM') {
+                        oscillator.disconnect(); // PWM requires manual disconnect
+                    }
+                    // oscillator will automatically disconnect() after stopping, return
+                    // the gain nodes for the instrument voice back to the pool
+
+                    modules.voices[oscillatorIndex].push({
+                        oscillatorNode: voice.gain,
+                        adsrNode: voice.outputNode
+                    });
                 };
-                AudioFactory.stopOscillation(oscillator, startTimeInSeconds + event.vo.adsr.release);
+                AudioFactory.stopOscillation(oscillator, startTimeInSeconds + voice.vo.adsr.release);
             });
+            delete instrumentEvents[instrumentId][eventId];
         }
     },
     /**
@@ -401,39 +407,51 @@ function setupRouting() {
 }
 
 function createModules() {
-    let i, module;
+    // create new modules for each possible instrument
+    instrumentModules = new Array(Config.INSTRUMENT_AMOUNT);
 
-    // clean up and disconnect old modules (if existed)
-    if ( instrumentModules && instrumentModules.length > 0 ) {
-        i = instrumentModules.length;
-        while ( i-- ) {
-            module = instrumentModules[ i ];
-            module.output.disconnect();
-            module.filter.filter.disconnect();
-            if (module.panner) module.panner.disconnect();
-        }
-    }
-    // create new modules
-    instrumentModules = new Array( Config.INSTRUMENT_AMOUNT );
-
-    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-        module = instrumentModules[ i ] = {
+    for (let i = 0; i < instrumentModules.length; ++i ) {
+        const module = instrumentModules[ i ] = {
             panner    : AudioFactory.createStereoPanner(audioContext),
-            output    : AudioFactory.createGainNode(audioContext),
             overdrive : ModuleFactory.createOverdrive(audioContext),
             eq        : ModuleFactory.createEQ(audioContext),
             filter    : ModuleFactory.createFilter(audioContext),
-            delay     : ModuleFactory.createDelay(audioContext)
+            delay     : ModuleFactory.createDelay(audioContext),
+            voices    : new Array(Config.OSCILLATOR_AMOUNT),
+            output    : AudioFactory.createGainNode(audioContext)
         };
-        ModuleRouter.applyRouting( module, masterBus );
+        // max polyphony is 3 oscillators per channel
+        for (let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j) {
+            module.voices[j] = [];
+            // the channel amount can equal the total amount of instrument
+            // as in Efflux, eachs instrument gets a channel strip in the tracker
+            // and each channel can override its target instrument
+            // (thus 24 simultaneous voices per instrument can be used)
+            for (let k = 0; k < Config.INSTRUMENT_AMOUNT; ++k) {
+                const nodes = {
+                    oscillatorNode: AudioFactory.createGainNode(audioContext),
+                    adsrNode: AudioFactory.createGainNode(audioContext)
+                };
+                nodes.oscillatorNode.connect(nodes.adsrNode);
+                nodes.adsrNode.connect(module.output);
+                module.voices[j].push(nodes);
+            }
+        }
+        ModuleRouter.applyRouting(module, masterBus);
     }
+}
+
+function getOscillatorGainNodesFromPool(instrumentModule, oscillatorIndex) {
+    const voiceList = instrumentModule.voices[oscillatorIndex];
+    if (voiceList.length) {
+        return voiceList.shift();
+    }
+    return null;
 }
 
 /**
  * create a periodicWaveTable (which can be used with a OscillatorNode for playback)
  * from an Array of custom drawn points
- *
- * @private
  *
  * @param {number} instrumentIndex index of the instrument within the pool
  * @param {number} oscillatorIndex index of the oscillator within the instrument

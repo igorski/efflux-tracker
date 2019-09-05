@@ -124,25 +124,32 @@ const AudioFactory =
         pulseOsc.connect( constantOneShaper );
         constantOneShaper.connect( widthGain );
 
+        // Add a low frequency oscillator to modulate the pulse-width.
+        const lfo = audioContext.createOscillator();
+        const lfoDepth = AudioFactory.createGainNode( audioContext );
+        const filter = audioContext.createBiquadFilter();
+
+        lfo.type = 'triangle';
+        lfo.frequency.value = 10;
+
         // Override the oscillator's "connect" and "disconnect" method so that the
         // new node's output actually comes from the pulseShaper.
         pulseOsc.connect = function() {
             pulseShaper.connect.apply( pulseShaper, arguments );
         };
         pulseOsc.disconnect = function() {
+            // note all OscillatorNodes will automatically disconnect after stop()
             pulseShaper.disconnect.apply( pulseShaper, arguments );
+            widthGain.disconnect();
+            constantOneShaper.disconnect();
+            lfoDepth.disconnect();
+            filter.disconnect();
         };
 
         // The pulse-width will start at 0.4 and finish at 0.1.
         pulseOsc.width.value = 0.4; //The initial pulse-width.
         pulseOsc.width.exponentialRampToValueAtTime( 0.1, endTime );
 
-        // Add a low frequency oscillator to modulate the pulse-width.
-        const lfo = audioContext.createOscillator();
-        lfo.type = 'triangle';
-        lfo.frequency.value = 10;
-
-        const lfoDepth = AudioFactory.createGainNode( audioContext );
         lfoDepth.gain.value = 0.1;
         lfoDepth.gain.exponentialRampToValueAtTime( 0.05, startTime + 0.5 );
         lfoDepth.gain.exponentialRampToValueAtTime( 0.15, endTime );
@@ -151,7 +158,6 @@ const AudioFactory =
         lfo.start(startTime);
         lfo.stop(endTime);
 
-        const filter = audioContext.createBiquadFilter();
         filter.type = 'lowpass';
         filter.frequency.value = 16000;
         filter.frequency.exponentialRampToValueAtTime( 440, endTime );
