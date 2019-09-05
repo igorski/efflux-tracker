@@ -111,14 +111,14 @@ const AudioFactory =
         pulseShaper.curve = pulseCurve;
         pulseOsc.connect( pulseShaper );
 
-        //Use a GainNode as our new "width" audio parameter.
+        // Use a GainNode as our new "width" audio parameter.
         const widthGain = AudioFactory.createGainNode( audioContext );
         widthGain.gain.value = 0; //Default width.
         pulseOsc.width = widthGain.gain; //Add parameter to oscillator node.
         widthGain.connect( pulseShaper );
 
-        //Pass a constant value of 1 into the widthGain – so the "width" setting
-        //is duplicated to its output.
+        // Pass a constant value of 1 into the widthGain – so the "width" setting
+        // is duplicated to its output.
         const constantOneShaper = audioContext.createWaveShaper();
         constantOneShaper.curve = constantOneCurve;
         pulseOsc.connect( constantOneShaper );

@@ -26,7 +26,6 @@ export default
      * get the duration of a measure (at given time signature and
      * tempo in BPM) in milliseconds
      *
-     * @public
      * @param {number} bpm the current BPM
      * @param {number} beatsPerMeasure amount of beats per measure, when in
      *                 doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
@@ -39,7 +38,6 @@ export default
     /**
      * get the frequency in Hz for given duration in milliseconds
      *
-     * @public
      * @param {number} milliSeconds
      * @return {number} frequency in Hz
      */

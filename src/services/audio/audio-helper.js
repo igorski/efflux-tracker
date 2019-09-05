@@ -20,11 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioFactory from '../../model/factory/audio-factory';
+import AudioFactory from '@/model/factory/audio-factory';
 const d = window.document;
 const features = {
     panning: false
 };
+let timerNode;
 
 export default
 {
@@ -33,25 +34,21 @@ export default
      * y-coordinate points drawn in the UI) and apply it onto the given
      * OscillatorNode oscillator
      *
-     * @public
-     *
      * @param {AudioContext} audioContext
      * @param {Array.<number>} graphPoints
      * @return {PeriodicWave}
      */
     createWaveTableFromGraph( audioContext, graphPoints ) {
         // DFT provided by dsp.js
+        // see main.js for its inclusion
+        const dft = new window['DFT'](graphPoints.length);
+        dft.forward(graphPoints);
 
-        const dft = new window["DFT"]( graphPoints.length );
-        dft.forward( graphPoints );
-
-        return audioContext.createPeriodicWave( dft.real, dft.imag );
+        return audioContext.createPeriodicWave(dft.real, dft.imag);
     },
     /**
-     * creates a silent node that uses the accuracy of the Web Audio
-     * clock to strictly time a callback event
-     *
-     * @public
+     * use the accuracy of the WebAudio clock to execute a callback
+     * with strict timing.
      *
      * @param {AudioContext} audioContext
      * @param {number} time when the callback should be fired (relative to AudioContext currentTime)
@@ -59,24 +56,26 @@ export default
      * @return {OscillatorNode}
      */
     createTimer( audioContext, time, callback ) {
-        const timer = audioContext.createOscillator();
-
+        // this magic works by using a silent oscillator to play for given time
+        const timer   = audioContext.createOscillator();
         timer.onended = callback;
 
-        const noGain = AudioFactory.createGainNode( audioContext );
-        timer.connect( noGain );
-        noGain.gain.value = 0;
-        noGain.connect( audioContext.destination );
+        if (!timerNode) {
+            timerNode = AudioFactory.createGainNode(audioContext);
+            timerNode.gain.value = 0;
+            timerNode.connect(audioContext.destination);
+        }
+        // timer will automatically disconnect() once stopped
+        // and garbage collected
+        timer.connect(timerNode);
 
-        AudioFactory.startOscillation( timer, audioContext.currentTime );
-        AudioFactory.stopOscillation ( timer, time );
+        AudioFactory.startOscillation(timer, audioContext.currentTime);
+        AudioFactory.stopOscillation (timer, time);
 
         return timer;
     },
     /**
      * sound a sine wave at given frequency (can be used for testing)
-     *
-     * @public
      *
      * @param {AudioContext} audioContext
      * @param {number} frequencyInHertz

@@ -25,33 +25,24 @@ export default
     /**
      * validates whether the song has any pattern content
      *
-     * @public
      * @param {SONG} song
      * @return {boolean}
      */
     hasContent( song ) {
         let hasContent = false;
-
-        song.patterns.forEach(( songPattern ) =>
-        {
-            songPattern.channels.forEach(( channel ) =>
-            {
-                channel.forEach(( pattern ) =>
-                {
-                    if ( pattern && pattern.action !== 0 ) {
-                        hasContent = true;
-                    }
-                });
+        song.patterns.forEach(pattern => {
+            pattern.channels.forEach(channel => {
+                if (channel.find(event => event && event.action !== 0)) {
+                    hasContent = true;
+                }
             });
         });
         return hasContent;
     },
-
     /**
      * update the existing offsets for all of the Songs
      * audioEvents within its patterns
      *
-     * @public
      * @param {Array.<PATTERN>} patterns the Songs patterns
      * @param {number} ratio by which to update the existing values
      */
@@ -60,18 +51,15 @@ export default
         let i, j, k, songPattern, channel, pattern;
 
         i = patterns.length;
-        while ( i-- )
-        {
+        while ( i-- ) {
             songPattern = patterns[ i ];
             j = songPattern.channels.length;
 
-            while ( j-- )
-            {
+            while ( j-- ) {
                 channel = songPattern.channels[ j ];
                 k = channel.length;
 
-                while ( k-- )
-                {
+                while ( k-- ) {
                     pattern = channel[ k ];
 
                     if ( pattern && pattern.seq ) {
@@ -82,11 +70,9 @@ export default
             }
         }
     },
-
     /**
      * unset the play state of all of the songs events
      *
-     * @public
      * @param {Array.<PATTERN>} patterns
      */
     resetPlayState(patterns) {

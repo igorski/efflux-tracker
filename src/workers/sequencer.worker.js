@@ -20,7 +20,7 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-const POLLING_INTERVAL = 25;
+const DEFAULT_POLLING_INTERVAL = 25;
 let timer, data;
 
 // SequencerWorker leverages the intervallic polling
@@ -34,10 +34,9 @@ self.addEventListener('message', event => {
             case 'start':
 
                 clearInterval( timer );
-
                 timer = setInterval(() => {
                     self.postMessage({ cmd: 'collect' });
-                }, POLLING_INTERVAL );
+                }, typeof data.interval === 'number' ? data.interval : DEFAULT_POLLING_INTERVAL );
                 break;
 
             case 'stop':

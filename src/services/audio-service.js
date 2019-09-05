@@ -275,7 +275,7 @@ const AudioService =
                     }));
                 }
             });
-            instrumentEvents[ instrument.id ][ event.id ] = /** @type {Array.<EVENT_VOICE>} */ ( oscillators );
+            instrumentEvents[ instrument.id ][ event.id ] = oscillators;
         }
 
         // module parameter change specified ? process it inside the ModuleRouter
@@ -300,16 +300,15 @@ const AudioService =
      *                  this will default to the current time. This time should
      *                  equal the end of the note's sustain period as release
      *                  will be applied automatically
-     * @param {!Function} optCallback optional callback to execute after note
-     *                    has finished playing (post release envelope)
      */
-    noteOff(event, startTimeInSeconds = audioContext.currentTime, optCallback) {
-        const eventObject = instrumentEvents[ event.instrument ][ event.id ];
+    noteOff(event, startTimeInSeconds = audioContext.currentTime) {
+        const eventId     = event.id, instrumentId = event.instrument;
+        const eventObject = instrumentEvents[instrumentId][eventId];
 
         // console.log(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
         if ( eventObject ) {
-            const modules = instrumentModules[ event.instrument ];
+            const modules = instrumentModules[instrumentId];
             eventObject.forEach(event => {
                 const oscillator = event.generator;
 
@@ -320,17 +319,15 @@ const AudioService =
 
                 // stop synthesis and remove note on release end
                 // disconnect oscillator and its output node from the instrument output
-                // TODO: is this necessary (will oscillator.stop() disconnect all nodes?)
-                // and do we only need to attach optCallback??
+
                 oscillator.onended = () => {
-                    oscillator.disconnect();
+                    oscillator.disconnect(); // should happen automatically for stopped OscillatorNodes
                     event.outputNode.disconnect(modules.output);
-                    typeof optCallback === 'function' && optCallback();
+                    delete instrumentEvents[instrumentId][eventId];
                 };
                 AudioFactory.stopOscillation(oscillator, startTimeInSeconds + event.vo.adsr.release);
             });
         }
-        delete instrumentEvents[ event.instrument ][ event.id ];
     },
     /**
      * apply the module settings described in the currently active

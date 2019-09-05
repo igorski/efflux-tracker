@@ -29,9 +29,9 @@ import SequencerWorker from '@/workers/sequencer.worker.js';
 
 /* internal methods */
 
-// TODO: move these to a dedicated helper
-
 /**
+ * enqueue given event into the AudioService for playback
+ *
  * @param {Object} store root Vuex store
  * @param {AUDIO_EVENT} event
  * @param {number} eventChannel channel the event belongs to
@@ -40,91 +40,105 @@ function enqueueEvent(store, event, eventChannel ) {
     const { beatAmount, nextNoteTime, activePattern, channelQueue } = store.state.sequencer;
     const activeSong = store.state.song.activeSong;
 
-    event.seq.playing = true; // lock the Event for further querying during its playback
+    event.seq.playing = true; // prevents retriggering of same event
 
-    // calculate the total duration for the event
+    // calculate the total duration for the events optional module parameter
+    // automation glide (a noteOn lasts until a new note or a kill event is
+    // triggered within the same channel)
 
     const patternDuration = ( 60 / activeSong.meta.tempo ) * beatAmount;
     const patterns        = activeSong.patterns;
-    const eventPattern    = patterns[ activePattern ];
+    const eventPattern    = patterns[activePattern];
 
-    if ( eventPattern )
-        event.seq.mpLength = patternDuration / eventPattern.steps;
+    event.seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
 
-    // play back the event in the AudioService
+    // play back the event by rendering its audio through the AudioService
 
-    AudioService.noteOn( event, activeSong.instruments[ event.instrument ], nextNoteTime );
+    AudioService.noteOn(event, activeSong.instruments[event.instrument], nextNoteTime);
 
-    // events must also be dequeued (as they have a fixed duration)
+    // dequeue preceding events
 
-    const isNoteOn = ( event.action === 1 );
-    const queue    = channelQueue[ eventChannel ];
+    const isNoteOn = event.action === 1;
+    const queue    = channelQueue[eventChannel];
 
     if ( event.action !== 0 ) {
 
         // all non-module parameter change events kill previously playing notes
-        let playing = queue.head;
+        let playingNote = queue.head;
 
-        while ( playing ) {
-            dequeueEvent(store.state.sequencer, playing.data, nextNoteTime);
-            playing.remove();
-            playing = queue.head;
+        while ( playingNote ) {
+            dequeueEvent(playingNote.data, nextNoteTime);
+            playingNote.remove();
+            playingNote = queue.head;
         }
     }
 
-    // non-noteOn events are dequeued after a single sequencer tick, noteOn
-    // events are pushed in a queued and dequeued when a new noteOn/noteOff event
-    // is enqueued for this events channel
+    // noteOn events are pushed in a queue to be dequeued when a new noteOn/noteOff
+    // event is enqueued for this events channel. Non-noteOn events are immediately
+    // dequeued after a single sequencer tick/step (the length of a module parameter
+    // automation glide)
 
-    if ( !isNoteOn )
-        dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.mpLength);
-    else
+    if ( isNoteOn )
         queue.add(event);
+    else
+        dequeueEvent(event, nextNoteTime + event.seq.mpLength);
 }
 
 /**
- * use a silent OscillatorNode as a strictly timed clock
- * for removing the AudioEvents from the AudioService
+ * dequeue event for stopping its playback by the AudioService
  *
- * @param {Object} state sequencer Vuex module state
  * @param {AUDIO_EVENT} event
  * @param {number} time
  */
-function dequeueEvent(state, event, time ) {
-    if (!event.seq.playing)
-        return;
+function dequeueEvent(event, time) {
+    AudioService.noteOff(event, time);
 
-    AudioService.noteOff(event, time, () => {
-        event.seq.playing = false;
-    });
+    // unset the playing state of the event at the moment it is killed (though
+    // it's release cycle is started, we can consider the event eligible for
+    // a playback retrigger...
+    // TODO: for the time being we consider creating a timer wasteful and
+    // unset this state using the collect()-method as we already compare play ranges
+    //AudioHelper.createTimer(AudioService.getAudioContext(), time, () => {
+    //    event.seq.playing = false;
+    //});
 }
 
 function collect(store) {
-    const state = store.state.sequencer;
+    const state = store.state.sequencer, audioContext = AudioService.getAudioContext();
 
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
+    // and extended to work for multi timbral sequencing
     const sequenceEvents = !( state.recording && state.metronome.countIn && !state.metronome.countInComplete );
-    let i, j, channel, event, compareTime;
+    let i, channel, channelStep, event, seq, compareTime;
 
-    while ( state.nextNoteTime < ( AudioService.getAudioContext().currentTime + state.scheduleAheadTime )) {
+    while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime )) {
         if ( sequenceEvents ) {
-            compareTime = ( state.nextNoteTime - state.measureStartTime );
+            compareTime = state.nextNoteTime - state.measureStartTime;
             i = state.channels.length;
 
             while ( i-- ) {
-                channel = state.channels[ i ];
-                j = channel.length;
+                channel     = state.channels[ i ];
+                channelStep = channel.length;
 
-                while ( j-- ) {
-                    event = channel[ j ];
+                while ( channelStep-- ) {
+                    event = channel[channelStep];
 
-                    if ( event && !event.seq.playing && !event.recording &&
-                         event.seq.startMeasure === state.activePattern &&
-                         compareTime >= event.seq.startMeasureOffset &&
-                         compareTime < ( event.seq.startMeasureOffset + event.seq.length ))
-                    {
-                        // enqueue into AudioContext queue at the right time
-                        enqueueEvent( store, event, i );
+                    // empty slots, recording events or events outside of the current measure can be ignored
+                    if ( !event || event.recording || event.seq.startMeasure !== state.activePattern ) {
+                        continue;
+                    }
+                    seq = event.seq;
+
+                    // event playback is triggered when its duration is within
+                    // the current sequencer position range
+                    if ( compareTime >= seq.startMeasureOffset &&
+                         compareTime < ( seq.startMeasureOffset + seq.length )) {
+                        // if event wasn't playing, trigger playback
+                        if (!seq.playing) enqueueEvent(store, event, i);
+                    } else {
+                        // event is outside of trigger range, unset its playback
+                        // state so it can be retriggered when in range
+                        seq.playing = false;
                     }
                 }
             }
@@ -182,7 +196,7 @@ function step(store) {
 
                 state.metronome.enabled         = state.metronome.restore;
                 state.metronome.countInComplete = true;
-                state.firstMeasureStartTime = AudioService.getAudioContext().currentTime;
+                state.firstMeasureStartTime     = AudioService.getAudioContext().currentTime;
 
                 store.commit('setActivePattern', 0);
             }
@@ -198,7 +212,7 @@ export default {
         playing               : false,
         looping               : false,
         recording             : false, // whether we should record non-sequenced noteOn/noteOff events into the patterns
-        scheduleAheadTime     : 0.2,
+        scheduleAheadTime     : 0.2,   // scheduler lookahead in seconds
         stepPrecision         : 64,
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
         beatUnit              : 4,
@@ -239,9 +253,12 @@ export default {
                     state.metronome.enabled         = true;
                 }
                 state.currentStep = 0;  // always start from beginning
-                state.worker.postMessage({ 'cmd' : 'start' });
+                state.worker.postMessage({
+                    cmd: 'start',
+                    interval: ( state.scheduleAheadTime * 1000 ) / 4
+                });
             } else {
-                state.worker.postMessage({ 'cmd' : 'stop' });
+                state.worker.postMessage({ cmd: 'stop' });
                 for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
                     state.channelQueue[i].flush();
             }
@@ -278,15 +295,13 @@ export default {
                     transformed[ i ] = 0;
                 }
 
-                if ( steps < oldAmount )
-                {
+                if ( steps < oldAmount ) {
                     // reducing resolution, e.g. changing from 32 to 16 steps
                     increment = oldAmount / steps;
 
                     for ( i = 0, j = 0; i < steps; ++i, j += increment )
                        transformed[ i ] = channel[ j ];
-                }
-                else {
+                } else {
                     // increasing resolution, e.g. changing from 16 to 32 steps
                     increment = steps / oldAmount;
 
@@ -327,11 +342,12 @@ export default {
 
             if ( state.activePattern === 0 ) {
                 state.channelQueue.forEach(list => {
-                    let q = list.head;
-                    while ( q ) {
-                        dequeueEvent(state, q.data, currentTime );
-                        q.remove();
-                        q = list.head;
+                    let playingNote = list.head;
+                    while (playingNote) {
+                        dequeueEvent(playingNote.data, currentTime);
+                        playingNote.data.seq.playing = false;
+                        playingNote.remove();
+                        playingNote = list.head;
                     }
                 });
             }

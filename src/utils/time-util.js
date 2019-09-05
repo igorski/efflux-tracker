@@ -24,12 +24,10 @@ export default {
     /**
      * convert a given timestamp into a formatted date string
      *
-     * @public
      * @param {number} aTimestamp
      * @return {string}
      */
-    timestampToDate( aTimestamp )
-    {
+    timestampToDate( aTimestamp ) {
         const a      = new Date( aTimestamp );
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const year   = a.getFullYear();

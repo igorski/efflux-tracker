@@ -28,7 +28,6 @@ export default
     /**
      * apply attack, decay and sustain amplitude envelopes to given gain Node
      *
-     * @public
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
@@ -58,11 +57,9 @@ export default
         envelope.linearRampToValueAtTime( 1.0, attackEnd );         // attack envelope
         envelope.linearRampToValueAtTime( ADSR.sustain, decayEnd ); // decay envelope
     },
-
     /**
      * apply release amplitude envelope to given gain Node
      *
-     * @public
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
@@ -83,18 +80,14 @@ export default
                 release = ( ADSR.release === 0 ) ? 0.002 : ADSR.release;
                 break;
         }
-
         envelope = output.gain;
 
         envelope.cancelScheduledValues  ( startTimeInSeconds );
         envelope.setValueAtTime         ( envelope.value, startTimeInSeconds );
         envelope.linearRampToValueAtTime( 0.0, startTimeInSeconds + release );
     },
-
     /**
      * apply pitch envelope to the events oscillator Node
-     *
-     * @public
      *
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @param {OscillatorNode|AudioBufferSourceNode} generator
@@ -129,11 +122,9 @@ export default
         envelope.linearRampToValueAtTime( orgValue + shifted, attackEnd ); // attack envelope
         envelope.linearRampToValueAtTime( orgValue + ( shifted * ADSR.sustain ), decayEnd ); // decay envelope
     },
-
     /**
-     * apply release amplitude envelope to given gain Node
+     * apply release pitch envelope to given oscillator Node
      *
-     * @public
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds

@@ -7,7 +7,6 @@ let recLength = 0,
     recBuffersR = [],
     sampleRate;
 
-
 self.addEventListener('message', event => {
     switch (event.data.command) {
         case 'init':

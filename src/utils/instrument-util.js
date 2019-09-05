@@ -135,7 +135,7 @@ const InstrumentUtil =
         });
     },
     /**
-     * handle the instruments key up event (will trigger noteOn)
+     * handle the instruments "key down" event (will trigger noteOn)
      * @param {{ note: string, octave: number }} pitch
      * @param {INSTRUMENT} instrument to play back the note on
      * @param {boolean=} record whether to record the note into given instruments pattern list
