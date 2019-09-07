@@ -220,7 +220,7 @@ const setSelection = ( state, selectionStart, selectionEnd ) => {
 const module = {
     state: {
         /**
-         * @type {Array.<Array.<number>>}
+         * @type {Array<Array<number>>}
          */
         selectedChannels : [],
         firstSelectedChannel : 0,
@@ -234,7 +234,7 @@ const module = {
          */
         maxSelectedStep : 0,
         /**
-         * @type {Array.<Array<AUDIO_EVENT>>}
+         * @type {Array<Array<AUDIO_EVENT>>}
          */
         copySelection : null,
         /**
@@ -250,7 +250,7 @@ const module = {
         /**
          * retrieve the contents of the current selection
          *
-         * @return {Array.<Object>}
+         * @return {Array<Object>}
          */
         getSelection: state => ({ song, activePattern }) => {
             const out = [];

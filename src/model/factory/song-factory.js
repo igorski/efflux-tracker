@@ -28,8 +28,7 @@ const FACTORY_VERSION = 1;
 export default
 {
     /**
-     * @public
-     * @param {number}amountOfInstruments
+     * @param {number} amountOfInstruments
      * @returns {SONG}
      */
     createSong( amountOfInstruments ) {
@@ -57,9 +56,7 @@ export default
             // data lists
 
             /**
-             * this type definition states what a pattern Object looks like
-             *
-             * @typedef {Array.<PATTERN>}
+             * @type {Array<PATTERN>}
              */
             patterns : [
                 PatternFactory.createEmptyPattern( 16 )

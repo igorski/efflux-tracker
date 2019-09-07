@@ -26,7 +26,7 @@
  * length of given Array and returns the associated Array item with
  * the index closest to the resulting scaled value
  *
- * @param {Array.<*>} array of items
+ * @param {Array<*>} array of items
  * @param {number} value in the 0 - 100 range
  * @return {*} associated array item to scaled value
  */

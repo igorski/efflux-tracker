@@ -36,8 +36,8 @@
  *         modified: number,
  *         tempo: number
  *     },
- *     instruments: Array.<INSTRUMENT>,
- *     patterns: Array.<PATTERN>
+ *     instruments: Array<INSTRUMENT>,
+ *     patterns: Array<PATTERN>
  * }}
  *
  * @see SongFactory, SongValidator

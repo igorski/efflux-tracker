@@ -70,7 +70,7 @@ const InstrumentUtil =
      * alter the frequency of currently playing events to match changes
      * made to the tuning of given oscillator
      *
-     * @param {Array.<EVENT_OBJECT>} events
+     * @param {Array<EVENT_VOICE_LIST>} events
      * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
@@ -96,7 +96,7 @@ const InstrumentUtil =
      * alter the volume of currently playing events to match changes
      * made to the volume of given oscillator
      *
-     * @param {Array.<EVENT_OBJECT>} events
+     * @param {Array<EVENT_VOICE_LIST>} events
      * @param {number} oscillatorIndex
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
@@ -115,7 +115,7 @@ const InstrumentUtil =
      * alter the wavetable of currently playing events to match
      * changes made to the waveform of given oscillator
      *
-     * @param {Array.<EVENT_OBJECT>} events
+     * @param {Array<EVENT_VOICE_LIST>} events
      * @param {number} oscillatorIndex
      * @param {PeriodicWave} table
      */

@@ -88,13 +88,12 @@ const ModuleRouter =
         });
     },
     /**
-     * apply a module parameter change defined inside an
-     * audioEvent during playback
+     * apply a module parameter change defined inside an audioEvent during playback
      *
      * @param {AUDIO_EVENT} audioEvent
      * @param {INSTRUMENT_MODULES} modules
      * @param {INSTRUMENT} instrument
-     * @param {Array.<EVENT_OBJECT>} instrumentEvents events currently playing back for this instrument
+     * @param {Array<EVENT_VOICE_LIST>} instrumentEvents events currently playing back for this instrument
      * @param {number} startTimeInSeconds
      * @param {AudioGainNode} output
      */
@@ -279,7 +278,7 @@ function applyDelay( audioEvent, modules ) {
  * @param {number=} durationInSeconds the total duration of the change (only rqeuired when 'doGlide' is true)
  * @param {boolean=} doGlide whether to "glide" to the value (linear change), defaults to false for instant change
  * @param {Object=} data optional data Object to track the status of the scheduled parameter changes (can for instance
- *                  be EVENT_OBJECT which shouldn't cancel previously scheduled changes upon repeated invocation)
+ *                  be EVENT_VOICE_LIST which shouldn't cancel previously scheduled changes upon repeated invocation)
  */
 function scheduleParameterChange( param, value, startTimeInSeconds, durationInSeconds, doGlide, data ) {
     if ( !doGlide || ( data && !data.gliding )) {

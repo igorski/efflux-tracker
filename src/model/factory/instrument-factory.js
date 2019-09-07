@@ -149,7 +149,7 @@ const InstrumentFactory =
      *
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      * @param {number=} size optional WaveTable size, defaults to Config value
-     * @return {Array.<number>}
+     * @return {Array<number>}
      */
     getTableForOscillator(oscillator, size ) {
         if ( !oscillator.table ) {

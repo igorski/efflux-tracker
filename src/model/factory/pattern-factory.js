@@ -130,7 +130,7 @@ export default PatternFactory;
  * @private
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
  * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
- * @returns {Array.<Array.<AUDIO_EVENT>>}
+ * @returns {Array<Array<AUDIO_EVENT>>}
  */
 function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep ) {
     let out = [], i;

@@ -32,7 +32,7 @@ const INSTRUMENT_STORAGE_KEY = 'Efflux_Ins_';
 export default {
     state: {
         /**
-         * @type {Array.<Object>}
+         * @type {Array<Object>}
          */
         instruments : []
     },

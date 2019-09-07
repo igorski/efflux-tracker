@@ -46,7 +46,7 @@ function enqueueEvent(store, event, eventChannel ) {
     // automation glide (a noteOn lasts until a new note or a kill event is
     // triggered within the same channel)
 
-    const patternDuration = ( 60 / activeSong.meta.tempo ) * beatAmount;
+    const patternDuration = (60 / activeSong.meta.tempo) * beatAmount;
     const patterns        = activeSong.patterns;
     const eventPattern    = patterns[activePattern];
 
@@ -61,12 +61,12 @@ function enqueueEvent(store, event, eventChannel ) {
     const isNoteOn = event.action === 1;
     const queue    = channelQueue[eventChannel];
 
-    if ( event.action !== 0 ) {
+    if (event.action !== 0) {
 
         // all non-module parameter change events kill previously playing notes
         let playingNote = queue.head;
 
-        while ( playingNote ) {
+        while (playingNote) {
             dequeueEvent(playingNote.data, nextNoteTime);
             playingNote.remove();
             playingNote = queue.head;
@@ -78,7 +78,7 @@ function enqueueEvent(store, event, eventChannel ) {
     // dequeued after a single sequencer tick/step (the length of a module parameter
     // automation glide)
 
-    if ( isNoteOn )
+    if (isNoteOn)
         queue.add(event);
     else
         dequeueEvent(event, nextNoteTime + event.seq.mpLength);
@@ -340,7 +340,7 @@ export default {
 
             // when going to the first measure we should stop playing all currently sounding notes
 
-            if ( state.activePattern === 0 ) {
+            if (state.activePattern === 0) {
                 state.channelQueue.forEach(list => {
                     let playingNote = list.head;
                     while (playingNote) {

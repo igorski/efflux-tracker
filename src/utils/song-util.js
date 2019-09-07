@@ -43,7 +43,7 @@ export default
      * update the existing offsets for all of the Songs
      * audioEvents within its patterns
      *
-     * @param {Array.<PATTERN>} patterns the Songs patterns
+     * @param {Array<PATTERN>} patterns the Songs patterns
      * @param {number} ratio by which to update the existing values
      */
     updateEventOffsets( patterns, ratio ) {
@@ -73,7 +73,7 @@ export default
     /**
      * unset the play state of all of the songs events
      *
-     * @param {Array.<PATTERN>} patterns
+     * @param {Array<PATTERN>} patterns
      */
     resetPlayState(patterns) {
         patterns.forEach(pattern => {

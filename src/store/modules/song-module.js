@@ -37,7 +37,7 @@ const SONG_STORAGE_KEY = 'Efflux_Song_';
 
 export default {
     state: {
-        songs: [], /** @type {Array.<Object>} */
+        songs: [], /** @type {Array<Object>} */
         activeSong: null,
         showSaveMessage: true
     },

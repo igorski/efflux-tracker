@@ -54,7 +54,7 @@ const EventUtil =
      * @param {AUDIO_EVENT} event
      * @param {number} channelIndex index of the channel the event belongs to
      * @param {SONG} song
-     * @param {Array.<LinkedList>} lists
+     * @param {Array<LinkedList>} lists
      */
     linkEvent( event, channelIndex, song, lists ) {
         const list     = lists[ channelIndex ];
@@ -101,8 +101,8 @@ const EventUtil =
      * pattern lists. The sequencer will read
      * from the LinkedList for more performant results
      *
-     * @param {Array.<PATTERN>} patterns
-     * @param {Array.<LinkedList>} lists
+     * @param {Array<PATTERN>} patterns
+     * @param {Array<LinkedList>} lists
      */
     linkEvents( patterns, lists ) {
         lists.forEach(( list, channelIndex ) => {
@@ -148,7 +148,7 @@ const EventUtil =
      *
      * @param {SONG} song
      * @param {AUDIO_EVENT} event
-     * @param {Array.<LinkedList>} lists
+     * @param {Array<LinkedList>} lists
      */
     clearEventByReference( song, event, lists ) {
         let found = false;
@@ -171,7 +171,7 @@ const EventUtil =
      * retrieve the first AudioEvent available before
      * given step in given channel event list
      *
-     * @param {Array.<AUDIO_EVENT>} channelEvents
+     * @param {Array<AUDIO_EVENT>} channelEvents
      * @param {number} step
      * @param {Function=} optCompareFn optional function to use
      *                    to filter events by
@@ -196,8 +196,8 @@ const EventUtil =
      * @param {number} patternIndex
      * @param {number} channelIndex
      * @param {number} eventIndex
-     * @param {Array.<LinkedList>} lists
-     * @return {Array.<AUDIO_EVENT>|null} created audio events
+     * @param {Array<LinkedList>} lists
+     * @return {Array<AUDIO_EVENT>|null} created audio events
      */
     glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists ) {
         const list               = lists[ channelIndex ];
@@ -318,9 +318,9 @@ const EventUtil =
      * @param {number} step
      * @param {number} patternIndex
      * @param {number} channelIndex
-     * @param {Array.<LinkedList>} lists
+     * @param {Array<LinkedList>} lists
      * @param {Object} store the root Vuex store
-     * @return {Array.<AUDIO_EVENT>|null} created audio events
+     * @return {Array<AUDIO_EVENT>|null} created audio events
      */
     glideParameterAutomations(song, step, patternIndex, channelIndex, lists, store) {
         const channelEvents = song.patterns[ patternIndex ].channels[ channelIndex ];

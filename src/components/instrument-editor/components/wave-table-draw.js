@@ -47,7 +47,7 @@ export default WaveTableDraw;
  * set a reference to the current WaveTable we're displaying/editing
  *
  * @public
- * @param {Array.<number>} aTableArray
+ * @param {Array<number>} aTableArray
  */
 WaveTableDraw.prototype.setTable = function( aTableArray )
 {

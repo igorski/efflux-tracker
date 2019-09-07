@@ -24,13 +24,19 @@
 /* eslint-disable no-unused-vars */
 
 /**
+ * This structure describes all Web Audio nodes unused
+ * to render an instruments audio into the AudioContext destination
+ * 
  * @typedef {{
  *              panner: PAN_MODULE,
  *              overdrive: OVERDRIVE_MODULE,
  *              eq: EQ_MODULE,
  *              filter: FILTER_MODULE,
  *              delay: DELAY_MODULE,
- *              voices: Array<Array<GainNode>>,
+ *              voices: Array<Array<{{
+ *                  oscillatorNode: GainNode,
+ *                  adsrNode: GainNode
+ *              }}>>,
  *              output: AudioParam
  *          }}
  */

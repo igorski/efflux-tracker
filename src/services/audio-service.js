@@ -22,13 +22,12 @@
  */
 import Vue            from 'vue';
 import Config         from '@/config';
-import AudioFactory   from '@/model/factory/audio-factory';
 import ModuleFactory  from '@/model/factory/module-factory';
 import InstrumentUtil from '@/utils/instrument-util';
 import AudioHelper    from './audio/audio-helper';
 import OutputRecorder from './audio/output-recorder';
 import ModuleRouter   from './audio/module-router';
-import PitchConverter from './audio/pitch-converter';
+import Pitch          from './audio/pitch';
 import WaveTables     from './audio/wave-tables';
 import ADSR           from './audio/adsr-module';
 
@@ -43,15 +42,15 @@ let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID
  *
  * @type {Array<INSTRUMENT_MODULES>}
  */
-let instrumentModules;
+let instrumentModulesList;
 
 /**
- * list that will contain all EVENT_OBJECTs
- * playing back for any of the Songs instruments
+ * list that contains all event voices that are currently playing
+ * [instrumentIndex][eventId][EVENT_VOICE]
  *
- * @type {Array<Array<EVENT_OBJECT>>}
+ * @type {Array<Object<number, EVENT_VOICE_LIST>>}
  */
-let instrumentEvents = [];
+let instrumentEventsList = [];
 
 const AudioService =
 {
@@ -97,14 +96,17 @@ const AudioService =
         // create periodic waves from the entries in the WaveTables definitions file
 
         Object.keys(WaveTables).forEach(waveIdentifier => {
-            pool[ waveIdentifier ] = audioContext.createPeriodicWave(
-                new Float32Array( WaveTables[ waveIdentifier ].real ),
-                new Float32Array( WaveTables[ waveIdentifier ].imag )
+            pool[waveIdentifier] = audioContext.createPeriodicWave(
+                new Float32Array(WaveTables[waveIdentifier].real),
+                new Float32Array(WaveTables[waveIdentifier].imag)
             );
         });
-        AudioService.reset();
-        AudioService.cacheCustomTables(state.song.activeSong.instruments);
+        instrumentEventsList = new Array(Config.INSTRUMENT_AMOUNT);
+        for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i) {
+            instrumentEventsList[i] = {};
+        }
         createModules();
+        AudioService.cacheCustomTables(state.song.activeSong.instruments);
         AudioService.initialized = true;
     },
     /**
@@ -118,14 +120,14 @@ const AudioService =
     /**
      * cache the custom WaveTables that are available to the instruments
      *
-     * @param {Array.<INSTRUMENT>} instruments
+     * @param {Array<INSTRUMENT>} instruments
      */
     cacheCustomTables(instruments) {
-        instruments.forEach(( instrument, instrumentIndex ) => {
-            pool.CUSTOM[ instrumentIndex ] = new Array( instrument.oscillators.length );
-            instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
-                if ( oscillator.table ) {
-                    pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createTableFromCustomGraph(
+        instruments.forEach((instrument, instrumentIndex) => {
+            pool.CUSTOM[instrumentIndex] = new Array(instrument.oscillators.length);
+            instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
+                if (oscillator.table) {
+                    pool.CUSTOM[instrumentIndex][oscillatorIndex] = createTableFromCustomGraph(
                      instrumentIndex, oscillatorIndex, oscillator.table
                     );
                 }
@@ -151,19 +153,15 @@ const AudioService =
      * resets unique event id counter
      */
     reset() {
-        instrumentEvents.forEach(events => {
-            let i = events.length, event;
-            while ( i-- ) {
-                event = /** @type {EVENT_OBJECT} */ ( events[ i ] );
-                if ( event ) {
-                    event.forEach(voice => AudioFactory.stopOscillation(voice.generator));
-                }
-            }
+        instrumentEventsList.forEach((eventList, instrumentId) => {
+            Object.values(eventList).forEach(voiceList => {
+                voiceList.forEach((voice, oscillatorIndex) => {
+                    returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
+                    AudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
+                });
+            });
+            instrumentEventsList[instrumentId] = {};
         });
-        instrumentEvents = new Array( Config.INSTRUMENT_AMOUNT );
-        for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-            instrumentEvents[ i ] = [];
-
         UNIQUE_EVENT_ID = 0;
     },
     toggleRecordingState() {
@@ -192,42 +190,42 @@ const AudioService =
      * @param {number=} startTimeInSeconds optional, defaults to current time
      */
     noteOn( event, instrument, startTimeInSeconds = audioContext.currentTime ) {
-        if ( event.action === 1 ) { // 1 == noteOn
+        if (event.action === 1) { // 1 == noteOn
             Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
 
-            // console.log(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
+            // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
 
-            const frequency = PitchConverter.getFrequency( event.note, event.octave );
+            const frequency = Pitch.getFrequency(event.note, event.octave);
+            const voices    = /** @type {EVENT_VOICE_LIST} */ ([]);
+            const modules   = instrumentModulesList[instrument.id];
+            let voice;
 
-            let oscillators = /** @type {EVENT_OBJECT} */ ( [] ), voice;
-            const modules   = instrumentModules[ instrument.id ];
-
-            instrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) => {
+            instrument.oscillators.forEach((oscillatorVO, oscillatorIndex) => {
                 if ( !oscillatorVO.enabled ) {
                     return;
                 }
-                voice = instrument.oscillators[ oscillatorIndex ];
+                voice = instrument.oscillators[oscillatorIndex];
 
-                // retrieve from pool GainNodes for the oscillator voice and its envelope gain structure
-                const oscillatorNodes = getOscillatorGainNodesFromPool(modules, oscillatorIndex);
+                // retrieve from pool the envelope gain structure for the oscillator voice
+                const oscillatorNodes = retrieveAvailableVoiceNodesFromPool(modules, oscillatorIndex);
                 if (oscillatorNodes === null) {
-                    console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.id}`);
+                    // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.id}`);
                     return;
                 }
                 const { oscillatorNode, adsrNode } = oscillatorNodes;
                 let generatorNode;
 
-                if ( oscillatorVO.waveform === 'NOISE' ) {
+                if (oscillatorVO.waveform === 'NOISE') {
                     // buffer source ? assign it to the oscillator
                     generatorNode = audioContext.createBufferSource();
                     generatorNode.buffer = pool.NOISE;
                     generatorNode.loop = true;
-                    generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback( voice );
+                    generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback(voice);
                 } else {
                     // has oscillator source
-                    if ( oscillatorVO.waveform === 'PWM' ) {
+                    if (oscillatorVO.waveform === 'PWM') {
                         // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
-                        generatorNode = AudioFactory.createPWM(
+                        generatorNode = AudioHelper.createPWM(
                             audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
                         );
                     }
@@ -237,10 +235,10 @@ const AudioService =
                         generatorNode = audioContext.createOscillator();
                         let table;
 
-                        if ( oscillatorVO.waveform !== 'CUSTOM' )
-                            table = pool[ oscillatorVO.waveform ];
+                        if (oscillatorVO.waveform !== 'CUSTOM')
+                            table = pool[oscillatorVO.waveform];
                         else
-                            table = pool.CUSTOM[ instrument.id ][ oscillatorIndex ];
+                            table = pool.CUSTOM[instrument.id][oscillatorIndex];
 
                         if ( !table ) // no table ? that's a bit of a problem. what did you break!?
                             return;
@@ -248,15 +246,15 @@ const AudioService =
                         generatorNode.setPeriodicWave( table );
                     }
                     // tune event frequency to oscillator tuning and apply pitch envelopes
-                    generatorNode.frequency.value = InstrumentUtil.tuneToOscillator( frequency, voice );
+                    generatorNode.frequency.value = InstrumentUtil.tuneToOscillator(frequency, voice);
                 }
 
                 // apply envelopes
 
                 oscillatorNode.gain.value = oscillatorVO.volume;
 
-                ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode,      startTimeInSeconds );
-                ADSR.applyPitchEnvelope( oscillatorVO, generatorNode, startTimeInSeconds );
+                ADSR.applyAmpEnvelope  (oscillatorVO, adsrNode,      startTimeInSeconds);
+                ADSR.applyPitchEnvelope(oscillatorVO, generatorNode, startTimeInSeconds);
 
                 // route oscillator to track gain > envelope gain > instrument gain
 
@@ -265,9 +263,9 @@ const AudioService =
 
                 // start playback
 
-                AudioFactory.startOscillation(generatorNode, startTimeInSeconds);
+                AudioHelper.startOscillation(generatorNode, startTimeInSeconds);
 
-                oscillators.push( /** @type {EVENT_VOICE} */ ({
+                voices.push( /** @type {EVENT_VOICE} */ ({
                     generator: generatorNode,
                     vo: oscillatorVO,
                     frequency: frequency,
@@ -276,18 +274,17 @@ const AudioService =
                     gliding: false
                 }));
             });
-            instrumentEvents[ instrument.id ][ event.id ] = oscillators;
+            instrumentEventsList[instrument.id][event.id] = voices;
         }
-
         // module parameter change specified ? process it inside the ModuleRouter
 
         if (event.mp) {
             ModuleRouter.applyModuleParamChange(
                 event,
-                instrumentModules[ instrument.id ],
+                instrumentModulesList[instrument.id],
                 instrument,
-                instrumentEvents[ instrument.id ],
-                startTimeInSeconds || audioContext.currentTime,
+                instrumentEventsList[instrument.id],
+                startTimeInSeconds,
                 masterBus
             );
         }
@@ -304,56 +301,41 @@ const AudioService =
      */
     noteOff(event, startTimeInSeconds = audioContext.currentTime) {
         const eventId     = event.id, instrumentId = event.instrument;
-        const eventObject = instrumentEvents[instrumentId][eventId];
+        const eventVoices = instrumentEventsList[instrumentId][eventId];
 
-        // console.log(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
+        if (!eventVoices) return;
 
-        if ( eventObject ) {
-            const modules = instrumentModules[instrumentId];
-            eventObject.forEach((voice, oscillatorIndex) => {
-                const oscillator = voice.generator;
+        // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
-                // apply release envelopes
+        eventVoices.forEach((voice, oscillatorIndex) => {
+            // apply release envelopes
+            ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
+            ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
 
-                ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
-                ADSR.applyPitchRelease(voice.vo, oscillator,       startTimeInSeconds);
-
-                oscillator.onended = () => {
-                    if (voice.vo.waveform === 'PWM') {
-                        oscillator.disconnect(); // PWM requires manual disconnect
-                    }
-                    // oscillator will automatically disconnect() after stopping, return
-                    // the gain nodes for the instrument voice back to the pool
-
-                    modules.voices[oscillatorIndex].push({
-                        oscillatorNode: voice.gain,
-                        adsrNode: voice.outputNode
-                    });
-                };
-                AudioFactory.stopOscillation(oscillator, startTimeInSeconds + voice.vo.adsr.release);
-            });
-            delete instrumentEvents[instrumentId][eventId];
-        }
+            returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
+            AudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
+        });
+        delete instrumentEventsList[instrumentId][eventId];
     },
     /**
      * apply the module settings described in the currently active
      * songs model onto the audio processing chain
      */
     applyModules(song) {
-        song.instruments.forEach(( instrument, index ) => {
-            const instrumentModule = instrumentModules[ index ];
-            instrumentModule.output.gain.value = instrument.volume;
-            if (instrumentModule.panner) {
-                instrumentModule.panner.pan.value = instrument.panning;
+        song.instruments.forEach((instrument, instrumentIndex) => {
+            const instrumentModules = instrumentModulesList[instrumentIndex];
+            instrumentModules.output.gain.value = instrument.volume;
+            if (instrumentModules.panner) {
+                instrumentModules.panner.pan.value = instrument.panning;
             }
-            ModuleFactory.applyConfiguration('filter', instrumentModule, instrument.filter, masterBus);
-            ModuleFactory.applyConfiguration('delay', instrumentModule, instrument.delay, masterBus);
-            ModuleFactory.applyConfiguration('eq', instrumentModule, instrument.eq, masterBus);
-            ModuleFactory.applyConfiguration('overdrive', instrumentModule, instrument.overdrive, masterBus);
+            ModuleFactory.applyConfiguration('filter', instrumentModules, instrument.filter, masterBus);
+            ModuleFactory.applyConfiguration('delay', instrumentModules, instrument.delay, masterBus);
+            ModuleFactory.applyConfiguration('eq', instrumentModules, instrument.eq, masterBus);
+            ModuleFactory.applyConfiguration('overdrive', instrumentModules, instrument.overdrive, masterBus);
         });
     },
     applyModule(type, instrumentIndex, props) {
-        ModuleFactory.applyConfiguration(type, instrumentModules[instrumentIndex], props, masterBus);
+        ModuleFactory.applyConfiguration(type, instrumentModulesList[instrumentIndex], props, masterBus);
     },
     cacheAllOscillators(instrumentIndex, instrument) {
         instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
@@ -364,7 +346,7 @@ const AudioService =
         if (!/waveform|tuning|volume/.test(property))
             throw new Error(`cannot update unsupported oscillator property ${property}`);
 
-        const events = instrumentEvents[instrumentIndex];
+        const events = instrumentEventsList[instrumentIndex];
         switch (property) {
             case 'waveform':
                 if ( oscillator.enabled   && oscillator.waveform === 'CUSTOM' ) {
@@ -385,10 +367,10 @@ const AudioService =
         }
     },
     adjustInstrumentVolume(instrumentIndex, volume) {
-        instrumentModules[instrumentIndex].output.gain.value = volume;
+        instrumentModulesList[instrumentIndex].output.gain.value = volume;
     },
     adjustInstrumentPanning(instrumentIndex, pan) {
-        instrumentModules[instrumentIndex].panner.pan.value = pan;
+        instrumentModulesList[instrumentIndex].panner.pan.value = pan;
     }
 };
 export default AudioService;
@@ -396,7 +378,7 @@ export default AudioService;
 /* internal methods */
 
 function setupRouting() {
-    masterBus  = AudioFactory.createGainNode( audioContext );
+    masterBus  = AudioHelper.createGainNode(audioContext);
     eq         = audioContext.createBiquadFilter();
     eq.type    = 'highpass';
     eq.frequency.value = 30; // remove sub-30 Hz rumbling
@@ -408,45 +390,59 @@ function setupRouting() {
 
 function createModules() {
     // create new modules for each possible instrument
-    instrumentModules = new Array(Config.INSTRUMENT_AMOUNT);
+    instrumentModulesList = new Array(Config.INSTRUMENT_AMOUNT);
 
-    for (let i = 0; i < instrumentModules.length; ++i ) {
-        const module = instrumentModules[ i ] = {
-            panner    : AudioFactory.createStereoPanner(audioContext),
+    for (let i = 0; i < instrumentModulesList.length; ++i ) {
+        const instrumentModules = instrumentModulesList[i] = {
+            panner    : AudioHelper.createStereoPanner(audioContext),
             overdrive : ModuleFactory.createOverdrive(audioContext),
             eq        : ModuleFactory.createEQ(audioContext),
             filter    : ModuleFactory.createFilter(audioContext),
             delay     : ModuleFactory.createDelay(audioContext),
             voices    : new Array(Config.OSCILLATOR_AMOUNT),
-            output    : AudioFactory.createGainNode(audioContext)
+            output    : AudioHelper.createGainNode(audioContext)
         };
         // max polyphony is 3 oscillators per channel
         for (let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j) {
-            module.voices[j] = [];
+            instrumentModules.voices[j] = [];
             // the channel amount can equal the total amount of instrument
             // as in Efflux, eachs instrument gets a channel strip in the tracker
             // and each channel can override its target instrument
             // (thus 24 simultaneous voices per instrument can be used)
             for (let k = 0; k < Config.INSTRUMENT_AMOUNT; ++k) {
                 const nodes = {
-                    oscillatorNode: AudioFactory.createGainNode(audioContext),
-                    adsrNode: AudioFactory.createGainNode(audioContext)
+                    oscillatorNode: AudioHelper.createGainNode(audioContext),
+                    adsrNode: AudioHelper.createGainNode(audioContext)
                 };
                 nodes.oscillatorNode.connect(nodes.adsrNode);
-                nodes.adsrNode.connect(module.output);
-                module.voices[j].push(nodes);
+                nodes.adsrNode.connect(instrumentModules.output);
+                instrumentModules.voices[j].push(nodes);
             }
         }
-        ModuleRouter.applyRouting(module, masterBus);
+        ModuleRouter.applyRouting(instrumentModules, masterBus);
     }
 }
 
-function getOscillatorGainNodesFromPool(instrumentModule, oscillatorIndex) {
-    const voiceList = instrumentModule.voices[oscillatorIndex];
-    if (voiceList.length) {
-        return voiceList.shift();
+function retrieveAvailableVoiceNodesFromPool(instrumentModules, oscillatorIndex) {
+    const availableVoices = instrumentModules.voices[oscillatorIndex];
+    if (availableVoices.length) {
+        return availableVoices.shift();
     }
     return null;
+}
+
+function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex, voice) {
+    voice.generator.onended = () => {
+        // OscillatorNodes will automatically disconnect() after stopping
+        // except for PWM which has a custom implementation
+        voice.generator.disconnect();
+
+        // return the gain nodes for the instrument voice back to the pool
+        instrumentModules.voices[oscillatorIndex].push({
+            oscillatorNode: voice.gain,
+            adsrNode: voice.outputNode
+        });
+    };
 }
 
 /**
@@ -455,11 +451,11 @@ function getOscillatorGainNodesFromPool(instrumentModule, oscillatorIndex) {
  *
  * @param {number} instrumentIndex index of the instrument within the pool
  * @param {number} oscillatorIndex index of the oscillator within the instrument
- * @param {Array.<number>} table list of points
+ * @param {Array<number>} table list of points
  * @return {PeriodicWave} the created WaveTable
  */
 function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
-    return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = AudioHelper.createWaveTableFromGraph( audioContext, table );
+    return pool.CUSTOM[instrumentIndex][oscillatorIndex] = AudioHelper.createWaveTableFromGraph( audioContext, table );
 }
 
 function handleRecordingComplete(blob) {

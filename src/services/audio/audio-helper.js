@@ -20,14 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioFactory from '@/model/factory/audio-factory';
+ // we assume that the audioContext works according to the newest standards
+ // if its is available as window.AudioContext
+ // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
+ // method names according to spec
+const isStandards = ( !!( 'AudioContext' in window ) || ( 'webkitAudioContext' in window && typeof (new window.webkitAudioContext()).createGain === 'function'));
 const d = window.document;
 const features = {
     panning: false
 };
 let timerNode;
 
-export default
+// Pre-calculate the WaveShaper curves.
+const pulseCurve = new Float32Array(256);
+for (let i = 0; i < 128; ++i) {
+    pulseCurve[i]       = -1;
+    pulseCurve[i + 128] = 1;
+}
+const constantOneCurve = new Float32Array(2);
+constantOneCurve[0] = 1;
+constantOneCurve[1] = 1;
+
+const AudioHelper =
 {
     /**
      * create a WaveTable from given graphPoints Array (a list of
@@ -35,7 +49,7 @@ export default
      * OscillatorNode oscillator
      *
      * @param {AudioContext} audioContext
-     * @param {Array.<number>} graphPoints
+     * @param {Array<number>} graphPoints
      * @return {PeriodicWave}
      */
     createWaveTableFromGraph( audioContext, graphPoints ) {
@@ -61,7 +75,7 @@ export default
         timer.onended = callback;
 
         if (!timerNode) {
-            timerNode = AudioFactory.createGainNode(audioContext);
+            timerNode = AudioHelper.createGainNode(audioContext);
             timerNode.gain.value = 0;
             timerNode.connect(audioContext.destination);
         }
@@ -69,8 +83,8 @@ export default
         // and garbage collected
         timer.connect(timerNode);
 
-        AudioFactory.startOscillation(timer, audioContext.currentTime);
-        AudioFactory.stopOscillation (timer, time);
+        AudioHelper.startOscillation(timer, audioContext.currentTime);
+        AudioHelper.stopOscillation (timer, time);
 
         return timer;
     },
@@ -100,11 +114,133 @@ export default
 
         oscillator.onended = () => oscillator.disconnect();
 
-        AudioFactory.startOscillation( oscillator, startTimeInSeconds );
-        AudioFactory.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
+        AudioHelper.startOscillation( oscillator, startTimeInSeconds );
+        AudioHelper.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
 
         return oscillator;
     },
+    /**
+     * @param {OscillatorNode} oscillator
+     * @param {number} startTime AudioContext time at which to start
+     */
+    startOscillation(oscillator, startTime) {
+        if (isStandards)
+            oscillator.start(startTime);
+        else
+            oscillator.noteOn(startTime);
+    },
+    /**
+     * @param {OscillatorNode} oscillator
+     * @param {number} stopTime AudioContext time at which to stop
+     */
+    stopOscillation(oscillator, stopTime) {
+        try {
+            if (isStandards)
+                oscillator.stop(stopTime);
+            else
+                oscillator.noteOff(stopTime);
+        } catch ( e ) {
+            // likely Safari DOM Exception 11 if oscillator was previously stopped
+        }
+    },
+    /**
+     * @param {webkitAudioContext|AudioContext} aContext
+     * @return {AudioGainNode}
+     */
+    createGainNode( aContext ) {
+        if ( isStandards )
+            return aContext.createGain();
+
+        return aContext.createGainNode();
+    },
+    /**
+     * At the moment of writing, StereoPannerNode is not supported
+     * in Safari, so this can return null!
+     *
+     * @param {webkitAudioContext|AudioContext} audioContext
+     * @return {StereoPannerNode|null}
+     */
+    createStereoPanner(audioContext) {
+        // last minute checks on feature support
+        if (typeof audioContext.createStereoPanner !== 'function') {
+            return null;
+        }
+        return audioContext.createStereoPanner();
+    },
+    /**
+     * Create a Pulse Width Modulator
+     * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
+     *
+     * @param {AudioContext} audioContext
+     * @param {number} startTime
+     * @param {number} endTime
+     * @param {AudioDestinationNode=} destination
+     * @return {OscillatorNode}
+     */
+   createPWM( audioContext, startTime, endTime, destination = audioContext.destination ) {
+        const pulseOsc = audioContext.createOscillator();
+        pulseOsc.type  = 'sawtooth';
+
+        // Shape the output into a pulse wave.
+        const pulseShaper = audioContext.createWaveShaper();
+        pulseShaper.curve = pulseCurve;
+        pulseOsc.connect( pulseShaper );
+
+        // Use a GainNode as our new "width" audio parameter.
+        const widthGain = AudioHelper.createGainNode( audioContext );
+        widthGain.gain.value = 0; //Default width.
+        pulseOsc.width = widthGain.gain; //Add parameter to oscillator node.
+        widthGain.connect( pulseShaper );
+
+        // Pass a constant value of 1 into the widthGain – so the "width" setting
+        // is duplicated to its output.
+        const constantOneShaper = audioContext.createWaveShaper();
+        constantOneShaper.curve = constantOneCurve;
+        pulseOsc.connect( constantOneShaper );
+        constantOneShaper.connect( widthGain );
+
+        // Add a low frequency oscillator to modulate the pulse-width.
+        const lfo = audioContext.createOscillator();
+        const lfoDepth = AudioHelper.createGainNode( audioContext );
+        const filter = audioContext.createBiquadFilter();
+
+        lfo.type = 'triangle';
+        lfo.frequency.value = 10;
+
+        // Override the oscillator's "connect" and "disconnect" method so that the
+        // new node's output actually comes from the pulseShaper.
+        pulseOsc.connect = function() {
+            pulseShaper.connect.apply( pulseShaper, arguments );
+        };
+        pulseOsc.disconnect = function() {
+            // note all OscillatorNodes will automatically disconnect after stop()
+            pulseShaper.disconnect.apply( pulseShaper, arguments );
+            widthGain.disconnect();
+            constantOneShaper.disconnect();
+            lfoDepth.disconnect();
+            filter.disconnect();
+        };
+
+        // The pulse-width will start at 0.4 and finish at 0.1.
+        pulseOsc.width.value = 0.4; //The initial pulse-width.
+        pulseOsc.width.exponentialRampToValueAtTime( 0.1, endTime );
+
+        lfoDepth.gain.value = 0.1;
+        lfoDepth.gain.exponentialRampToValueAtTime( 0.05, startTime + 0.5 );
+        lfoDepth.gain.exponentialRampToValueAtTime( 0.15, endTime );
+        lfo.connect(lfoDepth);
+        lfoDepth.connect(pulseOsc.width);
+        lfo.start(startTime);
+        lfo.stop(endTime);
+
+        filter.type = 'lowpass';
+        filter.frequency.value = 16000;
+        filter.frequency.exponentialRampToValueAtTime( 440, endTime );
+        pulseOsc.connect( filter );
+        filter.connect( destination );
+
+        return pulseOsc;
+   },
     /**
      * On mobile (and an increasing number of desktop environments) all audio is muted
      * unless the engine has been initialized directly after a user interaction.
@@ -150,3 +286,4 @@ export default
         return !!features[feature];
     }
 };
+export default AudioHelper;

@@ -28,7 +28,7 @@
  *
  * @typedef {{
  *     steps: number,
- *     channels: Array.<Array.<AUDIO_EVENT>>
+ *     channels: Array<Array<AUDIO_EVENT>>
  * }}
  *
  * @see PatternFactory, PatternValidator

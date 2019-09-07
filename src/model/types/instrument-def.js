@@ -31,7 +31,7 @@
  *     id: number,
  *     name: string,
  *     presetName: string,
- *     oscillators: Array.<INSTRUMENT_OSCILLATOR>,
+ *     oscillators: Array<INSTRUMENT_OSCILLATOR>,
  *     volume: number,
  *     panning: number,
  *     overdrive: {
@@ -85,7 +85,7 @@ let INSTRUMENT;
  * @typedef {{
  *     enabled     : boolean,
  *     waveform    : string,
- *     table       : Array.<number>,
+ *     table       : Array<number>,
  *     volume      : number,
  *     detune      : number,
  *     octaveShift : number,

@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioFactory from './audio-factory';
+import AudioHelper  from '@/services/audio/audio-helper';
 import ModuleRouter from '@/services/audio/module-router';
 import Config       from '@/config';
 import Delay        from '@/services/audio/delay-module';
@@ -63,17 +63,17 @@ const ModuleFactory = {
         hBand.frequency.value = 360; // TODO make band range configurable?
         hBand.gain.value      = Config.MIN_EQ_GAIN;
 
-        const hInvert      = AudioFactory.createGainNode( audioContext );
+        const hInvert      = AudioHelper.createGainNode( audioContext );
         hInvert.gain.value = -1.0;
 
-        const mBand = AudioFactory.createGainNode( audioContext );
+        const mBand = AudioHelper.createGainNode( audioContext );
 
         const lBand           = audioContext.createBiquadFilter();
         lBand.type            = 'highshelf';
         lBand.frequency.value = 3600; // TODO make band range configurable?
         lBand.gain.value      = Config.MIN_EQ_GAIN;
 
-        const lInvert      = AudioFactory.createGainNode( audioContext );
+        const lInvert      = AudioHelper.createGainNode( audioContext );
         lInvert.gain.value = -1.0;
 
         hBand.connect( hInvert );
@@ -82,15 +82,15 @@ const ModuleFactory = {
         hInvert.connect( mBand );
         lInvert.connect( mBand );
 
-        const lGain = AudioFactory.createGainNode( audioContext );
-        const mGain = AudioFactory.createGainNode( audioContext );
-        const hGain = AudioFactory.createGainNode( audioContext );
+        const lGain = AudioHelper.createGainNode( audioContext );
+        const mGain = AudioHelper.createGainNode( audioContext );
+        const hGain = AudioHelper.createGainNode( audioContext );
 
         lBand.connect( lGain );
         mBand.connect( mGain );
         hBand.connect( hGain );
 
-        const sum = AudioFactory.createGainNode( audioContext );
+        const sum = AudioHelper.createGainNode( audioContext );
         lGain.connect( sum );
         mGain.connect( sum );
         hGain.connect( sum );
@@ -116,9 +116,9 @@ const ModuleFactory = {
     createFilter( audioContext ) {
         const filter = audioContext.createBiquadFilter();
         const lfo    = audioContext.createOscillator();
-        const lfoAmp = AudioFactory.createGainNode( audioContext );
+        const lfoAmp = AudioHelper.createGainNode( audioContext );
 
-        AudioFactory.startOscillation( lfo, audioContext.currentTime );
+        AudioHelper.startOscillation( lfo, audioContext.currentTime );
         lfoAmp.connect( filter.frequency );
 
         lfo.frequency.value = Config.DEFAULT_FILTER_LFO_SPEED;

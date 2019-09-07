@@ -27,7 +27,7 @@
  * describes a single voice for an event (an event is
  * a note being triggered for an instrument, however the
  * instrument can have multiple voices / oscillators)
- * which are bundled for a single event in an EVENT_OBJECT
+ * which are bundled for a single event in an EVENT_VOICE_LIST
  *
  * @typedef {{
  *              generator: OscillatorNode|AudioBufferSourceNode,
@@ -39,3 +39,10 @@
  *          }}
  */
 let EVENT_VOICE;
+
+/**
+ * all voices thay are playing back for a single instrument event
+ *
+ * @typedef {Array<EVENT_VOICE>}
+ */
+let EVENT_VOICE_LIST;

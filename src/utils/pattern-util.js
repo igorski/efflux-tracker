@@ -20,18 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import PatternFactory from '../model/factory/pattern-factory';
+import PatternFactory from '@/model/factory/pattern-factory';
 
 export default {
     /**
      * insert a pattern at the given index for the given pattern list
      *
-     * @public
-     * @param {Array.<PATTERN>} patterns list of patterns
+     * @param {Array<PATTERN>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
      * @param {number} amountOfSteps the amount of steps in the pattern to generate
      * @param {PATTERN=} pattern optional pattern to inject, otherwise empty pattern is created
-     * @return {Array.<PATTERN>} updated list
+     * @return {Array<PATTERN>} updated list
      */
     addPatternAtIndex( patterns, index, amountOfSteps, pattern ) {
         const front = patterns.slice( 0, index );
@@ -53,14 +52,12 @@ export default {
         });
         return front.concat( back );
     },
-
     /**
      * removes the pattern at given index from given list of patterns
      *
-     * @public
-     * @param {Array.<PATTERN>} patterns list of patterns
+     * @param {Array<PATTERN>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
-     * @return {Array.<PATTERN>} updated list
+     * @return {Array<PATTERN>} updated list
      */
     removePatternAtIndex( patterns, index ) {
         patterns.splice( index, 1 );

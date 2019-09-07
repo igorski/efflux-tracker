@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2018 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,8 +25,7 @@ const Pitch =
     /**
      * order of note names within a single octave
      *
-     * @public
-     * @type {Array.<string>}
+     * @type {Array<string>}
      */
     OCTAVE_SCALE : [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ],
 
@@ -34,14 +33,11 @@ const Pitch =
      * pitch table for all notes from C to B at octave 4
      * is used for calculating all pitches at other octaves
      *
-     * @public
-     * @type {Array.<number>}
+     * @type {Array<number>}
      */
     OCTAVE : [ 261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440, 466.164, 493.883 ],
 
     /**
-     * @public
-     *
      * @param {string} aNote - musical note to return ( A, B, C, D, E, F, G with
      *               possible enharmonic notes ( 'b' meaning 'flat', '#' meaning 'sharp' )
      *               NOTE: flats are CASE sensitive ( to prevent seeing the note 'B' instead of 'b' )
@@ -87,11 +83,8 @@ const Pitch =
             return freq;
         }
     },
-
     /**
      * takes a frequency in Hz and returns the pitch, octave and cents off the perfect center
-     *
-     * @public
      *
      * @param {number} frequency
      * @return {{
@@ -132,13 +125,10 @@ const Pitch =
         }
         return { "note" : theNote, "octave" : oct, "cents" : theCents };
     },
-
     /**
      * retrieves the index in the octave array for a given note
      * modifier enharmonic returns the previous ( for a 'flat' note )
      * or next ( for a 'sharp' note ) index
-     *
-     * @public
      *
      * @param {string} aNote ( A, B, C, D, E, F, G )
      * @param {number=} aEnharmonic optional, defaults to 0 ( 0, -1 for flat, 1 for sharp )
