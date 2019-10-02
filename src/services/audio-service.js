@@ -265,14 +265,14 @@ const AudioService =
 
                 AudioHelper.startOscillation(generatorNode, startTimeInSeconds);
 
-                voices.push( /** @type {EVENT_VOICE} */ ({
+                voices[oscillatorIndex] = /** @type {EVENT_VOICE} */ ({
                     generator: generatorNode,
                     vo: oscillatorVO,
                     frequency: frequency,
                     gain: oscillatorNode,
                     outputNode: adsrNode,
                     gliding: false
-                }));
+                });
             });
             instrumentEventsList[instrument.id][event.id] = voices;
         }
@@ -346,10 +346,10 @@ const AudioService =
         if (!/waveform|tuning|volume/.test(property))
             throw new Error(`cannot update unsupported oscillator property ${property}`);
 
-        const events = instrumentEventsList[instrumentIndex];
+        const events = Object.values(instrumentEventsList[instrumentIndex]);
         switch (property) {
             case 'waveform':
-                if ( oscillator.enabled   && oscillator.waveform === 'CUSTOM' ) {
+                if ( oscillator.enabled && oscillator.waveform === 'CUSTOM' ) {
                     InstrumentUtil.adjustEventWaveForms(events, oscillatorIndex,
                         createTableFromCustomGraph(instrumentIndex, oscillatorIndex, oscillator.table)
                     );
