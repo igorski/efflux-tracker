@@ -168,6 +168,16 @@ const AudioHelper =
         return audioContext.createStereoPanner();
     },
     /**
+     * Force given value onto given param, cancelling all scheduled values (e.g. hard "reset")
+     * @param {AudioParam} param
+     * @param {number} value
+     * @param {webkitAudioContext|AudioContext} audioContext
+     */
+    setValue(param, value, audioContext) {
+        param.cancelScheduledValues(audioContext.currentTime);
+        param.setValueAtTime(value, audioContext.currentTime);
+    },
+    /**
      * Create a Pulse Width Modulator
      * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
      *

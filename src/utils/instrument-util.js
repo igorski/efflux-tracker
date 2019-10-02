@@ -80,8 +80,9 @@ const InstrumentUtil =
                 return;
 
             if ( event.length > oscillatorIndex ) {
+                const voice = event[ oscillatorIndex ];
+                if (!voice) return;
 
-                const voice     = event[ oscillatorIndex ];
                 const generator = voice.generator;
 
                 if ( generator instanceof OscillatorNode )
@@ -107,6 +108,7 @@ const InstrumentUtil =
 
             if ( event.length > oscillatorIndex ) {
                 const voice = event[ oscillatorIndex ];
+                if (!voice) return;
                 voice.gain.gain.value = oscillator.volume;
             }
         });
@@ -124,10 +126,12 @@ const InstrumentUtil =
             return;
 
         events.forEach(event => {
-            if (!event)
-                return;
+            if (!event) return;
 
             if ( event.length > oscillatorIndex ) {
+                const voice = event[ oscillatorIndex ];
+                if (!voice) return;
+
                 const generator = event[oscillatorIndex].generator;
                 if (generator instanceof OscillatorNode )
                     generator.setPeriodicWave(table);

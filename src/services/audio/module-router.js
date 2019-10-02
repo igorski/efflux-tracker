@@ -163,11 +163,16 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 
     while ( i-- ) {
         event = instrumentEvents[ i ];
-        if ( !event ) continue;
-
+        if ( !event ) {
+            continue;
+        }
         j = event.length;
+
         while ( j-- ) {
-            voice  = event[ j ];
+            voice = event[ j ];
+            if ( !voice ) {
+                continue;
+            }
             scheduleParameterChange(
                 voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
             );

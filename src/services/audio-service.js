@@ -156,6 +156,7 @@ const AudioService =
         instrumentEventsList.forEach((eventList, instrumentId) => {
             Object.values(eventList).forEach(voiceList => {
                 voiceList.forEach((voice, oscillatorIndex) => {
+                    if (!voice) return;
                     returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
                     AudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
                 });
@@ -221,7 +222,8 @@ const AudioService =
                     generatorNode.buffer = pool.NOISE;
                     generatorNode.loop = true;
                     generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback(voice);
-                } else {
+                }
+                else {
                     // has oscillator source
                     if (oscillatorVO.waveform === 'PWM') {
                         // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
@@ -251,7 +253,8 @@ const AudioService =
 
                 // apply envelopes
 
-                oscillatorNode.gain.value = oscillatorVO.volume;
+                AudioHelper.setValue(oscillatorNode.gain, oscillatorVO.volume, audioContext);
+                AudioHelper.setValue(adsrNode.gain, 1, audioContext);
 
                 ADSR.applyAmpEnvelope  (oscillatorVO, adsrNode,      startTimeInSeconds);
                 ADSR.applyPitchEnvelope(oscillatorVO, generatorNode, startTimeInSeconds);
@@ -308,6 +311,8 @@ const AudioService =
         // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
         eventVoices.forEach((voice, oscillatorIndex) => {
+            if (!voice) return;
+
             // apply release envelopes
             ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
             ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
@@ -405,11 +410,12 @@ function createModules() {
         // max polyphony is 3 oscillators per channel
         for (let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j) {
             instrumentModules.voices[j] = [];
-            // the channel amount can equal the total amount of instrument
-            // as in Efflux, eachs instrument gets a channel strip in the tracker
-            // and each channel can override its target instrument
-            // (thus 24 simultaneous voices per instrument can be used)
-            for (let k = 0; k < Config.INSTRUMENT_AMOUNT; ++k) {
+            // the channel amount can equal the total amount of instruments as in Efflux, each instrument gets a
+            // channel strip in the tracker and each channel can override its target instrument (thus 24 simultaneous
+            // voices per instrument can be used) we then multiply this as creative usages (black midi??) can
+            // allow multiple channels to target the same voice at fast repeating (yet sustaining) intervals
+            const mult = 2;
+            for (let k = 0; k < Config.INSTRUMENT_AMOUNT * mult; ++k) {
                 const nodes = {
                     oscillatorNode: AudioHelper.createGainNode(audioContext),
                     adsrNode: AudioHelper.createGainNode(audioContext)
