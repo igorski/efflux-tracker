@@ -283,7 +283,7 @@ const AudioService =
                 event,
                 instrumentModulesList[instrument.id],
                 instrument,
-                instrumentEventsList[instrument.id],
+                Object.values(instrumentEventsList[instrument.id]),
                 startTimeInSeconds,
                 masterBus
             );
