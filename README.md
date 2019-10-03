@@ -1,5 +1,7 @@
 # efflux
 
+[![MadeWithVueJs.com shield](https://madewithvuejs.com/storage/repo-shields/1779-shield.svg)](https://madewithvuejs.com/p/efflux-music-tracker/shield-link)
+
 ## What is it ?
 
 Efflux is an application that allows users to create music inside their browser. Efflux is a tracker and
