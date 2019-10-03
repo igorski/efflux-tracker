@@ -24,6 +24,7 @@ import Vue             from 'vue';
 import Config          from '@/config';
 import LinkedList      from '@/utils/linked-list';
 import AudioService    from '@/services/audio-service';
+import WebAudioHelper  from '@/services/audio/webaudio-helper';
 import Metronome       from '@/services/audio/metronome';
 import SequencerWorker from '@/workers/sequencer.worker.js';
 
@@ -36,7 +37,7 @@ import SequencerWorker from '@/workers/sequencer.worker.js';
  * @param {AUDIO_EVENT} event
  * @param {number} eventChannel channel the event belongs to
  */
-function enqueueEvent(store, event, eventChannel ) {
+function enqueueEvent(store, event, eventChannel) {
     const { beatAmount, nextNoteTime, activePattern, channelQueue } = store.state.sequencer;
     const activeSong = store.state.song.activeSong;
 
@@ -66,6 +67,12 @@ function enqueueEvent(store, event, eventChannel ) {
         // all non-module parameter change events kill previously playing notes
         let playingNote = queue.head;
 
+        // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
+        if ( !playingNote && store.state.sequencer.looping ) {
+            dequeueEvent(event, nextNoteTime + event.seq.length); // or measure length minus event pos??
+            return;
+        }
+
         while (playingNote) {
             dequeueEvent(playingNote.data, nextNoteTime);
             playingNote.remove();
@@ -91,16 +98,19 @@ function enqueueEvent(store, event, eventChannel ) {
  * @param {number} time
  */
 function dequeueEvent(event, time) {
-    AudioService.noteOff(event, time);
-
     // unset the playing state of the event at the moment it is killed (though
     // it's release cycle is started, we can consider the event eligible for
     // a playback retrigger...
-    // TODO: for the time being we consider creating a timer wasteful and
-    // unset this state using the collect()-method as we already compare play ranges
-    //AudioHelper.createTimer(AudioService.getAudioContext(), time, () => {
-    //    event.seq.playing = false;
-    //});
+
+    // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
+    // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
+    // without using a timer in dequeueEvent(), but we suffer from stability issues
+    WebAudioHelper.createTimer( AudioService.getAudioContext(), time, () => {
+        event.seq.playing = false;
+        AudioService.noteOff(event);
+    });
+    // AudioService.noteOff(event, time);
+    // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
 }
 
 function collect(store) {
@@ -129,16 +139,22 @@ function collect(store) {
                     }
                     seq = event.seq;
 
-                    // event playback is triggered when its duration is within
-                    // the current sequencer position range
+                    if ( seq.playing ) continue; // so can playing events (efc58fc188d5b3e137f709c6cef3d0a04fff3f7c)
+
+                    // event playback is triggered when its duration is within the current sequencer position range
+
                     if ( compareTime >= seq.startMeasureOffset &&
                          compareTime < ( seq.startMeasureOffset + seq.length )) {
-                        // if event wasn't playing, trigger playback
-                        if (!seq.playing) enqueueEvent(store, event, i);
-                    } else {
-                        // event is outside of trigger range, unset its playback
-                        // state so it can be retriggered when in range
-                        seq.playing = false;
+                        enqueueEvent( store, event, i );
+
+                        // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
+                        // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
+                        // without using a timer in dequeueEvent(), but we suffer from stability issues
+                        //} else {
+                        //    // event is outside of trigger range, unset its playback
+                        //    // state so it can be retriggered when in range
+                        //    seq.playing = false;
+                        // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
                     }
                 }
             }

@@ -155,7 +155,7 @@ const AudioService =
      */
     reset() {
         instrumentEventsList.forEach((eventList, instrumentId) => {
-            processVoices(eventList, (voice, oscillatorIndex) => {
+            processVoices(Object.values(eventList), (voice, oscillatorIndex) => {
                 returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
                 WebAudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
             });
