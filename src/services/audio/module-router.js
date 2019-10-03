@@ -20,8 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config from '@/config';
-import { rangeToIndex } from '@/utils/array-util';
+import Config            from '@/config';
+import { rangeToIndex }  from '@/utils/array-util';
+import { processVoices } from './audio-util';
 
 const filterTypes = ['off', 'sine', 'square', 'sawtooth', 'triangle'];
 
@@ -158,26 +159,11 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
           durationInSeconds = audioEvent.seq.mpLength,
           target = ( mp.value / 100 );
 
-    let i, j, event, voice;
-    i = instrumentEvents.length;
-
-    while ( i-- ) {
-        event = instrumentEvents[ i ];
-        if ( !event ) {
-            continue;
-        }
-        j = event.length;
-
-        while ( j-- ) {
-            voice = event[ j ];
-            if ( !voice ) {
-                continue;
-            }
-            scheduleParameterChange(
-                voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-            );
-        }
-    }
+    processVoices(instrumentEvents, voice => {
+        scheduleParameterChange(
+            voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+        );
+    });
 }
 
 function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
@@ -185,45 +171,31 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
         durationInSeconds = audioEvent.seq.mpLength,
         goingUp = ( mp.module === 'pitchUp' );
 
-    let i, j, event, voice, generator, tmp, target;
-    i = instrumentEvents.length;
+    let generator, tmp, target;
 
-    while ( i-- ) {
-        event = instrumentEvents[ i ];
-        if ( !event ) {
-            continue;
+    processVoices(instrumentEvents, voice => {
+        generator = voice.generator;
+        if ( generator instanceof OscillatorNode ) {
+            tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
+            target = ( tmp * ( mp.value / 100 ));
+
+            if ( goingUp )
+                target += voice.frequency;
+            else
+                target = voice.frequency - ( target / 2 );
+
+            scheduleParameterChange(
+                generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+            );
         }
-        j = event.length;
-
-        while ( j-- ) {
-            voice = event[ j ];
-            if ( !voice ) {
-                continue;
-            }
-            generator = voice.generator;
-
-            if ( generator instanceof OscillatorNode ) {
-                tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
-                target = ( tmp * ( mp.value / 100 ));
-
-                if ( goingUp )
-                    target += voice.frequency;
-                else
-                    target = voice.frequency - ( target / 2 );
-
-                scheduleParameterChange(
-                    generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-                );
-            }
-            else if ( generator instanceof AudioBufferSourceNode ) {
-                tmp    = ( mp.value / 100 );
-                target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
-                scheduleParameterChange(
-                    generator.playbackRate, target, startTimeInSeconds, durationInSeconds, doGlide, voice
-                );
-            }
+        else if ( generator instanceof AudioBufferSourceNode ) {
+            tmp    = ( mp.value / 100 );
+            target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
+            scheduleParameterChange(
+                generator.playbackRate, target, startTimeInSeconds, durationInSeconds, doGlide, voice
+            );
         }
-    }
+    });
 }
 
 function applyPanning( audioEvent, modules, startTimeInSeconds ) {

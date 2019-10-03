@@ -188,7 +188,7 @@
 <script>
 import { mapMutations } from 'vuex';
 import AudioService from '@/services/audio-service';
-import AudioHelper from '@/services/audio/audio-helper';
+import WebAudioHelper from '@/services/audio/webaudio-helper';
 import messages from './messages.json';
 
 export default {
@@ -318,7 +318,7 @@ export default {
         },
     },
     created() {
-        this.supportsPanning = AudioHelper.supports('panning');
+        this.supportsPanning = WebAudioHelper.supports('panning');
     },
     methods: {
         ...mapMutations([

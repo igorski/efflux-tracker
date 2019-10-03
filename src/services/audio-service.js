@@ -20,16 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue            from 'vue';
-import Config         from '@/config';
-import ModuleFactory  from '@/model/factory/module-factory';
-import InstrumentUtil from '@/utils/instrument-util';
-import AudioHelper    from './audio/audio-helper';
-import OutputRecorder from './audio/output-recorder';
-import ModuleRouter   from './audio/module-router';
-import Pitch          from './audio/pitch';
-import WaveTables     from './audio/wave-tables';
-import ADSR           from './audio/adsr-module';
+import Vue               from 'vue';
+import Config            from '@/config';
+import ModuleFactory     from '@/model/factory/module-factory';
+import InstrumentUtil    from '@/utils/instrument-util';
+import WebAudioHelper    from './audio/webaudio-helper';
+import OutputRecorder    from './audio/output-recorder';
+import ModuleRouter      from './audio/module-router';
+import Pitch             from './audio/pitch';
+import WaveTables        from './audio/wave-tables';
+import ADSR              from './audio/adsr-module';
+import { processVoices } from './audio/audio-util';
 
 /* private properties */
 
@@ -79,7 +80,7 @@ const AudioService =
         // NOTE: the audioContext is generated asynchronously after a user interaction
         // (e.g. click/touch/keydown anywhere in the document) as browsers otherwise prevent audio playback
 
-        audioContext = await AudioHelper.init();
+        audioContext = await WebAudioHelper.init();
         setupRouting();
 
         // initialize the WaveTable / AudioBuffer pool
@@ -154,12 +155,9 @@ const AudioService =
      */
     reset() {
         instrumentEventsList.forEach((eventList, instrumentId) => {
-            Object.values(eventList).forEach(voiceList => {
-                voiceList.forEach((voice, oscillatorIndex) => {
-                    if (!voice) return;
-                    returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
-                    AudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
-                });
+            processVoices(eventList, (voice, oscillatorIndex) => {
+                returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
+                WebAudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
             });
             instrumentEventsList[instrumentId] = {};
         });
@@ -227,7 +225,7 @@ const AudioService =
                     // has oscillator source
                     if (oscillatorVO.waveform === 'PWM') {
                         // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
-                        generatorNode = AudioHelper.createPWM(
+                        generatorNode = WebAudioHelper.createPWM(
                             audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
                         );
                     }
@@ -253,8 +251,8 @@ const AudioService =
 
                 // apply envelopes
 
-                AudioHelper.setValue(oscillatorNode.gain, oscillatorVO.volume, audioContext);
-                AudioHelper.setValue(adsrNode.gain, 1, audioContext);
+                WebAudioHelper.setValue(oscillatorNode.gain, oscillatorVO.volume, audioContext);
+                WebAudioHelper.setValue(adsrNode.gain, 1, audioContext);
 
                 ADSR.applyAmpEnvelope  (oscillatorVO, adsrNode,      startTimeInSeconds);
                 ADSR.applyPitchEnvelope(oscillatorVO, generatorNode, startTimeInSeconds);
@@ -266,7 +264,7 @@ const AudioService =
 
                 // start playback
 
-                AudioHelper.startOscillation(generatorNode, startTimeInSeconds);
+                WebAudioHelper.startOscillation(generatorNode, startTimeInSeconds);
 
                 voices[oscillatorIndex] = /** @type {EVENT_VOICE} */ ({
                     generator: generatorNode,
@@ -306,19 +304,19 @@ const AudioService =
         const eventId     = event.id, instrumentId = event.instrument;
         const eventVoices = instrumentEventsList[instrumentId][eventId];
 
-        if (!eventVoices) return;
+        if ( !eventVoices ) return;
 
         // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
         eventVoices.forEach((voice, oscillatorIndex) => {
-            if (!voice) return;
+            if ( !voice ) return;
 
             // apply release envelopes
             ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
             ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
 
             returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
-            AudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
+            WebAudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
         });
         delete instrumentEventsList[instrumentId][eventId];
     },
@@ -383,7 +381,7 @@ export default AudioService;
 /* internal methods */
 
 function setupRouting() {
-    masterBus  = AudioHelper.createGainNode(audioContext);
+    masterBus  = WebAudioHelper.createGainNode(audioContext);
     eq         = audioContext.createBiquadFilter();
     eq.type    = 'highpass';
     eq.frequency.value = 30; // remove sub-30 Hz rumbling
@@ -399,13 +397,13 @@ function createModules() {
 
     for (let i = 0; i < instrumentModulesList.length; ++i ) {
         const instrumentModules = instrumentModulesList[i] = {
-            panner    : AudioHelper.createStereoPanner(audioContext),
+            panner    : WebAudioHelper.createStereoPanner(audioContext),
             overdrive : ModuleFactory.createOverdrive(audioContext),
             eq        : ModuleFactory.createEQ(audioContext),
             filter    : ModuleFactory.createFilter(audioContext),
             delay     : ModuleFactory.createDelay(audioContext),
             voices    : new Array(Config.OSCILLATOR_AMOUNT),
-            output    : AudioHelper.createGainNode(audioContext)
+            output    : WebAudioHelper.createGainNode(audioContext)
         };
         // max polyphony is 3 oscillators per channel
         for (let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j) {
@@ -417,8 +415,8 @@ function createModules() {
             const mult = 2;
             for (let k = 0; k < Config.INSTRUMENT_AMOUNT * mult; ++k) {
                 const nodes = {
-                    oscillatorNode: AudioHelper.createGainNode(audioContext),
-                    adsrNode: AudioHelper.createGainNode(audioContext)
+                    oscillatorNode: WebAudioHelper.createGainNode(audioContext),
+                    adsrNode: WebAudioHelper.createGainNode(audioContext)
                 };
                 nodes.oscillatorNode.connect(nodes.adsrNode);
                 nodes.adsrNode.connect(instrumentModules.output);
@@ -461,7 +459,7 @@ function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex,
  * @return {PeriodicWave} the created WaveTable
  */
 function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
-    return pool.CUSTOM[instrumentIndex][oscillatorIndex] = AudioHelper.createWaveTableFromGraph( audioContext, table );
+    return pool.CUSTOM[instrumentIndex][oscillatorIndex] = WebAudioHelper.createWaveTableFromGraph( audioContext, table );
 }
 
 function handleRecordingComplete(blob) {

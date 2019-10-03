@@ -108,13 +108,14 @@
 
 <script>
 import { mapState, mapMutations } from 'vuex';
-import FormListItem from '../forms/form-list-item';
-import EventFactory from '@/model/factory/event-factory';
-import KeyboardService from '@/services/keyboard-service';
+
+import EventFactory       from '@/model/factory/event-factory';
+import KeyboardService    from '@/services/keyboard-service';
 import ModuleParamHandler from '@/services/keyboard/module-param-handler';
-import ManualURLs from '@/definitions/manual-urls';
-import AudioHelper from '@/services/audio/audio-helper';
-import messages from './messages.json';
+import ManualURLs         from '@/definitions/manual-urls';
+import WebAudioHelper     from '@/services/audio/webaudio-helper';
+import FormListItem       from '../forms/form-list-item';
+import messages           from './messages.json';
 
 const DEFAULT_MODULE = 'volume';
 let lastValueTypeAction = 0, lastValueChar = 0;
@@ -166,7 +167,7 @@ export default {
         KeyboardService.setBlockDefaults(false);
         KeyboardService.setListener(this.handleKey);
 
-        this.supportsPanning = AudioHelper.supports('panning');
+        this.supportsPanning = WebAudioHelper.supports('panning');
     },
     beforeDestroy() {
         KeyboardService.reset();
