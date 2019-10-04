@@ -156,7 +156,7 @@ const AudioService =
     reset() {
         instrumentEventsList.forEach((eventList, instrumentId) => {
             processVoices(Object.values(eventList), (voice, oscillatorIndex) => {
-                returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
+                returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId);
                 WebAudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
             });
             instrumentEventsList[instrumentId] = {};
@@ -315,10 +315,9 @@ const AudioService =
             ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
             ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
 
-            returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice);
+            returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId, eventId);
             WebAudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
         });
-        delete instrumentEventsList[instrumentId][eventId];
     },
     /**
      * apply the module settings described in the currently active
@@ -435,11 +434,19 @@ function retrieveAvailableVoiceNodesFromPool(instrumentModules, oscillatorIndex)
     return null;
 }
 
-function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex, voice) {
+function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex, voice, instrumentId, eventId = null) {
     voice.generator.onended = () => {
         // OscillatorNodes will automatically disconnect() after stopping
         // except for PWM which has a custom implementation
         voice.generator.disconnect();
+
+        // delete the associated event from the playback list
+        // we delay this until the voices have actually halted playback
+        // as otherwise the voices aren't always returned to the pool on Safari/iOS
+
+        if (eventId !== null) {
+            delete instrumentEventsList[instrumentId][eventId];
+        }
 
         // return the gain nodes for the instrument voice back to the pool
         instrumentModules.voices[oscillatorIndex].push({
