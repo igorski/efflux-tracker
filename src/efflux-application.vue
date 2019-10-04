@@ -214,6 +214,7 @@ export default {
             this.createLinkedList(song);
             this.setActivePattern(0);
             this.setPlaying(false);
+            this.setLooping(false);
             this.clearSelection();
 
             if (!song.meta.title)
@@ -289,6 +290,7 @@ export default {
             'setActivePattern',
             'setAmountOfSteps',
             'setPlaying',
+            'setLooping',
             'setWindowSize',
             'setWindowScrollOffset',
             'setBlindActive',

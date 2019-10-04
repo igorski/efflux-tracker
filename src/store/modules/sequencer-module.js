@@ -69,12 +69,12 @@ function enqueueEvent(store, event, eventChannel) {
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
         if ( !playingNote && store.state.sequencer.looping ) {
-            dequeueEvent(event, nextNoteTime + event.seq.length); // or measure length minus event pos??
+            dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.length); // or measure length minus event pos??
             return;
         }
 
         while (playingNote) {
-            dequeueEvent(playingNote.data, nextNoteTime);
+            dequeueEvent(store.state.sequencer, playingNote.data, nextNoteTime);
             playingNote.remove();
             playingNote = queue.head;
         }
@@ -88,16 +88,17 @@ function enqueueEvent(store, event, eventChannel) {
     if (isNoteOn)
         queue.add(event);
     else
-        dequeueEvent(event, nextNoteTime + event.seq.mpLength);
+        dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.mpLength);
 }
 
 /**
  * dequeue event for stopping its playback by the AudioService
  *
+ * @param {Object} state sequencer Vuex module state
  * @param {AUDIO_EVENT} event
  * @param {number} time
  */
-function dequeueEvent(event, time) {
+function dequeueEvent(state, event, time) {
     // unset the playing state of the event at the moment it is killed (though
     // it's release cycle is started, we can consider the event eligible for
     // a playback retrigger...
@@ -105,12 +106,32 @@ function dequeueEvent(event, time) {
     // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
     // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
     // without using a timer in dequeueEvent(), but we suffer from stability issues
-    WebAudioHelper.createTimer( AudioService.getAudioContext(), time, () => {
+    const clock = WebAudioHelper.createTimer(AudioService.getAudioContext(), time, () => {
         event.seq.playing = false;
         AudioService.noteOff(event);
+        freeHandler(state, clock); // clear reference to this timed event
     });
+
+    // store reference to prevent garbage collection prior to callback execution, this
+    // seems unnecessary but is actually necessary to guarantee stability under Safari (!)
+    state.queueHandlers.push(clock);
     // AudioService.noteOff(event, time);
     // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
+}
+
+/**
+ * free reference to given "clock" (makes it eligible for garbage collection)
+ *
+ * @param {Object} state sequencer Vuex module state
+ * @param {OscillatorNode} node
+ */
+function freeHandler(state, node) {
+    node.disconnect();
+    node.onended = null;
+
+    const i = state.queueHandlers.indexOf(node);
+    if ( i !== -1 )
+        state.queueHandlers.splice(i, 1);
 }
 
 function collect(store) {
@@ -232,6 +253,7 @@ export default {
         stepPrecision         : 64,
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
         beatUnit              : 4,
+        queueHandlers         : [],
         channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
         activePattern         : 0,
         measureStartTime      : 0,
@@ -274,9 +296,11 @@ export default {
                     interval: ( state.scheduleAheadTime * 1000 ) / 4
                 });
             } else {
-                state.worker.postMessage({ cmd: 'stop' });
-                for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
-                    state.channelQueue[i].flush();
+                state.worker.postMessage({ 'cmd' : 'stop' });
+                while (state.queueHandlers.length) {
+                    freeHandler(state, state.queueHandlers[0]);
+                }
+                state.channelQueue.forEach(list => list.flush());
             }
         },
         setLooping(state, isLooping) {
@@ -331,7 +355,7 @@ export default {
         /**
          * set the sequencers position to given target pattern and optional offset defined by currentTime
          *
-         * @param {Object} state
+         * @param {Object} state sequencer Vuex store module
          * @param {Object} activeSong
          * @param {number} pattern
          * @param {number=} currentTime optional time to sync given pattern to
@@ -360,7 +384,7 @@ export default {
                 state.channelQueue.forEach(list => {
                     let playingNote = list.head;
                     while (playingNote) {
-                        dequeueEvent(playingNote.data, currentTime);
+                        dequeueEvent(state, playingNote.data, currentTime);
                         playingNote.data.seq.playing = false;
                         playingNote.remove();
                         playingNote = list.head;
@@ -392,3 +416,4 @@ export default {
         }
     }
 };
+
