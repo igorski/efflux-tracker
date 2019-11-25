@@ -29,51 +29,53 @@ import InstrumentFactory from '../model/factory/instrument-factory';
 const ASSEMBLER_VERSION = 3;
 
 /**
+ * assembles a song Object from an .XTK file
+ *
+ * @param {Object|string} xtk
+ * @return {Object}
+ */
+export const assemble = xtk => {
+    try {
+        xtk = ( typeof xtk === 'string' ) ? JSON.parse( xtk ) : xtk;
+
+        const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
+
+        // first check if XTK had been saved after having been disassembled
+
+        if ( typeof xtkVersion === 'number' ) {
+
+            const song = {};
+
+            song.id      = xtk[ SONG_ID ];
+            song.version = xtk[ SONG_VERSION_ID ];
+
+            assembleMeta       ( song, xtkVersion, xtk[ META_OBJECT ] );
+            assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
+            assemblePatterns   ( song, xtkVersion, xtk[ PATTERNS ], song.meta.tempo );
+
+            // perform transformation on legacy songs
+            SongValidator.transformLegacy( song );
+
+            return song;
+        }
+        else {
+            // no assembly present on the XTK, assume legacy Song (is Object)
+            return xtk;
+        }
+    }
+    catch ( e ) {
+        return null;
+    }
+};
+
+/**
  * SongAssembly is used to convert a Song Object into an .XTK representation
  * for file storage. While an .XTK is still a JSON Object, some properties are omitted / renamed
  * to limit filesize
  */
 export default
 {
-    /**
-     * assembles a song Object from an .XTK file
-     *
-     * @param {string} xtk
-     * @return {Object}
-     */
-    assemble( xtk ) {
-        try {
-            xtk = ( typeof xtk === 'string' ) ? JSON.parse( xtk ) : xtk;
-
-            const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
-
-            // first check if XTK had been saved after having been disassembled
-
-            if ( typeof xtkVersion === 'number' ) {
-
-                const song = {};
-
-                song.id      = xtk[ SONG_ID ];
-                song.version = xtk[ SONG_VERSION_ID ];
-
-                assembleMeta       ( song, xtkVersion, xtk[ META_OBJECT ] );
-                assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
-                assemblePatterns   ( song, xtkVersion, xtk[ PATTERNS ], song.meta.tempo );
-
-                // perform transformation on legacy songs
-                SongValidator.transformLegacy( song );
-
-                return song;
-            }
-            else {
-                // no assembly present on the XTK, assume legacy Song (is Object)
-                return xtk;
-            }
-        }
-        catch ( e ) {
-            return null;
-        }
-    },
+    assemble,
     /**
      * disassembles a song Object into an .XTK file
      *

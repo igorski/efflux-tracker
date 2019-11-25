@@ -17,6 +17,7 @@ modular synthesis environment, where the synths are driven by the tracker.
 * Save songs locally to continue working on them later or export / import them between devices
 * Save your favourite instrument presets to be reused
 * Attach a MIDI controller and record them live during playback (Google Chrome only)
+* Use the [Tiny Player](https://github.com/igorski/efflux-tracker/wiki/Embedding-the-tiny-player) to play back Efflux songs embedded in your website or in demos.
 
 ### Sounds cool, but I don't want to build from source, I just want to tinker with this!!
 
@@ -107,20 +108,6 @@ _./services/audio/_-folder.
 When in doubt of how the audio output relates to the visual interface, remember that the Vuex song model defines _what it
 should sound like_ (as in: defines the properties of the instruments) while the AudioService takes care of the actual
 sound rendering, outside of Vue.
-
-### Tiny player
-
-Along with the full application, there is also a Tiny player available which is a simple JavaScript API (headless / without
-UI) that is able to play back .XTK files. See _./src/efflux-tiny-player.js_. You can build the player using:
-
-```
-npm run tiny
-```
-
-which will create the output file under _./dist/tiny.js_. Inclusion of this file within your page will expose the
-Object _eTiny_ which has a _play()_-method. Pass in an .XTK Object to this method to play.
-
-Note: Tiny player is currently under development.
 
 ### Wiki
 
