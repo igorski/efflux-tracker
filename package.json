@@ -8,6 +8,7 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "tiny": "webpack --config ./webpack.config.tiny.js",
     "lint": "vue-cli-service lint",
     "test": "vue-cli-service test:unit"
   },
@@ -39,6 +40,7 @@
     "vue-i18n": "^8.14.0",
     "vue-template-compiler": "^2.5.21",
     "wa-overdrive": "^0.0.3",
+    "webpack-cli": "^3.3.10",
     "worker-loader": "^2.0.0",
     "zcanvas": "^3.0.7",
     "zjslib": "^0.1.4",

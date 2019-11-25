@@ -108,6 +108,20 @@ When in doubt of how the audio output relates to the visual interface, remember 
 should sound like_ (as in: defines the properties of the instruments) while the AudioService takes care of the actual
 sound rendering, outside of Vue.
 
+### Tiny player
+
+Along with the full application, there is also a Tiny player available which is a simple JavaScript API (headless / without
+UI) that is able to play back .XTK files. See _./src/efflux-tiny-player.js_. You can build the player using:
+
+```
+npm run tiny
+```
+
+which will create the output file under _./dist/tiny.js_. Inclusion of this file within your page will expose the
+Object _eTiny_ which has a _play()_-method. Pass in an .XTK Object to this method to play.
+
+Note: Tiny player is currently under development.
+
 ### Wiki
 
 For more in-depth topics, you can consult the [Wiki on GitHub](https://github.com/igorski/efflux-tracker/wiki).
