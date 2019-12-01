@@ -53,9 +53,100 @@ let instrumentModulesList;
  */
 let instrumentEventsList = [];
 
+/**
+ * Prepares the environment to create pools for oscillators, wave
+ * tables and instruments.
+ *
+ * @param {AudioContext} audioContextInstance
+ */
+export const prepareEnvironment = audioContextInstance => {
+    audioContext = audioContextInstance;
+    setupRouting();
+
+    // initialize the WaveTable / AudioBuffer pool
+
+    pool = {
+        NOISE : audioContext.createBuffer(1, audioContext.sampleRate / 10, audioContext.sampleRate),
+        CUSTOM: [] // content created and maintained by "cacheCustomTables()"
+    };
+
+    const noiseChannel = pool.NOISE.getChannelData( 0 );
+    for ( let i = 0, l = noiseChannel.length; i < l; ++i )
+      noiseChannel[ i ] = Math.random() * 2 - 1;
+
+    // create periodic waves from the entries in the WaveTables definitions file
+
+    Object.keys(WaveTables).forEach(waveIdentifier => {
+        pool[waveIdentifier] = audioContext.createPeriodicWave(
+            new Float32Array(WaveTables[waveIdentifier].real),
+            new Float32Array(WaveTables[waveIdentifier].imag)
+        );
+    });
+    instrumentEventsList = new Array(Config.INSTRUMENT_AMOUNT);
+    for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i) {
+        instrumentEventsList[i] = {};
+    }
+    createModules();
+    AudioService.initialized = true;
+};
+
+/**
+ * halts all playing audio, flushes events and
+ * resets unique event id counter
+ */
+export const reset = () => {
+    instrumentEventsList.forEach((eventList, instrumentId) => {
+        processVoices(Object.values(eventList), (voice, oscillatorIndex) => {
+            returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId);
+            WebAudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
+        });
+        instrumentEventsList[instrumentId] = {};
+    });
+    UNIQUE_EVENT_ID = 0;
+};
+
+/**
+ * cache the custom WaveTables that are available to the instruments
+ *
+ * @param {Array<INSTRUMENT>} instruments
+ */
+export const cacheCustomTables = instruments => {
+    instruments.forEach((instrument, instrumentIndex) => {
+        pool.CUSTOM[instrumentIndex] = new Array(instrument.oscillators.length);
+        instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
+            if (oscillator.table) {
+                pool.CUSTOM[instrumentIndex][oscillatorIndex] = createTableFromCustomGraph(
+                 instrumentIndex, oscillatorIndex, oscillator.table
+                );
+            }
+        });
+    });
+};
+
+/**
+ * apply the module settings described in the currently active
+ * songs model onto the audio processing chain
+ */
+export const applyModules = song => {
+    song.instruments.forEach((instrument, instrumentIndex) => {
+        const instrumentModules = instrumentModulesList[instrumentIndex];
+        instrumentModules.output.gain.value = instrument.volume;
+        if (instrumentModules.panner && typeof instrument.panning === 'number') {
+            instrumentModules.panner.pan.value = instrument.panning;
+        }
+        ModuleFactory.applyConfiguration('filter', instrumentModules, instrument.filter, masterBus);
+        ModuleFactory.applyConfiguration('delay', instrumentModules, instrument.delay, masterBus);
+        ModuleFactory.applyConfiguration('eq', instrumentModules, instrument.eq, masterBus);
+        ModuleFactory.applyConfiguration('overdrive', instrumentModules, instrument.overdrive, masterBus);
+    });
+};
+
 const AudioService =
 {
     initialized: false,
+    reset,
+    cacheCustomTables,
+    applyModules,
 
     /**
      * query whether we can actually use the WebAudio API in
@@ -81,34 +172,9 @@ const AudioService =
         // (e.g. click/touch/keydown anywhere in the document) as browsers otherwise prevent audio playback
 
         audioContext = await WebAudioHelper.init();
-        setupRouting();
+        prepareEnvironment( audioContext );
 
-        // initialize the WaveTable / AudioBuffer pool
-
-        pool = {
-            NOISE : audioContext.createBuffer(1, audioContext.sampleRate / 10, audioContext.sampleRate),
-            CUSTOM: [] // content created and maintained by "cacheCustomTables()"
-        };
-
-        const noiseChannel = pool.NOISE.getChannelData( 0 );
-        for ( let i = 0, l = noiseChannel.length; i < l; ++i )
-          noiseChannel[ i ] = Math.random() * 2 - 1;
-
-        // create periodic waves from the entries in the WaveTables definitions file
-
-        Object.keys(WaveTables).forEach(waveIdentifier => {
-            pool[waveIdentifier] = audioContext.createPeriodicWave(
-                new Float32Array(WaveTables[waveIdentifier].real),
-                new Float32Array(WaveTables[waveIdentifier].imag)
-            );
-        });
-        instrumentEventsList = new Array(Config.INSTRUMENT_AMOUNT);
-        for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i) {
-            instrumentEventsList[i] = {};
-        }
-        createModules();
         AudioService.cacheCustomTables(state.song.activeSong.instruments);
-        AudioService.initialized = true;
     },
     /**
      * retrieve a reference to the applications AudioContext
@@ -117,23 +183,6 @@ const AudioService =
      */
     getAudioContext() {
         return audioContext;
-    },
-    /**
-     * cache the custom WaveTables that are available to the instruments
-     *
-     * @param {Array<INSTRUMENT>} instruments
-     */
-    cacheCustomTables(instruments) {
-        instruments.forEach((instrument, instrumentIndex) => {
-            pool.CUSTOM[instrumentIndex] = new Array(instrument.oscillators.length);
-            instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
-                if (oscillator.table) {
-                    pool.CUSTOM[instrumentIndex][oscillatorIndex] = createTableFromCustomGraph(
-                     instrumentIndex, oscillatorIndex, oscillator.table
-                    );
-                }
-            });
-        });
     },
     togglePlayback(isPlaying) {
         playing = isPlaying;
@@ -148,20 +197,6 @@ const AudioService =
                 recorder.exportWAV();
             }
         }
-    },
-    /**
-     * halts all playing audio, flushes events and
-     * resets unique event id counter
-     */
-    reset() {
-        instrumentEventsList.forEach((eventList, instrumentId) => {
-            processVoices(Object.values(eventList), (voice, oscillatorIndex) => {
-                returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId);
-                WebAudioHelper.stopOscillation(voice.generator, audioContext.currentTime);
-            });
-            instrumentEventsList[instrumentId] = {};
-        });
-        UNIQUE_EVENT_ID = 0;
     },
     toggleRecordingState() {
         recordOutput = !recordOutput;
@@ -317,23 +352,6 @@ const AudioService =
 
             returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId, eventId);
             WebAudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
-        });
-    },
-    /**
-     * apply the module settings described in the currently active
-     * songs model onto the audio processing chain
-     */
-    applyModules(song) {
-        song.instruments.forEach((instrument, instrumentIndex) => {
-            const instrumentModules = instrumentModulesList[instrumentIndex];
-            instrumentModules.output.gain.value = instrument.volume;
-            if (instrumentModules.panner) {
-                instrumentModules.panner.pan.value = instrument.panning;
-            }
-            ModuleFactory.applyConfiguration('filter', instrumentModules, instrument.filter, masterBus);
-            ModuleFactory.applyConfiguration('delay', instrumentModules, instrument.delay, masterBus);
-            ModuleFactory.applyConfiguration('eq', instrumentModules, instrument.eq, masterBus);
-            ModuleFactory.applyConfiguration('overdrive', instrumentModules, instrument.overdrive, masterBus);
         });
     },
     applyModule(type, instrumentIndex, props) {

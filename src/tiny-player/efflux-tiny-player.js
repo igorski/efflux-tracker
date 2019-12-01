@@ -6,15 +6,37 @@
  * main application to maximize compatibility and keeping up-to-date with
  * changes. The TinyPlayer however does not use Vue nor its reactivity.
  */
-import { assemble } from '@/services/song-assembly-service';
-import { sequencerModule } from '@/store/modules/sequencer-module';
+// non CommonJS/ES6 module, provides "DFT" on window, see audio-helper
+// TODO: this adds a whopping 62K to the bundle...
+import dspjs from 'script-loader!dspjs';
 
-// short hands, note these variables names can be as long/descriptive as
+// destructure imports from Efflux source to include what we need
+// TODO
+// AudioService includes RecorderWorker, we don't need it
+// default WaveTables add considerable size to the bundle, can
+// we enjoy better compression on these?
+// E.O. TODO
+import { assemble } from '@/services/song-assembly-service';
+import { prepareEnvironment, reset, cacheCustomTables, applyModules } from '@/services/audio-service';
+import sequencerModule from '@/store/modules/sequencer-module';
+
+// short hands, note these variable names can be as long/descriptive as
 // you want, inline variables will compress to single digits on build
 const WINDOW = window, TRUE = !!1, FALSE = !!0;
 
 // environment variables
-let audioContext;
+let audioContext, song;
+const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
+
+const noop = () => {};
+
+// mock Vuex root store
+const rootStore = {
+    state: { sequencer: state, song: {} },
+    commit(mutationType, value) {
+        mutations[mutationType](state, value);
+    }
+};
 
 // logging
 const { console } = WINDOW;
@@ -32,25 +54,31 @@ export default {
      */
     l: xtkObject => {
         try {
-            // 1. create AudioContxt, this will throw into catch block when unsupported
-            audioContext = new (WINDOW.AudioContext || WINDOW.webkitAudioContext)();
+            // 1. create AudioContext, this will throw into catch block when unsupported
+            if (!audioContext) {
+                audioContext = new (WINDOW.AudioContext || WINDOW.webkitAudioContext)();
+                prepareEnvironment(audioContext);
+                actions.prepareSequencer({ state }, rootStore);
+            }
 
             // 2. parse .XTK into a Song Object
-            const song = assemble(xtkObject);
+            song = assemble(xtkObject);
             if (!song) {
                 log('error', 'INVALID SONG');
                 return FALSE;
             }
 
             // 3. all is well, set up environment
-            // TODO: translate these from main app into Tiny Player
 
-            // AudioService.reset();
-            // AudioService.cacheCustomTables(song.instruments);
-            // AudioService.applyModules(song);
+            rootStore.state.song.activeSong = song;
 
-            // createLinkedList(song);
-            // setActivePattern(0);
+            reset();
+            cacheCustomTables(song.instruments);
+            applyModules(song);
+
+            // createLinkedList(song); // wait, these lists are editor only? (e.g. unused by sequencer?)
+
+            mutations.setActivePattern(state, 0);
 
             return TRUE;
 
@@ -58,5 +86,17 @@ export default {
             log('error', 'LOAD ERROR', e);
             return FALSE;
         }
+    },
+    /**
+     * Play loaded song
+     */
+    p: () => {
+        mutations.setPlaying(state, TRUE);
+    },
+    /**
+     * Stop playing song
+     */
+    s: () => {
+        mutations.setPlaying(state, FALSE);
     }
 };
