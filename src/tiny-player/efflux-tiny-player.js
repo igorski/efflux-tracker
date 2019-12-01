@@ -6,10 +6,6 @@
  * main application to maximize compatibility and keeping up-to-date with
  * changes. The TinyPlayer however does not use Vue nor its reactivity.
  */
-// non CommonJS/ES6 module, provides "DFT" on window, see audio-helper
-// TODO: this adds a whopping 62K to the bundle...
-import dspjs from 'script-loader!dspjs';
-
 // destructure imports from Efflux source to include what we need
 // TODO
 // AudioService includes RecorderWorker, we don't need it
@@ -27,8 +23,6 @@ const WINDOW = window, TRUE = !!1, FALSE = !!0;
 // environment variables
 let audioContext, song;
 const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
-
-const noop = () => {};
 
 // mock Vuex root store
 const rootStore = {

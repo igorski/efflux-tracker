@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { DFT } from './dft';
+
  // we assume that the audioContext works according to the newest standards
  // if its is available as window.AudioContext
  // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
@@ -53,9 +55,7 @@ const AudioHelper =
      * @return {PeriodicWave}
      */
     createWaveTableFromGraph( audioContext, graphPoints ) {
-        // DFT provided by dsp.js
-        // see main.js for its inclusion
-        const dft = new window['DFT'](graphPoints.length);
+        const dft = new DFT(graphPoints.length);
         dft.forward(graphPoints);
 
         return audioContext.createPeriodicWave(dft.real, dft.imag);

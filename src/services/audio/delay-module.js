@@ -22,7 +22,7 @@
  */
 
 /**
- * Module depenencies.
+ * Module dependencies.
  */
 
 /**
