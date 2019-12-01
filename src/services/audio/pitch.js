@@ -20,6 +20,97 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
+/**
+ * @param {string} aNote - musical note to return ( A, B, C, D, E, F, G with
+ *               possible enharmonic notes ( 'b' meaning 'flat', '#' meaning 'sharp' )
+ *               NOTE: flats are CASE sensitive ( to prevent seeing the note 'B' instead of 'b' )
+ * @param {number} aOctave - the octave to return ( accepted range 0 - 9 )
+ * @return {number} containing exact frequency in Hz for requested note
+ */
+export const getFrequency = ( aNote, aOctave ) => {
+    let freq;
+    let enharmonic = 0;
+
+    // detect flat enharmonic
+    let i = aNote.indexOf( "b" );
+    if ( i > -1 ) {
+        aNote = aNote.substr( i - 1, 1 );
+        enharmonic = -1;
+    }
+
+    // detect sharp enharmonic
+    i = aNote.indexOf( "#" );
+    if ( i > -1 ) {
+        aNote = aNote.substr( i - 1, 1 );
+        enharmonic = 1;
+    }
+
+    freq = getOctaveIndex( aNote, enharmonic );
+
+    if ( aOctave === 4 ) {
+        return freq;
+    }
+    else {
+        // translate the pitches to the requested octave
+        const d = aOctave - 4;
+        let j = Math.abs( d );
+
+        for ( i = 0; i < j; ++i ) {
+            if ( d > 0 ) {
+                freq *= 2;
+            }
+            else {
+                freq *= 0.5;
+            }
+        }
+        return freq;
+    }
+};
+
+/**
+ * takes a frequency in Hz and returns the pitch, octave and cents off the perfect center
+ *
+ * @param {number} frequency
+ * @return {{
+ *             note: string,
+ *             octave: number,
+ *             cents: number
+ *         }}
+*/
+export const getPitchByFrequency = frequency => {
+    let note;
+
+    const lnote = ( Math.log ( frequency ) - Math.log( 261.626 )) / Math.log( 2 ) + 4.0;
+    let octave  = lnote|0; // fast flooring of positive values
+    let cents   = 1200 * ( lnote - octave );
+
+    const note_table = "C C#D D#E F F#G G#A A#B";
+    let offset       = 50.0;
+    let x            = 2;
+
+    if ( cents < 50 ) {
+        note = "C ";
+    }
+    else if ( cents >= 1150 ) {
+        note = "C ";
+        cents -= 1200;
+        ++octave;
+    }
+    else {
+        for ( let j = 1; j <= 11 ; ++j ) {
+            if ( cents >= offset && cents < ( offset + 100 )) {
+                note = note_table.charAt( x ) + note_table.charAt( x + 1 );
+                cents -= ( j * 100 );
+                break;
+            }
+            offset += 100;
+            x += 2;
+        }
+    }
+    return { note: note.trim(), octave, cents };
+};
+
 const Pitch =
 {
     /**
@@ -37,123 +128,40 @@ const Pitch =
      */
     OCTAVE : [ 261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440, 466.164, 493.883 ],
 
-    /**
-     * @param {string} aNote - musical note to return ( A, B, C, D, E, F, G with
-     *               possible enharmonic notes ( 'b' meaning 'flat', '#' meaning 'sharp' )
-     *               NOTE: flats are CASE sensitive ( to prevent seeing the note 'B' instead of 'b' )
-     * @param {number} aOctave - the octave to return ( accepted range 0 - 9 )
-     * @return {number} containing exact frequency in Hz for requested note
-     */
-    getFrequency( aNote, aOctave ) {
-        let freq;
-        let enharmonic = 0;
-
-        // detect flat enharmonic
-        let i = aNote.indexOf( "b" );
-        if ( i > -1 ) {
-            aNote = aNote.substr( i - 1, 1 );
-            enharmonic = -1;
-        }
-
-        // detect sharp enharmonic
-        i = aNote.indexOf( "#" );
-        if ( i > -1 ) {
-            aNote = aNote.substr( i - 1, 1 );
-            enharmonic = 1;
-        }
-
-        freq = Pitch.getOctaveIndex( aNote, enharmonic );
-
-        if ( aOctave === 4 ) {
-            return freq;
-        }
-        else {
-            // translate the pitches to the requested octave
-            const d = aOctave - 4;
-            let j = Math.abs( d );
-
-            for ( i = 0; i < j; ++i ) {
-                if ( d > 0 ) {
-                    freq *= 2;
-                }
-                else {
-                    freq *= 0.5;
-                }
-            }
-            return freq;
-        }
-    },
-    /**
-     * takes a frequency in Hz and returns the pitch, octave and cents off the perfect center
-     *
-     * @param {number} frequency
-     * @return {{
-     *             note: string,
-     *             octave: number,
-     *             cents: number
-     *         }}
-    */
-    getPitchByFrequency( frequency ) {
-        let theNote;
-
-        const lnote       = ( Math.log ( frequency ) - Math.log( 261.626 )) / Math.log( 2 ) + 4.0;
-        let oct         = lnote|0; // fast flooring of positive values
-        let theCents    = 1200 * ( lnote - oct );
-
-        const note_table = "C C#D D#E F F#G G#A A#B";
-        let offset       = 50.0;
-        let x            = 2;
-
-        if ( theCents < 50 ) {
-            theNote = "C ";
-        }
-        else if ( theCents >= 1150 ) {
-            theNote = "C ";
-            theCents -= 1200;
-            ++oct;
-        }
-        else {
-            for ( let j = 1; j <= 11 ; ++j ) {
-                if ( theCents >= offset && theCents < ( offset + 100 )) {
-                    theNote = note_table.charAt( x ) + note_table.charAt( x + 1 );
-                    theCents -= ( j * 100 );
-                    break;
-                }
-                offset += 100;
-                x += 2;
-            }
-        }
-        return { "note" : theNote, "octave" : oct, "cents" : theCents };
-    },
-    /**
-     * retrieves the index in the octave array for a given note
-     * modifier enharmonic returns the previous ( for a 'flat' note )
-     * or next ( for a 'sharp' note ) index
-     *
-     * @param {string} aNote ( A, B, C, D, E, F, G )
-     * @param {number=} aEnharmonic optional, defaults to 0 ( 0, -1 for flat, 1 for sharp )
-     * @return {number}
-     */
-    getOctaveIndex( aNote, aEnharmonic ) {
-        if ( typeof aEnharmonic !== 'number' )
-            aEnharmonic = 0;
-
-        const octave = Pitch.OCTAVE;
-        const scale  = Pitch.OCTAVE_SCALE;
-
-        for ( let i = 0, j = octave.length; i < j; ++i ) {
-            if ( scale[ i ] === aNote ) {
-                let k = i + aEnharmonic;
-
-                if ( k > j )
-                    return octave[ 0 ];
-                if ( k < 0 )
-                    return octave[ octave.length - 1 ];
-
-                return octave[ k ];
-            }
-        }
-        return NaN;
-    }
+    getFrequency,
+    getPitchByFrequency
 };
 export default Pitch;
+
+/* internal methods */
+
+/**
+ * retrieves the index in the octave array for a given note
+ * modifier enharmonic returns the previous ( for a 'flat' note )
+ * or next ( for a 'sharp' note ) index
+ *
+ * @param {string} aNote ( A, B, C, D, E, F, G )
+ * @param {number=} aEnharmonic optional, defaults to 0 ( 0, -1 for flat, 1 for sharp )
+ * @return {number}
+ */
+function getOctaveIndex( aNote, aEnharmonic ) {
+    if ( typeof aEnharmonic !== 'number' )
+        aEnharmonic = 0;
+
+    const octave = Pitch.OCTAVE;
+    const scale  = Pitch.OCTAVE_SCALE;
+
+    for ( let i = 0, j = octave.length; i < j; ++i ) {
+        if ( scale[ i ] === aNote ) {
+            let k = i + aEnharmonic;
+
+            if ( k > j )
+                return octave[ 0 ];
+            if ( k < 0 )
+                return octave[ octave.length - 1 ];
+
+            return octave[ k ];
+        }
+    }
+    return NaN;
+}

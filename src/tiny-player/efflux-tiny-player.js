@@ -13,7 +13,8 @@
 // we enjoy better compression on these?
 // E.O. TODO
 import { assemble } from '@/services/song-assembly-service';
-import { prepareEnvironment, reset, cacheCustomTables, applyModules } from '@/services/audio-service';
+import { prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff } from '@/services/audio-service';
+import { getPitchByFrequency } from '@/services/audio/pitch';
 import sequencerModule from '@/store/modules/sequencer-module';
 
 // short hands, note these variable names can be as long/descriptive as
@@ -21,7 +22,7 @@ import sequencerModule from '@/store/modules/sequencer-module';
 const WINDOW = window, TRUE = !!1, FALSE = !!0;
 
 // environment variables
-let audioContext, song;
+let audioContext, song, event;
 const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
 
 // mock Vuex root store
@@ -92,5 +93,36 @@ export default {
      */
     s: () => {
         mutations.setPlaying(state, FALSE);
-    }
+    },
+    /**
+     * Play a note with given properties, using the
+     * instruments and effects defined in the loaded song
+     *
+     * @param {Object}
+     * @return {Object} generated event object, to be used when invoking off()
+     */
+    on: ({ f, i, a, mp, t }) => {
+        event = {
+            instrument: i,
+            action: a || 1,
+            mp,
+            ...getPitchByFrequency(f) // TODO: we can also supply note and octave directly?
+        };
+        noteOn(event, song.instruments[i], t);
+        return event;
+    },
+    /**
+     * Halt playing of a note triggered with on()
+     *
+     * @param {Object} e event Object of the note returned by the on() method
+     */
+    off: e => {
+        noteOff(e);
+    },
+    /**
+     * Retrieve the generated AudioContext. This can be used
+     * in case you which to create an external hook (for instance
+     * to create an audio visualizer)
+     */
+    a: () => audioContext
 };

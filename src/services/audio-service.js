@@ -27,7 +27,7 @@ import InstrumentUtil    from '@/utils/instrument-util';
 import WebAudioHelper    from './audio/webaudio-helper';
 import OutputRecorder    from './audio/output-recorder';
 import ModuleRouter      from './audio/module-router';
-import Pitch             from './audio/pitch';
+import { getFrequency }  from './audio/pitch';
 import WaveTables        from './audio/wave-tables';
 import ADSR              from './audio/adsr-module';
 import { processVoices } from './audio/audio-util';
@@ -141,6 +141,146 @@ export const applyModules = song => {
     });
 };
 
+/**
+ * synthesize the audio for given event at given startTime
+ *
+ * @param {AUDIO_EVENT} event
+ * @param {INSTRUMENT} instrument to playback the event
+ * @param {number=} startTimeInSeconds optional, defaults to current time
+ */
+export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.currentTime ) => {
+    if (event.action === 1) { // 1 == noteOn
+        Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
+
+        // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
+
+        const frequency = getFrequency(event.note, event.octave);
+        const voices    = /** @type {EVENT_VOICE_LIST} */ ([]);
+        const modules   = instrumentModulesList[instrument.id];
+        let voice;
+
+        instrument.oscillators.forEach((oscillatorVO, oscillatorIndex) => {
+            if ( !oscillatorVO.enabled ) {
+                return;
+            }
+            voice = instrument.oscillators[oscillatorIndex];
+
+            // retrieve from pool the envelope gain structure for the oscillator voice
+            const oscillatorNodes = retrieveAvailableVoiceNodesFromPool(modules, oscillatorIndex);
+            if (oscillatorNodes === null) {
+                // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.id}`);
+                return;
+            }
+            const { oscillatorNode, adsrNode } = oscillatorNodes;
+            let generatorNode;
+
+            if (oscillatorVO.waveform === 'NOISE') {
+                // buffer source ? assign it to the oscillator
+                generatorNode = audioContext.createBufferSource();
+                generatorNode.buffer = pool.NOISE;
+                generatorNode.loop = true;
+                generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback(voice);
+            }
+            else {
+                // has oscillator source
+                if (oscillatorVO.waveform === 'PWM') {
+                    // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
+                    generatorNode = WebAudioHelper.createPWM(
+                        audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
+                    );
+                }
+                else {
+                    // all other waveforms have WaveTables which are defined in the pools
+
+                    generatorNode = audioContext.createOscillator();
+                    let table;
+
+                    if (oscillatorVO.waveform !== 'CUSTOM')
+                        table = pool[oscillatorVO.waveform];
+                    else
+                        table = pool.CUSTOM[instrument.id][oscillatorIndex];
+
+                    if ( !table ) // no table ? that's a bit of a problem. what did you break!?
+                        return;
+
+                    generatorNode.setPeriodicWave( table );
+                }
+                // tune event frequency to oscillator tuning and apply pitch envelopes
+                generatorNode.frequency.value = InstrumentUtil.tuneToOscillator(frequency, voice);
+            }
+
+            // apply envelopes
+
+            WebAudioHelper.setValue(oscillatorNode.gain, oscillatorVO.volume, audioContext);
+            WebAudioHelper.setValue(adsrNode.gain, 1, audioContext);
+
+            ADSR.applyAmpEnvelope  (oscillatorVO, adsrNode,      startTimeInSeconds);
+            ADSR.applyPitchEnvelope(oscillatorVO, generatorNode, startTimeInSeconds);
+
+            // route oscillator to track gain > envelope gain > instrument gain
+
+            if ( oscillatorVO.waveform !== 'PWM' )
+                generatorNode.connect(oscillatorNode);
+
+            // start playback
+
+            WebAudioHelper.startOscillation(generatorNode, startTimeInSeconds);
+
+            voices[oscillatorIndex] = /** @type {EVENT_VOICE} */ ({
+                generator: generatorNode,
+                vo: oscillatorVO,
+                frequency: frequency,
+                gain: oscillatorNode,
+                outputNode: adsrNode,
+                gliding: false
+            });
+        });
+        instrumentEventsList[instrument.id][event.id] = voices;
+    }
+    // module parameter change specified ? process it inside the ModuleRouter
+
+    if (event.mp) {
+        ModuleRouter.applyModuleParamChange(
+            event,
+            instrumentModulesList[instrument.id],
+            instrument,
+            Object.values(instrumentEventsList[instrument.id]),
+            startTimeInSeconds,
+            masterBus
+        );
+    }
+};
+
+/**
+ * immediately stop playing audio for the given event (or after a small
+ * delay in case a positive release envelope is set)
+ *
+ * @param {AUDIO_EVENT} event
+ * @param {number=} startTimeInSeconds optional time to start the noteOff,
+ *                  this will default to the current time. This time should
+ *                  equal the end of the note's sustain period as release
+ *                  will be applied automatically
+ */
+export const noteOff = (event, startTimeInSeconds = audioContext.currentTime) => {
+    const eventId     = event.id, instrumentId = event.instrument;
+    const eventVoices = instrumentEventsList[instrumentId][eventId];
+
+    if ( !eventVoices ) return;
+
+    // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
+
+    eventVoices.forEach((voice, oscillatorIndex) => {
+        if ( !voice ) return;
+
+        // apply release envelopes
+        ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
+        ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
+
+        returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId, eventId);
+        WebAudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
+    });
+};
+
 const AudioService =
 {
     initialized: false,
@@ -216,144 +356,8 @@ const AudioService =
     isRecording() {
         return recordOutput;
     },
-    /**
-     * synthesize the audio for given event at given startTime
-     *
-     * @param {AUDIO_EVENT} event
-     * @param {INSTRUMENT} instrument to playback the event
-     * @param {number=} startTimeInSeconds optional, defaults to current time
-     */
-    noteOn( event, instrument, startTimeInSeconds = audioContext.currentTime ) {
-        if (event.action === 1) { // 1 == noteOn
-            Vue.set(event, 'id', ++UNIQUE_EVENT_ID); // create unique event identifier
-
-            // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
-
-            const frequency = Pitch.getFrequency(event.note, event.octave);
-            const voices    = /** @type {EVENT_VOICE_LIST} */ ([]);
-            const modules   = instrumentModulesList[instrument.id];
-            let voice;
-
-            instrument.oscillators.forEach((oscillatorVO, oscillatorIndex) => {
-                if ( !oscillatorVO.enabled ) {
-                    return;
-                }
-                voice = instrument.oscillators[oscillatorIndex];
-
-                // retrieve from pool the envelope gain structure for the oscillator voice
-                const oscillatorNodes = retrieveAvailableVoiceNodesFromPool(modules, oscillatorIndex);
-                if (oscillatorNodes === null) {
-                    // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.id}`);
-                    return;
-                }
-                const { oscillatorNode, adsrNode } = oscillatorNodes;
-                let generatorNode;
-
-                if (oscillatorVO.waveform === 'NOISE') {
-                    // buffer source ? assign it to the oscillator
-                    generatorNode = audioContext.createBufferSource();
-                    generatorNode.buffer = pool.NOISE;
-                    generatorNode.loop = true;
-                    generatorNode.playbackRate.value = InstrumentUtil.tuneBufferPlayback(voice);
-                }
-                else {
-                    // has oscillator source
-                    if (oscillatorVO.waveform === 'PWM') {
-                        // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
-                        generatorNode = WebAudioHelper.createPWM(
-                            audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
-                        );
-                    }
-                    else {
-                        // all other waveforms have WaveTables which are defined in the pools
-
-                        generatorNode = audioContext.createOscillator();
-                        let table;
-
-                        if (oscillatorVO.waveform !== 'CUSTOM')
-                            table = pool[oscillatorVO.waveform];
-                        else
-                            table = pool.CUSTOM[instrument.id][oscillatorIndex];
-
-                        if ( !table ) // no table ? that's a bit of a problem. what did you break!?
-                            return;
-
-                        generatorNode.setPeriodicWave( table );
-                    }
-                    // tune event frequency to oscillator tuning and apply pitch envelopes
-                    generatorNode.frequency.value = InstrumentUtil.tuneToOscillator(frequency, voice);
-                }
-
-                // apply envelopes
-
-                WebAudioHelper.setValue(oscillatorNode.gain, oscillatorVO.volume, audioContext);
-                WebAudioHelper.setValue(adsrNode.gain, 1, audioContext);
-
-                ADSR.applyAmpEnvelope  (oscillatorVO, adsrNode,      startTimeInSeconds);
-                ADSR.applyPitchEnvelope(oscillatorVO, generatorNode, startTimeInSeconds);
-
-                // route oscillator to track gain > envelope gain > instrument gain
-
-                if ( oscillatorVO.waveform !== 'PWM' )
-                    generatorNode.connect(oscillatorNode);
-
-                // start playback
-
-                WebAudioHelper.startOscillation(generatorNode, startTimeInSeconds);
-
-                voices[oscillatorIndex] = /** @type {EVENT_VOICE} */ ({
-                    generator: generatorNode,
-                    vo: oscillatorVO,
-                    frequency: frequency,
-                    gain: oscillatorNode,
-                    outputNode: adsrNode,
-                    gliding: false
-                });
-            });
-            instrumentEventsList[instrument.id][event.id] = voices;
-        }
-        // module parameter change specified ? process it inside the ModuleRouter
-
-        if (event.mp) {
-            ModuleRouter.applyModuleParamChange(
-                event,
-                instrumentModulesList[instrument.id],
-                instrument,
-                Object.values(instrumentEventsList[instrument.id]),
-                startTimeInSeconds,
-                masterBus
-            );
-        }
-    },
-    /**
-     * immediately stop playing audio for the given event (or after a small
-     * delay in case a positive release envelope is set)
-     *
-     * @param {AUDIO_EVENT} event
-     * @param {number=} startTimeInSeconds optional time to start the noteOff,
-     *                  this will default to the current time. This time should
-     *                  equal the end of the note's sustain period as release
-     *                  will be applied automatically
-     */
-    noteOff(event, startTimeInSeconds = audioContext.currentTime) {
-        const eventId     = event.id, instrumentId = event.instrument;
-        const eventVoices = instrumentEventsList[instrumentId][eventId];
-
-        if ( !eventVoices ) return;
-
-        // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
-
-        eventVoices.forEach((voice, oscillatorIndex) => {
-            if ( !voice ) return;
-
-            // apply release envelopes
-            ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
-            ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
-
-            returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId, eventId);
-            WebAudioHelper.stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
-        });
-    },
+    noteOn,
+    noteOff,
     applyModule(type, instrumentIndex, props) {
         ModuleFactory.applyConfiguration(type, instrumentModulesList[instrumentIndex], props, masterBus);
     },
