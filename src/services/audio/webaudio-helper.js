@@ -43,257 +43,261 @@ const constantOneCurve = new Float32Array(2);
 constantOneCurve[0] = 1;
 constantOneCurve[1] = 1;
 
-const AudioHelper =
-{
-    /**
-     * create a WaveTable from given graphPoints Array (a list of
-     * y-coordinate points drawn in the UI) and apply it onto the given
-     * OscillatorNode oscillator
-     *
-     * @param {AudioContext} audioContext
-     * @param {Array<number>} graphPoints
-     * @return {PeriodicWave}
-     */
-    createWaveTableFromGraph( audioContext, graphPoints ) {
-        const dft = new DFT(graphPoints.length);
-        dft.forward(graphPoints);
+/**
+ * create a WaveTable from given graphPoints Array (a list of
+ * y-coordinate points drawn in the UI) and apply it onto the given
+ * OscillatorNode oscillator
+ *
+ * @param {AudioContext} audioContext
+ * @param {Array<number>} graphPoints
+ * @return {PeriodicWave}
+ */
+export const createWaveTableFromGraph = ( audioContext, graphPoints ) => {
+    const dft = new DFT(graphPoints.length);
+    dft.forward(graphPoints);
 
-        return audioContext.createPeriodicWave(dft.real, dft.imag);
-    },
-    /**
-     * use the accuracy of the WebAudio clock to execute a callback
-     * with strict timing.
-     *
-     * @param {AudioContext} audioContext
-     * @param {number} time when the callback should be fired (relative to AudioContext currentTime)
-     * @param {!Function} callback function to execute
-     * @return {OscillatorNode}
-     */
-    createTimer( audioContext, time, callback ) {
-        // this magic works by using a silent oscillator to play for given time
-        const timer   = audioContext.createOscillator();
-        timer.onended = callback;
+    return audioContext.createPeriodicWave(dft.real, dft.imag);
+};
 
-        if (!timerNode) {
-            timerNode = AudioHelper.createGainNode(audioContext);
-            timerNode.gain.value = 0;
-            timerNode.connect(audioContext.destination);
-        }
-        // timer will automatically disconnect() once stopped
-        // and garbage collected
-        timer.connect(timerNode);
+/**
+ * use the accuracy of the WebAudio clock to execute a callback
+ * with strict timing.
+ *
+ * @param {AudioContext} audioContext
+ * @param {number} time when the callback should be fired (relative to AudioContext currentTime)
+ * @param {!Function} callback function to execute
+ * @return {OscillatorNode}
+ */
+export const createTimer = ( audioContext, time, callback ) => {
+    // this magic works by using a silent oscillator to play for given time
+    const timer   = audioContext.createOscillator();
+    timer.onended = callback;
 
-        AudioHelper.startOscillation(timer, audioContext.currentTime);
-        AudioHelper.stopOscillation (timer, time);
+    if (!timerNode) {
+        timerNode = createGainNode(audioContext);
+        timerNode.gain.value = 0;
+        timerNode.connect(audioContext.destination);
+    }
+    // timer will automatically disconnect() once stopped
+    // and garbage collected
+    timer.connect(timerNode);
 
-        return timer;
-    },
-    /**
-     * sound a sine wave at given frequency (can be used for testing)
-     *
-     * @param {AudioContext} audioContext
-     * @param {number} frequencyInHertz
-     * @param {number=} startTimeInSeconds optional, defaults to current time
-     * @param {number=} durationInSeconds optional, defaults to 1 second
-     *
-     * @return {OscillatorNode} created Oscillator
-     */
-    beep( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds ) {
-        const oscillator = audioContext.createOscillator();
-        oscillator.connect( audioContext.destination );
+    startOscillation(timer, audioContext.currentTime);
+    stopOscillation (timer, time);
 
-        oscillator.frequency.value = frequencyInHertz;
+    return timer;
+};
 
-        if ( typeof startTimeInSeconds !== 'number' || startTimeInSeconds === 0 )
-            startTimeInSeconds = audioContext.currentTime;
+/**
+ * sound a sine wave at given frequency (can be used for testing)
+ *
+ * @param {AudioContext} audioContext
+ * @param {number} frequencyInHertz
+ * @param {number=} startTimeInSeconds optional, defaults to current time
+ * @param {number=} durationInSeconds optional, defaults to 1 second
+ *
+ * @return {OscillatorNode} created Oscillator
+ */
+export const beep = ( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds ) => {
+    const oscillator = audioContext.createOscillator();
+    oscillator.connect( audioContext.destination );
 
-        if ( typeof durationInSeconds !== 'number' )
-            durationInSeconds = 1;
+    oscillator.frequency.value = frequencyInHertz;
 
-        // oscillator will start, stop and can be garbage collected after going out of scope
+    if ( typeof startTimeInSeconds !== 'number' || startTimeInSeconds === 0 )
+        startTimeInSeconds = audioContext.currentTime;
 
-        oscillator.onended = () => oscillator.disconnect();
+    if ( typeof durationInSeconds !== 'number' )
+        durationInSeconds = 1;
 
-        AudioHelper.startOscillation( oscillator, startTimeInSeconds );
-        AudioHelper.stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
+    // oscillator will start, stop and can be garbage collected after going out of scope
 
-        return oscillator;
-    },
-    /**
-     * @param {OscillatorNode} oscillator
-     * @param {number} startTime AudioContext time at which to start
-     */
-    startOscillation(oscillator, startTime) {
+    oscillator.onended = () => oscillator.disconnect();
+
+    startOscillation( oscillator, startTimeInSeconds );
+    stopOscillation ( oscillator, startTimeInSeconds + durationInSeconds );
+
+    return oscillator;
+};
+
+/**
+ * @param {OscillatorNode} oscillator
+ * @param {number} startTime AudioContext time at which to start
+ */
+export const startOscillation = (oscillator, startTime) => {
+    if (isStandards)
+        oscillator.start(startTime);
+    else
+        oscillator.noteOn(startTime);
+};
+
+/**
+ * @param {OscillatorNode} oscillator
+ * @param {number} stopTime AudioContext time at which to stop
+ */
+export const stopOscillation = (oscillator, stopTime) => {
+    try {
         if (isStandards)
-            oscillator.start(startTime);
+            oscillator.stop(stopTime);
         else
-            oscillator.noteOn(startTime);
-    },
-    /**
-     * @param {OscillatorNode} oscillator
-     * @param {number} stopTime AudioContext time at which to stop
-     */
-    stopOscillation(oscillator, stopTime) {
-        try {
-            if (isStandards)
-                oscillator.stop(stopTime);
-            else
-                oscillator.noteOff(stopTime);
-        } catch ( e ) {
-            // likely Safari DOM Exception 11 if oscillator was previously stopped
-        }
-    },
-    /**
-     * @param {webkitAudioContext|AudioContext} aContext
-     * @return {AudioGainNode}
-     */
-    createGainNode( aContext ) {
-        if ( isStandards )
-            return aContext.createGain();
-
-        return aContext.createGainNode();
-    },
-    /**
-     * At the moment of writing, StereoPannerNode is not supported
-     * in Safari, so this can return null!
-     *
-     * @param {webkitAudioContext|AudioContext} audioContext
-     * @return {StereoPannerNode|null}
-     */
-    createStereoPanner(audioContext) {
-        // last minute checks on feature support
-        if (typeof audioContext.createStereoPanner !== 'function') {
-            return null;
-        }
-        return audioContext.createStereoPanner();
-    },
-    /**
-     * Force given value onto given param, cancelling all scheduled values (e.g. hard "reset")
-     * @param {AudioParam} param
-     * @param {number} value
-     * @param {webkitAudioContext|AudioContext} audioContext
-     */
-    setValue(param, value, audioContext) {
-        param.cancelScheduledValues(audioContext.currentTime);
-        param.setValueAtTime(value, audioContext.currentTime);
-    },
-    /**
-     * Create a Pulse Width Modulator
-     * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
-     *
-     * @param {AudioContext} audioContext
-     * @param {number} startTime
-     * @param {number} endTime
-     * @param {AudioDestinationNode=} destination
-     * @return {OscillatorNode}
-     */
-   createPWM( audioContext, startTime, endTime, destination = audioContext.destination ) {
-        const pulseOsc = audioContext.createOscillator();
-        pulseOsc.type  = 'sawtooth';
-
-        // Shape the output into a pulse wave.
-        const pulseShaper = audioContext.createWaveShaper();
-        pulseShaper.curve = pulseCurve;
-        pulseOsc.connect( pulseShaper );
-
-        // Use a GainNode as our new "width" audio parameter.
-        const widthGain = AudioHelper.createGainNode( audioContext );
-        widthGain.gain.value = 0; //Default width.
-        pulseOsc.width = widthGain.gain; //Add parameter to oscillator node.
-        widthGain.connect( pulseShaper );
-
-        // Pass a constant value of 1 into the widthGain – so the "width" setting
-        // is duplicated to its output.
-        const constantOneShaper = audioContext.createWaveShaper();
-        constantOneShaper.curve = constantOneCurve;
-        pulseOsc.connect( constantOneShaper );
-        constantOneShaper.connect( widthGain );
-
-        // Add a low frequency oscillator to modulate the pulse-width.
-        const lfo = audioContext.createOscillator();
-        const lfoDepth = AudioHelper.createGainNode( audioContext );
-        const filter = audioContext.createBiquadFilter();
-
-        lfo.type = 'triangle';
-        lfo.frequency.value = 10;
-
-        // Override the oscillator's "connect" and "disconnect" method so that the
-        // new node's output actually comes from the pulseShaper.
-        pulseOsc.connect = function() {
-            pulseShaper.connect.apply( pulseShaper, arguments );
-        };
-        pulseOsc.disconnect = function() {
-            // note all OscillatorNodes will automatically disconnect after stop()
-            pulseShaper.disconnect.apply( pulseShaper, arguments );
-            widthGain.disconnect();
-            constantOneShaper.disconnect();
-            lfoDepth.disconnect();
-            filter.disconnect();
-        };
-
-        // The pulse-width will start at 0.4 and finish at 0.1.
-        pulseOsc.width.value = 0.4; //The initial pulse-width.
-        pulseOsc.width.exponentialRampToValueAtTime( 0.1, endTime );
-
-        lfoDepth.gain.value = 0.1;
-        lfoDepth.gain.exponentialRampToValueAtTime( 0.05, startTime + 0.5 );
-        lfoDepth.gain.exponentialRampToValueAtTime( 0.15, endTime );
-        lfo.connect(lfoDepth);
-        lfoDepth.connect(pulseOsc.width);
-        lfo.start(startTime);
-        lfo.stop(endTime);
-
-        filter.type = 'lowpass';
-        filter.frequency.value = 16000;
-        filter.frequency.exponentialRampToValueAtTime( 440, endTime );
-        pulseOsc.connect( filter );
-        filter.connect( destination );
-
-        return pulseOsc;
-   },
-    /**
-     * On mobile (and an increasing number of desktop environments) all audio is muted
-     * unless the engine has been initialized directly after a user interaction.
-     * This method will lazily create the AudioContext on the first click/touch/
-     * keyboard interaction.
-     *
-     * @return {Promise} with generated AudioContext
-     */
-    init() {
-        return new Promise((resolve, reject) => {
-            let audioContext;
-            const handler = () => {
-                d.removeEventListener('click',   handler, false);
-                d.removeEventListener('keydown', handler, false);
-
-                if ( typeof window.AudioContext !== 'undefined' ) {
-                    audioContext = new window.AudioContext();
-                }
-                else if ( typeof window.webkitAudioContext !== 'undefined' ) {
-                    audioContext = new window.webkitAudioContext();
-                }
-                else {
-                    reject(new Error('WebAudio API not supported'));
-                    return;
-                }
-
-                // not all environments support the same features
-                // within the AudioContext, check them here
-
-                features.panning = typeof audioContext.createStereoPanner === 'function';
-
-                resolve(audioContext);
-            };
-            d.addEventListener('click',   handler);
-            d.addEventListener('keydown', handler);
-        });
-    },
-    /**
-     * verify whether given feature is supported by the
-     * audioContext in the current environment
-     */
-    supports(feature) {
-        return !!features[feature];
+            oscillator.noteOff(stopTime);
+    } catch ( e ) {
+        // likely Safari DOM Exception 11 if oscillator was previously stopped
     }
 };
-export default AudioHelper;
+
+/**
+ * @param {webkitAudioContext|AudioContext} aContext
+ * @return {AudioGainNode}
+ */
+export const createGainNode = aContext => {
+    if ( isStandards )
+        return aContext.createGain();
+
+    return aContext.createGainNode();
+};
+
+/**
+ * At the moment of writing, StereoPannerNode is not supported
+ * in Safari, so this can return null!
+ *
+ * @param {webkitAudioContext|AudioContext} audioContext
+ * @return {StereoPannerNode|null}
+ */
+export const createStereoPanner = audioContext => {
+    // last minute checks on feature support
+    if (typeof audioContext.createStereoPanner !== 'function') {
+        return null;
+    }
+    return audioContext.createStereoPanner();
+};
+
+/**
+ * Force given value onto given param, cancelling all scheduled values (e.g. hard "reset")
+ * @param {AudioParam} param
+ * @param {number} value
+ * @param {webkitAudioContext|AudioContext} audioContext
+ */
+export const setValue = (param, value, audioContext) => {
+    param.cancelScheduledValues(audioContext.currentTime);
+    param.setValueAtTime(value, audioContext.currentTime);
+};
+
+/**
+ * Create a Pulse Width Modulator
+ * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
+ *
+ * @param {AudioContext} audioContext
+ * @param {number} startTime
+ * @param {number} endTime
+ * @param {AudioDestinationNode=} destination
+ * @return {OscillatorNode}
+ */
+export const createPWM = ( audioContext, startTime, endTime, destination = audioContext.destination ) => {
+    const pulseOsc = audioContext.createOscillator();
+    pulseOsc.type  = 'sawtooth';
+
+    // Shape the output into a pulse wave.
+    const pulseShaper = audioContext.createWaveShaper();
+    pulseShaper.curve = pulseCurve;
+    pulseOsc.connect( pulseShaper );
+
+    // Use a GainNode as our new "width" audio parameter.
+    const widthGain = createGainNode( audioContext );
+    widthGain.gain.value = 0; //Default width.
+    pulseOsc.width = widthGain.gain; //Add parameter to oscillator node.
+    widthGain.connect( pulseShaper );
+
+    // Pass a constant value of 1 into the widthGain – so the "width" setting
+    // is duplicated to its output.
+    const constantOneShaper = audioContext.createWaveShaper();
+    constantOneShaper.curve = constantOneCurve;
+    pulseOsc.connect( constantOneShaper );
+    constantOneShaper.connect( widthGain );
+
+    // Add a low frequency oscillator to modulate the pulse-width.
+    const lfo = audioContext.createOscillator();
+    const lfoDepth = createGainNode( audioContext );
+    const filter = audioContext.createBiquadFilter();
+
+    lfo.type = 'triangle';
+    lfo.frequency.value = 10;
+
+    // Override the oscillator's "connect" and "disconnect" method so that the
+    // new node's output actually comes from the pulseShaper.
+    pulseOsc.connect = function() {
+        pulseShaper.connect.apply( pulseShaper, arguments );
+    };
+    pulseOsc.disconnect = function() {
+        // note all OscillatorNodes will automatically disconnect after stop()
+        pulseShaper.disconnect.apply( pulseShaper, arguments );
+        widthGain.disconnect();
+        constantOneShaper.disconnect();
+        lfoDepth.disconnect();
+        filter.disconnect();
+    };
+
+    // The pulse-width will start at 0.4 and finish at 0.1.
+    pulseOsc.width.value = 0.4; //The initial pulse-width.
+    pulseOsc.width.exponentialRampToValueAtTime( 0.1, endTime );
+
+    lfoDepth.gain.value = 0.1;
+    lfoDepth.gain.exponentialRampToValueAtTime( 0.05, startTime + 0.5 );
+    lfoDepth.gain.exponentialRampToValueAtTime( 0.15, endTime );
+    lfo.connect(lfoDepth);
+    lfoDepth.connect(pulseOsc.width);
+    lfo.start(startTime);
+    lfo.stop(endTime);
+
+    filter.type = 'lowpass';
+    filter.frequency.value = 16000;
+    filter.frequency.exponentialRampToValueAtTime( 440, endTime );
+    pulseOsc.connect( filter );
+    filter.connect( destination );
+
+    return pulseOsc;
+};
+
+/**
+ * On mobile (and an increasing number of desktop environments) all audio is muted
+ * unless the engine has been initialized directly after a user interaction.
+ * This method will lazily create the AudioContext on the first click/touch/
+ * keyboard interaction.
+ *
+ * @return {Promise} with generated AudioContext
+ */
+export const init = () => {
+    return new Promise((resolve, reject) => {
+        let audioContext;
+        const handler = () => {
+            d.removeEventListener('click',   handler, false);
+            d.removeEventListener('keydown', handler, false);
+
+            if ( typeof window.AudioContext !== 'undefined' ) {
+                audioContext = new window.AudioContext();
+            }
+            else if ( typeof window.webkitAudioContext !== 'undefined' ) {
+                audioContext = new window.webkitAudioContext();
+            }
+            else {
+                reject(new Error('WebAudio API not supported'));
+                return;
+            }
+
+            // not all environments support the same features
+            // within the AudioContext, check them here
+
+            features.panning = typeof audioContext.createStereoPanner === 'function';
+
+            resolve(audioContext);
+        };
+        d.addEventListener('click',   handler);
+        d.addEventListener('keydown', handler);
+    });
+};
+
+/**
+ * verify whether given feature is supported by the
+ * audioContext in the current environment
+ */
+export const supports = feature => !!features[feature];

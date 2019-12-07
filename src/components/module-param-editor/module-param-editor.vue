@@ -113,7 +113,7 @@ import EventFactory       from '@/model/factory/event-factory';
 import KeyboardService    from '@/services/keyboard-service';
 import ModuleParamHandler from '@/services/keyboard/module-param-handler';
 import ManualURLs         from '@/definitions/manual-urls';
-import WebAudioHelper     from '@/services/audio/webaudio-helper';
+import { supports }       from '@/services/audio/webaudio-helper';
 import FormListItem       from '../forms/form-list-item';
 import messages           from './messages.json';
 
@@ -167,7 +167,7 @@ export default {
         KeyboardService.setBlockDefaults(false);
         KeyboardService.setListener(this.handleKey);
 
-        this.supportsPanning = WebAudioHelper.supports('panning');
+        this.supportsPanning = supports('panning');
     },
     beforeDestroy() {
         KeyboardService.reset();

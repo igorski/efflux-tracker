@@ -8,14 +8,15 @@
  */
 // destructure imports from Efflux source to include what we need
 // TODO
-// AudioService includes RecorderWorker, we don't need it
 // default WaveTables add considerable size to the bundle, can
 // we enjoy better compression on these?
 // E.O. TODO
-import { assemble } from '@/services/song-assembly-service';
-import { prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff } from '@/services/audio-service';
-import { getPitchByFrequency } from '@/services/audio/pitch';
 import sequencerModule from '@/store/modules/sequencer-module';
+import { assemble } from '@/services/song-assembly-service';
+import { getPitchByFrequency } from '@/services/audio/pitch';
+import {
+    prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
+} from '@/services/audio-service';
 
 // short hands, note these variable names can be as long/descriptive as
 // you want, inline variables will compress to single digits on build

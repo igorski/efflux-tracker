@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import WebAudioHelper from './webaudio-helper';
+import { beep } from './webaudio-helper';
 
 /**
  * Metronome is a component of the transporter
@@ -60,6 +60,6 @@ export default
         else if ( currentStep % ( maxStep / 4 ))
             pitch = 880; // quarter notes = high pitch
 
-        WebAudioHelper.beep( audioContext, pitch, time, 0.05 );
+        beep( audioContext, pitch, time, 0.05 );
     }
 };

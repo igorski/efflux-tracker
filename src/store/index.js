@@ -7,6 +7,7 @@ import settings from './modules/settings-module';
 import sequencer from './modules/sequencer-module';
 import song from './modules/song-module';
 import AudioService from '@/services/audio-service';
+import OutputRecorder from '@/services/audio/output-recorder';
 import KeyboardService from '@/services/keyboard-service';
 import MIDIService from '@/services/midi-service';
 import PubSubService from '@/services/pubsub-service';
@@ -147,7 +148,7 @@ export default
             i18n = i18nReference;
 
             return new Promise(resolve => {
-                AudioService.init(storeReference);
+                AudioService.init(storeReference, OutputRecorder);
                 KeyboardService.init(storeReference);
                 MIDIService.init(storeReference);
                 resolve();

@@ -27,117 +27,126 @@ import EventUtil    from './event-util';
 
 let playingNotes = {};
 
-const InstrumentUtil =
-{
-    /**
-     * tune given frequency to given oscillators tuning
-     *
-     * @param {number} frequency in Hz
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
-     * @return {number} tuned frequency in Hz
-     */
-    tuneToOscillator( frequency, oscillator ) {
-        // tune event frequency to oscillator tuning
-        const tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
-        let outFreq = tmpFreq;
+/**
+ * tune given frequency to given oscillators tuning
+ *
+ * @param {number} frequency in Hz
+ * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @return {number} tuned frequency in Hz
+ */
+export const tuneToOscillator = ( frequency, oscillator ) => {
+    // tune event frequency to oscillator tuning
+    const tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
+    let outFreq = tmpFreq;
 
-        if ( oscillator.octaveShift !== 0 ) {
-            if ( oscillator.octaveShift < 0 )
-                outFreq = tmpFreq / Math.abs( oscillator.octaveShift * 2 );
-            else
-                outFreq += ( tmpFreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
-        }
-        const fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
+    if ( oscillator.octaveShift !== 0 ) {
+        if ( oscillator.octaveShift < 0 )
+            outFreq = tmpFreq / Math.abs( oscillator.octaveShift * 2 );
+        else
+            outFreq += ( tmpFreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
+    }
+    const fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
 
-        if ( oscillator.fineShift < 0 )
-            outFreq -= fineShift;
-         else
-            outFreq += fineShift;
+    if ( oscillator.fineShift < 0 )
+        outFreq -= fineShift;
+     else
+        outFreq += fineShift;
 
-        return outFreq;
-    },
-    /**
-     * get a buffer playback speed in the -1 to +1 range
-     * for given oscillator tuning
-     *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
-     * @return {number}
-     */
-    tuneBufferPlayback( oscillator ) {
-        return 1 + ( oscillator.detune / 50 );
-    },
-    /**
-     * alter the frequency of currently playing events to match changes
-     * made to the tuning of given oscillator
-     *
-     * @param {Array<EVENT_VOICE_LIST>} events
-     * @param {number} oscillatorIndex
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
-     */
-    adjustEventTunings( events, oscillatorIndex, oscillator ) {
-        events.forEach(event => {
-            if (!event)
-                return;
+    return outFreq;
+};
 
-            if ( event.length > oscillatorIndex ) {
-                const voice = event[ oscillatorIndex ];
-                if (!voice) return;
+/**
+ * get a buffer playback speed in the -1 to +1 range
+ * for given oscillator tuning
+ *
+ * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @return {number}
+ */
+export const tuneBufferPlayback = oscillator => 1 + ( oscillator.detune / 50 );
 
-                const generator = voice.generator;
-
-                if ( generator instanceof OscillatorNode )
-                    generator.frequency.value = InstrumentUtil.tuneToOscillator( voice.frequency, oscillator );
-
-                else if ( generator instanceof AudioBufferSourceNode )
-                    generator.playbackRate.value = InstrumentUtil.tuneBufferPlayback( oscillator );
-            }
-        });
-    },
-    /**
-     * alter the volume of currently playing events to match changes
-     * made to the volume of given oscillator
-     *
-     * @param {Array<EVENT_VOICE_LIST>} events
-     * @param {number} oscillatorIndex
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
-     */
-    adjustEventVolume( events, oscillatorIndex, oscillator ) {
-        events.forEach(event => {
-            if (!event)
-                return;
-
-            if ( event.length > oscillatorIndex ) {
-                const voice = event[ oscillatorIndex ];
-                if (!voice) return;
-                voice.gain.gain.value = oscillator.volume;
-            }
-        });
-    },
-    /**
-     * alter the wavetable of currently playing events to match
-     * changes made to the waveform of given oscillator
-     *
-     * @param {Array<EVENT_VOICE_LIST>} events
-     * @param {number} oscillatorIndex
-     * @param {PeriodicWave} table
-     */
-    adjustEventWaveForms( events, oscillatorIndex, table ) {
-        if ( !( table instanceof PeriodicWave ))
+/**
+ * alter the frequency of currently playing events to match changes
+ * made to the tuning of given oscillator
+ *
+ * @param {Array<EVENT_VOICE_LIST>} events
+ * @param {number} oscillatorIndex
+ * @param {INSTRUMENT_OSCILLATOR} oscillator
+ */
+export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
+    events.forEach(event => {
+        if (!event)
             return;
 
-        events.forEach(event => {
-            if (!event) return;
+        if ( event.length > oscillatorIndex ) {
+            const voice = event[ oscillatorIndex ];
+            if (!voice) return;
 
-            if ( event.length > oscillatorIndex ) {
-                const voice = event[ oscillatorIndex ];
-                if (!voice) return;
+            const generator = voice.generator;
 
-                const generator = event[oscillatorIndex].generator;
-                if (generator instanceof OscillatorNode )
-                    generator.setPeriodicWave(table);
-            }
-        });
-    },
+            if ( generator instanceof OscillatorNode )
+                generator.frequency.value = tuneToOscillator( voice.frequency, oscillator );
+
+            else if ( generator instanceof AudioBufferSourceNode )
+                generator.playbackRate.value = tuneBufferPlayback( oscillator );
+        }
+    });
+};
+
+/**
+ * alter the volume of currently playing events to match changes
+ * made to the volume of given oscillator
+ *
+ * @param {Array<EVENT_VOICE_LIST>} events
+ * @param {number} oscillatorIndex
+ * @param {INSTRUMENT_OSCILLATOR} oscillator
+ */
+export const adjustEventVolume = ( events, oscillatorIndex, oscillator ) => {
+    events.forEach(event => {
+        if (!event)
+            return;
+
+        if ( event.length > oscillatorIndex ) {
+            const voice = event[ oscillatorIndex ];
+            if (!voice) return;
+            voice.gain.gain.value = oscillator.volume;
+        }
+    });
+};
+
+/**
+ * alter the wavetable of currently playing events to match
+ * changes made to the waveform of given oscillator
+ *
+ * @param {Array<EVENT_VOICE_LIST>} events
+ * @param {number} oscillatorIndex
+ * @param {PeriodicWave} table
+ */
+export const adjustEventWaveForms = ( events, oscillatorIndex, table ) => {
+    if ( !( table instanceof PeriodicWave ))
+        return;
+
+    events.forEach(event => {
+        if (!event) return;
+
+        if ( event.length > oscillatorIndex ) {
+            const voice = event[ oscillatorIndex ];
+            if (!voice) return;
+
+            const generator = event[oscillatorIndex].generator;
+            if (generator instanceof OscillatorNode )
+                generator.setPeriodicWave(table);
+        }
+    });
+};
+
+export default
+{
+    tuneBufferPlayback,
+    tuneToOscillator,
+    adjustEventWaveForms,
+    adjustEventVolume,
+    adjustEventTunings,
+
     /**
      * handle the instruments "key down" event (will trigger noteOn)
      * @param {{ note: string, octave: number }} pitch
@@ -188,8 +197,6 @@ const InstrumentUtil =
         delete playingNotes[ id ];
     }
 };
-
-export default InstrumentUtil;
 
 /* private methods */
 

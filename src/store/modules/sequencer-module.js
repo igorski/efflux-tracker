@@ -24,7 +24,7 @@ import Vue             from 'vue';
 import Config          from '@/config';
 import LinkedList      from '@/utils/linked-list';
 import AudioService    from '@/services/audio-service';
-import WebAudioHelper  from '@/services/audio/webaudio-helper';
+import { createTimer } from '@/services/audio/webaudio-helper';
 import Metronome       from '@/services/audio/metronome';
 import SequencerWorker from '@/workers/sequencer.worker.js';
 
@@ -106,7 +106,7 @@ function dequeueEvent(state, event, time) {
     // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
     // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
     // without using a timer in dequeueEvent(), but we suffer from stability issues
-    const clock = WebAudioHelper.createTimer(AudioService.getAudioContext(), time, () => {
+    const clock = createTimer(AudioService.getAudioContext(), time, () => {
         event.seq.playing = false;
         AudioService.noteOff(event);
         freeHandler(state, clock); // clear reference to this timed event

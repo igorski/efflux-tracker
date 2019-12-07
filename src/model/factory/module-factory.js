@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import WebAudioHelper from '@/services/audio/webaudio-helper';
+import { createGainNode, startOscillation } from '@/services/audio/webaudio-helper';
 import ModuleRouter   from '@/services/audio/module-router';
 import Config         from '@/config';
 import Delay          from '@/services/audio/delay-module';
@@ -63,17 +63,17 @@ const ModuleFactory = {
         hBand.frequency.value = 360; // TODO make band range configurable?
         hBand.gain.value      = Config.MIN_EQ_GAIN;
 
-        const hInvert      = WebAudioHelper.createGainNode( audioContext );
+        const hInvert      = createGainNode( audioContext );
         hInvert.gain.value = -1.0;
 
-        const mBand = WebAudioHelper.createGainNode( audioContext );
+        const mBand = createGainNode( audioContext );
 
         const lBand           = audioContext.createBiquadFilter();
         lBand.type            = 'highshelf';
         lBand.frequency.value = 3600; // TODO make band range configurable?
         lBand.gain.value      = Config.MIN_EQ_GAIN;
 
-        const lInvert      = WebAudioHelper.createGainNode( audioContext );
+        const lInvert      = createGainNode( audioContext );
         lInvert.gain.value = -1.0;
 
         hBand.connect( hInvert );
@@ -82,15 +82,15 @@ const ModuleFactory = {
         hInvert.connect( mBand );
         lInvert.connect( mBand );
 
-        const lGain = WebAudioHelper.createGainNode( audioContext );
-        const mGain = WebAudioHelper.createGainNode( audioContext );
-        const hGain = WebAudioHelper.createGainNode( audioContext );
+        const lGain = createGainNode( audioContext );
+        const mGain = createGainNode( audioContext );
+        const hGain = createGainNode( audioContext );
 
         lBand.connect( lGain );
         mBand.connect( mGain );
         hBand.connect( hGain );
 
-        const sum = WebAudioHelper.createGainNode( audioContext );
+        const sum = createGainNode( audioContext );
         lGain.connect( sum );
         mGain.connect( sum );
         hGain.connect( sum );
@@ -116,9 +116,9 @@ const ModuleFactory = {
     createFilter( audioContext ) {
         const filter = audioContext.createBiquadFilter();
         const lfo    = audioContext.createOscillator();
-        const lfoAmp = WebAudioHelper.createGainNode( audioContext );
+        const lfoAmp = createGainNode( audioContext );
 
-        WebAudioHelper.startOscillation( lfo, audioContext.currentTime );
+        startOscillation( lfo, audioContext.currentTime );
         lfoAmp.connect( filter.frequency );
 
         lfo.frequency.value = Config.DEFAULT_FILTER_LFO_SPEED;
