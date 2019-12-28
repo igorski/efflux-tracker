@@ -55,6 +55,8 @@ export default {
                 audioContext = new (WINDOW.AudioContext || WINDOW.webkitAudioContext)();
             }
 
+            xtkObject = typeof xtkObject === "string" ? JSON.parse( xtkObject ) : xtkObject;
+
             // 2. parse .XTK into a Song Object
             song = assemble(xtkObject);
             if (!song) {
@@ -64,7 +66,7 @@ export default {
 
             // 3. assemble waveTables from stored song
 
-            const waveTables = song.wt || {};
+            const waveTables = xtkObject.wt || {};
 
             // 4. all is well, set up environment
 
