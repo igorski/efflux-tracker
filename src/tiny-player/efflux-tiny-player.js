@@ -5,12 +5,12 @@
  * song within the browser. This re-uses the same code as used by the
  * main application to maximize compatibility and keeping up-to-date with
  * changes. The TinyPlayer however does not use Vue nor its reactivity.
+ *
+ * TinyPlayer plays back songs that were saved using SongAssemblyService version 4
  */
+
 // destructure imports from Efflux source to include what we need
-// TODO
-// default WaveTables add considerable size to the bundle, can
-// we enjoy better compression on these?
-// E.O. TODO
+
 import sequencerModule from '@/store/modules/sequencer-module';
 import { assemble } from '@/services/song-assembly-service';
 import { getPitchByFrequency } from '@/services/audio/pitch';
@@ -53,8 +53,6 @@ export default {
             // 1. create AudioContext, this will throw into catch block when unsupported
             if (!audioContext) {
                 audioContext = new (WINDOW.AudioContext || WINDOW.webkitAudioContext)();
-                prepareEnvironment(audioContext);
-                actions.prepareSequencer({ state }, rootStore);
             }
 
             // 2. parse .XTK into a Song Object
@@ -64,7 +62,14 @@ export default {
                 return FALSE;
             }
 
-            // 3. all is well, set up environment
+            // 3. assemble waveTables from stored song
+
+            const waveTables = song.wt || {};
+
+            // 4. all is well, set up environment
+
+            prepareEnvironment(audioContext, waveTables);
+            actions.prepareSequencer({ state }, rootStore);
 
             rootStore.state.song.activeSong = song;
 

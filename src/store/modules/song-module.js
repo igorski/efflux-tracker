@@ -305,7 +305,18 @@ export default {
 
                     reader.onload = async readerEvent => {
                         const fileData = readerEvent.target.result;
-                        const song     = SongAssemblyService.assemble(window.atob(fileData));
+                        let songData;
+
+                        try {
+                            // legacy songs were base64 encoded
+                            // attempt decode for backwards compatibility
+                            songData = window.atob(fileData);
+                        } catch (e) {
+                            // assume new song in Stringified JSON format
+                            songData = fileData;
+                            console.warn('kut');
+                        }
+                        const song = SongAssemblyService.assemble(songData);
 
                         // rudimentary check if we're dealing with a valid song
 
@@ -328,12 +339,12 @@ export default {
         },
         exportSong({ commit }, song) {
             return new Promise(resolve => {
-                const base64encodedSong = window.btoa(SongAssemblyService.disassemble(song));
+                const songData = SongAssemblyService.disassemble(song);
 
                 // download file to disk
 
                 const pom = document.createElement('a');
-                pom.setAttribute('href', `data:application/json;charset=utf-8,${encodeURIComponent(base64encodedSong)}`);
+                pom.setAttribute('href', `data:application/json;charset=utf-8,${encodeURIComponent(songData)}`);
                 pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
                 pom.setAttribute('download', `${song.meta.title}${Config.SONG_FILE_EXTENSION}` );
                 pom.click();

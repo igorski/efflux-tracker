@@ -25,7 +25,6 @@ import Config            from '@/config';
 import ModuleFactory     from '@/model/factory/module-factory';
 import ModuleRouter      from './audio/module-router';
 import { getFrequency }  from './audio/pitch';
-import WaveTables        from './audio/wave-tables';
 import ADSR              from './audio/adsr-module';
 import { processVoices } from './audio/audio-util';
 
@@ -65,8 +64,9 @@ let instrumentEventsList = [];
  * tables and instruments.
  *
  * @param {AudioContext} audioContextInstance
+ * @param {Object} waveTables
  */
-export const prepareEnvironment = audioContextInstance => {
+export const prepareEnvironment = (audioContextInstance, waveTables) => {
     audioContext = audioContextInstance;
     setupRouting();
 
@@ -83,10 +83,10 @@ export const prepareEnvironment = audioContextInstance => {
 
     // create periodic waves from the entries in the WaveTables definitions file
 
-    Object.keys(WaveTables).forEach(waveIdentifier => {
+    Object.keys(waveTables).forEach(waveIdentifier => {
         pool[waveIdentifier] = audioContext.createPeriodicWave(
-            new Float32Array(WaveTables[waveIdentifier].real),
-            new Float32Array(WaveTables[waveIdentifier].imag)
+            new Float32Array(waveTables[waveIdentifier].real),
+            new Float32Array(waveTables[waveIdentifier].imag)
         );
     });
     instrumentEventsList = new Array(Config.INSTRUMENT_AMOUNT);
@@ -230,7 +230,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
                 generatorNode.connect(oscillatorNode);
 
             // start playback
-            
+
             startOscillation(generatorNode, startTimeInSeconds);
 
             voices[oscillatorIndex] = /** @type {EVENT_VOICE} */ ({
@@ -312,8 +312,9 @@ const AudioService =
      * @param {Object} storeReference the root Vuex store
      * @param {!Function} outputRecorderReference reference to the output recorder class
      *                    (should only be passed in case output recording is supported)
+     * @param {Object} waveTables list of available wave tables
      */
-    async init(storeReference, outputRecorderReference) {
+    async init(storeReference, outputRecorderReference, waveTables) {
         store = storeReference;
         state = store.state;
 
@@ -323,8 +324,8 @@ const AudioService =
         // (e.g. click/touch/keydown anywhere in the document) as browsers otherwise prevent audio playback
 
         audioContext = await init();
-        prepareEnvironment( audioContext );
-        
+        prepareEnvironment( audioContext, waveTables );
+
         AudioService.cacheCustomTables(state.song.activeSong.instruments);
     },
     /**

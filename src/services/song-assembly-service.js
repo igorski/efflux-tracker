@@ -23,10 +23,11 @@
 import EventUtil         from '../utils/event-util';
 import SongValidator     from '../model/validators/song-validator';
 import InstrumentFactory from '../model/factory/instrument-factory';
+import WaveTables        from './audio/wave-tables';
 
 /* private properties */
 
-const ASSEMBLER_VERSION = 3;
+const ASSEMBLER_VERSION = 4;
 
 /**
  * assembles a song Object from an .XTK file
@@ -144,6 +145,7 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_OD_POSTCUT       = "pc",
       INSTRUMENT_OD_COLOR         = "c",
       INSTRUMENT_OD_DRIVE         = "d",
+      WAVE_TABLES                 = "wt",
 
       INSTRUMENT_OSCILLATORS  = "o",
       OSCILLATOR_ENABLED      = "e",
@@ -291,6 +293,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
 
 function disassembleInstruments( xtk, instruments ) {
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
+    const xtkWaveforms   = xtk[ WAVE_TABLES ] = {};
 
     let xtkInstrument, delay, filter, eq, od,
         xtkDelay, xtkFilter, xtkEq, xtkOD, xtkOscillator, xtkADSR, xtkPitchADSR;
@@ -382,6 +385,16 @@ function disassembleInstruments( xtk, instruments ) {
             xtkOscillator[ OSCILLATOR_VOLUME       ] = oscillator.volume;
             xtkOscillator[ OSCILLATOR_WAVEFORM     ] = oscillator.waveform;
             xtkOscillator[ OSCILLATOR_TABLE        ] = oscillator.table;
+
+            // serialize the non-custom waveform and noise tables into the song
+            // for use with Tiny player (and backwards compatibility in case of
+            // later changes made to default waveforms)
+
+            const waveform = oscillator.waveform;
+
+            if ( ![ "CUSTOM", "NOISE" ].includes( waveform ) && !xtkWaveforms.hasOwnProperty( waveform )) {
+                xtkWaveforms[ waveform ] = WaveTables[ waveform ] || {};
+            }
         });
     });
 }
