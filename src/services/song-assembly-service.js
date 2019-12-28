@@ -52,7 +52,7 @@ export const assemble = xtk => {
 
             assembleMeta       ( song, xtkVersion, xtk[ META_OBJECT ] );
             assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
-            assemblePatterns   ( song, xtkVersion, xtk[ PATTERNS ], song.meta.tempo );
+            assemblePatterns   ( song, xtkVersion, xtk, song.meta.tempo );
 
             // perform transformation on legacy songs
             SongValidator.transformLegacy( song );
@@ -167,6 +167,12 @@ const ASSEMBLER_VERSION_CODE = "av",
       PATTERNS         = "p",
       PATTERN_STEPS    = "s",
       PATTERN_CHANNELS = "c",
+
+      // as notes and automation instruction might be repeated
+      // throughout a song we create pools to prevent redefining them
+
+      NOTE_POOLS       = "np",
+      AUTOMATION_POOLS = "ap",
 
       EVENT_ACTION            = "a",
       EVENT_ID                = "i",
@@ -399,12 +405,19 @@ function disassembleInstruments( xtk, instruments ) {
     });
 }
 
-function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
+function assemblePatterns( song, savedXtkVersion, xtk, tempo ) {
 
-    song.patterns = new Array( xtkPatterns.length );
+    song.patterns = new Array( xtk[ PATTERNS ].length );
     let pattern, channel, event;
 
-    xtkPatterns.forEach(( xtkPattern, pIndex ) => {
+    let eventIdAcc = 0, notePoolId, automationPoolId, eventData;
+    let notePool = [], automationPool = [];
+    if ( savedXtkVersion >= 4 ) {
+        notePool = xtk[ NOTE_POOLS ].map(note => JSON.parse(note));
+        automationPool = xtk[ AUTOMATION_POOLS ].map(automation => JSON.parse(automation));
+    }
+
+    xtk[ PATTERNS ].forEach(( xtkPattern, pIndex ) => {
 
         pattern = song.patterns[ pIndex ] = {
             steps: xtkPattern[ PATTERN_STEPS ],
@@ -419,21 +432,43 @@ function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
 
                 if ( xtkEvent ) {
 
+                    // assembler version 4 introduced note and automation pooling
+                    // to reduce file size, xtkEvent is a stringified reference to pool indices
+
+                    if ( savedXtkVersion >= 4 && typeof xtkEvent === "string" ) {
+
+                        [ notePoolId, automationPoolId ] = xtkEvent.split('|');
+
+                        let mp = undefined;
+                        if (automationPoolId) {
+                            mp = { ...( automationPool[ parseFloat( automationPoolId ) ]) }
+                        }
+                        eventData = {
+                            ...( notePool[ parseFloat( notePoolId ) ] || {} ),
+                            [ EVENT_ID ]: ( ++eventIdAcc ),
+                            [ EVENT_MODULE_AUTOMATION ]: mp,
+                        };
+                    }
+                    else {
+                        // legacy songs serialized events as unique Objects
+                        eventData = xtkEvent;
+                    }
+
                     event = {
-                        action:     xtkEvent[ EVENT_ACTION ],
-                        id :        xtkEvent[ EVENT_ID ],
-                        instrument: xtkEvent[ EVENT_INSTRUMENT ],
-                        note:       xtkEvent[ EVENT_NOTE ],
-                        octave:     xtkEvent[ EVENT_OCTAVE ],
+                        action:     eventData[ EVENT_ACTION ],
+                        id :        eventData[ EVENT_ID ],
+                        instrument: eventData[ EVENT_INSTRUMENT ],
+                        note:       eventData[ EVENT_NOTE ],
+                        octave:     eventData[ EVENT_OCTAVE ],
                         recording:  false,
                         seq: {
                             playing: false,
                             mpLength: 0
-                        }
+                        },
                     };
 
-                    EventUtil.setPosition( event, pattern, pIndex, eIndex, tempo, xtkEvent[ EVENT_LENGTH ]);
-                    const xtkAutomation = xtkEvent[ EVENT_MODULE_AUTOMATION ];
+                    EventUtil.setPosition( event, pattern, pIndex, eIndex, tempo, eventData[ EVENT_LENGTH ]);
+                    const xtkAutomation = eventData[ EVENT_MODULE_AUTOMATION ];
 
                     if ( xtkAutomation) {
                         event.mp = {
@@ -454,8 +489,11 @@ function assemblePatterns( song, savedXtkVersion, xtkPatterns, tempo ) {
 
 function disassemblePatterns( xtk, patterns ) {
 
-    const xtkPatterns = xtk[ PATTERNS ] = new Array( patterns.length );
-    let xtkPattern, xtkChannel, xtkEvent, xtkAutomation;
+    const xtkPatterns       = xtk[ PATTERNS ]   = new Array( patterns.length );
+    const xtkNotePool       = xtk[ NOTE_POOLS ] = [];
+    const xtkAutomationPool = xtk[ AUTOMATION_POOLS ] = [];
+
+    let xtkPattern, xtkChannel, xtkEvent, xtkAutomation, poolRef;
 
     patterns.forEach(( pattern, pIndex ) => {
 
@@ -474,20 +512,26 @@ function disassemblePatterns( xtk, patterns ) {
 
                     xtkEvent = {};
 
-                    xtkEvent[ EVENT_ID ]         = event.id;
                     xtkEvent[ EVENT_ACTION ]     = event.action;
                     xtkEvent[ EVENT_INSTRUMENT ] = event.instrument;
                     xtkEvent[ EVENT_NOTE ]       = event.note;
                     xtkEvent[ EVENT_OCTAVE ]     = event.octave;
                     xtkEvent[ EVENT_LENGTH ]     = event.seq.length;
 
+                    // pool the event or reference the pool if its definition already existed
+                    poolRef = poolObject(xtkNotePool, xtkEvent);
+
                     if ( event.mp ) {
-                        xtkAutomation = xtkEvent[ EVENT_MODULE_AUTOMATION ] = {};
+                        xtkAutomation = {};
 
                         xtkAutomation[ EVENT_MODULE ]       = event.mp.module;
                         xtkAutomation[ EVENT_MODULE_VALUE ] = event.mp.value;
                         xtkAutomation[ EVENT_MODULE_GLIDE ] = event.mp.glide;
+
+                        // pool the automation or reference the pool if its definition already existed
+                        poolRef += `|${poolObject(xtkAutomationPool, xtkAutomation)}`;
                     }
+                    xtkEvent = poolRef;
                 }
                 else {
                     xtkEvent = 0; // "0" is 3 bytes smaller than "null" ;)
@@ -496,4 +540,13 @@ function disassemblePatterns( xtk, patterns ) {
             });
         });
     });
+}
+
+function poolObject( pool, object ) {
+    const hash = JSON.stringify( object );
+    let idx = pool.indexOf( hash );
+    if ( idx === -1 ) {
+        idx = pool.push( hash ) - 1;
+    }
+    return idx.toString();
 }

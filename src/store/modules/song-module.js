@@ -314,7 +314,6 @@ export default {
                         } catch (e) {
                             // assume new song in Stringified JSON format
                             songData = fileData;
-                            console.warn('kut');
                         }
                         const song = SongAssemblyService.assemble(songData);
 
