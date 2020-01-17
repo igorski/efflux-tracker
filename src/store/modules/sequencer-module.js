@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -27,6 +27,7 @@ import AudioService    from '@/services/audio-service';
 import { createTimer } from '@/services/audio/webaudio-helper';
 import Metronome       from '@/services/audio/metronome';
 import SequencerWorker from '@/workers/sequencer.worker.js';
+import { ACTION_IDLE, ACTION_NOTE_ON } from '@/model/types/audio-event-def';
 
 /* internal methods */
 
@@ -47,7 +48,7 @@ function enqueueEvent(store, event, eventChannel) {
     // automation glide (a noteOn lasts until a new note or a kill event is
     // triggered within the same channel)
 
-    const patternDuration = (60 / activeSong.meta.tempo) * beatAmount;
+    const patternDuration = ( 60 / activeSong.meta.tempo ) * beatAmount;
     const patterns        = activeSong.patterns;
     const eventPattern    = patterns[activePattern];
 
@@ -59,13 +60,13 @@ function enqueueEvent(store, event, eventChannel) {
 
     // dequeue preceding events
 
-    const isNoteOn = event.action === 1;
-    const queue    = channelQueue[eventChannel];
+    const isNoteOn = event.action === ACTION_NOTE_ON;
+    const queue    = channelQueue[ eventChannel ];
 
-    if (event.action !== 0) {
+    if ( event.action !== ACTION_IDLE ) {
 
         // all non-module parameter change events kill previously playing notes
-        let playingNote = queue.head;
+        let playingNote = queue.tail;
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
         if ( !playingNote && store.state.sequencer.looping ) {
@@ -73,10 +74,10 @@ function enqueueEvent(store, event, eventChannel) {
             return;
         }
 
-        while (playingNote) {
+        while ( playingNote ) {
             dequeueEvent(store.state.sequencer, playingNote.data, nextNoteTime);
             playingNote.remove();
-            playingNote = queue.head;
+            playingNote = queue.tail;
         }
     }
 
@@ -85,8 +86,8 @@ function enqueueEvent(store, event, eventChannel) {
     // dequeued after a single sequencer tick/step (the length of a module parameter
     // automation glide)
 
-    if (isNoteOn)
-        queue.add(event);
+    if ( isNoteOn )
+        queue.add( event );
     else
         dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.mpLength);
 }
@@ -152,7 +153,7 @@ function collect(store) {
                 channelStep = channel.length;
 
                 while ( channelStep-- ) {
-                    event = channel[channelStep];
+                    event = channel[ channelStep ];
 
                     // empty slots, recording events or events outside of the current measure can be ignored
                     if ( !event || event.recording || event.seq.startMeasure !== state.activePattern ) {
@@ -184,7 +185,7 @@ function collect(store) {
             state.metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, AudioService.getAudioContext() );
 
         // advance to next step position
-        step(store);
+        step( store );
     }
 }
 
@@ -416,4 +417,3 @@ export default {
         }
     }
 };
-

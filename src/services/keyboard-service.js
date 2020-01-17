@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config                     from '../config';
+import Config                     from '@/config';
+import HistoryStates              from '@/definitions/history-states';
+import ModalWindows               from '@/definitions/modal-windows';
+import EventFactory               from '@/model/factory/event-factory';
+import HistoryStateFactory        from '@/model/factory/history-state-factory';
+import EventUtil                  from '@/utils/event-util';
+import { ACTION_NOTE_OFF }        from '@/model/types/audio-event-def';
 import NoteInputHandler           from './keyboard/note-input-handler';
 import InstrumentSelectionHandler from './keyboard/instrument-selection-handler';
 import ModuleParamHandler         from './keyboard/module-param-handler';
 import ModuleValueHandler         from './keyboard/module-value-handler';
-import HistoryStates              from '../definitions/history-states';
-import ModalWindows               from '../definitions/modal-windows';
-import EventFactory               from '../model/factory/event-factory';
-import HistoryStateFactory        from '../model/factory/history-state-factory';
-import EventUtil                  from '../utils/event-util';
 
 let store, state, listener,
     suspended = false, blockDefaults = true, optionDown = false, shiftDown = false;
@@ -363,7 +364,9 @@ function handleKeyDown(event) {
             break;
 
         case 75: // K
-            store.commit('addEventAtPosition', { event: EventFactory.createAudioEvent(0, '', 0, 2), store });
+            store.commit('addEventAtPosition', {
+                event: EventFactory.createAudioEvent( 0, '', 0, ACTION_NOTE_OFF ), store
+            });
             break;
 
         case 76: // L

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -20,9 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config       from '../../config';
+import Config       from '@/config';
 import EventFactory from './event-factory';
-import ObjectUtil   from '../../utils/object-util';
+import ObjectUtil   from '@/utils/object-util';
+import { ACTION_IDLE } from '../types/audio-event-def';
 
 const PatternFactory =
 {
@@ -104,7 +105,7 @@ const PatternFactory =
 
                 // copy source content into the target channel (only when it has a note action or module parameter automation)
 
-                if ( sourceEvent && ( sourceEvent.action !== 0 || sourceEvent.mp )) {
+                if ( sourceEvent && ( sourceEvent.action !== ACTION_IDLE || sourceEvent.mp )) {
 
                     const targetEvent = targetChannel[ i ] = ObjectUtil.clone( sourceEvent );
 

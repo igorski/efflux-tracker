@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue            from 'vue';
-import HistoryStates  from '../../definitions/history-states';
-import PatternFactory from './pattern-factory';
-import EventUtil      from '../../utils/event-util';
-import ObjectUtil     from '../../utils/object-util';
-import PatternUtil    from '../../utils/pattern-util';
+import Vue                 from 'vue';
+import HistoryStates       from '../../definitions/history-states';
+import PatternFactory      from './pattern-factory';
+import EventUtil           from '../../utils/event-util';
+import ObjectUtil          from '../../utils/object-util';
+import PatternUtil         from '../../utils/pattern-util';
+import { ACTION_NOTE_OFF } from '../types/audio-event-def';
 
 export default {
 
@@ -120,7 +121,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         // (but take its module parameter automation when existing for non-off events)
 
         if ( channel[ step ]) {
-            if ( event.action !== 2 && !event.mp && channel[ step ].mp )
+            if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp )
                 Vue.set(event, 'mp', ObjectUtil.clone( channel[ step ].mp ));
 
             EventUtil.clearEvent( song, patternIndex, channelIndex, step, eventList[ patternIndex ]);
@@ -141,7 +142,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
             // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
             // keep on traversing backwards until we find a valid event
 
-            while ( prevNode && prevNode.data.action === 2 ) {
+            while ( prevNode && prevNode.data.action === ACTION_NOTE_OFF ) {
                 prevNode = prevNode.previous;
             }
 

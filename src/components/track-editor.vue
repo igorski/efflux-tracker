@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019 - https://www.igorski.nl
+* Igor Zinken 2019-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -43,6 +43,7 @@ import HistoryStates from '../definitions/history-states';
 import ModalWindows from '../definitions/modal-windows';
 import EventFactory from '../model/factory/event-factory';
 import HistoryStateFactory from '../model/factory/history-state-factory';
+import { ACTION_NOTE_OFF } from '../model/types/audio-event-def';
 import EventUtil from '../utils/event-util';
 
 import { DOM } from 'zjslib';
@@ -104,7 +105,7 @@ export default {
         },
         addNoteOnOff(){
             const offEvent = EventFactory.createAudioEvent();
-            offEvent.action = 2; // noteOff;
+            offEvent.action = ACTION_NOTE_OFF;
             this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
         deleteNote() {
@@ -201,4 +202,3 @@ export default {
       }
     }
 </style>
- 

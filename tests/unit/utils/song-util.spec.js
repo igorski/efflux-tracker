@@ -1,7 +1,8 @@
-import EventFactory   from '@/model/factory/event-factory';
-import PatternFactory from '@/model/factory/pattern-factory';
-import SongFactory    from '@/model/factory/song-factory';
-import SongUtil       from '@/utils/song-util';
+import EventFactory       from '@/model/factory/event-factory';
+import PatternFactory     from '@/model/factory/pattern-factory';
+import SongFactory        from '@/model/factory/song-factory';
+import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
+import SongUtil           from '@/utils/song-util';
 
 describe( 'SongUtil', () => {
     let song;
@@ -18,8 +19,8 @@ describe( 'SongUtil', () => {
         // add a note to the first available slot in the first
         // available channel of the first available pattern
 
-        const firstEvent    = EventFactory.createAudioEvent();
-        firstEvent.action = 1;
+        const firstEvent  = EventFactory.createAudioEvent();
+        firstEvent.action = ACTION_NOTE_ON;
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
         expect(SongUtil.hasContent(song)).toBe(true);
@@ -37,7 +38,7 @@ describe( 'SongUtil', () => {
         // generate some events
 
         const firstEvent  = EventFactory.createAudioEvent();
-        firstEvent.action = 1;
+        firstEvent.action = ACTION_NOTE_ON;
         firstEvent.seq.startMeasureOffset = 10;
         firstEvent.seq.length             = 2.5;
 
@@ -45,7 +46,7 @@ describe( 'SongUtil', () => {
         const expectedLength1 = firstEvent.seq.length * ratio;
 
         const secondEvent  = EventFactory.createAudioEvent();
-        secondEvent.action = 1;
+        secondEvent.action = ACTION_NOTE_ON;
         secondEvent.seq.startMeasureOffset = 5;
         secondEvent.seq.length             = 1.5;
 

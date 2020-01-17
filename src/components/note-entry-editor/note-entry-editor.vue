@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -83,13 +83,14 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 
-import KeyboardService from '@/services/keyboard-service';
-import EventUtil       from '@/utils/event-util';
-import EventFactory    from '@/model/factory/event-factory';
-import EventValidator  from '@/model/validators/event-validator';
-import ManualURLs      from '@/definitions/manual-urls';
-import FormListItem    from '../forms/form-list-item.vue';
-import messages        from './messages.json';
+import KeyboardService     from '@/services/keyboard-service';
+import EventUtil           from '@/utils/event-util';
+import EventFactory        from '@/model/factory/event-factory';
+import EventValidator      from '@/model/validators/event-validator';
+import { ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
+import ManualURLs          from '@/definitions/manual-urls';
+import FormListItem        from '../forms/form-list-item.vue';
+import messages            from './messages.json';
 
 const DEFAULT_NOTE   = 'C';
 const DEFAULT_OCTAVE = 3;
@@ -140,7 +141,7 @@ export default {
 
         const previousEvent = EventUtil.getFirstEventBeforeStep(channel, this.selectedStep, previousEvent => {
             // ignore off events as they do not specify an instrument
-            return previousEvent.action !== 2;
+            return previousEvent.action !== ACTION_NOTE_OFF;
         });
         this.instrument = ( previousEvent ) ? previousEvent.instrument : this.selectedInstrument;
 

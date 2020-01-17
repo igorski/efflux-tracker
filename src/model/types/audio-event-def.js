@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -66,3 +66,9 @@
  * @see EventFactory, EventValidator
  */
 let AUDIO_EVENT;
+
+// valid actions for event.action
+
+export const ACTION_IDLE      = 0; // no note action / module parameter change event
+export const ACTION_NOTE_ON   = 1; // start playing note defined using note and octave
+export const ACTION_NOTE_OFF  = 2; // stop playing the note started in a previous event

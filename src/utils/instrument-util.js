@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,6 +24,7 @@ import Vue          from 'vue';
 import AudioService from '@/services/audio-service';
 import EventFactory from '@/model/factory/event-factory';
 import EventUtil    from './event-util';
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 
 let playingNotes = {};
 
@@ -164,7 +165,7 @@ export default
         const audioEvent  = EventFactory.createAudioEvent(instrument.id);
         audioEvent.note   = pitch.note;
         audioEvent.octave = pitch.octave;
-        audioEvent.action = 1; // noteOn
+        audioEvent.action = ACTION_NOTE_ON;
 
         playingNotes[ id ] = { event: audioEvent, instrument: instrument, recording: record === true };
         AudioService.noteOn(audioEvent, instrument);
@@ -188,7 +189,7 @@ export default
 
             if ( eventVO.recording ) {
                 const offEvent = EventFactory.createAudioEvent(eventVO.instrument.id);
-                offEvent.action = 2; // noteOff
+                offEvent.action = ACTION_NOTE_OFF;
                 recordEventIntoSong(offEvent, store);
             }
             Vue.set(eventVO.event, 'recording', false);
@@ -233,7 +234,7 @@ function recordEventIntoSong( audioEvent, store ) {
     else {
         // sequencer isn't playing, add event at current editor step
         // unless it is a noteOff, let the user add it explicitly
-        if ( audioEvent.action !== 2 )
+        if ( audioEvent.action !== ACTION_NOTE_OFF )
             store.commit('addEventAtPosition', {
                 store, event: audioEvent,
                 optData: {
