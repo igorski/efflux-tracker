@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config from '../../config';
-import EventUtil from '../../utils/event-util';
-import LinkedList from '../../utils/linked-list';
+import Config     from '@/config';
+import EventUtil  from '@/utils/event-util';
+import LinkedList from '@/utils/linked-list';
 
 // editor module stores all states of the editor such as
 // the instrument which is currently be edited, the active track
@@ -39,7 +39,7 @@ export default {
          * @type {number}
          */
         selectedInstrument: 0,
-    
+
         /**
          * which pattern step is currently selected
          * this is represented in the track list as a row
@@ -47,7 +47,7 @@ export default {
          * @type {number}
          */
         selectedStep: 0,
-    
+
         /**
          * which parameter slot within an instruments step
          * is currently selected (e.g. note 0, instrument 1, module parameter 2 or module parameter value 3)
@@ -57,14 +57,14 @@ export default {
          * @type {number}
          */
         selectedSlot: -1,
-    
+
         /**
          * the root octave of the lower keyboard note range
          *
          * @type {number}
          */
         higherKeyboardOctave: 4,
-    
+
         /**
          * the root octave of the lower keyboard note range
          *

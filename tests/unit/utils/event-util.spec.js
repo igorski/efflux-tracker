@@ -135,7 +135,7 @@ describe( 'EventUtil', () => {
         expect(null).toEqual(list.getNodeByData( expected2 ));
     });
 
-    it( 'should be able to retrieve the first event before the given event', () => {
+    it( 'should be able to retrieve the first event before the given step', () => {
         const channelEvents = [];
 
         const event1 = EventFactory.createAudioEvent();
@@ -153,7 +153,7 @@ describe( 'EventUtil', () => {
         expect(null).toEqual(EventUtil.getFirstEventBeforeStep( channelEvents, 0 ));
     });
 
-    it( 'should be able to retrieve the first event before the given event that matches given compare function', () => {
+    it( 'should be able to retrieve the first event before the given step that matches given compare function', () => {
         const channelEvents = [];
 
         const event1 = EventFactory.createAudioEvent();
@@ -167,6 +167,60 @@ describe( 'EventUtil', () => {
         channelEvents.push( event3 ); // step 2
 
         expect(event1).toEqual(EventUtil.getFirstEventBeforeStep( channelEvents, 2, ( compareEvent ) => {
+            return compareEvent.mp && compareEvent.mp.foo === 'bar';
+        }));
+    });
+
+    it( 'should be able to retrieve the first event before the given event', () => {
+        const patterns = [
+            { channels: [ new Array(2), new Array(2) ] },
+            { channels: [ new Array(2), new Array(2) ] },
+            { channels: [ new Array(2), new Array(2) ] }
+        ];
+
+        const event1 = EventFactory.createAudioEvent();
+        const event2 = EventFactory.createAudioEvent();
+        const event3 = EventFactory.createAudioEvent();
+        const event4 = EventFactory.createAudioEvent();
+
+        patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
+        patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
+        patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 2
+        patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
+        patterns[1].channels[0].push( event3 ); // pattern 2, channel 1, step 2
+        patterns[2].channels[1].push( event4 );
+
+        // expected to find no results for these situations
+        expect(EventUtil.getFirstEventBeforeEvent(patterns, 0, 0, event1)).toBeNull(); // first event in channel
+        expect(EventUtil.getFirstEventBeforeEvent(patterns, 2, 1, event4)).toBeNull(); // only event in channel
+
+        // test within same pattern
+        expect(event1).toEqual(EventUtil.getFirstEventBeforeEvent(patterns, 0, 0, event2));
+
+        // test across patterns
+        expect(event2).toEqual(EventUtil.getFirstEventBeforeEvent(patterns, 1, 0, event3));
+    });
+
+    it( 'should be able to retrieve the first event before the given event that matches given compare function', () => {
+        const patterns = [
+            { channels: [ new Array(2) ] },
+            { channels: [ new Array(2) ] },
+            { channels: [ new Array(2) ] }
+        ];
+
+        const event1 = EventFactory.createAudioEvent();
+        const event2 = EventFactory.createAudioEvent();
+        const event3 = EventFactory.createAudioEvent();
+
+        patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
+        patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
+        patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 2
+        patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
+        patterns[0].channels[0].push( event3 ); // pattern 1, channel 1, step 4
+
+        event1.mp = { 'foo': 'bar' };
+
+        expect(event1).toEqual(EventUtil.getFirstEventBeforeEvent( patterns, 0, 0, event3, ( compareEvent ) => {
             return compareEvent.mp && compareEvent.mp.foo === 'bar';
         }));
     });

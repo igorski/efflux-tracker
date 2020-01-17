@@ -20,13 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue          from 'vue';
 import AudioService from '@/services/audio-service';
 import EventFactory from '@/model/factory/event-factory';
 import EventUtil    from './event-util';
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 
+const RECORD_THRESHOLD = 50;
+
 let playingNotes = {};
+let lastAddition = 0;
 
 /**
  * tune given frequency to given oscillators tuning
@@ -185,14 +187,13 @@ export default
         const eventVO = playingNotes[ id ];
 
         if ( eventVO ) {
-            AudioService.noteOff(eventVO.event);
+            AudioService.noteOff( eventVO.event );
 
             if ( eventVO.recording ) {
-                const offEvent = EventFactory.createAudioEvent(eventVO.instrument.id);
+                const offEvent  = EventFactory.createAudioEvent( eventVO.instrument.id );
                 offEvent.action = ACTION_NOTE_OFF;
-                recordEventIntoSong(offEvent, store);
+                recordEventIntoSong( offEvent, store, false );
             }
-            Vue.set(eventVO.event, 'recording', false);
            // audioEvent.event.seq.playing = false;
         }
         delete playingNotes[ id ];
@@ -205,41 +206,57 @@ function pitchToUniqueId( pitch ) {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent, store ) {
-    if ( store.state.sequencer.playing ) {
+function recordEventIntoSong( audioEvent, store, isRecording = true ) {
+    const { state, getters, commit } = store;
+    const optData   = { newEvent: true };
+    const isNoteOff = audioEvent.action === ACTION_NOTE_OFF;
+
+    // ensure we don't overlap previously recorded notes when
+    // frantically playing
+
+    const now = Date.now();
+    if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
+
+    const song         = state.song.activeSong;
+    const patternIndex = state.sequencer.activePattern;
+    const channelIndex = state.editor.selectedInstrument;
+    const pattern      = song.patterns[ patternIndex ];
+    const channel      = pattern.channels[ channelIndex ];
+    const step         = Math.round( getters.position.step / 64 * getters.amountOfSteps );
+
+    if ( state.sequencer.playing ) {
+
+        // do not record repeated note off instructions
+
+        if ( isNoteOff ) {
+            const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
+            if ( prevInCurrentPattern && prevInCurrentPattern.action === ACTION_NOTE_OFF ) return;
+        }
 
         // sequencer is playing, add event at current step
 
-        const song          = store.state.song.activeSong;
-        const activePattern = store.state.sequencer.activePattern;
-        const pattern       = song.patterns[ activePattern ];
-        const channel       = pattern.channels[ store.state.editor.selectedInstrument ];
-        const step          = Math.round( store.getters.position.step / 64 * store.getters.amountOfSteps );
+        optData.patternIndex = patternIndex;
+        optData.channelIndex = channelIndex;
+        optData.step         = step;
+        audioEvent.recording = isRecording;
 
-        EventUtil.setPosition(
-            audioEvent, pattern, activePattern, step, song.meta.tempo
-        );
-        audioEvent.recording = true;
-        const existingEvent  = channel[ step ];
+        const existingEvent  = channel[ optData.step ];
 
-        // if an event was present at given position, retain it's module parameter actions
+        // if an event was present at given position, retain its module parameter actions
         if ( existingEvent && audioEvent.mp )
             audioEvent.mp = { ...existingEvent.mp };
-
-        Vue.set(channel, step, audioEvent );
-
-        // update linked list for AudioEvents
-        EventUtil.linkEvent( audioEvent, store.state.editor.selectedInstrument, song, store.state.editor.eventList );
     }
-    else {
-        // sequencer isn't playing, add event at current editor step
-        // unless it is a noteOff, let the user add it explicitly
-        if ( audioEvent.action !== ACTION_NOTE_OFF )
-            store.commit('addEventAtPosition', {
-                store, event: audioEvent,
-                optData: {
-                    newEvent: true
-                }
-            });
+    else if ( isNoteOff ) {
+        // if the sequencer isn't playing, noteOff events must be added explicitly
+        return;
     }
+    commit('addEventAtPosition', { store, event: audioEvent, optData });
+
+    lastAddition = now;
+
+    // unset recording state of previous event
+    const previousEvent = EventUtil.getFirstEventBeforeEvent(
+        song.patterns, patternIndex, channelIndex, audioEvent
+    );
+    if ( previousEvent ) previousEvent.recording = false;
 }

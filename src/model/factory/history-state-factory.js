@@ -21,12 +21,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue                 from 'vue';
-import HistoryStates       from '../../definitions/history-states';
+import HistoryStates       from '@/definitions/history-states';
+import EventUtil           from '@/utils/event-util';
+import ObjectUtil          from '@/utils/object-util';
+import PatternUtil         from '@/utils/pattern-util';
+import { ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 import PatternFactory      from './pattern-factory';
-import EventUtil           from '../../utils/event-util';
-import ObjectUtil          from '../../utils/object-util';
-import PatternUtil         from '../../utils/pattern-util';
-import { ACTION_NOTE_OFF } from '../types/audio-event-def';
 
 export default {
 

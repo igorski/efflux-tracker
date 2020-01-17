@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -168,8 +168,7 @@ const EventUtil =
         });
     },
     /**
-     * retrieve the first AudioEvent available before
-     * given step in given channel event list
+     * retrieve the first AudioEvent before given step in given channel event list
      *
      * @param {Array<AUDIO_EVENT>} channelEvents
      * @param {number} step
@@ -184,6 +183,33 @@ const EventUtil =
             if ( previousEvent &&
                 ( typeof optCompareFn !== 'function' || optCompareFn( previousEvent ))) {
                 return previousEvent;
+            }
+        }
+        return null;
+    },
+    /**
+     * retrieve the first AudioEvent before given event in the same or previous patterns channel
+     *
+     * @param {Array<PATTERN>} patterns
+     * @param {number} patternIndex pattern the event belongs to
+     * @param {number} channelIndex channel the event belongs to
+     * @param {AUDIO_EVENT} event
+     * @param {Function=} optCompareFn optional function to use
+     *                    to filter events by
+     * @return {AUDIO_EVENT|null}
+     */
+    getFirstEventBeforeEvent( patterns, patternIndex, channelIndex, event, optCompareFn ) {
+        let pattern, previousEvent;
+        for ( let p = patternIndex; p >= 0; --p ) {
+            pattern = patterns[ p ];
+            const channelEvents = pattern.channels[ channelIndex ];
+            const start = channelEvents.includes( event ) ? channelEvents.indexOf( event ) : channelEvents.length;
+            for ( let i = start; i >= 0; --i ) {
+                previousEvent = channelEvents[ i ];
+                if ( previousEvent && previousEvent !== event &&
+                    ( typeof optCompareFn !== 'function' || optCompareFn( previousEvent ))) {
+                    return previousEvent;
+                }
             }
         }
         return null;

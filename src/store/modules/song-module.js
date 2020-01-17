@@ -82,7 +82,7 @@ export default {
          * adds given AudioEvent at the currently highlighted position or by optionally defined
          * offsets in optData { patternIndex, channelIndex, step }
          *
-         * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
+         * TODO: can we refactor this to not require us to pass the root store?? (to-Vue-migration leftover)
          */
         addEventAtPosition(state, { event, store, optData, optStoreInUndoRedo = true }) {
             const undoRedoAction = HistoryStateFactory.getAction( HistoryStates.ADD_EVENT, {
@@ -103,8 +103,7 @@ export default {
                     }
                 }
             });
-            if ( optStoreInUndoRedo )
-                store.commit('saveState', undoRedoAction );
+            if ( optStoreInUndoRedo ) store.commit('saveState', undoRedoAction );
         },
         updateOscillator(state, { instrumentIndex, oscillatorIndex, prop, value }) {
             Vue.set(state.activeSong.instruments[instrumentIndex].oscillators[oscillatorIndex], prop, value);
