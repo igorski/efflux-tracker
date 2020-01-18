@@ -321,7 +321,7 @@ function addPattern({ store }) {
     const pattern = PatternFactory.createEmptyPattern(amountOfSteps);
 
     function add() {
-        store.commit('replacePatterns', PatternUtil.addPatternAtIndex(patterns, patternIndex, amountOfSteps, pattern));
+        store.commit('replacePatterns', PatternUtil.addPatternAtIndex(patterns, patternIndex + 1, amountOfSteps, pattern));
         store.commit('createLinkedList', song);
     }
     add(); // perform action
