@@ -83,19 +83,20 @@ export default {
  */
 function addSingleEventAction({ store, event, optEventData, updateHandler }) {
 
-    const song        = store.state.song.activeSong,
-          eventList   = store.state.editor.eventList;
+    const { state }   = store;
+    const song        = state.song.activeSong,
+          eventList   = state.editor.eventList;
 
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
 
-    let patternIndex = store.state.sequencer.activePattern,
-        channelIndex = store.state.editor.selectedInstrument,
-        step         = store.state.editor.selectedStep;
+    let patternIndex = state.sequencer.activePattern,
+        channelIndex = state.editor.selectedInstrument,
+        step         = state.editor.selectedStep;
 
     // currently active instrument and pattern (e.g. visible on screen)
 
-    const activePattern = store.state.sequencer.activePattern;
+    const activePattern = state.sequencer.activePattern;
     let advanceStepOnAddition = true;
 
     // if options Object was given, use those values instead of current sequencer values

@@ -14,6 +14,7 @@
 import sequencerModule from '@/store/modules/sequencer-module';
 import { assemble } from '@/services/song-assembly-service';
 import { getPitchByFrequency } from '@/services/audio/pitch';
+import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
 import {
     prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
 } from '@/services/audio-service';
@@ -112,7 +113,7 @@ export default {
     on: ({ f, i, a, mp, t }) => {
         event = {
             instrument: i,
-            action: a || 1,
+            action: a || ACTION_NOTE_ON,
             mp,
             ...getPitchByFrequency(f) // TODO: we can also supply note and octave directly?
         };

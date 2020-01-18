@@ -176,7 +176,15 @@ LinkedList.prototype.remove = function( object ) {
     }
 };
 
-LinkedList.prototype.getNodeByData = function( data ) {
+/**
+ * Retrieve a linked list node by its data
+ *
+ * @param {*} data
+ * @param {!Function} optCompareFn optional compare function to use
+ *                    to compare existing node data, will receive comparison node's data
+ * @return {Node}
+ */
+LinkedList.prototype.getNodeByData = function( data, optCompareFn ) {
 
     // this iteration actually performs higher
     // than using an indexOf() of on an Array referencing all
@@ -184,6 +192,10 @@ LinkedList.prototype.getNodeByData = function( data ) {
 
     let currentNode = this.head;
     while ( currentNode ) {
+
+        if ( typeof optCompareFn === 'function' && optCompareFn( currentNode.data )) {
+            return currentNode;
+        }
 
         if ( currentNode.data === data )
             return currentNode;

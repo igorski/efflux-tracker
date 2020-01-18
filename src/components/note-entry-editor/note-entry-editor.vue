@@ -87,10 +87,10 @@ import KeyboardService     from '@/services/keyboard-service';
 import EventUtil           from '@/utils/event-util';
 import EventFactory        from '@/model/factory/event-factory';
 import EventValidator      from '@/model/validators/event-validator';
-import { ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 import ManualURLs          from '@/definitions/manual-urls';
-import FormListItem        from '../forms/form-list-item.vue';
+import FormListItem        from '@/components/forms/form-list-item.vue';
 import messages            from './messages.json';
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 
 const DEFAULT_NOTE   = 'C';
 const DEFAULT_OCTAVE = 3;
@@ -233,7 +233,7 @@ export default {
             const pattern = this.activeSong.patterns[this.patternIndex],
                   channel = pattern.channels[this.channelIndex];
 
-            let event        = channel[this.step];
+            let event        = channel[ this.step ];
             const isNewEvent = !event;
 
             if ( isNewEvent )
@@ -241,7 +241,7 @@ export default {
 
             this.addEventAtPosition({
                 store: this.$store,
-                event: {...event, ...eventData, action: 1 },
+                event: { ...event, ...eventData, action: ACTION_NOTE_ON },
                 optData: {
                     patternIndex : this.patternIndex,
                     channelIndex : this.channelIndex,

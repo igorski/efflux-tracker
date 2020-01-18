@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue          from 'vue';
-import EventFactory from '../model/factory/event-factory';
+import EventFactory from '@/model/factory/event-factory';
 
 const EventUtil =
 {
@@ -39,10 +39,12 @@ const EventUtil =
     setPosition( event, pattern, patternNum, patternStep, tempo, length ) {
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
+        const { seq }       = event;
 
-        const seq = event.seq;
-
-        Vue.set(seq, 'length', ( typeof length === "number" ) ? length : ( 1 / pattern.steps ) * measureLength);
+        if ( typeof length !== "number" ) {
+           length = ( 1 / pattern.steps ) * measureLength;
+        }
+        Vue.set(seq, 'length', length);
         Vue.set(seq, 'startMeasure', patternNum);
         Vue.set(seq, 'startMeasureOffset', eventOffset);
         Vue.set(seq, 'endMeasure', patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength )));
@@ -58,40 +60,28 @@ const EventUtil =
      */
     linkEvent( event, channelIndex, song, lists ) {
         const list     = lists[ channelIndex ];
-        const existed  = list.getNodeByData( event );
-        const patterns = song.patterns;
+        const existed  = list.getNodeByData( event, compareEvent => {
+            // we use a comparison function on instrument and offset
+            // as we might be linking an updated event (thus with changed properties/reference)
+            return compareEvent.instrument             === event.instrument &&
+                   compareEvent.seq.startMeasure       === event.seq.startMeasure &&
+                   compareEvent.seq.startMeasureOffset === event.seq.startMeasureOffset
+        });
+        if ( existed ) list.remove( existed );
 
-        if ( existed )
-            list.remove( existed );
+        // find previous and next events through the pattern list
 
-        // find previous event through the pattern list
-
-        let foundEvent = false, compareEvent, channel, i, l, j, jl, insertedNode;
-
-        for ( i = event.seq.startMeasure, l = patterns.length; i < l; ++i ) {
-            channel = patterns[ i ].channels[ channelIndex ];
-
-            for ( j = 0, jl = channel.length; j < jl; ++j ) {
-                compareEvent = channel[ j ];
-
-                if ( !foundEvent ) {
-                    if ( compareEvent === event )
-                        foundEvent = true;
-                }
-                else {
-
-                    // any event beyond this point is
-                    // the "next" event in the list for given event
-
-                    if ( compareEvent ) {
-                        insertedNode = list.addBefore( compareEvent, event );
-                        updatePreviousEventLength( insertedNode, song.meta.tempo );
-                        return insertedNode;
-                    }
-                }
-            }
+        let insertedNode;
+        const nextEvent = EventUtil.getFirstEventAfterEvent(
+            song.patterns, event.seq.startMeasure, channelIndex, event
+        );
+        if ( nextEvent ) {
+            insertedNode = list.addBefore( nextEvent, event );
+            // update this event duration when the next event is known
+            updateLengthDelta( event, insertedNode.next.data, song.meta.tempo );
+        } else {
+            insertedNode = list.add( event ); // event is new tail
         }
-        insertedNode = list.add( event ); // is new tail
         updatePreviousEventLength( insertedNode, song.meta.tempo );
 
         return insertedNode;
@@ -191,7 +181,7 @@ const EventUtil =
      * retrieve the first AudioEvent before given event in the same or previous patterns channel
      *
      * @param {Array<PATTERN>} patterns
-     * @param {number} patternIndex pattern the event belongs to
+     * @param {number} patternIndex pattern the event belongs to (e.g. its startMeasure)
      * @param {number} channelIndex channel the event belongs to
      * @param {AUDIO_EVENT} event
      * @param {Function=} optCompareFn optional function to use
@@ -209,6 +199,33 @@ const EventUtil =
                 if ( previousEvent && previousEvent !== event &&
                     ( typeof optCompareFn !== 'function' || optCompareFn( previousEvent ))) {
                     return previousEvent;
+                }
+            }
+        }
+        return null;
+    },
+    /**
+     * retrieve the first AudioEvent after given event in the same or previous patterns channel
+     *
+     * @param {Array<PATTERN>} patterns
+     * @param {number} patternIndex pattern the event belongs to (e.g. its startMeasure)
+     * @param {number} channelIndex channel the event belongs to
+     * @param {AUDIO_EVENT} event
+     * @param {Function=} optCompareFn optional function to use
+     *                    to filter events by
+     * @return {AUDIO_EVENT|null}
+     */
+    getFirstEventAfterEvent( patterns, patternIndex, channelIndex, event, optCompareFn ) {
+        let pattern, nextEvent;
+        for ( let p = patternIndex, pl = patterns.length; p < pl; ++p ) {
+            pattern = patterns[ p ];
+            const channelEvents = pattern.channels[ channelIndex ];
+            const start = channelEvents.includes( event ) ? channelEvents.indexOf( event ) : 0;
+            for ( let i = start, cl = channelEvents.length; i < cl; ++i ) {
+                nextEvent = channelEvents[ i ];
+                if ( nextEvent && nextEvent !== event &&
+                    ( typeof optCompareFn !== 'function' || optCompareFn( nextEvent ))) {
+                    return nextEvent;
                 }
             }
         }
@@ -384,35 +401,42 @@ export default EventUtil;
 /* internal methods */
 
 function updatePreviousEventLength( eventListNode, songTempo ) {
+    if ( !eventListNode.previous ) {
+        return;
+    }
+    updateLengthDelta( eventListNode.previous.data, eventListNode.data, songTempo );
+}
 
-    if ( eventListNode.previous ) {
+/**
+ * Updates the length of given firstEvent to match the delta
+ * distance between its starting offset and that of given lastEvent
+ */
+function updateLengthDelta( firstEvent, lastEvent, songTempo ) {
+    const prevEventSeq = firstEvent.seq;
+    const eventSeq     = lastEvent.seq;
 
-        const eventSeq     = eventListNode.data.seq;
-        const prevEventSeq = eventListNode.previous.data.seq;
+    if ( prevEventSeq.startMeasure === eventSeq.startMeasure ) {
+        Vue.set(prevEventSeq, 'length',
+            eventSeq.startMeasureOffset - prevEventSeq.startMeasureOffset
+        );
+    }
+    else {
 
-        if ( prevEventSeq.startMeasure === eventSeq.startMeasure ) {
-            Vue.set(prevEventSeq, 'length',
-                eventSeq.startMeasureOffset - prevEventSeq.startMeasureOffset
-            );
+        const currentStartMeasure = eventSeq.startMeasure;
+        const measureLength       = calculateMeasureLength( songTempo );
+        let previousStartMeasure  = prevEventSeq.startMeasure;
+        let length = measureLength - prevEventSeq.startMeasureOffset;
+        let i = 0;
+
+        while ( previousStartMeasure < currentStartMeasure ) {
+
+            if ( i > 0 )
+                length += measureLength;
+
+            ++previousStartMeasure;
+            ++i;
         }
-        else {
-
-            const currentStartMeasure = eventSeq.startMeasure;
-            const measureLength       = calculateMeasureLength( songTempo );
-            let previousStartMeasure  = prevEventSeq.startMeasure;
-            let length = measureLength - prevEventSeq.startMeasureOffset;
-            let i = 0;
-
-            while ( previousStartMeasure < currentStartMeasure ) {
-
-                if ( i > 0 )
-                    length += measureLength;
-
-                ++previousStartMeasure;
-                ++i;
-            }
-            Vue.set(prevEventSeq, 'length', length + eventSeq.startMeasureOffset);
-        }
+        Vue.set(prevEventSeq, 'length', length + eventSeq.startMeasureOffset);
     }
 }
 

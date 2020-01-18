@@ -226,10 +226,11 @@ function recordEventIntoSong( audioEvent, store, isRecording = true ) {
 
     if ( state.sequencer.playing ) {
 
+        const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
+
         // do not record repeated note off instructions
 
         if ( isNoteOff ) {
-            const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
             if ( prevInCurrentPattern && prevInCurrentPattern.action === ACTION_NOTE_OFF ) return;
         }
 
