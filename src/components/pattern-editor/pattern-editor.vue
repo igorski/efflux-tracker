@@ -106,8 +106,9 @@ export default {
             'saveState',
             'clearSelection',
             'setPatternSteps',
+            'gotoNextPattern',
             'openModal',
-            'showError'
+            'showError',
         ]),
         handlePatternClear() {
             this.clearSelection();
@@ -129,6 +130,7 @@ export default {
                 return;
             }
             this.saveState(HistoryStateFactory.getAction(HistoryStates.ADD_PATTERN, { store: this.$store }));
+            this.gotoNextPattern(this.activeSong);
         },
         handlePatternDelete() {
             const patterns = this.activeSong.patterns;
