@@ -245,6 +245,7 @@ function handleKeyDown(event) {
                 store.commit('gotoNextPattern', state.song.activeSong);
             }
             else {
+                const currentInstrument = state.editor.selectedInstrument;
                 if (setSelectedSlot(state.editor.selectedSlot + 1)) {
                     // when we go right from the most right lane, move to the next pattern (when existing)
                     if (state.editor.selectedInstrument + 1 > MAX_CHANNEL ) {
@@ -261,7 +262,7 @@ function handleKeyDown(event) {
                 if ( shiftDown ) {
                     store.commit('handleHorizontalKeySelectAction', {
                         keyCode,
-                        selectedChannelOnStart: state.editor.selectedInstrument,
+                        selectedChannelOnStart: currentInstrument,
                         selectedStepOnStart: state.editor.selectedStep
                     });
                 } else {
