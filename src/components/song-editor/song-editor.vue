@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -25,31 +25,15 @@
         class="song-editor"
         :class="{ 'settings-mode': mobileMode === 'settings' }"
     >
-        <div class="meta-editor"
-             @mouseover="setHelpTopic('meta')"
-        >
-            <input type="text"
-                   v-model="title"
-                   :placeholder="$t('songTitle')"
-                   @focus="handleFocusIn"
-                   @blur="handleFocusOut"
-            />
-            <input type="text"
-                   v-model="author"
-                   :placeholder="$t('songAuthor')"
-                   @focus="handleFocusIn"
-                   @blur="handleFocusOut"
-            />
-            <button v-t="'instrumentEditor'"
-                    id="instrumentEditBtn"
-                    @click="handleInstrumentEditorClick"
-            ></button>
-        </div>
+        <button v-t="'instrumentEditor'"
+                id="instrumentEditBtn"
+                @click="handleInstrumentEditorClick"
+        ></button>
     </section>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
+import { mapState, mapMutations } from 'vuex';
 import ModalWindows from '@/definitions/modal-windows';
 import messages from './messages.json';
 
@@ -59,47 +43,11 @@ export default {
         ...mapState([
             'mobileMode',
         ]),
-        ...mapGetters([
-            'activeSong',
-        ]),
-        title: {
-            get() {
-               return this.activeSong.meta.title;
-            },
-            set(value) {
-                this.setActiveSongTitle(value);
-            }
-        },
-        author: {
-            get() {
-               return this.activeSong.meta.author;
-            },
-            set(value) {
-                this.setActiveSongAuthor(value);
-            }
-        },
     },
     methods: {
         ...mapMutations([
-            'setActiveSongAuthor',
-            'setActiveSongTitle',
-            'setHelpTopic',
-            'suspendKeyboardService',
             'openModal'
         ]),
-        /**
-         * when typing, we want to suspend the KeyboardController
-         * so it doesn't broadcast the typing to its listeners
-         */
-        handleFocusIn() {
-            this.suspendKeyboardService(true);
-        },
-        /**
-         * on focus out, restore the KeyboardControllers broadcasting
-         */
-        handleFocusOut() {
-            this.suspendKeyboardService(false);
-        },
         handleInstrumentEditorClick() {
             this.openModal(ModalWindows.INSTRUMENT_EDITOR);
         }
@@ -112,15 +60,7 @@ export default {
 
     .song-editor {
         display: inline-block;
-    }
-
-    .meta-editor {
-      display: inline;
-
-      input {
-        width: 110px;
-        margin: 0 $spacing-xsmall;
-      }
+        padding-left: $spacing-small;
     }
 
     /* everything above tablet */
@@ -162,4 +102,3 @@ export default {
       }
     }
 </style>
- 

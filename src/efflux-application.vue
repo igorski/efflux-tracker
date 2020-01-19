@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -43,8 +43,8 @@
             <!-- actual application -->
             <div class="container">
                 <div id="properties">
-                    <song-editor />
                     <pattern-editor />
+                    <song-editor />
                 </div>
             </div>
 
@@ -82,6 +82,9 @@
                 />
                 <song-browser
                     v-if="modal === modalWindows.SONG_BROWSER" @close="closeModal"
+                />
+                <song-save-window
+                    v-if="modal === modalWindows.SONG_SAVE_WINDOW" @close="closeModal"
                 />
                 <settings-window
                     v-if="modal === modalWindows.SETTINGS_WINDOW" @close="closeModal"
@@ -134,6 +137,7 @@ import PubSubMessages from '@/services/pubsub/messages';
 import SettingsWindow from '@/components/settings-window/settings-window';
 import SongBrowser from '@/components/song-browser/song-browser';
 import SongEditor from '@/components/song-editor/song-editor';
+import SongSaveWindow from '@/components/song-save-window/song-save-window';
 import TrackEditor from '@/components/track-editor';
 import Transport from '@/components/transport/transport';
 import store from '@/store';
@@ -166,6 +170,7 @@ export default {
         SettingsWindow,
         SongBrowser,
         SongEditor,
+        SongSaveWindow,
         TrackEditor,
         Transport
     },

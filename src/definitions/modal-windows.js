@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019 - https://www.igorski.nl
+ * Igor Zinken 2019-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,5 +27,6 @@ export default
     MODULE_PARAM_EDITOR: '2',
     INSTRUMENT_EDITOR: '3',
     SONG_BROWSER: '4',
-    SETTINGS_WINDOW: '5'
+    SONG_SAVE_WINDOW: '5',
+    SETTINGS_WINDOW: '6'
 };

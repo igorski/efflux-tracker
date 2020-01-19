@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,8 +34,9 @@
                 <li>
                     <a v-t="'file'" class="title" @click.prevent=""></a>
                     <ul class="file-menu">
-                        <li v-t="'loadSong'" @click="handleLoad" data-api-song-load></li>
-                        <li v-t="'saveSong'" @click="handleSave"></li>
+                        <li v-t="'loadSong'"   @click="handleLoad" data-api-song-load></li>
+                        <li v-t="'saveSong'"   @click="handleSave(true)"></li>
+                        <li v-t="'saveSongAs'" @click="handleSave(false)"></li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
                         <template v-if="hasImportExport">
                             <li v-t="'importSong'" @click="handleSongImport"></li>
@@ -76,6 +77,7 @@ import { isSupported, setToggleButton } from '@/utils/fullscreen-util';
 import AudioService from '@/services/audio-service';
 import ManualURLs from '@/definitions/manual-urls';
 import ModalWindows from '@/definitions/modal-windows';
+import SongUtil from '@/utils/song-util';
 import messages from './messages.json';
 
 export default {
@@ -102,7 +104,7 @@ export default {
             return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome|Firefox)/g);
         },
         recordingButtonText() {
-            return this.isPlaying && AudioService.isRecording() ? 'Stop recording' : 'Record output';
+            return this.isPlaying && AudioService.isRecording() ? this.$t('stopRecording') : this.$t('recordOutput');
         },
     },
     watch: {
@@ -143,8 +145,18 @@ export default {
         handleLoad() {
             this.openModal(ModalWindows.SONG_BROWSER);
         },
-        handleSave() {
-            this.saveSong(this.activeSong);
+        async handleSave(allowInstantSaveWhenSongIsValid = false) {
+            if (SongUtil.hasContent(this.activeSong)) {
+                const { meta } = this.activeSong;
+                if (allowInstantSaveWhenSongIsValid &&
+                    meta.title && meta.author) {
+                    await this.saveSong(this.activeSong);
+                } else {
+                    this.openModal(ModalWindows.SONG_SAVE_WINDOW);
+                }
+            } else {
+                this.showError(this.$t('emptySong'));
+            }
         },
         handleReset() {
             const self = this;

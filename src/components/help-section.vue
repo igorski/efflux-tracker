@@ -23,7 +23,7 @@
 <template>
     <section id="helpSection">
         <div class="content">
-            <!-- 1. topic "general" -->
+            <!-- topic "general" -->
             <template v-if="helpTopic === 'general'">
                 <h4>Efflux help</h4>
                 <p>
@@ -40,7 +40,7 @@
                     <a href="https://www.github.com/igorski/efflux-tracker" rel="noopener" target="_blank">open source</a>.
                 </p>
             </template>
-            <!-- 2. topic "menu" -->
+            <!-- topic "menu" -->
             <template v-if="helpTopic === 'menu'">
                 <h4>Song save</h4>
                 <p>
@@ -61,14 +61,7 @@
                     your device.
                 </p>
             </template>
-            <!-- 3. topic "meta" -->
-            <template v-if="helpTopic === 'meta'">
-                <h4>Song properties</h4>
-                <p>
-                    Here you can give your badass composition a title and you can list your name as its author.
-                </p>
-            </template>
-            <!-- 4. topic "pattern" -->
+            <!-- topic "pattern" -->
             <template v-if="helpTopic === 'pattern'">
                 <h4>Pattern properties</h4>
                 <p>
@@ -86,7 +79,7 @@
                     imply chord outlines.
                 </p>
             </template>
-            <!-- 5. topic "tracker" -->
+            <!-- topic "tracker" -->
             <template v-if="helpTopic === 'tracker'">
                 <h4>Tracker help</h4>
                 <p>
@@ -171,4 +164,3 @@ export default {
         }
     }
 </style>
- 
