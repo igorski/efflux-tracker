@@ -31,6 +31,7 @@
         <div class="meta-editor">
             <input type="text"
                    v-model="title"
+                   ref="titleInput"
                    :placeholder="$t('songTitle')"
                    @focus="handleFocusIn"
                    @blur="handleFocusOut"
@@ -66,9 +67,11 @@ export default {
             'activeSong',
         ]),
     },
-    created() {
+    mounted() {
         this.title  = this.activeSong.meta.title;
         this.author = this.activeSong.meta.author;
+
+        this.$refs.titleInput.focus();
     },
     methods: {
         ...mapMutations([

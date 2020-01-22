@@ -386,7 +386,12 @@ function handleKeyDown(event) {
 
         case 83: // S
             if (hasOption) {
-                store.dispatch('saveSong', state.song.activeSong);
+                const { meta } = state.song.activeSong;
+                if (meta.title && meta.author) {
+                    store.dispatch('saveSong', state.song.activeSong);
+                } else {
+                    store.commit('openModal', ModalWindows.SONG_SAVE_WINDOW);
+                }
                 preventDefault(event); // page save
             }
             break;

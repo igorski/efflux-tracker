@@ -61,7 +61,7 @@
 
         <div class="application-footer">
             <span>
-                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2016 - 2019
+                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2016 - 2020
             </span>
         </div>
 
