@@ -355,7 +355,7 @@ const AudioService =
         recordOutput = !recordOutput;
         if (recordOutput && outputRecorderRef) {
             if (!recorder) {
-                recorder = new (outputRecorderRef)(masterBus, {
+                recorder = new (outputRecorderRef)( compressor, {
                     callback : handleRecordingComplete
                 });
             }
@@ -415,7 +415,7 @@ export default AudioService;
 /* internal methods */
 
 function setupRouting() {
-    masterBus  = createGainNode(audioContext);
+    masterBus  = createGainNode( audioContext );
     eq         = audioContext.createBiquadFilter();
     eq.type    = 'highpass';
     eq.frequency.value = 30; // remove sub-30 Hz rumbling
