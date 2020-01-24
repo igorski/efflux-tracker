@@ -122,7 +122,7 @@ import AdvancedPatternEditor from '@/components/advanced-pattern-editor/advanced
 import AudioService from '@/services/audio-service';
 import DialogWindow from '@/components/dialog-window/dialog-window';
 import HeaderMenu from '@/components/header-menu/header-menu';
-import HelpSection from '@/components/help-section';
+import HelpSection from '@/components/help-section/help-section';
 import InstrumentEditor from '@/components/instrument-editor/instrument-editor';
 import Loader from '@/components/loader';
 import ListenerUtil from '@/utils/listener-util';
@@ -131,14 +131,14 @@ import ModuleParamEditor from '@/components/module-param-editor/module-param-edi
 import NoteEntryEditor from '@/components/note-entry-editor/note-entry-editor';
 import Notifications from '@/components/notifications';
 import PatternEditor from '@/components/pattern-editor/pattern-editor';
-import PatternTrackList from '@/components/pattern-track-list';
+import PatternTrackList from '@/components/pattern-track-list/pattern-track-list';
 import PubSubService from '@/services/pubsub-service';
 import PubSubMessages from '@/services/pubsub/messages';
 import SettingsWindow from '@/components/settings-window/settings-window';
 import SongBrowser from '@/components/song-browser/song-browser';
 import SongEditor from '@/components/song-editor/song-editor';
 import SongSaveWindow from '@/components/song-save-window/song-save-window';
-import TrackEditor from '@/components/track-editor';
+import TrackEditor from '@/components/track-editor/track-editor';
 import Transport from '@/components/transport/transport';
 import store from '@/store';
 import messages from '@/messages.json';

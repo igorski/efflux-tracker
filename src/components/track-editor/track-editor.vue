@@ -39,12 +39,12 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import HistoryStates from '../definitions/history-states';
-import ModalWindows from '../definitions/modal-windows';
-import EventFactory from '../model/factory/event-factory';
-import HistoryStateFactory from '../model/factory/history-state-factory';
-import { ACTION_NOTE_OFF } from '../model/types/audio-event-def';
-import EventUtil from '../utils/event-util';
+import HistoryStates       from '@/definitions/history-states';
+import ModalWindows        from '@/definitions/modal-windows';
+import EventFactory        from '@/model/factory/event-factory';
+import HistoryStateFactory from '@/model/factory/history-state-factory';
+import { ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
+import EventUtil           from '@/utils/event-util';
 
 import { DOM } from 'zjslib';
 
@@ -151,25 +151,25 @@ export default {
           cursor: pointer;
 
           &.add-on {
-            background-image: url('../assets/images/icon-note-add.png');
+            background-image: url('../../assets/images/icon-note-add.png');
           }
           &.add-off {
-            background-image: url('../assets/images/icon-note-mute.png');
+            background-image: url('../../assets/images/icon-note-mute.png');
           }
           &.remove-note {
-            background-image: url('../assets/images/icon-note-delete.png');
+            background-image: url('../../assets/images/icon-note-delete.png');
           }
           &.module-params {
-            background-image: url('../assets/images/icon-module-params.png');
+            background-image: url('../../assets/images/icon-module-params.png');
           }
           &.module-glide {
-            background-image: url('../assets/images/icon-module-glide.png');
+            background-image: url('../../assets/images/icon-module-glide.png');
           }
           &.undo {
-            background-image: url('../assets/images/icon-undo.png');
+            background-image: url('../../assets/images/icon-undo.png');
           }
           &.redo {
-            background-image: url('../assets/images/icon-redo.png');
+            background-image: url('../../assets/images/icon-redo.png');
           }
 
           &:hover {
