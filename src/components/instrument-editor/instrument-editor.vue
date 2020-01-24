@@ -209,7 +209,7 @@ export default {
             }
         },
         savePreset() {
-            let newPresetName = this.presetName;
+            let newPresetName = this.presetName || '';
             if (newPresetName.trim().length === 0) {
                 this.showError(this.$t('errorNoName'));
             }
