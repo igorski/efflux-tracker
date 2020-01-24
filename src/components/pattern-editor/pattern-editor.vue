@@ -193,16 +193,7 @@ export default {
         margin: 0 0 0 $spacing-medium;
 
         h2 {
-          padding: 0 $spacing-large;
-        }
-
-        /* show divider before section content */
-        &:before {
-          content: "";
-          position: absolute;
-          border-left: 1px solid #666;
-          margin-top: -$spacing-medium;
-          height: 100%;
+          padding: 0 $spacing-medium 0 0;
         }
       }
     }
