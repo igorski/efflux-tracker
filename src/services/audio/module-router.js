@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -238,16 +238,16 @@ function applyDelay( audioEvent, modules ) {
     const mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
     switch ( mp.module ) {
         case 'delayTime':
-            module.delay = target * Config.MAX_DELAY_TIME;
+            module.delay = target; // 0 - 1 range
             break;
         case 'delayFeedback':
-            module.feedback = target * Config.MAX_DELAY_FEEDBACK;
+            module.feedback = target; // 0 - 1 range
             break;
         case 'delayCutoff':
             module.cutoff = target * Config.MAX_DELAY_CUTOFF;
             break;
         case 'delayOffset':
-            module.offset = target * Config.MAX_DELAY_OFFSET;
+            module.offset = Config.MIN_DELAY_OFFSET + target; // -0.5 - 0.5 range
             break;
     }
 }

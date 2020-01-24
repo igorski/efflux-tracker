@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019 - https://www.igorski.nl
+* Igor Zinken 2019-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -165,7 +165,7 @@
                     </select>
                     <div class="wrapper input range">
                         <label v-t="'delayTime'" for="delayTime"></label>
-                        <input type="range" id="delayTime" v-model.number="delayTime" min="0" max="2" step=".001" value=".5">
+                        <input type="range" id="delayTime" v-model.number="delayTime" min="0" max="1" step=".001" value=".5">
                     </div>
                     <div class="wrapper input range">
                         <label v-t="'feedback'" for="delayFeedback"></label>
@@ -177,7 +177,7 @@
                     </div>
                     <div class="wrapper input range">
                         <label v-t="'offset'" for="delayOffset"></label>
-                        <input type="range" id="delayOffset" v-model.number="delayOffset" min="0" max="1" step=".01" value="0">
+                        <input type="range" id="delayOffset" v-model.number="delayOffset" min="-0.5" max="0.5" step=".01" value="0">
                     </div>
                 </fieldset>
             </div>

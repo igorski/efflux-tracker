@@ -1,6 +1,5 @@
 /**
- * Taken from https://github.com/web-audio-components/delay
- *
+ * Adapted from https://github.com/web-audio-components/delay
  * Copyright (c) 2012 Nick Thompson
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -275,8 +274,8 @@ function Delay (context, opts) {
   // Internal AudioNodes
   this._split = context.createChannelSplitter(2);
   this._merge = context.createChannelMerger(2);
-  this._leftDelay = context.createDelay();
-  this._rightDelay = context.createDelay();
+  this._leftDelay = context.createDelay(5);
+  this._rightDelay = context.createDelay(5);
   this._leftGain = context.createGain();
   this._rightGain = context.createGain();
   this._leftFilter = new Filter.Lowpass(context, { frequency: opts.cutoff });
@@ -436,8 +435,15 @@ Delay.prototype = Object.create(null, {
     enumerable: true,
     get: function () { return this._leftDelay.delayTime.value; },
     set: function (value) {
-      this._leftDelay.delayTime.setValueAtTime(value, 0);
-      this._rightDelay.delayTime.setValueAtTime(value, 0);
+      this._delayTime = value;
+
+      const left  = this._leftDelay.delayTime;
+      const right = this._rightDelay.delayTime;
+
+      left.cancelScheduledValues(0);
+      left.value = value;
+      right.cancelScheduledValues(0);
+      right.value = value;
     }
   },
 
@@ -445,8 +451,8 @@ Delay.prototype = Object.create(null, {
     enumerable: true,
     get: function () { return this._leftGain.gain.value; },
     set: function (value) {
-      this._leftGain.gain.setValueAtTime(value, 0);
-      this._rightGain.gain.setValueAtTime(value, 0);
+        this._leftGain.gain.setValueAtTime(value, 0);
+        this._rightGain.gain.setValueAtTime(value, 0);
     }
   },
 
@@ -463,16 +469,23 @@ Delay.prototype = Object.create(null, {
     enumerable: true,
     get: function () { return this._offset; },
     set: function (value) {
-      var offsetTime = this._delayTime + value;
-      this._offset = value;
-      if (value < 0) {
-        this._leftDelay.delayTime.setValueAtTime(offsetTime, 0);
-        this._rightDelay.delayTime.setValueAtTime(this._delayTime, 0);
-      } else {
-        this._leftDelay.delayTime.setValueAtTime(this._delayTime, 0);
-        this._rightDelay.delayTime.setValueAtTime(offsetTime, 0);
-      }
-    }
+        this._offset     = value;
+        const offsetTime = this._delayTime + value;
+
+        const left       = this._leftDelay.delayTime;
+        const right      = this._rightDelay.delayTime;
+
+        left.cancelScheduledValues(0);
+        right.cancelScheduledValues(0);
+
+        if (value < 0) {
+            left.setValueAtTime(offsetTime, 0);
+            right.setValueAtTime(this._delayTime, 0);
+        } else {
+            left.setValueAtTime(this._delayTime, 0);
+            right.setValueAtTime(offsetTime, 0);
+        }
+     }
   },
 
   dry: {

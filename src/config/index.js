@@ -51,10 +51,8 @@ export default
     DEFAULT_DELAY_FEEDBACK      : 0.01,
     DEFAULT_DELAY_TIME          : 0.33,
     DEFAULT_DELAY_CUT_OFF       : 1500,
-    MAX_DELAY_TIME              : 2,
-    MAX_DELAY_FEEDBACK          : 1,
     MAX_DELAY_CUTOFF            : 22050,
-    MAX_DELAY_OFFSET            : 1,
+    MIN_DELAY_OFFSET            : -0.5,
 
     /**
      * return the path that Efflux is running in, this can

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2019 - https://www.igorski.nl
+ * Igor Zinken 2017-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -262,10 +262,10 @@ const ModuleFactory = {
         const delay = modules.delay.delay;
 
         delay.type     = props.type;
-        delay.delay    = props.time;
         delay.feedback = props.feedback;
-        delay.offset   = props.offset;
         delay.cutoff   = props.cutoff;
+        delay.delay    = props.time;
+        delay.offset   = props.offset; // should come after delay time
 
         modules.delay.delayEnabled = props.enabled;
         ModuleRouter.applyRouting( modules, output );
