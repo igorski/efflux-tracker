@@ -52,6 +52,9 @@ export default {
             case HistoryStates.DELETE_SELECTION:
                 return deleteSelectionAction( data );
 
+            case HistoryStates.ADD_MODULE_AUTOMATION:
+                return addModuleAutomationAction( data );
+
             case HistoryStates.DELETE_MODULE_AUTOMATION:
                 return deleteModuleAutomationAction( data );
 
@@ -247,6 +250,25 @@ function deleteSingleEventOrSelectionAction({ store }) {
             remove(selection);
         }
     };
+}
+
+function addModuleAutomationAction({ event, mp }) {
+    const existingAutomation = event.mp ? ObjectUtil.clone( event.mp ) : null;
+    const add = () => Vue.set(event, 'mp', mp);
+
+    add(); // perform action
+
+    return {
+        undo() {
+            if (existingAutomation)
+                Vue.set(event, 'mp', existingAutomation);
+            else
+                Vue.delete(event, 'mp');
+        },
+        redo() {
+            add();
+        }
+    }
 }
 
 function deleteModuleAutomationAction({ event }) {

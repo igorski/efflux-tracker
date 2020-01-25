@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2019 - https://www.igorski.nl
+ * Igor Zinken 2017-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -20,8 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue          from 'vue';
-import EventFactory from '../../model/factory/event-factory';
+import Vue                 from 'vue';
+import HistoryStates       from '@/definitions/history-states';
+import EventFactory        from '@/model/factory/event-factory';
+import HistoryStateFactory from '@/model/factory/history-state-factory';
 
 let store, state;
 
@@ -61,11 +63,21 @@ const ModuleParamHandler =
         if ( createEvent )
             event = getEventForPosition( true );
 
-        Vue.set(event, 'mp', EventFactory.createModuleParam(
+        const mp = EventFactory.createModuleParam(
             ( !selectedModule && event && event.mp ) ? event.mp.module : selectedModule,
             ( event && event.mp ) ? event.mp.value : 50,
             selectedGlide
-        ));
+        );
+
+        if ( createEvent ) {
+            Vue.set(event, 'mp', mp);
+        } else {
+            // a previously existed event will register the mp change in state history
+            // (a newly created event is added to state history through its addition to the song)
+            store.commit('saveState', HistoryStateFactory.getAction(
+                HistoryStates.ADD_MODULE_AUTOMATION, { event, mp }
+            ));
+        }
     },
     selectModuleByKeyAction(keyCode, currentModule = selectedModule) {
         const now = Date.now();

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -32,11 +32,12 @@ export default
     ADD_EVENT                : 'S:0',
     DELETE_EVENT             : 'S:1',
     DELETE_SELECTION         : 'S:2',
-    DELETE_MODULE_AUTOMATION : 'S:3',
-    CLEAR_PATTERN            : 'S:4',
-    PASTE_PATTERN            : 'S:5',
-    ADD_PATTERN              : 'S:6',
-    DELETE_PATTERN           : 'S:7',
-    CUT_SELECTION            : 'S:8',
-    PASTE_SELECTION          : 'S:9'
+    ADD_MODULE_AUTOMATION    : 'S:3',
+    DELETE_MODULE_AUTOMATION : 'S:4',
+    CLEAR_PATTERN            : 'S:5',
+    PASTE_PATTERN            : 'S:6',
+    ADD_PATTERN              : 'S:7',
+    DELETE_PATTERN           : 'S:8',
+    CUT_SELECTION            : 'S:9',
+    PASTE_SELECTION          : 'S:10'
 };

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2019 - https://www.igorski.nl
+ * Igor Zinken 2017-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue          from 'vue';
-import EventFactory from '../../model/factory/event-factory';
-import EventUtil    from '../../utils/event-util';
-import NumberUtil   from '../../utils/number-util';
+import Vue                 from 'vue';
+import HistoryStates       from '@/definitions/history-states';
+import EventFactory        from '@/model/factory/event-factory';
+import HistoryStateFactory from '@/model/factory/history-state-factory';
+import EventUtil           from '@/utils/event-util';
+import NumberUtil          from '@/utils/number-util';
 
 let store, state;
 let lastCharacter = "", lastTypeAction = 0;
@@ -68,7 +70,11 @@ export default {
                     return;
         }
 
-        const event = getEventForPosition( true );
+        let event = getEventForPosition();
+        const createEvent = !event;
+
+        if ( createEvent )
+            event = getEventForPosition( true );
 
         // no module param defined yet ? create as duplicate of previously defined property
         if ( !event.mp ) {
@@ -77,7 +83,16 @@ export default {
                 ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : 'volume', 50, false
             ));
         }
-        Vue.set(event.mp, 'value', value);
+
+        if ( createEvent ) {
+            Vue.set(event.mp, 'value', value);
+        } else {
+            // a previously existed event will register the mp change in state history
+            // (a newly created event is added to state history through its addition to the song)
+            store.commit('saveState', HistoryStateFactory.getAction(
+                HistoryStates.ADD_MODULE_AUTOMATION, { event, mp: { ...event.mp, value } }
+            ));
+        }
     }
 };
 
