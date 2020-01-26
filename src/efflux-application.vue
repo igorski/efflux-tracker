@@ -80,6 +80,9 @@
                 <instrument-editor
                     v-if="modal === modalWindows.INSTRUMENT_EDITOR" @close="closeModal"
                 />
+                <mixer
+                    v-if="modal === modalWindows.MIXER" @close="closeModal"
+                />
                 <song-browser
                     v-if="modal === modalWindows.SONG_BROWSER" @close="closeModal"
                 />
@@ -126,6 +129,7 @@ import HelpSection from '@/components/help-section/help-section';
 import InstrumentEditor from '@/components/instrument-editor/instrument-editor';
 import Loader from '@/components/loader';
 import ListenerUtil from '@/utils/listener-util';
+import Mixer from '@/components/mixer/mixer';
 import ModalWindows from '@/definitions/modal-windows';
 import ModuleParamEditor from '@/components/module-param-editor/module-param-editor';
 import NoteEntryEditor from '@/components/note-entry-editor/note-entry-editor';
@@ -164,6 +168,7 @@ export default {
         HelpSection,
         InstrumentEditor,
         Loader,
+        Mixer,
         Notifications,
         PatternEditor,
         PatternTrackList,

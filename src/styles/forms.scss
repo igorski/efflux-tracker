@@ -15,6 +15,14 @@ input {
 
 input[type=range] {
   padding: $spacing-xsmall $spacing-small;
+
+  &.vertical {
+    transform: rotate(90deg);
+
+    &.invert {
+      transform: rotate(-90deg);
+    }
+  }
 }
 
 select, .selector, button {
@@ -118,6 +126,7 @@ input[type=range] {
   -webkit-appearance: none;
   margin: $thumb-height/2 0;
   width: $track-width;
+  background-color: transparent;
 
   &:focus {
     outline: none;

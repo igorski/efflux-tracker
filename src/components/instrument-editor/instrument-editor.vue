@@ -36,7 +36,7 @@
                 <option v-for="(instrument, idx) in instrumentAmount"
                         :key="`instrument_${idx}`"
                         :value="idx"
-                >{{ $t('instrument', { index: idx }) }}</option>
+                >{{ $t('instrument', { index: idx + 1 }) }}</option>
             </select>
         </div>
 

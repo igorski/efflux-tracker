@@ -29,6 +29,9 @@
                 id="instrumentEditBtn"
                 @click="handleInstrumentEditorClick"
         ></button>
+        <button v-t="'mixer'"
+                @click="handleMixerClick"
+        ></button>
     </section>
 </template>
 
@@ -50,7 +53,10 @@ export default {
         ]),
         handleInstrumentEditorClick() {
             this.openModal(ModalWindows.INSTRUMENT_EDITOR);
-        }
+        },
+        handleMixerClick() {
+            this.openModal(ModalWindows.MIXER);
+        },
     }
 };
 </script>
