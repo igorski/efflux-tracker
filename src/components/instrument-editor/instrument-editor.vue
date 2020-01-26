@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019 - https://www.igorski.nl
+* Igor Zinken 2019-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the 'Software'), to deal in
@@ -115,7 +115,8 @@ export default {
     data: () => ({
         instrumentAmount: Config.INSTRUMENT_AMOUNT,
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
-        currentPreset: null
+        currentPreset: null,
+        presetName: '',
     }),
     computed: {
         ...mapState({
@@ -139,6 +140,7 @@ export default {
                 } else {
                     this.currentPreset = EMPTY_PRESET_VALUE;
                 }
+                this.presetName = instrumentPresetName;
             },
         },
         instrumentRef() {
@@ -154,14 +156,6 @@ export default {
                 if( a.presetName > b.presetName ) return 1;
                 return 0;
             });
-        },
-        presetName: {
-            get() {
-                return this.instrumentRef.presetName;
-            },
-            set(value) {
-                this.setPresetName({ instrument: this.instrumentRef, presetName: value });
-            },
         },
     },
     watch: {
@@ -215,12 +209,13 @@ export default {
             }
         },
         savePreset() {
-            const newPresetName = this.presetName || '';
+            let newPresetName = this.presetName || '';
             if (newPresetName.trim().length === 0) {
                 this.showError(this.$t('errorNoName'));
             }
             else {
-                this.presetName = newPresetName.replace('*', '');
+                newPresetName = newPresetName.replace('*', '');
+                this.setPresetName({ instrument: this.instrumentRef, presetName: newPresetName });
                 if (this.saveInstrument( ObjectUtil.clone( this.instrumentRef ) )) {
                     this.showNotification({ message: this.$t('instrumentSaved', { name: newPresetName }) });
                 }
