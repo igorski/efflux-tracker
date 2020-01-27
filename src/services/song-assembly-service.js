@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,7 +27,7 @@ import WaveTables        from './audio/wave-tables';
 
 /* private properties */
 
-const ASSEMBLER_VERSION = 4;
+const ASSEMBLER_VERSION = 5;
 
 /**
  * assembles a song Object from an .XTK file
@@ -119,6 +119,8 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_PRESET_NAME      = "pn",
       INSTRUMENT_VOLUME           = "v",
       INSTRUMENT_PANNING          = "ip",
+      INSTRUMENT_MUTED            = "im",
+      INSTRUMENT_SOLOD            = "is",
       INSTRUMENT_DELAY            = "d",
       INSTRUMENT_DELAY_ENABLED    = "e",
       INSTRUMENT_DELAY_CUTOFF     = "c",
@@ -227,6 +229,8 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
             presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
             panning    : xtkInstrument[ INSTRUMENT_PANNING ] || 0,
+            muted      : xtkInstrument[ INSTRUMENT_MUTED ] || false,
+            solo       : xtkInstrument[ INSTRUMENT_SOLOD ] || false,
             delay      : {
                 enabled  : xtkDelay[ INSTRUMENT_DELAY_ENABLED ],
                 type     : xtkDelay[ INSTRUMENT_DELAY_TYPE ],
@@ -324,6 +328,8 @@ function disassembleInstruments( xtk, instruments ) {
         xtkInstrument[ INSTRUMENT_PRESET_NAME ] = instrument.presetName;
         xtkInstrument[ INSTRUMENT_VOLUME ]      = instrument.volume;
         xtkInstrument[ INSTRUMENT_PANNING ]     = instrument.panning;
+        xtkInstrument[ INSTRUMENT_MUTED ]       = instrument.muted;
+        xtkInstrument[ INSTRUMENT_SOLOD ]       = instrument.solo;
 
         xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ]  = {};
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ] = {};

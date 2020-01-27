@@ -45,6 +45,8 @@ const InstrumentFactory =
             ],
             volume: 1,
             panning: 0, // -1 = left, 0 = center, 1 = right
+            solo: false,
+            muted: false,
             filter : {
                 enabled     : false,
                 frequency   : Config.DEFAULT_FILTER_FREQ,

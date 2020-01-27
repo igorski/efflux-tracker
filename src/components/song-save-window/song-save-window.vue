@@ -35,12 +35,14 @@
                    :placeholder="$t('songTitle')"
                    @focus="handleFocusIn"
                    @blur="handleFocusOut"
+                   @keyup.enter="save"
             />
             <input type="text"
                    v-model="author"
                    :placeholder="$t('songAuthor')"
                    @focus="handleFocusIn"
                    @blur="handleFocusOut"
+                   @keyup.enter="save"
             />
             <button v-t="'save'"
                     type="button"

@@ -70,8 +70,8 @@ export default {
 
     /* ideal size and above (tablet/desktop) */
 
-    $ideal-mixer-width: 895px;
-    $ideal-mixer-height: 360px;
+    $ideal-mixer-width: 780px;
+    $ideal-mixer-height: 400px;
 
     @media screen and ( min-width: $ideal-mixer-width ) {
       .mixer {

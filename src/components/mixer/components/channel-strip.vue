@@ -36,6 +36,16 @@
                    class="range"
             />
         </div>
+        <div class="toggles">
+            <button class="toggle"
+                    :class="{ active: instrument.muted }"
+                    @click="toggleMute"
+            >M</button>
+            <button class="toggle"
+                    :class="{ active: instrument.solo }"
+                    @click="toggleSolo"
+            >S</button>
+        </div>
         <div v-if="supportsPanning"
              class="wrapper input range panning-wrapper"
         >
@@ -83,6 +93,8 @@ export default {
                 return this.instrument.volume;
             },
             set( value ) {
+                // adjusting volume always deactivates the muted state
+                this.updateInstrument({ instrumentIndex: this.instrumentIndex, prop: 'muted', value: false });
                 this.updateInstrument({ instrumentIndex: this.instrumentIndex, prop: 'volume', value });
                 AudioService.adjustInstrumentVolume( this.instrumentIndex, value );
             }
@@ -104,6 +116,54 @@ export default {
         ...mapMutations([
             'updateInstrument',
         ]),
+        hasSolo() {
+            // whether one or more of the channels in the songs instrument list has solo enabled
+            return this.activeSong.instruments.find(( instrument, index ) => index !== this.instrumentIndex && instrument.solo );
+        },
+        toggleMute() {
+            const current = !!this.instrument.muted;
+            const value   = !current;
+
+            let targetVolume = value ? 0 : this.instrument.volume;
+            this.updateInstrument({ instrumentIndex: this.instrumentIndex, prop: 'muted', value });
+
+            if ( value ) {
+                // activating mute always unsolos instrument
+                if ( this.instrument.solo ) {
+                    this.toggleSolo();
+                }
+            } else {
+                // whether a channel is solo'ed at time of this toggle (can be this channel or another instruments channel)
+                if ( value || this.hasSolo() ) {
+                    targetVolume = 0;
+                }
+            }
+            AudioService.adjustInstrumentVolume( this.instrumentIndex, targetVolume );
+        },
+        toggleSolo() {
+            const current = !!this.instrument.solo;
+            const value   = !current;
+            this.updateInstrument({ instrumentIndex: this.instrumentIndex, prop: 'solo', value });
+
+            const hasSolo = value || this.hasSolo();
+
+            if ( value ) {
+                if ( this.instrument.muted ) {
+                    this.toggleMute(); // activating solo always unmutes instrument
+                } else {
+                    // as multiple channels can enable solo, force volume on for this channel
+                    AudioService.adjustInstrumentVolume( this.instrumentIndex, this.instrument.volume );
+                }
+            } else if ( hasSolo ) {
+                AudioService.adjustInstrumentVolume( this.instrumentIndex, 0 );
+            }
+
+            this.activeSong.instruments.forEach(( instrument, index ) => {
+                if ( index !== this.instrumentIndex ) {
+                    AudioService.adjustInstrumentVolume( index, hasSolo && !instrument.solo ? 0 : instrument.volume );
+                }
+            });
+        },
     },
 };
 </script>
@@ -149,6 +209,18 @@ export default {
 
     .panning-wrapper {
       width: 70px;
+      margin-top: $spacing-medium;
+    }
+
+    .toggle {
+      display: inline;
+      font-size: 80%;
+      padding: $spacing-xsmall $spacing-small;
+      margin: 0 0 0 $spacing-small;
+
+      &.active {
+        background-color: $color-2;
+      }
     }
 
 </style>
