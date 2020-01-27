@@ -117,7 +117,7 @@ export default {
             'updateInstrument',
         ]),
         hasSolo() {
-            // whether one or more of the channels in the songs instrument list has solo enabled
+            // whether one or more of the other channels in the songs instrument list has solo enabled
             return this.activeSong.instruments.find(( instrument, index ) => index !== this.instrumentIndex && instrument.solo );
         },
         toggleMute() {
@@ -132,11 +132,8 @@ export default {
                 if ( this.instrument.solo ) {
                     this.toggleSolo();
                 }
-            } else {
-                // whether a channel is solo'ed at time of this toggle (can be this channel or another instruments channel)
-                if ( value || this.hasSolo() ) {
-                    targetVolume = 0;
-                }
+            } else if ( this.hasSolo() ) {
+                targetVolume = 0;
             }
             AudioService.adjustInstrumentVolume( this.instrumentIndex, targetVolume );
         },
@@ -145,7 +142,7 @@ export default {
             const value   = !current;
             this.updateInstrument({ instrumentIndex: this.instrumentIndex, prop: 'solo', value });
 
-            const hasSolo = value || this.hasSolo();
+            let hasSolo = this.hasSolo();
 
             if ( value ) {
                 if ( this.instrument.muted ) {
@@ -158,6 +155,7 @@ export default {
                 AudioService.adjustInstrumentVolume( this.instrumentIndex, 0 );
             }
 
+            hasSolo = value || hasSolo; // in case no other instrument has solo but this instrument just activated the state
             this.activeSong.instruments.forEach(( instrument, index ) => {
                 if ( index !== this.instrumentIndex ) {
                     AudioService.adjustInstrumentVolume( index, hasSolo && !instrument.solo ? 0 : instrument.volume );
