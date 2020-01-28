@@ -20,14 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                from 'vue';
-import Config             from '@/config';
-import ModuleFactory      from '@/model/factory/module-factory';
-import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
-import ModuleRouter       from './audio/module-router';
-import { getFrequency }   from './audio/pitch';
-import ADSR               from './audio/adsr-module';
-import { processVoices }  from './audio/audio-util';
+import Vue                        from 'vue';
+import Config                     from '@/config';
+import ModuleFactory              from '@/model/factory/module-factory';
+import { ACTION_NOTE_ON }         from '@/model/types/audio-event-def';
+import { applyRouting }           from './audio/module-router';
+import { applyModuleParamChange } from './audio/module-automation';
+import { getFrequency }           from './audio/pitch';
+import { processVoices }          from './audio/audio-util';
+import ADSR                       from './audio/adsr-module';
 
 import {
     tuneToOscillator, tuneBufferPlayback, adjustEventWaveForms,
@@ -133,19 +134,33 @@ export const cacheCustomTables = instruments => {
 
 /**
  * apply the module settings described in the currently active
- * songs model onto the audio processing chain
+ * songs model onto the audio processing chain.
+ *
+ * @param {SONG} song
+ * @param {boolean=} connectAnalysers whether to connect the analyser nodes to
+ *                   each instrument channels output, allows for monitoring audio
+ *                   levels at the expense of some computational overhead.
  */
-export const applyModules = song => {
+export const applyModules = (song, connectAnalysers = false) => {
     song.instruments.forEach((instrument, instrumentIndex) => {
         const instrumentModules = instrumentModulesList[instrumentIndex];
         instrumentModules.output.gain.value = instrument.volume;
         if (instrumentModules.panner && typeof instrument.panning === 'number') {
             instrumentModules.panner.pan.value = instrument.panning;
         }
-        ModuleFactory.applyConfiguration('filter', instrumentModules, instrument.filter, masterBus);
-        ModuleFactory.applyConfiguration('delay', instrumentModules, instrument.delay, masterBus);
-        ModuleFactory.applyConfiguration('eq', instrumentModules, instrument.eq, masterBus);
-        ModuleFactory.applyConfiguration('overdrive', instrumentModules, instrument.overdrive, masterBus);
+        const analyser = instrumentModules.analyser;
+        analyser.disconnect();
+
+        const output = connectAnalysers ? analyser : masterBus;
+
+        ModuleFactory.applyConfiguration( 'filter', instrumentModules, instrument.filter, output );
+        ModuleFactory.applyConfiguration( 'delay', instrumentModules, instrument.delay, output );
+        ModuleFactory.applyConfiguration( 'eq', instrumentModules, instrument.eq, output );
+        ModuleFactory.applyConfiguration( 'overdrive', instrumentModules, instrument.overdrive, output );
+
+        if ( connectAnalysers ) {
+            analyser.connect( masterBus );
+        }
     });
 };
 
@@ -245,10 +260,10 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
         });
         instrumentEventsList[instrument.id][event.id] = voices;
     }
-    // module parameter change specified ? process it inside the ModuleRouter
+    // module parameter change specified ? process it.
 
     if (event.mp) {
-        ModuleRouter.applyModuleParamChange(
+        applyModuleParamChange(
             event,
             instrumentModulesList[instrument.id],
             instrument,
@@ -412,6 +427,11 @@ const AudioService =
 };
 export default AudioService;
 
+export const getAnalysers = () => {
+    return ( Array.isArray(instrumentModulesList) ? instrumentModulesList : [] )
+                .map(modules => modules.analyser);
+};
+
 /* internal methods */
 
 function setupRouting() {
@@ -436,6 +456,7 @@ function createModules() {
             eq        : ModuleFactory.createEQ(audioContext),
             filter    : ModuleFactory.createFilter(audioContext),
             delay     : ModuleFactory.createDelay(audioContext),
+            analyser  : audioContext.createAnalyser(),
             voices    : new Array(Config.OSCILLATOR_AMOUNT),
             output    : createGainNode(audioContext)
         };
@@ -457,7 +478,7 @@ function createModules() {
                 instrumentModules.voices[j].push(nodes);
             }
         }
-        ModuleRouter.applyRouting(instrumentModules, masterBus);
+        applyRouting(instrumentModules, masterBus);
     }
 }
 

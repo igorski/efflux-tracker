@@ -21,10 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { createGainNode, startOscillation } from '@/services/audio/webaudio-helper';
-import ModuleRouter   from '@/services/audio/module-router';
-import Config         from '@/config';
-import Delay          from '@/services/audio/delay-module';
-import Overdrive      from 'wa-overdrive';
+import { applyRouting } from '@/services/audio/module-router';
+import Config           from '@/config';
+import Delay            from '@/services/audio/delay-module';
+import Overdrive        from 'wa-overdrive';
 
 const ModuleFactory = {
     /**
@@ -187,7 +187,7 @@ const ModuleFactory = {
         eq.midGain.gain.value  = props.midGain;
         eq.highGain.gain.value = props.highGain;
 
-        ModuleRouter.applyRouting( modules, output );
+        applyRouting( modules, output );
     },
     /**
      * apply a Overdrive configuration onto an Overdrive module
@@ -205,7 +205,7 @@ const ModuleFactory = {
         overdrive.overdrive.preBand = props.preBand;
         overdrive.overdrive.postCut = props.postCut;
 
-        ModuleRouter.applyRouting( modules, output );
+        applyRouting( modules, output );
     },
     /**
      * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
@@ -231,7 +231,7 @@ const ModuleFactory = {
         filter.filter.type   = props.type;
         filter.filterEnabled = props.enabled;
 
-        ModuleRouter.applyRouting( modules, output );
+        applyRouting( modules, output );
 
         if ( filterEnabled )
         {
@@ -268,7 +268,7 @@ const ModuleFactory = {
         delay.offset   = props.offset; // should come after delay time
 
         modules.delay.delayEnabled = props.enabled;
-        ModuleRouter.applyRouting( modules, output );
+        applyRouting( modules, output );
     }
 };
 export default ModuleFactory;

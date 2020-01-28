@@ -32,25 +32,43 @@
             <channel-strip v-for="(instrument, index) in activeSong.instruments"
                            :key="`channel_${index}`"
                            :instrument-index="index"
+                           :analyser="analysers[index]"
             />
         </div>
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import ChannelStrip from './components/channel-strip';
-import messages     from './messages.json';
+import { mapState }     from 'vuex';
+import { applyModules, getAnalysers } from '@/services/audio-service';
+import ChannelStrip                   from './components/channel-strip';
+import messages                       from './messages.json';
 
 export default {
     i18n: { messages },
     components: {
         ChannelStrip,
     },
+    data: () => ({
+        analysers: [],
+    }),
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
         }),
+    },
+    created() {
+        this.analysers = getAnalysers();
+
+        if ( !this.analysers.length ) {
+            return; // audioContext not yet initialized
+        }
+        // connect the AnalyserNodes to the all instrument channels
+        applyModules( this.activeSong, true );
+    },
+    destroyed() {
+        // disconnect the AnalyserNodes
+        applyModules( this.activeSong, false );
     },
 };
 </script>

@@ -35,6 +35,10 @@
                    min="0" max="1" step="0.01" value="1"
                    class="range"
             />
+            <meter v-if="analyser"
+                   class="meter"
+                   min="-100" max="10" :value="output"
+            ></meter>
         </div>
         <div class="toggles">
             <button class="toggle"
@@ -73,10 +77,16 @@ export default {
             type: Number,
             required: true,
         },
+        analyser: {
+            type: AnalyserNode,
+            required: false,
+        },
     },
     data: vm => ({
         title: `# ${vm.instrumentIndex + 1}`,
-        supportsPanning: false,
+        supportsPanning: supports('panning'),
+        output: -100,
+        renderCycle: 0,
     }),
     computed: {
         ...mapState({
@@ -110,7 +120,32 @@ export default {
         },
     },
     created() {
-        this.supportsPanning = supports('panning');
+        if ( !this.analyser ) {
+            return;
+        }
+
+        // if an AnalyserNode is provided, start the render loop to update the meter 
+
+        this.analyser.fftSize = 2048;
+        const sampleBuffer    = new Float32Array( this.analyser.fftSize );
+
+        const renderLoop = () => {
+            this.analyser.getFloatTimeDomainData( sampleBuffer );
+
+            // Compute average power over the interval.
+            let sumOfSquares = 0;
+            for ( let i = 0; i < sampleBuffer.length; i++ ) {
+                sumOfSquares += sampleBuffer[ i ] ** 2;
+            }
+            const avgPowerDecibels = 10 * Math.log10( sumOfSquares / sampleBuffer.length );
+
+            this.output      = isFinite( avgPowerDecibels ) ? avgPowerDecibels : -100;
+            this.renderCycle = requestAnimationFrame( renderLoop );
+        };
+        renderLoop();
+    },
+    destroyed() {
+        cancelAnimationFrame( this.renderCycle );
     },
     methods: {
         ...mapMutations([
@@ -195,6 +230,14 @@ export default {
       height: 25px;
     }
 
+    .meter {
+       transform-origin: 0;
+       margin: 0 8px 0;
+       width: 105px;
+       height: 8px;
+       background-color: #000;
+    }
+
     .volume-title {
       margin-left: $spacing-small;
     }
@@ -220,5 +263,4 @@ export default {
         background-color: $color-2;
       }
     }
-
 </style>
