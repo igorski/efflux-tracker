@@ -42,7 +42,7 @@ import {
 
 /* private properties */
 
-let store, state, audioContext, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
+let store, state, audioContext, eventCallback, masterBus, eq, compressor, pool, UNIQUE_EVENT_ID = 0,
     playing = false, recordOutput = false, outputRecorderRef, recorder;
 
 /**
@@ -67,9 +67,11 @@ let instrumentEventsList = [];
  *
  * @param {AudioContext} audioContextInstance
  * @param {Object} waveTables
+ * @param {Function=} optExternalEventCallback to invoke for EXTERNAL_EVENT automations
  */
-export const prepareEnvironment = (audioContextInstance, waveTables) => {
+export const prepareEnvironment = (audioContextInstance, waveTables, optExternalEventCallback) => {
     audioContext = audioContextInstance;
+    eventCallback = optExternalEventCallback;
     setupRouting();
 
     // initialize the WaveTable / AudioBuffer pool
@@ -270,7 +272,8 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             instrument,
             Object.values(instrumentEventsList[instrument.id]),
             startTimeInSeconds,
-            masterBus
+            masterBus,
+            eventCallback
         );
     }
 };

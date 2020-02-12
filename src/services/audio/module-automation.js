@@ -22,6 +22,7 @@
  */
 import Config            from '@/config';
 import { rangeToIndex }  from '@/utils/array-util';
+import { toHex }         from '@/utils/number-util';
 import { processVoices } from './audio-util';
 import { applyRouting }  from './module-router';
 import { createTimer }   from './webaudio-helper';
@@ -46,8 +47,10 @@ import {
  * @param {Array<EVENT_VOICE_LIST>} instrumentEvents events currently playing back for this instrument
  * @param {number} startTimeInSeconds
  * @param {AudioGainNode} output
+ * @param {Function=} optEventCallback
  */
-export const applyModuleParamChange = ( audioContext, audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output ) => {
+export const applyModuleParamChange = ( audioContext, audioEvent, modules, instrument,
+  instrumentEvents, startTimeInSeconds, output, optEventCallback ) => {
     switch ( audioEvent.mp.module ) {
         // gain effects
         case VOLUME:
@@ -99,7 +102,7 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
 
         // external events
         case EXTERNAL_EVENT:
-            applyExternalEvent( audioContext, audioEvent, startTimeInSeconds );
+            applyExternalEvent( audioContext, audioEvent, startTimeInSeconds, optEventCallback );
             break;
     }
 };
@@ -204,9 +207,14 @@ function applyDelay( audioEvent, modules ) {
     }
 }
 
-function applyExternalEvent( audioContext, event, startTimeInSeconds ) {
+function applyExternalEvent( audioContext, event, startTimeInSeconds, eventCallback ) {
+    if ( !eventCallback ) {
+        return;
+    }
     createTimer( audioContext, startTimeInSeconds, () => {
-        // TODO
+        // within Efflux values are scaled to percentile, here we
+        // convert the on-screen value to the same hexadecimal value
+        eventCallback(parseInt(`0x${toHex(event.mp.value)}`, 16));
     });
 }
 
