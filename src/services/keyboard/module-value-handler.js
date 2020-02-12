@@ -25,7 +25,7 @@ import HistoryStates       from '@/definitions/history-states';
 import EventFactory        from '@/model/factory/event-factory';
 import HistoryStateFactory from '@/model/factory/history-state-factory';
 import EventUtil           from '@/utils/event-util';
-import NumberUtil          from '@/utils/number-util';
+import { fromHex, isHex }  from '@/utils/number-util';
 
 let store, state;
 let lastCharacter = "", lastTypeAction = 0;
@@ -58,10 +58,10 @@ export default {
         switch ( store.getters.getSetting( state.settings.PROPERTIES.INPUT_FORMAT )) {
             default:
             case 'hex':
-                if ( !NumberUtil.isHex( value ))
+                if ( !isHex( value ))
                     return;
                 else
-                    value = NumberUtil.fromHex( value );
+                    value = fromHex( value );
                     break;
 
             case 'pct':
