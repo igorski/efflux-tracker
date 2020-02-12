@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2020 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -30,43 +30,75 @@
         <ul id="moduleSelect">
             <ul class="event">
                 <form-list-item v-t="'volume'"
-                                v-model="module" option-value="volume" />
+                                v-model="module"
+                                :option-value="automationParam('volume')"
+                />
                 <template v-if="supportsPanning">
                     <form-list-item v-t="'panLeft'"
-                                    v-model="module" option-value="panLeft" />
+                                    v-model="module"
+                                    :option-value="automationParam('panLeft')"
+                    />
                     <form-list-item v-t="'panRight'"
-                                    v-model="module" option-value="panRight" />
+                                    v-model="module"
+                                    :option-value="automationParam('panRight')"
+                    />
                 </template>
                 <form-list-item v-t="'pitchUp'"
-                                v-model="module" option-value="pitchUp" />
+                                v-model="module"
+                                :option-value="automationParam('pitchUp')"
+                />
                 <form-list-item v-t="'pitchDown'"
-                                v-model="module" option-value="pitchDown" />
+                                v-model="module"
+                                :option-value="automationParam('pitchDown')"
+                />
             </ul>
             <ul class="filter">
                 <form-list-item v-t="'filterOnOff'"
-                                v-model="module" option-value="filterEnabled" />
+                                v-model="module"
+                                :option-value="automationParam('filterEnabled')"
+                />
                 <form-list-item v-t="'filterFreq'"
-                                v-model="module" option-value="filterFreq" />
+                                v-model="module"
+                                :option-value="automationParam('filterFreq')"
+                />
                 <form-list-item v-t="'filterQ'"
-                                v-model="module" option-value="filterQ" />
+                                v-model="module"
+                                :option-value="automationParam('filterQ')"
+                />
                 <form-list-item v-t="'filterLfoOnOff'"
-                                v-model="module" option-value="filterLFOEnabled" />
+                                v-model="module"
+                                :option-value="automationParam('filterLFOEnabled')"
+                />
                 <form-list-item v-t="'filterLfoSpeed'"
-                                v-model="module" option-value="filterLFOSpeed" />
+                                v-model="module"
+                                :option-value="automationParam('filterLFOSpeed')"
+                />
                 <form-list-item v-t="'filterLfoDepth'"
-                                v-model="module" option-value="filterLFODepth" />
+                                v-model="module"
+                                :option-value="automationParam('filterLFODepth')"
+                />
             </ul>
             <ul class="delay">
                 <form-list-item v-t="'delayOnOff'"
-                                v-model="module" option-value="delayEnabled" />
+                                v-model="module"
+                                :option-value="automationParam('delayEnabled')"
+                />
                 <form-list-item v-t="'delayTime'"
-                                v-model="module" option-value="delayTime" />
+                                v-model="module"
+                                :option-value="automationParam('delayTime')"
+                />
                 <form-list-item v-t="'delayFeedback'"
-                                v-model="module" option-value="delayFeedback" />
+                                v-model="module"
+                                :option-value="automationParam('delayFeedback')"
+                />
                 <form-list-item v-t="'delayCutoff'"
-                                v-model="module" option-value="delayCutoff" />
+                                v-model="module"
+                                :option-value="automationParam('delayCutoff')"
+                />
                 <form-list-item v-t="'delayOffset'"
-                                v-model="module" option-value="delayOffset" />
+                                v-model="module"
+                                :option-value="automationParam('delayOffset')"
+                />
             </ul>
         </ul>
         <fieldset>
@@ -117,7 +149,15 @@ import { supports }       from '@/services/audio/webaudio-helper';
 import FormListItem       from '../forms/form-list-item';
 import messages           from './messages.json';
 
-const DEFAULT_MODULE = 'volume';
+import {
+    DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
+    FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
+    FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
+    PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
+    VOLUME
+} from '@/definitions/automatable-parameters';
+
+const DEFAULT_MODULE = VOLUME;
 let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
@@ -178,6 +218,28 @@ export default {
         ]),
         handleClose() {
             this.$emit('close');
+        },
+        automationParam(key) {
+            switch (key) {
+                default:
+                    throw new Error(`Param ${key} is not a valid module automation`);
+                case 'volume': return VOLUME;
+                case 'panLeft': return PAN_LEFT;
+                case 'panRight': return PAN_RIGHT;
+                case 'pitchUp': return PITCH_UP;
+                case 'pitchDown': return PITCH_DOWN;
+                case 'filterEnabled': return FILTER_ENABLED;
+                case 'filterFreq': return FILTER_FREQ;
+                case 'filterQ': return FILTER_Q;
+                case 'filterLFOEnabled': return FILTER_LFO_ENABLED;
+                case 'filterLFOSpeed': return FILTER_LFO_SPEED;
+                case 'filterLFODepth': return FILTER_LFO_DEPTH;
+                case 'delayEnabled': return DELAY_ENABLED;
+                case 'delayTime': return DELAY_TIME;
+                case 'delayFeedback': return DELAY_FEEDBACK;
+                case 'delayCutoff': return DELAY_CUTOFF;
+                case 'delayOffset': return DELAY_OFFSET;
+            }
         },
         /**
          * invoked by KeyboardService

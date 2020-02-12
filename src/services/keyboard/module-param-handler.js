@@ -25,13 +25,11 @@ import HistoryStates       from '@/definitions/history-states';
 import EventFactory        from '@/model/factory/event-factory';
 import HistoryStateFactory from '@/model/factory/history-state-factory';
 
-let store, state;
-
 // modules parameters available to Efflux, we map keyCode to the first letter(s) of their name
-const D_MODULES = [ 'delayEnabled', 'delayTime', 'delayFeedback', 'delayCutoff', 'delayOffset' ];
-const F_MODULES = [ 'filterEnabled', 'filterFreq', 'filterQ', 'filterLFOEnabled', 'filterLFOSpeed', 'filterLFODepth' ];
-const P_MODULES = [ 'panLeft', 'panRight', 'pitchUp', 'pitchDown' ];
-const V_MODULES = [ 'volume' ];
+
+import { D_MODULES, E_MODULES, F_MODULES, P_MODULES, V_MODULES } from '@/definitions/automatable-parameters';
+
+let store, state;
 
 let selectedGlide = false, selectedModule;
 let lastCharacter = "", lastTypeAction = 0;
@@ -105,6 +103,7 @@ const ModuleParamHandler =
                     return null;
 
                 case 68: // D
+                case 69: // E
                 case 70: // F
                 case 80: // P
                 case 86: // V
@@ -138,6 +137,8 @@ function getModuleListByKeyCode( keyCode ) {
         default:
         case 68:
             return D_MODULES;
+        case 69:
+            return E_MODULES;
         case 70:
             return F_MODULES;
         case 80:
@@ -152,6 +153,9 @@ function getModuleByFirstTwoLetters( letters, selectedModule ) {
     switch ( letters.charAt( 0 )) {
         case 'D':
             list = D_MODULES;
+            break;
+        case 'E':
+            list = E_MODULES;
             break;
         case 'F':
             list = F_MODULES;

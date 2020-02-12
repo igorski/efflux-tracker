@@ -24,12 +24,22 @@ import Config            from '@/config';
 import { rangeToIndex }  from '@/utils/array-util';
 import { processVoices } from './audio-util';
 import { applyRouting }  from './module-router';
+import { createTimer }   from './webaudio-helper';
 
 const filterTypes = ['off', 'sine', 'square', 'sawtooth', 'triangle'];
+
+import {
+    DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
+    EXTERNAL_EVENT, FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
+    FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
+    PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
+    VOLUME
+} from '@/definitions/automatable-parameters';
 
 /**
  * apply a module parameter change defined inside an audioEvent during playback
  *
+ * @param {AudioContext} audioContext
  * @param {AUDIO_EVENT} audioEvent
  * @param {INSTRUMENT_MODULES} modules
  * @param {INSTRUMENT} instrument
@@ -37,54 +47,59 @@ const filterTypes = ['off', 'sine', 'square', 'sawtooth', 'triangle'];
  * @param {number} startTimeInSeconds
  * @param {AudioGainNode} output
  */
-export const applyModuleParamChange = ( audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output ) => {
+export const applyModuleParamChange = ( audioContext, audioEvent, modules, instrument, instrumentEvents, startTimeInSeconds, output ) => {
     switch ( audioEvent.mp.module ) {
         // gain effects
-        case 'volume':
+        case VOLUME:
             applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds );
             break;
 
         // panning effects
-        case 'panLeft':
-        case 'panRight':
+        case PAN_LEFT:
+        case PAN_RIGHT:
             applyPanning( audioEvent, modules, startTimeInSeconds );
             break;
 
         // pitch effects
-        case 'pitchUp':
-        case 'pitchDown':
+        case PITCH_UP:
+        case PITCH_DOWN:
             applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds );
             break;
 
         // filter effects
-        case 'filterEnabled':
+        case FILTER_ENABLED:
             modules.filter.filterEnabled = ( audioEvent.mp.value >= 50 );
             applyRouting( modules, output );
             break;
 
-        case 'filterLFOEnabled':
+        case FILTER_LFO_ENABLED:
             instrument.filter.lfoType = rangeToIndex( filterTypes, audioEvent.mp.value );
             applyRouting( modules, output );
             break;
 
-        case 'filterFreq':
-        case 'filterQ':
-        case 'filterLFOSpeed':
-        case 'filterLFODepth':
+        case FILTER_FREQ:
+        case FILTER_Q:
+        case FILTER_LFO_SPEED:
+        case FILTER_LFO_DEPTH:
             applyFilter( audioEvent, modules, startTimeInSeconds );
             break;
 
         // delay effects
-        case 'delayEnabled':
+        case DELAY_ENABLED:
             modules.delay.delayEnabled = ( audioEvent.mp.value >= 50 );
             applyRouting( modules, output );
             break;
 
-        case 'delayTime':
-        case 'delayFeedback':
-        case 'delayCutoff':
-        case 'delayOffset':
+        case DELAY_TIME:
+        case DELAY_FEEDBACK:
+        case DELAY_CUTOFF:
+        case DELAY_OFFSET:
             applyDelay( audioEvent, modules, startTimeInSeconds );
+            break;
+
+        // external events
+        case EXTERNAL_EVENT:
+            applyExternalEvent( audioContext, audioEvent, startTimeInSeconds );
             break;
     }
 };
@@ -106,7 +121,7 @@ function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds )
 function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
     const mp = audioEvent.mp, doGlide = mp.glide,
         durationInSeconds = audioEvent.seq.mpLength,
-        goingUp = ( mp.module === 'pitchUp' );
+        goingUp = ( mp.module === PITCH_UP );
 
     let generator, tmp, target;
 
@@ -142,7 +157,7 @@ function applyPanning( audioEvent, modules, startTimeInSeconds ) {
 
     scheduleParameterChange(
         modules.panner.pan,
-        mp.module === 'panLeft' ? -target : target,
+        mp.module === PAN_LEFT ? -target : target,
         startTimeInSeconds, durationInSeconds, doGlide
     );
 }
@@ -153,16 +168,16 @@ function applyFilter( audioEvent, modules, startTimeInSeconds ) {
           module = modules.filter, target = ( mp.value / 100 );
 
     switch ( mp.module ) {
-        case 'filterFreq':
+        case FILTER_FREQ:
             scheduleParameterChange( module.filter.frequency, target * Config.MAX_FILTER_FREQ, startTimeInSeconds, durationInSeconds, doGlide );
             break;
-        case 'filterQ':
+        case FILTER_Q:
             scheduleParameterChange( module.filter.Q, target * Config.MAX_FILTER_Q, startTimeInSeconds, durationInSeconds, doGlide );
             break;
-        case 'filterLFOSpeed':
+        case FILTER_LFO_SPEED:
             scheduleParameterChange( module.lfo.frequency, target * Config.MAX_FILTER_LFO_SPEED, startTimeInSeconds, durationInSeconds, doGlide );
             break;
-        case 'filterLFODepth':
+        case FILTER_LFO_DEPTH:
             scheduleParameterChange( module.lfoAmp.gain,
                 ( target * Config.MAX_FILTER_LFO_DEPTH ) / 100 * module.filter.frequency.value,
                 startTimeInSeconds, durationInSeconds, doGlide
@@ -174,19 +189,25 @@ function applyFilter( audioEvent, modules, startTimeInSeconds ) {
 function applyDelay( audioEvent, modules ) {
     const mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
     switch ( mp.module ) {
-        case 'delayTime':
+        case DELAY_TIME:
             module.delay = target; // 0 - 1 range
             break;
-        case 'delayFeedback':
+        case DELAY_FEEDBACK:
             module.feedback = target; // 0 - 1 range
             break;
-        case 'delayCutoff':
+        case DELAY_CUTOFF:
             module.cutoff = target * Config.MAX_DELAY_CUTOFF;
             break;
-        case 'delayOffset':
+        case DELAY_OFFSET:
             module.offset = Config.MIN_DELAY_OFFSET + target; // -0.5 - 0.5 range
             break;
     }
+}
+
+function applyExternalEvent( audioContext, event, startTimeInSeconds ) {
+    createTimer( audioContext, startTimeInSeconds, () => {
+        // TODO
+    });
 }
 
 /**

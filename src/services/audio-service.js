@@ -264,6 +264,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
 
     if (event.mp) {
         applyModuleParamChange(
+            audioContext,
             event,
             instrumentModulesList[instrument.id],
             instrument,
