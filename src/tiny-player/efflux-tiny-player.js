@@ -43,7 +43,7 @@ import {
 const WINDOW = window, TRUE = !!1, FALSE = !!0;
 
 // environment variables
-let audioContext, song, event;
+let audioContext, activeSong, event;
 const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
 
 // mock Vuex root store
@@ -79,8 +79,8 @@ export default {
             xtkObject = typeof xtkObject === "string" ? JSON.parse( xtkObject ) : xtkObject;
 
             // 2. parse .XTK into a Song Object
-            song = assemble(xtkObject);
-            if (!song) {
+            activeSong = assemble(xtkObject);
+            if (!activeSong) {
                 log('error', 'INVALID SONG');
                 return FALSE;
             }
@@ -94,15 +94,13 @@ export default {
             prepareEnvironment(audioContext, waveTables, optExternalEventCallback);
             actions.prepareSequencer({ state }, rootStore);
 
-            rootStore.state.song.activeSong = song;
+            rootStore.state.song.activeSong = activeSong;
 
             reset();
-            cacheCustomTables(song.instruments);
-            applyModules(song);
+            cacheCustomTables(activeSong.instruments);
+            applyModules(activeSong);
 
-            // createLinkedList(song); // wait, these lists are editor only? (e.g. unused by sequencer?)
-
-            mutations.setActivePattern(state, 0);
+            mutations.setPosition(state, { activeSong, pattern: 0 });
 
             return TRUE;
 
@@ -137,7 +135,7 @@ export default {
             mp,
             ...getPitchByFrequency(f) // TODO: we can also supply note and octave directly?
         };
-        noteOn(event, song.instruments[i], t);
+        noteOn(event, activeSong.instruments[i], t);
         return event;
     },
     /**

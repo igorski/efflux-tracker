@@ -23,7 +23,7 @@
 import Vue             from 'vue';
 import Config          from '@/config';
 import LinkedList      from '@/utils/linked-list';
-import AudioService    from '@/services/audio-service';
+import { noteOn, noteOff, getAudioContext, isRecording } from '@/services/audio-service';
 import { createTimer } from '@/services/audio/webaudio-helper';
 import Metronome       from '@/services/audio/metronome';
 import SequencerWorker from '@/workers/sequencer.worker.js';
@@ -56,7 +56,7 @@ function enqueueEvent(store, event, eventChannel) {
 
     // play back the event by rendering its audio through the AudioService
 
-    AudioService.noteOn(event, activeSong.instruments[event.instrument], nextNoteTime);
+    noteOn(event, activeSong.instruments[event.instrument], nextNoteTime);
 
     // dequeue preceding events
 
@@ -107,16 +107,16 @@ function dequeueEvent(state, event, time) {
     // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
     // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
     // without using a timer in dequeueEvent(), but we suffer from stability issues
-    const clock = createTimer(AudioService.getAudioContext(), time, () => {
+    const clock = createTimer(getAudioContext(), time, () => {
         event.seq.playing = false;
-        AudioService.noteOff(event);
+        noteOff(event);
         freeHandler(state, clock); // clear reference to this timed event
     });
 
     // store reference to prevent garbage collection prior to callback execution, this
     // seems unnecessary but is actually necessary to guarantee stability under Safari (!)
     state.queueHandlers.push(clock);
-    // AudioService.noteOff(event, time);
+    // noteOff(event, time);
     // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
 }
 
@@ -136,7 +136,7 @@ function freeHandler(state, node) {
 }
 
 function collect(store) {
-    const state = store.state.sequencer, audioContext = AudioService.getAudioContext();
+    const state = store.state.sequencer, audioContext = getAudioContext();
 
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
     // and extended to work for multi timbral sequencing
@@ -170,7 +170,7 @@ function collect(store) {
                         enqueueEvent( store, event, i );
 
                         // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-                        // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
+                        // we'd like to use noteOff(event, time) scheduled at the right note off time
                         // without using a timer in dequeueEvent(), but we suffer from stability issues
                         //} else {
                         //    // event is outside of trigger range, unset its playback
@@ -182,7 +182,7 @@ function collect(store) {
             }
         }
         if ( state.metronome.enabled ) // sound the metronome
-            state.metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, AudioService.getAudioContext() );
+            state.metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, getAudioContext() );
 
         // advance to next step position
         step( store );
@@ -217,7 +217,7 @@ function step(store) {
 
             // stop playing if we're recording output and looping is disabled
 
-            if ( AudioService.isRecording() && !state.looping ) {
+            if ( isRecording() && !state.looping ) {
                 store.commit('setPlaying', false );
                 return;
             }
@@ -234,7 +234,7 @@ function step(store) {
 
                 state.metronome.enabled         = state.metronome.restore;
                 state.metronome.countInComplete = true;
-                state.firstMeasureStartTime     = AudioService.getAudioContext().currentTime;
+                state.firstMeasureStartTime     = getAudioContext().currentTime;
 
                 store.commit('setActivePattern', 0);
             }
@@ -370,7 +370,7 @@ export default {
                 state.currentStep = 0;
 
             if ( typeof currentTime !== 'number' )
-                currentTime = AudioService.getAudioContext() ? AudioService.getAudioContext().currentTime : 0;
+                currentTime = getAudioContext() ? getAudioContext().currentTime : 0;
 
             state.activePattern         = pattern;
             state.nextNoteTime          = currentTime;

@@ -308,12 +308,25 @@ export const noteOff = (event, startTimeInSeconds = audioContext.currentTime) =>
     });
 };
 
+/**
+ * retrieve a reference to the applications AudioContext
+ *
+ * @return {AudioContext}
+ */
+export const getAudioContext = () => audioContext;
+
+export const isRecording = () => recordOutput;
+
 const AudioService =
 {
     initialized: false,
     reset,
     cacheCustomTables,
     applyModules,
+    getAudioContext,
+    isRecording,
+    noteOn,
+    noteOff,
 
     /**
      * query whether we can actually use the WebAudio API in
@@ -348,14 +361,6 @@ const AudioService =
 
         AudioService.cacheCustomTables(state.song.activeSong.instruments);
     },
-    /**
-     * retrieve a reference to the applications AudioContext
-     *
-     * @return {AudioContext}
-     */
-    getAudioContext() {
-        return audioContext;
-    },
     togglePlayback(isPlaying) {
         playing = isPlaying;
         if (playing) {
@@ -385,11 +390,6 @@ const AudioService =
             recorder.exportWAV();
         }
     },
-    isRecording() {
-        return recordOutput;
-    },
-    noteOn,
-    noteOff,
     applyModule(type, instrumentIndex, props) {
         ModuleFactory.applyConfiguration(type, instrumentModulesList[instrumentIndex], props, masterBus);
     },
