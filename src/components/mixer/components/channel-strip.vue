@@ -35,7 +35,7 @@
                    min="0" max="1" step="0.01" value="1"
                    class="range"
             />
-            <meter v-if="analyser"
+            <meter v-if="supportsAnalyzer"
                    class="meter"
                    min="-100" max="10" :value="output"
             ></meter>
@@ -118,13 +118,17 @@ export default {
                 AudioService.adjustInstrumentPanning( this.instrumentIndex, value );
             }
         },
+        supportsAnalyzer() {
+            // at time of writing Safari does not provide getFloatTimeDomainData()
+            return !!this.analyser && typeof this.analyser.getFloatTimeDomainData === 'function';
+        },
     },
     created() {
-        if ( !this.analyser ) {
+        if ( !this.supportsAnalyzer ) {
             return;
         }
 
-        // if an AnalyserNode is provided, start the render loop to update the meter 
+        // if an AnalyserNode is provided, start the render loop to update the meter
 
         this.analyser.fftSize = 2048;
         const sampleBuffer    = new Float32Array( this.analyser.fftSize );
