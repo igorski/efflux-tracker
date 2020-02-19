@@ -29,7 +29,7 @@
                    for="instrumentVolume"
                    class="volume-title"
             ></label>
-            <input v-model="volume"
+            <input v-model.number="volume"
                    type="range"
                    id="instrumentVolume"
                    min="0" max="1" step="0.01" value="1"
