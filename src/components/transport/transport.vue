@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -125,7 +125,7 @@ export default {
             set(patternValue) {
                 // normalize to Array indices (0 == first, not 1)
                 const value = Math.min(patternValue, this.activeSong.patterns.length) - 1;
-                if (value > 0 && value !== this.activePattern) {
+                if (value >= 0 && value !== this.activePattern) {
                     this.setActivePattern(value);
                 }
             }
