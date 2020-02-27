@@ -55,7 +55,6 @@ function enqueueEvent(store, event, eventChannel) {
     event.seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
 
     // play back the event by rendering its audio through the AudioService
-
     noteOn(event, activeSong.instruments[event.instrument], nextNoteTime);
 
     // dequeue preceding events
@@ -109,6 +108,7 @@ function dequeueEvent(state, event, time) {
     // without using a timer in dequeueEvent(), but we suffer from stability issues
     const clock = createTimer(getAudioContext(), time, () => {
         event.seq.playing = false;
+
         noteOff(event);
         freeHandler(state, clock); // clear reference to this timed event
     });
