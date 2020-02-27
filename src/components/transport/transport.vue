@@ -84,9 +84,8 @@ import Vue from 'vue';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import Bowser from 'bowser';
 
-import AudioService from '@/services/audio-service';
-import SongUtil     from '@/utils/song-util';
-import messages     from './messages.json';
+import { resetPlayState } from '@/utils/song-util';
+import messages           from './messages.json';
 
 export default {
     i18n: { messages },
@@ -133,14 +132,13 @@ export default {
     },
     watch: {
         isPlaying(playing) {
-            AudioService.togglePlayback(playing);
             if (playing) {
                 this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
             } else {
                 if (this.isRecording) {
                     this.setRecording(false);
                 }
-                SongUtil.resetPlayState(this.activeSong.patterns); // unset playing state of existing events
+                resetPlayState(this.activeSong.patterns); // unset playing state of existing events
             }
         },
         isRecording(recording, wasRecording) {

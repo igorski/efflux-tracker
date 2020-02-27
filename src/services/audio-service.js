@@ -116,6 +116,21 @@ export const reset = () => {
     UNIQUE_EVENT_ID = 0;
 };
 
+export const togglePlayback = isPlaying => {
+    playing = isPlaying;
+    if (playing) {
+        // in case we were recording, unset the state to store the buffer
+        recordOutput = !recordOutput;
+        AudioService.toggleRecordingState();
+    } else {
+        reset();
+        if (recordOutput && recorder) {
+            recorder.stop();
+            recorder.exportWAV();
+        }
+    }
+};
+
 /**
  * cache the custom WaveTables that are available to the instruments
  *
@@ -362,20 +377,6 @@ const AudioService =
         prepareEnvironment( audioContext, waveTables );
 
         AudioService.cacheCustomTables(state.song.activeSong.instruments);
-    },
-    togglePlayback(isPlaying) {
-        playing = isPlaying;
-        if (playing) {
-            // in case we were recording, unset the state to store the buffer
-            recordOutput = !recordOutput;
-            AudioService.toggleRecordingState();
-        } else {
-            AudioService.reset();
-            if (recordOutput && recorder) {
-                recorder.stop();
-                recorder.exportWAV();
-            }
-        }
     },
     toggleRecordingState() {
         recordOutput = !recordOutput;

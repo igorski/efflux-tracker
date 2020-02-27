@@ -33,6 +33,7 @@
 import sequencerModule from '@/store/modules/sequencer-module';
 import { assemble } from '@/services/song-assembly-service';
 import { getPitchByFrequency } from '@/services/audio/pitch';
+import { resetPlayState } from '@/utils/song-util';
 import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
 import {
     prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
@@ -53,6 +54,10 @@ const rootStore = {
         mutations[mutationType](state, value);
     }
 };
+
+// helpers
+
+const jp = i => mutations.setPosition(state, { activeSong, pattern: i });
 
 // logging
 const { console } = WINDOW;
@@ -100,7 +105,7 @@ export default {
             cacheCustomTables(activeSong.instruments);
             applyModules(activeSong);
 
-            mutations.setPosition(state, { activeSong, pattern: 0 });
+            jp(0); // start at first pattern
 
             return TRUE;
 
@@ -120,6 +125,13 @@ export default {
      */
     s: () => {
         mutations.setPlaying(state, FALSE);
+        resetPlayState(activeSong.patterns); // unset playing state of existing events
+    },
+    /**
+     * Jump to pattern at given index
+     */
+    j: i => {
+        jp(i);
     },
     /**
      * Play a note with given properties, using the

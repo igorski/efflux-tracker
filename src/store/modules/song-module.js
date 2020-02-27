@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -29,9 +29,10 @@ import FixturesLoader      from '@/services/fixtures-loader';
 import SongAssemblyService from '@/services/song-assembly-service';
 import PubSubMessages      from '@/services/pubsub/messages';
 import SongValidator       from '@/model/validators/song-validator';
-import SongUtil            from '@/utils/song-util';
 import ObjectUtil          from '@/utils/object-util';
 import StorageUtil         from '@/utils/storage-util';
+
+import { hasContent, resetPlayState, updateEventOffsets } from '@/utils/song-util';
 
 const SONG_STORAGE_KEY = 'Efflux_Song_';
 
@@ -58,7 +59,7 @@ export default {
             if (song && song.meta && song.patterns) {
                 // close song as we do not want to modify the original song stored in list
                 state.activeSong = ObjectUtil.clone(song);
-                SongUtil.resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got 'frozen' events
+                resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got 'frozen' events
             }
         },
         setActiveSongAuthor(state, author) {
@@ -76,7 +77,7 @@ export default {
 
             // update existing event offsets by the tempo ratio
 
-            SongUtil.updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
+            updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
         },
         /**
          * adds given AudioEvent at the currently highlighted position or by optionally defined
@@ -214,14 +215,14 @@ export default {
         validateSong({ getters, commit }, song) {
             return new Promise(async (resolve, reject) => {
                 try {
-                    let hasContent = SongUtil.hasContent(song);
-                    if ( !hasContent ) {
+                    let songHasContent = hasContent(song);
+                    if ( !songHasContent ) {
                         throw 'emptySong';
                     }
                     if (song.meta.author.length === 0 || song.meta.title.length === 0) {
-                        hasContent = false;
+                        songHasContent = false;
                     }
-                    if (!hasContent) {
+                    if (!songHasContent) {
                         throw 'emptyMeta';
                     }
                     resolve();

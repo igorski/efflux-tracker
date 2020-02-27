@@ -2,7 +2,8 @@ import EventFactory       from '@/model/factory/event-factory';
 import PatternFactory     from '@/model/factory/pattern-factory';
 import SongFactory        from '@/model/factory/song-factory';
 import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
-import SongUtil           from '@/utils/song-util';
+
+import { hasContent, updateEventOffsets } from '@/utils/song-util';
 
 describe( 'SongUtil', () => {
     let song;
@@ -14,7 +15,7 @@ describe( 'SongUtil', () => {
 
     it( 'should know whether or not a song has content', () => {
         // expected song not to have content as no events with an action were defined in any pattern
-        expect(SongUtil.hasContent(song)).toBe(false);
+        expect(hasContent(song)).toBe(false);
 
         // add a note to the first available slot in the first
         // available channel of the first available pattern
@@ -23,7 +24,7 @@ describe( 'SongUtil', () => {
         firstEvent.action = ACTION_NOTE_ON;
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
-        expect(SongUtil.hasContent(song)).toBe(true);
+        expect(hasContent(song)).toBe(true);
     });
 
     it( 'should be able to update existing AudioEvent offsets recursively', () => {
@@ -56,7 +57,7 @@ describe( 'SongUtil', () => {
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
         song.patterns[ 1 ].channels[ 1 ][ 8 ] = secondEvent;
 
-        SongUtil.updateEventOffsets( song.patterns, ratio );
+        updateEventOffsets( song.patterns, ratio );
 
         // asset results
 

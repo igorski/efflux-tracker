@@ -22,69 +22,68 @@
  */
 import { ACTION_IDLE } from '@/model/types/audio-event-def';
 
-export default
-{
-    /**
-     * validates whether the song has any pattern content
-     *
-     * @param {SONG} song
-     * @return {boolean}
-     */
-    hasContent( song ) {
-        let hasContent = false;
-        song.patterns.forEach(pattern => {
-            pattern.channels.forEach(channel => {
-                if (channel.find( event => event && event.action !== ACTION_IDLE )) {
-                    hasContent = true;
-                }
-            });
+/**
+ * validates whether the song has any pattern content
+ *
+ * @param {SONG} song
+ * @return {boolean}
+ */
+export const hasContent = song => {
+    let hasContent = false;
+    song.patterns.forEach(pattern => {
+        pattern.channels.forEach(channel => {
+            if (channel.find( event => event && event.action !== ACTION_IDLE )) {
+                hasContent = true;
+            }
         });
-        return hasContent;
-    },
-    /**
-     * update the existing offsets for all of the Songs
-     * audioEvents within its patterns
-     *
-     * @param {Array<PATTERN>} patterns the Songs patterns
-     * @param {number} ratio by which to update the existing values
-     */
-    updateEventOffsets( patterns, ratio ) {
-        // reverse looping for speed
-        let i, j, k, songPattern, channel, pattern;
+    });
+    return hasContent;
+};
 
-        i = patterns.length;
-        while ( i-- ) {
-            songPattern = patterns[ i ];
-            j = songPattern.channels.length;
+/**
+ * update the existing offsets for all of the Songs
+ * audioEvents within its patterns
+ *
+ * @param {Array<PATTERN>} patterns the Songs patterns
+ * @param {number} ratio by which to update the existing values
+ */
+export const updateEventOffsets = ( patterns, ratio ) => {
+    // reverse looping for speed
+    let i, j, k, songPattern, channel, pattern;
 
-            while ( j-- ) {
-                channel = songPattern.channels[ j ];
-                k = channel.length;
+    i = patterns.length;
+    while ( i-- ) {
+        songPattern = patterns[ i ];
+        j = songPattern.channels.length;
 
-                while ( k-- ) {
-                    pattern = channel[ k ];
+        while ( j-- ) {
+            channel = songPattern.channels[ j ];
+            k = channel.length;
 
-                    if ( pattern && pattern.seq ) {
-                        pattern.seq.startMeasureOffset *= ratio;
-                        pattern.seq.length *= ratio;
-                    }
+            while ( k-- ) {
+                pattern = channel[ k ];
+
+                if ( pattern && pattern.seq ) {
+                    pattern.seq.startMeasureOffset *= ratio;
+                    pattern.seq.length *= ratio;
                 }
             }
         }
-    },
-    /**
-     * unset the play state of all of the songs events
-     *
-     * @param {Array<PATTERN>} patterns
-     */
-    resetPlayState(patterns) {
-        patterns.forEach(pattern => {
-            pattern.channels.forEach(channel => {
-                channel.forEach(event => {
-                    if ( event )
-                        event.seq.playing = false;
-                });
+    }
+};
+
+/**
+ * unset the play state of all of the songs events
+ *
+ * @param {Array<PATTERN>} patterns
+ */
+export const resetPlayState = patterns => {
+    patterns.forEach(pattern => {
+        pattern.channels.forEach(channel => {
+            channel.forEach(event => {
+                if ( event )
+                    event.seq.playing = false;
             });
         });
-    }
+    });
 };

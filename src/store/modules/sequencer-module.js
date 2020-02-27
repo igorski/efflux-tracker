@@ -23,7 +23,7 @@
 import Vue             from 'vue';
 import Config          from '@/config';
 import LinkedList      from '@/utils/linked-list';
-import { noteOn, noteOff, getAudioContext, isRecording } from '@/services/audio-service';
+import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from '@/services/audio-service';
 import { createTimer } from '@/services/audio/webaudio-helper';
 import Metronome       from '@/services/audio/metronome';
 import SequencerWorker from '@/workers/sequencer.worker.js';
@@ -303,6 +303,7 @@ export default {
                 }
                 state.channelQueue.forEach(list => list.flush());
             }
+            togglePlayback(state.playing);
         },
         setLooping(state, isLooping) {
             state.looping = !!isLooping;

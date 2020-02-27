@@ -77,7 +77,7 @@ import { isSupported, setToggleButton } from '@/utils/fullscreen-util';
 import AudioService from '@/services/audio-service';
 import ManualURLs from '@/definitions/manual-urls';
 import ModalWindows from '@/definitions/modal-windows';
-import SongUtil from '@/utils/song-util';
+import { hasContent } from '@/utils/song-util';
 import messages from './messages.json';
 
 export default {
@@ -146,7 +146,7 @@ export default {
             this.openModal(ModalWindows.SONG_BROWSER);
         },
         async handleSave(allowInstantSaveWhenSongIsValid = false) {
-            if (SongUtil.hasContent(this.activeSong)) {
+            if (hasContent(this.activeSong)) {
                 const { meta } = this.activeSong;
                 if (allowInstantSaveWhenSongIsValid &&
                     meta.title && meta.author) {
