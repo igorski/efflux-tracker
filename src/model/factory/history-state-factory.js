@@ -113,6 +113,9 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
             advanceStepOnAddition = optEventData.advanceOnAddition;
     }
 
+    // if there is an existing event, cache it for undo-purpose (see add())
+    let existingEvent;
+
     function add() {
         const pattern = song.patterns[ patternIndex ],
               channel = pattern.channels[ channelIndex ];
@@ -125,6 +128,8 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         // (but take its module parameter automation when existing for non-off events)
 
         if ( channel[ step ]) {
+            existingEvent = JSON.stringify( channel[ step ]);
+
             if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp )
                 Vue.set(event, 'mp', ObjectUtil.clone( channel[ step ].mp ));
 
@@ -173,6 +178,12 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
                 step,
                 eventList[ channelIndex ]
             );
+            // restore existing event if it was present during addition
+            if ( existingEvent ) {
+                const parsedEvent = JSON.parse( existingEvent );
+                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, parsedEvent );
+                EventUtil.linkEvent( parsedEvent, channelIndex, song, eventList );
+            }
             updateHandler();
         },
         redo() {
