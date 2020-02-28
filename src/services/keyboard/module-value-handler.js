@@ -73,24 +73,26 @@ export default {
         let event = getEventForPosition();
         const createEvent = !event;
 
+        // create event if it didn't exist yet
         if ( createEvent )
             event = getEventForPosition( true );
 
         // no module param defined yet ? create as duplicate of previously defined property
-        if ( !event.mp ) {
+        let mp = event.mp;
+        if ( !mp ) {
             const prevEvent = getPreviousEventWithModuleAutomation(state.editor.selectedStep);
-            Vue.set(event, 'mp', EventFactory.createModuleParam(
-                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : 'volume', 50, false
-            ));
+            mp = EventFactory.createModuleParam(
+                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : 'volume', value, false
+            );
         }
 
         if ( createEvent ) {
-            Vue.set(event.mp, 'value', value);
+            Vue.set(event, 'mp', mp);
         } else {
             // a previously existed event will register the mp change in state history
             // (a newly created event is added to state history through its addition to the song)
             store.commit('saveState', HistoryStateFactory.getAction(
-                HistoryStates.ADD_MODULE_AUTOMATION, { event, mp: { ...event.mp, value } }
+                HistoryStates.ADD_MODULE_AUTOMATION, { event, mp: { ...mp, value  } }
             ));
         }
     }

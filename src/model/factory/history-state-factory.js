@@ -271,10 +271,10 @@ function addModuleAutomationAction({ event, mp }) {
 
     return {
         undo() {
-            if (existingAutomation)
-                Vue.set(event, 'mp', existingAutomation);
+            if ( existingAutomation )
+                Vue.set( event, 'mp', existingAutomation );
             else
-                Vue.delete(event, 'mp');
+                Vue.delete( event, 'mp' );
         },
         redo() {
             add();
