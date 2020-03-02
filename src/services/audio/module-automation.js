@@ -214,7 +214,7 @@ function applyExternalEvent( audioContext, event, startTimeInSeconds, eventCallb
     createTimer( audioContext, startTimeInSeconds, () => {
         // within Efflux values are scaled to percentile, here we
         // convert the on-screen value to the same hexadecimal value
-        eventCallback(parseInt(`0x${toHex(event.mp.value)}`, 16));
+        eventCallback({ c: parseInt(`0x${toHex(event.mp.value)}`, 16), t: startTimeInSeconds });
     });
 }
 
