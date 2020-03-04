@@ -36,7 +36,7 @@
  * played back via the MIDI module)
  *
  * the "seq" Object defines the properties for playback within the
- * Sequencer and defines values in seconds
+ * Sequencer (the offset and length values are defined in seconds)
  *
  * the "mp" Object is optional and defines an optional parameter
  * change action on one of the instruments modules
@@ -50,11 +50,12 @@
  *     recording: boolean,
  *     seq: {
  *         playing: boolean,
- *         startMeasure: number
- *         startMeasureOffset: number,
- *         endMeasure: number,
- *         length: number,
- *         mpLength: number
+ *         startOffset: number,        // start offset (in seconds) relative to song start
+ *         startMeasure: number        // index of the measure in which the event starts playback
+ *         startMeasureOffset: number, // offset (in seconds) within the start measure
+ *         endMeasure: number,         // index of the measure in which the event stops playback
+ *         length: number,             // total length (in seconds) of event
+ *         mpLength: number            // total length (in seconds) of module parameter automation
  *     },
  *     mp: {
  *         module: string,

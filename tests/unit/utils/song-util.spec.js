@@ -40,19 +40,23 @@ describe( 'SongUtil', () => {
 
         const firstEvent  = EventFactory.createAudioEvent();
         firstEvent.action = ACTION_NOTE_ON;
+        firstEvent.seq.startOffset        = 0;
         firstEvent.seq.startMeasureOffset = 10;
         firstEvent.seq.length             = 2.5;
 
-        const expectedOffset1 = firstEvent.seq.startMeasureOffset * ratio;
-        const expectedLength1 = firstEvent.seq.length * ratio;
+        const expectedStartOffset1 = firstEvent.seq.startOffset * ratio;
+        const expectedOffset1      = firstEvent.seq.startMeasureOffset * ratio;
+        const expectedLength1      = firstEvent.seq.length * ratio;
 
         const secondEvent  = EventFactory.createAudioEvent();
         secondEvent.action = ACTION_NOTE_ON;
+        secondEvent.seq.startOffset        = 2;
         secondEvent.seq.startMeasureOffset = 5;
         secondEvent.seq.length             = 1.5;
 
-        const expectedOffset2 = secondEvent.seq.startMeasureOffset * ratio;
-        const expectedLength2 = secondEvent.seq.length * ratio;
+        const expectedStartOffset2 = secondEvent.seq.startOffset * ratio;
+        const expectedOffset2      = secondEvent.seq.startMeasureOffset * ratio;
+        const expectedLength2      = secondEvent.seq.length * ratio;
 
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
         song.patterns[ 1 ].channels[ 1 ][ 8 ] = secondEvent;
@@ -61,8 +65,10 @@ describe( 'SongUtil', () => {
 
         // asset results
 
+        expect(expectedStartOffset1).toEqual(firstEvent.seq.startOffset);
         expect(expectedOffset1).toEqual(firstEvent.seq.startMeasureOffset);
         expect(expectedLength1).toEqual(firstEvent.seq.length);
+        expect(expectedStartOffset2).toEqual(secondEvent.seq.startOffset);
         expect(expectedOffset2).toEqual(secondEvent.seq.startMeasureOffset);
         expect(expectedLength2).toEqual(secondEvent.seq.length);
     });

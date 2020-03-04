@@ -64,8 +64,10 @@ export const updateEventOffsets = ( patterns, ratio ) => {
                 pattern = channel[ k ];
 
                 if ( pattern && pattern.seq ) {
-                    pattern.seq.startMeasureOffset *= ratio;
-                    pattern.seq.length *= ratio;
+                    const { seq } = pattern;
+                    seq.startOffset        *= ratio;
+                    seq.startMeasureOffset *= ratio;
+                    seq.length             *= ratio;
                 }
             }
         }

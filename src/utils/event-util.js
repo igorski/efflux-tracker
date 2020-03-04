@@ -23,6 +23,8 @@
 import Vue          from 'vue';
 import EventFactory from '@/model/factory/event-factory';
 
+import { getMeasureDurationInSeconds } from './audio-math';
+
 const EventUtil =
 {
     /**
@@ -45,6 +47,7 @@ const EventUtil =
            length = ( 1 / pattern.steps ) * measureLength;
         }
         Vue.set(seq, 'length', length);
+        Vue.set(seq, 'startOffset', patternNum * getMeasureDurationInSeconds( tempo ));
         Vue.set(seq, 'startMeasure', patternNum);
         Vue.set(seq, 'startMeasureOffset', eventOffset);
         Vue.set(seq, 'endMeasure', patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength )));

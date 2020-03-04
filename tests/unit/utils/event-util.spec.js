@@ -41,16 +41,18 @@ describe( 'EventUtil', () => {
         const pattern   = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        const expectedStartMeasure       = 0;
+        const expectedStartOffset        = 2;
+        const expectedStartMeasure       = 1;
         const expectedStartMeasureOffset = 1; // half in measure (measure lasts 2s at 120 BPM)
-        const expectedEndMeasure         = 0;
+        const expectedEndMeasure         = 1;
         const expectedLength             = .5;
 
         const audioEvent = EventFactory.createAudioEvent();
 
-        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 2, song.meta.tempo, expectedLength );
+        EventUtil.setPosition( audioEvent, pattern, 1, pattern.steps / 2, song.meta.tempo, expectedLength );
 
         expect(audioEvent.seq.startMeasure).toEqual(expectedStartMeasure);
+        expect(audioEvent.seq.startOffset).toEqual(expectedStartOffset);
         expect(audioEvent.seq.startMeasureOffset).toEqual(expectedStartMeasureOffset);
         expect(audioEvent.seq.endMeasure).toEqual(expectedEndMeasure);
         expect(audioEvent.seq.length).toEqual(expectedLength);
@@ -60,6 +62,7 @@ describe( 'EventUtil', () => {
         const pattern     = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
+        const expectedStartOffset        = 0;
         const expectedStartMeasure       = 0;
         const expectedStartMeasureOffset = .5; // a quarter note into measure (measure lasts 2s at 120 BPM)
         const expectedLength             = 5;  // duration is 5 seconds (2.5 measures at 120 BPM)
@@ -70,6 +73,7 @@ describe( 'EventUtil', () => {
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo, expectedLength );
 
         expect(expectedStartMeasure).toEqual(audioEvent.seq.startMeasure);
+        expect(expectedStartOffset).toEqual(audioEvent.seq.startOffset);
         expect(expectedStartMeasureOffset).toEqual(audioEvent.seq.startMeasureOffset);
         expect(expectedEndMeasure).toEqual(audioEvent.seq.endMeasure);
         expect(expectedLength).toEqual(audioEvent.seq.length);
