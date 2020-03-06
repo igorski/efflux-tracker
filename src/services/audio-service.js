@@ -190,10 +190,13 @@ export const applyModules = (song, connectAnalysers = false) => {
  */
 export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.currentTime ) => {
     if ( event.action === ACTION_NOTE_ON ) {
-        if (!event.id) {
-            // create unique event identifier (if it didn't have one already)
-            Vue.set(event, 'id', ++UNIQUE_EVENT_ID);
-        }
+
+        // create unique event identifier used to store a reference to the
+        // event during its playback time. NOTE: we do this for every noteOn in
+        // case of pattern jumps / sequencer actions retriggering an already
+        // playing event (which would lead the first event to never be released)
+        Vue.set(event, 'id', ++UNIQUE_EVENT_ID);
+
         // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
 
         const frequency = getFrequency(event.note, event.octave);
