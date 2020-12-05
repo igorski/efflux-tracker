@@ -201,7 +201,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
         // playing event, for instance: looping a single measure where a new 'retrigger' of
         // the event should be played while the first one is still playing back its release tail).
 
-        if ( event.id && !instrumentEventsList[instrument.id][event.id]) {
+        if ( event.id ) {
 
             // force noteOff on currently playing nodes (will go to release phase and
             // afterwards dispose of playing nodes).
@@ -210,12 +210,12 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             event.id = null;  // generates a new id below
         }
         if ( !event.id ) {
-            Vue.set(event, 'id', ++UNIQUE_EVENT_ID);
+            Vue.set( event, 'id', ( ++UNIQUE_EVENT_ID ));
         }
 
         // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
 
-        const frequency = getFrequency(event.note, event.octave);
+        const frequency = getFrequency( event.note, event.octave );
         const voices    = /** @type {EVENT_VOICE_LIST} */ ([]);
         const modules   = instrumentModulesList[instrument.id];
         let voice;
