@@ -451,7 +451,7 @@ function assemblePatterns( song, savedXtkVersion, xtk, tempo ) {
                         }
                         eventData = {
                             ...( notePool[ parseFloat( notePoolId ) ] || {} ),
-                            [ EVENT_ID ]: ( ++eventIdAcc ),
+                    //        [ EVENT_ID ]: ( ++eventIdAcc ),
                             [ EVENT_MODULE_AUTOMATION ]: mp,
                         };
                     }
@@ -462,7 +462,7 @@ function assemblePatterns( song, savedXtkVersion, xtk, tempo ) {
 
                     event = {
                         action:     eventData[ EVENT_ACTION ],
-                        id :        eventData[ EVENT_ID ],
+                      //  id :        eventData[ EVENT_ID ], // responsibility of AudioService.noteOn()
                         instrument: eventData[ EVENT_INSTRUMENT ],
                         note:       eventData[ EVENT_NOTE ],
                         octave:     eventData[ EVENT_OCTAVE ],

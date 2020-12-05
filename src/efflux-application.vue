@@ -215,7 +215,7 @@ export default {
                 return;
 
             if (AudioService.initialized) {
-                AudioService.reset();
+                AudioService.reset(true);
                 AudioService.cacheCustomTables(song.instruments);
                 AudioService.applyModules(song);
             }

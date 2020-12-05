@@ -74,7 +74,9 @@ function enqueueEvent(store, event, eventChannel) {
         }
 
         while ( playingNote ) {
-            dequeueEvent(store.state.sequencer, playingNote.data, nextNoteTime);
+            if ( playingNote.data.id !== event.id ) {
+                dequeueEvent(store.state.sequencer, playingNote.data, nextNoteTime);
+            }
             playingNote.remove();
             playingNote = queue.tail;
         }

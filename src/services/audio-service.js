@@ -103,9 +103,9 @@ export const prepareEnvironment = (audioContextInstance, waveTables, optExternal
 
 /**
  * halts all playing audio, flushes events and
- * resets unique event id counter
+ * resets unique event id counter when requested (e.g. when loading new song)
  */
-export const reset = () => {
+export const reset = ( resetEventCounter = false ) => {
     instrumentEventsList.forEach((eventList, instrumentId) => {
         processVoices(Object.values(eventList), (voice, oscillatorIndex) => {
             returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId);
@@ -113,7 +113,9 @@ export const reset = () => {
         });
         instrumentEventsList[instrumentId] = {};
     });
-    UNIQUE_EVENT_ID = 0;
+    if ( resetEventCounter ) {
+        UNIQUE_EVENT_ID = 0;
+    }
 };
 
 export const togglePlayback = isPlaying => {
@@ -191,11 +193,25 @@ export const applyModules = (song, connectAnalysers = false) => {
 export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.currentTime ) => {
     if ( event.action === ACTION_NOTE_ON ) {
 
-        // create unique event identifier used to store a reference to the
-        // event during its playback time. NOTE: we do this for every noteOn in
-        // case of pattern jumps / sequencer actions retriggering an already
-        // playing event (which would lead the first event to never be released)
-        Vue.set(event, 'id', ++UNIQUE_EVENT_ID);
+        // here we create a unique event identifier which is used to store a reference to the
+        // event during its playback time.
+
+        // however, first check if the event already has an id and is currently playing back
+        // (the scenario here is a pattern jump / sequencer action retriggering an already
+        // playing event, for instance: looping a single measure where a new 'retrigger' of
+        // the event should be played while the first one is still playing back its release tail).
+
+        if ( event.id && !instrumentEventsList[instrument.id][event.id]) {
+
+            // force noteOff on currently playing nodes (will go to release phase and
+            // afterwards dispose of playing nodes).
+
+            noteOff( event, startTimeInSeconds ); // will clear previously playing notes for event
+            event.id = null;  // generates a new id below
+        }
+        if ( !event.id ) {
+            Vue.set(event, 'id', ++UNIQUE_EVENT_ID);
+        }
 
         // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
 
@@ -308,11 +324,11 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
  *                  equal the end of the note's sustain period as release
  *                  will be applied automatically
  */
-export const noteOff = (event, startTimeInSeconds = audioContext.currentTime) => {
+export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime ) => {
     const eventId     = event.id, instrumentId = event.instrument;
     const eventVoices = instrumentEventsList[instrumentId][eventId];
 
-    if ( !eventVoices ) return;
+    if ( !eventVoices ) return; // event has no reference to playing nodes
 
     // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
