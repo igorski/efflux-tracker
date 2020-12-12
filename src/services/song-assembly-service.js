@@ -177,7 +177,7 @@ const ASSEMBLER_VERSION_CODE = "av",
       AUTOMATION_POOLS = "ap",
 
       EVENT_ACTION            = "a",
-      EVENT_ID                = "i",
+    // EVENT_ID                = "i", // ids are a runtime requirement, will be regenerated on load just fine
       EVENT_INSTRUMENT        = "ins",
       EVENT_NOTE              = "n",
       EVENT_OCTAVE            = "o",
@@ -416,7 +416,7 @@ function assemblePatterns( song, savedXtkVersion, xtk, tempo ) {
     song.patterns = new Array( xtk[ PATTERNS ].length );
     let pattern, channel, event;
 
-    let eventIdAcc = 0, notePoolId, automationPoolId, eventData;
+    let /* eventIdAcc = 0, */notePoolId, automationPoolId, eventData;
     let notePool = [], automationPool = [];
     if ( savedXtkVersion >= 4 ) {
         notePool = xtk[ NOTE_POOLS ].map(note => JSON.parse(note));
