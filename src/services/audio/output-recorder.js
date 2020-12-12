@@ -39,7 +39,7 @@ const Recorder = function (source, cfg = {}) {
 
     this.configure = function (config) {
         for (var prop in config) {
-            if (cfg.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(cfg, prop)) {
                 cfg[prop] = config[prop];
             }
         }

@@ -404,7 +404,7 @@ function disassembleInstruments( xtk, instruments ) {
 
             const waveform = oscillator.waveform;
 
-            if ( ![ "CUSTOM", "NOISE" ].includes( waveform ) && !xtkWaveforms.hasOwnProperty( waveform )) {
+            if ( ![ "CUSTOM", "NOISE" ].includes( waveform ) && !Object.prototype.hasOwnProperty.call( xtkWaveforms, waveform )) {
                 xtkWaveforms[ waveform ] = WaveTables[ waveform ] || {};
             }
         });

@@ -30,7 +30,7 @@ module.exports = {
             // but concatenate and copy them to the output folder for runtime loading
 
             new MergeJsonWebpackPlugin({
-                prefixFileName:true,
+                prefixFileName: true,
                 output: {
                     groupBy: [
                         {
