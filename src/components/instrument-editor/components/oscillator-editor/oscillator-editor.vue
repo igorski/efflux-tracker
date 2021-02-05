@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -169,7 +169,7 @@
 </template>
 <script>
 import { mapState, mapMutations } from 'vuex';
-import zCanvas from 'zcanvas';
+import { canvas } from 'zcanvas';
 import Config from '@/config';
 import AudioService from '@/services/audio-service';
 import InstrumentFactory from '@/model/factory/instrument-factory';
@@ -267,7 +267,7 @@ export default {
         pitchRelease: {
             get() { return this.oscillator.pitch.release; },
             set(value) { this.update('pitch', { ...this.oscillator.pitch, release: value }); }
-        },    
+        },
     },
     watch: {
         windowSize: {
@@ -282,7 +282,7 @@ export default {
         instrumentRef() { this.renderWaveform(); }
     },
     mounted() {
-        this.canvas = new zCanvas.canvas(Config.WAVE_TABLE_SIZE, 200);
+        this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200 });
         this.canvas.setBackgroundColor('#000000');
         this.canvas.insertInPage(this.$refs.canvasContainer);
         this.wtDraw = new WaveTableDraw(this.canvas.getWidth(), this.canvas.getHeight(), this.handleWaveformUpdate);
@@ -418,4 +418,3 @@ export default {
       }
     }
 </style>
- 
