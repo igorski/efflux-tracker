@@ -45,5 +45,9 @@ module.exports = {
                 }
             })
         ]
+    },
+    chainWebpack: config => {
+        // this solves an issue with hot module reload on Safari...
+        config.plugins.delete('preload');
     }
 };
