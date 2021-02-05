@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,6 +24,7 @@ import AudioService from '@/services/audio-service';
 import EventFactory from '@/model/factory/event-factory';
 import EventUtil    from './event-util';
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
+import { isOscillatorNode, isAudioBufferSourceNode } from '@/services/audio/webaudio-helper';
 
 const RECORD_THRESHOLD = 50;
 
@@ -86,10 +87,10 @@ export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
 
             const generator = voice.generator;
 
-            if ( generator instanceof OscillatorNode )
+            if ( isOscillatorNode( generator ))
                 generator.frequency.value = tuneToOscillator( voice.frequency, oscillator );
 
-            else if ( generator instanceof AudioBufferSourceNode )
+            else if ( isAudioBufferSourceNode( generator ))
                 generator.playbackRate.value = tuneBufferPlayback( oscillator );
         }
     });
@@ -136,8 +137,9 @@ export const adjustEventWaveForms = ( events, oscillatorIndex, table ) => {
             if (!voice) return;
 
             const generator = event[oscillatorIndex].generator;
-            if (generator instanceof OscillatorNode )
+            if ( isOscillatorNode( generator )) {
                 generator.setPeriodicWave(table);
+            }
         }
     });
 };

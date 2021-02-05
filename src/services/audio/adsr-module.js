@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,6 +22,7 @@
  */
 let ADSR, envelope, attack, release, attackEnd, decayEnd, step;
 const MAX_PITCH_ENVELOPE_VALUE = 24; // max value we expect for the pitch envelope's range
+import { isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
 
 export default
 {
@@ -99,7 +100,7 @@ export default
         if ( ADSR.range === 0 )
             return; // do not apply pitch envelopes if no deviating pitch range was defined
 
-        const isSample  = ( generator instanceof AudioBufferSourceNode );
+        const isSample  = isAudioBufferSourceNode( generator );
 
         envelope  = ( isSample ) ? generator.playbackRate : generator.frequency;
         attackEnd = startTimeInSeconds + ADSR.attack;
@@ -135,7 +136,7 @@ export default
         if ( ADSR.range === 0 || typeof ADSR.org !== 'number' )
             return; // do not apply pitch envelopes if no deviating pitch range was defined
 
-        envelope = ( generator instanceof AudioBufferSourceNode ) ? generator.playbackRate : generator.frequency;
+        envelope = isAudioBufferSourceNode( generator ) ? generator.playbackRate : generator.frequency;
 
         envelope.cancelScheduledValues  ( startTimeInSeconds );
         envelope.setValueAtTime         ( envelope.value, startTimeInSeconds );

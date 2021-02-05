@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,7 @@ import { rangeToIndex }  from '@/utils/array-util';
 import { toHex }         from '@/utils/number-util';
 import { processVoices } from './audio-util';
 import { applyRouting }  from './module-router';
-import { createTimer }   from './webaudio-helper';
+import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from './webaudio-helper';
 
 const filterTypes = ['off', 'sine', 'square', 'sawtooth', 'triangle'];
 
@@ -130,7 +130,7 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
 
     processVoices(instrumentEvents, voice => {
         generator = voice.generator;
-        if ( generator instanceof OscillatorNode ) {
+        if ( isOscillatorNode( generator )) {
             tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
             target = ( tmp * ( mp.value / 100 ));
 
@@ -143,7 +143,7 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
                 generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
             );
         }
-        else if ( generator instanceof AudioBufferSourceNode ) {
+        else if ( isAudioBufferSourceNode( generator )) {
             tmp    = ( mp.value / 100 );
             target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
             scheduleParameterChange(

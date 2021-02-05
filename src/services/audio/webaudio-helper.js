@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -301,3 +301,12 @@ export const init = () => {
  * audioContext in the current environment
  */
 export const supports = feature => !!features[feature];
+
+/**
+ * The below solve an issue where Safari creates "WebKitOscillatorNode" and
+ * "WebkitAudioBufferSourceNode" where instanceof OscillatorNode and
+ * instanceof AudioBufferSourceNode fail !! We check for their unique properties instead
+ * as we cannot do instanceof checks on the "WebKit"...-prefixed alternatives.
+ */
+export const isOscillatorNode        = node => !!node.frequency // node instanceof OscillatorNode
+export const isAudioBufferSourceNode = node => !!node.buffer;   // node instanceof AudioBufferSourceNode
