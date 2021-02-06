@@ -1,5 +1,26 @@
 /* mixins */
 
+// phones
+@mixin mobile {
+    @media (max-width: #{$mobile-width}) {
+        @content;
+    }
+}
+
+// anything above phone resolution (e.g. tablet/laptop/desktop)
+@mixin large {
+    @media (min-width: #{$mobile-width}) {
+        @content;
+    }
+}
+
+// ideal size (shows all eight track lines in editor)
+@mixin ideal {
+    @media (min-width: #{$ideal-width}) {
+        @content;
+    }
+}
+
 @mixin noSelect {
   -webkit-touch-callout: none;
     -webkit-user-select: none;
@@ -10,7 +31,7 @@
 }
 
 @mixin noEvents {
-  pointer-events: none;
+    pointer-events: none;
 }
 
 @mixin boxSize {
@@ -19,28 +40,28 @@
           box-sizing: border-box;
 }
 
-@mixin textOverflow {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+@mixin truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @mixin flex {
-  display: -webkit-flex;
-  display: flex;
+    display: -webkit-flex;
+    display: flex;
 }
 
 @mixin inlineFlex {
-  display: -webkit-inline-flex;
-  display: inline-flex;
+    display: -webkit-inline-flex;
+    display: inline-flex;
 }
 
-@mixin animate($property: all, $delay: .5s) {
-  transition: $property $delay cubic-bezier(0.455, 0.030, 0.515, 0.955);
+@mixin animate( $property: all, $delay: .5s ) {
+    transition: $property $delay cubic-bezier(0.455, 0.030, 0.515, 0.955);
 }
 
 @mixin verticalScrollOnMobile() {
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden; /* we should never want this in modal windows */
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden; /* we should never want this in modal windows */
 }

@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2020 - https://www.igorski.nl
+* Igor Zinken 2019-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the 'Software'), to deal in
@@ -23,86 +23,86 @@
 <template>
     <div class="instrument-editor">
         <div class="header">
-            <h4 v-t="'title'" class="title"></h4>
             <button class="help-button"
                     @click="openHelp">?</button>
             <button class="close-button"
                     @click="$emit('close')">x</button>
 
             <!-- selector that switches between available instruments -->
-            <select class="instrument-selector"
-                    v-model.number="instrument"
-            >
-                <option v-for="(instrument, idx) in instrumentAmount"
-                        :key="`instrument_${idx}`"
-                        :value="idx"
-                >{{ $t('instrument', { index: idx + 1 }) }}</option>
-            </select>
-        </div>
-
-        <!-- part 1 : oscillator editor -->
-        <ul class="oscillator-tabs tab-list">
-            <li v-for="(oscillator, idx) in oscillatorAmount"
-                :key="`oscillator_${idx}`"
-                :class="{ active: selectedOscillatorIndex === idx }"
-                @click="setSelectedOscillatorIndex(idx)"
-            >
-                {{ $t('oscillator', { index: idx + 1 }) }}
-            </li>
-        </ul>
-        <div>
-            <oscillator-editor
-                :instrument-ref="instrumentRef"
-                :instrument-id="selectedInstrument"
-                :oscillator-index="selectedOscillatorIndex"
-                @invalidate="invalidatePreset"
-            />
-
-            <!-- part 2: modules -->
-            <module-editor
-                :instrument-ref="instrumentRef"
-                :instrument-id="selectedInstrument"
-                @invalidate="invalidatePreset"
+            <select-box
+                v-model="instrument"
+                :options="instrumentOptions"
+                class="instrument-selector"
             />
         </div>
-
+        <!-- instrument preset list -->
         <section class="instrument-presets">
-            <h2 v-t="'presets'"></h2>
-            <select v-model="currentPreset">
-                <option v-for="(instrument, idx) in presets"
-                        :key="`preset_${idx}`"
-                        :value="instrument.presetName"
-                >{{ instrument.presetName }}</option>
-            </select>
-            <div class="save">
-                <input v-model="presetName"
-                       class="preset-name-input"
-                       type="text"
-                       :placeholder="$t('presetName')"
-                       @focus="handleFocusIn"
-                       @blur="handleFocusOut"
-                       @keyup.enter="savePreset"
-                />
-                <button v-t="'savePreset'"
-                        type="button"
-                        @click="savePreset"
-                ></button>
-            </div>
+            <h2 v-t="'presets'" class="preset-title"></h2>
+            <select-box
+                v-model="currentPreset"
+                :options="presetOptions"
+                class="preset-selector"
+            />
         </section>
+        <hr class="divider" />
+        <!-- oscillator editor -->
+        <div class="instrument-editor-wrapper">
+            <ul class="oscillator-tabs tab-list">
+                <li v-for="(oscillator, idx) in oscillatorAmount"
+                    :key="`oscillator_${idx}`"
+                    :class="{ active: selectedOscillatorIndex === idx }"
+                    @click="setSelectedOscillatorIndex(idx)"
+                >
+                    {{ $t('oscillator', { index: idx + 1 }) }}
+                </li>
+            </ul>
+            <div>
+                <oscillator-editor
+                    :instrument-ref="instrumentRef"
+                    :instrument-id="selectedInstrument"
+                    :oscillator-index="selectedOscillatorIndex"
+                    @invalidate="invalidatePreset"
+                />
+                <!-- modules -->
+                <module-editor
+                    :instrument-ref="instrumentRef"
+                    :instrument-id="selectedInstrument"
+                    @invalidate="invalidatePreset"
+                    class="module-editor"
+                />
+            </div>
+        </div>
+        <hr class="divider" />
+        <!-- current preset -->
+        <div class="current-preset">
+            <input v-model="presetName"
+                   class="preset-name-input"
+                   type="text"
+                   :placeholder="$t('presetName')"
+                   @focus="handleFocusIn"
+                   @blur="handleFocusOut"
+                   @keyup.enter="savePreset"
+            />
+            <button v-t="'savePreset'"
+                    type="button"
+                    @click="savePreset"
+            ></button>
+        </div>
     </div>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import Config from '@/config';
-import ManualURLs from '@/definitions/manual-urls';
-import AudioService from '@/services/audio-service';
-import PubSubMessages from '@/services/pubsub/messages';
-import InstrumentFactory from '@/model/factory/instrument-factory';
-import ObjectUtil from '@/utils/object-util';
-import OscillatorEditor from './components/oscillator-editor/oscillator-editor';
-import ModuleEditor from './components/module-editor/module-editor';
-import messages from './messages.json';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import Config            from "@/config";
+import ManualURLs        from "@/definitions/manual-urls";
+import AudioService      from "@/services/audio-service";
+import PubSubMessages    from "@/services/pubsub/messages";
+import InstrumentFactory from "@/model/factory/instrument-factory";
+import ObjectUtil        from "@/utils/object-util";
+import SelectBox         from "@/components/forms/select-box";
+import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor";
+import ModuleEditor      from "./components/module-editor/module-editor";
+import messages          from "./messages.json";
 
 let EMPTY_PRESET_VALUE;
 
@@ -110,10 +110,10 @@ export default {
     i18n: { messages },
     components: {
         OscillatorEditor,
-        ModuleEditor
+        ModuleEditor,
+        SelectBox,
     },
     data: () => ({
-        instrumentAmount: Config.INSTRUMENT_AMOUNT,
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
         currentPreset: null,
         presetName: '',
@@ -130,12 +130,12 @@ export default {
         ]),
         instrument: {
             get() {
-                return this.selectedInstrument;
+                return this.selectedInstrument.toString();
             },
-            set(value) {
-                this.setSelectedInstrument(value); // allows live keyboard/MIDI playing to use new instrument
+            set( value ) {
+                this.setSelectedInstrument( parseFloat( value )); // allows live keyboard/MIDI playing to use new instrument
                 const instrumentPresetName = this.instrumentRef.presetName;
-                if (this.presets.find(({ presetName }) => presetName === instrumentPresetName)) {
+                if ( this.presets.find(({ presetName }) => presetName === instrumentPresetName )) {
                     this.currentPreset = instrumentPresetName;
                 } else {
                     this.currentPreset = EMPTY_PRESET_VALUE;
@@ -149,13 +149,23 @@ export default {
         presets() {
             const out = [
                 ...this.instruments,
-                { presetName: this.$t('defaultPresetName') }
+                { presetName: this.$t( "defaultPresetName" ) }
             ];
             return out.sort(( a, b ) => {
                 if( a.presetName < b.presetName ) return -1;
                 if( a.presetName > b.presetName ) return 1;
                 return 0;
             });
+        },
+        instrumentOptions() {
+            const out = [];
+            for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
+                out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
+            }
+            return out;
+        },
+        presetOptions() {
+            return this.presets.map(({ presetName }) => ({ label: presetName, value: presetName }));
         },
     },
     watch: {
@@ -238,79 +248,79 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
-    @import '@/styles/_layout.scss';
+<style lang="scss" scoped>
+@import "@/styles/_layout.scss";
 
-    .instrument-editor {
-      @include editorComponent();
-      @include overlay();
-      height: auto;
-    }
-
-    .title {
-      margin: $spacing-medium;
-    }
-
-    .instrument-selector {
-      position: absolute;
-      top: $spacing-medium;
-      right: ($spacing-xlarge + $spacing-xlarge);
-    }
-
-    .instrument-presets {
-      display: inline-block;
-      width: 100%;
-      margin-top: $spacing-small;
-
-      .save {
-        float: right;
-        margin-right: $spacing-xlarge;
-      }
-    }
+.instrument-editor {
+    @include editorComponent();
+    @include overlay();
+    position: absolute;
+    top: 0;
+    margin-top: 0;
+    @include verticalScrollOnMobile();
 
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $ideal-instrument-editor-width ) {
-      .instrument-editor {
-        top: 50%;
+    @media screen and ( min-width: $ideal-instrument-editor-width )  {
         left: 50%;
         width: $ideal-instrument-editor-width;
         margin-left: -$ideal-instrument-editor-width / 2;
+    }
+
+    @media screen and ( min-height: $ideal-instrument-editor-height ) {
+        top: 50%;
         margin-top: -$ideal-instrument-editor-height / 2;
-      }
+        height: $ideal-instrument-editor-height;
     }
+}
 
-    /* small screen / mobile, etc. */
+.preset-title {
+    padding: 0 $spacing-medium 0;
+    color: #FFF;
+    @include toolFont();
+}
 
-    @media screen and ( max-height: $ideal-instrument-editor-height ), ( max-width: $ideal-instrument-editor-width ) {
-      .instrument-editor {
-        position: absolute;
-        height: 100%;
-        top: 0;
-        margin-top: 0;
-        @include verticalScrollOnMobile();
-      }
+.instrument-selector {
+    position: absolute;
+    width: 110px;
+    top: 15px;
+    right: ($spacing-xlarge * 2 - $spacing-xsmall);
+}
 
-      .instrument-presets {
-        @include boxSize();
-        padding: 0 $spacing-large;
+.instrument-presets {
+    @include boxSize();
+    padding-left: $spacing-medium;
+    margin-top: $spacing-small;
+    display: inline-block;
+    width: 100%;
 
-        select {
-          display: block;
-          width: 100%;
-          margin: 0 auto;
-        }
-        .save {
-          float: none;
-          margin-top: $spacing-medium;
-          button {
-            float: right;
-          }
-        }
-      }
-
-      .preset-name-input {
-          width: calc(100% - 120px);
-      }
+    @include mobile() {
+        border-top: 1px dashed #666;
+        padding-top: $spacing-medium;
+        margin-top: $spacing-xlarge;
     }
+}
+
+.module-editor {
+    @media screen and ( min-width: $ideal-instrument-editor-width ) {
+        margin-top: -$spacing-small;
+        padding: 0 $spacing-medium;
+    }
+}
+
+.instrument-editor-wrapper {
+    padding: 0 $spacing-medium;
+}
+
+.current-preset {
+    margin: $spacing-small 0 0 $spacing-medium;
+    input {
+        width: 253px;
+        @include toolFont();
+    }
+}
+
+.preset-selector {
+    width: 204px;
+}
 </style>

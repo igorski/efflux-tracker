@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -25,6 +25,11 @@
         <div class="note-entry-editor">
             <div class="header">
                 <h4 v-t="'title'" class="title"></h4>
+                <select-box
+                    v-model.number="instrumentSelectValue"
+                    class="instrument-selector"
+                    :options="instrumentOptions"
+                />
                 <button type="button"
                         class="help-button"
                         @click="handleHelp"
@@ -34,6 +39,7 @@
                         @click="handleClose"
                 >x</button>
             </div>
+            <hr class="divider" />
             <ul id="keyboardNotes">
                 <form-list-item v-model="note" option-value="C"  class="C"></form-list-item>
                 <form-list-item v-model="note" option-value="C#" class="CS sharp"></form-list-item>
@@ -58,18 +64,6 @@
                 <form-list-item v-model.number="octave" :option-value="7">7</form-list-item>
                 <form-list-item v-model.number="octave" :option-value="8">8</form-list-item>
             </ul>
-            <select class="instrument-selector"
-                    v-model.number="instrument"
-            >
-                <option value="0">{{ $t('instrument', { num: 0 }) }}</option>
-                <option value="1">{{ $t('instrument', { num: 1 }) }}</option>
-                <option value="2">{{ $t('instrument', { num: 2 }) }}</option>
-                <option value="3">{{ $t('instrument', { num: 3 }) }}</option>
-                <option value="4">{{ $t('instrument', { num: 4 }) }}</option>
-                <option value="5">{{ $t('instrument', { num: 5 }) }}</option>
-                <option value="6">{{ $t('instrument', { num: 6 }) }}</option>
-                <option value="7">{{ $t('instrument', { num: 7 }) }}</option>
-            </select>
             <p v-t="'fastEditExpl'" class="explanation"></p>
             <button v-t="'ok'"
                     type="button"
@@ -81,24 +75,26 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations } from "vuex";
+import Config          from "@/config";
+import KeyboardService from "@/services/keyboard-service";
+import EventUtil       from "@/utils/event-util";
+import EventFactory    from "@/model/factory/event-factory";
+import EventValidator  from "@/model/validators/event-validator";
+import ManualURLs      from "@/definitions/manual-urls";
+import FormListItem    from "@/components/forms/form-list-item.vue";
+import SelectBox       from "@/components/forms/select-box";
+import messages        from "./messages.json";
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 
-import KeyboardService     from '@/services/keyboard-service';
-import EventUtil           from '@/utils/event-util';
-import EventFactory        from '@/model/factory/event-factory';
-import EventValidator      from '@/model/validators/event-validator';
-import ManualURLs          from '@/definitions/manual-urls';
-import FormListItem        from '@/components/forms/form-list-item.vue';
-import messages            from './messages.json';
-import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
-
-const DEFAULT_NOTE   = 'C';
+const DEFAULT_NOTE   = "C";
 const DEFAULT_OCTAVE = 3;
 
 export default {
     i18n: { messages },
     components: {
-        FormListItem
+        FormListItem,
+        SelectBox
     },
     data: () => ({
         instrument: 0,
@@ -115,6 +111,21 @@ export default {
             selectedInstrument: state => state.editor.selectedInstrument,
             selectedStep: state => state.editor.selectedStep,
         }),
+        instrumentSelectValue: {
+            get() {
+                return this.instrument.toString();
+            },
+            set( value ) {
+                this.instrument = parseFloat( value );
+            }
+        },
+        instrumentOptions() {
+            const out = [];
+            for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
+                out.push({ label: this.$t( "instrument", { num: i }), value: i.toString() });
+            }
+            return out;
+        }
     },
     created() {
         // we define these upfront as we assume that the position the sequencer had (when running) is
@@ -145,7 +156,7 @@ export default {
         });
         this.instrument = ( previousEvent ) ? previousEvent.instrument : this.selectedInstrument;
 
-        if (event) {
+        if ( event ) {
             this.instrument = event.instrument;
             this.note = event.note;
             this.octave = event.octave;
@@ -256,46 +267,51 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
-    @import '@/styles/_layout.scss';
+@import "@/styles/_variables.scss";
+@import "@/styles/_layout.scss";
 
-    $width: 445px;
-    $height: 350px;
+$width: 445px;
+$height: 370px;
 
-    .note-entry-editor {
-      @include editorComponent();
-      @include overlay();
-      @include noSelect();
-      @include boxSize();
-      padding: $spacing-small $spacing-large;
-      border-radius: $spacing-small;
-      box-shadow: 0 0 25px rgba(0,0,0,.5);
+.note-entry-editor {
+    @include editorComponent();
+    @include overlay();
+    @include noSelect();
+    @include boxSize();
+    padding: $spacing-small $spacing-large;
+    border-radius: $spacing-small;
+    box-shadow: 0 0 25px rgba(0,0,0,.5);
+
+    .divider {
+        width: calc(100% + #{$spacing-large * 2});
+        margin: 0 0 $spacing-medium -#{$spacing-large};
     }
+}
 
-    .title {
-      margin: $spacing-medium 0;
-    }
+.title {
+    margin: $spacing-medium 0;
+}
 
-    .explanation {
-        margin-top: $spacing-medium;
-        display: inline-block;
-    }
+.explanation {
+    margin-top: $spacing-medium;
+    display: inline-block;
+}
 
-    .instrument-selector {
-      position: absolute;
-      top: $spacing-medium;
-      right: ( $spacing-xlarge + $spacing-xlarge);
-      width: 120px;
-    }
+.instrument-selector {
+    position: absolute;
+    top: $spacing-medium + 1;
+    right: ( $spacing-xlarge * 2 - $spacing-xsmall );
+    width: 120px;
+}
 
-    #keyboardNotes {
-      position: relative;
-      width: 100%;
-      height: 100px;
-      margin-bottom: $spacing-small;
-      margin-left: 6.5%;
+#keyboardNotes {
+    position: relative;
+    width: 100%;
+    height: 100px;
+    margin-bottom: $spacing-small;
+    margin-left: 6.5%;
 
-      li {
+    li {
         display: inline-block;
         cursor: pointer;
         position: relative;
@@ -306,72 +322,72 @@ export default {
         margin-right: $spacing-small;
 
         &.sharp {
-          position: absolute;
-          z-index: 100;
-          width: 12.5%;
-          background-color: #000;
-          transform-origin: center top;
-          transform: translateX( -50% ) scale( 0.6 );
+            position: absolute;
+            z-index: 100;
+            width: 12.5%;
+            background-color: #000;
+            transform-origin: center top;
+            transform: translateX( -50% ) scale( 0.6 );
         }
 
         &.selected, &:hover {
-          background-color: #FFF;
+            background-color: #FFF;
         }
 
         &:after {
-          position: absolute;
-          bottom: $spacing-small;
-          left: $spacing-small;
-          pointer-events: none;
+            position: absolute;
+            bottom: $spacing-small;
+            left: $spacing-small;
+            pointer-events: none;
         }
 
         &.C:after {
-          content: "C";
+            content: "C";
         }
         &.CS:after {
-          content: "C#";
+            content: "C#";
         }
         &.D:after {
-          content: "D";
+            content: "D";
         }
         &.DS:after {
-          content: "D#";
+            content: "D#";
         }
         &.E:after {
-          content: "E";
+            content: "E";
         }
         &.F:after {
-          content: "F";
+            content: "F";
         }
         &.FS:after {
-          content: "F#";
+            content: "F#";
         }
         &.G:after {
-          content: "G";
+            content: "G";
         }
         &.GS:after {
-          content: "G#";
+            content: "G#";
         }
         &.A:after {
-          content: "A";
+            content: "A";
         }
         &.AS:after {
-          content: "A#";
+            content: "A#";
         }
         &.B:after {
-          content: "B";
+            content: "B";
         }
-      }
     }
+}
 
-    #octaves {
-      text-transform: uppercase;
-      text-indent: $spacing-small;
-      float: left;
-      width: 100%;
-      margin-left: 5%;
+#octaves {
+    text-transform: uppercase;
+    text-indent: $spacing-small;
+    float: left;
+    width: 100%;
+    margin-left: 5%;
 
-      li {
+    li {
         float: left;
         border: 2px solid #666;
         padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
@@ -379,36 +395,36 @@ export default {
         cursor: pointer;
 
         &.selected, &:hover {
-          background-color: #FFF;
-          color: #000;
+            background-color: #FFF;
+            color: #000;
         }
-      }
     }
+}
 
-   .confirm-button {
-     width: 100%;
-     padding: $spacing-medium $spacing-large;
-   }
+.confirm-button {
+    width: 100%;
+    padding: $spacing-medium $spacing-large;
+}
 
-    @media screen and ( min-width: $width ) and ( min-height: $height ) {
-      .note-entry-editor {
+@media screen and ( min-width: $width ) and ( min-height: $height ) {
+    .note-entry-editor {
         top: 50%;
         left: 50%;
         width: $width;
         height: $height;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2);
-      }
     }
+}
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
-      .note-entry-editor {
+@media screen and ( max-width: $width ), ( max-height: $height ) {
+    .note-entry-editor {
         top: 0;
         left: 0;
         margin: 0;
         border-radius: 0;
         width: 100%;
         @include verticalScrollOnMobile();
-      }
     }
+}
 </style>

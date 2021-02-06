@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020 - https://www.igorski.nl
+ * Igor Zinken 2020-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -28,6 +28,7 @@
                     @click="$emit('close')"
             >x</button>
         </div>
+        <hr class="divider" />
         <div class="channels">
             <channel-strip v-for="(instrument, index) in activeSong.instruments"
                            :key="`channel_${index}`"
@@ -73,44 +74,48 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
-    @import '@/styles/_layout.scss';
+<style lang="scss" scoped>
+@import "@/styles/_layout.scss";
 
+.mixer {
+    @include editorComponent();
+    @include overlay();
+    height: auto;
+
+    .divider {
+        margin-bottom: 0;
+    }
+}
+
+.title {
+    margin: $spacing-medium;
+}
+
+/* ideal size and above (tablet/desktop) */
+
+$ideal-mixer-width: 785px;
+$ideal-mixer-height: 400px;
+
+@media screen and ( min-width: $ideal-mixer-width ) {
     .mixer {
-      @include editorComponent();
-      @include overlay();
-      height: auto;
-    }
-
-    .title {
-      margin: $spacing-medium;
-    }
-
-    /* ideal size and above (tablet/desktop) */
-
-    $ideal-mixer-width: 780px;
-    $ideal-mixer-height: 400px;
-
-    @media screen and ( min-width: $ideal-mixer-width ) {
-      .mixer {
         top: 50%;
         left: 50%;
         width: $ideal-mixer-width;
         height: $ideal-mixer-height;
         margin-left: -$ideal-mixer-width / 2;
         margin-top: -$ideal-mixer-height / 2;
-      }
     }
+}
 
-    /* small screen / mobile, etc. */
+/* small screen / mobile, etc. */
 
-    @media screen and ( max-width: $ideal-mixer-width ) {
-      .mixer {
+@media screen and ( max-width: $ideal-mixer-width ) {
+    .mixer {
         position: absolute;
         height: 100%;
         top: 0;
         margin-top: 0;
         @include verticalScrollOnMobile();
-      }
     }
+}
 </style>

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -193,152 +193,152 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
+@import "@/styles/_variables.scss";
 
-    /* generated font for all transporter icons */
+/* generated font for all transporter icons */
 
-    @font-face {
-      font-family: 'transporter';
-      src: url('../../assets/fonts/transporter.eot');
-      src: url('../../assets/fonts/transporter.eot#iefix') format('embedded-opentype'),
-           url('../../assets/fonts/transporter.woff') format('woff'),
-           url('../../assets/fonts/transporter.ttf') format('truetype'),
-           url('../../assets/fonts/transporter.svg#transporter') format('svg');
-      font-weight: normal;
-      font-style: normal;
-    }
+@font-face {
+    font-family: "transporter";
+    src: url("../../assets/fonts/transporter.eot");
+    src: url("../../assets/fonts/transporter.eot#iefix") format("embedded-opentype"),
+    url("../../assets/fonts/transporter.woff") format("woff"),
+    url("../../assets/fonts/transporter.ttf") format("truetype"),
+    url("../../assets/fonts/transporter.svg#transporter") format("svg");
+    font-weight: normal;
+    font-style: normal;
+}
 
-    .transport-section {
-      background-color: #393b40;
-    }
+.transport-section {
+    background-color: $color-editor-background;;
+}
 
-    .transport-controls {
-        font-family: Montserrat, Helvetica, Verdana, sans-serif;
-        border: none;
-        border-radius: 0;
-        margin: 0 auto;
-        min-width: 100%;
-        max-width: $ideal-width;
+.transport-controls {
+    font-family: Montserrat, Helvetica, Verdana, sans-serif;
+    border: none;
+    border-radius: 0;
+    margin: 0 auto;
+    min-width: 100%;
+    max-width: $ideal-width;
 
-        ul {
-            list-style-type: none;
-            padding-left: $spacing-medium;
+    ul {
+        list-style-type: none;
+        padding-left: $spacing-medium;
 
-            li {
-                display: inline;
-                margin: $spacing-small 0;
-                padding: 0;
-                font-weight: bold;
-                cursor: pointer;
+        li {
+            display: inline;
+            margin: $spacing-small 0;
+            padding: 0;
+            font-weight: bold;
+            cursor: pointer;
 
-                &:first-child {
-                    padding-left: $spacing-xsmall;
+            &:first-child {
+                padding-left: $spacing-xsmall;
+            }
+
+            /* loop button */
+            &#loopBTN {
+                padding-left: 0;
+            }
+
+            /* record button */
+            &#recordBTN {
+                background-color: #d00e57;
+                padding: 0 9px;
+                border-radius: 50%;
+                margin-left: $spacing-small;
+
+                &.active {
+                    background-color: #FFF;
                 }
 
-                /* loop button */
-                &#loopBTN {
-                    padding-left: 0;
-                }
-
-                /* record button */
-                &#recordBTN {
-                    background-color: #d00e57;
-                    padding: 0 9px;
-                    border-radius: 50%;
-                    margin-left: $spacing-small;
-
-                    &.active {
-                        background-color: #FFF;
-                    }
-
-                    &.disabled {
-                        display: none;
-                    }
-                }
-
-                /* measure indicator */
-                &.current-pattern {
-                    display: inline-block;
-                    padding: 0;
-                    color: #FFF;
-
-                    .current {
-                        width: $spacing-xlarge; /* fits "333" */
-                        height: $spacing-large;
-                        border: 1px solid #999;
-                        font-weight: bold;
-                        margin: 0 $spacing-small;
-                        color: #FFF;
-                        background-color: transparent;
-                        text-align: center;
-                    }
-
-                    .total {
-                        background-color: #333;
-                        height: $spacing-large;
-                        text-align: center;
-                        padding: 0 $spacing-medium;
-                        margin: 0 $spacing-small;
-                    }
-                }
-
-                /* pattern jump buttons */
-                &.pattern-next {
-                    padding-left: 0;
-                }
-
-                &.icon-metronome.active {
-                    color: #FFF;
-                }
-
-                &.icon-settings {
-                    display: none; /* mobile only (see below) */
-                }
-
-                &.icon-settings {
-                    padding: 0 $spacing-small;
-                }
-
-                &.enabled {
-                    color: red;
+                &.disabled {
+                    display: none;
                 }
             }
+
+            /* measure indicator */
+            &.current-pattern {
+                display: inline-block;
+                padding: 0;
+                color: #FFF;
+
+                .current {
+                    width: $spacing-xlarge; /* fits "333" */
+                    height: $spacing-large;
+                    border: 1px solid #999;
+                    font-weight: bold;
+                    margin: 0 $spacing-small;
+                    color: #FFF;
+                    background-color: transparent;
+                    text-align: center;
+                }
+
+                .total {
+                    background-color: #333;
+                    height: $spacing-large;
+                    text-align: center;
+                    padding: 0 $spacing-medium;
+                    margin: 0 $spacing-small;
+                }
+            }
+
+            /* pattern jump buttons */
+            &.pattern-next {
+                padding-left: 0;
+            }
+
+            &.icon-metronome.active {
+                color: #FFF;
+            }
+
+            &.icon-settings {
+                display: none; /* mobile only (see below) */
+            }
+
+            &.icon-settings {
+                padding: 0 $spacing-small;
+            }
+
+            &.enabled {
+                color: red;
+            }
         }
+    }
 
-      /* tempo control */
+    /* tempo control */
 
-      .tempo-control {
+    .tempo-control {
         padding: $spacing-medium 0 0 $spacing-small;
         display: inline;
 
         label {
-          margin-right: $spacing-medium;
-          display: inline-block;
+            margin-right: $spacing-medium;
+            display: inline-block;
         }
 
         input {
-          display: inline-block;
-          margin: 0 $spacing-medium 0 0;
-          vertical-align: middle;
+            display: inline-block;
+            margin: 0 $spacing-medium 0 0;
+            vertical-align: middle;
         }
 
         .value {
-          display: inline-block;
-          font-weight: bold;
-          font-style: italic;
-          font-size: 90%;
+            display: inline-block;
+            font-weight: bold;
+            font-style: italic;
+            font-size: 90%;
         }
-      }
+    }
 
-      #songTempo {
+    #songTempo {
         width: 150px;
-      }
+    }
 
-      /* icons */
+    /* icons */
 
-      [class^="icon-"]:before,
-      [class*=" icon-"]:before
-      {
+    [class^="icon-"]:before,
+    [class*=" icon-"]:before
+    {
         font-family: "transporter";
         font-style: normal;
         font-weight: normal;
@@ -367,68 +367,68 @@ export default {
 
         /* Uncomment for 3D effect */
         /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
-      }
+    }
 
-      .icon-loop:before { content: '\e800'; } /* '' */
-      .icon-metronome:before { content: '\e801'; } /* '' */
-      .icon-play:before { content: '\e802'; } /* '' */
-      .icon-settings:before { content: '\e803'; } /* '' */
-      .icon-stop:before { content: '\e804'; } /* '' */
+    .icon-loop:before { content: "\e800"; } /* "" */
+    .icon-metronome:before { content: "\e801"; } /* "" */
+    .icon-play:before { content: "\e802"; } /* "" */
+    .icon-settings:before { content: "\e803"; } /* "" */
+    .icon-stop:before { content: "\e804"; } /* "" */
 
-      [class^="icon-"].active {
+    [class^="icon-"].active {
         color: #FFF;
-      }
     }
+}
 
-    /* ideal view */
+/* ideal view */
 
-    @media screen and ( min-width: $ideal-width ) {
-      .transport-controls {
+@media screen and ( min-width: $ideal-width ) {
+    .transport-controls {
         min-width: auto;
-      }
     }
+}
 
-    /* everything above median app size */
+/* everything above median app size */
 
-    @media screen and ( min-width: $app-width ) {
-      .transport-controls {
+@media screen and ( min-width: $app-width ) {
+    .transport-controls {
         .section-divider {
-          padding: 0 $spacing-medium $spacing-xsmall;
+            padding: 0 $spacing-medium $spacing-xsmall;
 
-          &:before {
-            position: absolute;
-            z-index: 1;
-            content: "";
-            border-left: 1px solid #666;
-            height: $transport-height;
-          }
+            &:before {
+                position: absolute;
+                z-index: 1;
+                content: "";
+                border-left: 1px solid #666;
+                height: $transport-height;
+            }
         }
-      }
     }
+}
 
-    /* mobile view */
+/* mobile view */
 
-    @media screen and ( max-width: $mobile-width ) {
-      .transport-controls {
+@media screen and ( max-width: $mobile-width ) {
+    .transport-controls {
         background-color: inherit;
         margin-top: ($transport-height - $spacing-small);
 
         label {
-          display: none !important;
+            display: none !important;
         }
         .current-pattern {
-          width: auto;
+            width: auto;
         }
         .tempo-control {
-          display: none;
+            display: none;
         }
         &.settings-mode .tempo-control {
-          display: inline-block;
-          margin: $spacing-small;
+            display: inline-block;
+            margin: 0 $spacing-small $spacing-small;
         }
         ul li.icon-settings {
-          display: inline;
+            display: inline;
         }
-      }
     }
+}
 </style>

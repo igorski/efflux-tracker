@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -27,6 +27,7 @@
             <button class="help-button"  @click="handleHelp">?</button>
             <button class="close-button" @click="handleClose">x</button>
         </div>
+        <hr class="divider" />
         <ul id="moduleSelect">
             <ul class="event">
                 <form-list-item v-t="'volume'"
@@ -102,21 +103,11 @@
             </ul>
         </ul>
         <fieldset>
-            <div class="wrapper input radio">
+            <div class="wrapper input">
                 <h2 v-t="'useGlide'"></h2>
-                <label v-t="'on'" for="glideTrue"></label>
-                <input type="radio"
-                       v-model="glide"
-                       id="glideTrue"
-                       name="glide"
-                       :value="true"
-                />
-                <label v-t="'off'" for="glideFalse"></label>
-                <input type="radio"
-                       v-model="glide"
-                       id="glideFalse"
-                       name="glide"
-                       :value="false"
+                <toggle-button
+                    v-model="glide"
+                    sync
                 />
             </div>
             <div class="wrapper input range">
@@ -139,15 +130,15 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
-
-import EventFactory       from '@/model/factory/event-factory';
-import KeyboardService    from '@/services/keyboard-service';
-import ModuleParamHandler from '@/services/keyboard/module-param-handler';
-import ManualURLs         from '@/definitions/manual-urls';
-import { supports }       from '@/services/audio/webaudio-helper';
-import FormListItem       from '../forms/form-list-item';
-import messages           from './messages.json';
+import { mapState, mapMutations } from "vuex";
+import { ToggleButton }   from "vue-js-toggle-button";
+import EventFactory       from "@/model/factory/event-factory";
+import KeyboardService    from "@/services/keyboard-service";
+import ModuleParamHandler from "@/services/keyboard/module-param-handler";
+import ManualURLs         from "@/definitions/manual-urls";
+import { supports }       from "@/services/audio/webaudio-helper";
+import FormListItem       from "../forms/form-list-item";
+import messages           from "./messages.json";
 
 import {
     DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
@@ -164,6 +155,7 @@ export default {
     i18n: { messages },
     components: {
         FormListItem,
+        ToggleButton,
     },
     data: () => ({
         instrument: null,
@@ -192,10 +184,10 @@ export default {
               channel = pattern.channels[ this.selectedInstrument ],
               event   = channel[ this.selectedStep ];
 
-        this.instrument   = ( event ) ? event.instrument : this.selectedInstrument;
-        this.module       = ( event && event.mp ) ? event.mp.module  : DEFAULT_MODULE;
-        this.glide        = ( event && event.mp ) ? event.mp.glide   : false;
-        this.value        = ( event && event.mp ) ? event.mp.value   : 50;
+        this.instrument   = event?.instrument || this.selectedInstrument;
+        this.module       = event?.mp?.module ?? DEFAULT_MODULE;
+        this.glide        = event?.mp?.glide  ?? false;
+        this.value        = event?.mp?.value  ?? 50;
 
         // we define these upfront as we assume that the position the sequencer had (when running) is
         // where we would like to add/edit a module parameter change event
@@ -333,102 +325,107 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
-    @import '@/styles/_layout.scss';
+@import "@/styles/_variables.scss";
+@import "@/styles/_layout.scss";
 
-    $width: 450px;
-    $height: 450px;
+$width: 450px;
+$height: 470px;
 
-    .module-param-editor {
-      @include editorComponent();
-      @include overlay();
-      @include noSelect();
-      padding: $spacing-small $spacing-large;
-      border-radius: $spacing-small;
-      box-shadow: 0 0 25px rgba(0,0,0,.5);
+.module-param-editor {
+    @include editorComponent();
+    @include overlay();
+    @include noSelect();
+    padding: $spacing-small $spacing-large;
+    border-radius: $spacing-small;
+    box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-      .title {
+    .divider {
+        width: calc(100% + #{$spacing-large * 2});
+        margin: 0 0 $spacing-medium -#{$spacing-large};
+    }
+
+    .title {
         margin: $spacing-medium 0;
-      }
+    }
 
-      fieldset {
+    fieldset {
         border: none;
         padding: $spacing-medium 0;
-      }
+    }
 
-      #instrument {
+    #instrument {
         width: 120px;
-      }
+    }
 
-      #moduleSelect {
+    #moduleSelect {
         position: relative;
 
         ul {
-          list-style-type: none;
-          @include flex();
+            list-style-type: none;
+            @include flex();
         }
 
         li {
-          float: left;
-          cursor: pointer;
-          position: relative;
-          background-color: $color-2;
-          vertical-align: top;
-          color: #000;
-          font-weight: bold;
-          padding: $spacing-small $spacing-medium;
-          border-right: 1px solid #000;
-          border-bottom: 1px solid #000;
-          flex-grow: 1;
-          font-size: 80%;
+            float: left;
+            cursor: pointer;
+            position: relative;
+            background-color: $color-2;
+            vertical-align: top;
+            color: #000;
+            font-weight: bold;
+            padding: $spacing-small $spacing-medium;
+            border-right: 1px solid #000;
+            border-bottom: 1px solid #000;
+            flex-grow: 1;
+            font-size: 80%;
 
-          &.selected, &:hover {
-            background-color: $color-1;
-          }
+            &.selected, &:hover {
+                background-color: $color-1;
+            }
 
-          &:after {
-            position: absolute;
-            bottom: $spacing-small;
-            left: $spacing-small;
-            pointer-events: none;
-          }
+            &:after {
+                position: absolute;
+                bottom: $spacing-small;
+                left: $spacing-small;
+                pointer-events: none;
+            }
         }
-      }
+    }
 
-      fieldset {
+    fieldset {
 
         h2 {
-          padding-left: 0;
+            padding-left: 0;
         }
-      }
+    }
 
-      .wrapper.range {
+    .wrapper.range {
         label {
-          display: inline;
+            display: inline;
         }
         input {
-          width: 90%;
-          display: inline;
-          margin-left: $spacing-medium;
+            width: 90%;
+            display: inline;
+            margin-left: $spacing-medium;
         }
-      }
+    }
 
-      #moduleInputValue {
+    #moduleInputValue {
         color: $color-1;
         font-weight: bold;
         font-style: italic;
         display: inline;
         margin-left: $spacing-medium;
-      }
-
-      .confirm-button {
-        width: 100%;
-        padding: $spacing-medium $spacing-large;
-      }
     }
 
-    @media screen and ( min-width: $width ) and ( min-height: $height ) {
-      .module-param-editor {
+    .confirm-button {
+        width: 100%;
+        padding: $spacing-medium $spacing-large;
+    }
+}
+
+@media screen and ( min-width: $width ) and ( min-height: $height ) {
+    .module-param-editor {
         top: 50%;
         left: 50%;
         width: $width;
@@ -437,16 +434,16 @@ export default {
         margin-top: -( $height / 2);
 
         .wrapper.range input {
-          width: 55%;
+            width: 55%;
         }
-      }
     }
+}
 
-    @media screen and ( max-width: $mobile-width ) {
-      .module-param-editor {
+@media screen and ( max-width: $mobile-width ) {
+    .module-param-editor {
         border-radius: 0;
         width: 100%;
         @include verticalScrollOnMobile();
-      }
     }
+}
 </style>

@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -28,57 +28,52 @@
                     @click="$emit('close')"
             >x</button>
         </div>
+        <hr class="divider" />
         <section id="generalSetup">
             <fieldset>
                 <legend v-t="'generalSettings'"></legend>
                 <div class="wrapper select">
-                    <label v-t="'parameterInputFormat'" for="parameterInputFormat"></label>
-                    <select id="parameterInputFormat"
-                            v-model="paramFormat"
-                            @change="handleParameterInputFormatChange">
-                        <option v-t="'hex'" value="hex"></option>
-                        <option v-t="'pct'" value="pct"></option>
-                    </select>
+                    <label v-t="'parameterInputFormat'"></label>
+                    <select-box
+                        v-model="paramFormat"
+                        :options="paramFormatOptions"
+                        @input="handleParameterInputFormatChange"
+                        class="param-select"
+                    />
                 </div>
-                <div class="wrapper checkbox">
-                    <label v-t="'followPlayback'" for="trackFollow"></label>
-                    <select id="trackFollow"
-                            v-model="trackFollow"
-                            @change="handleTrackFollowChange">
-                        <option v-t="'on'" :value="true"></option>
-                        <option v-t="'off'" :value="false"></option>
-                    </select>
+                <div class="wrapper toggle">
+                    <label v-t="'followPlayback'"></label>
+                    <toggle-button
+                        v-model="trackFollow"
+                        @change="handleTrackFollowChange"
+                        sync
+                    />
                 </div>
-                <div class="wrapper checkbox">
-                    <label for="helpPanel">Show help panel</label>
-                    <select id="helpPanel"
-                            v-model="displayHelpPanel"
-                            @change="handleHelpPanelChange">
-                        <option :value="true">on</option>
-                        <option :value="false">off</option>
-                    </select>
+                <div class="wrapper toggle">
+                    <label v-t="'showHelpPanel'"></label>
+                    <toggle-button
+                        v-model="displayHelpPanel"
+                        @change="handleHelpPanelChange"
+                        sync
+                    />
                 </div>
             </fieldset>
         </section>
         <section id="midiSetup" v-if="hasMIDIsupport">
             <fieldset>
                 <legend v-t="'midiSetup'"></legend>
-                <button v-t="'midiConnectToAPI'" @click="handleMIDIConnect"></button>
+                <button
+                    v-t="'midiConnectToAPI'"
+                    @click="connectMidiDevices"
+                ></button>
                 <div class="wrapper select">
-                    <label v-t="'deviceSelectLabel'" for="midiDevices"></label>
-                    <select id="midiDevices"
-                            v-model="portNumber"
-                            @change="handleMIDIDeviceSelect">
-                        <template v-if="midiDeviceList.length">
-                            <option v-for="(device, index) in midiDeviceList"
-                                    :key="`device_${index}`"
-                                    :value="device.value"
-                            >{{ device.title }}</option>
-                        </template>
-                        <option v-else
-                                v-t="'connectMidiFirst'"
-                                value="-1"></option>
-                    </select>
+                    <label v-t="'deviceSelectLabel'" class="padded-label"></label>
+                    <select-box
+                        v-model="portNumber"
+                        @input="handleMIDIDeviceSelect"
+                        :options="midiDeviceOptions"
+                        class="param-select"
+                    />
                 </div>
                 <p v-t="'midiDescription'"></p>
             </fieldset>
@@ -87,16 +82,22 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
-import { zMIDI } from 'zmidi';
-import MIDIService from '@/services/midi-service';
-import PubSubMessages from '@/services/pubsub/messages';
-import messages from './messages.json';
+import { mapState, mapGetters, mapMutations } from "vuex";
+import { zMIDI } from "zmidi";
+import { ToggleButton } from "vue-js-toggle-button";
+import SelectBox from "@/components/forms/select-box";
+import MIDIService from "@/services/midi-service";
+import PubSubMessages from "@/services/pubsub/messages";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        SelectBox,
+        ToggleButton,
+    },
     data: () => ({
-        paramFormat: 'hex',
+        paramFormat: "hex",
         trackFollow: false,
         displayHelpPanel: true,
     }),
@@ -115,29 +116,42 @@ export default {
         },
         portNumber: {
             get() {
-                return this.midiPortNumber;
+                return this.midiPortNumber.toString();
             },
-            set(value) {
-                this.setMIDIPortNumber(value);
+            set( value ) {
+                this.setMIDIPortNumber( parseFloat( value ));
             }
+        },
+        paramFormatOptions() {
+            return [
+                { label: this.$t( "hex" ), value: "hex" },
+                { label: this.$t( "pct" ), value: "pct" }
+            ];
+        },
+        midiDeviceOptions() {
+            if ( !this.midiDeviceList.length ) {
+                return [{ label: this.$t( "connectMidiFirst" ), value: "-1" }];
+            }
+            return this.midiDeviceList.map(({ title, value }) => ({
+                label: title,
+                value: value.toString()
+            }));
         },
     },
     mounted() {
         // load settings from the model
-
         let setting = this.getSetting( this.settings.INPUT_FORMAT );
-        if ( setting !== null )
+        if ( setting !== null ) {
             this.paramFormat = setting;
-
+        }
         setting = this.getSetting( this.settings.FOLLOW_PLAYBACK );
-        if ( setting !== null )
+        if ( setting !== null ) {
             this.trackFollow = setting;
-
+        }
         setting = this.getSetting( this.settings.DISPLAY_HELP );
-        if ( setting !== null )
+        if ( setting !== null ) {
             this.displayHelpPanel = setting;
-
-        this.portNumber = this.midiPortNumber;
+        }
     },
     methods: {
         ...mapMutations([
@@ -162,41 +176,49 @@ export default {
                 { name: this.settings.DISPLAY_HELP, value: this.displayHelpPanel }
             );
         },
-        handleMIDIConnect() {
-            zMIDI.connect(this.handleMIDIconnectSuccess, this.handleMIDIconnectFailure);
+        connectMidiDevices() {
+            zMIDI.connect()
+                 .then( this.handleMIDIconnectSuccess )
+                 .catch( this.handleMIDIconnectFailure );
         },
-        handleMIDIconnectSuccess() {
-            if (zMIDI.getInChannels().length === 0) {
-                return this.handleMIDIconnectFailure();
+        handleMIDIconnectSuccess( inputs ) {
+            if ( inputs.length === 0 ) {
+                // no inputs, add status change listener to handle device connection events
+                this.showNotification({ message: this.$t( "noMidiDevices" )});
+                if ( !this.changeListener ) {
+                    this.changeListener = this.handleMIDIconnectSuccess.bind( this );
+                    zMIDI.addChangeListener( this.changeListener );
+                }
+                return;
             }
-            this.showAvailableMIDIDevices(zMIDI.getInChannels());
-            this.publishMessage(PubSubMessages.MIDI_CONNECTED);
-            this.showNotification({ message: this.$t('midiConnected') });
+            this.showAvailableMIDIDevices( inputs );
+            this.publishMessage( PubSubMessages.MIDI_CONNECTED );
+            this.showNotification({ message: this.$t( "midiConnected" ) });
         },
         handleMIDIconnectFailure() {
-            this.showNotification({ title: this.$t('error'), message: this.$t('midiFailure') });
+            this.showNotification({ title: this.$t( "error" ), message: this.$t( "midiFailure" ) });
         },
         handleMIDIDeviceSelect() {
             // first clean up all old listeners
             let amountOfPorts = zMIDI.getInChannels().length;
 
-            while ( amountOfPorts-- )
-                zMIDI.removeMessageListener(amountOfPorts);
-
+            while ( amountOfPorts-- ) {
+                zMIDI.removeMessageListener( amountOfPorts );
+            }
             // add listener and bind root store to MIDI event handler
-            zMIDI.addMessageListener(this.portNumber, MIDIService.handleMIDIMessage);
+            zMIDI.addMessageListener( this.portNumber, MIDIService.handleMIDIMessage );
 
             const device = zMIDI.getInChannels()[ this.portNumber ];
             this.showNotification({ message:
-                this.$t('midiEnabled', { device: `${device.manufacturer} ${device.name}` })
+                this.$t( "midiEnabled", { device: `${device.manufacturer} ${device.name}` })
             });
         },
-        showAvailableMIDIDevices(inputs) {
-            this.createMIDIDeviceList(inputs);
+        showAvailableMIDIDevices( inputs ) {
+            this.createMIDIDeviceList( inputs );
 
             // auto select first device if there is only one available
-            if (this.midiDeviceList.length === 1 ) {
-                this.portNumber = this.midiDeviceList[0].value;
+            if ( this.midiDeviceList.length === 1 ) {
+                this.portNumber = this.midiDeviceList[ 0 ].value;
                 this.handleMIDIDeviceSelect();
             }
         }
@@ -205,31 +227,37 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '@/styles/_variables.scss';
-    @import '@/styles/_layout.scss';
-    
-    $width: 500px;
-    $height: 500px;
+@import '@/styles/_variables.scss';
+@import '@/styles/_layout.scss';
 
-    .settings {
-      @include editorComponent();
-      @include overlay();
-      padding: $spacing-small $spacing-large;
+$width: 550px;
+$height: 530px;
 
-      h2 {
-          padding-left: 0;
-      }
+.settings {
+    @include editorComponent();
+    @include overlay();
+    padding: $spacing-small $spacing-large;
 
-      label {
+    .divider {
+        width: calc(100% + #{$spacing-large * 2});
+        margin-left: -$spacing-large;
+        margin-bottom: $spacing-medium;
+    }
+
+    h2 {
+        padding-left: 0;
+    }
+
+    label {
         min-width: 150px;
         display: inline-block;
-      }
     }
-    
-    #midiSetup {
-      .wrapper {
+}
+
+#midiSetup {
+    .wrapper {
         label, select {
-          display: block;
+            display: block;
         }
         select {
             width: 100%;
@@ -242,24 +270,31 @@ export default {
             text-overflow:ellipsis;
             overflow:hidden;
         }
-      }
     }
-    
-    @media screen and ( min-width: $width) and ( min-height: $height ) {
-      .settings {
+}
+
+.param-select {
+    width: 200px;
+}
+
+.wrapper.toggle {
+    margin: $spacing-small 0;
+}
+
+@media screen and ( min-width: $width) and ( min-height: $height ) {
+    .settings {
         width: $width;
         height: $height;
         top: 50%;
         left: 50%;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2 );
-      }
     }
+}
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
-        .settings {
-            @include verticalScrollOnMobile();
-        }
+@media screen and ( max-width: $width ), ( max-height: $height ) {
+    .settings {
+        @include verticalScrollOnMobile();
     }
+}
 </style>
- 

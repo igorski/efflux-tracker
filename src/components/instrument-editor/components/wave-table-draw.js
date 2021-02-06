@@ -27,9 +27,11 @@ import Config  from '@/config';
 
 class WaveTableDraw extends sprite
 {
-    constructor( width, height, updateHandler ) {
+    constructor( width, height, updateHandler, enabled ) {
         super({ x: 0, y: 0, width, height });
+        
         this.setDraggable( true );
+        this.setEnabled( enabled );
 
         /* instance properties */
 
@@ -108,12 +110,16 @@ class WaveTableDraw extends sprite
         this.setTable( table );
     }
 
+    setEnabled( enabled ) {
+        this.strokeStyle = enabled ? "#CC0000" : "#444";
+    }
+
     /* zCanvas overrides */
 
     draw( aCanvasContext )
     {
-        aCanvasContext.strokeStyle = '#CC0000';
-        aCanvasContext.lineWidth = 5;
+        aCanvasContext.strokeStyle = this.strokeStyle;
+        aCanvasContext.lineWidth   = 5;
         aCanvasContext.beginPath();
 
         let h = this._bounds.height,
@@ -173,7 +179,7 @@ class WaveTableDraw extends sprite
                 while ( cache.x !== aEventX ) {
 
                     tableIndex = Math.round(( cache.x / w ) * l );
-                    tableIndex     = Math.min( l - 1, tableIndex ); // do not exceed max length
+                    tableIndex = Math.min( l - 1, tableIndex ); // do not exceed max length
                     value      = ( 1 - ( Math.floor(( yScale * increment ) + cache.y ) / h ) * 2 );
                     this.table[ tableIndex ] = value;
                     cache.x += xScale;

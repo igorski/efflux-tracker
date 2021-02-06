@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2020 - https://www.igorski.nl
+* Igor Zinken 2019-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -39,10 +39,11 @@
              >
                 <fieldset id="eqEditor" class="instrument-parameters">
                     <legend v-t="'eqLegend'"></legend>
-                    <select v-model="eqEnabled" class="enable-selector">
-                        <option v-t="'enabled'" :value="true"></option>
-                        <option v-t="'disabled'" :value="false"></option>
-                    </select>
+                    <toggle-button
+                        v-model="eqEnabled"
+                        class="enable-selector"
+                        sync
+                    />
                     <div class="wrapper input range">
                         <label v-t="'low'" for="eqLow"></label>
                         <input type="range" id="eqLow" v-model.number="eqLow" min="0" max="1" step=".01" value="1">
@@ -59,10 +60,11 @@
 
                 <fieldset id="filterEditor" class="instrument-parameters">
                     <legend v-t="'filterLegend'"></legend>
-                    <select v-model="filterEnabled" class="enable-selector">
-                        <option v-t="'enabled'" :value="true"></option>
-                        <option v-t="'disabled'" :value="false"></option>
-                    </select>
+                    <toggle-button
+                        v-model="filterEnabled"
+                        class="enable-selector"
+                        sync
+                    />
                     <div class="wrapper input range">
                         <label v-t="'frequency'" for="filterFrequency"></label>
                         <input type="range" id="filterFrequency" v-model.number="filterFrequency" min="40" max="24000" step=".01" value="880">
@@ -71,23 +73,16 @@
                         <label v-t="'q'" for="filterQ"></label>
                         <input type="range" id="filterQ" v-model.number="filterQ" min="0" max="40" step="1" value="5">
                     </div>
-                    <select v-model="filterLFO">
-                        <option v-t="'lfoOff'" value="off"></option>
-                        <option v-t="'sine'" value="sine"></option>
-                        <option v-t="'square'" value="square"></option>
-                        <option v-t="'sawtooth'" value="sawtooth"></option>
-                        <option v-t="'triangle'" value="triangle"></option>
-                    </select>
-                    <select v-model="filterType">
-                        <option v-t="'lowpass'" value="lowpass"></option>
-                        <option v-t="'highpass'" value="highpass"></option>
-                        <option v-t="'bandpass'" value="bandpass"></option>
-                        <option v-t="'lowshelf'" value="lowshelf"></option>
-                        <option v-t="'highshelf'" value="highshelf"></option>
-                        <option v-t="'peaking'" value="peaking"></option>
-                        <option v-t="'notch'" value="notch"></option>
-                        <option v-t="'allpass'" value="allpass"></option>
-                    </select>
+                    <select-box
+                        v-model="filterLFO"
+                        :options="filterOptions"
+                        class="select first"
+                    />
+                    <select-box
+                        v-model="filterType"
+                        :options="filterTypeOptions"
+                        class="select"
+                    />
                     <div class="wrapper input range">
                         <label v-t="'lfoSpeed'" for="filterSpeed"></label>
                         <input type="range" id="filterSpeed"
@@ -105,10 +100,11 @@
             >
                 <fieldset id="odEditor" class="instrument-parameters">
                     <legend v-t="'odLegend'"></legend>
-                    <select v-model="odEnabled" class="enable-selector">
-                        <option v-t="'enabled'" :value="true"></option>
-                        <option v-t="'disabled'" :value="false"></option>
-                    </select>
+                    <toggle-button
+                        v-model="odEnabled"
+                        class="enable-selector"
+                        sync
+                    />
                     <div class="wrapper input range">
                         <label v-t="'drive'" for="odDrive"></label>
                         <input type="range" id="odDrive"
@@ -133,10 +129,11 @@
 
                 <fieldset id="delayEditor" class="instrument-parameters">
                     <legend v-t="'delayLegend'"></legend>
-                    <select v-model="delayEnabled" class="enable-selector">
-                        <option v-t="'enabled'" :value="true"></option>
-                        <option v-t="'disabled'" :value="false"></option>
-                    </select>
+                    <toggle-button
+                        v-model="delayEnabled"
+                        class="enable-selector"
+                        sync
+                    />
                     <!-- not sure if this offers any flexibility -->
                     <select v-if="false" v-model.number="delayType">
                         <option v-t="'delay0'" value="0"></option>
@@ -166,12 +163,18 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
-import AudioService from '@/services/audio-service';
-import messages from './messages.json';
+import { mapMutations } from "vuex";
+import { ToggleButton } from "vue-js-toggle-button";
+import SelectBox from "@/components/forms/select-box";
+import AudioService from "@/services/audio-service";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        SelectBox,
+        ToggleButton,
+    },
     props: {
         instrumentId: {
             type: Number,
@@ -278,6 +281,27 @@ export default {
             get() { return this.instrumentRef.delay.offset },
             set(value) { this.update('delay', { ...this.instrumentRef.delay, offset: value }); }
         },
+        filterOptions() {
+            return [
+                { label: this.$t( "lfoOff" ),   value : "off" },
+                { label: this.$t( "sine" ),     value : "sine" },
+                { label: this.$t( "square" ),   value : "square" },
+                { label: this.$t( "sawtooth" ), value : "sawtooth" },
+                { label: this.$t( "triangle" ), value : "triangle" }
+            ];
+        },
+        filterTypeOptions() {
+            return [
+                { label: this.$t( "lowpass" ),   value: "lowpass" },
+                { label: this.$t( "highpass" ),  value: "highpass" },
+                { label: this.$t( "bandpass" ),  value: "bandpass" },
+                { label: this.$t( "lowshelf" ),  value: "lowshelf" },
+                { label: this.$t( "highshelf" ), value: "highshelf" },
+                { label: this.$t( "peaking" ),   value: "peaking" },
+                { label: this.$t( "notch" ),     value: "notch" },
+                { label: this.$t( "allpass" ),   value: "allpass" },
+            ];
+        }
     },
     methods: {
         ...mapMutations([
@@ -296,70 +320,77 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_layout.scss';
+@import '@/styles/_layout.scss';
 
-    .module-editor {
-      vertical-align: top;
-      padding: 0 $spacing-large;
-      margin-top: $spacing-large;
-      @include boxSize();
+.select {
+    width: 100px;
+    margin: $spacing-medium 0;
 
-      .modules-tabs {
+    &.first {
+        width: 95px;
+        margin-right: $spacing-small;
+    }
+}
+
+.module-editor {
+    vertical-align: top;
+    @include boxSize();
+
+    .modules-tabs {
         margin: 0;
-      }
+    }
 
-      .instrument-parameters {
+    .instrument-parameters {
         @include boxSize();
         width: 100%;
         border-bottom-right-radius: $spacing-medium;
         padding: $spacing-small 0 $spacing-small $spacing-medium;
         margin-bottom: $spacing-medium;
-      }
+    }
 
-      .enable-selector {
+    .enable-selector {
         position: absolute;
-        margin-top: -($spacing-large + $spacing-xsmall);
-        margin-left: 95px;
-      }
+        margin-top: -$spacing-large;
+        margin-left: 152px;
+    }
 
-      .tabbed-content {
+    .tabbed-content {
         border: 1px solid grey;
         padding: $spacing-medium;
         @include boxSize();
-      }
+    }
 
-      .module-list {
+    .module-list {
         display: inline-block;
         vertical-align: top;
         width: 100%;
         margin-top: -$spacing-large;
-      }
     }
+}
 
-    #filterEditor {
-      margin-bottom: $spacing-medium;
-    }
+#filterEditor {
+    margin-bottom: $spacing-medium;
+}
 
-    /* ideal size and above (tablet/desktop) */
+/* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $ideal-instrument-editor-width ) {
-      .module-editor {
+@media screen and ( min-width: $ideal-instrument-editor-width ) {
+    .module-editor {
         display: inline-block;
 
         .module-list {
-          max-width: 260px;
+            max-width: 260px;
         }
-      }
     }
+}
 
-    /* mobile */
+/* mobile */
 
-    @media screen and ( max-width: $ideal-instrument-editor-width ) {
-      .module-editor {
+@media screen and ( max-width: $ideal-instrument-editor-width ) {
+    .module-editor {
         width: 100%;
         padding: 0;
         margin-top: $spacing-xlarge;
-      }
     }
-
+}
 </style>

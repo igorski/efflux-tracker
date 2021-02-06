@@ -26,58 +26,59 @@
              @mouseover="setHelpTopic('pattern')"
     >
         <h2 v-t="'title'"></h2>
-        <ul>
-            <li>
+        <ul class="inline-list">
+            <li class="list-item">
                 <button v-t="'clear'" type="button"
                         @click="handlePatternClear"></button>
             </li>
-            <li>
+            <li class="list-item">
                 <button v-t="'copy'" type="button"
                         @click="handlePatternCopy"></button>
             </li>
-            <li>
+            <li class="list-item">
                 <button v-t="'paste'" type="button"
                         @click="handlePatternPaste"></button>
             </li>
-            <li>
+            <li class="list-item">
                 <button v-t="'add'" type="button"
                         @click="handlePatternAdd"></button>
             </li>
-            <li>
+            <li class="list-item">
                 <button v-t="'delete'" type="button"
                         @click="handlePatternDelete"></button>
             </li>
-            <li>
-                <select id="patternSteps"
-                        v-model.number="patternStep"
-                >
-                    <option :value="16">{{ $t('steps', { amount: 16 }) }}</option>
-                    <option :value="32">{{ $t('steps', { amount: 32 }) }}</option>
-                    <option :value="64">{{ $t('steps', { amount: 64 }) }}</option>
-                    <option :value="128">{{ $t('steps', { amount: 128 }) }}</option>
-                </select>
-            </li>
-            <li>
+            <li class="list-item">
                 <button v-t="'advanced'"
                         type="button"
                         @click="handlePatternAdvanced"
                 ></button>
+            </li>
+            <li class="list-item">
+                <select-box
+                    v-model.number="patternStep"
+                    :options="patternStepOptions"
+                    class="pattern-step-select"
+                />
             </li>
         </ul>
     </section>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
-import HistoryStateFactory from '@/model/factory/history-state-factory';
-import Config from '@/config';
-import HistoryStates from '@/definitions/history-states';
-import ModalWindows from '@/definitions/modal-windows';
-import ObjectUtil from '@/utils/object-util';
-import messages from './messages.json';
+import { mapState, mapGetters, mapMutations } from "vuex";
+import HistoryStateFactory from "@/model/factory/history-state-factory";
+import Config from "@/config";
+import HistoryStates from "@/definitions/history-states";
+import ModalWindows from "@/definitions/modal-windows";
+import ObjectUtil from "@/utils/object-util";
+import SelectBox from "@/components/forms/select-box";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        SelectBox,
+    },
     data: () => ({
         patternCopy: null
     }),
@@ -92,13 +93,18 @@ export default {
         ]),
         patternStep: {
             get() {
-                return this.activeSong.patterns[this.activePattern].steps;
+                return this.activeSong.patterns[ this.activePattern ].steps.toString();
             },
-            set(value) {
-                const pattern = this.activeSong.patterns[this.activePattern];
-                this.setPatternSteps({ pattern, steps: value });
+            set( value ) {
+                const pattern = this.activeSong.patterns[ this.activePattern ];
+                this.setPatternSteps({ pattern, steps: parseFloat( value ) });
             }
-        }
+        },
+        patternStepOptions() {
+            return [ 16, 32, 64, 128 ].map( amount => ({
+                label: this.$t( "steps", { amount }), value: amount.toString()
+            }));
+        },
     },
     methods: {
         ...mapMutations([
@@ -149,89 +155,95 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '@/styles/_variables.scss';
+@import "@/styles/_variables.scss";
 
-    .pattern-editor {
-      display: inline-block;
-      margin: 0;
-      padding-left: $spacing-small;
+.pattern-editor {
+    display: inline-block;
+    margin: 0;
+    padding-left: $spacing-small;
 
-      h2 {
-          padding: 0 $spacing-small;
-      }
-
-      h4 {
-        display: inline;
-      }
-
-      ul {
-        display: inline;
-
-        li {
-          display: inline;
-          cursor: pointer;
-        }
-
-        button, select {
-          margin: 0 0 0 $spacing-xsmall;
-          background-color: #333;
-          color: #b6b6b6;
-          border-radius: 0;
-          border: 0;
-
-          &:hover {
-            color: #fff;
-          }
-        }
-      }
+    h2 {
+        padding: 0 $spacing-small;
     }
 
-    /* large views and above */
+    h4 {
+        display: inline;
+    }
 
-    @media screen and ( min-width: $ideal-pattern-editor-width ) {
-      .pattern-editor {
+    .inline-list {
+        display: inline;
+
+        .list-item {
+            display: inline;
+            cursor: pointer;
+            vertical-align: middle;
+        }
+
+        button {
+            margin: 0 0 0 $spacing-xsmall;
+            background-color: #333;
+            color: #b6b6b6;
+            border-radius: 0;
+            border: 0;
+            @include toolFont();
+
+            &:hover {
+                color: #fff;
+            }
+        }
+    }
+}
+
+.pattern-step-select {
+    width: 85px;
+    margin: 0 $spacing-xxsmall 0 $spacing-small;
+}
+
+/* large views and above */
+
+@media screen and ( min-width: $ideal-pattern-editor-width ) {
+    .pattern-editor {
         margin: 0 0 0 $spacing-medium;
 
         h2 {
-          padding: 0 $spacing-medium 0 0;
+            padding: 0 $spacing-medium 0 0;
         }
-      }
     }
+}
 
-    /* everything above mobile view and below ideal pattern editor width */
+/* everything above mobile view and below ideal pattern editor width */
 
-    @media screen and ( min-width: $mobile-width ) and ( max-width: $ideal-pattern-editor-width ) {
-      .pattern-editor {
+@media screen and ( min-width: $mobile-width ) and ( max-width: $ideal-pattern-editor-width ) {
+    .pattern-editor {
         /* TODO: we're now hiding our interface from these users... */
         /*display: none;*/
-      }
     }
+}
 
-    /* phone view */
+/* phone view */
 
-    @media screen and ( max-width: $mobile-width ) {
-      .pattern-editor  {
+@media screen and ( max-width: $mobile-width ) {
+    .pattern-editor  {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
-          display: block;
+            display: block;
         }
-      }
-
-      .pattern-editor {
-        h2 {
-          display: none;
-        }
-        ul {
-          display: flex;
-          margin: 0;
-
-          li {
-            float: left;
-            flex-grow: 1;
-            position: relative;
-          }
-        }
-      }
     }
+
+    .pattern-editor {
+        h2 {
+            display: none;
+        }
+        .inline-list {
+            display: flex;
+            margin: 0;
+
+            .list-item {
+                flex-grow: 1;
+                margin-bottom: $spacing-small;
+            }
+        }
+    }
+}
 </style>

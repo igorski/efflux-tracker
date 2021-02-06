@@ -350,15 +350,15 @@ export default {
             // only when supported, and even then not on Safari... =/
             if ( !( 'caretRangeFromPoint' in document ) || Bowser.safari )
                 return;
-        
+
             const el = document.caretRangeFromPoint(event.clientX, event.clientY);
             let slot = 0;
-        
+
             if ( el && el.startContainer ) {
                 let startContainer = el.startContainer;
                 if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element ))
                     startContainer = startContainer.parentElement;
-        
+
                 if (startContainer.classList.contains('moduleValue'))
                     slot = 3;
                 else if (startContainer.classList.contains('moduleParam'))
@@ -397,7 +397,7 @@ export default {
 
     .pattern-track-list {
       @include inlineFlex();
-      background-color: #393b40;
+      background-color: $color-editor-background;
 
       .wrapper {
         width: $fullPatternListWidth;
@@ -616,4 +616,3 @@ export default {
       }
     }
 </style>
- 

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020 - https://www.igorski.nl
+ * Igor Zinken 2020-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -205,66 +205,65 @@ export default {
 };
 </script>
 
-<style lang='scss' scoped>
-    @import '@/styles/_layout.scss';
-    $width: 80px;
+<style lang="scss" scoped>
+@import "@/styles/_layout.scss";
+$width: 80px;
 
-    .channel-strip {
-      width: $width;
-      display: inline-block;
-      margin: $spacing-medium 0;
-      padding: 0 0 $spacing-large $spacing-medium;
-      border-right: 1px solid #666;
-      position: relative;
-    }
+.channel-strip {
+    width: $width;
+    display: inline-block;
+    padding: 0 0 $spacing-large $spacing-medium;
+    border-right: 1px solid #666;
+    position: relative;
+}
 
-    .preset-name {
-      @include textOverflow();
-      margin-left: -$spacing-medium;
-      font-size: 75%;
-      text-align: center;
-      height: 1.5em;
-      background-color: $color-2;
-      padding: 5px;
-      color: #000;
-    }
+.preset-name {
+    @include truncate();
+    margin-left: -$spacing-medium;
+    font-size: 75%;
+    text-align: center;
+    height: 1.5em;
+    background-color: $color-2;
+    padding: 5px;
+    color: #000;
+}
 
-    .range {
-      width: 125px;
-      height: 25px;
-    }
+.range {
+    width: 125px;
+    height: 25px;
+}
 
-    .meter {
-       transform-origin: 0;
-       margin: 0 8px 0;
-       width: 105px;
-       height: 8px;
-       background-color: #000;
-    }
+.meter {
+    transform-origin: 0;
+    margin: 0 8px 0;
+    width: 105px;
+    height: 8px;
+    background-color: #000;
+}
 
-    .volume-title {
-      margin-left: $spacing-small;
-    }
+.volume-title {
+    margin-left: $spacing-small;
+}
 
-    .volume-wrapper {
-      transform: rotate(-90deg);
-      transform-origin: 0;
-      margin: 130px 0 0 8px;
-    }
+.volume-wrapper {
+    transform: rotate(-90deg);
+    transform-origin: 0;
+    margin: 130px 0 0 8px;
+}
 
-    .panning-wrapper {
-      width: 70px;
-      margin-top: $spacing-medium;
-    }
+.panning-wrapper {
+    width: 70px;
+    margin-top: $spacing-medium;
+}
 
-    .toggle {
-      display: inline;
-      font-size: 80%;
-      padding: $spacing-xsmall $spacing-small;
-      margin: 0 0 0 $spacing-small;
+.toggle {
+    display: inline;
+    font-size: 80%;
+    padding: $spacing-xsmall $spacing-small;
+    margin: 0 0 0 $spacing-small;
 
-      &.active {
+    &.active {
         background-color: $color-2;
-      }
     }
+}
 </style>

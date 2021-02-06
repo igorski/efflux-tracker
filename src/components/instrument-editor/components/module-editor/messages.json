@@ -1,7 +1,5 @@
 {
   "en-US": {
-    "enabled": "Enabled",
-    "disabled": "Disabled",
     "sine": "Sine",
     "square": "Square",
     "sawtooth": "Sawtooth",
@@ -38,6 +36,6 @@
     "delayTime": "Delay time",
     "feedback": "Feedback",
     "cutoff": "Cutoff",
-    "offset": "Stereo offset"
+    "offset": "Offset"
   }
 }
