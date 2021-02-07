@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2020 - https://www.igorski.nl
+* Igor Zinken 2019-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -135,32 +135,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
-    @import '@/styles/_layout.scss';
+@import "@/styles/_mixins";
 
-    #helpSection {
-        @include editorComponent();
-        @include inlineFlex();
-        border-top-left-radius: 0;
-        border-bottom-left-radius: 0;
-        vertical-align: top;
-        overflow-x: hidden;
-        overflow-y: auto;
-        height: 100%;
+#helpSection {
+    @include editorComponent();
+    @include inlineFlex();
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    vertical-align: top;
+    overflow-x: hidden;
+    overflow-y: auto;
+    height: 100%;
 
-        .content {
-            padding: $spacing-small $spacing-medium;
-        }
-
-        h4 {
-            color: #FFF;
-            margin: 0;
-            font-size: 110%;
-        }
-
-        strong {
-            color: #FFF;
-            font-style: italic;
-        }
+    .content {
+        padding: $spacing-small $spacing-medium;
     }
+
+    h4 {
+        color: #FFF;
+        margin: 0;
+        font-size: 110%;
+    }
+
+    strong {
+        color: #FFF;
+        font-style: italic;
+    }
+}
 </style>

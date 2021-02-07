@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2020 - https://www.igorski.nl
+* Igor Zinken 2020-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -114,46 +114,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
-    @import '@/styles/_layout.scss';
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
-    $width: 450px;
-    $height: 200px;
+$width: 450px;
+$height: 200px;
 
-    .song-save-window {
-        @include editorComponent();
-        @include overlay();
-        @include noSelect();
-    }
+.song-save-window {
+    @include editorComponent();
+    @include overlay();
+    @include noSelect();
 
-    .save-button:disabled {
-        background-color: grey;
-    }
-
-    .meta-editor {
-      padding: $spacing-medium;
-
-      input, button {
-        display: block;
-        width: 95%;
-        margin: $spacing-small;
-      }
+    .header h2 {
+        margin-left: $spacing-medium;
     }
 
     @media screen and ( min-width: $width) and ( min-height: $height ) {
-      .song-save-window {
         width: $width;
         height: $height;
         top: 50%;
         left: 50%;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2 );
-      }
     }
 
     @media screen and ( max-width: $width ), ( max-height: $height ) {
-        .song-save-window {
-            @include verticalScrollOnMobile();
-        }
+        @include verticalScrollOnMobile();
     }
+}
+
+.save-button:disabled {
+    background-color: grey;
+}
+
+.meta-editor {
+    padding: $spacing-medium;
+
+    input, button {
+        display: block;
+        width: 95%;
+        margin: $spacing-small;
+    }
+}
 </style>

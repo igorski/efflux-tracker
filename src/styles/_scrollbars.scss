@@ -1,7 +1,6 @@
 /* override the default scrollbars style to generalize appearance across browsers / OSes */
 
-#efflux
-{
+@mixin styledScrollbars {
     ::-webkit-scrollbar {
         width: 12px;
     }

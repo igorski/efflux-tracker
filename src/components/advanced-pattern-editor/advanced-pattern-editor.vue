@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -167,59 +167,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
-    @import '@/styles/_layout.scss';
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
-    $width: 450px;
-    $height: 350px;
+$width: 450px;
+$height: 350px;
 
-    #advancedPatternEditor {
-      @include editorComponent();
-      @include overlay();
-      @include noSelect();
-      padding: $spacing-small $spacing-large;
-      border-radius: $spacing-small;
-      box-shadow: 0 0 25px rgba(0,0,0,.5);
-    
-      .title {
-        margin: $spacing-medium 0;
-      }
-    
-      fieldset {
-        h2 {
-          padding-left: 0;
-        }
-      }
-    
-      .wrapper.input {
-        label {
-          width: 50%;
-          display: inline-block;
-        }
-        input {
-          display: inline-block;
-        }
-      }
-    
-      .confirm-button {
-        width: 100%;
-        padding: $spacing-medium $spacing-large;
-      }
-    }
+#advancedPatternEditor {
+    @include editorComponent();
+    @include overlay();
+    @include noSelect();
+    padding: $spacing-small $spacing-large;
+    border-radius: $spacing-small;
+    box-shadow: 0 0 25px rgba(0,0,0,.5);
 
     @media screen and ( min-width: $width ), ( min-height: $height ) {
-      #advancedPatternEditor {
         top: 50%;
         left: 50%;
         width: $width;
         height: $height;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2);
-      }
     }
 
     @media screen and ( max-width: $width ), ( max-height: $height ) {
-      #advancedPatternEditor {
         @include verticalScrollOnMobile();
         border-radius: 0;
         width: 100%;
@@ -227,7 +198,31 @@ export default {
         top: 0;
         left: 0;
         margin: 0;
-      }
     }
+
+    .title {
+        margin: $spacing-medium 0;
+    }
+
+    fieldset {
+        h2 {
+            padding-left: 0;
+        }
+    }
+
+    .wrapper.input {
+        label {
+            width: 50%;
+            display: inline-block;
+        }
+        input {
+            display: inline-block;
+        }
+    }
+
+    .confirm-button {
+        width: 100%;
+        padding: $spacing-medium $spacing-large;
+    }
+}
 </style>
- 

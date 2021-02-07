@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -154,8 +154,9 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@import "@/styles/_variables.scss";
+<style lang="scss" scoped>
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
 .pattern-editor {
     display: inline-block;
@@ -171,6 +172,7 @@ export default {
     }
 
     .inline-list {
+        @include list();
         display: inline;
 
         .list-item {
@@ -211,18 +213,7 @@ export default {
     }
 }
 
-/* everything above mobile view and below ideal pattern editor width */
-
-@media screen and ( min-width: $mobile-width ) and ( max-width: $ideal-pattern-editor-width ) {
-    .pattern-editor {
-        /* TODO: we're now hiding our interface from these users... */
-        /*display: none;*/
-    }
-}
-
-/* phone view */
-
-@media screen and ( max-width: $mobile-width ) {
+@include mobile() {
     .pattern-editor  {
         display: none; /* only visible when settings mode is active */
 

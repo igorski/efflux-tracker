@@ -385,8 +385,11 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@import '@/styles/_layout.scss';
+<style lang="scss" scoped>
+@import "@/styles/_mixins";
+@import "@/styles/tabs";
+@import "@/styles/instrument-editor";
+@import "@/styles/forms";
 
 .instrument-oscillator-editor {
     @include boxSize();

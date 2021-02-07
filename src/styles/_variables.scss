@@ -1,18 +1,8 @@
-/* layout variables */
+/* application variables */
 
 $app-width: 960px;
 $ideal-width: 1560px;
-$ideal-height: 650px;
-$tablet-portrait-width: 768px;
 $mobile-width: 685px; // the threshold below which we start to use the mobile view
-
-$menu-height: 46px;
-$transport-height: 42px;
-$toggle-width: 50px;
-$footer-height: 45px;
-$ideal-pattern-editor-width: 1150px;
-$ideal-instrument-editor-width: 900px;
-$ideal-instrument-editor-height: 703px;
 
 $spacing-xxsmall: 2px;
 $spacing-xsmall: 4px;
@@ -21,7 +11,13 @@ $spacing-medium: 14px;
 $spacing-large: 28px;
 $spacing-xlarge: 56px;
 
-@import "_mixins.scss";
-@import "_utilities.scss";
-@import "colors.scss";
-@import "typography.scss";
+$menu-height: 46px;
+$transport-height: 42px;
+$toggle-width: 50px;
+$footer-height: 45px;
+$ideal-pattern-editor-width: 1150px;
+$ideal-instrument-editor-width: 900px;
+$ideal-instrument-editor-height: 703px;
+$action-button-top: #{$spacing-medium - $spacing-xsmall};
+
+@import "colors";

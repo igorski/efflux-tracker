@@ -29,7 +29,7 @@
                     @click="$emit('close')"
             >x</button>
         </div>
-        <ul class="songList">
+        <ul class="song-list">
             <li v-for="(song, index) in songs"
                 :key="`song_${index}`"
                 @click="openSongClick(song.id)"
@@ -110,8 +110,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables.scss";
-@import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
+@import "@/styles/typography";
 
 $songBrowserWidth: 800px;
 $songBrowserHeight: 600px;
@@ -133,7 +133,6 @@ $songBrowserHeight: 600px;
     overflow-x: hidden;
     overflow-y: auto;
 
-
     @media screen and ( max-width: $songBrowserWidth ), ( max-height: $songBrowserHeight ) {
         top: 0;
         left: 0;
@@ -153,62 +152,62 @@ $songBrowserHeight: 600px;
 
         h2 {
             color: #000;
-            margin-left: $spacing-medium;
+            margin-left: $spacing-large;
         }
 
         .close-button {
-            top: $spacing-small;
+            top: $spacing-xsmall;
         }
     }
 
-    ul {
+    .song-list {
+        @include list();
         width: 100%;
-        list-style-type: none;
-    }
 
-    li {
-        @include boxSize();
-        @include animate(padding, .1s);
-        float: left;
-        width: 100%;
-        padding: $spacing-small $spacing-large;
-        cursor: pointer;
-        border-bottom: 1px solid #53565c;
-        font-family: Montserrat, Helvetica, sans-serif;
-
-        .title, .date, .delete {
-            display: inline-block;
-        }
-
-        .title, .date {
-            @include noEvents();
-        }
-
-        .title {
-            width: 55%;
-            @include truncate();
-            vertical-align: middle;
-        }
-
-        .date {
-            width: 40%;
-            padding-left: $spacing-small;
+        li {
             @include boxSize();
-        }
+            @include animate(padding, .1s);
+            float: left;
+            width: 100%;
+            padding: $spacing-small $spacing-large;
+            cursor: pointer;
+            border-bottom: 1px solid #53565c;
+            font-family: Montserrat, Helvetica, sans-serif;
 
-        .delete {
-            width: 5%;
-        }
+            .title, .date, .delete {
+                display: inline-block;
+            }
 
-        &:nth-child(even) {
-            background-color: #53565c;
-            /*color: #FFF;*/
-        }
+            .title, .date {
+                @include noEvents();
+            }
 
-        &:hover {
-            background-color: $color-5;
-            color: #000;
-            padding: $spacing-medium $spacing-large;
+            .title {
+                width: 55%;
+                @include truncate();
+                vertical-align: middle;
+            }
+
+            .date {
+                width: 40%;
+                padding-left: $spacing-small;
+                @include boxSize();
+            }
+
+            .delete {
+                width: 5%;
+            }
+
+            &:nth-child(even) {
+                background-color: #53565c;
+                /*color: #FFF;*/
+            }
+
+            &:hover {
+                background-color: $color-5;
+                color: #000;
+                padding: $spacing-medium $spacing-large;
+            }
         }
     }
 }

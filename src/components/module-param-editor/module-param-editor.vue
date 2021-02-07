@@ -23,7 +23,7 @@
 <template>
     <div class="module-param-editor">
         <div class="header">
-            <h4 v-t="'title'" class="title"></h4>
+            <h2 v-t="'title'"></h2>
             <button class="help-button"  @click="handleHelp">?</button>
             <button class="close-button" @click="handleClose">x</button>
         </div>
@@ -325,8 +325,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables.scss";
-@import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
 $width: 450px;
 $height: 470px;
@@ -339,13 +339,39 @@ $height: 470px;
     border-radius: $spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-    .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin: 0 0 $spacing-medium -#{$spacing-large};
+    .wrapper.range {
+        label {
+            display: inline;
+        }
+        input {
+            width: 90%;
+            display: inline;
+            margin-left: $spacing-medium;
+        }
     }
 
-    .title {
-        margin: $spacing-medium 0;
+    @media screen and ( min-width: $width ) and ( min-height: $height ) {
+        top: 50%;
+        left: 50%;
+        width: $width;
+        height: $height;
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2);
+
+        .wrapper.range input {
+            width: 55%;
+        }
+    }
+
+    @media screen and ( max-width: $width ), ( max-height: $height ) {
+        border-radius: 0;
+        width: 100%;
+        @include verticalScrollOnMobile();
+    }
+
+    .divider {
+        width: calc(100% + #{$spacing-large * 2});
+        margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
     }
 
     fieldset {
@@ -358,10 +384,11 @@ $height: 470px;
     }
 
     #moduleSelect {
+        @include list();
         position: relative;
 
         ul {
-            list-style-type: none;
+            @include list();
             @include flex();
         }
 
@@ -399,17 +426,6 @@ $height: 470px;
         }
     }
 
-    .wrapper.range {
-        label {
-            display: inline;
-        }
-        input {
-            width: 90%;
-            display: inline;
-            margin-left: $spacing-medium;
-        }
-    }
-
     #moduleInputValue {
         color: $color-1;
         font-weight: bold;
@@ -421,29 +437,6 @@ $height: 470px;
     .confirm-button {
         width: 100%;
         padding: $spacing-medium $spacing-large;
-    }
-}
-
-@media screen and ( min-width: $width ) and ( min-height: $height ) {
-    .module-param-editor {
-        top: 50%;
-        left: 50%;
-        width: $width;
-        height: $height;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2);
-
-        .wrapper.range input {
-            width: 55%;
-        }
-    }
-}
-
-@media screen and ( max-width: $mobile-width ) {
-    .module-param-editor {
-        border-radius: 0;
-        width: 100%;
-        @include verticalScrollOnMobile();
     }
 }
 </style>

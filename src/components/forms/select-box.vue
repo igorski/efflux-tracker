@@ -92,7 +92,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/styles/_variables";
 @import "@/styles/_mixins";
 
 .select-box-wrapper {
@@ -117,7 +116,7 @@ export default {
     fill: #222;
 }
 .vs__selected {
-    margin: #{$spacing-xsmall * 1.5} $spacing-xsmall 0;
+    margin: #{$spacing-xsmall + 1} $spacing-xsmall 0;
     font-size: 95%;
 }
 

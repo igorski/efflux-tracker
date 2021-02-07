@@ -249,7 +249,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
+@import "@/styles/tabs";
+@import "@/styles/forms";
 
 .instrument-editor {
     @include editorComponent();
@@ -283,8 +285,8 @@ export default {
 .instrument-selector {
     position: absolute;
     width: 110px;
-    top: 15px;
-    right: ($spacing-xlarge * 2 - $spacing-xsmall);
+    top: $action-button-top;
+    right: #{$spacing-xlarge * 2 - $spacing-xxsmall};
 }
 
 .instrument-presets {
@@ -314,9 +316,19 @@ export default {
 
 .current-preset {
     margin: $spacing-small 0 0 $spacing-medium;
+
     input {
-        width: 253px;
-        @include toolFont();
+        width: 100%;
+        @include large() {
+            width: 253px;
+        }
+    }
+
+    @include mobile() {
+        button {
+            margin-top: $spacing-small;
+            width: 100%;
+        }
     }
 }
 

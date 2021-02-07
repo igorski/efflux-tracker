@@ -206,7 +206,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
+@import "@/styles/forms";
+
 $width: 80px;
 
 .channel-strip {

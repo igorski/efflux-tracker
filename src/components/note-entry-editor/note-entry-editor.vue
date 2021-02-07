@@ -21,56 +21,54 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div>
-        <div class="note-entry-editor">
-            <div class="header">
-                <h4 v-t="'title'" class="title"></h4>
-                <select-box
-                    v-model.number="instrumentSelectValue"
-                    class="instrument-selector"
-                    :options="instrumentOptions"
-                />
-                <button type="button"
-                        class="help-button"
-                        @click="handleHelp"
-                >?</button>
-                <button type="button"
-                        class="close-button"
-                        @click="handleClose"
-                >x</button>
-            </div>
-            <hr class="divider" />
-            <ul id="keyboardNotes">
-                <form-list-item v-model="note" option-value="C"  class="C"></form-list-item>
-                <form-list-item v-model="note" option-value="C#" class="CS sharp"></form-list-item>
-                <form-list-item v-model="note" option-value="D"  class="D"></form-list-item>
-                <form-list-item v-model="note" option-value="D#" class="DS sharp"></form-list-item>
-                <form-list-item v-model="note" option-value="E"  class="E"></form-list-item>
-                <form-list-item v-model="note" option-value="F"  class="F"></form-list-item>
-                <form-list-item v-model="note" option-value="F#" class="FS sharp"></form-list-item>
-                <form-list-item v-model="note" option-value="G"  class="G"></form-list-item>
-                <form-list-item v-model="note" option-value="G#" class="GS sharp"></form-list-item>
-                <form-list-item v-model="note" option-value="A"  class="A"></form-list-item>
-                <form-list-item v-model="note" option-value="A#" class="AS sharp"></form-list-item>
-                <form-list-item v-model="note" option-value="B"  class="B"></form-list-item>
-            </ul>
-            <ul id="octaves">
-                <form-list-item v-model.number="octave" :option-value="1">1</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="2">2</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="3">3</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="4">4</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="5">5</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="6">6</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="7">7</form-list-item>
-                <form-list-item v-model.number="octave" :option-value="8">8</form-list-item>
-            </ul>
-            <p v-t="'fastEditExpl'" class="explanation"></p>
-            <button v-t="'ok'"
-                    type="button"
-                    class="confirm-button"
-                    @click="handleSubmit"
-            ></button>
+    <div class="note-entry-editor">
+        <div class="header">
+            <h2 v-t="'title'"></h2>
+            <select-box
+                v-model.number="instrumentSelectValue"
+                class="instrument-selector"
+                :options="instrumentOptions"
+            />
+            <button type="button"
+                    class="help-button"
+                    @click="handleHelp"
+            >?</button>
+            <button type="button"
+                    class="close-button"
+                    @click="handleClose"
+            >x</button>
         </div>
+        <hr class="divider" />
+        <ul id="keyboardNotes">
+            <form-list-item v-model="note" option-value="C"  class="C"></form-list-item>
+            <form-list-item v-model="note" option-value="C#" class="CS sharp"></form-list-item>
+            <form-list-item v-model="note" option-value="D"  class="D"></form-list-item>
+            <form-list-item v-model="note" option-value="D#" class="DS sharp"></form-list-item>
+            <form-list-item v-model="note" option-value="E"  class="E"></form-list-item>
+            <form-list-item v-model="note" option-value="F"  class="F"></form-list-item>
+            <form-list-item v-model="note" option-value="F#" class="FS sharp"></form-list-item>
+            <form-list-item v-model="note" option-value="G"  class="G"></form-list-item>
+            <form-list-item v-model="note" option-value="G#" class="GS sharp"></form-list-item>
+            <form-list-item v-model="note" option-value="A"  class="A"></form-list-item>
+            <form-list-item v-model="note" option-value="A#" class="AS sharp"></form-list-item>
+            <form-list-item v-model="note" option-value="B"  class="B"></form-list-item>
+        </ul>
+        <ul id="octaves">
+            <form-list-item v-model.number="octave" :option-value="1">1</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="2">2</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="3">3</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="4">4</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="5">5</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="6">6</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="7">7</form-list-item>
+            <form-list-item v-model.number="octave" :option-value="8">8</form-list-item>
+        </ul>
+        <p v-t="'fastEditExpl'" class="explanation"></p>
+        <button v-t="'ok'"
+                type="button"
+                class="confirm-button"
+                @click="handleSubmit"
+        ></button>
     </div>
 </template>
 
@@ -267,8 +265,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables.scss";
-@import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
 
 $width: 445px;
 $height: 370px;
@@ -277,19 +274,32 @@ $height: 370px;
     @include editorComponent();
     @include overlay();
     @include noSelect();
-    @include boxSize();
     padding: $spacing-small $spacing-large;
     border-radius: $spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
     .divider {
         width: calc(100% + #{$spacing-large * 2});
-        margin: 0 0 $spacing-medium -#{$spacing-large};
+        margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
     }
-}
 
-.title {
-    margin: $spacing-medium 0;
+    @media screen and ( min-width: $width ) and ( min-height: $height ) {
+        top: 50%;
+        left: 50%;
+        width: $width;
+        height: $height;
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2);
+    }
+
+    @media screen and ( max-width: $width ), ( max-height: $height ) {
+        top: 0;
+        left: 0;
+        margin: 0;
+        border-radius: 0;
+        width: 100%;
+        @include verticalScrollOnMobile();
+    }
 }
 
 .explanation {
@@ -299,12 +309,13 @@ $height: 370px;
 
 .instrument-selector {
     position: absolute;
-    top: $spacing-medium + 1;
+    top: $action-button-top;
     right: ( $spacing-xlarge * 2 - $spacing-xsmall );
     width: 120px;
 }
 
 #keyboardNotes {
+    @include list();
     position: relative;
     width: 100%;
     height: 100px;
@@ -381,6 +392,7 @@ $height: 370px;
 }
 
 #octaves {
+    @include list();
     text-transform: uppercase;
     text-indent: $spacing-small;
     float: left;
@@ -402,29 +414,8 @@ $height: 370px;
 }
 
 .confirm-button {
+    @include button();
     width: 100%;
     padding: $spacing-medium $spacing-large;
-}
-
-@media screen and ( min-width: $width ) and ( min-height: $height ) {
-    .note-entry-editor {
-        top: 50%;
-        left: 50%;
-        width: $width;
-        height: $height;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2);
-    }
-}
-
-@media screen and ( max-width: $width ), ( max-height: $height ) {
-    .note-entry-editor {
-        top: 0;
-        left: 0;
-        margin: 0;
-        border-radius: 0;
-        width: 100%;
-        @include verticalScrollOnMobile();
-    }
 }
 </style>

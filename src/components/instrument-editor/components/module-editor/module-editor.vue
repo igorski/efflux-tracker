@@ -320,7 +320,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import '@/styles/_layout.scss';
+@import "@/styles/_mixins";
+@import "@/styles/tabs";
+@import "@/styles/instrument-editor";
+@import "@/styles/forms";
 
 .select {
     width: 100px;

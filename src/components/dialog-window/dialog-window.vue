@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -89,54 +89,49 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import "@/styles/_variables.scss";
-    @import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
 
-    #dialogWindow {
+#dialogWindow {
+    @include editorComponent;
+    @include overlay;
+    @include noSelect;
+    @include boxSize;
 
-      @include editorComponent;
-      @include overlay;
-      @include noSelect;
-      @include boxSize;
+    width: auto;
+    height: auto;
+    left: 50%;
+    top: 50%;
+    -ms-transform: translate(-50%,-50%);
+    -moz-transform:translate(-50%,-50%);
+    -webkit-transform: translate(-50%,-50%);
+    transform: translate(-50%,-50%);
 
-      width: auto;
-      height: auto;
-      left: 50%;
-      top: 50%;
-      -ms-transform: translate(-50%,-50%);
-      -moz-transform:translate(-50%,-50%);
-      -webkit-transform: translate(-50%,-50%);
-      transform: translate(-50%,-50%);
+    padding: $spacing-small $spacing-large;
+    border-radius: $spacing-small;
+    box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-      padding: $spacing-small $spacing-large;
-      border-radius: $spacing-small;
-      box-shadow: 0 0 25px rgba(0,0,0,.5);
-
-      h4 {
+    h4 {
         margin: $spacing-medium 0;
         color: $color-1;
         font-weight: bold;
-      }
+    }
 
-      button {
+    button {
+        @include button();
         display: inline;
         width: 48%;
         padding: $spacing-medium $spacing-large;
-      }
     }
 
-    @media screen and ( max-width: $mobile-width )
-    {
-      #dialogWindow {
+    @include mobile() {
         border-radius: 0;
         width: 100%;
         height: 100%;
 
         button {
-          display: block;
-          width: 100%;
+            display: block;
+            width: 100%;
         }
-      }
     }
+}
 </style>
- 

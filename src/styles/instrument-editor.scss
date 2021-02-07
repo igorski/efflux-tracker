@@ -1,0 +1,41 @@
+/* styling for instrument editor components */
+
+.instrument-parameters {
+    display: inline-block;
+    vertical-align: top;
+    width: 45%;
+    margin-right: $spacing-medium;
+
+    @media screen and ( max-width: $ideal-instrument-editor-width ) {
+        @include boxSize();
+        padding: $spacing-large;
+        width: 100%;
+        display: block;
+        border-radius: $spacing-small;
+        border: 1px solid #666;
+        margin-bottom: $spacing-medium;
+    }
+
+    h2 {
+        padding: $spacing-medium 0;
+        @include toolFont();
+        color: #FFF;
+    }
+
+    .wrapper.range {
+        width: 100%;
+
+        label {
+            width: 33%;
+            vertical-align: middle;
+            display: inline-block;
+            @include toolFont();
+        }
+
+        input {
+            width: 50%;
+            vertical-align: middle;
+            display: inline-block;
+        }
+    }
+}

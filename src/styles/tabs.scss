@@ -1,0 +1,39 @@
+@import "_mixins";
+
+.tab-list {
+    @include list();
+    display: inline-block;
+    margin: $spacing-medium 0 0;
+
+    li {
+        display: inline-block;
+        border: 1px solid #666;
+        border-bottom: 1px solid $color-editor-background;
+        margin-bottom: -1px; /* makes it essentially appear "bottom-less" due to border-bottom colour over background */
+        padding: $spacing-small $spacing-medium;
+        cursor: pointer;
+        background-color: #666;
+        font-size: 90%;
+        border-right: 2px solid #444;
+        @include toolFont();
+
+        &.active {
+            background-color: $color-editor-background;
+            color: #FFF;
+            position: relative;
+        }
+
+        &:first-child {
+            border-top-left-radius: $spacing-medium;
+        }
+    }
+}
+
+.tabbed-content {
+    display: none;
+    border-top: 1px solid #666;
+
+    &.active {
+        display: block;
+    }
+}

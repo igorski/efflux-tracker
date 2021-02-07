@@ -226,9 +226,9 @@ export default {
 };
 </script>
 
-<style lang="scss">
-@import '@/styles/_variables.scss';
-@import '@/styles/_layout.scss';
+<style lang="scss" scoped>
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
 $width: 550px;
 $height: 530px;
@@ -242,10 +242,6 @@ $height: 530px;
         width: calc(100% + #{$spacing-large * 2});
         margin-left: -$spacing-large;
         margin-bottom: $spacing-medium;
-    }
-
-    h2 {
-        padding-left: 0;
     }
 
     label {

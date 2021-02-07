@@ -1,12 +1,4 @@
-// style for all HTML input elements
-
-input, select, button {
-    border: none;
-    font-size: 100%;
-    padding: $spacing-small $spacing-medium;
-    margin-right: $spacing-small;
-    @include boxSize();
-}
+/* HTML input element styling */
 
 .padded-label {
     margin: $spacing-small 0;
@@ -15,6 +7,12 @@ input, select, button {
 input {
     background-color: #101015;
     color: #bfbfbf;
+    border: none;
+    font-size: 100%;
+    padding: $spacing-small $spacing-medium;
+    margin-right: $spacing-small;
+    @include boxSize();
+    @include toolFont();
 }
 
 input[type=range] {
@@ -29,60 +27,8 @@ input[type=range] {
     }
 }
 
-select, .selector, button {
-    display: inline-block;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-color: $color-1;
-    color: #000;
-    font-size: 85%;
-    cursor: pointer;
-    border: 2px solid #333;
-    font-weight: bold;
-    border-radius: 7px;
-}
-
-select:hover,
-button:hover {
-    background-color: #FFF;
-}
-
-select {
-    position: relative;
-
-    &:after {
-        position: absolute;
-        right: $spacing-small;
-        top: $spacing-small;
-        content: '<>';
-        color: #aaa;
-        -webkit-transform: rotate(90deg);
-        -moz-transform: rotate(90deg);
-        -ms-transform: rotate(90deg);
-        transform: rotate(90deg);
-        padding: 0 0 2px;
-        border-top: 1px solid #ddd;
-    }
-}
-
-.vue-js-switch {
-    margin-right: $spacing-small;
-
-    .v-switch-core {
-        background-color: #666 !important;
-    }
-    .v-switch-button {
-        background-color: #FFF !important;
-    }
-    &.toggled {
-        .v-switch-core {
-            background-color: $color-1 !important;
-        }
-        .v-switch-button {
-            background-color: #000 !important;
-        }
-    }
+button {
+    @include button();
 }
 
 fieldset {

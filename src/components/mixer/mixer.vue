@@ -75,7 +75,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_layout.scss";
+@import "@/styles/_mixins";
 
 .mixer {
     @include editorComponent();
@@ -85,11 +85,12 @@ export default {
     .divider {
         margin-bottom: 0;
     }
+
+    .header h2 {
+        margin-left: $spacing-medium;
+    }
 }
 
-.title {
-    margin: $spacing-medium;
-}
 
 /* ideal size and above (tablet/desktop) */
 

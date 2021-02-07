@@ -1,0 +1,197 @@
+/* main application layout (scoped styling in root component) */
+
+@import "_mixins";
+@import "_scrollbars";
+
+#efflux {
+    @include noSelect();
+    @include styledScrollbars();
+}
+
+.application-header {
+    box-shadow: 0 0 5px rgba(0,0,0,.5);
+    background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
+    background-repeat: repeat-x;
+    padding: $spacing-small 0 0;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    z-index: 200;
+    border-bottom: 3px solid #53565d;
+    @include boxSize();
+}
+
+.container {
+    width: 100%;
+    margin: 0 auto;
+}
+
+#properties {
+    @include editorComponent();
+    padding: $spacing-small 0;
+    margin: 82px auto 0; /* offset top margin by menu height */
+}
+
+#editor {
+    @include flex();
+    position: absolute;
+    top: 134px; /* menu + song meta */
+    bottom: $footer-height;
+    overflow: hidden;
+}
+
+#blind {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,.5);
+    z-index: 400; // below overlays (see _variables.scss)
+}
+
+.application-footer {
+    position: absolute;
+    bottom: 0;
+    background-image: linear-gradient(to bottom,#474747 0,#303030 100%);
+    width: 100%;
+    height: $footer-height;
+    color: #EEE;
+    font-family: Montserrat, Helvetica, Verdana;
+
+    span {
+        width: auto;
+        margin: 0 auto;
+        text-align: center;
+        display: block;
+        margin-top: $spacing-medium;
+    }
+}
+
+/* ideal app width and up */
+
+@media screen and ( min-width: $app-width ) {
+    .application-footer span {
+        width: $app-width;
+    }
+}
+
+/* standard width: large TABLET/LAPTOP */
+
+@media screen and (min-width: $app-width) {
+    .container {
+        width: inherit;
+        max-width: $ideal-width;
+        padding: 0;
+    }
+
+    #editor {
+        left: 50%;
+        margin-left: -($ideal-width / 2);
+    }
+}
+
+/* PHONE */
+
+@include mobile() {
+    .application-header {
+        height: $transport-height;
+        &.expanded {
+            height: 100%;
+        }
+    }
+
+    .application-footer {
+        padding: 0 $spacing-large;
+        z-index: 11;
+        @include boxSize;
+    }
+    /* when mobileMode is "settings" we show the tempo control and song editor by expanding these */
+    #properties {
+        margin: 125px auto 0;
+    }
+    #editor {
+        width: inherit;
+        top: 85px !important;
+
+        &.settings-mode {
+            top: 215px !important;
+        }
+    }
+
+    .container {
+        padding: 0;
+        margin: 0;
+    }
+}
+
+/* everything LARGER than a PHONE */
+
+@include large() {
+    .container {
+        padding: 0 $spacing-large;
+        left: auto;
+        @include boxSize();
+
+        /* menu contains submenu */
+
+        &.padded {
+            padding-left: $spacing-large;
+            padding-right: $spacing-large;
+
+            &:before, &:after {
+                height: 1 $spacing-large;
+            }
+        }
+    }
+}
+
+/* TABLET/DESKTOP portrait width (everything smaller than app width) */
+
+@media screen and (max-width: $app-width) {
+    // allow scrolling as we can expect the overlays to have scrollable content
+    html {
+        overflow: auto;
+    }
+
+    #helpSection {
+        display: none;
+        width: 0;
+    }
+    #editor {
+        overflow-x: scroll !important;
+        overflow-y: hidden !important; // body scrolls instead
+    }
+}
+
+/* TABLET/DESKTOP medium to large */
+
+@media screen and (min-width: $app-width) and (max-width: $ideal-width) {
+    #editor {
+        left: auto;
+        margin-left: 0;
+
+        &.has-help-panel {
+            .pattern-track-list {
+                width: 72%;
+            }
+            #helpSection {
+                width: 25%;
+            }
+        }
+    }
+    #trackEditor {
+        width: 3%;
+    }
+    .pattern-track-list {
+        width: 96.8%;
+    }
+}
+
+/* DESKTOP wide screen */
+
+@include ideal() {
+    #editor {
+        margin-left: -( $ideal-width - $spacing-xlarge) / 2;
+    }
+}

@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2020 - https://www.igorski.nl
+* Igor Zinken 2019-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -130,75 +130,73 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
+@import "@/styles/_mixins";
 
-    #trackEditor {
-      @include inlineFlex();
-      background-color: #000;
-      vertical-align: top;
-      position: relative;
-      min-width: 40px;
+#trackEditor {
+    @include inlineFlex();
+    background-color: #000;
+    vertical-align: top;
+    position: relative;
+    min-width: 40px;
 
-      .controls {
-        li {
-          width: 40px;
-          height: 40px;
-          margin: 0 0 1px;
-          background-color: #b6b6b6;
-          background-repeat: no-repeat;
-          background-position: 50%;
-          background-size: 50%;
-          cursor: pointer;
-
-          &.add-on {
-            background-image: url('../../assets/images/icon-note-add.png');
-          }
-          &.add-off {
-            background-image: url('../../assets/images/icon-note-mute.png');
-          }
-          &.remove-note {
-            background-image: url('../../assets/images/icon-note-delete.png');
-          }
-          &.module-params {
-            background-image: url('../../assets/images/icon-module-params.png');
-          }
-          &.module-glide {
-            background-image: url('../../assets/images/icon-module-glide.png');
-          }
-          &.undo {
-            background-image: url('../../assets/images/icon-undo.png');
-          }
-          &.redo {
-            background-image: url('../../assets/images/icon-redo.png');
-          }
-
-          &:hover {
-            background-color: $color-1;
-          }
-
-          &.disabled {
-            opacity: .25;
-            @include noEvents();
-          }
-        }
-      }
-
-      &.fixed {
-        .controls {
-          position: fixed;
-          top: $menu-height;
-        }
-      }
-    }
-
-    /* mobile view */
-
-    @media screen and ( max-width: $mobile-width ) {
-      #trackEditor {
+    @include mobile() {
         position: fixed; /* keep pattern editor in static position */
         left: 0;
         height: 100%;
         z-index: 10;
-      }
     }
+
+    .controls {
+        @include list();
+
+        li {
+            width: 40px;
+            height: 40px;
+            margin: 0 0 1px;
+            background-color: #b6b6b6;
+            background-repeat: no-repeat;
+            background-position: 50%;
+            background-size: 50%;
+            cursor: pointer;
+
+            &.add-on {
+                background-image: url('../../assets/images/icon-note-add.png');
+            }
+            &.add-off {
+                background-image: url('../../assets/images/icon-note-mute.png');
+            }
+            &.remove-note {
+                background-image: url('../../assets/images/icon-note-delete.png');
+            }
+            &.module-params {
+                background-image: url('../../assets/images/icon-module-params.png');
+            }
+            &.module-glide {
+                background-image: url('../../assets/images/icon-module-glide.png');
+            }
+            &.undo {
+                background-image: url('../../assets/images/icon-undo.png');
+            }
+            &.redo {
+                background-image: url('../../assets/images/icon-redo.png');
+            }
+
+            &:hover {
+                background-color: $color-1;
+            }
+
+            &.disabled {
+                opacity: .25;
+                @include noEvents();
+            }
+        }
+    }
+
+    &.fixed {
+        .controls {
+            position: fixed;
+            top: $menu-height;
+        }
+    }
+}
 </style>

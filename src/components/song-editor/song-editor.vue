@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -62,49 +62,44 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
-    .song-editor {
-        display: inline-block;
-        padding-left: $spacing-small;
+.song-editor {
+    display: inline-block;
+    padding-left: $spacing-small;
+
+    @include mobile() {
+        display: none; /* only visible when settings mode is active */
+
+        &.settings-mode {
+            display: block;
+        }
     }
+}
 
-    /* everything above tablet */
-
-    @media screen and ( min-width: $ideal-pattern-editor-width ) {
-        .meta-editor input {
-            width: 150px;
+.meta-editor {
+    @include mobile() {
+        input, button {
+            @include boxSize();
+            display: block;
+            margin: $spacing-small auto;
+            width: 95%;
         }
     }
 
-    /* everything above phone */
-
-    @media screen and ( min-width: $mobile-width ) {
-        .meta-editor input {
+    @include large() {
+        input {
             &:first-child {
-              margin-left: $spacing-medium;
+                margin-left: $spacing-medium;
             }
         }
     }
 
-    /* phone view */
-
-    @media screen and ( max-width: $mobile-width ) {
-      .song-editor {
-        display: none; /* only visible when settings mode is active */
-
-          &.settings-mode {
-            display: block;
-          }
-      }
-
-      .meta-editor {
-        input, button {
-          @include boxSize();
-          display: block;
-          margin: $spacing-small auto;
-          width: 95%;
+    @media screen and ( min-width: $ideal-pattern-editor-width ) {
+        input {
+            width: 150px;
         }
-      }
     }
+}
 </style>

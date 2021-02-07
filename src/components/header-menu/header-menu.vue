@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -221,52 +221,52 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-    @import '@/styles/_variables.scss';
+@import "@/styles/_mixins";
 
-    .menu {
-      color: #b6b6b6;
-      display: block;
-      margin: 0 auto;
-      padding: 0 $spacing-medium $spacing-small;
-      width: 100%;
-      @include boxSize;
-    }
+.menu {
+    color: #b6b6b6;
+    display: block;
+    margin: 0 auto;
+    padding: 0 $spacing-medium $spacing-small;
+    width: 100%;
+    @include boxSize;
+}
 
-    .toggle {
-      position: absolute;
-      display: none;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      width: $toggle-width;
-      height: $menu-height;
+.toggle {
+    position: absolute;
+    display: none;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    width: $toggle-width;
+    height: $menu-height;
 
-      span {
+    span {
         position: absolute;
         top: 50%;
         left: 50%;
         margin-top: -$spacing-medium;
         margin-left: -$spacing-medium;
-      }
     }
+}
 
-    h1 {
-      color: #FFF;
-      display: inline;
-      margin: 0;
-      padding: 0;
-      padding-right: $spacing-medium;
-      font-size: 110%;
-    }
+h1 {
+    color: #FFF;
+    display: inline;
+    margin: 0;
+    padding: 0;
+    padding-right: $spacing-medium;
+    font-size: 110%;
+}
 
-    .menu-list {
-      display: inline;
-      list-style-type: none;
-      padding: 0;
-      margin: 0;
-      @include boxSize;
+.menu-list {
+    display: inline;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    @include boxSize;
 
-      li {
+    li {
         display: inline-block;
         padding: 0 $spacing-medium 0 0;
         margin: 0;
@@ -274,9 +274,9 @@ export default {
         cursor: pointer;
 
         a {
-          color: #b6b6b6;
-          text-decoration: none;
-          padding-bottom: $spacing-large;
+            color: #b6b6b6;
+            text-decoration: none;
+            padding-bottom: $spacing-large;
         }
 
         &:hover,
@@ -287,43 +287,43 @@ export default {
         }
 
         &.active {
-          a {
-            border-bottom: 3px solid #555;
-          }
+            a {
+                border-bottom: 3px solid #555;
+            }
         }
 
         ul {
-          list-style: none;
+            list-style: none;
         }
 
         &.fullscreen-button {
-          float: right;
-          margin-right: 1$spacing-medium;
+            float: right;
+            margin-right: 1$spacing-medium;
         }
-      }
+    }
+}
+
+/* tablet / desktop (everything larger than a phone) */
+
+@media screen and ( min-width: $mobile-width ) {
+    .menu {
+        min-width: 100%;
+        max-width: $ideal-width;
+        margin: 0 auto;
+        padding-left: $spacing-large;
     }
 
-    /* tablet / desktop (everything larger than a phone) */
-
-    @media screen and ( min-width: $mobile-width ) {
-        .menu {
-            min-width: 100%;
-            max-width: $ideal-width;
-            margin: 0 auto;
-            padding-left: $spacing-large;
-        }
-
-        .menu-list li {
-          &:hover, &:focus {
+    .menu-list li {
+        &:hover, &:focus {
             a {
-              color: $color-1;
+                color: $color-1;
             }
             ul {
-              display: block;
-              z-index: 2;
+                display: block;
+                z-index: 2;
             }
-          }
-          ul {
+        }
+        ul {
             display: none;
             position: absolute;
             box-shadow: 0 0 5px rgba(0,0,0,.5);
@@ -331,121 +331,121 @@ export default {
             background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
             background-repeat: repeat-x;
             @include boxSize;
-          }
         }
-        .file-menu li {
-            display: block;
-            color: #b6b6b6;
-            padding: $spacing-xsmall $spacing-medium;
+    }
+    .file-menu li {
+        display: block;
+        color: #b6b6b6;
+        padding: $spacing-xsmall $spacing-medium;
 
-            &:hover {
-                color: #FFF;
+        &:hover {
+            color: #FFF;
+        }
+    }
+}
+
+/* ideal view */
+
+@media screen and ( min-width: $ideal-width ) {
+    .menu {
+        min-width: auto;
+    }
+}
+
+/* mobile view */
+
+@media screen and ( max-width: $mobile-width ) {
+    .menu {
+        position: fixed;
+        z-index: 2; // above transport controls
+        overflow: hidden;
+        width: 100%;
+        height: inherit;
+        top: 0;
+        left: 0;
+
+        &.opened {
+            position: absolute;
+            overflow-y: auto;
+            .menu-list {
+                left: 0;
+                display: block;
+                height: 100%;
             }
         }
-    }
 
-    /* ideal view */
-
-    @media screen and ( min-width: $ideal-width ) {
-        .menu {
-            min-width: auto;
+        .toggle {
+            display: block;
         }
-    }
 
-    /* mobile view */
+        h1 {
+            display: none;
+        }
 
-    @media screen and ( max-width: $mobile-width ) {
-        .menu {
-            position: fixed;
-            z-index: 2; // above transport controls
-            overflow: hidden;
+        ul {
+            display: block;
             width: 100%;
-            height: inherit;
-            top: 0;
-            left: 0;
 
-            &.opened {
-                position: absolute;
-                 overflow-y: auto;
-                .menu-list {
-                    left: 0;
-                    display: block;
-                    height: 100%;
+            padding: 0;
+
+            li {
+                display: block;
+                width: 100%;
+
+                a {
+                    width: 100%;
                 }
             }
+        }
 
-            .toggle {
-                display: block;
-            }
-
+        ul {
             h1 {
                 display: none;
             }
 
-            ul {
-                display: block;
-                width: 100%;
+            li {
+                padding: $spacing-small $spacing-large;
 
-                padding: 0;
+                .file-menu li {
+                    padding: $spacing-small 0;
+                }
 
-                li {
+                a {
                     display: block;
                     width: 100%;
+                    padding: $spacing-medium $spacing-large;
+                    color: #000;
 
-                        a {
-                            width: 100%;
-                        }
+                    &:hover {
+                        color: #000;
                     }
                 }
 
-                ul {
-                    h1 {
-                       display: none;
-                    }
-
-                    li {
-                        padding: $spacing-small $spacing-large;
-
-                        .file-menu li {
-                            padding: $spacing-small 0;
-                        }
-
-                        a {
-                            display: block;
-                            width: 100%;
-                            padding: $spacing-medium $spacing-large;
-                            color: #000;
-
-                            &:hover {
-                                color: #000;
-                            }
-                        }
-
-                        &.active a {
-                            border-bottom: none;
-                            color: #FFF;
-                            font-weight: bold;
-                            font-style: italic;
-                            background-color: $color-1;
-                        }
-
-                        &.fullscreen-button {
-                            float: left;
-                        }
-                    }
+                &.active a {
+                    border-bottom: none;
+                    color: #FFF;
+                    font-weight: bold;
+                    font-style: italic;
+                    background-color: $color-1;
                 }
 
-                .menu-list {
-                    position: absolute;
-                    top: $menu-height;
-                    background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
-                    background-repeat: repeat-x;
-                    display: none;
-
-                    .title {
-                        display: none;
-                    }
+                &.fullscreen-button {
+                    float: left;
                 }
             }
         }
+
+        .menu-list {
+            position: absolute;
+            top: $menu-height;
+            background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
+            background-repeat: repeat-x;
+            display: none;
+
+            .title {
+                display: none;
+            }
+        }
+    }
+}
 </style>

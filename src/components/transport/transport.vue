@@ -193,7 +193,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables.scss";
+@import "@/styles/_mixins";
+@import "@/styles/forms";
 
 /* generated font for all transporter icons */
 
@@ -213,7 +214,7 @@ export default {
 }
 
 .transport-controls {
-    font-family: Montserrat, Helvetica, Verdana, sans-serif;
+    font-family: "Montserrat", Helvetica, Verdana, sans-serif;
     border: none;
     border-radius: 0;
     margin: 0 auto;
@@ -221,7 +222,7 @@ export default {
     max-width: $ideal-width;
 
     ul {
-        list-style-type: none;
+        @include list();
         padding-left: $spacing-medium;
 
         li {
@@ -235,9 +236,9 @@ export default {
                 padding-left: $spacing-xsmall;
             }
 
-            /* loop button */
-            &#loopBTN {
-                padding-left: 0;
+            /* play button */
+            &#playBTN:before {
+                margin-right: 0;
             }
 
             /* record button */
@@ -277,8 +278,9 @@ export default {
                     background-color: #333;
                     height: $spacing-large;
                     text-align: center;
-                    padding: 0 $spacing-medium;
+                    padding: $spacing-small $spacing-medium;
                     margin: 0 $spacing-small;
+                    @include toolFont();
                 }
             }
 
@@ -314,6 +316,7 @@ export default {
         label {
             margin-right: $spacing-medium;
             display: inline-block;
+            @include toolFont();
         }
 
         input {
@@ -324,9 +327,7 @@ export default {
 
         .value {
             display: inline-block;
-            font-weight: bold;
-            font-style: italic;
-            font-size: 90%;
+            @include toolFont();
         }
     }
 
@@ -347,7 +348,7 @@ export default {
         display: inline-block;
         text-decoration: inherit;
         width: $spacing-large;
-        margin-right: $spacing-small;
+        margin-right: $spacing-xsmall;
         text-align: center;
         /* opacity: .8; */
 
@@ -382,7 +383,7 @@ export default {
 
 /* ideal view */
 
-@media screen and ( min-width: $ideal-width ) {
+@include ideal() {
     .transport-controls {
         min-width: auto;
     }
@@ -406,9 +407,7 @@ export default {
     }
 }
 
-/* mobile view */
-
-@media screen and ( max-width: $mobile-width ) {
+@include mobile() {
     .transport-controls {
         background-color: inherit;
         margin-top: ($transport-height - $spacing-small);

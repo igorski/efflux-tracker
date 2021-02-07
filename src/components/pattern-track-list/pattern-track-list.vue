@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -382,237 +382,231 @@ export default {
 </script>
 
 <style lang="scss">
-    @import '@/styles/_variables.scss';
+@import "@/styles/_mixins";
 
-    $patternWidth: 150px;
-    $indicesWidth: 30px;
-    $fullPatternListWidth: (( 8 * $patternWidth ) + $indicesWidth );
-    $stepHeight: 32px;
+$patternWidth: 150px;
+$indicesWidth: 30px;
+$fullPatternListWidth: (( 8 * $patternWidth ) + $indicesWidth );
+$stepHeight: 32px;
 
-    .pattern-track-list-container {
-      position: relative;
-      overflow: auto;
-      background-color: #101015;
+.pattern-track-list-container {
+    position: relative;
+    overflow: auto;
+    background-color: #101015;
+}
+
+.pattern-track-list {
+    @include inlineFlex();
+    background-color: $color-editor-background;
+
+    .wrapper {
+        width: $fullPatternListWidth;
     }
 
-    .pattern-track-list {
-      @include inlineFlex();
-      background-color: $color-editor-background;
-
-      .wrapper {
-        width: $fullPatternListWidth;
-      }
-
-      .indices, .pattern {
+    .indices, .pattern {
+        @include list();
         position: relative;
         float: left;
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
+    }
 
-      .indices {
+    .indices {
         width: $indicesWidth;
 
         li {
-          display: block;
-          font-family: Montserrat, Helvetica, Verdana, sans-serif;
-          font-weight: bold;
-          text-align: center;
-          border-top: 2px solid #000;
-          padding: $spacing-small 0;
-          border-bottom: 2px solid #323234;
-          height: $stepHeight;
-          @include noEvents();
-          @include noSelect();
-          @include boxSize();
+            display: block;
+            font-family: "Montserrat", Helvetica, Verdana, sans-serif;
+            font-weight: bold;
+            text-align: center;
+            border-top: 2px solid #000;
+            padding: $spacing-small 0;
+            border-bottom: 2px solid #323234;
+            height: $stepHeight;
+            @include noEvents();
+            @include noSelect();
+            @include boxSize();
 
-          &.active {
-            color: #FFF;
-          }
+            &.active {
+                color: #FFF;
+            }
         }
-      }
+    }
 
-      .pattern {
+    .pattern {
         width: $patternWidth;
         background-color: #101015;
 
         &:before {
-          position: absolute;
-          content: "";
-          border-right: 1px solid #000;
-          height: 100%;
-          top: 0;
-          right: 0;
+            position: absolute;
+            content: "";
+            border-right: 1px solid #000;
+            height: 100%;
+            top: 0;
+            right: 0;
         }
 
         &:last-of-type {
-          &:before {
-            border: none;
-          }
+            &:before {
+                border: none;
+            }
         }
 
         &:nth-child(2) li .note,
         &:nth-child(2) li .moduleValue {
-          color: #b25050;
+            color: #b25050;
         }
 
         &:nth-child(3) li .note,
         &:nth-child(3) li .moduleValue {
-          color: #b28050;
+            color: #b28050;
         }
 
         &:nth-child(4) li .note,
         &:nth-child(4) li .moduleValue {
-          color: #a9b250;
+            color: #a9b250;
         }
 
         &:nth-child(5) li .note,
         &:nth-child(5) li .moduleValue {
-          color: #60b250;
+            color: #60b250;
         }
 
         &:nth-child(6) li .note,
         &:nth-child(6) li .moduleValue {
-          color: #50b292;
+            color: #50b292;
         }
 
         &:nth-child(7) li .note,
         &:nth-child(7) li .moduleValue {
-          color: #5071b2;
+            color: #5071b2;
         }
 
         &:nth-child(8) li .note,
         &:nth-child(8) li .moduleValue {
-          color: #8850b2;
+            color: #8850b2;
         }
 
         li {
-          display: block;
-          cursor: pointer;
-          border-top: 2px solid #000;
-          border-bottom: 2px solid #000;
-          font-weight: bold;
-          height: $stepHeight;
-          @include boxSize();
-          @include animate(background-color, .75s); /* animated background highlight during playback */
-
-          span {
-            @include animate(color, .1s); /* animated text highlight during playback */
-          }
-
-          &.playing {
-            transition: none;
-            background-color: rgba(255,255,255,.15) !important;
-            span {
-              color: #FFF !important;
-              transition: none;
-            }
-          }
-
-          &:nth-child(odd) {
-            background-color: #323234;
-            border-color: #323234;
-          }
-
-          &.active, &:hover {
-            border: 2px solid $color-1;
-            z-index: 10;
-          }
-
-          &.selected {
-            transition: none;
-            background-color: $color-2;
-            border-color: $color-2;
-            color: #000 !important;
-
-            span {
-              color: #000 !important;
-              transition: none;
-            }
-          }
-
-          span {
-            display: inline-block;
-            padding: $spacing-xsmall;
-            white-space: nowrap;
+            display: block;
+            cursor: pointer;
+            border-top: 2px solid #000;
+            border-bottom: 2px solid #000;
+            font-weight: bold;
+            height: $stepHeight;
             @include boxSize();
-            @include noEvents();
+            @include animate(background-color, .75s); /* animated background highlight during playback */
 
-            &.active {
-              background-color: $color-1;
-              color: #000 !important;
+            span {
+                @include animate(color, .1s); /* animated text highlight during playback */
             }
 
-            &.note {
-              width: 33%;
-              text-transform: uppercase;
-              text-align: right;
-              color: $color-5;
-
-              &.empty {
-                color: #b6b6b6;
-              }
+            &.playing {
+                transition: none;
+                background-color: rgba(255,255,255,.15) !important;
+                span {
+                    color: #FFF !important;
+                    transition: none;
+                }
             }
 
-            &.instrument {
-              width: 10%;
-              color: #FFF;
+            &:nth-child(odd) {
+                background-color: #323234;
+                border-color: #323234;
             }
 
-            &.moduleParam,
-            &.moduleValue {
-              width: 30%;
-              color: #999;
-              text-align: center;
-
-              &.empty {
-                color: #666;
-              }
+            &.active, &:hover {
+                border: 2px solid $color-1;
+                z-index: 10;
             }
 
-            &.moduleValue {
-              width: 19%;
-              color: $color-5;
+            &.selected {
+                transition: none;
+                background-color: $color-2;
+                border-color: $color-2;
+                color: #000 !important;
+
+                span {
+                    color: #000 !important;
+                    transition: none;
+                }
             }
-          }
+
+            span {
+                display: inline-block;
+                padding: $spacing-xsmall;
+                white-space: nowrap;
+                @include boxSize();
+                @include noEvents();
+
+                &.active {
+                    background-color: $color-1;
+                    color: #000 !important;
+                }
+
+                &.note {
+                    width: 33%;
+                    text-transform: uppercase;
+                    text-align: right;
+                    color: $color-5;
+
+                    &.empty {
+                        color: #b6b6b6;
+                    }
+                }
+
+                &.instrument {
+                    width: 10%;
+                    color: #FFF;
+                }
+
+                &.moduleParam,
+                &.moduleValue {
+                    width: 30%;
+                    color: #999;
+                    text-align: center;
+
+                    &.empty {
+                        color: #666;
+                    }
+                }
+
+                &.moduleValue {
+                    width: 19%;
+                    color: $color-5;
+                }
+            }
         }
-      }
     }
+}
 
-    .pattern-track-list-container {
-      /* when the view should be following the sequencer we switch the odd/even pattern */
-      /* of the list for less eye strain (only the instructions will seem to be scrolling) */
-      &.follow {
+.pattern-track-list-container {
+    /* when the view should be following the sequencer we switch the odd/even pattern */
+    /* of the list for less eye strain (only the instructions will seem to be scrolling) */
+    &.follow {
         .pattern li {
-          &:nth-child(even) {
-            background-color: #323234;
-            border-color: #323234;
-          }
-          &:nth-child(odd) {
-            background-color: transparent;
-            border-color: transparent;
-          }
+            &:nth-child(even) {
+                background-color: #323234;
+                border-color: #323234;
+            }
+            &:nth-child(odd) {
+                background-color: transparent;
+                border-color: transparent;
+            }
         }
-      }
     }
+}
 
-    /* ideal view */
-
-    @media screen and ( min-width: $ideal-width ) {
-      .pattern-track-list-container {
+@include ideal() {
+    .pattern-track-list-container {
         overflow-x: hidden; // no need to show scroll
-      }
-      .pattern-track-list {
+    }
+    .pattern-track-list {
         width: $fullPatternListWidth !important;
-      }
     }
+}
 
-    /* phone view */
-
-    @media screen and ( max-width: $mobile-width ) {
-      .pattern-track-list {
+@include mobile() {
+    .pattern-track-list {
         padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
-      }
     }
+}
 </style>
