@@ -73,7 +73,9 @@ export default {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
-            display: block;
+            display: inline-block;
+            position: relative;
+            margin-top: -$spacing-xsmall;
         }
     }
 }

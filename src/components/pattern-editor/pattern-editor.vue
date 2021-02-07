@@ -218,7 +218,11 @@ export default {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
-            display: block;
+            display: inline-block;
+
+            .inline-list button {
+                margin: 0 $spacing-xsmall $spacing-small 0;
+            }
         }
     }
 
@@ -227,11 +231,10 @@ export default {
             display: none;
         }
         .inline-list {
-            display: flex;
             margin: 0;
 
             .list-item {
-                flex-grow: 1;
+                display: inline-block;
                 margin-bottom: $spacing-small;
             }
         }

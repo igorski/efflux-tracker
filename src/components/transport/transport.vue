@@ -232,13 +232,18 @@ export default {
             font-weight: bold;
             cursor: pointer;
 
-            &:first-child {
-                padding-left: $spacing-xsmall;
+            @include large() {
+                &:first-child {
+                    padding-left: $spacing-xsmall;
+                }
             }
 
             /* play button */
             &#playBTN:before {
                 margin-right: 0;
+                @include mobile() {
+                    margin: 0;
+                }
             }
 
             /* record button */
@@ -424,6 +429,7 @@ export default {
         &.settings-mode .tempo-control {
             display: inline-block;
             margin: 0 $spacing-small $spacing-small;
+            padding: 0 0 0 $spacing-small;
         }
         ul li.icon-settings {
             display: inline;

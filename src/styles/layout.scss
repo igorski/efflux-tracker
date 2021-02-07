@@ -108,14 +108,14 @@
     }
     /* when mobileMode is "settings" we show the tempo control and song editor by expanding these */
     #properties {
-        margin: 125px auto 0;
+        margin: 116px auto 0;
     }
     #editor {
         width: inherit;
         top: 85px !important;
 
         &.settings-mode {
-            top: 215px !important;
+            top: 210px !important;
         }
     }
 
