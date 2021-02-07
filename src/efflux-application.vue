@@ -165,7 +165,8 @@ export default {
             selectedSlot: state => state.editor.selectedSlot
         }),
         ...mapGetters([
-            "activeSong"
+            "activeSong",
+            "displayWelcome",
         ]),
         activeModal() {
             switch ( this.modal ) {
@@ -187,6 +188,8 @@ export default {
                     return () => import( "@/components/song-save-window/song-save-window" );
                 case ModalWindows.SETTINGS_WINDOW:
                     return () => import( "@/components/settings-window/settings-window" );
+                case ModalWindows.WELCOME_WINDOW:
+                    return () => import( "@/components/welcome-window/welcome-window" );
             }
         },
     },
@@ -252,11 +255,11 @@ export default {
 
         this.prepared = true;
 
-        if (!this.canLaunch) {
+        if ( !this.canLaunch ) {
             return;
         }
 
-        this.publishMessage(PubSubMessages.EFFLUX_READY);
+        this.publishMessage( PubSubMessages.EFFLUX_READY );
 
         // show confirmation message on page reload
 
@@ -275,7 +278,10 @@ export default {
                 };
             }
         }
-        this.$nextTick(this.calculateDimensions);
+        this.$nextTick( this.calculateDimensions );
+        if ( this.displayWelcome ) {
+            this.openModal( ModalWindows.WELCOME_WINDOW );
+        }
     },
     methods: {
         ...mapMutations([
@@ -291,6 +297,7 @@ export default {
             "setBlindActive",
             "resetEditor",
             "resetHistory",
+            "openModal",
             "closeModal",
             "showNotification",
             "syncKeyboard",

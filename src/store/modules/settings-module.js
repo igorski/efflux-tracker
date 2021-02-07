@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2020 - https://www.igorski.nl
+ * Igor Zinken 2017-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue         from 'vue';
-import Config      from '../../config';
-import StorageUtil from '../../utils/storage-util';
+import Vue         from "vue";
+import Config      from "../../config";
+import StorageUtil from "../../utils/storage-util";
 
 /* internal methods */
 
@@ -40,9 +40,10 @@ export default {
     state: {
         _settings: {},
         PROPERTIES: {
-            INPUT_FORMAT    : 'if',
-            FOLLOW_PLAYBACK : 'fp',
-            DISPLAY_HELP    : 'dh'
+            INPUT_FORMAT    : "if",
+            FOLLOW_PLAYBACK : "fp",
+            DISPLAY_HELP    : "dh",
+            DISPLAY_WELCOME : "dw",
         }
     },
     getters: {
@@ -52,15 +53,16 @@ export default {
             }
             return null;
         },
-        followPlayback: state => state._settings[state.PROPERTIES.FOLLOW_PLAYBACK] || false,
-        paramFormat: state => state._settings[state.PROPERTIES.INPUT_FORMAT]
+        displayWelcome : state => state._settings[ state.PROPERTIES.DISPLAY_WELCOME ] ?? true,
+        followPlayback : state => state._settings[ state.PROPERTIES.FOLLOW_PLAYBACK ] || false,
+        paramFormat    : state => state._settings[ state.PROPERTIES.INPUT_FORMAT ]
     },
     mutations: {
-        saveSetting(state, { name, value }) {
-            Vue.set(state._settings, name, value);
+        saveSetting( state, { name, value }) {
+            Vue.set( state._settings, name, value );
             persistState(state);
         },
-        setStoredSettings(state, settings) {
+        setStoredSettings( state, settings ) {
             state._settings = settings;
         }
     },
@@ -71,10 +73,10 @@ export default {
                 ( result ) => {
                     if ( typeof result === "string" ) {
                         try {
-                            commit('setStoredSettings', JSON.parse( result ));
+                            commit("setStoredSettings", JSON.parse( result ));
                         }
                         catch ( e ) {
-                            // that's fine
+                            // that"s fine
                         }
                     }
                 },

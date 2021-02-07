@@ -29,5 +29,6 @@ export default
     MIXER                   : "4",
     SONG_BROWSER            : "5",
     SONG_SAVE_WINDOW        : "6",
-    SETTINGS_WINDOW         : "7"
+    SETTINGS_WINDOW         : "7",
+    WELCOME_WINDOW          : "8"
 };

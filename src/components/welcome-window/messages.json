@@ -1,0 +1,10 @@
+{
+    "en-US": {
+        "title": "Welcome",
+        "introductionFirstTime": "If this is your first time using Efflux, why not take some inspiration? By default, Efflux comes with several demo songs showing off just what it can do.",
+        "introductionHelp": "If you're feeling daunted using a tracker or want to get right to the good stuff (keyboard shortcuts and MIDI controllers!)",
+        "openDemo": "Open a demo song",
+        "openHelp": "Read the online help",
+        "showOnStartup": "Always display this window on startup"
+    }
+}

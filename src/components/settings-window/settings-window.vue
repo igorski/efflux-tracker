@@ -29,9 +29,27 @@
             >x</button>
         </div>
         <hr class="divider" />
-        <section id="generalSetup">
+        <section>
             <fieldset>
                 <legend v-t="'generalSettings'"></legend>
+                <div class="wrapper toggle">
+                    <label v-t="'showHelpPanel'"></label>
+                    <toggle-button
+                        v-model="displayHelpPanel"
+                        @change="handleHelpPanelChange"
+                        sync
+                    />
+                </div>
+                <div class="wrapper toggle">
+                    <label v-t="'showHelpStartup'"></label>
+                    <toggle-button
+                        v-model="showHelpOnStartup"
+                        sync
+                    />
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend v-t="'sequencerSettings'"></legend>
                 <div class="wrapper select">
                     <label v-t="'parameterInputFormat'"></label>
                     <select-box
@@ -49,33 +67,32 @@
                         sync
                     />
                 </div>
-                <div class="wrapper toggle">
-                    <label v-t="'showHelpPanel'"></label>
-                    <toggle-button
-                        v-model="displayHelpPanel"
-                        @change="handleHelpPanelChange"
-                        sync
-                    />
-                </div>
             </fieldset>
         </section>
         <section id="midiSetup" v-if="hasMIDIsupport">
             <fieldset>
                 <legend v-t="'midiSetup'"></legend>
-                <button
-                    v-t="'midiConnectToAPI'"
-                    @click="connectMidiDevices"
-                ></button>
-                <div class="wrapper select">
-                    <label v-t="'deviceSelectLabel'" class="padded-label"></label>
-                    <select-box
-                        v-model="portNumber"
-                        @input="handleMIDIDeviceSelect"
-                        :options="midiDeviceOptions"
-                        class="param-select"
-                    />
+                <div class="pane">
+                    <button
+                        v-t="'midiConnectToAPI'"
+                        @click="connectMidiDevices"
+                    ></button>
+                    <div class="wrapper select">
+                        <label v-t="'deviceSelectLabel'" class="padded-label"></label>
+                        <select-box
+                            v-model="portNumber"
+                            @input="handleMIDIDeviceSelect"
+                            :options="midiDeviceOptions"
+                            class="param-select"
+                        />
+                    </div>
                 </div>
-                <p v-t="'midiDescription'"></p>
+                <div class="pane">
+                    <p
+                        v-t="'midiDescription'"
+                        class="description"
+                    ></p>
+                </div>
             </fieldset>
         </section>
     </div>
@@ -108,11 +125,22 @@ export default {
             settings: state => state.settings.PROPERTIES,
         }),
         ...mapGetters([
-            'getSetting',
-            'midiMessageHandler',
+            "displayWelcome",
+            "getSetting",
+            "midiMessageHandler",
         ]),
         hasMIDIsupport() {
             return zMIDI.isSupported();
+        },
+        showHelpOnStartup: {
+            get() {
+                return this.displayWelcome;
+            },
+            set( value ) {
+                this.saveSetting(
+                    { name: this.settings.DISPLAY_WELCOME, value }
+                );
+            }
         },
         portNumber: {
             get() {
@@ -231,7 +259,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 550px;
-$height: 530px;
+$height: 550px;
 
 .settings {
     @include editorComponent();
@@ -247,6 +275,29 @@ $height: 530px;
     label {
         min-width: 150px;
         display: inline-block;
+    }
+
+    @media screen and ( min-width: $width) and ( min-height: $height ) {
+        width: $width;
+        height: $height;
+        top: 50%;
+        left: 50%;
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2 );
+
+        .pane {
+            display: inline-block;
+            vertical-align: top;
+            width: 50%;
+
+            .description {
+                margin-top: 0;
+            }
+        }
+    }
+
+    @media screen and ( max-width: $width ), ( max-height: $height ) {
+        @include verticalScrollOnMobile();
     }
 }
 
@@ -275,22 +326,5 @@ $height: 530px;
 
 .wrapper.toggle {
     margin: $spacing-small 0;
-}
-
-@media screen and ( min-width: $width) and ( min-height: $height ) {
-    .settings {
-        width: $width;
-        height: $height;
-        top: 50%;
-        left: 50%;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2 );
-    }
-}
-
-@media screen and ( max-width: $width ), ( max-height: $height ) {
-    .settings {
-        @include verticalScrollOnMobile();
-    }
 }
 </style>
