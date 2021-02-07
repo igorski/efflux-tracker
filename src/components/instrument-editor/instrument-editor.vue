@@ -292,9 +292,6 @@ export default {
 .instrument-presets {
     @include boxSize();
     padding-left: $spacing-medium;
-    margin-top: $spacing-small;
-    display: inline-block;
-    width: 100%;
 
     @include mobile() {
         border-top: 1px dashed #666;
