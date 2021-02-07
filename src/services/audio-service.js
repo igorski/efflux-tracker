@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,25 +20,25 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                        from 'vue';
-import Config                     from '@/config';
-import ModuleFactory              from '@/model/factory/module-factory';
-import { ACTION_NOTE_ON }         from '@/model/types/audio-event-def';
-import { applyRouting }           from './audio/module-router';
-import { applyModuleParamChange } from './audio/module-automation';
-import { getFrequency }           from './audio/pitch';
-import { processVoices }          from './audio/audio-util';
-import ADSR                       from './audio/adsr-module';
+import Vue                        from "vue";
+import Config                     from "@/config";
+import ModuleFactory              from "@/model/factory/module-factory";
+import { ACTION_NOTE_ON }         from "@/model/types/audio-event-def";
+import { applyRouting }           from "./audio/module-router";
+import { applyModuleParamChange } from "./audio/module-automation";
+import { getFrequency }           from "./audio/pitch";
+import { processVoices }          from "./audio/audio-util";
+import ADSR                       from "./audio/adsr-module";
 
 import {
     tuneToOscillator, tuneBufferPlayback, adjustEventWaveForms,
     adjustEventVolume, adjustEventTunings
-} from '@/utils/instrument-util';
+} from "@/utils/instrument-util";
 
 import {
     init, startOscillation, stopOscillation, setValue,
     createGainNode, createStereoPanner, createPWM, createWaveTableFromGraph
-} from './audio/webaudio-helper';
+} from "./audio/webaudio-helper";
 
 /* private properties */
 
@@ -160,22 +160,26 @@ export const cacheCustomTables = instruments => {
  *                   each instrument channels output, allows for monitoring audio
  *                   levels at the expense of some computational overhead.
  */
-export const applyModules = (song, connectAnalysers = false) => {
-    song.instruments.forEach((instrument, instrumentIndex) => {
-        const instrumentModules = instrumentModulesList[instrumentIndex];
-        instrumentModules.output.gain.value = instrument.volume;
-        if (instrumentModules.panner && typeof instrument.panning === 'number') {
-            instrumentModules.panner.pan.value = instrument.panning;
+export const applyModules = ( song, connectAnalysers = false ) => {
+    // first check if one of the channels is configured to operate solo
+    const hasSoloChannel = song.instruments.find( instrument => !!instrument.solo );
+    song.instruments.forEach(( instrument, instrumentIndex ) => {
+        const instrumentModules        = instrumentModulesList[ instrumentIndex ];
+        const { muted, solo, panning } = instrument;
+
+        instrumentModules.output.gain.value = muted || ( hasSoloChannel && !solo ) ? 0 : instrument.volume;
+        if (instrumentModules.panner && typeof panning === "number") {
+            instrumentModules.panner.pan.value = panning;
         }
         const analyser = instrumentModules.analyser;
         analyser.disconnect();
 
         const output = connectAnalysers ? analyser : masterBus;
 
-        ModuleFactory.applyConfiguration( 'filter', instrumentModules, instrument.filter, output );
-        ModuleFactory.applyConfiguration( 'delay', instrumentModules, instrument.delay, output );
-        ModuleFactory.applyConfiguration( 'eq', instrumentModules, instrument.eq, output );
-        ModuleFactory.applyConfiguration( 'overdrive', instrumentModules, instrument.overdrive, output );
+        ModuleFactory.applyConfiguration( "filter",    instrumentModules, instrument.filter,    output );
+        ModuleFactory.applyConfiguration( "delay",     instrumentModules, instrument.delay,     output );
+        ModuleFactory.applyConfiguration( "eq",        instrumentModules, instrument.eq,        output );
+        ModuleFactory.applyConfiguration( "overdrive", instrumentModules, instrument.overdrive, output );
 
         if ( connectAnalysers ) {
             analyser.connect( masterBus );
@@ -198,7 +202,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
 
         // however, first check if the event already has an id and is currently playing back
         // (the scenario here is a pattern jump / sequencer action retriggering an already
-        // playing event, for instance: looping a single measure where a new 'retrigger' of
+        // playing event, for instance: looping a single measure where a new "retrigger" of
         // the event should be played while the first one is still playing back its release tail).
 
         if ( event.id ) {
@@ -210,7 +214,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             event.id = null;  // generates a new id below
         }
         if ( !event.id ) {
-            Vue.set( event, 'id', ( ++UNIQUE_EVENT_ID ));
+            Vue.set( event, "id", ( ++UNIQUE_EVENT_ID ));
         }
 
         // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
@@ -235,7 +239,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             const { oscillatorNode, adsrNode } = oscillatorNodes;
             let generatorNode;
 
-            if (oscillatorVO.waveform === 'NOISE') {
+            if (oscillatorVO.waveform === "NOISE") {
                 // buffer source ? assign it to the oscillator
                 generatorNode = audioContext.createBufferSource();
                 generatorNode.buffer = pool.NOISE;
@@ -244,7 +248,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             }
             else {
                 // has oscillator source
-                if (oscillatorVO.waveform === 'PWM') {
+                if (oscillatorVO.waveform === "PWM") {
                     // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
                     generatorNode = createPWM(
                         audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
@@ -256,12 +260,12 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
                     generatorNode = audioContext.createOscillator();
                     let table;
 
-                    if (oscillatorVO.waveform !== 'CUSTOM')
+                    if (oscillatorVO.waveform !== "CUSTOM")
                         table = pool[oscillatorVO.waveform];
                     else
                         table = pool.CUSTOM[instrument.id][oscillatorIndex];
 
-                    if ( !table ) // no table ? that's a bit of a problem. what did you break!?
+                    if ( !table ) // no table ? that"s a bit of a problem. what did you break!?
                         return;
 
                     generatorNode.setPeriodicWave( table );
@@ -280,7 +284,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
 
             // route oscillator to track gain > envelope gain > instrument gain
 
-            if ( oscillatorVO.waveform !== 'PWM' )
+            if ( oscillatorVO.waveform !== "PWM" )
                 generatorNode.connect(oscillatorNode);
 
             // start playback
@@ -321,7 +325,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
  * @param {AUDIO_EVENT} event
  * @param {number=} startTimeInSeconds optional time to start the noteOff,
  *                  this will default to the current time. This time should
- *                  equal the end of the note's sustain period as release
+ *                  equal the end of the note"s sustain period as release
  *                  will be applied automatically
  */
 export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime ) => {
@@ -371,8 +375,8 @@ const AudioService =
      * @return {boolean}
      */
     isSupported() {
-        return ( typeof AudioContext !== 'undefined' ||
-                 typeof webkitAudioContext !== 'undefined' );
+        return ( typeof AudioContext !== "undefined" ||
+                 typeof webkitAudioContext !== "undefined" );
     },
     /**
      * initializes the audioContext so we can
@@ -417,7 +421,7 @@ const AudioService =
     },
     cacheAllOscillators(instrumentIndex, instrument) {
         instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
-            AudioService.updateOscillator('waveform', instrumentIndex, oscillatorIndex, oscillator )
+            AudioService.updateOscillator("waveform", instrumentIndex, oscillatorIndex, oscillator )
         });
     },
     updateOscillator(property, instrumentIndex, oscillatorIndex, oscillator) {
@@ -426,8 +430,8 @@ const AudioService =
 
         const events = Object.values(instrumentEventsList[instrumentIndex]);
         switch (property) {
-            case 'waveform':
-                if ( oscillator.enabled && oscillator.waveform === 'CUSTOM' ) {
+            case "waveform":
+                if ( oscillator.enabled && oscillator.waveform === "CUSTOM" ) {
                     adjustEventWaveForms(events, oscillatorIndex,
                         createTableFromCustomGraph(instrumentIndex, oscillatorIndex, oscillator.table)
                     );
@@ -436,10 +440,10 @@ const AudioService =
                     adjustEventWaveForms(events, oscillatorIndex, pool[oscillator.waveform] );
                 }
                 break;
-            case 'volume':
+            case "volume":
                 adjustEventVolume(events, oscillatorIndex, oscillator);
                 break;
-            case 'tuning':
+            case "tuning":
                 adjustEventTunings(events, oscillatorIndex, oscillator);
                 break;
         }
@@ -463,7 +467,7 @@ export const getAnalysers = () => {
 function setupRouting() {
     masterBus  = createGainNode( audioContext );
     eq         = audioContext.createBiquadFilter();
-    eq.type    = 'highpass';
+    eq.type    = "highpass";
     eq.frequency.value = 30; // remove sub-30 Hz rumbling
     compressor = audioContext.createDynamicsCompressor();
     masterBus.connect( eq );
@@ -524,7 +528,7 @@ function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex,
 
         // delete the associated event from the playback list
         // we delay this until the voices have actually halted playback
-        // as otherwise the voices aren't always returned to the pool on Safari/iOS
+        // as otherwise the voices aren"t always returned to the pool on Safari/iOS
 
         if (eventId !== null) {
             delete instrumentEventsList[instrumentId][eventId];
@@ -554,10 +558,10 @@ function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
 function handleRecordingComplete(blob) {
     // download file to disk
 
-    const pom = document.createElement('a');
-    pom.setAttribute('href', window.URL.createObjectURL(blob));
-    pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
-    pom.setAttribute('download', 'efflux-output.wav');
+    const pom = document.createElement("a");
+    pom.setAttribute("href", window.URL.createObjectURL(blob));
+    pom.setAttribute("target", "_blank" ); // helps for Safari (opens content in window...)
+    pom.setAttribute("download", "efflux-output.wav");
     pom.click();
 
     // free recorder resources
@@ -568,5 +572,5 @@ function handleRecordingComplete(blob) {
 
     window.URL.revokeObjectURL(blob);
 
-    store.commit('showNotification', { message: store.getters.t('messages.recordingSaved') });
+    store.commit("showNotification", { message: store.getters.t("messages.recordingSaved") });
 }
