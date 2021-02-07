@@ -159,7 +159,7 @@ export default {
 @import "@/styles/forms";
 
 .pattern-editor {
-    display: inline-block;
+    display: inline;
     margin: 0;
     padding-left: $spacing-small;
 
@@ -218,7 +218,7 @@ export default {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
-            display: inline-block;
+            display: inline;
 
             .inline-list button {
                 margin: 0 $spacing-xsmall $spacing-small 0;

@@ -66,14 +66,14 @@ export default {
 @import "@/styles/forms";
 
 .song-editor {
-    display: inline-block;
+    display: inline;
     padding-left: $spacing-small;
 
     @include mobile() {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
-            display: inline-block;
+            display: inline;
             position: relative;
             margin-top: -$spacing-xsmall;
         }
