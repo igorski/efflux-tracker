@@ -65,12 +65,19 @@
             <ul class="tempo-control wrapper input range">
                 <li class="section-divider"><!-- x --></li>
                 <li>
-                    <label v-t="'tempoLabel'" for="songTempo"></label>
-                    <input type="range"
-                           id="songTempo"
-                           name="tempo"
-                           v-model="tempo"
-                           min="40" max="300" step="0.1"
+                    <label
+                        v-t="'tempoLabel'"
+                        for="songTempo"
+                    ></label>
+                    <input
+                        type="range"
+                        id="songTempo"
+                        name="tempo"
+                        v-model="tempo"
+                        @change="handleTempoControlChange"
+                        min="40"
+                        max="300"
+                        step="0.1"
                     />
                     <span class="value">{{ $t('tempo', { tempo }) }}</span>
                 </li>
@@ -80,15 +87,18 @@
 </template>
 
 <script>
-import Vue from 'vue';
-import { mapState, mapGetters, mapMutations } from 'vuex';
-import Bowser from 'bowser';
+import Vue from "vue";
+import { mapState, mapGetters, mapMutations } from "vuex";
+import Bowser from "bowser";
 
-import { resetPlayState } from '@/utils/song-util';
-import messages           from './messages.json';
+import { resetPlayState } from "@/utils/song-util";
+import messages           from "./messages.json";
 
 export default {
     i18n: { messages },
+    data: () => ({
+        originalTempo: 0,
+    }),
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -97,11 +107,11 @@ export default {
             mobileMode: state => state.mobileMode,
         }),
         ...mapGetters([
-            'isPlaying',
-            'isLooping',
-            'isRecording',
-            'isMetronomeEnabled',
-            'amountOfSteps'
+            "isPlaying",
+            "isLooping",
+            "isRecording",
+            "isMetronomeEnabled",
+            "amountOfSteps"
         ]),
         canRecord() {
             // for desktop/laptop devices we enable record mode (for keyboard input)
@@ -113,8 +123,8 @@ export default {
             get() {
                 return this.activeSong.meta.tempo;
             },
-            set(value) {
-                this.setTempo(value);
+            set( value ) {
+                this.setTempo( value );
             }
         },
         currentPatternValue: {
@@ -153,7 +163,7 @@ export default {
                         while ( i-- ) {
                             event = events[ i ];
                             if ( event )
-                                Vue.set(event, 'recording', false);
+                                Vue.set(event, "recording", false);
                         }
                     });
                 });
@@ -168,25 +178,47 @@ export default {
                 }
             }
         },
+        activeSong: {
+            immediate: true,
+            handler() {
+                this.originalTempo = this.tempo;
+            }
+        },
     },
     methods: {
         ...mapMutations([
-            'setPlaying',
-            'setPosition',
-            'setLooping',
-            'setRecording',
-            'setCurrentStep',
-            'setMetronomeEnabled',
-            'setTempo',
-            'setActivePattern',
-            'setPatternSteps',
-            'suspendKeyboardService',
-            'gotoPreviousPattern',
-            'gotoNextPattern',
-            'setMobileMode'
+            "setPlaying",
+            "setPosition",
+            "setLooping",
+            "setRecording",
+            "setCurrentStep",
+            "setMetronomeEnabled",
+            "setTempo",
+            "setActivePattern",
+            "setPatternSteps",
+            "suspendKeyboardService",
+            "gotoPreviousPattern",
+            "gotoNextPattern",
+            "setMobileMode",
+            "saveState",
         ]),
         handleSettingsToggle() {
-            this.setMobileMode(this.mobileMode ? null : 'settings');
+            this.setMobileMode( this.mobileMode ? null : "settings" );
+        },
+        handleTempoControlChange({ target }) {
+            const { originalTempo } = this;
+            const newTempo = parseFloat( target.value );
+            const store = this.$store;
+            // HistoryStates.TEMPO_CHANGE
+            this.saveState({
+                undo() {
+                    store.commit( "setTempo", originalTempo );
+                },
+                redo() {
+                    store.commit( "setTempo", newTempo );
+                }
+            });
+            this.originalTempo = newTempo;
         }
     }
 };

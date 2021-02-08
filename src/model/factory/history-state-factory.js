@@ -20,13 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                 from 'vue';
-import HistoryStates       from '@/definitions/history-states';
-import EventUtil           from '@/utils/event-util';
-import ObjectUtil          from '@/utils/object-util';
-import PatternUtil         from '@/utils/pattern-util';
-import { ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
-import PatternFactory      from './pattern-factory';
+import Vue                 from "vue";
+import HistoryStates       from "@/definitions/history-states";
+import EventUtil           from "@/utils/event-util";
+import ObjectUtil          from "@/utils/object-util";
+import PatternUtil         from "@/utils/pattern-util";
+import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import PatternFactory      from "./pattern-factory";
 
 export default {
 
@@ -105,11 +105,11 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
     // if options Object was given, use those values instead of current sequencer values
 
     if ( optEventData ) {
-        patternIndex = ( typeof optEventData.patternIndex === 'number' ) ? optEventData.patternIndex : patternIndex;
-        channelIndex = ( typeof optEventData.channelIndex === 'number' ) ? optEventData.channelIndex : channelIndex;
-        step         = ( typeof optEventData.step         === 'number' ) ? optEventData.step         : step;
+        patternIndex = ( typeof optEventData.patternIndex === "number" ) ? optEventData.patternIndex : patternIndex;
+        channelIndex = ( typeof optEventData.channelIndex === "number" ) ? optEventData.channelIndex : channelIndex;
+        step         = ( typeof optEventData.step         === "number" ) ? optEventData.step         : step;
 
-        if ( typeof optEventData.advanceOnAddition === 'boolean' )
+        if ( typeof optEventData.advanceOnAddition === "boolean" )
             advanceStepOnAddition = optEventData.advanceOnAddition;
     }
 
@@ -131,7 +131,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
             existingEvent = JSON.stringify( channel[ step ]);
 
             if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp )
-                Vue.set(event, 'mp', ObjectUtil.clone( channel[ step ].mp ));
+                Vue.set(event, "mp", ObjectUtil.clone( channel[ step ].mp ));
 
             EventUtil.clearEvent( song, patternIndex, channelIndex, step, eventList[ patternIndex ]);
         }
@@ -148,7 +148,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
             const node = eventList[ channelIndex ].getNodeByData( event );
             let prevNode = ( node ) ? node.previous : null;
 
-            // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
+            // but don"t take a noteOff instruction into account (as it is not assigned to an instrument)
             // keep on traversing backwards until we find a valid event
 
             while ( prevNode && prevNode.data.action === ACTION_NOTE_OFF ) {
@@ -216,7 +216,7 @@ function deleteSingleEventOrSelectionAction({ store }) {
     function remove( optSelection ) {
         if ( hadSelection ) {
             // pass selection when redoing a delete action on a selection
-            store.commit('deleteSelection', {
+            store.commit("deleteSelection", {
                 song, activePattern, eventList,
                 optSelectionContent: optSelection, optFirstSelectedChannel: selectedFirstChannel,
                 optLastSelectedChannel: selectedLastChannel, optMinSelectedStep: selectedMinStep, optMaxSelectedStep: selectedMaxStep
@@ -240,12 +240,12 @@ function deleteSingleEventOrSelectionAction({ store }) {
         undo() {
             if ( hadSelection ) {
 
-                store.commit('pasteSelection', {
+                store.commit("pasteSelection", {
                     song, eventList, activePattern, selectedInstrument, selectedStep, optSelectionContent: selection
                 });
             }
             else {
-                store.commit('addEventAtPosition', {
+                store.commit("addEventAtPosition", {
                     event,
                     store,
                     optData: {
@@ -265,16 +265,16 @@ function deleteSingleEventOrSelectionAction({ store }) {
 
 function addModuleAutomationAction({ event, mp }) {
     const existingAutomation = event.mp ? ObjectUtil.clone( event.mp ) : null;
-    const add = () => Vue.set(event, 'mp', mp);
+    const add = () => Vue.set(event, "mp", mp);
 
     add(); // perform action
 
     return {
         undo() {
             if ( existingAutomation )
-                Vue.set( event, 'mp', existingAutomation );
+                Vue.set( event, "mp", existingAutomation );
             else
-                Vue.delete( event, 'mp' );
+                Vue.delete( event, "mp" );
         },
         redo() {
             add();
@@ -284,13 +284,13 @@ function addModuleAutomationAction({ event, mp }) {
 
 function deleteModuleAutomationAction({ event }) {
     const clonedAutomation = ObjectUtil.clone( event.mp );
-    const remove = () => Vue.delete(event, 'mp');
+    const remove = () => Vue.delete(event, "mp");
 
     remove(); // perform action
 
     return {
         undo() {
-            Vue.set(event, 'mp', clonedAutomation);
+            Vue.set(event, "mp", clonedAutomation);
         },
         redo() {
             remove();
@@ -306,15 +306,15 @@ function clearPattern({ store }) {
     const pattern = song.patterns[patternIndex];
 
     function remove() {
-        store.commit('replacePattern', { patternIndex, pattern: PatternFactory.createEmptyPattern(amountOfSteps) });
-        store.commit('createLinkedList', song);
+        store.commit("replacePattern", { patternIndex, pattern: PatternFactory.createEmptyPattern(amountOfSteps) });
+        store.commit("createLinkedList", song);
     }
     remove(); // perform action
 
     return {
         undo() {
-            store.commit('replacePattern', { patternIndex, pattern });
-            store.commit('createLinkedList', song);
+            store.commit("replacePattern", { patternIndex, pattern });
+            store.commit("createLinkedList", song);
         },
         redo() {
             remove();
@@ -330,15 +330,15 @@ function pastePattern({ store, patternCopy }) {
     const pastedPattern = PatternFactory.mergePatterns(targetPattern, patternCopy, patternIndex);
 
     function paste() {
-        store.commit('replacePattern', { patternIndex, pattern: pastedPattern });
-        store.commit('createLinkedList', song);
+        store.commit("replacePattern", { patternIndex, pattern: pastedPattern });
+        store.commit("createLinkedList", song);
     }
     paste(); // perform action
 
     return {
         undo() {
-            store.commit('replacePattern', { patternIndex, pattern: targetPattern });
-            store.commit('createLinkedList', song);
+            store.commit("replacePattern", { patternIndex, pattern: targetPattern });
+            store.commit("createLinkedList", song);
         },
         redo() {
             paste();
@@ -355,16 +355,16 @@ function addPattern({ store }) {
     const pattern = PatternFactory.createEmptyPattern(amountOfSteps);
 
     function add() {
-        store.commit('replacePatterns', PatternUtil.addPatternAtIndex(patterns, patternIndex + 1, amountOfSteps, pattern));
-        store.commit('createLinkedList', song);
+        store.commit("replacePatterns", PatternUtil.addPatternAtIndex(patterns, patternIndex + 1, amountOfSteps, pattern));
+        store.commit("createLinkedList", song);
     }
     add(); // perform action
 
     return {
         undo() {
-            store.commit('setActivePattern', patternIndex);
-            store.commit('replacePatterns', PatternUtil.removePatternAtIndex(patterns, patternIndex + 1));
-            store.commit('createLinkedList', song);
+            store.commit("setActivePattern", patternIndex);
+            store.commit("replacePatterns", PatternUtil.removePatternAtIndex(patterns, patternIndex + 1));
+            store.commit("createLinkedList", song);
         },
         redo() {
             add();
@@ -381,17 +381,17 @@ function deletePattern({ store }) {
           pattern         = patterns[patternIndex];
 
     function deleteP() {
-        store.commit('setActivePattern', targetIndex);
-        store.commit('replacePatterns', PatternUtil.removePatternAtIndex(patterns, patternIndex));
-        store.commit('createLinkedList', song);
+        store.commit("setActivePattern", targetIndex);
+        store.commit("replacePatterns", PatternUtil.removePatternAtIndex(patterns, patternIndex));
+        store.commit("createLinkedList", song);
     }
     deleteP(); // perform action
 
     return {
         undo() {
-            store.commit('setActivePattern', targetIndex);
-            store.commit('replacePatterns', PatternUtil.addPatternAtIndex(patterns, patternIndex, amountOfSteps, pattern));
-            store.commit('createLinkedList', song);
+            store.commit("setActivePattern", targetIndex);
+            store.commit("replacePatterns", PatternUtil.addPatternAtIndex(patterns, patternIndex, amountOfSteps, pattern));
+            store.commit("createLinkedList", song);
         },
         redo() {
             deleteP();
@@ -403,8 +403,8 @@ function cutSelectionAction({ store }) {
     const song = store.state.song.activeSong;
 
     if ( !store.getters.hasSelection) {
-        store.commit('setSelectionChannelRange', { firstChannel: store.state.editor.selectedInstrument });
-        store.commit('setSelection', { selectionStart: store.state.editor.selectedStep });
+        store.commit("setSelectionChannelRange", { firstChannel: store.state.editor.selectedInstrument });
+        store.commit("setSelection", { selectionStart: store.state.editor.selectedStep });
     }
     const activePattern   = store.state.sequencer.activePattern;
     const firstChannel    = store.state.selection.firstSelectedChannel;
@@ -419,10 +419,10 @@ function cutSelectionAction({ store }) {
             Vue.set(song.patterns, activePattern, cutData);
         }
         else {
-            store.commit('cutSelection', { song, activePattern, eventList: store.state.editor.eventList });
+            store.commit("cutSelection", { song, activePattern, eventList: store.state.editor.eventList });
             cutData = clonePattern(song, activePattern);
         }
-        store.commit('clearSelection');
+        store.commit("clearSelection");
     }
     cut(); // perform action
 
@@ -432,9 +432,9 @@ function cutSelectionAction({ store }) {
             Vue.set(song.patterns, activePattern, originalPatternData);
 
             // restore selection model to previous state
-            store.commit('setMinSelectedStep', selectedMinStep);
-            store.commit('setMaxSelectedStep', selectedMaxStep);
-            store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
+            store.commit("setMinSelectedStep", selectedMinStep);
+            store.commit("setMaxSelectedStep", selectedMaxStep);
+            store.commit("setSelectionChannelRange", { firstChannel, lastChannel });
         },
         redo() {
             cut();
@@ -457,10 +457,10 @@ function deleteSelectionAction({ store }) {
         if ( cutData ) {
             Vue.set(song.patterns, activePattern, cutData);
         } else {
-            store.commit('deleteSelection', { song, activePattern, eventList: store.state.editor.eventList });
+            store.commit("deleteSelection", { song, activePattern, eventList: store.state.editor.eventList });
             cutData = song.patterns[activePattern];
         }
-        store.commit('clearSelection');
+        store.commit("clearSelection");
     }
     deleteSelection(); // perform action
 
@@ -470,9 +470,9 @@ function deleteSelectionAction({ store }) {
             Vue.set(song.patterns, activePattern, originalPatternData);
 
             // restore selection model to previous state
-            store.commit('setMinSelectedStep', selectedMinStep);
-            store.commit('setMaxSelectedStep', selectedMaxStep);
-            store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
+            store.commit("setMinSelectedStep", selectedMinStep);
+            store.commit("setMaxSelectedStep", selectedMaxStep);
+            store.commit("setSelectionChannelRange", { firstChannel, lastChannel });
        },
         redo() {
             deleteSelection();
@@ -500,7 +500,7 @@ function pasteSelectionAction({ store }) {
         if ( pastedData ) {
             Vue.set(song.patterns, activePattern, pastedData);
         } else {
-            store.commit('pasteSelection', { song, eventList, activePattern, selectedInstrument, selectedStep });
+            store.commit("pasteSelection", { song, eventList, activePattern, selectedInstrument, selectedStep });
             pastedData = song.patterns[activePattern];
         }
     }
@@ -515,9 +515,9 @@ function pasteSelectionAction({ store }) {
             // this means we are returning the model to the state prior to the pasting
             // restore selection model to previous state
 
-            store.commit('setMinSelectedStep', selectedMinStep);
-            store.commit('setMaxSelectedStep', selectedMaxStep);
-            store.commit('setSelectionChannelRange', { firstChannel, lastChannel });
+            store.commit("setMinSelectedStep", selectedMinStep);
+            store.commit("setMaxSelectedStep", selectedMaxStep);
+            store.commit("setSelectionChannelRange", { firstChannel, lastChannel });
         },
         redo() {
             paste( originalPatternData );
