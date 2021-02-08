@@ -77,6 +77,9 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 
+$ideal-mixer-width: 785px;
+$ideal-mixer-height: 400px;
+
 .mixer {
     @include editorComponent();
     @include overlay();
@@ -89,16 +92,8 @@ export default {
     .header h2 {
         margin-left: $spacing-medium;
     }
-}
 
-
-/* ideal size and above (tablet/desktop) */
-
-$ideal-mixer-width: 785px;
-$ideal-mixer-height: 400px;
-
-@media screen and ( min-width: $ideal-mixer-width ) {
-    .mixer {
+    @include componentIdeal( $ideal-mixer-width, $ideal-mixer-height ) {
         top: 50%;
         left: 50%;
         width: $ideal-mixer-width;
@@ -106,12 +101,8 @@ $ideal-mixer-height: 400px;
         margin-left: -$ideal-mixer-width / 2;
         margin-top: -$ideal-mixer-height / 2;
     }
-}
 
-/* small screen / mobile, etc. */
-
-@media screen and ( max-width: $ideal-mixer-width ) {
-    .mixer {
+    @include componentFallback( $ideal-mixer-width, $ideal-mixer-height ) {
         position: absolute;
         height: 100%;
         top: 0;

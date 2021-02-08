@@ -178,7 +178,7 @@ input[type=range] {
     }
 }
 
-@media screen and (max-width: $mobile-width) {
+@include mobile() {
     input[type=range] {
         &::-webkit-slider-thumb {
             width: $mobile-thumb-width;

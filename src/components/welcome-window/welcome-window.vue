@@ -132,7 +132,7 @@ $height: 400px;
         margin-bottom: $spacing-medium;
     }
 
-    @media screen and ( min-width: $width) and ( min-height: $height ) {
+    @include componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -145,7 +145,7 @@ $height: 400px;
         }
     }
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
+    @include componentFallback( $width, $height ) {
         @include verticalScrollOnMobile();
         .pane button {
             display: block;

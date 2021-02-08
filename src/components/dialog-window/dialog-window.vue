@@ -22,17 +22,19 @@
 */
 <template>
     <div id="dialogWindow">
-        <h4>{{ title }}</h4>
+        <h3>{{ title }}</h3>
         <p>{{ message }}</p>
-        <button v-t="'ok'"
-                type="button"
-                @click="handleConfirm"
-        ></button>
-        <button v-t="'cancel'"
-                v-if="type === 'confirm'"
-                type="button"
-                @click="handleCancel"
-        ></button>
+        <div class="actions">
+            <button v-t="'ok'"
+                    type="button"
+                    @click="handleConfirm()"
+            ></button>
+            <button v-t="'cancel'"
+                    v-if="type === 'confirm'"
+                    type="button"
+                    @click="handleCancel()"
+            ></button>
+        </div>
     </div>
 </template>
 
@@ -76,9 +78,9 @@ export default {
             this.close();
         },
         handleCancel() {
-            if ( typeof this.cancelHandler === "function" )
+            if ( typeof this.cancelHandler === "function" ) {
                 this.cancelHandler();
-
+            }
             this.close();
         },
         close() {
@@ -92,10 +94,10 @@ export default {
 @import "@/styles/_mixins";
 
 #dialogWindow {
-    @include editorComponent;
-    @include overlay;
-    @include noSelect;
-    @include boxSize;
+    @include editorComponent();
+    @include overlay();
+    @include noSelect();
+    @include boxSize();
 
     width: auto;
     height: auto;
@@ -110,17 +112,30 @@ export default {
     border-radius: $spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-    h4 {
+    h3 {
+        @include toolFont();
         margin: $spacing-medium 0;
-        color: $color-1;
-        font-weight: bold;
+        color: #FFF;
+        font-size: 125%;
     }
 
     button {
         @include button();
-        display: inline;
-        width: 48%;
         padding: $spacing-medium $spacing-large;
+    }
+
+    @include large() {
+        max-width: 400px;
+
+        .actions {
+            margin: $spacing-small 0;
+            display: flex;
+
+            button {
+                flex: 1;
+                margin: 0 $spacing-small 0 0;
+            }
+        }
     }
 
     @include mobile() {
@@ -131,6 +146,7 @@ export default {
         button {
             display: block;
             width: 100%;
+            margin-bottom: $spacing-small;
         }
     }
 }

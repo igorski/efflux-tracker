@@ -283,7 +283,7 @@ $height: 370px;
         margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
     }
 
-    @media screen and ( min-width: $width ) and ( min-height: $height ) {
+    @include componentIdeal( $width, $height ) {
         top: 50%;
         left: 50%;
         width: $width;
@@ -292,7 +292,7 @@ $height: 370px;
         margin-top: -( $height / 2);
     }
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
+    @include componentFallback( $width, $height ) {
         top: 0;
         left: 0;
         margin: 0;

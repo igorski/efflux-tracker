@@ -23,11 +23,12 @@
 <template>
     <div id="advancedPatternEditor">
         <div class="header">
-            <h4 v-t="'title'" class="title"></h4>
+            <h2 v-t="'title'"></h2>
             <button type="button"
                     class="close-button"
                     @click="handleClose">x</button>
         </div>
+        <hr class="divider" />
         <fieldset>
             <div class="wrapper input">
                 <label v-t="'copyPatternRangeLabel'"></label>
@@ -171,7 +172,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 350px;
+$height: 355px;
 
 #advancedPatternEditor {
     @include editorComponent();
@@ -181,7 +182,13 @@ $height: 350px;
     border-radius: $spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
-    @media screen and ( min-width: $width ), ( min-height: $height ) {
+    .divider {
+        width: calc(100% + #{$spacing-large * 2});
+        margin-left: -$spacing-large;
+        margin-bottom: $spacing-medium
+    }
+
+    @include componentIdeal( $width, $height ) {
         top: 50%;
         left: 50%;
         width: $width;
@@ -190,7 +197,7 @@ $height: 350px;
         margin-top: -( $height / 2);
     }
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
+    @include componentFallback( $width, $height ) {
         @include verticalScrollOnMobile();
         border-radius: 0;
         width: 100%;
@@ -198,10 +205,6 @@ $height: 350px;
         top: 0;
         left: 0;
         margin: 0;
-    }
-
-    .title {
-        margin: $spacing-medium 0;
     }
 
     fieldset {

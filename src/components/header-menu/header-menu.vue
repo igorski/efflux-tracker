@@ -317,7 +317,7 @@ h1 {
 
 /* tablet / desktop (everything larger than a phone) */
 
-@media screen and ( min-width: $mobile-width ) {
+@include large() {
     .menu {
         min-width: 100%;
         max-width: $ideal-width;
@@ -358,7 +358,7 @@ h1 {
 
 /* ideal view */
 
-@media screen and ( min-width: $ideal-width ) {
+@include ideal() {
     .menu {
         min-width: auto;
     }
@@ -366,7 +366,7 @@ h1 {
 
 /* mobile view */
 
-@media screen and ( max-width: $mobile-width ) {
+@include mobile() {
     .menu {
         position: fixed;
         z-index: 2; // above transport controls

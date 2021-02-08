@@ -139,7 +139,7 @@ export default {
     }
 }
 
-@media screen and ( max-width: $mobile-width ) {
+@include mobile() {
     #notifications {
         width: 100%;
         max-width: 100%;

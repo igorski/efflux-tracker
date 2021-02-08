@@ -350,7 +350,7 @@ $height: 470px;
         }
     }
 
-    @media screen and ( min-width: $width ) and ( min-height: $height ) {
+    @include componentIdeal( $width, $height ) {
         top: 50%;
         left: 50%;
         width: $width;
@@ -363,7 +363,7 @@ $height: 470px;
         }
     }
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
+    @include componentFallback( $width, $height ) {
         border-radius: 0;
         width: 100%;
         @include verticalScrollOnMobile();

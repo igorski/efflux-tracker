@@ -28,6 +28,7 @@
                     @click="$emit('close')"
             >x</button>
         </div>
+        <hr class="divider" />
         <div class="meta-editor">
             <input type="text"
                    v-model="title"
@@ -118,7 +119,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 200px;
+$height: 210px;
 
 .song-save-window {
     @include editorComponent();
@@ -129,7 +130,7 @@ $height: 200px;
         margin-left: $spacing-medium;
     }
 
-    @media screen and ( min-width: $width) and ( min-height: $height ) {
+    @include componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -138,7 +139,7 @@ $height: 200px;
         margin-top: -( $height / 2 );
     }
 
-    @media screen and ( max-width: $width ), ( max-height: $height ) {
+    @include componentFallback( $width, $height ) {
         @include verticalScrollOnMobile();
     }
 }

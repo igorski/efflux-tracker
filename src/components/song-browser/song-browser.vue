@@ -133,7 +133,7 @@ $songBrowserHeight: 600px;
     overflow-x: hidden;
     overflow-y: auto;
 
-    @media screen and ( max-width: $songBrowserWidth ), ( max-height: $songBrowserHeight ) {
+    @include componentFallback( $songBrowserWidth, $songBrowserHeight ) {
         top: 0;
         left: 0;
         width: 100%;
