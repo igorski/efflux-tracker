@@ -34,8 +34,10 @@
                  @touchend.passive="handleInteraction"
             >
                 <ul class="indices">
-                    <li v-for="step in amountOfSteps"
+                    <li
+                        v-for="step in amountOfSteps"
                         :key="`index_${step}`"
+                        class="index"
                     >{{ step }}</li>
                 </ul>
                 <ul v-for="(channel, channelIndex) in activeSongPattern.channels"
@@ -43,13 +45,15 @@
                     class="pattern"
                     ref="pattern"
                 >
-                    <li v-for="(event, stepIndex) in channel"
+                    <li
+                        v-for="(event, stepIndex) in channel"
                         :key="`channel_${channelIndex}_${stepIndex}`"
                         :class="{
-                            active: stepIndex === selectedStep && channelIndex === selectedInstrument,
-                            selected: isStepSelected(channelIndex, stepIndex),
-                            playing: stepIndex === playingStep
+                            active   : stepIndex === selectedStep && channelIndex === selectedInstrument,
+                            selected : isStepSelected( channelIndex, stepIndex ),
+                            playing  : stepIndex === playingStep
                         }"
+                        class="pattern-row"
                     >
                         <!-- note instruction -->
                         <template v-if="event.action">
@@ -69,12 +73,9 @@
                             </template>
                             <template v-else>
                                 <!-- note off event -->
-                                <span class="note"
+                                <span class="full"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
                                 >//// OFF ////</span>
-                                <span class="instrument"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
-                                ></span>
                             </template>
                         </template>
                         <template v-else>
@@ -88,37 +89,43 @@
                         </template>
                         <!-- module parameter instruction -->
                         <template v-if="event.mp">
-                            <span class="moduleParam"
+                            <span class="module-param"
                                   :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
                             >
-                                {{ formatModuleParam(event.mp) }}
+                                {{ formatModuleParam( event.mp ) }}
                             </span>
-                            <span class="moduleValue"
+                            <span class="module-value"
                                   :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
                             >
-                                {{ formatModuleValue(event.mp) }}
+                                {{ formatModuleValue( event.mp ) }}
                             </span>
                         </template>
                         <template v-else>
                             <template v-if="!event.action">
-                                <span class="moduleParam empty"
+                                <span class="module-param empty"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
                                 >--</span>
-                                <span class="moduleValue empty"
+                                <span class="module-value empty"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
                                 >--</span>
                             </template>
                             <template v-else-if="event.note">
-                                <span class="moduleParam empty"
+                                <span class="module-param empty"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
                                 >--</span>
-                                <span class="moduleValue empty"
+                                <span class="module-value empty"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
                                 >--</span>
                             </template>
                         </template>
                    </li>
                 </ul>
+                <!--
+                <div
+                    class="playback-header"
+                    :style="{ top: playingStep * 32 }"
+                ></div>
+                -->
             </div>
         </div>
     </section>
@@ -170,25 +177,27 @@ export default {
         pContainerSteps: [], // will cache DOM elements for interation events
     }),
     watch: {
-        activePattern() {
-            this.clearSelection();
-            this.setSelectedSlot(-1);
-            this.pContainerSteps = [];
+        activePattern: {
+            immediate: true,
+            handler( value ) {
+                this.clearSelection();
+                this.setSelectedSlot( -1 );
+                this.pContainerSteps = [];
+                this.patternData = this.activeSong.patterns[ value ];
+            }
         },
-        currentStep(step) {
-            const diff  = this.stepPrecision / this.activeSong.patterns[this.activePattern].steps;
+        currentStep( step ) {
+            const stepsInPattern = this.patternData.steps;
+            const diff = this.stepPrecision / stepsInPattern;
 
-            if ( step % diff !== 0 )
-                return;
-
-            this.playingStep = step / diff;
+            this.playingStep = Math.round( step / diff ) % stepsInPattern;
             const stepY = this.playingStep * STEP_HEIGHT;
 
-            if (this.followPlayback) {
+            if ( this.followPlayback ) {
                 // following activated, ensure the list auto scrolls
                 if ( stepY > this.containerHeight ) {
-                    this.mustFollow = (++this.lastFollowStep % 2 ) === 1;
-                    this.container.scrollTop = (stepY + STEP_HEIGHT * 2) - this.containerHeight;
+                    this.mustFollow = ( ++this.lastFollowStep % 2 ) === 1;
+                    this.container.scrollTop = ( stepY + STEP_HEIGHT * 2 ) - this.containerHeight;
                 } else {
                     this.container.scrollTop = 0;
                     this.lastFollowStep = 0;
@@ -346,27 +355,28 @@ export default {
                 }
             }
         },
-        selectSlotWithinClickedStep(event) {
+        selectSlotWithinClickedStep( event ) {
             // only when supported, and even then not on Safari... =/
-            if ( !( 'caretRangeFromPoint' in document ) || Bowser.safari )
+            if ( !( "caretRangeFromPoint" in document ) || Bowser.safari ) {
                 return;
-
-            const el = document.caretRangeFromPoint(event.clientX, event.clientY);
+            }
+            const el = document.caretRangeFromPoint( event.clientX, event.clientY );
             let slot = 0;
 
-            if ( el && el.startContainer ) {
+            if ( el?.startContainer ) {
                 let startContainer = el.startContainer;
-                if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element ))
+                if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element )) {
                     startContainer = startContainer.parentElement;
-
-                if (startContainer.classList.contains('moduleValue'))
+                }
+                if ( startContainer.classList.contains("module-value")) {
                     slot = 3;
-                else if (startContainer.classList.contains('moduleParam'))
+                } else if ( startContainer.classList.contains("module-param")) {
                     slot = 2;
-                else if (startContainer.classList.contains('instrument'))
+                } else if ( startContainer.classList.contains("instrument")) {
                     slot = 1;
+                }
             }
-            this.setSelectedSlot(slot);
+            this.setSelectedSlot( slot );
         },
         /**
          * maintain a cache for step slots within a single pattern container
@@ -406,174 +416,192 @@ $stepHeight: 32px;
     .indices, .pattern {
         @include list();
         position: relative;
-        float: left;
+        display: inline-block;
     }
 
-    .indices {
-        width: $indicesWidth;
-
-        li {
-            display: block;
-            font-family: "Montserrat", Helvetica, Verdana, sans-serif;
-            font-weight: bold;
-            text-align: center;
-            border-top: 2px solid #000;
-            padding: $spacing-small 0;
-            border-bottom: 2px solid #323234;
-            height: $stepHeight;
-            @include noEvents();
-            @include noSelect();
-            @include boxSize();
-
-            &.active {
-                color: #FFF;
-            }
-        }
+    @include ideal() {
+        width: $fullPatternListWidth !important;
     }
 
-    .pattern {
-        width: $patternWidth;
-        background-color: #101015;
+    @include mobile() {
+        padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
+    }
+}
 
-        &:before {
-            position: absolute;
-            content: "";
-            border-right: 1px solid #000;
-            height: 100%;
-            top: 0;
-            right: 0;
-        }
+.indices {
+    width: $indicesWidth;
+}
 
-        &:last-of-type {
-            &:before {
-                border: none;
-            }
-        }
+.index {
+    display: block;
+    font-family: "Montserrat", Helvetica, Verdana, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    border-top: 2px solid #000;
+    padding: $spacing-xsmall 0;
+    border-bottom: 2px solid #323234;
+    height: $stepHeight;
+    @include noEvents();
+    @include noSelect();
+    @include boxSize();
 
-        &:nth-child(2) li .note,
-        &:nth-child(2) li .moduleValue {
+    &.active {
+        color: #FFF;
+    }
+}
+
+.pattern {
+    width: $patternWidth;
+    background-color: #101015;
+
+    &:before {
+        position: absolute;
+        content: "";
+        border-right: 1px solid #000;
+        height: 100%;
+        top: 0;
+        right: 0;
+    }
+
+    &:last-of-type:before {
+        border: none;
+    }
+
+    &:nth-child(2) {
+        .note, .module-value {
             color: #b25050;
         }
+    }
 
-        &:nth-child(3) li .note,
-        &:nth-child(3) li .moduleValue {
+    &:nth-child(3) {
+        .note, .module-value {
             color: #b28050;
         }
+    }
 
-        &:nth-child(4) li .note,
-        &:nth-child(4) li .moduleValue {
+    &:nth-child(4) {
+        .note, .module-value {
             color: #a9b250;
         }
+    }
 
-        &:nth-child(5) li .note,
-        &:nth-child(5) li .moduleValue {
+    &:nth-child(5) {
+        .note, .module-value {
             color: #60b250;
         }
+    }
 
-        &:nth-child(6) li .note,
-        &:nth-child(6) li .moduleValue {
+    &:nth-child(6) {
+        .note, .module-value {
             color: #50b292;
         }
+    }
 
-        &:nth-child(7) li .note,
-        &:nth-child(7) li .moduleValue {
+    &:nth-child(7) {
+        .note, .module-value {
             color: #5071b2;
         }
+    }
 
-        &:nth-child(8) li .note,
-        &:nth-child(8) li .moduleValue {
+    &:nth-child(8) {
+        .note, .module-value {
             color: #8850b2;
         }
+    }
+}
 
-        li {
-            display: block;
-            cursor: pointer;
-            border-top: 2px solid #000;
-            border-bottom: 2px solid #000;
-            font-weight: bold;
-            height: $stepHeight;
-            @include boxSize();
-            @include animate(background-color, .75s); /* animated background highlight during playback */
+.pattern-row {
+    display: block;
+    cursor: pointer;
+    border-top: 2px solid #000;
+    border-bottom: 2px solid #000;
+    font-weight: bold;
+    height: $stepHeight;
+    @include boxSize();
+    //@include animate(background-color, 0.75s); /* animated background highlight during playback */
 
-            span {
-                @include animate(color, .1s); /* animated text highlight during playback */
+    span.empty {
+        @include animate(color, 0.25s); /* animated text highlight during playback */
+    }
+
+    &.playing {
+        //transition: none;
+        background-color: rgba(255,255,255,.15) !important;
+        span {
+            color: #000 !important;
+            background-color: $color-5;
+            transition: none;
+        }
+    }
+
+    &:nth-child(odd) {
+        background-color: #323234;
+        border-color: #323234;
+    }
+
+    &.active, &:hover {
+        border: 2px solid $color-1;
+        z-index: 10;
+    }
+
+    &.selected {
+        transition: none;
+        background-color: $color-2;
+        border-color: $color-2;
+        color: #000 !important;
+
+        span {
+            color: #000 !important;
+            transition: none;
+        }
+    }
+
+    span {
+        display: inline-block;
+        padding: $spacing-xsmall;
+        white-space: nowrap;
+        @include boxSize();
+        @include noEvents();
+
+        &.active {
+            background-color: $color-1;
+            color: #000 !important;
+        }
+
+        &.full {
+            width: 100%;
+        }
+
+        &.note {
+            width: 33%;
+            text-transform: uppercase;
+            text-align: right;
+            color: $color-5;
+
+            &.empty {
+                color: #b6b6b6;
             }
+        }
 
-            &.playing {
-                transition: none;
-                background-color: rgba(255,255,255,.15) !important;
-                span {
-                    color: #FFF !important;
-                    transition: none;
-                }
+        &.instrument {
+            width: 10%;
+            color: #FFF;
+        }
+
+        &.module-param,
+        &.module-value {
+            width: 30%;
+            color: #999;
+            text-align: center;
+
+            &.empty {
+                color: #666;
             }
+        }
 
-            &:nth-child(odd) {
-                background-color: #323234;
-                border-color: #323234;
-            }
-
-            &.active, &:hover {
-                border: 2px solid $color-1;
-                z-index: 10;
-            }
-
-            &.selected {
-                transition: none;
-                background-color: $color-2;
-                border-color: $color-2;
-                color: #000 !important;
-
-                span {
-                    color: #000 !important;
-                    transition: none;
-                }
-            }
-
-            span {
-                display: inline-block;
-                padding: $spacing-xsmall;
-                white-space: nowrap;
-                @include boxSize();
-                @include noEvents();
-
-                &.active {
-                    background-color: $color-1;
-                    color: #000 !important;
-                }
-
-                &.note {
-                    width: 33%;
-                    text-transform: uppercase;
-                    text-align: right;
-                    color: $color-5;
-
-                    &.empty {
-                        color: #b6b6b6;
-                    }
-                }
-
-                &.instrument {
-                    width: 10%;
-                    color: #FFF;
-                }
-
-                &.moduleParam,
-                &.moduleValue {
-                    width: 30%;
-                    color: #999;
-                    text-align: center;
-
-                    &.empty {
-                        color: #666;
-                    }
-                }
-
-                &.moduleValue {
-                    width: 19%;
-                    color: $color-5;
-                }
-            }
+        &.module-value {
+            width: 26%;
+            color: $color-5;
         }
     }
 }
@@ -593,20 +621,25 @@ $stepHeight: 32px;
             }
         }
     }
-}
 
-@include ideal() {
-    .pattern-track-list-container {
+    @include ideal() {
         overflow-x: hidden; // no need to show scroll
     }
-    .pattern-track-list {
-        width: $fullPatternListWidth !important;
-    }
 }
 
-@include mobile() {
-    .pattern-track-list {
-        padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
-    }
+/*
+// optional playback header that is a single element moving over the table. it should
+// be less CPU intensive, but doesn't look quite as nice as blend mode results differ
+// across browsers. when active .pattern-row can remove its playing class and animation CSS rules
+.playback-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 32px;
+    background-color: $color-2;
+    mix-blend-mode: darken;
 }
+*/
+
 </style>
