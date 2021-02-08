@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2020 - https://www.igorski.nl
+* Igor Zinken 2016-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -20,14 +20,14 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import Vue             from 'vue';
-import Config          from '@/config';
-import LinkedList      from '@/utils/linked-list';
-import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from '@/services/audio-service';
-import { createTimer } from '@/services/audio/webaudio-helper';
-import Metronome       from '@/services/audio/metronome';
-import SequencerWorker from '@/workers/sequencer.worker.js';
-import { ACTION_IDLE, ACTION_NOTE_ON } from '@/model/types/audio-event-def';
+import Vue             from "vue";
+import Config          from "@/config";
+import LinkedList      from "@/utils/linked-list";
+import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
+import { createTimer } from "@/services/audio/webaudio-helper";
+import Metronome       from "@/services/audio/metronome";
+import SequencerWorker from "@/workers/sequencer.worker.js";
+import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
 
 /* internal methods */
 
@@ -38,7 +38,7 @@ import { ACTION_IDLE, ACTION_NOTE_ON } from '@/model/types/audio-event-def';
  * @param {AUDIO_EVENT} event
  * @param {number} eventChannel channel the event belongs to
  */
-function enqueueEvent(store, event, eventChannel) {
+function enqueueEvent( store, event, eventChannel ) {
     const { beatAmount, nextNoteTime, activePattern, channelQueue } = store.state.sequencer;
     const activeSong = store.state.song.activeSong;
 
@@ -55,7 +55,7 @@ function enqueueEvent(store, event, eventChannel) {
     event.seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
 
     // play back the event by rendering its audio through the AudioService
-    noteOn(event, activeSong.instruments[event.instrument], nextNoteTime);
+    noteOn( event, activeSong.instruments[ event.instrument ], nextNoteTime);
 
     // dequeue preceding events
 
@@ -69,13 +69,13 @@ function enqueueEvent(store, event, eventChannel) {
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
         if ( !playingNote && store.state.sequencer.looping ) {
-            dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.length); // or measure length minus event pos??
+            dequeueEvent( store.state.sequencer, event, nextNoteTime + event.seq.length ); // or measure length minus event pos??
             return;
         }
 
         while ( playingNote ) {
             if ( playingNote.data.id !== event.id ) {
-                dequeueEvent(store.state.sequencer, playingNote.data, nextNoteTime);
+                dequeueEvent( store.state.sequencer, playingNote.data, nextNoteTime );
             }
             playingNote.remove();
             playingNote = queue.tail;
@@ -87,10 +87,11 @@ function enqueueEvent(store, event, eventChannel) {
     // dequeued after a single sequencer tick/step (the length of a module parameter
     // automation glide)
 
-    if ( isNoteOn )
+    if ( isNoteOn ) {
         queue.add( event );
-    else
-        dequeueEvent(store.state.sequencer, event, nextNoteTime + event.seq.mpLength);
+    } else {
+        dequeueEvent( store.state.sequencer, event, nextNoteTime + event.seq.mpLength );
+    }
 }
 
 /**
@@ -100,24 +101,24 @@ function enqueueEvent(store, event, eventChannel) {
  * @param {AUDIO_EVENT} event
  * @param {number} time
  */
-function dequeueEvent(state, event, time) {
+function dequeueEvent( state, event, time ) {
     // unset the playing state of the event at the moment it is killed (though
-    // it's release cycle is started, we can consider the event eligible for
+    // it"s release cycle is started, we can consider the event eligible for
     // a playback retrigger...
 
     // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-    // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
+    // we"d like to use AudioService.noteOff(event, time) scheduled at the right note off time
     // without using a timer in dequeueEvent(), but we suffer from stability issues
-    const clock = createTimer(getAudioContext(), time, () => {
+    const clock = createTimer( getAudioContext(), time, () => {
         event.seq.playing = false;
 
-        noteOff(event);
-        freeHandler(state, clock); // clear reference to this timed event
+        noteOff( event );
+        freeHandler( state, clock ); // clear reference to this timed event
     });
 
     // store reference to prevent garbage collection prior to callback execution, this
     // seems unnecessary but is actually necessary to guarantee stability under Safari (!)
-    state.queueHandlers.push(clock);
+    state.queueHandlers.push( clock );
     // noteOff(event, time);
     // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
 }
@@ -128,16 +129,17 @@ function dequeueEvent(state, event, time) {
  * @param {Object} state sequencer Vuex module state
  * @param {OscillatorNode} node
  */
-function freeHandler(state, node) {
+function freeHandler( state, node ) {
     node.disconnect();
     node.onended = null;
 
-    const i = state.queueHandlers.indexOf(node);
-    if ( i !== -1 )
-        state.queueHandlers.splice(i, 1);
+    const i = state.queueHandlers.indexOf( node );
+    if ( i !== -1 ) {
+        state.queueHandlers.splice( i, 1 );
+    }
 }
 
-function collect(store) {
+function collect( store ) {
     const state = store.state.sequencer, audioContext = getAudioContext();
 
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
@@ -172,7 +174,7 @@ function collect(store) {
                         enqueueEvent( store, event, i );
 
                         // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-                        // we'd like to use noteOff(event, time) scheduled at the right note off time
+                        // we"d like to use noteOff(event, time) scheduled at the right note off time
                         // without using a timer in dequeueEvent(), but we suffer from stability issues
                         //} else {
                         //    // event is outside of trigger range, unset its playback
@@ -196,7 +198,7 @@ function collect(store) {
  * onto the next, when the end of pattern has been reached, the
  * pattern will either loop or we the Sequencer will progress onto the next pattern
  */
-function step(store) {
+function step( store ) {
     const activeSong = store.state.song.activeSong;
     const maxMeasure = activeSong.patterns.length - 1;
     const state      = store.state.sequencer;
@@ -207,29 +209,29 @@ function step(store) {
     // advance the beat number, wrap to zero when start of next bar is enqueued
 
     const currentStep = state.currentStep + 1;
-    store.commit('setCurrentStep', currentStep);
-
-    if (currentStep === state.stepPrecision) {
-        store.commit('setCurrentStep', 0);
+    if ( currentStep === state.stepPrecision ) {
+        store.commit( "setCurrentStep", 0 );
 
         const nextPattern = state.activePattern + 1;
-        if (nextPattern > maxMeasure) {
+        if ( nextPattern > maxMeasure ) {
             // last measure reached, jump back to first
-            store.commit('setActivePattern', 0);
+            store.commit( "setActivePattern", 0 );
 
-            // stop playing if we're recording output and looping is disabled
+            // stop playing if we"re recording output and looping is disabled
 
             if ( isRecording() && !state.looping ) {
-                store.commit('setPlaying', false );
+                store.commit( "setPlaying", false );
                 return;
             }
-        } else if (!state.looping) {
-            // advance the measure only when the Sequencer isn't looping
-            store.commit('gotoNextPattern', activeSong);
+        } else if ( !state.looping ) {
+            // advance the measure only when the Sequencer isn"t looping
+            store.commit( "gotoNextPattern", activeSong );
+        } else {
+            syncPositionToSequencerUpdate( state, activeSong );
         }
-        store.commit('setPosition', { activeSong, pattern: state.activePattern, currentTime: state.nextNoteTime });
 
         if ( state.recording ) {
+
             // one bar metronome count in ?
 
             if ( state.metronome.countIn && !state.metronome.countInComplete ) {
@@ -238,10 +240,61 @@ function step(store) {
                 state.metronome.countInComplete = true;
                 state.firstMeasureStartTime     = getAudioContext().currentTime;
 
-                store.commit('setActivePattern', 0);
+                store.commit( "setActivePattern", 0 );
+                return;
             }
         }
-        store.commit('setActivePattern', state.activePattern );
+        store.commit( "setActivePattern", state.activePattern );
+    } else {
+        store.commit( "setCurrentStep", currentStep );
+    }
+}
+
+function syncPositionToSequencerUpdate( state, activeSong ) {
+    const { activePattern : pattern, nextNoteTime : currentTime } = state;
+    setPosition( state, { activeSong, pattern, currentTime });
+}
+
+/**
+ * set the sequencers position to given target pattern and optional offset defined by currentTime
+ *
+ * @param {Object} state sequencer Vuex store module
+ * @param {Object} activeSong
+ * @param {number} pattern
+ * @param {number=} currentTime optional time to sync given pattern to
+ *        this will default to the currentTime of the AudioContext for instant enqueuing
+ */
+function setPosition( state, { activeSong, pattern, currentTime }) {
+    if ( pattern >= activeSong.patterns.length ) {
+        pattern = activeSong.patterns.length - 1;
+    }
+
+    if ( state.activePattern !== pattern ) {
+        state.currentStep = 0;
+    }
+
+    if ( typeof currentTime !== "number" ) {
+        currentTime = getAudioContext()?.currentTime || 0;
+    }
+    state.activePattern         = pattern;
+    state.nextNoteTime          = currentTime;
+    state.measureStartTime      = currentTime;
+    state.firstMeasureStartTime = currentTime - ( pattern * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
+
+    state.channels = activeSong.patterns[ state.activePattern ].channels;
+
+    // when going to the first measure we should stop playing all currently sounding notes
+
+    if ( state.activePattern === 0 ) {
+        state.channelQueue.forEach( list => {
+            let playingNote = list.head;
+            while ( playingNote ) {
+                dequeueEvent( state, playingNote.data, currentTime );
+                playingNote.data.seq.playing = false;
+                playingNote.remove();
+                playingNote = list.head;
+            }
+        });
     }
 }
 
@@ -268,70 +321,86 @@ export default {
         metronome             : Metronome
     },
     getters: {
-        isPlaying(state) {
+        isPlaying( state ) {
             return state.playing;
         },
-        isLooping(state) {
+        isLooping( state ) {
             return state.looping;
         },
-        isRecording(state) {
+        isRecording( state ) {
             return state.recording;
         },
-        isMetronomeEnabled(state) {
+        isMetronomeEnabled( state ) {
             return state.metronome.enabled;
         },
-        amountOfSteps(state, rootState) {
-            return rootState.activeSong.patterns[state.activePattern].steps;
+        amountOfSteps( state, rootState ) {
+            return rootState.activeSong.patterns[ state.activePattern ].steps;
         },
         position: state => ({ pattern: state.activePattern, step: state.currentStep })
     },
     mutations: {
-        setPlaying(state, isPlaying) {
+        setPlaying( state, isPlaying ) {
+            const currentState = state.playing;
             state.playing = !!isPlaying;
-            if (state.playing) {
+            if ( state.playing === currentState ) {
+                return;
+            }
+            if ( state.playing ) {
                 if ( state.recording && state.metronome.countIn ) {
                     state.metronome.countInComplete = false;
                     state.metronome.enabled         = true;
                 }
                 state.currentStep = 0;  // always start from beginning
                 state.worker.postMessage({
-                    cmd: 'start',
+                    cmd: "start",
                     interval: ( state.scheduleAheadTime * 1000 ) / 4
                 });
             } else {
-                state.worker.postMessage({ 'cmd' : 'stop' });
-                while (state.queueHandlers.length) {
+                state.worker.postMessage({ "cmd" : "stop" });
+                while ( state.queueHandlers.length ) {
                     freeHandler(state, state.queueHandlers[0]);
                 }
-                state.channelQueue.forEach(list => list.flush());
+                state.channelQueue.forEach( list => list.flush());
             }
-            togglePlayback(state.playing);
+            togglePlayback( state.playing );
         },
-        setLooping(state, isLooping) {
+        setLooping( state, isLooping ) {
             state.looping = !!isLooping;
         },
-        setRecording(state, isRecording) {
+        setRecording( state, isRecording ) {
             state.recording = !!isRecording;
         },
-        setActivePattern(state, value) {
+        setActivePattern( state, value ) {
             state.activePattern = value;
         },
-        gotoPreviousPattern(state) {
-            if (state.activePattern > 0)
+        gotoPreviousPattern( state, activeSong ) {
+            if ( state.activePattern > 0 ) {
                 state.activePattern = state.activePattern - 1;
+            }
+            if ( state.playing ) {
+                syncPositionToSequencerUpdate( state, activeSong );
+            } else {
+                state.currentStep = 0;
+            }
         },
-        gotoNextPattern(state, activeSong) {
+        gotoNextPattern( state, activeSong ) {
             const max = activeSong.patterns.length - 1;
-            if ( state.activePattern < max )
+            if ( state.activePattern < max ) {
                 state.activePattern = state.activePattern + 1;
+            }
+            if ( state.playing ) {
+                syncPositionToSequencerUpdate( state, activeSong );
+            } else {
+                state.currentStep = 0;
+            }
         },
-        setCurrentStep(state, step) {
+        setCurrentStep( state, step ) {
             state.currentStep = step;
         },
-        setPatternSteps(state, { pattern, steps }) {
+        setPatternSteps( state, { pattern, steps }) {
             const oldAmount = pattern.steps;
             pattern.channels.forEach(( channel, index ) => {
-                const transformed = new Array(steps);
+                const transformed = new Array( steps );
                 let i, j, increment;
 
                 // ensure that the Array contains non-empty values
@@ -352,57 +421,18 @@ export default {
                     for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
                        transformed[ j ] = channel[ i ];
                 }
-                Vue.set(pattern.channels, index, transformed);
-                Vue.set(pattern, 'steps', steps);
+                Vue.set( pattern.channels, index, transformed );
+                Vue.set( pattern, "steps", steps );
             });
         },
-        /**
-         * set the sequencers position to given target pattern and optional offset defined by currentTime
-         *
-         * @param {Object} state sequencer Vuex store module
-         * @param {Object} activeSong
-         * @param {number} pattern
-         * @param {number=} currentTime optional time to sync given pattern to
-         *        this will default to the currentTime of the AudioContext for instant enqueuing
-         */
-        setPosition(state, { activeSong, pattern, currentTime }) {
-            if ( pattern >= activeSong.patterns.length )
-                pattern = activeSong.patterns.length - 1;
-
-            if ( state.activePattern !== pattern )
-                state.currentStep = 0;
-
-            if ( typeof currentTime !== 'number' )
-                currentTime = getAudioContext() ? getAudioContext().currentTime : 0;
-
-            state.activePattern         = pattern;
-            state.nextNoteTime          = currentTime;
-            state.measureStartTime      = currentTime;
-            state.firstMeasureStartTime = currentTime - ( pattern * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
-
-            state.channels = activeSong.patterns[ state.activePattern ].channels;
-
-            // when going to the first measure we should stop playing all currently sounding notes
-
-            if (state.activePattern === 0) {
-                state.channelQueue.forEach(list => {
-                    let playingNote = list.head;
-                    while (playingNote) {
-                        dequeueEvent(state, playingNote.data, currentTime);
-                        playingNote.data.seq.playing = false;
-                        playingNote.remove();
-                        playingNote = list.head;
-                    }
-                });
-            }
-        },
-        setMetronomeEnabled(state, enabled) {
+        setMetronomeEnabled( state, enabled ) {
             state.metronome.enabled = !!enabled;
-        }
+        },
+        setPosition,
     },
     actions: {
         prepareSequencer({ state }, rootStore) {
-            return new Promise(resolve => {
+            return new Promise( resolve => {
                 // create LinkedLists to store all currently playing events for all channels
 
                 for ( let i = 0; i < state.channelQueue.length; ++i ) {
@@ -412,8 +442,9 @@ export default {
                 // spawn Worker to handle the intervallic polling
                 state.worker = new SequencerWorker();
                 state.worker.onmessage = ({ data }) => {
-                    if ( data.cmd === 'collect' && state.playing )
-                        collect(rootStore);
+                    if ( data.cmd === "collect" && state.playing ) {
+                        collect( rootStore );
+                    }
                 };
                 resolve();
             });

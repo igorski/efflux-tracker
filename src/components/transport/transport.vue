@@ -47,20 +47,21 @@
                 ></li>
                 <li class="section-divider"><!-- x --></li>
                 <li class="pattern-back"
-                    @click="gotoPreviousPattern()"
+                    @click="gotoPreviousPattern( activeSong )"
                 >&lt;&lt;</li>
                 <li class="current-pattern">
-                    <input class="current"
-                           v-model.number="currentPatternValue"
-                           maxlength="3"
-                           @focus="suspendKeyboardService(true)"
-                           @blur="suspendKeyboardService(false)"
+                    <input
+                        class="current"
+                        v-model.number="currentPatternValue"
+                        maxlength="3"
+                        @focus="suspendKeyboardService(true)"
+                        @blur="suspendKeyboardService(false)"
                     />
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
                 <li class="pattern-next"
-                    @click="gotoNextPattern(activeSong)">&gt;&gt;</li>
+                    @click="gotoNextPattern( activeSong )">&gt;&gt;</li>
             </ul>
             <ul class="tempo-control wrapper input range">
                 <li class="section-divider"><!-- x --></li>

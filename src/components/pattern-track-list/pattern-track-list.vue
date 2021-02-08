@@ -216,7 +216,6 @@ export default {
     methods: {
         ...mapMutations([
             'setSelectedInstrument',
-            'setActivePattern',
             'setSelectedSlot',
             'setSelectedStep',
             'openModal',
