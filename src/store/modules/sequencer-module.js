@@ -39,10 +39,12 @@ import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
  * @param {number} eventChannel channel the event belongs to
  */
 function enqueueEvent( store, event, eventChannel ) {
-    const { beatAmount, nextNoteTime, activePattern, channelQueue } = store.state.sequencer;
+    const { sequencer } = store.state;
+    const { beatAmount, nextNoteTime, activePattern, channelQueue } = sequencer;
     const activeSong = store.state.song.activeSong;
+    const { action, seq } = event;
 
-    event.seq.playing = true; // prevents retriggering of same event
+    seq.playing = true; // prevents retriggering of same event
 
     // calculate the total duration for the events optional module parameter
     // automation glide (a noteOn lasts until a new note or a kill event is
@@ -52,30 +54,30 @@ function enqueueEvent( store, event, eventChannel ) {
     const patterns        = activeSong.patterns;
     const eventPattern    = patterns[activePattern];
 
-    event.seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
+    seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
 
     // play back the event by rendering its audio through the AudioService
     noteOn( event, activeSong.instruments[ event.instrument ], nextNoteTime);
 
     // dequeue preceding events
 
-    const isNoteOn = event.action === ACTION_NOTE_ON;
+    const isNoteOn = action === ACTION_NOTE_ON;
     const queue    = channelQueue[ eventChannel ];
 
-    if ( event.action !== ACTION_IDLE ) {
+    if ( action !== ACTION_IDLE ) {
 
         // all non-module parameter change events kill previously playing notes
         let playingNote = queue.tail;
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
-        if ( !playingNote && store.state.sequencer.looping ) {
-            dequeueEvent( store.state.sequencer, event, nextNoteTime + event.seq.length ); // or measure length minus event pos??
+        if ( !playingNote && sequencer.looping ) {
+            dequeueEvent( sequencer, event, nextNoteTime + seq.length ); // or measure length minus event pos??
             return;
         }
 
         while ( playingNote ) {
             if ( playingNote.data.id !== event.id ) {
-                dequeueEvent( store.state.sequencer, playingNote.data, nextNoteTime );
+                dequeueEvent( sequencer, playingNote.data, nextNoteTime );
             }
             playingNote.remove();
             playingNote = queue.tail;
@@ -90,7 +92,7 @@ function enqueueEvent( store, event, eventChannel ) {
     if ( isNoteOn ) {
         queue.add( event );
     } else {
-        dequeueEvent( store.state.sequencer, event, nextNoteTime + event.seq.mpLength );
+        dequeueEvent( sequencer, event, nextNoteTime + seq.mpLength );
     }
 }
 
@@ -141,10 +143,11 @@ function freeHandler( state, node ) {
 
 function collect( store ) {
     const state = store.state.sequencer, audioContext = getAudioContext();
+    const { metronome } = state;
 
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
     // and extended to work for multi timbral sequencing
-    const sequenceEvents = !( state.recording && state.metronome.countIn && !state.metronome.countInComplete );
+    const sequenceEvents = !( state.recording && metronome.countIn && !metronome.countInComplete );
     let i, channel, channelStep, event, seq, compareTime;
 
     while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime )) {
@@ -185,9 +188,10 @@ function collect( store ) {
                 }
             }
         }
-        if ( state.metronome.enabled ) // sound the metronome
-            state.metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, getAudioContext() );
-
+        if ( metronome.enabled ) {
+            // sound the metronome
+            metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, audioContext );
+        }
         // advance to next step position
         step( store );
     }
@@ -202,6 +206,7 @@ function step( store ) {
     const activeSong = store.state.song.activeSong;
     const maxMeasure = activeSong.patterns.length - 1;
     const state      = store.state.sequencer;
+    const { commit } = store;
 
     // Advance current note and time by the given subdivision...
     state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
@@ -210,22 +215,22 @@ function step( store ) {
 
     const currentStep = state.currentStep + 1;
     if ( currentStep === state.stepPrecision ) {
-        store.commit( "setCurrentStep", 0 );
+        commit( "setCurrentStep", 0 );
 
         const nextPattern = state.activePattern + 1;
         if ( nextPattern > maxMeasure ) {
             // last measure reached, jump back to first
-            store.commit( "setActivePattern", 0 );
+            commit( "setActivePattern", 0 );
 
             // stop playing if we"re recording output and looping is disabled
 
             if ( isRecording() && !state.looping ) {
-                store.commit( "setPlaying", false );
+                commit( "setPlaying", false );
                 return;
             }
         } else if ( !state.looping ) {
             // advance the measure only when the Sequencer isn"t looping
-            store.commit( "gotoNextPattern", activeSong );
+            commit( "gotoNextPattern", activeSong );
         } else {
             syncPositionToSequencerUpdate( state, activeSong );
         }
@@ -234,19 +239,21 @@ function step( store ) {
 
             // one bar metronome count in ?
 
-            if ( state.metronome.countIn && !state.metronome.countInComplete ) {
+            const { metronome } = state;
 
-                state.metronome.enabled         = state.metronome.restore;
-                state.metronome.countInComplete = true;
-                state.firstMeasureStartTime     = getAudioContext().currentTime;
+            if ( metronome.countIn && !metronome.countInComplete ) {
 
-                store.commit( "setActivePattern", 0 );
+                metronome.enabled           = metronome.restore;
+                metronome.countInComplete   = true;
+                state.firstMeasureStartTime = getAudioContext().currentTime;
+
+                commit( "setActivePattern", 0 );
                 return;
             }
         }
-        store.commit( "setActivePattern", state.activePattern );
+        commit( "setActivePattern", state.activePattern );
     } else {
-        store.commit( "setCurrentStep", currentStep );
+        commit( "setCurrentStep", currentStep );
     }
 }
 
@@ -265,8 +272,10 @@ function syncPositionToSequencerUpdate( state, activeSong ) {
  *        this will default to the currentTime of the AudioContext for instant enqueuing
  */
 function setPosition( state, { activeSong, pattern, currentTime }) {
-    if ( pattern >= activeSong.patterns.length ) {
-        pattern = activeSong.patterns.length - 1;
+    const { patterns } = activeSong;
+
+    if ( pattern >= patterns.length ) {
+        pattern = patterns.length - 1;
     }
 
     if ( state.activePattern !== pattern ) {
@@ -274,14 +283,15 @@ function setPosition( state, { activeSong, pattern, currentTime }) {
     }
 
     if ( typeof currentTime !== "number" ) {
-        currentTime = getAudioContext()?.currentTime || 0;
+        const audioContext = getAudioContext();
+        currentTime = audioContext ? audioContext.currentTime : 0;
     }
     state.activePattern         = pattern;
     state.nextNoteTime          = currentTime;
     state.measureStartTime      = currentTime;
     state.firstMeasureStartTime = currentTime - ( pattern * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
 
-    state.channels = activeSong.patterns[ state.activePattern ].channels;
+    state.channels = patterns[ state.activePattern ].channels;
 
     // when going to the first measure we should stop playing all currently sounding notes
 

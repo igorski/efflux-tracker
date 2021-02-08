@@ -132,11 +132,11 @@ export default {
             get() {
                 return this.activePattern + 1;
             },
-            set(patternValue) {
+            set( patternValue ) {
                 // normalize to Array indices (0 == first, not 1)
-                const value = Math.min(patternValue, this.activeSong.patterns.length) - 1;
-                if (value >= 0 && value !== this.activePattern) {
-                    this.setActivePattern(value);
+                const value = Math.min( patternValue, this.activeSong.patterns.length ) - 1;
+                if ( value >= 0 && value !== this.activePattern ) {
+                    this.setActivePattern( value );
                 }
             }
         },
