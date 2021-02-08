@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { MIDINotes, zMIDIEvent } from 'zmidi';
-import InstrumentUtil from '../utils/instrument-util';
+import { MIDINotes, zMIDIEvent } from "zmidi";
+import InstrumentUtil from "../utils/instrument-util";
 
-let store, state;
-let noteValue, pitch, instrumentId, instrument;
+let store, state, getters, commit;
 
 export default {
-    init(storeReference) {
+    init( storeReference ) {
         store = storeReference;
-        state = storeReference.state;
+        ({ state, getters, commit } = store );
     },
 
     /**
@@ -38,20 +37,54 @@ export default {
      *
      * @param {zMIDIEvent} aEvent
      */
-    handleMIDIMessage( aEvent ) {
-        noteValue = aEvent.value; // we only deal with note on/off so these always reflect a NOTE
-        pitch     = MIDINotes.getPitchByNoteNumber(noteValue);
+    handleMIDIMessage({ type, value, number }) {
+        const pitch = MIDINotes.getPitchByNoteNumber( value );
+        switch ( type ) {
+            default:
+                break;
 
-        switch ( aEvent.type )
-        {
             case zMIDIEvent.NOTE_ON:
-                instrumentId = state.editor.selectedInstrument;
-                instrument   = state.song.activeSong.instruments[ instrumentId ];
+                const instrumentId = state.editor.selectedInstrument;
+                const instrument   = state.song.activeSong.instruments[ instrumentId ];
                 InstrumentUtil.onKeyDown( pitch, instrument, state.sequencer.recording, store );
                 break;
 
             case zMIDIEvent.NOTE_OFF:
                 InstrumentUtil.onKeyUp( pitch, store );
+                break;
+
+            case zMIDIEvent.CONTROL_CHANGE:
+                const on = value >= 64;
+                switch ( number ) {
+                    default:
+                        break;
+                    case 44:
+                        if ( on ) {
+                            commit( "setRecording", !getters.isRecording );
+                        }
+                        break;
+                    case 45:
+                        if ( !getters.isPlaying ) {
+                            commit( "setPlaying", true );
+                        }
+                        break;
+                    case 46:
+                        if ( getters.isPlaying ) {
+                            commit( "setPlaying", false );
+                        }
+                        break;
+                    case 47:
+                        commit( "gotoPreviousPattern", getters.activeSong );
+                        break;
+                    case 48:
+                        commit( "gotoNextPattern", getters.activeSong );
+                        break;
+                    case 49:
+                        if ( on ) {
+                            commit( "setLooping", !getters.isLooping );
+                        }
+                        break;
+                }
                 break;
         }
     }

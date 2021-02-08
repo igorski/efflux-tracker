@@ -81,7 +81,6 @@
                         <label v-t="'deviceSelectLabel'" class="padded-label"></label>
                         <select-box
                             v-model="portNumber"
-                            @input="handleMIDIDeviceSelect"
                             :options="midiDeviceOptions"
                             class="param-select"
                         />
@@ -166,6 +165,23 @@ export default {
             }));
         },
     },
+    watch: {
+        portNumber( value ) {
+            // first clean up all old listeners
+            let amountOfPorts = zMIDI.getInChannels().length;
+
+            while ( amountOfPorts-- ) {
+                zMIDI.removeMessageListener( amountOfPorts );
+            }
+            // add listener and bind root store to MIDI event handler
+            zMIDI.addMessageListener( value, MIDIService.handleMIDIMessage );
+
+            const device = zMIDI.getInChannels()[ value ];
+            this.showNotification({ message:
+                this.$t( "midiEnabled", { device: `${device.manufacturer} ${device.name}` })
+            });
+        },
+    },
     mounted() {
         // load settings from the model
         let setting = this.getSetting( this.settings.INPUT_FORMAT );
@@ -179,6 +195,11 @@ export default {
         setting = this.getSetting( this.settings.DISPLAY_HELP );
         if ( setting !== null ) {
             this.displayHelpPanel = setting;
+        }
+    },
+    destroyed() {
+        if ( this.changeListener ) {
+            zMIDI.removeChangeListener?.( this.changeListener );
         }
     },
     methods: {
@@ -210,46 +231,26 @@ export default {
                  .catch( this.handleMIDIconnectFailure );
         },
         handleMIDIconnectSuccess( inputs ) {
+            // add status change listener to handle device connection events
+            if ( !this.changeListener ) {
+                this.changeListener = this.handleMIDIconnectSuccess.bind( this );
+                zMIDI.addChangeListener( this.changeListener );
+            }
+            this.createMIDIDeviceList( inputs );
             if ( inputs.length === 0 ) {
-                // no inputs, add status change listener to handle device connection events
                 this.showNotification({ message: this.$t( "noMidiDevices" )});
-                if ( !this.changeListener ) {
-                    this.changeListener = this.handleMIDIconnectSuccess.bind( this );
-                    zMIDI.addChangeListener( this.changeListener );
-                }
                 return;
             }
-            this.showAvailableMIDIDevices( inputs );
             this.publishMessage( PubSubMessages.MIDI_CONNECTED );
-            this.showNotification({ message: this.$t( "midiConnected" ) });
-        },
-        handleMIDIconnectFailure() {
-            this.showNotification({ title: this.$t( "error" ), message: this.$t( "midiFailure" ) });
-        },
-        handleMIDIDeviceSelect() {
-            // first clean up all old listeners
-            let amountOfPorts = zMIDI.getInChannels().length;
-
-            while ( amountOfPorts-- ) {
-                zMIDI.removeMessageListener( amountOfPorts );
-            }
-            // add listener and bind root store to MIDI event handler
-            zMIDI.addMessageListener( this.portNumber, MIDIService.handleMIDIMessage );
-
-            const device = zMIDI.getInChannels()[ this.portNumber ];
-            this.showNotification({ message:
-                this.$t( "midiEnabled", { device: `${device.manufacturer} ${device.name}` })
-            });
-        },
-        showAvailableMIDIDevices( inputs ) {
-            this.createMIDIDeviceList( inputs );
 
             // auto select first device if there is only one available
             if ( this.midiDeviceList.length === 1 ) {
                 this.portNumber = this.midiDeviceList[ 0 ].value;
-                this.handleMIDIDeviceSelect();
             }
-        }
+        },
+        handleMIDIconnectFailure() {
+            this.showNotification({ title: this.$t( "error" ), message: this.$t( "midiFailure" ) });
+        },
     }
 };
 </script>
