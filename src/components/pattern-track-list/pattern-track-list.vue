@@ -162,7 +162,7 @@ export default {
             'paramFormat',
         ]),
         activeSongPattern() {
-            return this.activeSong.patterns[this.activePattern];
+            return this.activeSong.patterns[ this.activePattern ];
         },
     },
     data: () => ({
@@ -177,17 +177,13 @@ export default {
         pContainerSteps: [], // will cache DOM elements for interation events
     }),
     watch: {
-        activePattern: {
-            immediate: true,
-            handler( value ) {
-                this.clearSelection();
-                this.setSelectedSlot( -1 );
-                this.pContainerSteps = [];
-                this.patternData = this.activeSong.patterns[ value ];
-            }
+        activePattern() {
+            this.clearSelection();
+            this.setSelectedSlot( -1 );
+            this.pContainerSteps = [];
         },
         currentStep( step ) {
-            const stepsInPattern = this.patternData.steps;
+            const stepsInPattern = this.activeSongPattern.steps;
             const diff = this.stepPrecision / stepsInPattern;
 
             this.playingStep = Math.round( step / diff ) % stepsInPattern;
