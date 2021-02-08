@@ -45,6 +45,6 @@
     "worker-loader": "^2.0.0",
     "zcanvas": "^4.2.1",
     "zjslib": "^0.1.4",
-    "zmidi": "^1.1.0"
+    "zmidi": "^1.1.1"
   }
 }

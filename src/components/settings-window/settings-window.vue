@@ -199,7 +199,7 @@ export default {
     },
     destroyed() {
         if ( this.changeListener ) {
-            zMIDI.removeChangeListener?.( this.changeListener );
+            zMIDI.removeChangeListener( this.changeListener );
         }
     },
     methods: {

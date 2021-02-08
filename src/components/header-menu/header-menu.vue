@@ -34,16 +34,28 @@
                 <li>
                     <a v-t="'file'" class="title" @click.prevent=""></a>
                     <ul class="file-menu">
-                        <li v-t="'loadSong'"   @click="handleLoad" data-api-song-load></li>
-                        <li v-t="'saveSong'"   @click="handleSave(true)"></li>
-                        <li v-t="'saveSongAs'" @click="handleSave(false)"></li>
+                        <li
+                            v-t="'newSong'"
+                            @click="handleReset"
+                        ></li>
+                        <li
+                            v-t="'loadSong'"
+                            @click="handleLoad" data-api-song-load
+                        ></li>
+                        <li
+                            v-t="'saveSong'"
+                            @click="handleSave(true)"
+                        ></li>
+                        <li
+                            v-t="'saveSongAs'"
+                            @click="handleSave(false)"
+                            data-api-song-save
+                        ></li>
                         <!-- note we expose these id's so external apps can hook into their behaviour -->
                         <template v-if="hasImportExport">
                             <li v-t="'importSong'" @click="handleSongImport"></li>
                             <li v-t="'exportSong'" @click="handleSongExport"></li>
                         </template>
-                        <li v-t="'resetSong'" id="songReset"
-                            @click="handleReset" data-api-song-reset></li>
                         <template v-if="hasImportExport">
                             <li v-t="'importInstruments'" @click="handleInstrumentImport"></li>
                             <li v-t="'exportInstruments'" @click="handleInstrumentExport"></li>

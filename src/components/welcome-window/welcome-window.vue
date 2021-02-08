@@ -32,11 +32,18 @@
         <div class="pane text">
             <p v-t="'introductionFirstTime'"></p>
             <button
+                type="button"
                 v-t="'openDemo'"
                 @click="openDemo()"
             ></button>
+            <button
+                type="button"
+                v-t="'tweakInstrument'"
+                @click="openInstrumentEditor()"
+            ></button>
             <p v-t="'introductionHelp'"></p>
             <button
+                type="button"
                 v-t="'openHelp'"
                 @click="openHelp()"
             ></button>
@@ -99,7 +106,10 @@ export default {
         },
         openHelp() {
             window.open( ManualURLs.ONLINE_MANUAL );
-        }
+        },
+        openInstrumentEditor() {
+            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+        },
     }
 };
 </script>
@@ -129,10 +139,19 @@ $height: 400px;
         left: 50%;
         margin-left: -( $width / 2 );
         margin-top: -( $height / 2 );
+
+        .pane p:first-of-type {
+            margin-top: $spacing-small;
+        }
     }
 
     @media screen and ( max-width: $width ), ( max-height: $height ) {
         @include verticalScrollOnMobile();
+        .pane button {
+            display: block;
+            width: 100%;
+            margin-bottom: $spacing-small;
+        }
     }
 }
 
