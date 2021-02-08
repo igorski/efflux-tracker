@@ -42,6 +42,7 @@
     "vue-select": "^3.11.2",
     "vue-template-compiler": "^2.6.11",
     "wa-overdrive": "^0.0.3",
+    "webpack-cli": "^4.5.0",
     "worker-loader": "^2.0.0",
     "zcanvas": "^4.2.1",
     "zjslib": "^0.1.4",

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019 - https://www.igorski.nl
+ * Igor Zinken 2019-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,8 +25,8 @@
  * Here we expose parts of Efflux as an API to
  * integrate with third party applications
  */
-import Messages from './pubsub/messages';
-import SongValidator from '../model/validators/song-validator';
+import Messages      from "./pubsub/messages";
+import SongValidator from "../model/validators/song-validator";
 
 let store, pubsub;
 
@@ -65,28 +65,29 @@ function handleBroadcast(message, payload) {
         default:
             return;
         case Messages.LOAD_SONG:
-            store.commit('setActiveSong', SongValidator.transformLegacy(payload));
+            store.commit( "closeDialog" );
+            store.commit( "setActiveSong", SongValidator.transformLegacy( payload ));
             break;
         case Messages.VALIDATE_AND_GET_SONG:
             // payload is fn awaiting song object
-            if (typeof payload !== 'function') {
+            if ( typeof payload !== "function" ) {
                 return;
             }
-            store.dispatch('validateSong', store.state.song.activeSong).then(() => {
-                payload(store.state.song.activeSong);
-            }).catch(() => {
-                // ...nowt, messages will have been triggered by store validate
-            });
+            store.dispatch( "validateSong", store.state.song.activeSong )
+                .then(() => {
+                    payload( store.state.song.activeSong );
+                }).catch(() => {
+                    // ...nowt, validation messages will have been triggered by store validate
+                });
             break;
         case Messages.SHOW_ERROR:
-            store.commit('showError', payload);
+            store.commit( "showError", payload );
             break;
         case Messages.SET_LOADING_STATE:
-            store.commit('setLoading', !!payload);
+            store.commit( "setLoading", !!payload );
             break;
         case Messages.SET_BLIND_STATE:
-            store.commit('setBlindActive', !!payload);
+            store.commit( "setBlindActive", !!payload );
             break;
     }
 }
-
