@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -112,11 +112,11 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         if ( typeof optEventData.advanceOnAddition === "boolean" )
             advanceStepOnAddition = optEventData.advanceOnAddition;
     }
-
     // if there is an existing event, cache it for undo-purpose (see add())
     let existingEvent;
+    let existingEventMp;
 
-    function add() {
+    function act() {
         const pattern = song.patterns[ patternIndex ],
               channel = pattern.channels[ channelIndex ];
 
@@ -128,14 +128,15 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         // (but take its module parameter automation when existing for non-off events)
 
         if ( channel[ step ]) {
-            existingEvent = JSON.stringify( channel[ step ]);
+            existingEvent   = serialize( channel[ step ]);
+            existingEventMp = serialize( channel[ step ].mp );
 
-            if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp )
-                Vue.set(event, "mp", ObjectUtil.clone( channel[ step ].mp ));
-
+            if ( event.action !== ACTION_NOTE_OFF && !event.mp && existingEventMp ) {
+                Vue.set( event, "mp", deserialize( existingEventMp ));
+            }
             EventUtil.clearEvent( song, patternIndex, channelIndex, step, eventList[ patternIndex ]);
         }
-        Vue.set(channel, step, event);
+        Vue.set( channel, step, event );
 
         // update linked list for AudioEvents
         EventUtil.linkEvent( event, channelIndex, song, eventList );
@@ -167,7 +168,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         updateHandler( advanceStepOnAddition );
         advanceStepOnAddition = false;
     }
-    add(); // perform action
+    act(); // perform action
 
     return {
         undo() {
@@ -180,15 +181,13 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
             );
             // restore existing event if it was present during addition
             if ( existingEvent ) {
-                const parsedEvent = JSON.parse( existingEvent );
-                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, parsedEvent );
-                EventUtil.linkEvent( parsedEvent, channelIndex, song, eventList );
+                const restoredEvent = deserialize( existingEvent );
+                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
+                EventUtil.linkEvent( restoredEvent, channelIndex, song, eventList );
             }
             updateHandler();
         },
-        redo() {
-            add();
-        }
+        redo: act
     };
 }
 
@@ -213,10 +212,12 @@ function deleteSingleEventOrSelectionAction({ store }) {
     const selectedMinStep      = store.state.selection.minSelectedStep;
     const selectedMaxStep      = store.state.selection.maxSelectedStep;
 
-    function remove( optSelection ) {
+    const { commit } = store;
+
+    function act( optSelection ) {
         if ( hadSelection ) {
             // pass selection when redoing a delete action on a selection
-            store.commit("deleteSelection", {
+            commit( "deleteSelection", {
                 song, activePattern, eventList,
                 optSelectionContent: optSelection, optFirstSelectedChannel: selectedFirstChannel,
                 optLastSelectedChannel: selectedLastChannel, optMinSelectedStep: selectedMinStep, optMaxSelectedStep: selectedMaxStep
@@ -234,18 +235,17 @@ function deleteSingleEventOrSelectionAction({ store }) {
     }
 
     // delete the event(s)
-    remove(selection);
+    act( selection );
 
     return {
         undo() {
             if ( hadSelection ) {
-
-                store.commit("pasteSelection", {
+                commit( "pasteSelection", {
                     song, eventList, activePattern, selectedInstrument, selectedStep, optSelectionContent: selection
                 });
             }
             else {
-                store.commit("addEventAtPosition", {
+                commit( "addEventAtPosition", {
                     event,
                     store,
                     optData: {
@@ -258,43 +258,41 @@ function deleteSingleEventOrSelectionAction({ store }) {
             }
         },
         redo() {
-            remove(selection);
+            act( selection );
         }
     };
 }
 
 function addModuleAutomationAction({ event, mp }) {
-    const existingAutomation = event.mp ? ObjectUtil.clone( event.mp ) : null;
-    const add = () => Vue.set(event, "mp", mp);
+    const automationData     = serialize( mp );
+    const existingAutomation = serialize( event.mp );
+    const act = () => Vue.set( event, "mp", deserialize( automationData ));
 
-    add(); // perform action
+    act(); // perform action
 
     return {
         undo() {
-            if ( existingAutomation )
-                Vue.set( event, "mp", existingAutomation );
-            else
+            if ( existingAutomation ) {
+                Vue.set( event, "mp", deserialize( existingAutomation ));
+            } else {
                 Vue.delete( event, "mp" );
+            }
         },
-        redo() {
-            add();
-        }
+        redo: act
     }
 }
 
 function deleteModuleAutomationAction({ event }) {
-    const clonedAutomation = ObjectUtil.clone( event.mp );
-    const remove = () => Vue.delete(event, "mp");
+    const existingAutomation = serialize( event.mp );
+    const act = () => Vue.delete( event, "mp" );
 
-    remove(); // perform action
+    act(); // perform action
 
     return {
         undo() {
-            Vue.set(event, "mp", clonedAutomation);
+            Vue.set( event, "mp", deserialize( existingAutomation ));
         },
-        redo() {
-            remove();
-        }
+        redo: act
     };
 }
 
@@ -303,22 +301,19 @@ function clearPattern({ store }) {
           patternIndex  = store.state.sequencer.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
 
-    const pattern = song.patterns[patternIndex];
+    const { commit } = store;
+    const pattern = clonePattern( song, patternIndex );
 
-    function remove() {
-        store.commit("replacePattern", { patternIndex, pattern: PatternFactory.createEmptyPattern(amountOfSteps) });
-        store.commit("createLinkedList", song);
+    function act() {
+        commit( "replacePattern", { patternIndex, pattern: PatternFactory.createEmptyPattern( amountOfSteps ) });
     }
-    remove(); // perform action
+    act(); // perform action
 
     return {
         undo() {
-            store.commit("replacePattern", { patternIndex, pattern });
-            store.commit("createLinkedList", song);
+            commit( "replacePattern", { patternIndex, pattern });
         },
-        redo() {
-            remove();
-        }
+        redo: act
     };
 }
 
@@ -326,23 +321,21 @@ function pastePattern({ store, patternCopy }) {
     const song          = store.state.song.activeSong,
           patternIndex  = store.state.sequencer.activePattern;
 
-    const targetPattern = song.patterns[patternIndex];
-    const pastedPattern = PatternFactory.mergePatterns(targetPattern, patternCopy, patternIndex);
+    const { commit } = store;
 
-    function paste() {
-        store.commit("replacePattern", { patternIndex, pattern: pastedPattern });
-        store.commit("createLinkedList", song);
+    const targetPattern = clonePattern( song, patternIndex );
+    const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy, patternIndex );
+
+    function act() {
+        commit( "replacePattern", { patternIndex, pattern: pastedPattern });
     }
-    paste(); // perform action
+    act(); // perform action
 
     return {
         undo() {
-            store.commit("replacePattern", { patternIndex, pattern: targetPattern });
-            store.commit("createLinkedList", song);
+            commit( "replacePattern", { patternIndex, pattern: targetPattern });
         },
-        redo() {
-            paste();
-        }
+        redo: act
     };
 }
 
@@ -352,23 +345,21 @@ function addPattern({ store }) {
           patternIndex    = store.state.sequencer.activePattern,
           amountOfSteps   = store.getters.amountOfSteps;
 
-    const pattern = PatternFactory.createEmptyPattern(amountOfSteps);
+    const { commit } = store;
 
-    function add() {
-        store.commit("replacePatterns", PatternUtil.addPatternAtIndex(patterns, patternIndex + 1, amountOfSteps, pattern));
-        store.commit("createLinkedList", song);
+    const pattern = ObjectUtil.clone( PatternFactory.createEmptyPattern( amountOfSteps ));
+
+    function act() {
+        commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex + 1, amountOfSteps, pattern ));
     }
-    add(); // perform action
+    act(); // perform action
 
     return {
         undo() {
-            store.commit("setActivePattern", patternIndex);
-            store.commit("replacePatterns", PatternUtil.removePatternAtIndex(patterns, patternIndex + 1));
-            store.commit("createLinkedList", song);
+            commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex + 1 ));
+            commit( "setActivePattern", patternIndex );
         },
-        redo() {
-            add();
-        }
+        redo: act
     };
 }
 
@@ -377,164 +368,178 @@ function deletePattern({ store }) {
           patterns        = song.patterns,
           patternIndex    = store.state.sequencer.activePattern,
           amountOfSteps   = store.getters.amountOfSteps,
-          targetIndex     = patternIndex === (patterns.length - 1) ? patternIndex - 1 : patternIndex,
-          pattern         = patterns[patternIndex];
+          targetIndex     = patternIndex === ( patterns.length - 1 ) ? patternIndex - 1 : patternIndex;
 
-    function deleteP() {
-        store.commit("setActivePattern", targetIndex);
-        store.commit("replacePatterns", PatternUtil.removePatternAtIndex(patterns, patternIndex));
-        store.commit("createLinkedList", song);
+    const { commit } = store;
+    const existingPattern = clonePattern( song, patternIndex );
+
+    function act() {
+        commit( "setActivePattern", targetIndex );
+        commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex ));
     }
-    deleteP(); // perform action
+    act(); // perform action
 
     return {
         undo() {
-            store.commit("setActivePattern", targetIndex);
-            store.commit("replacePatterns", PatternUtil.addPatternAtIndex(patterns, patternIndex, amountOfSteps, pattern));
-            store.commit("createLinkedList", song);
+            commit( "setActivePattern", targetIndex );
+            commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex, amountOfSteps, existingPattern ));
         },
-        redo() {
-            deleteP();
-        }
+        redo: act
     };
 }
 
 function cutSelectionAction({ store }) {
     const song = store.state.song.activeSong;
+    const { selection, editor } = store.state;
+    const { commit } = store;
 
     if ( !store.getters.hasSelection) {
-        store.commit("setSelectionChannelRange", { firstChannel: store.state.editor.selectedInstrument });
-        store.commit("setSelection", { selectionStart: store.state.editor.selectedStep });
+        commit( "setSelectionChannelRange", { firstChannel: editor.selectedInstrument });
+        commit( "setSelection", { selectionStart: editor.selectedStep });
     }
     const activePattern   = store.state.sequencer.activePattern;
-    const firstChannel    = store.state.selection.firstSelectedChannel;
-    const lastChannel     = store.state.selection.lastSelectedChannel;
-    const selectedMinStep = store.state.selection.minSelectedStep;
-    const selectedMaxStep = store.state.selection.maxSelectedStep;
+    const firstChannel    = selection.firstSelectedChannel;
+    const lastChannel     = selection.lastSelectedChannel;
+    const selectedMinStep = selection.minSelectedStep;
+    const selectedMaxStep = selection.maxSelectedStep;
 
-    const originalPatternData = clonePattern(song, activePattern);
-    let cutData;
-    function cut() {
-        if ( cutData ) {
-            Vue.set(song.patterns, activePattern, cutData);
+    const originalPattern = clonePattern( song, activePattern );
+    let cutPattern;
+    function act() {
+        if ( cutPattern ) {
+            Vue.set( song.patterns, activePattern, cutPattern );
         }
         else {
-            store.commit("cutSelection", { song, activePattern, eventList: store.state.editor.eventList });
-            cutData = clonePattern(song, activePattern);
+            commit( "cutSelection", { song, activePattern, eventList: editor.eventList });
+            cutPattern = clonePattern( song, activePattern );
         }
-        store.commit("clearSelection");
+        commit( "clearSelection" );
     }
-    cut(); // perform action
+    act(); // perform action
 
     return {
         undo() {
             // set the original pattern data back
-            Vue.set(song.patterns, activePattern, originalPatternData);
+            Vue.set( song.patterns, activePattern, originalPattern );
 
             // restore selection model to previous state
-            store.commit("setMinSelectedStep", selectedMinStep);
-            store.commit("setMaxSelectedStep", selectedMaxStep);
-            store.commit("setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "setMinSelectedStep", selectedMinStep);
+            commit( "setMaxSelectedStep", selectedMaxStep);
+            commit( "setSelectionChannelRange", { firstChannel, lastChannel });
         },
-        redo() {
-            cut();
-        }
+        redo: act
     };
 }
 
 function deleteSelectionAction({ store }) {
     const song = store.state.song.activeSong;
+    const { selection, editor } = store.state;
+    const { commit }    = store;
 
     const activePattern   = store.state.sequencer.activePattern;
-    const firstChannel    = store.state.selection.firstSelectedChannel;
-    const lastChannel     = store.state.selection.lastSelectedChannel;
-    const selectedMinStep = store.state.selection.minSelectedStep;
-    const selectedMaxStep = store.state.selection.maxSelectedStep;
+    const firstChannel    = selection.firstSelectedChannel;
+    const lastChannel     = selection.lastSelectedChannel;
+    const selectedMinStep = selection.minSelectedStep;
+    const selectedMaxStep = selection.maxSelectedStep;
 
-    const originalPatternData = song.patterns[activePattern];
-    let cutData;
-    function deleteSelection() {
-        if ( cutData ) {
-            Vue.set(song.patterns, activePattern, cutData);
+    const originalPattern = clonePattern( song, activePattern );
+    let cutPattern;
+    function act() {
+        if ( cutPattern ) {
+            Vue.set( song.patterns, activePattern, cutPattern );
         } else {
-            store.commit("deleteSelection", { song, activePattern, eventList: store.state.editor.eventList });
-            cutData = song.patterns[activePattern];
+            commit( "deleteSelection", { song, activePattern, eventList: editor.eventList });
+            cutPattern = clonePattern( song, activePattern );
         }
-        store.commit("clearSelection");
+        commit( "clearSelection" );
     }
-    deleteSelection(); // perform action
+    act(); // perform action
 
     return {
         undo() {
             // set the original pattern data back
-            Vue.set(song.patterns, activePattern, originalPatternData);
+            Vue.set( song.patterns, activePattern, originalPattern );
 
             // restore selection model to previous state
-            store.commit("setMinSelectedStep", selectedMinStep);
-            store.commit("setMaxSelectedStep", selectedMaxStep);
-            store.commit("setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "setMinSelectedStep", selectedMinStep);
+            commit( "setMaxSelectedStep", selectedMaxStep);
+            commit( "setSelectionChannelRange", { firstChannel, lastChannel });
        },
-        redo() {
-            deleteSelection();
-        }
+       redo: act
     };
 }
 
 function pasteSelectionAction({ store }) {
-    const song               = store.state.song.activeSong,
-          eventList          = store.state.editor.eventList,
-          activePattern      = store.state.sequencer.activePattern,
-          selectedInstrument = store.state.editor.selectedInstrument,
-          selectedStep       = store.state.editor.selectedStep;
+    const song = store.state.song.activeSong;
+    const { eventList, selectedInstrument, selectedStep } = store.state.editor;
+    const { activePattern } = store.state.sequencer;
+    const { selection } = store.state;
+    const { commit } = store;
 
-    const originalPatternData = clonePattern(song, activePattern);
+    const originalPattern = clonePattern( song, activePattern );
 
-    const firstChannel    = store.state.selection.firstSelectedChannel;
-    const lastChannel     = store.state.selection.lastSelectedChannel;
-    const selectedMinStep = store.state.selection.minSelectedStep;
-    const selectedMaxStep = store.state.selection.maxSelectedStep;
+    const firstChannel    = selection.firstSelectedChannel;
+    const lastChannel     = selection.lastSelectedChannel;
+    const selectedMinStep = selection.minSelectedStep;
+    const selectedMaxStep = selection.maxSelectedStep;
 
-    let pastedData;
-
-    function paste() {
-        if ( pastedData ) {
-            Vue.set(song.patterns, activePattern, pastedData);
+    let pastedPattern;
+    function act() {
+        if ( pastedPattern ) {
+            Vue.set( song.patterns, activePattern, pastedPattern );
         } else {
-            store.commit("pasteSelection", { song, eventList, activePattern, selectedInstrument, selectedStep });
-            pastedData = song.patterns[activePattern];
+            commit( "pasteSelection", { song, eventList, activePattern, selectedInstrument, selectedStep });
+            pastedPattern = clonePattern( song, activePattern );
         }
     }
-    paste(); // perform action
+    act(); // perform action
 
     return {
         undo() {
             // set the original pattern data back
-            Vue.set(song.patterns, activePattern, originalPatternData);
+            Vue.set( song.patterns, activePattern, originalPattern );
 
             // we can safely override the existing selection of the model when undoing an existing paste
             // this means we are returning the model to the state prior to the pasting
             // restore selection model to previous state
 
-            store.commit("setMinSelectedStep", selectedMinStep);
-            store.commit("setMaxSelectedStep", selectedMaxStep);
-            store.commit("setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "setMinSelectedStep", selectedMinStep );
+            commit( "setMaxSelectedStep", selectedMaxStep );
+            commit( "setSelectionChannelRange", { firstChannel, lastChannel });
         },
-        redo() {
-            paste( originalPatternData );
-        }
+        redo: act
     };
 }
 
+// when changing states of observables, we need to take heed to always restore
+// a fresh clone from the last state as repeated undo/redo actions on (a cloned)
+// object reference will mutate the reference to be different from its initial state
+
+function serialize( object = null ) {
+    return object ? JSON.stringify( object ) : null;
+}
+
+function deserialize( serializedObject = null ) {
+    return serializedObject ? JSON.parse( serializedObject ) : null;
+}
+
 /**
- * convenience method to clone all event and channel data
- * for given pattern
+ * convenience method to clone all event and channel data for given pattern
+ * this also resets each events play state to ensure seamless playback when
+ * performing und/redo actions during playback
  *
  * @param {SONG} song
  * @param {number} activePattern
  * @returns {Object}
  */
 function clonePattern( song, activePattern ) {
-    return ObjectUtil.clone(
-        song.patterns[ activePattern ]
-    );
+    const clone = ObjectUtil.clone( song.patterns[ activePattern ]);
+    clone.channels.forEach( channel => {
+        channel.forEach( event => {
+            if ( event?.seq?.playing ) {
+                event.seq.playing = false;
+            }
+        });
+    });
+    return clone;
 }

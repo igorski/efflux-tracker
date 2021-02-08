@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -38,11 +38,11 @@ export default {
 
         front.push( pattern ? pattern : PatternFactory.createEmptyPattern( amountOfSteps ));
 
-        // update event offset for back patterns (as their start offset should now shift)
+        // update event offset for back patterns (as their start/end offsets should now shift)
 
         back.forEach(pattern => {
-            pattern.channels.forEach(channel => {
-                channel.forEach(event => {
+            pattern.channels.forEach( channel => {
+                channel.forEach( event => {
                     if ( event ) {
                         ++event.seq.startMeasure;
                         ++event.seq.endMeasure;
@@ -62,14 +62,14 @@ export default {
     removePatternAtIndex( patterns, index ) {
         patterns.splice( index, 1 );
 
-        const front = patterns.slice( 0, index);
+        const front = patterns.slice( 0, index );
         const back  = patterns.slice( index );
 
-        // update event offset for back pattern (as it has now shifted)
+        // update event offset for back patterns (as their start/end offsets should now shift)
 
         back.forEach(pattern => {
-            pattern.channels.forEach(channel => {
-                channel.forEach(event => {
+            pattern.channels.forEach( channel => {
+                channel.forEach( event => {
                     if ( event ) {
                         --event.seq.startMeasure;
                         --event.seq.endMeasure;

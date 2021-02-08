@@ -168,7 +168,9 @@ function collect( store ) {
                     }
                     seq = event.seq;
 
-                    if ( seq.playing ) continue; // so can playing events (efc58fc188d5b3e137f709c6cef3d0a04fff3f7c)
+                    if ( seq.playing ) {
+                        continue; // so can playing events (efc58fc188d5b3e137f709c6cef3d0a04fff3f7c)
+                    }
 
                     // event playback is triggered when its duration is within the current sequencer position range
 
@@ -217,6 +219,7 @@ function step( store ) {
     if ( currentStep === state.stepPrecision ) {
         commit( "setCurrentStep", 0 );
 
+        let sync = true;
         const nextPattern = state.activePattern + 1;
         if ( nextPattern > maxMeasure ) {
             // last measure reached, jump back to first
@@ -229,9 +232,11 @@ function step( store ) {
                 return;
             }
         } else if ( !state.looping ) {
-            // advance the measure only when the Sequencer isn"t looping
+            // advance the measure only when the Sequencer isn't looping
             commit( "gotoNextPattern", activeSong );
-        } else {
+            sync = false; // gotoNextPattern already syncs
+        }
+        if ( sync ) {
             syncPositionToSequencerUpdate( state, activeSong );
         }
 
@@ -368,7 +373,7 @@ export default {
             } else {
                 state.worker.postMessage({ "cmd" : "stop" });
                 while ( state.queueHandlers.length ) {
-                    freeHandler(state, state.queueHandlers[0]);
+                    freeHandler( state, state.queueHandlers[ 0 ]);
                 }
                 state.channelQueue.forEach( list => list.flush());
             }
@@ -441,7 +446,7 @@ export default {
         setPosition,
     },
     actions: {
-        prepareSequencer({ state }, rootStore) {
+        prepareSequencer({ state }, rootStore ) {
             return new Promise( resolve => {
                 // create LinkedLists to store all currently playing events for all channels
 

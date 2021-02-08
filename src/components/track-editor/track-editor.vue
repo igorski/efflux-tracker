@@ -38,15 +38,15 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import HistoryStates       from '@/definitions/history-states';
-import ModalWindows        from '@/definitions/modal-windows';
-import EventFactory        from '@/model/factory/event-factory';
-import HistoryStateFactory from '@/model/factory/history-state-factory';
-import { ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
-import EventUtil           from '@/utils/event-util';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import HistoryStates       from "@/definitions/history-states";
+import ModalWindows        from "@/definitions/modal-windows";
+import EventFactory        from "@/model/factory/event-factory";
+import HistoryStateFactory from "@/model/factory/history-state-factory";
+import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import EventUtil           from "@/utils/event-util";
 
-import { DOM } from 'zjslib';
+import { DOM } from "zjslib";
 
 export default {
     data: () => ({
@@ -60,12 +60,12 @@ export default {
             eventList: state => state.editor.eventList
         }),
         ...mapState([
-            'windowSize',
-            'windowScrollOffset',
+            "windowSize",
+            "windowScrollOffset",
         ]),
         ...mapGetters([
-            'canUndo',
-            'canRedo'
+            "canUndo",
+            "canRedo"
         ]),
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -92,13 +92,13 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'addEventAtPosition',
-            'openModal',
-            'saveState'
+            "addEventAtPosition",
+            "openModal",
+            "saveState",
         ]),
         ...mapActions([
-            'undo',
-            'redo'
+            "undo",
+            "redo"
         ]),
         addNoteOn() {
             this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
@@ -120,10 +120,10 @@ export default {
                 this.selectedInstrument, this.eventList, this.$store,
             );
         },
-        async navigateHistory(action = 'undo') {
-            await this.$store.dispatch(action);
+        async navigateHistory( action = "undo" ) {
+            await this.$store.dispatch( action );
             // TODO this is wasteful, can we do this more elegantly?
-            EventUtil.linkEvents(this.activeSong.patterns, this.eventList);
+            EventUtil.linkEvents( this.activeSong.patterns, this.eventList );
         }
     }
 };
