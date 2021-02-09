@@ -70,7 +70,7 @@ import HistoryStateFactory from "@/model/factory/history-state-factory";
 import Config from "@/config";
 import HistoryStates from "@/definitions/history-states";
 import ModalWindows from "@/definitions/modal-windows";
-import ObjectUtil from "@/utils/object-util";
+import { clone } from "@/utils/object-util";
 import SelectBox from "@/components/forms/select-box";
 import messages from "./messages.json";
 
@@ -121,7 +121,7 @@ export default {
             this.saveState(HistoryStateFactory.getAction(HistoryStates.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy() {
-            this.patternCopy = ObjectUtil.clone(this.activeSong.patterns[this.activePattern]);
+            this.patternCopy = clone(this.activeSong.patterns[this.activePattern]);
         },
         handlePatternPaste() {
             if (this.patternCopy) {

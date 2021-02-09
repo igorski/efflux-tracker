@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default
-{
-    /**
-     * clone given Object into a new Object instance
-     * with the same properties
-     *
-     * @param {Object} aObject
-     * @return {Object}
-     */
-    clone( aObject ){
-        return JSON.parse( JSON.stringify( aObject ));
-    }
-};
+let UID = 0;
+
+/**
+ * generate a unique identifer (unique as long as all id's
+ * are generated through this function ;)
+ */
+export const uid = () => `uid_${++UID}`;
+
+/**
+ * clones given Object into a new Object instance
+ * with the same properties
+ */
+export const clone = object => JSON.parse( JSON.stringify( object ));

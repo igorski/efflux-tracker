@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config     from '@/config';
-import ObjectUtil from '@/utils/object-util';
+import { clone } from "@/utils/object-util";
 
 const InstrumentFactory =
 {
@@ -173,7 +173,7 @@ const InstrumentFactory =
      * @return {INSTRUMENT}
      */
     loadPreset( instrumentPreset, newInstrumentId, newInstrumentName ) {
-        const newInstrument = ObjectUtil.clone(instrumentPreset);
+        const newInstrument = clone(instrumentPreset);
         newInstrument.id    = newInstrumentId;
         newInstrument.name  = newInstrumentName;
 

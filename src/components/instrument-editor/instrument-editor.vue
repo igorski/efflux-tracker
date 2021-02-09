@@ -23,17 +23,27 @@
 <template>
     <div class="instrument-editor">
         <div class="header">
-            <button class="help-button"
-                    @click="openHelp">?</button>
-            <button class="close-button"
-                    @click="$emit('close')">x</button>
-
-            <!-- selector that switches between available instruments -->
-            <select-box
-                v-model="instrument"
-                :options="instrumentOptions"
-                class="instrument-selector"
-            />
+            <button
+                class="help-button"
+                @click="openHelp"
+            >?</button>
+            <button
+                class="close-button"
+                @click="$emit('close')"
+            >x</button>
+            <div class="actions">
+                <button
+                    v-if="hasMidiSupport"
+                    v-t="midiConnected ? 'assignMidiControl' : 'connectMidi'"
+                    type="button"
+                    @click="midiConnected ? setMidiAssignMode( !midiAssignMode ) : openSettingsPanel()"
+                />
+                <!-- selector that switches between available instruments -->
+                <select-box
+                    v-model="instrument"
+                    :options="instrumentOptions"
+                />
+            </div>
         </div>
         <!-- instrument preset list -->
         <section class="instrument-presets">
@@ -95,10 +105,11 @@
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Config            from "@/config";
 import ManualURLs        from "@/definitions/manual-urls";
+import ModalWindows      from "@/definitions/modal-windows";
 import AudioService      from "@/services/audio-service";
 import PubSubMessages    from "@/services/pubsub/messages";
 import InstrumentFactory from "@/model/factory/instrument-factory";
-import ObjectUtil        from "@/utils/object-util";
+import { clone }         from "@/utils/object-util";
 import SelectBox         from "@/components/forms/select-box";
 import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor";
 import ModuleEditor      from "./components/module-editor/module-editor";
@@ -120,13 +131,16 @@ export default {
     }),
     computed: {
         ...mapState({
-            activeSong: state => state.song.activeSong,
-            selectedInstrument: state => state.editor.selectedInstrument,
-            selectedOscillatorIndex: state => state.editor.selectedOscillatorIndex,
-            instruments: state => state.instrument.instruments
+            activeSong              : state => state.song.activeSong,
+            selectedInstrument      : state => state.editor.selectedInstrument,
+            selectedOscillatorIndex : state => state.editor.selectedOscillatorIndex,
+            instruments             : state => state.instrument.instruments,
+            midiConnected           : state => state.midi.midiConnected,
+            midiAssignMode          : state => state.midi.midiAssignMode,
         }),
         ...mapGetters([
-            'getInstrumentByPresetName'
+            "getInstrumentByPresetName",
+            "hasMidiSupport"
         ]),
         instrument: {
             get() {
@@ -196,22 +210,27 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setSelectedInstrument',
-            'setSelectedOscillatorIndex',
-            'suspendKeyboardService',
-            'showError',
-            'showNotification',
-            'updateInstrument',
-            'replaceInstrument',
-            'setPresetName',
-            'publishMessage'
+            "setSelectedInstrument",
+            "setSelectedOscillatorIndex",
+            "suspendKeyboardService",
+            "showError",
+            "showNotification",
+            "updateInstrument",
+            "replaceInstrument",
+            "setMidiAssignMode",
+            "setPresetName",
+            "publishMessage",
+            "openModal",
         ]),
         ...mapActions([
-            'loadInstrument',
-            'saveInstrument'
+            "loadInstrument",
+            "saveInstrument",
         ]),
         openHelp() {
-            window.open(ManualURLs.INSTRUMENT_EDITOR_HELP, '_blank');
+            window.open( ManualURLs.INSTRUMENT_EDITOR_HELP, "_blank" );
+        },
+        openSettingsPanel() {
+            this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
         invalidatePreset() {
             if (this.instrumentRef.presetName && !this.instrumentRef.presetName.includes('*')) {
@@ -226,7 +245,7 @@ export default {
             else {
                 newPresetName = newPresetName.replace('*', '');
                 this.setPresetName({ instrument: this.instrumentRef, presetName: newPresetName });
-                if (this.saveInstrument( ObjectUtil.clone( this.instrumentRef ) )) {
+                if (this.saveInstrument( clone( this.instrumentRef ) )) {
                     this.showNotification({ message: this.$t('instrumentSaved', { name: newPresetName }) });
                 }
             }
@@ -282,9 +301,8 @@ export default {
     @include toolFont();
 }
 
-.instrument-selector {
+.actions {
     position: absolute;
-    width: 110px;
     top: $action-button-top;
     right: #{$spacing-xlarge * 2 - $spacing-xxsmall};
 }

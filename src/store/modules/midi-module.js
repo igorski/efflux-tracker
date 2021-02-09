@@ -20,21 +20,50 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { zMIDI } from "zmidi";
+
 export default {
     state: {
-        midiPortNumber: -1,
-        midiConnected: false,
-        midiDeviceList: []
+        midiSupported    : zMIDI.isSupported(), // can we use MIDI ?
+        midiConnected    : false,    // whether zMIDI has established a MIDI API connection
+        midiPortNumber   : -1,       // midi port that we have subscribed to receive events from
+        midiDeviceList   : [],       // list of connected MIDI devices
+        midiAssignMode   : false,    // when true, assignable-range-control activate pairing mode
+        pairableCallback : null,     // when set, the next incoming CC change will map to this callback
+        pairings         : new Map() // list of existing CC changes mapped to callbacks
+    },
+    getters: {
+        hasMidiSupport( state ) {
+            return state.midiSupported;
+        },
     },
     mutations: {
-        setMIDIPortNumber(state, value) {
+        setMidiPortNumber( state, value ) {
             state.midiPortNumber = value;
         },
-        createMIDIDeviceList(state, inputs) {
-            state.midiDeviceList = inputs.map((input, i) => ({
+        createMidiDeviceList( state, inputs ) {
+            state.midiConnected  = true;
+            state.midiDeviceList = inputs.map(( input, i ) => ({
                 title : `${input.manufacturer} ${input.name}`,
                 value : i,
             }));
-        }
+        },
+        setMidiAssignMode( state, value ) {
+            state.midiAssignMode = value;
+        },
+        setPairableControlCallback( state, pairableCallback ) {
+            state.pairableCallback = pairableCallback;
+            state.midiAssignMode   = false;
+        },
+        pairControlChangeToController( state, controlChangeId ) {
+            state.pairings.set( controlChangeId, state.pairableCallback );
+            state.pairableCallback = null;
+        },
+        unpairControlChange( state, controlChangeId ) {
+            state.pairings.delete( controlChangeId );
+        },
+        clearPairings( state ) {
+            state.pairings.clear();
+        },
     }
 };

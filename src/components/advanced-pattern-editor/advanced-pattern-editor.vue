@@ -62,7 +62,7 @@
 import { mapState, mapMutations } from 'vuex';
 
 import PatternFactory from '@/model/factory/pattern-factory';
-import ObjectUtil     from '@/utils/object-util';
+import { clone }     from '@/utils/object-util';
 import messages       from './messages.json';
 
 export default {
@@ -125,7 +125,7 @@ export default {
             // splice the pattern list at the insertion point, head will contain
             // the front of the list, tail the end of the list, and inserted will contain the cloned content
 
-            const patternsHead     = ObjectUtil.clone(patterns);
+            const patternsHead     = clone(patterns);
             const patternsTail     = patternsHead.splice( pastePatternValue );
             const patternsInserted = [];
 
@@ -135,7 +135,7 @@ export default {
                 const clonedPattern = PatternFactory.createEmptyPattern(p.steps);
 
                 for ( let i = firstChannelValue; i <= lastChannelValue; ++i )
-                    clonedPattern.channels[ i ] = ObjectUtil.clone( p.channels[ i ]);
+                    clonedPattern.channels[ i ] = clone( p.channels[ i ]);
 
                 patternsInserted.push(clonedPattern);
             });

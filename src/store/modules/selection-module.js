@@ -22,7 +22,7 @@
  */
 import Vue             from 'vue';
 import EventUtil       from '@/utils/event-util';
-import ObjectUtil      from '@/utils/object-util';
+import { clone }       from '@/utils/object-util';
 import { ACTION_IDLE } from '@/model/types/audio-event-def';
 
 /* internal methods */
@@ -94,7 +94,7 @@ const copySelection = ( state, { song, activePattern, optOutputArray }) => {
         {
             for ( let j = state.minSelectedStep, l = state.maxSelectedStep; j <= l; ++j ) {
                 stepValue = pattern.channels[ i ][ j ];
-                optOutputArray[ copyIndex ].push(( stepValue ) ? ObjectUtil.clone( stepValue ) : null );
+                optOutputArray[ copyIndex ].push(( stepValue ) ? clone( stepValue ) : null );
             }
             ++copyIndex;
         }
@@ -317,7 +317,7 @@ const module = {
                         if ( writeIndex < targetChannel.length ) {
                             if ( event && ( event.action !== ACTION_IDLE || event.mp )) {
 
-                                const clone = ObjectUtil.clone( event );
+                                const clone = clone( event );
                                 clone.instrument  = cIndex;
                                 clone.seq.playing = false;
 

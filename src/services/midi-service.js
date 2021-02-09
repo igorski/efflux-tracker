@@ -23,21 +23,22 @@
 import { MIDINotes, zMIDIEvent } from "zmidi";
 import InstrumentUtil from "../utils/instrument-util";
 
-let store, state, getters, commit;
+let store, state, getters, commit, midi;
 
 export default {
     init( storeReference ) {
         store = storeReference;
         ({ state, getters, commit } = store );
+        ({ midi } = state ); // midi-module
     },
 
     /**
-     * MIDI message handler (received via zmidi library)
+     * MIDI message handler (received via zMIDI library)
      * this method is bound to the store state
      *
-     * @param {zMIDIEvent} aEvent
+     * @param {zMIDIEvent} event
      */
-    handleMIDIMessage({ type, value, number }) {
+    handleMIDIMessage({ type, value, number, channel }) {
         const pitch = MIDINotes.getPitchByNoteNumber( value );
         switch ( type ) {
             default:
@@ -57,6 +58,12 @@ export default {
                 const on = value >= 64;
                 switch ( number ) {
                     default:
+                        const controlId = `${channel}_${number}`;
+                        if ( midi.pairableCallback ) {
+                            commit( "pairControlChangeToController", controlId );
+                        } else {
+                            midi.pairings.get( controlId )?.( value );
+                        }
                         break;
                     case 44:
                         if ( on ) {

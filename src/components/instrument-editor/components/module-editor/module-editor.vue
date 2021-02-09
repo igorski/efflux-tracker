@@ -44,18 +44,18 @@
                         class="enable-selector"
                         sync
                     />
-                    <div class="wrapper input range">
-                        <label v-t="'low'" for="eqLow"></label>
-                        <input type="range" id="eqLow" v-model.number="eqLow" min="0" max="1" step=".01" value="1">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'mid'" for="eqMid"></label>
-                        <input type="range" id="eqMid" v-model.number="eqMid" min="0" max="1" step=".01" value="1">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'high'" for="eqHigh"></label>
-                        <input type="range" id="eqHigh" v-model.number="eqHigh" min="0" max="1" step=".01" value="1">
-                    </div>
+                    <assignable-range-control
+                        v-model.number="eqLow"
+                        :label="$t('low')"
+                    />
+                    <assignable-range-control
+                        v-model.number="eqMid"
+                        :label="$t('mid')"
+                    />
+                    <assignable-range-control
+                        v-model.number="eqHigh"
+                        :label="$t('high')"
+                    />
                 </fieldset>
 
                 <fieldset id="filterEditor" class="instrument-parameters">
@@ -65,14 +65,18 @@
                         class="enable-selector"
                         sync
                     />
-                    <div class="wrapper input range">
-                        <label v-t="'frequency'" for="filterFrequency"></label>
-                        <input type="range" id="filterFrequency" v-model.number="filterFrequency" min="40" max="24000" step=".01" value="880">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'q'" for="filterQ"></label>
-                        <input type="range" id="filterQ" v-model.number="filterQ" min="0" max="40" step="1" value="5">
-                    </div>
+                    <assignable-range-control
+                        v-model.number="filterFrequency"
+                        :label="$t('frequency')"
+                        :min="40"
+                        :max="24000"
+                    />
+                    <assignable-range-control
+                        v-model.number="filterQ"
+                        :label="$t('q')"
+                        :max="40"
+                        :step="1"
+                    />
                     <select-box
                         v-model="filterLFO"
                         :options="filterOptions"
@@ -83,16 +87,18 @@
                         :options="filterTypeOptions"
                         class="select"
                     />
-                    <div class="wrapper input range">
-                        <label v-t="'lfoSpeed'" for="filterSpeed"></label>
-                        <input type="range" id="filterSpeed"
-                               v-model.number="filterSpeed" min="0.1" max="25" step=".01" value="0.5">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'lfoDepth'" for="filterDepth"></label>
-                        <input type="range" id="filterDepth"
-                               v-model.number="filterDepth" min="0" max="100" step=".01" value="50">
-                    </div>
+                    <assignable-range-control
+                        v-model.number="filterSpeed"
+                        :label="$t('lfoSpeed')"
+                        :min="0.1"
+                        :max="25"
+                    />
+                    <assignable-range-control
+                        v-model.number="filterDepth"
+                        :label="$t('lfoDepth')"
+                        :min="0"
+                        :max="100"
+                    />
                 </fieldset>
             </div>
             <div class="tabbed-content"
@@ -105,26 +111,25 @@
                         class="enable-selector"
                         sync
                     />
-                    <div class="wrapper input range">
-                        <label v-t="'drive'" for="odDrive"></label>
-                        <input type="range" id="odDrive"
-                               v-model.number="odDrive" min="0" max="1" step=".01" value="0.5">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'bandpassPre'" for="odPreBand"></label>
-                        <input type="range" id="odPreBand"
-                               v-model.number="odPreBand" min="0" max="1" step=".01" value="0.5">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'bandpassPost'" for="odColor"></label>
-                        <input type="range" id="odColor"
-                               v-model.number="odColor" min="0" max="22050" step="1" value="800">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'lpPost'" for="odPostCut"></label>
-                        <input type="range" id="odPostCut"
-                               v-model.number="odPostCut" min="0" max="22050" step=".01" value="3000">
-                    </div>
+                    <assignable-range-control
+                        v-model.number="odDrive"
+                        :label="$t('drive')"
+                    />
+                    <assignable-range-control
+                        v-model.number="odPreBand"
+                        :label="$t('bandpassPre')"
+                    />
+                    <assignable-range-control
+                        v-model.number="odColor"
+                        :label="$t('bandpassPost')"
+                        :max="22050"
+                        :step="1"
+                    />
+                    <assignable-range-control
+                        v-model.number="odPostCut"
+                        :label="$t('lpPost')"
+                        :max="22050"
+                    />
                 </fieldset>
 
                 <fieldset id="delayEditor" class="instrument-parameters">
@@ -140,22 +145,27 @@
                         <option v-t="'delay1'" value="1"></option>
                         <option v-t="'delay2'" value="2"></option>
                     </select>
-                    <div class="wrapper input range">
-                        <label v-t="'delayTime'" for="delayTime"></label>
-                        <input type="range" id="delayTime" v-model.number="delayTime" min="0" max="1" step=".001" value=".5">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'feedback'" for="delayFeedback"></label>
-                        <input type="range" id="delayFeedback" v-model.number="delayFeedback" min="0" max="1" step=".01" value="0.5">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'cutoff'" for="delayCutoff"></label>
-                        <input type="range" id="delayCutoff" v-model.number="delayCutoff" min="0" max="22050" step="1" value="880">
-                    </div>
-                    <div class="wrapper input range">
-                        <label v-t="'offset'" for="delayOffset"></label>
-                        <input type="range" id="delayOffset" v-model.number="delayOffset" min="-0.5" max="0.5" step=".01" value="0">
-                    </div>
+                    <assignable-range-control
+                        v-model.number="delayTime"
+                        :label="$t('delayTime')"
+                        :step="0.001"
+                    />
+                    <assignable-range-control
+                        v-model.number="delayFeedback"
+                        :label="$t('feedback')"
+                    />
+                    <assignable-range-control
+                        v-model.number="delayCutoff"
+                        :label="$t('cutoff')"
+                        :max="22050"
+                        :step="1"
+                    />
+                    <assignable-range-control
+                        v-model.number="delayOffset"
+                        :label="$t('offset')"
+                        :min="-0.5"
+                        :max="0.5"
+                    />
                 </fieldset>
             </div>
         </div>
@@ -165,6 +175,7 @@
 <script>
 import { mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
+import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import SelectBox from "@/components/forms/select-box";
 import AudioService from "@/services/audio-service";
 import messages from "./messages.json";
@@ -175,6 +186,9 @@ export default {
         SelectBox,
         ToggleButton,
     },
+    mixins: [
+        ControllerEditor
+    ],
     props: {
         instrumentId: {
             type: Number,
@@ -301,7 +315,10 @@ export default {
                 { label: this.$t( "notch" ),     value: "notch" },
                 { label: this.$t( "allpass" ),   value: "allpass" },
             ];
-        }
+        },
+        assignable() {
+            return this.midiConnected;
+        },
     },
     methods: {
         ...mapMutations([

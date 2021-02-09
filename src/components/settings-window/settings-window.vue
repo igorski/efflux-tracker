@@ -69,19 +69,21 @@
                 </div>
             </fieldset>
         </section>
-        <section id="midiSetup" v-if="hasMIDIsupport">
+        <section id="midiSetup" v-if="hasMidiSupport">
             <fieldset>
                 <legend v-t="'midiSetup'"></legend>
                 <div class="pane">
                     <button
                         v-t="'midiConnectToAPI'"
                         @click="connectMidiDevices"
+                        :disabled="midiConnected"
                     ></button>
                     <div class="wrapper select">
                         <label v-t="'deviceSelectLabel'" class="padded-label"></label>
                         <select-box
                             v-model="portNumber"
                             :options="midiDeviceOptions"
+                            :disabled="!midiConnected"
                             class="param-select"
                         />
                     </div>
@@ -119,18 +121,17 @@ export default {
     }),
     computed: {
         ...mapState({
-            midiPortNumber: state => state.midi.midiPortNumber,
-            midiDeviceList: state => state.midi.midiDeviceList,
-            settings: state => state.settings.PROPERTIES,
+            midiPortNumber : state => state.midi.midiPortNumber,
+            midiDeviceList : state => state.midi.midiDeviceList,
+            midiConnected  : state => state.midi.midiConnected,
+            settings       : state => state.settings.PROPERTIES,
         }),
         ...mapGetters([
             "displayWelcome",
             "getSetting",
             "midiMessageHandler",
+            "hasMidiSupport"
         ]),
-        hasMIDIsupport() {
-            return zMIDI.isSupported();
-        },
         showHelpOnStartup: {
             get() {
                 return this.displayWelcome;
@@ -146,7 +147,7 @@ export default {
                 return this.midiPortNumber.toString();
             },
             set( value ) {
-                this.setMIDIPortNumber( parseFloat( value ));
+                this.setMidiPortNumber( parseFloat( value ));
             }
         },
         paramFormatOptions() {
@@ -206,8 +207,8 @@ export default {
         ...mapMutations([
             'saveSetting',
             'showNotification',
-            'createMIDIDeviceList',
-            'setMIDIPortNumber',
+            'createMidiDeviceList',
+            'setMidiPortNumber',
             'publishMessage',
         ]),
         handleParameterInputFormatChange() {
@@ -236,16 +237,17 @@ export default {
                 this.changeListener = this.handleMIDIconnectSuccess.bind( this );
                 zMIDI.addChangeListener( this.changeListener );
             }
-            this.createMIDIDeviceList( inputs );
+            this.createMidiDeviceList( inputs );
             if ( inputs.length === 0 ) {
                 this.showNotification({ message: this.$t( "noMidiDevices" )});
                 return;
             }
             this.publishMessage( PubSubMessages.MIDI_CONNECTED );
 
-            // auto select first device if there is only one available
-            if ( this.midiDeviceList.length === 1 ) {
-                this.portNumber = this.midiDeviceList[ 0 ].value;
+            // when there is no selected port yet, auto select first device
+            // as soon as one becomes available
+            if ( this.midiPortNumber === -1 && this.midiDeviceList.length > 0 ) {
+                this.setMidiPortNumber( this.midiDeviceList[ 0 ].value );
             }
         },
         handleMIDIconnectFailure() {

@@ -22,7 +22,7 @@
  */
 import Config       from '@/config';
 import EventFactory from './event-factory';
-import ObjectUtil   from '@/utils/object-util';
+import { clone }   from '@/utils/object-util';
 import { ACTION_IDLE } from '../types/audio-event-def';
 
 const PatternFactory =
@@ -94,7 +94,7 @@ const PatternFactory =
             sourcePattern.channels = replacement;
             sourceLength = sourcePattern.steps = targetLength;
         }
-        const merged = ObjectUtil.clone(targetPattern);
+        const merged = clone(targetPattern);
 
         merged.channels.forEach(( targetChannel, index ) => {
             sourceChannel = sourcePattern.channels[ index ];
@@ -107,7 +107,7 @@ const PatternFactory =
 
                 if ( sourceEvent && ( sourceEvent.action !== ACTION_IDLE || sourceEvent.mp )) {
 
-                    const targetEvent = targetChannel[ i ] = ObjectUtil.clone( sourceEvent );
+                    const targetEvent = targetChannel[ i ] = clone( sourceEvent );
 
                     // update the start measure of the event
 

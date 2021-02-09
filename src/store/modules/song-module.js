@@ -29,7 +29,7 @@ import FixturesLoader      from '@/services/fixtures-loader';
 import SongAssemblyService from '@/services/song-assembly-service';
 import PubSubMessages      from '@/services/pubsub/messages';
 import SongValidator       from '@/model/validators/song-validator';
-import ObjectUtil          from '@/utils/object-util';
+import { clone }           from '@/utils/object-util';
 import StorageUtil         from '@/utils/storage-util';
 
 import { hasContent, resetPlayState, updateEventOffsets } from '@/utils/song-util';
@@ -58,7 +58,7 @@ export default {
         setActiveSong(state, song) {
             if (song && song.meta && song.patterns) {
                 // close song as we do not want to modify the original song stored in list
-                state.activeSong = ObjectUtil.clone(song);
+                state.activeSong = clone(song);
                 resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got 'frozen' events
             }
         },

@@ -23,7 +23,7 @@
 import Vue                 from "vue";
 import HistoryStates       from "@/definitions/history-states";
 import EventUtil           from "@/utils/event-util";
-import ObjectUtil          from "@/utils/object-util";
+import { clone }          from "@/utils/object-util";
 import PatternUtil         from "@/utils/pattern-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 import PatternFactory      from "./pattern-factory";
@@ -141,7 +141,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         // update linked list for AudioEvents
         EventUtil.linkEvent( event, channelIndex, song, eventList );
 
-        if ( optEventData && optEventData.newEvent === true ) {
+        if ( optEventData?.newEvent === true ) {
 
             // new events by default take the instrument of the previously declared note in
             // the current patterns event channel
@@ -347,7 +347,7 @@ function addPattern({ store }) {
 
     const { commit } = store;
 
-    const pattern = ObjectUtil.clone( PatternFactory.createEmptyPattern( amountOfSteps ));
+    const pattern = clone( PatternFactory.createEmptyPattern( amountOfSteps ));
 
     function act() {
         commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex + 1, amountOfSteps, pattern ));
@@ -533,7 +533,7 @@ function deserialize( serializedObject = null ) {
  * @returns {Object}
  */
 function clonePattern( song, activePattern ) {
-    const clone = ObjectUtil.clone( song.patterns[ activePattern ]);
+    const clone = clone( song.patterns[ activePattern ]);
     clone.channels.forEach( channel => {
         channel.forEach( event => {
             if ( event?.seq?.playing ) {

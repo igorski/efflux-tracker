@@ -21,21 +21,21 @@
         @include toolFont();
         color: #FFF;
     }
+}
 
-    .wrapper.range {
-        width: 100%;
+.wrapper.range {
+    width: 100%;
 
-        label {
-            width: 33%;
-            vertical-align: middle;
-            display: inline-block;
-            @include toolFont();
-        }
+    label {
+        width: 33%;
+        vertical-align: middle;
+        display: inline-block;
+        @include toolFont();
+    }
 
-        input {
-            width: 50%;
-            vertical-align: middle;
-            display: inline-block;
-        }
+    input {
+        width: 50%;
+        vertical-align: middle;
+        display: inline-block;
     }
 }
