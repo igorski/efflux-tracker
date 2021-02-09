@@ -46,14 +46,17 @@
                     />
                     <assignable-range-control
                         v-model.number="eqLow"
+                        :param-id="MIDI_ASSIGNABLE.EQ_LOW"
                         :label="$t('low')"
                     />
                     <assignable-range-control
                         v-model.number="eqMid"
+                        :param-id="MIDI_ASSIGNABLE.EQ_MID"
                         :label="$t('mid')"
                     />
                     <assignable-range-control
                         v-model.number="eqHigh"
+                        :param-id="MIDI_ASSIGNABLE.EQ_HIGH"
                         :label="$t('high')"
                     />
                 </fieldset>
@@ -67,15 +70,13 @@
                     />
                     <assignable-range-control
                         v-model.number="filterFrequency"
+                        :param-id="MIDI_ASSIGNABLE.FILTER_FREQ"
                         :label="$t('frequency')"
-                        :min="40"
-                        :max="24000"
                     />
                     <assignable-range-control
                         v-model.number="filterQ"
+                        :param-id="MIDI_ASSIGNABLE.FILTER_Q"
                         :label="$t('q')"
-                        :max="40"
-                        :step="1"
                     />
                     <select-box
                         v-model="filterLFO"
@@ -89,15 +90,13 @@
                     />
                     <assignable-range-control
                         v-model.number="filterSpeed"
+                        :param-id="MIDI_ASSIGNABLE.FILTER_LFO_SPEED"
                         :label="$t('lfoSpeed')"
-                        :min="0.1"
-                        :max="25"
                     />
                     <assignable-range-control
                         v-model.number="filterDepth"
+                        :param-id="MIDI_ASSIGNABLE.FILTER_LFO_DEPTH"
                         :label="$t('lfoDepth')"
-                        :min="0"
-                        :max="100"
                     />
                 </fieldset>
             </div>
@@ -113,22 +112,23 @@
                     />
                     <assignable-range-control
                         v-model.number="odDrive"
+                        :param-id="MIDI_ASSIGNABLE.OD_DRIVE"
                         :label="$t('drive')"
                     />
                     <assignable-range-control
                         v-model.number="odPreBand"
+                        :param-id="MIDI_ASSIGNABLE.OD_PRE_BAND"
                         :label="$t('bandpassPre')"
                     />
                     <assignable-range-control
                         v-model.number="odColor"
+                        :param-id="MIDI_ASSIGNABLE.OD_COLOR"
                         :label="$t('bandpassPost')"
-                        :max="22050"
-                        :step="1"
                     />
                     <assignable-range-control
                         v-model.number="odPostCut"
+                        :param-id="MIDI_ASSIGNABLE.OD_POST_CUT"
                         :label="$t('lpPost')"
-                        :max="22050"
                     />
                 </fieldset>
 
@@ -147,24 +147,23 @@
                     </select>
                     <assignable-range-control
                         v-model.number="delayTime"
+                        :param-id="MIDI_ASSIGNABLE.DELAY_TIME"
                         :label="$t('delayTime')"
-                        :step="0.001"
                     />
                     <assignable-range-control
                         v-model.number="delayFeedback"
+                        :param-id="MIDI_ASSIGNABLE.DELAY_FEEDBACK"
                         :label="$t('feedback')"
                     />
                     <assignable-range-control
                         v-model.number="delayCutoff"
+                        :param-id="MIDI_ASSIGNABLE.DELAY_CUTOFF"
                         :label="$t('cutoff')"
-                        :max="22050"
-                        :step="1"
                     />
                     <assignable-range-control
                         v-model.number="delayOffset"
+                        :param-id="MIDI_ASSIGNABLE.DELAY_OFFSET"
                         :label="$t('offset')"
-                        :min="-0.5"
-                        :max="0.5"
                     />
                 </fieldset>
             </div>
@@ -177,7 +176,8 @@ import { mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import SelectBox from "@/components/forms/select-box";
-import AudioService from "@/services/audio-service";
+import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
+import { applyModule } from "@/services/audio-service";
 import messages from "./messages.json";
 
 export default {
@@ -205,95 +205,183 @@ export default {
     computed: {
         /* EQ */
         eqEnabled: {
-            get() { return this.instrumentRef.eq.enabled },
-            set(value) { this.update('eq', { ...this.instrumentRef.eq, enabled: value }); }
+            get() {
+                return this.instrumentRef.eq.enabled;
+            },
+            set( value ) {
+                this.update( "eq", { ...this.instrumentRef.eq, enabled: value });
+            }
         },
         eqLow: {
-            get() { return this.instrumentRef.eq.lowGain },
-            set(value) { this.update('eq', { ...this.instrumentRef.eq, lowGain: value }); }
+            get() {
+                return this.instrumentRef.eq.lowGain;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.EQ_LOW, value );
+            }
         },
         eqMid: {
-            get() { return this.instrumentRef.eq.midGain },
-            set(value) { this.update('eq', { ...this.instrumentRef.eq, midGain: value }); }
+            get() {
+                return this.instrumentRef.eq.midGain;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.EQ_MID, value );
+            }
         },
         eqHigh: {
-            get() { return this.instrumentRef.eq.highGain },
-            set(value) { this.update('eq', { ...this.instrumentRef.eq, highGain: value }); }
+            get() {
+                return this.instrumentRef.eq.highGain;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.EQ_HIGH, value );
+            }
         },
         /* Filter */
         filterEnabled: {
-            get() { return this.instrumentRef.filter.enabled },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, enabled: value }); }
+            get() {
+                return this.instrumentRef.filter.enabled;
+            },
+            set( value ) {
+                this.update( "filter", { ...this.instrumentRef.filter, enabled: value });
+            }
         },
         filterFrequency: {
-            get() { return this.instrumentRef.filter.frequency },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, frequency: value }); }
+            get() {
+                return this.instrumentRef.filter.frequency;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_FREQ, value );
+            }
         },
         filterQ: {
-            get() { return this.instrumentRef.filter.q },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, q: value }); }
+            get() {
+                return this.instrumentRef.filter.q;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_Q, value );
+            }
         },
         filterType: {
-            get() { return this.instrumentRef.filter.type },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, type: value }); }
+            get() {
+                return this.instrumentRef.filter.type;
+            },
+            set( value ) {
+                this.update( "filter", { ...this.instrumentRef.filter, type: value });
+            }
         },
         filterLFO: {
-            get() { return this.instrumentRef.filter.lfoType },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, lfoType: value }); }
+            get() {
+                return this.instrumentRef.filter.lfoType;
+            },
+            set( value ) {
+                this.update( "filter", { ...this.instrumentRef.filter, lfoType: value });
+            }
         },
         filterSpeed: {
-            get() { return this.instrumentRef.filter.speed },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, speed: value }); }
+            get() {
+                return this.instrumentRef.filter.speed;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_LFO_SPEED, value );
+            }
         },
         filterDepth: {
-            get() { return this.instrumentRef.filter.depth },
-            set(value) { this.update('filter', { ...this.instrumentRef.filter, depth: value }); }
+            get() {
+                return this.instrumentRef.filter.depth;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_LFO_DEPTH, value );
+            }
         },
         /* Overdrive */
         odEnabled: {
-            get() { return this.instrumentRef.overdrive.enabled },
-            set(value) { this.update('overdrive', { ...this.instrumentRef.overdrive, enabled: value }); }
+            get() {
+                return this.instrumentRef.overdrive.enabled;
+            },
+            set( value ) {
+                this.update( "overdrive", { ...this.instrumentRef.overdrive, enabled: value });
+            }
         },
         odDrive: {
-            get() { return this.instrumentRef.overdrive.drive },
-            set(value) { this.update('overdrive', { ...this.instrumentRef.overdrive, drive: value }); }
+            get() {
+                return this.instrumentRef.overdrive.drive;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_DRIVE, value );
+            }
         },
         odPreBand: {
-            get() { return this.instrumentRef.overdrive.preBand },
-            set(value) { this.update('overdrive', { ...this.instrumentRef.overdrive, preBand: value }); }
+            get() {
+                return this.instrumentRef.overdrive.preBand;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_PRE_BAND, value );
+            }
         },
         odColor: {
-            get() { return this.instrumentRef.overdrive.color },
-            set(value) { this.update('overdrive', { ...this.instrumentRef.overdrive, color: value }); }
+            get() {
+                return this.instrumentRef.overdrive.color;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_COLOR, value );
+            }
         },
         odPostCut: {
-            get() { return this.instrumentRef.overdrive.postCut },
-            set(value) { this.update('overdrive', { ...this.instrumentRef.overdrive, postCut: value }); }
+            get() {
+                return this.instrumentRef.overdrive.postCut;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_POST_CUT, value );
+            }
         },
         /* Delay */
         delayEnabled: {
-            get() { return this.instrumentRef.delay.enabled },
-            set(value) { this.update('delay', { ...this.instrumentRef.delay, enabled: value }); }
+            get() {
+                return this.instrumentRef.delay.enabled;
+            },
+            set( value ) {
+                this.update( "delay", { ...this.instrumentRef.delay, enabled: value });
+            }
         },
         delayType: {
-            get() { return this.instrumentRef.delay.type },
-            set(value) { this.update('delay', { ...this.instrumentRef.delay, type: value }); }
+            get() {
+                return this.instrumentRef.delay.type;
+            },
+            set( value ) {
+                this.update( "delay", { ...this.instrumentRef.delay, type: value });
+            }
         },
         delayTime: {
-            get() { return this.instrumentRef.delay.time },
-            set(value) { this.update('delay', { ...this.instrumentRef.delay, time: value }); }
+            get() {
+                return this.instrumentRef.delay.time;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_TIME, value );
+            }
         },
         delayFeedback: {
-            get() { return this.instrumentRef.delay.feedback },
-            set(value) { this.update('delay', { ...this.instrumentRef.delay, feedback: value }); }
+            get() {
+                return this.instrumentRef.delay.feedback;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_FEEDBACK, value );
+            }
         },
         delayCutoff: {
-            get() { return this.instrumentRef.delay.cutoff },
-            set(value) { this.update('delay', { ...this.instrumentRef.delay, cutoff: value }); }
+            get() {
+                return this.instrumentRef.delay.cutoff;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_CUTOFF, value );
+            }
         },
         delayOffset: {
-            get() { return this.instrumentRef.delay.offset },
-            set(value) { this.update('delay', { ...this.instrumentRef.delay, offset: value }); }
+            get() {
+                return this.instrumentRef.delay.offset;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_OFFSET, value );
+            }
         },
         filterOptions() {
             return [
@@ -320,14 +408,22 @@ export default {
             return this.midiConnected;
         },
     },
+    created() {
+        this.MIDI_ASSIGNABLE = MIDI_ASSIGNABLE;
+    },
     methods: {
         ...mapMutations([
             'updateInstrument',
         ]),
-        update(prop, value) {
+        // TODO: use updateParamChange
+        update( prop, value ) {
             this.updateInstrument({ instrumentIndex: this.instrumentId, prop, value }); // update Vuex model
-            AudioService.applyModule(prop, this.instrumentId, value); // update AudioService
-            this.invalidate();  // invalidate current preset (marks it as changed)
+            applyModule( prop, this.instrumentId, value ); // update AudioService
+            this.invalidate(); // invalidate current preset (marks it as changed)
+        },
+        updateParamChange( paramId, value ) {
+            applyParamChange( paramId, value, this.instrumentId, this.$store );
+            this.invalidate(); // invalidate current preset (marks it as changed)
         },
         invalidate() {
             this.$emit('invalidate');

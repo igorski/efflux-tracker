@@ -24,13 +24,14 @@ import { zMIDI } from "zmidi";
 
 export default {
     state: {
-        midiSupported    : zMIDI.isSupported(), // can we use MIDI ?
-        midiConnected    : false,    // whether zMIDI has established a MIDI API connection
-        midiPortNumber   : -1,       // midi port that we have subscribed to receive events from
-        midiDeviceList   : [],       // list of connected MIDI devices
-        midiAssignMode   : false,    // when true, assignable-range-control activate pairing mode
-        pairableCallback : null,     // when set, the next incoming CC change will map to this callback
-        pairings         : new Map() // list of existing CC changes mapped to callbacks
+        midiSupported   : zMIDI.isSupported(), // can we use MIDI ?
+        midiConnected   : false,    // whether zMIDI has established a MIDI API connection
+        midiPortNumber  : -1,       // midi port that we have subscribed to receive events from
+        midiDeviceList  : [],       // list of connected MIDI devices
+        midiAssignMode  : false,    // when true, assignable-range-control activate pairing mode
+        // { paramId: String, instrumentIndex: Number }
+        pairableParamId : null,     // when set, the next incoming CC change will map to this param-instrument pair
+        pairings        : new Map() // list of existing CC changes mapped to param-instrument pairs
     },
     getters: {
         hasMidiSupport( state ) {
@@ -51,13 +52,13 @@ export default {
         setMidiAssignMode( state, value ) {
             state.midiAssignMode = value;
         },
-        setPairableControlCallback( state, pairableCallback ) {
-            state.pairableCallback = pairableCallback;
-            state.midiAssignMode   = false;
+        setPairableParamId( state, pairableParamId ) {
+            state.pairableParamId = pairableParamId;
+            state.midiAssignMode  = false;
         },
         pairControlChangeToController( state, controlChangeId ) {
-            state.pairings.set( controlChangeId, state.pairableCallback );
-            state.pairableCallback = null;
+            state.pairings.set( controlChangeId, state.pairableParamId );
+            state.pairableParamId = null;
         },
         unpairControlChange( state, controlChangeId ) {
             state.pairings.delete( controlChangeId );

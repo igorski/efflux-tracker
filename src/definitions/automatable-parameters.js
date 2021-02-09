@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -20,29 +20,38 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export const DELAY_ENABLED  = 'delayEnabled';
-export const DELAY_FEEDBACK = 'delayFeedback';
-export const DELAY_CUTOFF   = 'delayCutoff';
-export const DELAY_TIME     = 'delayTime';
-export const DELAY_OFFSET   = 'delayOffset';
+import {
+    DELAY_ENABLED,
+    DELAY_FEEDBACK,
+    DELAY_CUTOFF,
+    DELAY_TIME,
+    DELAY_OFFSET,
+    FILTER_ENABLED,
+    FILTER_FREQ,
+    FILTER_Q,
+    FILTER_LFO_ENABLED,
+    FILTER_LFO_SPEED,
+    FILTER_LFO_DEPTH
+} from "./param-ids";
 
-export const EXTERNAL_EVENT = 'EE';
+// all parameter ids should be available for automation
 
-export const FILTER_ENABLED     = 'filterEnabled';
-export const FILTER_FREQ        = 'filterFreq';
-export const FILTER_Q           = 'filterQ';
-export const FILTER_LFO_ENABLED = 'filterLFOEnabled';
-export const FILTER_LFO_SPEED   = 'filterLFOSpeed';
-export const FILTER_LFO_DEPTH   = 'filterLFODepth';
+export * from "./param-ids";
 
-export const PAN_LEFT   = 'panLeft';
-export const PAN_RIGHT  = 'panRight';
-export const PITCH_UP   = 'pitchUp';
-export const PITCH_DOWN = 'pitchDown';
+// though we also allow automation of parameters beyond the instrument modeules:
 
-export const VOLUME = 'volume';
+export const PAN_LEFT   = "panLeft";
+export const PAN_RIGHT  = "panRight";
+export const PITCH_UP   = "pitchUp";
+export const PITCH_DOWN = "pitchDown";
+export const VOLUME     = "volume";
 
-// here we have parameters grouped by their first letter. This is used by the keyboard
+// EXTERNAL_EVENT is used to broadcast a value from the sequencer
+// to any listening applications (see Tiny player)
+
+export const EXTERNAL_EVENT = "EE";
+
+// here we have the parameters grouped by their first letter. This is used by the keyboard
 // handlers to map single or double characters quickly to the appropriate parameter
 
 export const D_MODULES = [ DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET ];

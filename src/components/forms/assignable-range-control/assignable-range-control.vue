@@ -24,11 +24,11 @@
     <div class="wrapper input range range-control-wrapper">
         <label
             v-html="label"
-            :for="controlId"
+            :for="paramId"
         ></label>
         <input
             :value="value"
-            :id="controlId"
+            :id="paramId"
             type="range"
             :min="min"
             :max="max"
@@ -50,12 +50,16 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import { uid } from "@/utils/object-util";
+import { getParamRange } from "@/definitions/param-ids";
 import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     props: {
+        paramId: {
+            type: String,
+            required: true,
+        },
         value: {
             type: Number,
             required: true,
@@ -64,52 +68,52 @@ export default {
             type: String,
             required: true,
         },
-        min: {
-            type: Number,
-            default: 0
-        },
-        max: {
-            type: Number,
-            default: 1
-        },
-        step: {
-            type: Number,
-            default: 0.01
-        },
     },
     data: () => ({
-        channel   : -1,     // MIDI channel assigned for control
-        controlId : uid(),  // needs to be persistent over sessions, map to type and instrument
-        linking   : false,
+        linking : false,
+        paired  : false,
     }),
     computed: {
         ...mapState({
-            midiAssignMode   : state => state.midi.midiAssignMode,
-            pairableCallback : state => state.midi.pairableCallback,
+            selectedInstrument : state => state.editor.selectedInstrument,
+            midiAssignMode     : state => state.midi.midiAssignMode,
+            pairableParamId    : state => state.midi.pairableParamId,
+            pairings           : state => state.midi.pairings,
         }),
         linkable() {
-            return this.linking || this.midiAssignMode;
+            return !this.paired && ( this.linking || this.midiAssignMode );
         },
     },
     watch: {
-        pairableCallback( value ) {
+        pairableParamId( value ) {
             if ( !value ) {
                 this.linking = false;
+                this.checkPairing();
             }
         },
     },
+    created() {
+        const { min, max, step } = getParamRange( this.paramId );
+        this.min  = min;
+        this.max  = max;
+        this.step = step;
+        this.checkPairing();
+    },
     methods: {
         ...mapMutations([
-            "setPairableControlCallback",
+            "setPairableParamId",
             "unpairControlChange",
         ]),
-        linkToChannel() {
-            this.setPairableControlCallback( this.controlUpdate.bind( this ));
-            this.linking = true;
+        checkPairing() {
+            this.paired = Object.values([ ...this.pairings ])
+                              .some(([, { paramId, instrumentIndex }]) => paramId === this.paramId && instrumentIndex === this.selectedInstrument );
         },
-        controlUpdate( value ) {
-            const translated = this.min + ( this.max - this.min ) * ( value * ( 1 / 127 ));
-            this.$emit( "input", translated );
+        linkToChannel() {
+            this.setPairableParamId({
+                paramId         : this.paramId,
+                instrumentIndex : this.selectedInstrument
+            });
+            this.linking = true;
         },
     },
 };

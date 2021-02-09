@@ -36,27 +36,27 @@ describe( "Vuex MIDI module", () => {
             expect( state.midiAssignMode ).toBe( true );
         });
 
-        it( "should be able to enqueue a controller change callback to be paired with a CC change", () => {
+        it( "should be able to enqueue a param/instrument mapping to be paired with a CC change", () => {
             const state = {
-                pairableCallback : null,
-                midiAssignMode   : true
+                pairableParamId : null,
+                midiAssignMode  : true
             };
-            const callback = jest.fn();
-            mutations.setPairableControlCallback( state, callback );
-            expect( state.pairableCallback ).toEqual( callback );
+            const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
+            mutations.setPairableParamId( state, pairableParamId );
+            expect( state.pairableParamId ).toEqual( pairableParamId );
             expect( state.midiAssignMode ).toBe( false );
         });
 
-        it( "should be able to pair a CC change to an enqueued controller change callback", () => {
-            const pairableCallback = jest.fn();
+        it( "should be able to pair a CC change to an enqueued param/instrument mapping", () => {
+            const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
             const state = {
                 pairings : new Map(),
-                pairableCallback,
+                pairableParamId,
             };
             mutations.pairControlChangeToController( state, "foo" );
             expect( state.pairings.has( "foo" )).toBe( true );
-            expect( state.pairings.get( "foo" )).toEqual( pairableCallback );
-            expect( state.pairableCallback ).toBeNull();
+            expect( state.pairings.get( "foo" )).toEqual( pairableParamId );
+            expect( state.pairableParamId ).toBeNull();
         });
 
         it( "should be able to unpair an existing control change", () => {

@@ -416,9 +416,6 @@ const AudioService =
             recorder.exportWAV();
         }
     },
-    applyModule(type, instrumentIndex, props) {
-        ModuleFactory.applyConfiguration(type, instrumentModulesList[instrumentIndex], props, masterBus);
-    },
     cacheAllOscillators(instrumentIndex, instrument) {
         instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
             AudioService.updateOscillator("waveform", instrumentIndex, oscillatorIndex, oscillator )
@@ -462,6 +459,9 @@ export const getAnalysers = () => {
                 .map(modules => modules.analyser);
 };
 
+export const applyModule = ( type, instrumentIndex, props ) => {
+    ModuleFactory.applyConfiguration( type, instrumentModulesList[ instrumentIndex ], props, masterBus );
+};
 /* internal methods */
 
 function setupRouting() {

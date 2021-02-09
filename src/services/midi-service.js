@@ -21,7 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { MIDINotes, zMIDIEvent } from "zmidi";
+import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 import InstrumentUtil from "../utils/instrument-util";
+
+const MIDI_TO_PERCENTILE = 1 / 127; // scale MIDI 0-127 range to percentile
 
 let store, state, getters, commit, midi;
 
@@ -59,10 +62,18 @@ export default {
                 switch ( number ) {
                     default:
                         const controlId = `${channel}_${number}`;
-                        if ( midi.pairableCallback ) {
+                        if ( midi.pairableParamId ) {
                             commit( "pairControlChangeToController", controlId );
                         } else {
-                            midi.pairings.get( controlId )?.( value );
+                            const pairing = midi.pairings.get( controlId );
+                            if ( pairing ) {
+                                const { min, max } = getParamRange( pairing.paramId );
+                                applyParamChange(
+                                    pairing.paramId,
+                                    min + ( max - min ) * ( value * MIDI_TO_PERCENTILE ),
+                                    pairing.instrumentIndex, store
+                                );
+                            }
                         }
                         break;
                     case 44:

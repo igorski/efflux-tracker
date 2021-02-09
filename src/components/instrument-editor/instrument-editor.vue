@@ -208,6 +208,9 @@ export default {
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
         this.publishMessage(PubSubMessages.INSTRUMENT_EDITOR_OPENED);
     },
+    destroyed() {
+        this.setMidiAssignMode( false );
+    },
     methods: {
         ...mapMutations([
             "setSelectedInstrument",
@@ -238,15 +241,15 @@ export default {
             }
         },
         savePreset() {
-            let newPresetName = this.presetName || '';
-            if (newPresetName.trim().length === 0) {
-                this.showError(this.$t('errorNoName'));
+            let newPresetName = this.presetName || "";
+            if ( newPresetName.trim().length === 0 ) {
+                this.showError( this.$t( "errorNoName" ));
             }
             else {
-                newPresetName = newPresetName.replace('*', '');
+                newPresetName = newPresetName.replace( "*", "" );
                 this.setPresetName({ instrument: this.instrumentRef, presetName: newPresetName });
-                if (this.saveInstrument( clone( this.instrumentRef ) )) {
-                    this.showNotification({ message: this.$t('instrumentSaved', { name: newPresetName }) });
+                if ( this.saveInstrument( clone( this.instrumentRef ) )) {
+                    this.showNotification({ message: this.$t( "instrumentSaved", { name: newPresetName }) });
                 }
             }
         },
@@ -255,13 +258,13 @@ export default {
          * so it doesn't broadcast the typing to its listeners
          */
         handleFocusIn() {
-            this.suspendKeyboardService(true);
+            this.suspendKeyboardService( true );
         },
         /**
          * on focus out, restore the KeyboardControllers broadcasting
          */
         handleFocusOut() {
-            this.suspendKeyboardService(false);
+            this.suspendKeyboardService( false );
         },
     }
 };
