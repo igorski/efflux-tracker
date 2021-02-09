@@ -23,7 +23,7 @@
 import Vue                 from "vue";
 import HistoryStates       from "@/definitions/history-states";
 import EventUtil           from "@/utils/event-util";
-import { clone }          from "@/utils/object-util";
+import { clone }           from "@/utils/object-util";
 import PatternUtil         from "@/utils/pattern-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 import PatternFactory      from "./pattern-factory";
@@ -340,23 +340,24 @@ function pastePattern({ store, patternCopy }) {
 }
 
 function addPattern({ store }) {
-    const song            = store.state.song.activeSong,
-          patterns        = song.patterns,
-          patternIndex    = store.state.sequencer.activePattern,
-          amountOfSteps   = store.getters.amountOfSteps;
+    const song          = store.state.song.activeSong,
+          patternIndex  = store.state.sequencer.activePattern,
+          amountOfSteps = store.getters.amountOfSteps;
 
     const { commit } = store;
 
-    const pattern = clone( PatternFactory.createEmptyPattern( amountOfSteps ));
+    // note we don't cache song.patterns but always reference it from the song as the
+    // patterns list is effectively replaced by below actions
 
     function act() {
-        commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex + 1, amountOfSteps, pattern ));
+        const pattern = PatternFactory.createEmptyPattern( amountOfSteps );
+        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex + 1, amountOfSteps, pattern ));
     }
     act(); // perform action
 
     return {
         undo() {
-            commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex + 1 ));
+            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex + 1 ));
             commit( "setActivePattern", patternIndex );
         },
         redo: act
@@ -533,13 +534,13 @@ function deserialize( serializedObject = null ) {
  * @returns {Object}
  */
 function clonePattern( song, activePattern ) {
-    const clone = clone( song.patterns[ activePattern ]);
-    clone.channels.forEach( channel => {
+    const clonedPattern = clone( song.patterns[ activePattern ]);
+    clonedPattern.channels.forEach( channel => {
         channel.forEach( event => {
             if ( event?.seq?.playing ) {
                 event.seq.playing = false;
             }
         });
     });
-    return clone;
+    return clonedPattern;
 }

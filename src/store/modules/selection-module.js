@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -317,13 +317,13 @@ const module = {
                         if ( writeIndex < targetChannel.length ) {
                             if ( event && ( event.action !== ACTION_IDLE || event.mp )) {
 
-                                const clone = clone( event );
-                                clone.instrument  = cIndex;
-                                clone.seq.playing = false;
+                                const clonedEvent = clone( event );
+                                clonedEvent.instrument  = cIndex;
+                                clonedEvent.seq.playing = false;
 
-                                EventUtil.setPosition( clone, targetPattern, activePattern, writeIndex, song.meta.tempo, clone.seq.length );
-                                Vue.set(targetChannel, writeIndex, clone);
-                                EventUtil.linkEvent( clone, cIndex, song, eventList );
+                                EventUtil.setPosition( clonedEvent, targetPattern, activePattern, writeIndex, song.meta.tempo, clonedEvent.seq.length );
+                                Vue.set( targetChannel, writeIndex, clonedEvent );
+                                EventUtil.linkEvent( clonedEvent, cIndex, song, eventList );
                             }
                         }
                     });
