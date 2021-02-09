@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2019 - https://www.igorski.nl
+ * Igor Zinken 2017-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import InstrumentUtil from '../../utils/instrument-util';
+import InstrumentUtil from "@/utils/instrument-util";
 
 let store, state;
 
@@ -34,7 +34,7 @@ const LOWER_KEYS    = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76,
 const KEY_NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E" ];
 
 export default {
-    init(storeReference) {
+    init( storeReference ) {
         store = storeReference;
         state = store.state;
     },
@@ -44,7 +44,7 @@ export default {
         if ( note !== null ) {
             InstrumentUtil.onKeyDown(
                 note,
-                state.song.activeSong.instruments[state.editor.selectedInstrument],
+                state.song.activeSong.instruments[ state.editor.selectedInstrument ],
                 state.sequencer.recording,
                 store
             );
@@ -52,9 +52,10 @@ export default {
     },
 
     createNoteOffEvent( keyCode ) {
-        const note = getNoteForKey(keyCode);
-        if ( note !== null )
-            InstrumentUtil.onKeyUp(note, store);
+        const note = getNoteForKey( keyCode );
+        if ( note !== null ) {
+            InstrumentUtil.onKeyUp( note, store );
+        }
     }
 };
 
@@ -72,21 +73,18 @@ function getNoteForKey( keyCode )
     const higherIndex = HIGHER_KEYS.indexOf( keyCode );
     const lowerIndex  = LOWER_KEYS.indexOf( keyCode );
 
-    let noteName, octave;
+    let note, octave;
 
     if ( higherIndex > -1 ) {
-        noteName = KEY_NOTE_LIST[ higherIndex ];
-        octave   = state.editor.higherKeyboardOctave;
+        note   = KEY_NOTE_LIST[ higherIndex ];
+        octave = state.editor.higherKeyboardOctave + ( higherIndex >= 12 ? 1 : 0 );
     }
     else if ( lowerIndex > -1 ) {
-        noteName = KEY_NOTE_LIST[ lowerIndex ];
-        octave   = state.editor.lowerKeyboardOctave;
+        note   = KEY_NOTE_LIST[ lowerIndex ];
+        octave = state.editor.lowerKeyboardOctave + ( lowerIndex >= 12 ? 1 : 0 );
     }
-    else
+    else {
         return null;
-
-    return {
-        note: noteName,
-        octave: octave
-    };
+    }
+    return { note, octave };
 }
