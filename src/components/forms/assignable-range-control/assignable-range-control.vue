@@ -38,13 +38,19 @@
         <div
             v-if="linkable"
             class="hit-area"
-            @click="linkToChannel()"
+            @click="setAsPairable()"
         />
         <p
             v-if="linking"
             v-t="'moveControllerToAssign'"
             class="help-text"
         ></p>
+        <button
+            v-if="midiAssignMode && paired"
+            v-t="'unlink'"
+            class="unlink-button"
+            @click="unlink()"
+        ></button>
    </div>
 </template>
 
@@ -91,6 +97,9 @@ export default {
                 this.checkPairing();
             }
         },
+        selectedInstrument() {
+            this.checkPairing();
+        }
     },
     created() {
         const { min, max, step } = getParamRange( this.paramId );
@@ -108,13 +117,22 @@ export default {
             this.paired = Object.values([ ...this.pairings ])
                               .some(([, { paramId, instrumentIndex }]) => paramId === this.paramId && instrumentIndex === this.selectedInstrument );
         },
-        linkToChannel() {
+        setAsPairable() {
             this.setPairableParamId({
                 paramId         : this.paramId,
                 instrumentIndex : this.selectedInstrument
             });
             this.linking = true;
         },
+        unlink() {
+            const pair = Object.values([ ...this.pairings ])
+                              .find(([, { paramId, instrumentIndex }]) => paramId === this.paramId && instrumentIndex === this.selectedInstrument );
+
+            if ( pair ) {
+                this.unpairControlChange( pair[ 0 ] );
+                this.checkPairing();
+            }
+        }
     },
 };
 </script>
@@ -153,5 +171,11 @@ export default {
     top: 0;
     @include toolFont();
     color: #FFF;
+}
+
+.unlink-button {
+    position: absolute;
+    right: 0;
+    bottom: $spacing-small;
 }
 </style>
