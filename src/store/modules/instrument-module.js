@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,12 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config              from '@/config';
-import FixturesLoader      from '@/services/fixtures-loader';
-import StorageUtil         from '@/utils/storage-util';
-import InstrumentValidator from '@/model/validators/instrument-validator';
+import Config              from "@/config";
+import FixturesLoader      from "@/services/fixtures-loader";
+import StorageUtil         from "@/utils/storage-util";
+import InstrumentValidator from "@/model/validators/instrument-validator";
+import { saveAsFile }      from "@/utils/file-util";
 
-const INSTRUMENT_STORAGE_KEY = 'Efflux_Ins_';
+const INSTRUMENT_STORAGE_KEY = "Efflux_Ins_";
 
 // module that can store and retrieve saved instrument presets
 
@@ -231,16 +232,13 @@ export default {
                     }
 
                     // encode instrument data
-                    const data = window.btoa(JSON.stringify(instruments));
+                    const data = window.btoa( JSON.stringify( instruments ));
 
                     // download file to disk
-
-                    const pom = document.createElement('a');
-                    pom.setAttribute('href', `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`);
-                    pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
-                    pom.setAttribute('download', `efflux_instrument_presets${Config.INSTRUMENT_FILE_EXTENSION}` );
-                    pom.click();
-
+                    saveAsFile(
+                        `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`,
+                        `efflux_instrument_presets${Config.INSTRUMENT_FILE_EXTENSION}`
+                    );
                     resolve();
                 } else {
                     reject();

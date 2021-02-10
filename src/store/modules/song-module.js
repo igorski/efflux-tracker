@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -20,21 +20,22 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                 from 'vue';
-import Config              from '@/config';
-import SongFactory         from '@/model/factory/song-factory';
-import HistoryStateFactory from '@/model/factory/history-state-factory';
-import HistoryStates       from '@/definitions/history-states';
-import FixturesLoader      from '@/services/fixtures-loader';
-import SongAssemblyService from '@/services/song-assembly-service';
-import PubSubMessages      from '@/services/pubsub/messages';
-import SongValidator       from '@/model/validators/song-validator';
-import { clone }           from '@/utils/object-util';
-import StorageUtil         from '@/utils/storage-util';
+import Vue                 from "vue";
+import Config              from "@/config";
+import SongFactory         from "@/model/factory/song-factory";
+import HistoryStateFactory from "@/model/factory/history-state-factory";
+import HistoryStates       from "@/definitions/history-states";
+import FixturesLoader      from "@/services/fixtures-loader";
+import SongAssemblyService from "@/services/song-assembly-service";
+import PubSubMessages      from "@/services/pubsub/messages";
+import SongValidator       from "@/model/validators/song-validator";
+import { clone }           from "@/utils/object-util";
+import StorageUtil         from "@/utils/storage-util";
+import { saveAsFile }      from "@/utils/file-util";
 
-import { hasContent, resetPlayState, updateEventOffsets } from '@/utils/song-util';
+import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
 
-const SONG_STORAGE_KEY = 'Efflux_Song_';
+const SONG_STORAGE_KEY = "Efflux_Song_";
 
 export default {
     state: {
@@ -338,18 +339,12 @@ export default {
         },
         exportSong({ commit }, song) {
             return new Promise(resolve => {
-                const songData = SongAssemblyService.disassemble(song);
-
-                // download file to disk
-
-                const pom = document.createElement('a');
-                pom.setAttribute('href', `data:application/json;charset=utf-8,${encodeURIComponent(songData)}`);
-                pom.setAttribute('target', '_blank' ); // helps for Safari (opens content in window...)
-                pom.setAttribute('download', `${song.meta.title}${Config.SONG_FILE_EXTENSION}` );
-                pom.click();
-
-                commit('publishMessage', PubSubMessages.SONG_EXPORTED);
-
+                const songData = SongAssemblyService.disassemble( song );
+                saveAsFile(
+                    `data:application/json;charset=utf-8,${encodeURIComponent( songData )}`,
+                    `${song.meta.title}${Config.SONG_FILE_EXTENSION}`
+                );
+                commit( "publishMessage", PubSubMessages.SONG_EXPORTED );
                 resolve();
             });
         }

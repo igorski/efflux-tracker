@@ -64,9 +64,7 @@
                 </li>
                 <li v-t="'settings'"
                     @click="handleSettings" data-api-settings></li>
-                <li v-if="hasRecord"
-                    @click="handleRecord" data-api-record
-                >
+                <li @click="handleRecord" data-api-record>
                     {{ recordingButtonText }}
                 </li>
                 <li v-t="'help'"
@@ -109,11 +107,6 @@ export default {
         },
         hasFullscreen() {
             return isSupported();
-        },
-        hasRecord() {
-            // on iOS and Safari recording isn't working as expected...
-            const userAgent = window.navigator.userAgent;
-            return !userAgent.match(/(iPad|iPhone|iPod)/g) && userAgent.match(/(Chrome|Firefox)/g);
         },
         recordingButtonText() {
             return this.isPlaying && AudioService.isRecording() ? this.$t('stopRecording') : this.$t('recordOutput');

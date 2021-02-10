@@ -34,7 +34,7 @@ import {
     tuneToOscillator, tuneBufferPlayback, adjustEventWaveForms,
     adjustEventVolume, adjustEventTunings
 } from "@/utils/instrument-util";
-
+import { saveAsFile } from "@/utils/file-util";
 import {
     init, startOscillation, stopOscillation, setValue,
     createGainNode, createStereoPanner, createPWM, createWaveTableFromGraph
@@ -552,25 +552,19 @@ function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex,
  * @return {PeriodicWave} the created WaveTable
  */
 function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
-    return pool.CUSTOM[instrumentIndex][oscillatorIndex] = createWaveTableFromGraph( audioContext, table );
+    return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createWaveTableFromGraph( audioContext, table );
 }
 
-function handleRecordingComplete(blob) {
-    // download file to disk
-
-    const pom = document.createElement("a");
-    pom.setAttribute("href", window.URL.createObjectURL(blob));
-    pom.setAttribute("target", "_blank" ); // helps for Safari (opens content in window...)
-    pom.setAttribute("download", "efflux-output.wav");
-    pom.click();
+function handleRecordingComplete( blob ) {
+    const blobUrl = window.URL.createObjectURL( blob );
+    saveAsFile( blobUrl, "efflux-output.wav" );
+    window.URL.revokeObjectURL( blobUrl );
 
     // free recorder resources
 
     recorder.clear();
-    recorder  = null;
+    recorder = null;
     recordOutput = false;
 
-    window.URL.revokeObjectURL(blob);
-
-    store.commit("showNotification", { message: store.getters.t("messages.recordingSaved") });
+    store.commit( "showNotification", { message: store.getters.t( "messages.recordingSaved" ) });
 }
