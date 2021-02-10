@@ -67,7 +67,7 @@
                 <li @click="handleRecord" data-api-record>
                     {{ recordingButtonText }}
                 </li>
-                <li v-t="'help'"
+                <li v-t="'helpTutorials'"
                     @click="handleHelp" data-api-help></li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen"

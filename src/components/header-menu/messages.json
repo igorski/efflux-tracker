@@ -11,7 +11,7 @@
     "importInstruments": "Import instrument presets",
     "exportInstruments": "Export instrument presets",
     "settings": "Settings",
-    "help": "Help",
+    "helpTutorials": "Help / Tutorials",
     "maximize": "Maximize",
     "minimize": "Exit fullscreen",
     "warningSongReset": "Are you sure you want to close your current project and start a new one ? You will lose all unsaved changes and undo history.",
