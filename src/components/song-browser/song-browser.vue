@@ -29,6 +29,7 @@
                     @click="$emit('close')"
             >x</button>
         </div>
+        <hr class="divider" />
         <ul class="song-list">
             <li v-for="(song, index) in songs"
                 :key="`song_${index}`"
@@ -113,25 +114,35 @@ export default {
 @import "@/styles/_mixins";
 @import "@/styles/typography";
 
-$songBrowserWidth: 800px;
-$songBrowserHeight: 600px;
+$songBrowserWidth: 750px;
+$songBrowserHeight: 500px;
 
 .song-browser {
+    @include editorComponent();
     @include overlay();
     @include noSelect();
-    box-shadow: 0 0 $spacing-small rgba(0, 0, 0, .5);
-    padding: 0;
-    top: 50%;
-    left: 50%;
-    width: $songBrowserWidth;
-    margin-left: -($songBrowserWidth / 2);
-    height: $songBrowserHeight;
-    margin-top: -($songBrowserHeight / 2);
-    overflow: scroll;
-    background-color: #323234;
-    color: #b6b6b6;
     overflow-x: hidden;
     overflow-y: auto;
+    padding: 0;
+
+    .header {
+        padding: $spacing-small $spacing-large 0;
+    }
+
+    .divider {
+        width: calc(100% + #{$spacing-large * 2});
+        margin-left: -$spacing-large;
+        margin-bottom: 0;
+    }
+
+    @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
+        width: $songBrowserWidth;
+        height: $songBrowserHeight;
+        top: 50%;
+        left: 50%;
+        margin-left: -( $songBrowserWidth / 2 );
+        margin-top: -( $songBrowserHeight / 2 );
+    }
 
     @include componentFallback( $songBrowserWidth, $songBrowserHeight ) {
         top: 0;
@@ -142,72 +153,55 @@ $songBrowserHeight: 600px;
         border-radius: 0;
         z-index: 2000;
     }
+}
 
-    .header {
+.song-list {
+    @include list();
+    width: 100%;
+
+    li {
         @include boxSize();
-        background-color: $color-1;
-        padding: $spacing-small 0;
-        border-bottom: 2px solid #333;
+        @include animate(padding, .1s);
+        float: left;
         width: 100%;
+        padding: $spacing-small $spacing-large;
+        cursor: pointer;
+        border-bottom: 1px solid #53565c;
+        font-family: Montserrat, Helvetica, sans-serif;
 
-        h2 {
-            color: #000;
-            margin-left: $spacing-large;
+        .title, .date, .delete {
+            display: inline-block;
         }
 
-        .close-button {
-            top: $spacing-xsmall;
+        .title, .date {
+            @include noEvents();
         }
-    }
 
-    .song-list {
-        @include list();
-        width: 100%;
+        .title {
+            width: 55%;
+            @include truncate();
+            vertical-align: middle;
+        }
 
-        li {
+        .date {
+            width: 40%;
+            padding-left: $spacing-small;
             @include boxSize();
-            @include animate(padding, .1s);
-            float: left;
-            width: 100%;
-            padding: $spacing-small $spacing-large;
-            cursor: pointer;
-            border-bottom: 1px solid #53565c;
-            font-family: Montserrat, Helvetica, sans-serif;
+        }
 
-            .title, .date, .delete {
-                display: inline-block;
-            }
+        .delete {
+            width: 5%;
+        }
 
-            .title, .date {
-                @include noEvents();
-            }
+        &:nth-child(even) {
+            background-color: #53565c;
+            /*color: #FFF;*/
+        }
 
-            .title {
-                width: 55%;
-                @include truncate();
-                vertical-align: middle;
-            }
-
-            .date {
-                width: 40%;
-                padding-left: $spacing-small;
-                @include boxSize();
-            }
-
-            .delete {
-                width: 5%;
-            }
-
-            &:nth-child(even) {
-                background-color: #53565c;
-                /*color: #FFF;*/
-            }
-
-            &:hover {
-                background-color: $color-5;
-                color: #000;
-                padding: $spacing-medium $spacing-large;
-            }
+        &:hover {
+            background-color: $color-5;
+            color: #000;
+            padding: $spacing-medium $spacing-large;
         }
     }
 }
