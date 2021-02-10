@@ -66,17 +66,6 @@ export default
     },
 
     /**
-     * whether the application is running in local development mode
-     *
-     * @public
-     * @return {boolean}
-     */
-    isDevMode() {
-        // simple check whether we're running through the webpack dev server
-        return ( window.location.hostname === 'localhost' );
-    },
-
-    /**
      * queries whether hover states (for help topics) are
      * supported in the current environment
      *

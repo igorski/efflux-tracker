@@ -100,7 +100,6 @@ import VueI18n from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import { Style } from "zjslib";
-import Config from "@/config";
 import AudioService from "@/services/audio-service";
 import DialogWindow from "@/components/dialog-window/dialog-window";
 import HeaderMenu from "@/components/header-menu/header-menu";
@@ -263,16 +262,17 @@ export default {
 
         // show confirmation message on page reload
 
-        if ( !Config.isDevMode() ) {
-            const handleUnload = () => this.$t("warningUnload");
+        if ( process.env.NODE_ENV !== "development" ) {
+            const handleUnload = () => this.$t( "warningUnload" );
             if ( Bowser.ios ) {
-                window.addEventListener("popstate", handleUnload);
+                window.addEventListener( "popstate", handleUnload );
             }
-            else if (typeof window.onbeforeunload !== "undefined") {
+            else if ( typeof window.onbeforeunload !== "undefined" ) {
                 const prevBeforeUnload = window.onbeforeunload;
-                window.onbeforeunload = aEvent => {
-                    if (typeof prevBeforeUnload === "function") {
-                        prevBeforeUnload( aEvent );
+                window.onbeforeunload = event => {
+                    event.preventDefault();
+                    if ( typeof prevBeforeUnload === "function" ) {
+                        prevBeforeUnload( event );
                     }
                     return handleUnload();
                 };
