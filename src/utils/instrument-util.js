@@ -248,6 +248,11 @@ function recordEventIntoSong( audioEvent, store, markAsRecording = true ) {
     const { playing, activePattern } = state.sequencer;
     const { amountOfSteps } = getters;
 
+    // if the sequencer isn't playing, noteOff events must be added explicitly
+    if ( isNoteOff && !playing ) {
+        return;
+    }
+
     const song         = state.song.activeSong;
     const pattern      = song.patterns[ activePattern ];
     const channelIndex = state.editor.selectedInstrument;
@@ -276,7 +281,6 @@ function recordEventIntoSong( audioEvent, store, markAsRecording = true ) {
     }
 
     if ( playing ) {
-
         const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
 
         // do not record repeated note off instructions
@@ -287,14 +291,11 @@ function recordEventIntoSong( audioEvent, store, markAsRecording = true ) {
 
         // sequencer is playing, add event at current step
 
-        optData.patternIndex = activePattern;
-        optData.channelIndex = channelIndex;
-        optData.step         = step;
+        optData.patternIndex      = activePattern;
+        optData.channelIndex      = channelIndex;
+        optData.step              = step;
+        optData.advanceOnAddition = false; // don't advanced selected step during playback
         audioEvent.recording = markAsRecording && !isParamChange;
-    }
-    else if ( isNoteOff ) {
-        // if the sequencer isn't playing, noteOff events must be added explicitly
-        return;
     }
     commit( "addEventAtPosition", { store, event: audioEvent, optData });
 
