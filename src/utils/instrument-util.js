@@ -249,6 +249,7 @@ function recordEventIntoSong( audioEvent, store, markAsRecording = true ) {
     const { amountOfSteps } = getters;
 
     // if the sequencer isn't playing, noteOff events must be added explicitly
+    // (this noteOff event is the result of a key release)
     if ( isNoteOff && !playing ) {
         return;
     }

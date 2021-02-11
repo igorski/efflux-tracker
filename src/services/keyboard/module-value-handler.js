@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2020 - https://www.igorski.nl
+ * Igor Zinken 2017-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,21 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                 from 'vue';
-import HistoryStates       from '@/definitions/history-states';
-import EventFactory        from '@/model/factory/event-factory';
-import HistoryStateFactory from '@/model/factory/history-state-factory';
-import EventUtil           from '@/utils/event-util';
-import { fromHex, isHex }  from '@/utils/number-util';
+import Vue                 from "vue";
+import HistoryStates       from "@/definitions/history-states";
+import EventFactory        from "@/model/factory/event-factory";
+import HistoryStateFactory from "@/model/factory/history-state-factory";
+import EventUtil           from "@/utils/event-util";
+import { fromHex, isHex }  from "@/utils/number-util";
 
 let store, state;
 let lastCharacter = "", lastTypeAction = 0;
 
 export default {
-
-    init(storeReference) {
+    init( storeReference ) {
         store = storeReference;
-        state = store.state;
+        ({ state } = store );
     },
 
     handleParam( keyCode ) {
@@ -45,53 +44,65 @@ export default {
 
         const character = String.fromCharCode(( 96 <= keyCode && keyCode <= 105 )? keyCode - 48 : keyCode );
 
-        if ( !character || !character.match( /^[a-z0-9]+$/i ))
+        if ( !character || !character.match( /^[a-z0-9]+$/i )) {
             return;
-
+        }
         // if this character was typed shortly after the previous one,
         // combine their values for more precise control
 
         let value = ( now - previousTypeAction < 500 ) ? lastCharacter + character : "0" + character;
         lastCharacter = character;
 
-        // validate value
-        switch ( store.getters.getSetting( state.settings.PROPERTIES.INPUT_FORMAT )) {
-            default:
-            case 'hex':
-                if ( !isHex( value ))
-                    return;
-                else
-                    value = fromHex( value );
-                    break;
+        let toggleGlide = false;
 
-            case 'pct':
-                value = parseFloat( value );
-                if ( isNaN( value ) || value < 0 || value > 100 )
-                    return;
+        if ( keyCode === 71 ) {
+             // G key toggle glide value
+             toggleGlide = true;
+        } else {
+            // validate value
+            switch ( store.getters.getSetting( state.settings.PROPERTIES.INPUT_FORMAT )) {
+                default:
+                case "hex":
+                    if ( !isHex( value ))
+                        return;
+                    else
+                        value = fromHex( value );
+                        break;
+
+                case "pct":
+                    value = parseFloat( value );
+                    if ( isNaN( value ) || value < 0 || value > 100 )
+                        return;
+            }
         }
 
         let event = getEventForPosition();
         const createEvent = !event;
 
-        // create event if it didn't exist yet
+        // create event if it didn"t exist yet
         if ( createEvent )
             event = getEventForPosition( true );
 
         // no module param defined yet ? create as duplicate of previously defined property
-        let mp = event.mp;
+        let { mp  } = event;
         if ( !mp ) {
             const prevEvent = getPreviousEventWithModuleAutomation(state.editor.selectedStep);
             mp = EventFactory.createModuleParam(
-                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : 'volume', value, false
+                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", value, false
             );
+        } else if ( toggleGlide ) {
+            mp.glide = !mp.glide;
+        }
+        if ( isNaN( value )) {
+            return;
         }
 
         if ( createEvent ) {
-            Vue.set(event, 'mp', mp);
+            Vue.set( event, "mp", mp );
         } else {
             // a previously existed event will register the mp change in state history
             // (a newly created event is added to state history through its addition to the song)
-            store.commit('saveState', HistoryStateFactory.getAction(
+            store.commit( "saveState", HistoryStateFactory.getAction(
                 HistoryStates.ADD_MODULE_AUTOMATION, { event, mp: { ...mp, value  } }
             ));
         }
@@ -127,7 +138,7 @@ function getEventForPosition( createIfNotExisting ) {
     if ( !event && createIfNotExisting === true ) {
 
         event = EventFactory.createAudioEvent(state.editor.selectedInstrument);
-        store.commit('addEventAtPosition', {
+        store.commit("addEventAtPosition", {
             store, event,
             optData: {
                 patternIndex      : state.sequencer.activePattern,
