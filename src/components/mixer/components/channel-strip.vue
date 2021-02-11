@@ -96,7 +96,13 @@ export default {
             return this.activeSong.instruments[ this.instrumentIndex ];
         },
         name() {
-            return (this.instrument.presetName || this.instrument.name || '').replace('FACTORY ', '');
+            const { name, presetName } = this.instrument;
+            if ( !name.startsWith( "Instrument ")) {
+                // instrument has a non-default name set
+                return name;
+            }
+            // instrument has preset, use its name
+            return ( presetName || name || "" ).replace( "FACTORY ", "" );
         },
         volume: {
             get() {

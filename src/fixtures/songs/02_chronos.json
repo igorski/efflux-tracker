@@ -12,7 +12,7 @@
   "ins": [
     {
       "i": 0,
-      "n": "Instrument 0",
+      "n": "Lead",
       "v": 0.64,
       "d": {
         "e": false,
@@ -1141,7 +1141,7 @@
     },
     {
       "i": 1,
-      "n": "Instrument 1",
+      "n": "Instrument 2",
       "v": 0.78,
       "d": {
         "e": false,
@@ -1244,7 +1244,7 @@
     },
     {
       "i": 2,
-      "n": "Instrument 2",
+      "n": "Pad",
       "v": 0.34,
       "d": {
         "e": true,
@@ -1860,7 +1860,7 @@
     },
     {
       "i": 3,
-      "n": "Instrument 3",
+      "n": "Instrument 4",
       "v": 1,
       "d": {
         "e": false,
@@ -1963,7 +1963,7 @@
     },
     {
       "i": 4,
-      "n": "Instrument 4",
+      "n": "Bass",
       "v": 0.28,
       "d": {
         "e": false,
@@ -3605,7 +3605,7 @@
     },
     {
       "i": 5,
-      "n": "Instrument 5",
+      "n": "Noise kick",
       "v": 0.71,
       "d": {
         "e": false,
@@ -3708,7 +3708,7 @@
     },
     {
       "i": 6,
-      "n": "Instrument 6",
+      "n": "Noise Snare",
       "v": 0.3,
       "d": {
         "e": false,
@@ -3811,7 +3811,7 @@
     },
     {
       "i": 7,
-      "n": "Instrument 7",
+      "n": "Instrument 8",
       "v": 1,
       "d": {
         "e": false,

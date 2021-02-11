@@ -36,7 +36,7 @@
                 @click="openSongClick(song.id)"
             >
                 <span class="title">{{ `${song.meta.title}, by ${song.meta.author}` }}</span>
-                <span class="date">{{ getSongDate(song) }}</span>
+                <!-- <span class="date">{{ getSongDate(song) }}</span> -->
                 <span class="delete"
                       @click.stop.prevent="deleteSongClick(song.id)"
                 >x</span>
@@ -178,17 +178,17 @@ $songBrowserHeight: 500px;
         }
 
         .title {
-            width: 55%;
+            width: 95%;
             @include truncate();
             vertical-align: middle;
         }
-
+/*
         .date {
             width: 40%;
             padding-left: $spacing-small;
             @include boxSize();
         }
-
+*/
         .delete {
             width: 5%;
         }

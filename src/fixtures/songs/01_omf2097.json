@@ -12,7 +12,7 @@
   "ins": [
     {
       "i": 0,
-      "n": "Instrument 0",
+      "n": "Bass",
       "pn": "FACTORY bass roar",
       "v": 0.31,
       "d": {
@@ -1108,7 +1108,7 @@
     },
     {
       "i": 1,
-      "n": "Instrument 1",
+      "n": "Pad",
       "pn": "FACTORY pad wide",
       "v": 0.12,
       "d": {
@@ -1691,7 +1691,7 @@
     },
     {
       "i": 2,
-      "n": "Instrument 2",
+      "n": "Detuned Triangle",
       "pn": null,
       "v": 0.43,
       "d": {
@@ -1761,7 +1761,7 @@
     },
     {
       "i": 3,
-      "n": "Instrument 3",
+      "n": "Bright Pad",
       "pn": "FACTORY key snappy",
       "v": 0.35,
       "d": {
@@ -2857,7 +2857,7 @@
     },
     {
       "i": 4,
-      "n": "Instrument 4",
+      "n": "Instrument 5",
       "pn": null,
       "v": 1,
       "d": {
@@ -2927,7 +2927,7 @@
     },
     {
       "i": 5,
-      "n": "Instrument 5",
+      "n": "Lead",
       "pn": null,
       "v": 0.39,
       "d": {
@@ -3510,7 +3510,7 @@
     },
     {
       "i": 6,
-      "n": "Instrument 6",
+      "n": "Noise",
       "pn": "FACTORY drum kick",
       "v": 0.23,
       "d": {
@@ -3580,7 +3580,7 @@
     },
     {
       "i": 7,
-      "n": "Instrument 7",
+      "n": "Hat",
       "pn": "FACTORY drum snare",
       "v": 0.18,
       "d": {

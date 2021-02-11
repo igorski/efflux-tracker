@@ -12,7 +12,7 @@
   "ins": [
     {
       "i": 0,
-      "n": "Instrument 0",
+      "n": "Kick",
       "pn": "FACTORY drum low kick",
       "v": 1,
       "d": {
@@ -616,7 +616,7 @@
     },
     {
       "i": 1,
-      "n": "Instrument 1",
+      "n": "Kick Pitched",
       "pn": null,
       "v": 1,
       "d": {
@@ -1220,7 +1220,7 @@
     },
     {
       "i": 2,
-      "n": "Instrument 2",
+      "n": "Perc",
       "pn": "FACTORY drum clap",
       "v": 0.22,
       "d": {
@@ -1311,7 +1311,7 @@
     },
     {
       "i": 3,
-      "n": "Instrument 3",
+      "n": "Snare",
       "pn": "FACTORY drum snare 2",
       "v": 1,
       "d": {
@@ -1915,7 +1915,7 @@
     },
     {
       "i": 4,
-      "n": "Instrument 4",
+      "n": "Lead",
       "pn": null,
       "v": 1,
       "d": {
@@ -3032,7 +3032,7 @@
     },
     {
       "i": 5,
-      "n": "Instrument 5",
+      "n": "Squelchy Lead",
       "pn": null,
       "v": 0.54,
       "d": {
@@ -3123,7 +3123,7 @@
     },
     {
       "i": 6,
-      "n": "Instrument 6",
+      "n": "Nasal",
       "pn": null,
       "v": 0.59,
       "d": {
@@ -3214,7 +3214,7 @@
     },
     {
       "i": 7,
-      "n": "Instrument 7",
+      "n": "Thin Buzz",
       "pn": null,
       "v": 0.67,
       "d": {
