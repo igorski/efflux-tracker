@@ -234,7 +234,7 @@ export default {
 
         // expose publish / subscribe bus to integrate with outside API"s
         window.efflux = { ...window.efflux, Pubsub };
-        PubSubService.init(this.$store, window.efflux.Pubsub);
+        PubSubService.init( this.$store, window.efflux.Pubsub );
 
         this.canLaunch = AudioService.isSupported();
 
@@ -247,9 +247,9 @@ export default {
         // prepare model
 
         this.prepareLinkedList();
-        this.setActiveSong(await this.createSong());
-        await this.prepareSequencer(this.$store);
-        await this.setupServices(i18n);
+        this.setActiveSong( await this.createSong());
+        await this.prepareSequencer( this.$store );
+        await this.setupServices( i18n );
         this.addListeners();
 
         this.prepared = true;
@@ -278,10 +278,8 @@ export default {
                 };
             }
         }
-        this.$nextTick( this.calculateDimensions );
-        if ( this.displayWelcome ) {
-            this.openModal( ModalWindows.WELCOME_WINDOW );
-        }
+        await this.$nextTick();
+        this.handleReady();
     },
     methods: {
         ...mapMutations([
@@ -316,6 +314,12 @@ export default {
             // no need to dispose as these will be active during application lifetime
             window.addEventListener( "resize", this.handleResize );
             ListenerUtil.listen( window,  "scroll", this.handleScroll );
+        },
+        handleReady() {
+            if ( this.displayWelcome ) {
+                this.openModal( ModalWindows.WELCOME_WINDOW );
+            }
+            this.$nextTick( this.calculateDimensions );
         },
         handleResize() {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
