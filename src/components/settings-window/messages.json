@@ -12,7 +12,7 @@
     "midiSetup": "MIDI setup",
     "midiConnectToAPI": "Connect to MIDI API",
     "deviceSelectLabel": "Select a MIDI input device:",
-    "connectMidiFirst": "Connect to MIDI API first.",
+    "connectDevice": "Connect a MIDI device.",
     "midiDescription": "You can record incoming MIDI notes straight into the patterns by clicking the record button in the transport controls. You can also record quantized notes live during playback",
     "midiConnected": "MIDI Connection established successfully",
     "noMidiDevices": "There are no available MIDI devices. Attach a new/different device and try again.",

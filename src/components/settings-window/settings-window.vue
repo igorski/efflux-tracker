@@ -158,7 +158,7 @@ export default {
         },
         midiDeviceOptions() {
             if ( !this.midiDeviceList.length ) {
-                return [{ label: this.$t( "connectMidiFirst" ), value: "-1" }];
+                return [{ label: this.$t( "connectDevice" ), value: "-1" }];
             }
             return this.midiDeviceList.map(({ title, value }) => ({
                 label: title,
