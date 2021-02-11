@@ -35,10 +35,10 @@
             >
                 <ul class="indices">
                     <li
-                        v-for="step in amountOfSteps"
-                        :key="`index_${step}`"
+                        v-for="(step, index) in amountOfSteps"
+                        :key="`index_${index}`"
                         class="index"
-                    >{{ step }}</li>
+                    >{{ index }}</li>
                 </ul>
                 <ul v-for="(channel, channelIndex) in activeSongPattern.channels"
                     :key="`channel_${channelIndex}`"
@@ -68,7 +68,7 @@
                                 <span class="instrument"
                                       :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
                                 >
-                                    {{ event.instrument }}
+                                    {{ event.instrument + 1 }}
                                 </span>
                             </template>
                             <template v-else>

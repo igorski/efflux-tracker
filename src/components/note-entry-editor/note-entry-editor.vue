@@ -120,7 +120,7 @@ export default {
         instrumentOptions() {
             const out = [];
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-                out.push({ label: this.$t( "instrument", { num: i }), value: i.toString() });
+                out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
         }

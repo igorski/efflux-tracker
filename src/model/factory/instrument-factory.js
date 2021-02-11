@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config     from '@/config';
+import Config    from "@/config";
 import { clone } from "@/utils/object-util";
 
 const InstrumentFactory =
@@ -36,7 +36,7 @@ const InstrumentFactory =
     createInstrument( aId, aName ) {
         const instrument = {
             id   : aId,
-            name : ( typeof aName === 'string' ) ? aName : `Instrument ${aId.toString()}`,
+            name : ( typeof aName === 'string' ) ? aName : `Instrument ${( aId + 1 ).toString()}`,
             presetName: null,
             oscillators : [
                 InstrumentFactory.createOscillator( true,  'TRIANGLE'  ),

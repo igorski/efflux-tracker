@@ -1,7 +1,7 @@
 {
   "en-US": {
     "title": "Note entry editor",
-    "instrument": "Instrument {num}",
+    "instrument": "Instrument {index}",
     "fastEditExpl": "For fast editing: use the keyboard to type a note name and octave number for easy pitch selection. Hit enter to confirm.",
     "ok": "OK"
   }

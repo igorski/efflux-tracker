@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2019 - https://www.igorski.nl
+ * Igor Zinken 2017-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,34 +20,34 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue      from 'vue';
-import Config   from '../../config';
+import Vue    from "vue";
+import Config from "@/config";
 
 let store, state;
 
-// keyCode for the 0 key
-const ZERO = 48;
+// keyCode for the 1 key
+const ONE = 49;
 let MAX_ACCEPTED_KEYCODE;
 
 export default {
-
-    init(storeReference) {
+    init( storeReference ) {
         store = storeReference;
-        state = store.state;
+        ({ state } = store );
 
         // this will not really work if we allow more than 10 instruments :p
-        MAX_ACCEPTED_KEYCODE = ZERO + ( Config.INSTRUMENT_AMOUNT - 1 );
+        MAX_ACCEPTED_KEYCODE = ONE + ( Config.INSTRUMENT_AMOUNT - 1 );
     },
 
     setInstrument( keyCode ) {
-
-        if ( keyCode >= ZERO && keyCode <= MAX_ACCEPTED_KEYCODE ) {
+        if ( keyCode >= ONE && keyCode <= MAX_ACCEPTED_KEYCODE ) {
             const event = state.song.activeSong
                             .patterns[ state.sequencer.activePattern ]
                             .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
             if ( event ) {
-                Vue.set(event, 'instrument', keyCode - ZERO);
+                // note we subtract 1 as we store the instrument by index in the model, but
+                // visualize it starting from 1 as humans love that.
+                Vue.set( event, "instrument", keyCode - ONE );
             }
         }
     }
