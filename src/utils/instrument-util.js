@@ -167,16 +167,19 @@ export default
         if ( playingNotes[ id ])
             return null; // note already playing
 
-        const audioEvent  = EventFactory.createAudioEvent(instrument.id);
+        const audioEvent  = EventFactory.createAudioEvent( instrument.id );
         audioEvent.note   = pitch.note;
         audioEvent.octave = pitch.octave;
         audioEvent.action = ACTION_NOTE_ON;
 
-        playingNotes[ id ] = { event: audioEvent, instrument: instrument, recording: record === true };
-        AudioService.noteOn(audioEvent, instrument);
-
-        if ( record )
-            recordEventIntoSong(audioEvent, store);
+        if ( record ) {
+            // if recording is activated, record the event into the song before playback
+            recordEventIntoSong( audioEvent, store );
+            // because depending on the previous note in the track list, the instrument could have changed !!
+            instrument = store.getters.activeSong.instruments[ audioEvent.instrument ];
+        }
+        playingNotes[ id ] = { audioEvent, instrument, recording: record === true };
+        AudioService.noteOn( audioEvent, instrument );
 
         return audioEvent;
     },
@@ -186,14 +189,14 @@ export default
      * @param {Object} store root Vuex store
     */
     onKeyUp( pitch, store ) {
-        const id      = pitchToUniqueId( pitch );
-        const eventVO = playingNotes[ id ];
+        const id     = pitchToUniqueId( pitch );
+        const noteVO = playingNotes[ id ];
 
-        if ( eventVO ) {
-            AudioService.noteOff( eventVO.event );
+        if ( noteVO ) {
+            AudioService.noteOff( noteVO.audioEvent );
 
-            if ( eventVO.recording ) {
-                const offEvent  = EventFactory.createAudioEvent( eventVO.instrument.id );
+            if ( noteVO.recording ) {
+                const offEvent  = EventFactory.createAudioEvent( noteVO.instrument.id );
                 offEvent.action = ACTION_NOTE_OFF;
                 recordEventIntoSong( offEvent, store, false );
             }

@@ -149,7 +149,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
             const node = eventList[ channelIndex ].getNodeByData( event );
             let prevNode = ( node ) ? node.previous : null;
 
-            // but don"t take a noteOff instruction into account (as it is not assigned to an instrument)
+            // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
             // keep on traversing backwards until we find a valid event
 
             while ( prevNode && prevNode.data.action === ACTION_NOTE_OFF ) {
