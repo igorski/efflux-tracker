@@ -75,7 +75,7 @@ export const getParamRange = paramId => {
         case DELAY_CUTOFF:
         case OD_POST_CUT:
         case OD_COLOR:
-            max  = 22050; // should be audioContext.sampleRate / 2
+            max  = 22050; // BiquadFilter max
             step = 1;
             break;
         case DELAY_OFFSET:
@@ -84,7 +84,7 @@ export const getParamRange = paramId => {
             break;
         case FILTER_FREQ:
             min = 40;
-            max = 24000; // should be audioContext.sampleRate / 2
+            max = 22050; // BiquadFilter max
             break;
         case FILTER_Q:
             max  = 40;

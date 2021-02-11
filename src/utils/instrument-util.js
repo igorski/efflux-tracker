@@ -23,8 +23,9 @@
 import AudioService from '@/services/audio-service';
 import EventFactory from '@/model/factory/event-factory';
 import EventUtil    from './event-util';
-import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
+import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 import { isOscillatorNode, isAudioBufferSourceNode } from '@/services/audio/webaudio-helper';
+import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 
 const RECORD_THRESHOLD = 50;
 
@@ -199,6 +200,30 @@ export default
            // audioEvent.event.seq.playing = false;
         }
         delete playingNotes[ id ];
+    },
+
+    /**
+     * handle a module parameter change for an instrument module
+     *
+     * @param {String} paramId the module parameter identifier
+     * @param {Number} value the module value in 0 - 1 range
+     * @param {Number} instrumentIndex the index of the instrument the paramId's module is attached to
+     * @param {boolean=} record whether to record the param change into given instruments pattern list
+     * @param {Object} store root Vuex store
+     */
+    onParamControlChange( paramId, value, instrumentIndex, record, store ) {
+        const { min, max } = getParamRange( paramId );
+        applyParamChange(
+            paramId,
+            min + ( max - min ) * value,
+            instrumentIndex, store
+        );
+        if ( record ) {
+            const audioEvent = EventFactory.createAudioEvent( instrumentIndex );
+            audioEvent.action = ACTION_IDLE;
+            audioEvent.mp     = { module: paramId, value: value * 100 };
+            recordEventIntoSong( audioEvent, store, false );
+        }
     }
 };
 
@@ -208,10 +233,11 @@ function pitchToUniqueId( pitch ) {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent, store, isRecording = true ) {
+function recordEventIntoSong( audioEvent, store, markAsRecording = true ) {
     const { state, getters, commit } = store;
     const optData   = { newEvent: true };
     const isNoteOff = audioEvent.action === ACTION_NOTE_OFF;
+    const isParamChange = audioEvent.action === ACTION_IDLE;
 
     // ensure we don't overlap previously recorded notes when
     // frantically playing
@@ -219,14 +245,37 @@ function recordEventIntoSong( audioEvent, store, isRecording = true ) {
     const now = Date.now();
     if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
 
-    const song         = state.song.activeSong;
-    const patternIndex = state.sequencer.activePattern;
-    const channelIndex = state.editor.selectedInstrument;
-    const pattern      = song.patterns[ patternIndex ];
-    const channel      = pattern.channels[ channelIndex ];
-    const step         = Math.round( getters.position.step / 64 * getters.amountOfSteps );
+    const { playing, activePattern } = state.sequencer;
+    const { amountOfSteps } = getters;
 
-    if ( state.sequencer.playing ) {
+    const song         = state.song.activeSong;
+    const pattern      = song.patterns[ activePattern ];
+    const channelIndex = state.editor.selectedInstrument;
+    const channel      = pattern.channels[ channelIndex ];
+    const step         = playing ? Math.round( getters.position.step / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
+
+    // check if the intended target position of the recording already contains an event
+
+    const existingEvent  = channel[ step ];
+
+    if ( existingEvent ) {
+        if ( isNoteOff ) {
+            return; // keep existing event as it functions as the kill of the previous event
+        }
+        if ( isParamChange ) {
+            // new event is module parameter change, merge with existing event
+            audioEvent.action = existingEvent.action;
+            audioEvent.note   = existingEvent.note;
+            audioEvent.octave = existingEvent.octave;
+        }
+        else if ( existingEvent.mp ) {
+            // if a new noteOn-event has no action, while the existing event does,
+            // retain the existing events module parameter automation
+            audioEvent.mp = { ...existingEvent.mp };
+        }
+    }
+
+    if ( playing ) {
 
         const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
 
@@ -238,28 +287,22 @@ function recordEventIntoSong( audioEvent, store, isRecording = true ) {
 
         // sequencer is playing, add event at current step
 
-        optData.patternIndex = patternIndex;
+        optData.patternIndex = activePattern;
         optData.channelIndex = channelIndex;
         optData.step         = step;
-        audioEvent.recording = isRecording;
-
-        const existingEvent  = channel[ optData.step ];
-
-        // if an event was present at given position, retain its module parameter actions
-        if ( existingEvent && audioEvent.mp )
-            audioEvent.mp = { ...existingEvent.mp };
+        audioEvent.recording = markAsRecording && !isParamChange;
     }
     else if ( isNoteOff ) {
         // if the sequencer isn't playing, noteOff events must be added explicitly
         return;
     }
-    commit('addEventAtPosition', { store, event: audioEvent, optData });
+    commit( "addEventAtPosition", { store, event: audioEvent, optData });
 
     lastAddition = now;
 
     // unset recording state of previous event
     const previousEvent = EventUtil.getFirstEventBeforeEvent(
-        song.patterns, patternIndex, channelIndex, audioEvent
+        song.patterns, activePattern, channelIndex, audioEvent
     );
     if ( previousEvent ) previousEvent.recording = false;
 }
