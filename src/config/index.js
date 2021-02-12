@@ -39,7 +39,7 @@ export default
 
     DEFAULT_FILTER_FREQ         : 880,
     DEFAULT_FILTER_Q            : 5,
-    MAX_FILTER_FREQ             : 24000,
+    MAX_FILTER_FREQ             : 22050, // BiQuad filter max
     MAX_FILTER_Q                : 40,
 
     DEFAULT_FILTER_LFO_SPEED    : 0.5,
@@ -51,7 +51,7 @@ export default
     DEFAULT_DELAY_FEEDBACK      : 0.01,
     DEFAULT_DELAY_TIME          : 0.33,
     DEFAULT_DELAY_CUT_OFF       : 1500,
-    MAX_DELAY_CUTOFF            : 22050,
+    MAX_DELAY_CUTOFF            : 22050, // BiQuad filter max
     MIN_DELAY_OFFSET            : -0.5,
 
     /**

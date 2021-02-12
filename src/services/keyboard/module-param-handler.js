@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2020 - https://www.igorski.nl
+ * Igor Zinken 2017-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -20,14 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                 from 'vue';
-import HistoryStates       from '@/definitions/history-states';
-import EventFactory        from '@/model/factory/event-factory';
-import HistoryStateFactory from '@/model/factory/history-state-factory';
+import Vue                 from "vue";
+import HistoryStates       from "@/definitions/history-states";
+import EventFactory        from "@/model/factory/event-factory";
+import HistoryStateFactory from "@/model/factory/history-state-factory";
 
 // modules parameters available to Efflux, we map keyCode to the first letter(s) of their name
 
-import { D_MODULES, E_MODULES, F_MODULES, P_MODULES, V_MODULES } from '@/definitions/automatable-parameters';
+import {
+    D_MODULES, E_MODULES, F_MODULES, O_MODULES, P_MODULES, V_MODULES, X_MODULES
+} from "@/definitions/automatable-parameters";
 
 let store, state;
 
@@ -36,7 +38,7 @@ let lastCharacter = "", lastTypeAction = 0;
 
 const ModuleParamHandler =
 {
-    init(storeReference) {
+    init( storeReference ) {
         store = storeReference;
         state = store.state;
     },
@@ -105,8 +107,10 @@ const ModuleParamHandler =
                 case 68: // D
                 case 69: // E
                 case 70: // F
+                case 79: // O
                 case 80: // P
                 case 86: // V
+                case 88: // X
                     return ModuleParamHandler.getNextSelectedModule(keyCode, currentModule);
             }
         }
@@ -141,10 +145,14 @@ function getModuleListByKeyCode( keyCode ) {
             return E_MODULES;
         case 70:
             return F_MODULES;
+        case 79:
+            return O_MODULES;
         case 80:
             return P_MODULES;
         case 86:
             return V_MODULES;
+        case 88:
+            return X_MODULES;
     }
 }
 
@@ -160,11 +168,17 @@ function getModuleByFirstTwoLetters( letters, selectedModule ) {
         case 'F':
             list = F_MODULES;
             break;
+        case 'O':
+            list = O_MODULES;
+            break;
         case 'P':
             list = P_MODULES;
             break;
         case 'V':
             list = V_MODULES;
+            break;
+        case 'X':
+            list = X_MODULES;
             break;
     }
     if ( list ) {

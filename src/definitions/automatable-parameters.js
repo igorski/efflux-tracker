@@ -26,12 +26,21 @@ import {
     DELAY_CUTOFF,
     DELAY_TIME,
     DELAY_OFFSET,
+    EQ_ENABLED,
+    EQ_LOW,
+    EQ_MID,
+    EQ_HIGH,
     FILTER_ENABLED,
     FILTER_FREQ,
     FILTER_Q,
     FILTER_LFO_ENABLED,
     FILTER_LFO_SPEED,
-    FILTER_LFO_DEPTH
+    FILTER_LFO_DEPTH,
+    OD_ENABLED,
+    OD_DRIVE,
+    OD_PRE_BAND,
+    OD_COLOR,
+    OD_POST_CUT
 } from "./param-ids";
 
 // all parameter ids should be available for automation
@@ -49,15 +58,17 @@ export const VOLUME     = "volume";
 // EXTERNAL_EVENT is used to broadcast a value from the sequencer
 // to any listening applications (see Tiny player)
 
-export const EXTERNAL_EVENT = "EE";
+export const EXTERNAL_EVENT = "XE";
 
 // here we have the parameters grouped by their first letter. This is used by the keyboard
 // handlers to map single or double characters quickly to the appropriate parameter
 
 export const D_MODULES = [ DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET ];
-export const E_MODULES = [ EXTERNAL_EVENT ];
+export const E_MODULES = [ EQ_ENABLED, EQ_LOW, EQ_MID, EQ_HIGH ];
 export const F_MODULES = [
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED, FILTER_LFO_SPEED, FILTER_LFO_DEPTH
 ];
+export const O_MODULES = [ OD_ENABLED, OD_DRIVE, OD_PRE_BAND, OD_COLOR, OD_POST_CUT ];
 export const P_MODULES = [ PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN ];
 export const V_MODULES = [ VOLUME ];
+export const X_MODULES = [ EXTERNAL_EVENT ];

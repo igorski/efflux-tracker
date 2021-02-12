@@ -20,22 +20,24 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config            from '@/config';
-import { rangeToIndex }  from '@/utils/array-util';
-import { toHex }         from '@/utils/number-util';
-import { processVoices } from './audio-util';
-import { applyRouting }  from './module-router';
-import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from './webaudio-helper';
+import Config            from "@/config";
+import { rangeToIndex }  from "@/utils/array-util";
+import { toHex }         from "@/utils/number-util";
+import { processVoices } from "./audio-util";
+import { applyRouting }  from "./module-router";
+import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from "./webaudio-helper";
 
-const filterTypes = ['off', 'sine', 'square', 'sawtooth', 'triangle'];
+const filterTypes = ["off", "sine", "square", "sawtooth", "triangle"];
 
 import {
     DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
-    EXTERNAL_EVENT, FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
-    FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
+    EQ_ENABLED, EQ_LOW, EQ_MID, EQ_HIGH,
+    FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED, FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
+    OD_ENABLED, OD_DRIVE, OD_PRE_BAND, OD_COLOR, OD_POST_CUT,
+    EXTERNAL_EVENT,
     PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
     VOLUME
-} from '@/definitions/automatable-parameters';
+} from "@/definitions/automatable-parameters";
 
 /**
  * apply a module parameter change defined inside an audioEvent during playback
@@ -51,10 +53,36 @@ import {
  */
 export const applyModuleParamChange = ( audioContext, audioEvent, modules, instrument,
   instrumentEvents, startTimeInSeconds, output, optEventCallback ) => {
-    switch ( audioEvent.mp.module ) {
+    const { value, module } = audioEvent.mp;
+    switch ( module ) {
         // gain effects
         case VOLUME:
             applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds );
+            break;
+
+        // equalizer effects
+        case EQ_ENABLED:
+            modules.eq.eqEnabled = value >= 50;
+            applyRouting( modules, output );
+            break;
+
+        case EQ_LOW:
+        case EQ_MID:
+        case EQ_HIGH:
+            applyEQ( audioEvent, modules, startTimeInSeconds );
+            break;
+
+        // overdrive effects
+        case OD_ENABLED:
+            modules.overdrive.overdriveEnabled = value >= 50;
+            applyRouting( modules, output );
+            break;
+
+        case OD_DRIVE:
+        case OD_PRE_BAND:
+        case OD_COLOR:
+        case OD_POST_CUT:
+            applyOverdrive( audioEvent, modules, startTimeInSeconds );
             break;
 
         // panning effects
@@ -71,12 +99,12 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
 
         // filter effects
         case FILTER_ENABLED:
-            modules.filter.filterEnabled = ( audioEvent.mp.value >= 50 );
+            modules.filter.filterEnabled = value >= 50;
             applyRouting( modules, output );
             break;
 
         case FILTER_LFO_ENABLED:
-            instrument.filter.lfoType = rangeToIndex( filterTypes, audioEvent.mp.value );
+            instrument.filter.lfoType = rangeToIndex( filterTypes, value );
             applyRouting( modules, output );
             break;
 
@@ -89,7 +117,7 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
 
         // delay effects
         case DELAY_ENABLED:
-            modules.delay.delayEnabled = ( audioEvent.mp.value >= 50 );
+            modules.delay.delayEnabled = value >= 50;
             applyRouting( modules, output );
             break;
 
@@ -163,6 +191,46 @@ function applyPanning( audioEvent, modules, startTimeInSeconds ) {
         mp.module === PAN_LEFT ? -target : target,
         startTimeInSeconds, durationInSeconds, doGlide
     );
+}
+
+function applyEQ( audioEvent, modules, startTimeInSeconds ) {
+    const mp = audioEvent.mp, doGlide = mp.glide,
+          durationInSeconds = audioEvent.seq.mpLength,
+          module = modules.eq, target = ( mp.value / 100 );
+
+    switch ( mp.module ) {
+        case EQ_LOW:
+            scheduleParameterChange( module.lowGain.gain, target, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+        case EQ_MID:
+            scheduleParameterChange( module.midGain.gain, target, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+        case EQ_HIGH:
+            scheduleParameterChange( module.highGain.gain, target, startTimeInSeconds, durationInSeconds, doGlide );
+            break;
+    }
+}
+
+function applyOverdrive( audioEvent, modules ) {
+    const { value, module } = audioEvent.mp;
+    const target = value / 100;
+
+    const { overdrive } = modules.overdrive;
+
+    switch ( module ) {
+        case OD_DRIVE:
+            overdrive.drive = target;
+            break;
+        case OD_PRE_BAND:
+            overdrive.preBand = target;
+            break;
+        case OD_COLOR:
+            overdrive.color = target * Config.MAX_FILTER_FREQ;
+            break;
+        case OD_POST_CUT:
+            overdrive.postCut = target * Config.MAX_FILTER_FREQ;
+            break;
+    }
 }
 
 function applyFilter( audioEvent, modules, startTimeInSeconds ) {

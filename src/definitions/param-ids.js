@@ -20,7 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Config from "@/config";
 import { applyModule } from "@/services/audio-service";
+
+// NOTE the String names here are in camelCase and must be meaningful
+// as they are reflected in the interface (and keyboard entry)
 
 export const DELAY_ENABLED  = "delayEnabled";
 export const DELAY_FEEDBACK = "delayFeedback";
@@ -28,9 +32,10 @@ export const DELAY_CUTOFF   = "delayCutoff";
 export const DELAY_TIME     = "delayTime";
 export const DELAY_OFFSET   = "delayOffset";
 
-export const EQ_LOW  = "eqLow";
-export const EQ_MID  = "eqMid";
-export const EQ_HIGH = "eqHigh";
+export const EQ_ENABLED = "eqEnabled";
+export const EQ_LOW     = "eqLow";
+export const EQ_MID     = "eqMid";
+export const EQ_HIGH    = "eqHigh";
 
 export const FILTER_ENABLED     = "filterEnabled";
 export const FILTER_FREQ        = "filterFreq";
@@ -39,6 +44,7 @@ export const FILTER_LFO_ENABLED = "filterLFOEnabled";
 export const FILTER_LFO_SPEED   = "filterLFOSpeed";
 export const FILTER_LFO_DEPTH   = "filterLFODepth";
 
+export const OD_ENABLED  = "odEnabled";
 export const OD_DRIVE    = "odDrive";
 export const OD_PRE_BAND = "odPreBand";
 export const OD_COLOR    = "odColor";
@@ -75,7 +81,7 @@ export const getParamRange = paramId => {
         case DELAY_CUTOFF:
         case OD_POST_CUT:
         case OD_COLOR:
-            max  = 22050; // BiquadFilter max
+            max  = Config.MAX_FILTER_FREQ;
             step = 1;
             break;
         case DELAY_OFFSET:
@@ -84,7 +90,7 @@ export const getParamRange = paramId => {
             break;
         case FILTER_FREQ:
             min = 40;
-            max = 22050; // BiquadFilter max
+            max = Config.MAX_FILTER_FREQ;
             break;
         case FILTER_Q:
             max  = 40;

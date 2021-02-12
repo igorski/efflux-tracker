@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2020 - https://www.igorski.nl
+ * Igor Zinken 2017-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,32 +20,35 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { createGainNode, startOscillation } from '@/services/audio/webaudio-helper';
-import { applyRouting } from '@/services/audio/module-router';
-import Config           from '@/config';
-import Delay            from '@/services/audio/delay-module';
-import Overdrive        from 'wa-overdrive';
+import { createGainNode, startOscillation } from "@/services/audio/webaudio-helper";
+import { applyRouting } from "@/services/audio/module-router";
+import Config           from "@/config";
+import Delay            from "@/services/audio/delay-module";
+import Overdrive        from "wa-overdrive";
 
 const ModuleFactory = {
     /**
      * Factory method to apply changes to an existing module chain
      *
-     * @param {string} moduleType type of the module (e.g. 'filter', 'delay', 'eq', 'od')
+     * @param {string} moduleType type of the module (e.g. "filter", "delay", "eq", "od")
      * @param {INSTRUMENT_MODULES} modules
      * @param {Object} props
      * @param {AudioParam} output
      */
     applyConfiguration(moduleType, modules, props, output) {
-        switch (moduleType) {
+        switch ( moduleType ) {
             default:
-                throw new Error(`unknown module ${moduleType} in ModuleFactory`);
-            case 'filter':
+                if ( process.env.NODE_ENV === "development" ) {
+                    throw new Error( `unknown module "${moduleType}" in ModuleFactory` );
+                }
+                break;
+            case "filter":
                 return ModuleFactory.applyFilterConfiguration(modules, props, output);
-            case 'delay':
+            case "delay":
                 return ModuleFactory.applyDelayConfiguration(modules, props, output);
-            case 'eq':
+            case "eq":
                 return ModuleFactory.applyEQConfiguration(modules, props, output);
-            case 'overdrive':
+            case "overdrive":
                 return ModuleFactory.applyODConfiguration(modules, props, output);
         }
     },
@@ -59,7 +62,7 @@ const ModuleFactory = {
      */
     createEQ( audioContext ) {
         const hBand           = audioContext.createBiquadFilter();
-        hBand.type            = 'lowshelf';
+        hBand.type            = "lowshelf";
         hBand.frequency.value = 360; // TODO make band range configurable?
         hBand.gain.value      = Config.MIN_EQ_GAIN;
 
@@ -69,7 +72,7 @@ const ModuleFactory = {
         const mBand = createGainNode( audioContext );
 
         const lBand           = audioContext.createBiquadFilter();
-        lBand.type            = 'highshelf';
+        lBand.type            = "highshelf";
         lBand.frequency.value = 3600; // TODO make band range configurable?
         lBand.gain.value      = Config.MIN_EQ_GAIN;
 
@@ -128,9 +131,9 @@ const ModuleFactory = {
         filter.Q.value         = Config.DEFAULT_FILTER_Q;
 
         return {
-            filter        : filter,
-            lfo           : lfo,
-            lfoAmp        : lfoAmp,
+            filter,
+            lfo,
+            lfoAmp,
             lfoEnabled    : false,
             filterEnabled : false
         };
@@ -140,16 +143,14 @@ const ModuleFactory = {
      * @return {DELAY_MODULE}
      */
     createDelay( audioContext ) {
-        const delay = new Delay( audioContext, {
-            type: 0,
-            delay: 0.5,
-            feedback: 0.42,
-            offset: -0.027,
-            cutoff: 1200
-        });
-
         return {
-            delay: delay,
+            delay: new Delay( audioContext, {
+                type: 0,
+                delay: 0.5,
+                feedback: 0.42,
+                offset: -0.027,
+                cutoff: 1200
+            }),
             delayEnabled: false
         };
     },
@@ -158,15 +159,13 @@ const ModuleFactory = {
      * @return {OVERDRIVE_MODULE}
      */
     createOverdrive( audioContext ) {
-        const overdrive = new Overdrive( audioContext, {
-            preBand: 1.0,
-            postCut: 8000,
-            color: 4000,
-            drive: 0.8
-        });
-
         return {
-            overdrive: overdrive,
+            overdrive: new Overdrive( audioContext, {
+                preBand: 1.0,
+                postCut: 8000,
+                color: 4000,
+                drive: 0.8
+            }),
             overdriveEnabled: false
         };
     },
@@ -180,7 +179,7 @@ const ModuleFactory = {
      * @param {AudioParam} output
      */
     applyEQConfiguration( modules, props, output ) {
-        const eq = modules.eq;
+        const { eq } = modules;
 
         eq.eqEnabled           = props.enabled;
         eq.lowGain.gain.value  = props.lowGain;
@@ -197,7 +196,7 @@ const ModuleFactory = {
      * @param {AudioParam} output
      */
     applyODConfiguration( modules, props, output ) {
-        const overdrive = modules.overdrive;
+        const { overdrive } = modules;
 
         overdrive.overdriveEnabled  = props.enabled;
         overdrive.overdrive.color   = props.color;
@@ -216,7 +215,7 @@ const ModuleFactory = {
      * @param {AudioParam} output
      */
     applyFilterConfiguration( modules, props, output ) {
-        const filter        = modules.filter;
+        const { filter }    = modules;
         const filterEnabled = ( props.lfoType !== "off" );
 
         filter.filter.frequency.value = props.frequency;
@@ -259,7 +258,7 @@ const ModuleFactory = {
      * @param {AudioParam} output
      */
     applyDelayConfiguration( modules, props, output ) {
-        const delay = modules.delay.delay;
+        const { delay } = modules.delay;
 
         delay.type     = props.type;
         delay.feedback = props.feedback;
