@@ -23,8 +23,8 @@
 import Vue                 from "vue";
 import Config              from "@/config";
 import SongFactory         from "@/model/factory/song-factory";
-import HistoryStateFactory from "@/model/factory/history-state-factory";
-import HistoryStates       from "@/definitions/history-states";
+import createAction        from "@/model/factory/action-factory";
+import Actions       from "@/definitions/actions";
 import FixturesLoader      from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages      from "@/services/pubsub/messages";
@@ -87,7 +87,7 @@ export default {
          * TODO: can we refactor this to not require us to pass the root store?? (to-Vue-migration leftover)
          */
         addEventAtPosition(state, { event, store, optData, optStoreInUndoRedo = true }) {
-            const undoRedoAction = HistoryStateFactory.getAction( HistoryStates.ADD_EVENT, {
+            const undoRedoAction = createAction( Actions.ADD_EVENT, {
                 store,
                 event,
                 optEventData:  optData,

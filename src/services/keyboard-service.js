@@ -21,10 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config                     from '@/config';
-import HistoryStates              from '@/definitions/history-states';
+import Actions              from '@/definitions/actions';
 import ModalWindows               from '@/definitions/modal-windows';
 import EventFactory               from '@/model/factory/event-factory';
-import HistoryStateFactory        from '@/model/factory/history-state-factory';
+import createAction               from "@/model/factory/action-factory";
 import EventUtil                  from '@/utils/event-util';
 import { ACTION_NOTE_OFF }        from '@/model/types/audio-event-def';
 import NoteInputHandler           from './keyboard/note-input-handler';
@@ -400,7 +400,7 @@ function handleKeyDown(event) {
 
             // paste current selection
             if (hasOption) {
-                store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.PASTE_SELECTION, { store }));
+                store.commit('saveState', createAction( Actions.PASTE_SELECTION, { store }));
                 preventDefault(event); // override browser paste
             }
             break;
@@ -410,7 +410,7 @@ function handleKeyDown(event) {
             // cut current selection
 
             if (hasOption) {
-                store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.CUT_SELECTION, { store }));
+                store.commit('saveState', createAction( Actions.CUT_SELECTION, { store }));
                 preventDefault(event); // override browser cut
             }
             break;
@@ -519,8 +519,8 @@ function handleDeleteActionForCurrentMode() {
     let event;
     switch (mode) {
         default:
-            store.commit('saveState', HistoryStateFactory.getAction(
-                store.getters.hasSelection ? HistoryStates.DELETE_SELECTION : HistoryStates.DELETE_EVENT, { store })
+            store.commit('saveState', createAction(
+                store.getters.hasSelection ? Actions.DELETE_SELECTION : Actions.DELETE_EVENT, { store })
             );
             break;
         case MODES.PARAM_VALUE:
@@ -531,7 +531,7 @@ function handleDeleteActionForCurrentMode() {
             if ( !event || !event.mp )
                 return;
 
-            store.commit('saveState', HistoryStateFactory.getAction( HistoryStates.DELETE_MODULE_AUTOMATION, { event }));
+            store.commit('saveState', createAction( Actions.DELETE_MODULE_AUTOMATION, { event }));
             break;
     }
 }

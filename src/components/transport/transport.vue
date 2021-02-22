@@ -210,7 +210,7 @@ export default {
             const { originalTempo } = this;
             const newTempo = parseFloat( target.value );
             const store = this.$store;
-            // HistoryStates.TEMPO_CHANGE
+            // Actions.TEMPO_CHANGE
             this.saveState({
                 undo() {
                     store.commit( "setTempo", originalTempo );

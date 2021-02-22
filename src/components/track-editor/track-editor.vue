@@ -39,10 +39,10 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import HistoryStates       from "@/definitions/history-states";
+import Actions       from "@/definitions/actions";
 import ModalWindows        from "@/definitions/modal-windows";
 import EventFactory        from "@/model/factory/event-factory";
-import HistoryStateFactory from "@/model/factory/history-state-factory";
+import createAction        from "@/model/factory/action-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 import EventUtil           from "@/utils/event-util";
 
@@ -109,7 +109,7 @@ export default {
             this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
         deleteNote() {
-            this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_EVENT, { store: this.$store }));
+            this.saveState(createAction(Actions.DELETE_EVENT, { store: this.$store }));
         },
         editModuleParams() {
             this.openModal(ModalWindows.MODULE_PARAM_EDITOR);

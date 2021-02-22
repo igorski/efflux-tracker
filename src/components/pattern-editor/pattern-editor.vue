@@ -66,9 +66,9 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import HistoryStateFactory from "@/model/factory/history-state-factory";
+import createAction from "@/model/factory/action-factory";
 import Config from "@/config";
-import HistoryStates from "@/definitions/history-states";
+import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import { clone } from "@/utils/object-util";
 import SelectBox from "@/components/forms/select-box";
@@ -118,7 +118,7 @@ export default {
         ]),
         handlePatternClear() {
             this.clearSelection();
-            this.saveState(HistoryStateFactory.getAction(HistoryStates.CLEAR_PATTERN, { store: this.$store }));
+            this.saveState(createAction(Actions.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy() {
             this.patternCopy = clone(this.activeSong.patterns[this.activePattern]);
@@ -126,7 +126,7 @@ export default {
         handlePatternPaste() {
             if (this.patternCopy) {
                 this.clearSelection();
-                this.saveState(HistoryStateFactory.getAction(HistoryStates.PASTE_PATTERN, { store: this.$store, patternCopy: this.patternCopy }));
+                this.saveState(createAction(Actions.PASTE_PATTERN, { store: this.$store, patternCopy: this.patternCopy }));
             }
         },
         handlePatternAdd() {
@@ -135,7 +135,7 @@ export default {
                 this.showError(this.$t('errorMaxExceeded', { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
-            this.saveState(HistoryStateFactory.getAction(HistoryStates.ADD_PATTERN, { store: this.$store }));
+            this.saveState(createAction(Actions.ADD_PATTERN, { store: this.$store }));
             this.gotoNextPattern(this.activeSong);
         },
         handlePatternDelete() {
@@ -144,7 +144,7 @@ export default {
                 this.handlePatternClear();
             }
             else {
-                this.saveState(HistoryStateFactory.getAction(HistoryStates.DELETE_PATTERN, { store: this.$store }));
+                this.saveState(createAction(Actions.DELETE_PATTERN, { store: this.$store }));
             }
         },
         handlePatternAdvanced() {

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import UndoManager from 'undo-manager';
+import UndoManager from "undo-manager";
+import { forceProcess, flushQueue } from "@/model/factory/history-state-factory";
 
 const STATES_TO_SAVE = 99;
 
@@ -33,17 +34,17 @@ const STATES_TO_SAVE = 99;
 
 const module = {
     state: {
-        undoManager: new UndoManager(),
-        historyIndex: -1    // used for reactivity (as undo manager isn't bound to Vue)
+        undoManager  : new UndoManager(),
+        historyIndex : -1    // used for reactivity (as undo manager isn"t bound to Vue)
     },
     getters: {
-        canUndo(state) {
+        canUndo( state ) {
             return state.historyIndex >= 0 && state.undoManager.hasUndo();
         },
-        canRedo(state) {
+        canRedo( state ) {
             return state.historyIndex < STATES_TO_SAVE && state.undoManager.hasRedo();
         },
-        amountOfStates(state) {
+        amountOfStates( state ) {
             return state.historyIndex + 1;
         }
     },
@@ -56,32 +57,35 @@ const module = {
          * @param {Function} redo
          */
         saveState( state, { undo, redo }) {
-            if ( typeof undo !== 'function' || typeof redo !== 'function' )
-                throw new Error( 'cannot store a state without specifying valid undo and redo actions' );
-
+            if ( process.env.NODE_ENV === "development" ) {
+                if ( typeof undo !== "function" || typeof redo !== "function" ) {
+                    throw new Error( "cannot store a state without specifying valid undo and redo actions" );
+                }
+            }
             state.undoManager.add({ undo, redo });
             state.historyIndex = state.undoManager.getIndex();
         },
-        setHistoryIndex(state, value) {
+        setHistoryIndex( state, value ) {
             state.historyIndex = value;
         },
         /**
          * clears entire history
          */
         resetHistory(state) {
+            flushQueue();
             state.undoManager.clear();
             state.historyIndex = state.undoManager.getIndex();
         }
     },
-    actions: {
-        /**
+    actions: {        /**
          * apply the previously stored state
          */
-        undo({ state, getters, commit }) {
-            return new Promise(resolve => {
-                if (getters.canUndo) {
+        async undo({ state, getters, commit }) {
+            forceProcess();
+            return new Promise( resolve => {
+                if ( getters.canUndo ) {
                     state.undoManager.undo();
-                    commit('setHistoryIndex', state.undoManager.getIndex());
+                    commit( "setHistoryIndex", state.undoManager.getIndex());
                 }
                 resolve(); // always resolve, application should not break if history cannot be accessed
             });
@@ -90,10 +94,10 @@ const module = {
          * apply the next stored state
          */
         redo({ state, getters, commit }) {
-            return new Promise(resolve => {
-                if (getters.canRedo) {
+            return new Promise( resolve => {
+                if ( getters.canRedo ) {
                     state.undoManager.redo();
-                    commit('setHistoryIndex', state.undoManager.getIndex());
+                    commit( "setHistoryIndex", state.undoManager.getIndex());
                 }
                 resolve(); // always resolve, application should not break if history cannot be accesse
             });

@@ -22,10 +22,12 @@
  */
 
 /**
- * These define which actions can be added to state history, allowing to
- * undo/redo them at will.
+ * These define the editor actions that can be invoked from multiple origins
+ * (e.g. keyboard-service when dealing with a shortcut, visual editors, mouse
+ * actions inside the pattern editor, etc.). These actions can also be added to
+ * state history, allowing to undo/redo them at will.
  *
- * @see history-state-factory and history-module
+ * @see action-factory, history-state-factory and history-module
  */
 export default
 {
