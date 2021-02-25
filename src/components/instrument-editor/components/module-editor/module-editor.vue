@@ -172,12 +172,13 @@
 </template>
 
 <script>
-import { mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
+import { enqueueState } from "@/model/factory/history-state-factory";
 import SelectBox from "@/components/forms/select-box";
 import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
 import { applyModule } from "@/services/audio-service";
+import { clone } from "@/utils/object-util";
 import messages from "./messages.json";
 
 export default {
@@ -217,7 +218,7 @@ export default {
                 return this.instrumentRef.eq.lowGain;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.EQ_LOW, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.EQ_LOW, value, this.eqLow );
             }
         },
         eqMid: {
@@ -225,7 +226,7 @@ export default {
                 return this.instrumentRef.eq.midGain;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.EQ_MID, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.EQ_MID, value, this.eqMid );
             }
         },
         eqHigh: {
@@ -233,7 +234,7 @@ export default {
                 return this.instrumentRef.eq.highGain;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.EQ_HIGH, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.EQ_HIGH, value, this.eqHigh );
             }
         },
         /* Filter */
@@ -250,7 +251,7 @@ export default {
                 return this.instrumentRef.filter.frequency;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_FREQ, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_FREQ, value, this.filterFrequency );
             }
         },
         filterQ: {
@@ -258,7 +259,7 @@ export default {
                 return this.instrumentRef.filter.q;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_Q, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_Q, value, this.filterQ );
             }
         },
         filterType: {
@@ -282,7 +283,7 @@ export default {
                 return this.instrumentRef.filter.speed;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_LFO_SPEED, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_LFO_SPEED, value, this.filterSpeed );
             }
         },
         filterDepth: {
@@ -290,7 +291,7 @@ export default {
                 return this.instrumentRef.filter.depth;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_LFO_DEPTH, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.FILTER_LFO_DEPTH, value, this.filterDepth );
             }
         },
         /* Overdrive */
@@ -307,7 +308,7 @@ export default {
                 return this.instrumentRef.overdrive.drive;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.OD_DRIVE, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_DRIVE, value, this.odDrive );
             }
         },
         odPreBand: {
@@ -315,7 +316,7 @@ export default {
                 return this.instrumentRef.overdrive.preBand;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.OD_PRE_BAND, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_PRE_BAND, value, this.odPreBand );
             }
         },
         odColor: {
@@ -323,7 +324,7 @@ export default {
                 return this.instrumentRef.overdrive.color;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.OD_COLOR, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_COLOR, value, this.odColor );
             }
         },
         odPostCut: {
@@ -331,7 +332,7 @@ export default {
                 return this.instrumentRef.overdrive.postCut;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.OD_POST_CUT, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.OD_POST_CUT, value, this.odPostCut );
             }
         },
         /* Delay */
@@ -356,7 +357,7 @@ export default {
                 return this.instrumentRef.delay.time;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_TIME, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_TIME, value, this.delayTime );
             }
         },
         delayFeedback: {
@@ -364,7 +365,7 @@ export default {
                 return this.instrumentRef.delay.feedback;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_FEEDBACK, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_FEEDBACK, value, this.delayFeedback );
             }
         },
         delayCutoff: {
@@ -372,7 +373,7 @@ export default {
                 return this.instrumentRef.delay.cutoff;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_CUTOFF, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_CUTOFF, value, this.delayCutoff );
             }
         },
         delayOffset: {
@@ -380,7 +381,7 @@ export default {
                 return this.instrumentRef.delay.offset;
             },
             set( value ) {
-                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_OFFSET, value );
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_OFFSET, value, this.delayOffset );
             }
         },
         filterOptions() {
@@ -412,18 +413,43 @@ export default {
         this.MIDI_ASSIGNABLE = MIDI_ASSIGNABLE;
     },
     methods: {
-        ...mapMutations([
-            "updateInstrument",
-        ]),
         // TODO: use updateParamChange
         update( prop, value ) {
-            this.updateInstrument({ instrumentIndex: this.instrumentId, prop, value }); // update Vuex model
-            applyModule( prop, this.instrumentId, value ); // update AudioService
+            const store    = this.$store;
+            const orgValue = clone( this.instrumentRef[ prop ] );
+            const instrumentIndex = this.instrumentId;
+            const commit = () => {
+                store.commit( "updateInstrument", { instrumentIndex, prop, value });
+                applyModule( prop, instrumentIndex, value ); // update AudioService
+            };
+
+            commit();
             this.invalidate(); // invalidate current preset (marks it as changed)
+
+            enqueueState( `param_${instrumentIndex}_${prop}`, {
+                undo() {
+                    store.commit( "updateInstrument", { instrumentIndex, prop, value: orgValue });
+                    applyModule( prop, instrumentIndex, orgValue );
+                },
+                redo: commit
+            });
         },
-        updateParamChange( paramId, value ) {
-            applyParamChange( paramId, value, this.instrumentId, this.$store );
+        updateParamChange( paramId, value, orgValue ) {
+            const store = this.$store;
+            const instrumentIndex = this.instrumentId;
+            const commit = () => {
+                applyParamChange( paramId, value, instrumentIndex, store );
+            };
+
+            commit();
             this.invalidate(); // invalidate current preset (marks it as changed)
+
+            enqueueState( `param_${instrumentIndex}_${paramId}`, {
+                undo() {
+                    applyParamChange( paramId, orgValue, instrumentIndex, store );
+                },
+                redo: commit
+            });
         },
         invalidate() {
             this.$emit( "invalidate" );
