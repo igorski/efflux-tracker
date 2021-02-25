@@ -20,8 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from 'zcanvas';
-import Config  from '@/config';
+import { sprite } from "zcanvas";
+import Config     from "@/config";
 
 // create the WaveTableDraw prototype as an extension of zSprite
 
@@ -29,7 +29,7 @@ class WaveTableDraw extends sprite
 {
     constructor( width, height, updateHandler, enabled ) {
         super({ x: 0, y: 0, width, height });
-        
+
         this.setDraggable( true );
         this.setEnabled( enabled );
 
@@ -47,14 +47,15 @@ class WaveTableDraw extends sprite
      * set a reference to the current WaveTable we're displaying/editing
      *
      * @public
-     * @param {Array<number>} aTableArray
+     * @param {Array<number>} table
      */
-    setTable( aTableArray )
+    setTable( table )
     {
-        this.table = aTableArray;
+        this.table = table;
 
-        if ( this.canvas )
-            this.canvas.invalidate();   // force re-render
+        if ( this.canvas ) {
+            this.canvas.invalidate(); // force re-render
+        }
     }
 
     /**
@@ -67,7 +68,7 @@ class WaveTableDraw extends sprite
     generateAndSetTable( aType )
     {
         const size  = Config.WAVE_TABLE_SIZE,
-              table = new Array(size),
+              table = new Array( size ),
               // all waveforms have their peak halfway through their cycle
               // expect for PWM (Pulse Width Modulation)
               m     = Math.round(( aType === 'PWM' ) ? size / 3 : size / 2 );

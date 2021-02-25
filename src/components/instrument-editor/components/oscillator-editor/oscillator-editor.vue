@@ -301,7 +301,8 @@ export default {
     },
     methods: {
         update( prop, value ) {
-            const store = this.$store;
+            const store     = this.$store;
+            const component = this;
             const { oscillatorIndex } = this;
             const instrumentIndex     = this.instrumentId;
             const orgValue            = clone( this.oscillator[ prop ] );
@@ -313,10 +314,8 @@ export default {
                 } else if ( prop === "volume" ) {
                     AudioService.updateOscillator( "volume", instrumentIndex, oscillatorIndex, oscillator  );
                 } else if ( prop === "waveform" ) {
-                    if ( !this._isDestroyed ) {
-                        if ( !this.oscillator.enabled ) {
-                            this.update( "enabled", true );
-                        }
+                    if ( !component._isDestroyed && !oscillator.enabled ) {
+                        component.update( "enabled", true );
                     }
                     AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
                 }
@@ -346,10 +345,10 @@ export default {
         },
         resizeWaveTableDraw( width = window.innerWidth ) {
             const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
-            const targetWidth = ( width < ideal ) ? width *  0.9: ideal;
+            const targetWidth = ( width < ideal ) ? width * 0.9: ideal;
 
             if ( this.canvas.getWidth() !== targetWidth ) {
-                this.canvas.setDimensions(targetWidth, 200);
+                this.canvas.setDimensions( targetWidth, 200 );
                 this.wtDraw._bounds.width = targetWidth;
             }
         },
@@ -389,15 +388,11 @@ export default {
                     oscillator.table    = orgTable;
                     oscillator.waveform = orgWaveform;
                     AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
-                    if ( !component._destroyed) {
-                        component.renderWaveform();
-                    }
+                    !component._destroyed && component.renderWaveform();
                 },
                 redo: () => {
                     commit();
-                    if ( !component._destroyed) {
-                        component.renderWaveform();
-                    }
+                    !component._destroyed && component.renderWaveform();
                 }
             }, 5000 ); // longer timeout as a lot of events can fire while drawing the waveform
         },
@@ -407,7 +402,9 @@ export default {
             if ( this.oscillator.waveform !== "CUSTOM" ) {
                 this.wtDraw.generateAndSetTable( this.oscillator.waveform );
             } else {
-                this.wtDraw.setTable( InstrumentFactory.getTableForOscillator( this.oscillator ));
+                // note we use a clone as the table references can be updated
+                // by stepping through the state history
+                this.wtDraw.setTable( clone( InstrumentFactory.getTableForOscillator( this.oscillator )));
             }
         },
         // propagate the changes to the AudioService
