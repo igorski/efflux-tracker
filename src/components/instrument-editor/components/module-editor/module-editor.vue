@@ -176,6 +176,7 @@ import { mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import SelectBox from "@/components/forms/select-box";
+import { enqueueState }  from "@/model/factory/history-state-factory";
 import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
 import { applyModule } from "@/services/audio-service";
 import messages from "./messages.json";
@@ -413,7 +414,7 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'updateInstrument',
+            "updateInstrument",
         ]),
         // TODO: use updateParamChange
         update( prop, value ) {
@@ -426,7 +427,7 @@ export default {
             this.invalidate(); // invalidate current preset (marks it as changed)
         },
         invalidate() {
-            this.$emit('invalidate');
+            this.$emit( "invalidate" );
         },
     }
 };

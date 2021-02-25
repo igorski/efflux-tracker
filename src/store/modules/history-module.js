@@ -77,7 +77,8 @@ const module = {
             state.historyIndex = state.undoManager.getIndex();
         }
     },
-    actions: {        /**
+    actions: {
+        /**
          * apply the previously stored state
          */
         async undo({ state, getters, commit }) {

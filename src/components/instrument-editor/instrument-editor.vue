@@ -109,6 +109,7 @@ import ModalWindows      from "@/definitions/modal-windows";
 import AudioService      from "@/services/audio-service";
 import PubSubMessages    from "@/services/pubsub/messages";
 import InstrumentFactory from "@/model/factory/instrument-factory";
+import { enqueueState }  from "@/model/factory/history-state-factory";
 import { clone }         from "@/utils/object-util";
 import SelectBox         from "@/components/forms/select-box";
 import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor";
@@ -183,24 +184,43 @@ export default {
         },
     },
     watch: {
-        async currentPreset(selectedPresetName) {
-            if (selectedPresetName !== EMPTY_PRESET_VALUE &&
-                this.instrumentRef.presetName !== selectedPresetName) {
-                let instrumentPreset;
-                try {
-                    instrumentPreset = await this.loadInstrument(this.getInstrumentByPresetName(selectedPresetName));
-                } catch (e) {
-                    return;
-                }
-                const newInstrument = InstrumentFactory.loadPreset(
-                    instrumentPreset, this.selectedInstrument, this.instrumentRef.name
-                );
-                this.replaceInstrument({ instrumentIndex: this.selectedInstrument, instrument: newInstrument });
-                this.presetName = selectedPresetName;
-                this.setSelectedOscillatorIndex(0);
-                AudioService.cacheAllOscillators(this.selectedInstrument, newInstrument);
-                AudioService.applyModules(this.activeSong);
+        async currentPreset( selectedPresetName ) {
+            if ( selectedPresetName === EMPTY_PRESET_VALUE || this.instrumentRef.presetName === selectedPresetName ) {
+                return;
             }
+            let instrumentPreset;
+            try {
+                instrumentPreset = await this.loadInstrument( this.getInstrumentByPresetName( selectedPresetName ));
+            } catch {
+                return;
+            }
+            const { activeSong }     = this;
+            const instrumentIndex    = this.selectedInstrument;
+            const existingPresetName = this.presetName;
+            const existingInstrument = clone( activeSong.instruments[ instrumentIndex]);
+            const newInstrument = InstrumentFactory.loadPreset(
+                instrumentPreset, instrumentIndex, this.instrumentRef.name
+            );
+            const store = this.$store;
+            const applyUpdate = () => {
+                this.setSelectedOscillatorIndex( 0 );
+                AudioService.cacheAllOscillators( instrumentIndex, newInstrument );
+                AudioService.applyModules( activeSong );
+            };
+            const commit = () => {
+                store.commit( "replaceInstrument", { instrumentIndex, instrument: newInstrument });
+                this.presetName = selectedPresetName;
+                applyUpdate();
+            };
+            commit();
+            enqueueState( `preset_${instrumentIndex}`, {
+                undo() {
+                    store.commit( "replaceInstrument", { instrumentIndex, instrument: existingInstrument });
+                    this.presetName = existingPresetName;
+                    applyUpdate();
+                },
+                redo: commit,
+            });
         },
     },
     created() {
@@ -219,7 +239,6 @@ export default {
             "showError",
             "showNotification",
             "updateInstrument",
-            "replaceInstrument",
             "setMidiAssignMode",
             "setPresetName",
             "publishMessage",
@@ -236,7 +255,7 @@ export default {
             this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
         invalidatePreset() {
-            if (this.instrumentRef.presetName && !this.instrumentRef.presetName.includes('*')) {
+            if ( this.instrumentRef.presetName && !this.instrumentRef.presetName.includes( "*" )) {
                 this.presetName = `${this.instrumentRef.presetName}*`;
             }
         },

@@ -27,7 +27,6 @@
             <select-box
                 v-model="oscillatorWaveform"
                 :options="waveformOptions"
-                @input="handleOscillatorWaveformChange"
                 class="vertical-middle waveform-select"
             />
             <toggle-button
@@ -45,34 +44,28 @@
             <div class="wrapper input range padded">
                 <label v-t="'detuneLabel'" for="detune"></label>
                 <input v-model.number="oscillatorDetune"
-                       type="range" id="detune" min="-50" max="50" step=".1" value="0"
-                       @input="handleOscillatorTuningChange('detune')">
+                       type="range" id="detune" min="-50" max="50" step=".1" value="0" />
             </div>
             <div class="wrapper input range">
                 <label v-t="'octaveShiftLabel'" for="octaveShift"></label>
                 <input v-model.number="oscillatorOctaveShift"
                        type="range" id="octaveShift" min="-2" max="2" step="1" value="0"
-                       :disabled="oscillator.waveform === 'NOISE'"
-                       @input="handleOscillatorTuningChange('octave')">
+                       :disabled="oscillator.waveform === 'NOISE'" />
             </div>
             <div class="wrapper input range">
                 <label v-t="'fineShiftLabel'" for="fineShift"></label>
                 <input v-model.number="oscillatorFineShift"
                        type="range" id="fineShift" min="-7" max="7" step="1" value="0"
-                       :disabled="oscillator.waveform === 'NOISE'"
-                       @input="handleOscillatorTuningChange('fine')">
+                       :disabled="oscillator.waveform === 'NOISE'" />
             </div>
             <div class="wrapper input range">
                 <label v-t="'volumeLabel'" for="volume"></label>
                 <input type="range"
                        v-model.number="oscillatorVolume"
-                       id="volume" min="0" max="1" step=".01" value="0"
-                       @input="handleOscillatorVolumeChange">
+                       id="volume" min="0" max="1" step=".01" value="0" />
             </div>
         </div>
-
         <!-- envelopes -->
-
         <div class="envelope-editor instrument-parameters">
             <ul class="tab-list">
                 <li v-t="'amplitudeEnvelope'"
@@ -84,9 +77,7 @@
                     @click="activeEnvelopeTab = 1">
                 </li>
             </ul>
-
             <!-- amplitude envelope -->
-
             <div
                 class="tabbed-content adsr-editor"
                 :class="{ active: activeEnvelopeTab === 0 }"
@@ -94,31 +85,25 @@
                 <div class="wrapper input range">
                     <label v-t="'attack'" for="attack"></label>
                     <input v-model.number="amplitudeAttack"
-                           type="range" id="attack" min="0" max="1" step=".01" value="0"
-                           @input="invalidate">
+                           type="range" id="attack" min="0" max="1" step=".01" value="0" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'decay'" for="decay"></label>
                     <input v-model.number="amplitudeDecay"
-                           type="range" id="decay" min="0" max="1" step=".01" value="0"
-                           @input="invalidate">
+                           type="range" id="decay" min="0" max="1" step=".01" value="0" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'sustain'" for="sustain"></label>
                     <input v-model.number="amplitudeSustain"
-                           type="range" id="sustain" min="0" max="1" step=".01" value=".75"
-                           @input="invalidate">
+                           type="range" id="sustain" min="0" max="1" step=".01" value=".75" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'release'" for="release"></label>
                     <input v-model.number="amplitudeRelease"
-                           type="range" id="release" min="0" max="1" step=".01" value="0"
-                           @input="invalidate" />
+                           type="range" id="release" min="0" max="1" step=".01" value="0" />
                 </div>
             </div>
-
             <!-- pitch envelope -->
-
             <div
                 class="tabbed-content adsr-editor"
                 :class="{ active: activeEnvelopeTab === 1 }"
@@ -126,47 +111,46 @@
                 <div class="wrapper input range pitch-range">
                     <label v-t="'range'" for="pitchRange"></label>
                     <input v-model.number="pitchRange"
-                           type="range" id="pitchRange" min="-24" max="24" step="1" value="0"
-                           @input="invalidate" />
+                           type="range" id="pitchRange" min="-24" max="24" step="1" value="0" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'attack'" for="pitchAttack"></label>
                     <input v-model.number="pitchAttack"
-                           type="range" id="pitchAttack" min="0" max="1" step=".01" value="0"
-                           @input="invalidate" />
+                           type="range" id="pitchAttack" min="0" max="1" step=".01" value="0" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'decay'" for="pitchDecay"></label>
                     <input v-model.number="pitchDecay"
-                           type="range" id="pitchDecay" min="0" max="1" step=".01" value="1"
-                           @input="invalidate">
+                           type="range" id="pitchDecay" min="0" max="1" step=".01" value="1" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'sustain'" for="pitchSustain"></label>
                     <input v-model.number="pitchSustain"
-                           type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75"
-                           @input="invalidate">
+                           type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75" />
                 </div>
                 <div class="wrapper input range">
                     <label v-t="'release'" for="pitchRelease"></label>
                     <input v-model.number="pitchRelease"
-                           type="range" id="pitchRelease" min="0" max="1" step=".01" value="0"
-                           @input="invalidate">
+                           type="range" id="pitchRelease" min="0" max="1" step=".01" value="0" />
                 </div>
             </div>
         </div>
     </section>
 </template>
 <script>
-import { mapState, mapMutations } from "vuex";
-import { canvas } from "zcanvas";
-import Config from "@/config";
-import AudioService from "@/services/audio-service";
+import { mapState }      from "vuex";
+import { canvas }        from "zcanvas";
+import { ToggleButton }  from "vue-js-toggle-button";
+import Config            from "@/config";
+import AudioService      from "@/services/audio-service";
+import { enqueueState }  from "@/model/factory/history-state-factory";
 import InstrumentFactory from "@/model/factory/instrument-factory";
-import { ToggleButton } from "vue-js-toggle-button";
-import SelectBox from "@/components/forms/select-box";
-import WaveTableDraw from "../wave-table-draw";
-import messages from "./messages.json";
+import SelectBox         from "@/components/forms/select-box";
+import { clone }         from "@/utils/object-util";
+import WaveTableDraw     from "../wave-table-draw";
+import messages          from "./messages.json";
+
+const TUNING_PROPERTIES = [ "detune", "octaveShift", "fineShift" ];
 
 export default {
     i18n: { messages },
@@ -195,74 +179,74 @@ export default {
     }),
     computed: {
         ...mapState([
-            'windowSize',
+            "windowSize",
         ]),
         oscillator() {
-            return this.instrumentRef.oscillators[this.oscillatorIndex];
+            return this.instrumentRef.oscillators[ this.oscillatorIndex ];
         },
         // generic oscillator properties
         oscillatorEnabled: {
             get() { return this.oscillator.enabled; },
-            set(value) { this.update('enabled', value); }
+            set( value ) { this.update( "enabled", value ); }
         },
         oscillatorWaveform: {
             get() { return this.oscillator.waveform; },
-            set(value) { this.update('waveform', value); }
+            set( value ) { this.update( "waveform", value ); }
         },
         oscillatorVolume: {
             get() { return this.oscillator.volume; },
-            set(value) { this.update('volume', value); }
+            set( value ) { this.update( "volume", value ); }
         },
         // oscillator tuning
         oscillatorDetune: {
             get() { return this.oscillator.detune; },
-            set(value) { this.update('detune', value); }
+            set( value ) { this.update( "detune", value ); }
         },
         oscillatorOctaveShift: {
             get() { return this.oscillator.octaveShift; },
-            set(value) { this.oscillator.octaveShift = value; }
+            set( value ) { this.update( "octaveShift", value ); }
         },
         oscillatorFineShift: {
             get() { return this.oscillator.fineShift; },
-            set(value) { this.oscillator.fineShift = value; }
+            set( value ) { this.update( "fineShift", value ); }
         },
         // oscillator amplitude envelopes
         amplitudeAttack: {
             get() { return this.oscillator.adsr.attack; },
-            set(value) { this.update('adsr', { ...this.oscillator.adsr, attack: value }); }
+            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, attack: value }); }
         },
         amplitudeDecay: {
             get() { return this.oscillator.adsr.decay; },
-            set(value) { this.update('adsr', { ...this.oscillator.adsr, decay: value }); }
+            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, decay: value }); }
         },
         amplitudeSustain: {
             get() { return this.oscillator.adsr.sustain; },
-            set(value) { this.update('adsr', { ...this.oscillator.adsr, sustain: value }); }
+            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, sustain: value }); }
         },
         amplitudeRelease: {
             get() { return this.oscillator.adsr.release; },
-            set(value) { this.update('adsr', { ...this.oscillator.adsr, release: value }); }
+            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, release: value }); }
         },
         // oscillator pitch envelopes
         pitchRange: {
             get() { return this.oscillator.pitch.range; },
-            set(value) { this.update('pitch', { ...this.oscillator.pitch, range: value }); }
+            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, range: value }); }
         },
         pitchAttack: {
             get() { return this.oscillator.pitch.attack; },
-            set(value) { this.update('pitch', { ...this.oscillator.pitch, attack: value }); }
+            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, attack: value }); }
         },
         pitchDecay: {
             get() { return this.oscillator.pitch.decay; },
-            set(value) { this.update('pitch', { ...this.oscillator.pitch, decay: value }); }
+            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, decay: value }); }
         },
         pitchSustain: {
             get() { return this.oscillator.pitch.sustain; },
-            set(value) { this.update('pitch', { ...this.oscillator.pitch, sustain: value }); }
+            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, sustain: value }); }
         },
         pitchRelease: {
             get() { return this.oscillator.pitch.release; },
-            set(value) { this.update('pitch', { ...this.oscillator.pitch, release: value }); }
+            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, release: value }); }
         },
         waveformOptions() {
             return [
@@ -280,7 +264,7 @@ export default {
         windowSize: {
             immediate: true,
             handler({ width, height }) {
-                if (this.canvas) {
+                if ( this.canvas ) {
                     this.resizeWaveTableDraw(width, height);
                 }
             },
@@ -294,6 +278,7 @@ export default {
                 }
             }
         },
+        oscillatorWaveform() { this.renderWaveform(); },
         oscillatorIndex() { this.renderWaveform(); },
         instrumentRef() { this.renderWaveform(); }
     },
@@ -315,71 +300,122 @@ export default {
         this.canvas.dispose();
     },
     methods: {
-        ...mapMutations([
-            'updateOscillator',
-        ]),
-        update(prop, value) {
-            this.updateOscillator({ instrumentIndex: this.instrumentId, oscillatorIndex: this.oscillatorIndex, prop, value });
+        update( prop, value ) {
+            const store = this.$store;
+            const { oscillatorIndex } = this;
+            const instrumentIndex     = this.instrumentId;
+            const orgValue            = clone( this.oscillator[ prop ] );
+
+            const applyUpdate = () => {
+                const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
+                if ( TUNING_PROPERTIES.includes( prop )) {
+                    AudioService.updateOscillator( "tuning", instrumentIndex, oscillatorIndex, oscillator );
+                } else if ( prop === "volume" ) {
+                    AudioService.updateOscillator( "volume", instrumentIndex, oscillatorIndex, oscillator  );
+                } else if ( prop === "waveform" ) {
+                    if ( !this._isDestroyed ) {
+                        if ( !this.oscillator.enabled ) {
+                            this.update( "enabled", true );
+                        }
+                    }
+                    AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
+                }
+            };
+            const commit = () => {
+                store.commit( "updateOscillator", {
+                    instrumentIndex, oscillatorIndex, prop, value
+                });
+                applyUpdate();
+            };
+            commit();
+            this.invalidate();
+
+            enqueueState( `osc_${instrumentIndex}_${oscillatorIndex}_${prop}`, {
+                undo() {
+                    store.commit( "updateOscillator", {
+                        instrumentIndex, oscillatorIndex, prop, value: orgValue
+                    });
+                    applyUpdate();
+                },
+                redo: commit,
+            });
         },
         handleOscillatorEnabledChange() {
             this.cacheOscillator();
             this.invalidate();
         },
-        handleOscillatorWaveformChange() {
-            this.renderWaveform(this.oscillator);
-            this.cacheOscillator();
-
-            if (!this.oscillator.enabled) {
-                this.update('enabled', true);
-            }
-            this.invalidate();
-        },
-        handleOscillatorVolumeChange() {
-            AudioService.updateOscillator('volume', this.instrumentId, this.oscillatorIndex, this.oscillator);
-            this.invalidate();
-        },
-        handleOscillatorTuningChange() {
-            AudioService.updateOscillator('tuning', this.instrumentId, this.oscillatorIndex, this.oscillator);
-            this.invalidate();
-        },
-        resizeWaveTableDraw(width = window.innerWidth) {
+        resizeWaveTableDraw( width = window.innerWidth ) {
             const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
             const targetWidth = ( width < ideal ) ? width *  0.9: ideal;
 
-            if (this.canvas.getWidth() !== targetWidth ) {
+            if ( this.canvas.getWidth() !== targetWidth ) {
                 this.canvas.setDimensions(targetWidth, 200);
                 this.wtDraw._bounds.width = targetWidth;
             }
         },
-        handleWaveformUpdate(table) {
-            this.oscillator.table = table;
+        // invoked when drawing inside the wave-table-draw component
+        handleWaveformUpdate( table ) {
+            const orgTable    = clone( this.oscillator.table );
+            const orgWaveform = this.oscillator.waveform;
+
+            const store = this.$store;
+            const { oscillatorIndex } = this;
+            const instrumentIndex     = this.instrumentId;
+
+            const commit = () => {
+                const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
+                oscillator.table    = table;
+                oscillator.waveform = "CUSTOM";
+                AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
+            };
+            commit();
 
             // when drawing, force the oscillator type to transition to custom
             // and activate the oscillator (to make changes instantly audible)
-            if (this.oscillator.waveform !== 'CUSTOM' ) {
-                this.update('waveform', 'CUSTOM');
+
+            if ( this.oscillator.waveform !== "CUSTOM" ) {
+                this.update( "waveform", "CUSTOM" );
             } else {
-                if (!this.oscillator.enabled) {
-                    this.update('enabled', true);
+                if ( !this.oscillator.enabled ) {
+                    this.update( "enabled", true );
                 }
-                this.cacheOscillator();
             }
             this.invalidate();
+            const component = this;
+
+            enqueueState( `wtable_${instrumentIndex}_${oscillatorIndex}`, {
+                undo() {
+                    const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
+                    oscillator.table    = orgTable;
+                    oscillator.waveform = orgWaveform;
+                    AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
+                    if ( !component._destroyed) {
+                        component.renderWaveform();
+                    }
+                },
+                redo: () => {
+                    commit();
+                    if ( !component._destroyed) {
+                        component.renderWaveform();
+                    }
+                }
+            }, 5000 ); // longer timeout as a lot of events can fire while drawing the waveform
         },
         // render the current oscillators waveform into the WaveTableDraw renderer
         // (is a zCanvas sprite and not part of the Vue component render cycle)
         renderWaveform() {
-            if (this.oscillator.waveform !== 'CUSTOM')
-                this.wtDraw.generateAndSetTable(this.oscillator.waveform);
-            else
-                this.wtDraw.setTable(InstrumentFactory.getTableForOscillator(this.oscillator));
+            if ( this.oscillator.waveform !== "CUSTOM" ) {
+                this.wtDraw.generateAndSetTable( this.oscillator.waveform );
+            } else {
+                this.wtDraw.setTable( InstrumentFactory.getTableForOscillator( this.oscillator ));
+            }
         },
         // propagate the changes to the AudioService
         cacheOscillator() {
-            AudioService.updateOscillator('waveform', this.instrumentId, this.oscillatorIndex, this.oscillator);
+            AudioService.updateOscillator( "waveform", this.instrumentId, this.oscillatorIndex, this.oscillator );
         },
         invalidate() {
-            this.$emit('invalidate');
+            this.$emit( "invalidate" );
         },
     }
 };

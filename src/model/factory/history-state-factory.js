@@ -47,11 +47,11 @@ export const forceProcess = processQueue;
  *
  * @param {String} key unique identifier for this state
  * @param {{ undo: Function, redo: Function, resources: Array<String> }} Object with
- *        undo and redo functions and optional list of resources (blob URLs)
- *        associated with the undo / redo actions. Blob URLs will be revoked when
- *        state is popped from the history stack to free memory.
+ *        undo and redo functions to apply new and restore original state. These can
+ *        be generated through action-factory.js
+ * @param {Number=} optTimeout optional timeout to use, defaults to default ENQUEUE_TIMEOUT
  */
-export const enqueueState = ( key, undoRedoState ) => {
+export const enqueueState = ( key, undoRedoState, optTimeout = ENQUEUE_TIMEOUT ) => {
     // new state is for the same property as the previously enqueued state
     // we can discard the previously enqueued states.redo in favour of this more actual one
     if ( stateQueue.has( key )) {
@@ -68,7 +68,7 @@ export const enqueueState = ( key, undoRedoState ) => {
         processQueue();
     }
     stateQueue.set( key, undoRedoState );
-    setTimeout( processQueue, ENQUEUE_TIMEOUT );
+    setTimeout( processQueue, optTimeout );
 };
 
 /* internal methods */
