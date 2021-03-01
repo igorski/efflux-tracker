@@ -23,28 +23,28 @@
 <template>
     <div class="note-entry-editor">
         <ul class="keyboard-notes">
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="C"  class="C"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="C#" class="CS sharp"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="D"  class="D"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="D#" class="DS sharp"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="E"  class="E"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="F"  class="F"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="F#" class="FS sharp"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="G"  class="G"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="G#" class="GS sharp"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="A"  class="A"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="A#" class="AS sharp"></form-list-item>
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="B"  class="B"></form-list-item>
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="C"  class="C" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="C#" class="CS sharp" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="D"  class="D" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="D#" class="DS sharp" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="E"  class="E" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="F"  class="F" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="F#" class="FS sharp" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="G"  class="G" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="G#" class="GS sharp" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="A"  class="A" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="A#" class="AS sharp" />
+            <form-list-item v-model="note" @input="handleNoteInput" option-value="B"  class="B" />
         </ul>
         <ul class="keyboard-octaves">
-            <form-list-item v-model.number="octave" :option-value="1">1</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="2">2</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="3">3</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="4">4</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="5">5</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="6">6</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="7">7</form-list-item>
-            <form-list-item v-model.number="octave" :option-value="8">8</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="1">1</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="2">2</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="3">3</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="4">4</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="5">5</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="6">6</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="7">7</form-list-item>
+            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="8">8</form-list-item>
         </ul>
     </div>
 </template>
@@ -93,7 +93,15 @@ export default {
                 out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
-        }
+        },
+        currentChannel() {
+            const pattern = this.activeSong.patterns[ this.activePattern ];
+            return pattern.channels[ this.selectedInstrument ];
+        },
+        /* optionally existing event at the current editor position */
+        currentEvent() {
+            return this.currentChannel[ this.selectedStep ];
+        },
     },
     watch: {
         activePattern() {
@@ -108,33 +116,24 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'addEventAtPosition',
+            "addEventAtPosition",
         ]),
         syncWithExisting() {
-            // we define these upfront as we assume that the position the sequencer had (when running) is
-            // where we would like to add/edit a note event
-            // get existing event, if there was one
-
-            const pattern = this.activeSong.patterns[this.activePattern],
-                  channel = pattern.channels[this.selectedInstrument],
-                  event   = channel[this.selectedStep];
-
             // by default take the previously declared events instrument as the target instrument for the new event
             // otherwise take the active instrument as the target instrument
 
-            const previousEvent = EventUtil.getFirstEventBeforeStep(channel, this.selectedStep, previousEvent => {
+            const previousEvent = EventUtil.getFirstEventBeforeStep( this.currentChannel, this.selectedStep, previousEvent => {
                 // ignore off events as they do not specify an instrument
                 return previousEvent.action !== ACTION_NOTE_OFF;
             });
             this.instrument = ( previousEvent ) ? previousEvent.instrument : this.selectedInstrument;
 
-            if ( event ) {
-                this.note   = event.note;
-                this.octave = event.octave;
+            if ( this.currentEvent ) {
+                this.note   = this.currentEvent.note;
+                this.octave = this.currentEvent.octave;
             }
         },
         handleNoteInput( note ) {
-            console.warn("note changed to " + note);
             const eventData = {
                 instrument: this.instrument,
                 octave: this.octave,
@@ -144,10 +143,7 @@ export default {
                 return;
             }
 
-            const pattern = this.activeSong.patterns[this.activePattern],
-                  channel = pattern.channels[this.selectedInstrument];
-
-            let event        = channel[ this.selectedStep ];
+            let event = this.currentEvent;
             const isNewEvent = !event;
 
             if ( isNewEvent ) {
@@ -164,6 +160,12 @@ export default {
                 }
             });
         },
+        handleOctaveInput() {
+            // if there is an event at the current position, update it with the new octave
+            if ( this.currentEvent ) {
+                this.handleNoteInput( this.currentEvent.note );
+            }
+        }
     }
 };
 </script>
@@ -172,20 +174,23 @@ export default {
 @import "@/styles/_mixins";
 
 .note-entry-editor {
-    @include editorComponent();
     @include noSelect();
-    width: 100%;
+    @include boxSize();
     position: absolute;
     bottom: 0;
-    left: 0;
+    left: 50%;
+    transform: translateX( -50% );
+    background-color: $color-editor-background;
     height: $note-entry-editor-height;
     padding: $spacing-small $spacing-large;
-    border-radius: $spacing-small;
-    box-shadow: 0 0 25px rgba(0,0,0,.5);
 
     .divider {
         width: calc(100% + #{$spacing-large * 2});
         margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
+    }
+
+    @include mobile() {
+        z-index: 10;
     }
 }
 
@@ -195,15 +200,21 @@ export default {
     position: relative;
     vertical-align: top;
     width: 300px;
-    height: 100px;
+    height: 75%;
     margin-bottom: $spacing-small;
+
+    @include mobile() {
+        width: auto;
+        margin-left: $spacing-small;
+        height: calc(100% - #{$spacing-xlarge});
+    }
 
     li {
         display: inline-block;
         cursor: pointer;
         position: relative;
         width: 11.111%;
-        height: 100%;
+        height: 75%;
         background-color: #666;
         vertical-align: top;
         margin-right: $spacing-small;
@@ -217,6 +228,13 @@ export default {
             transform: translateX( -50% ) scale( 0.6 );
         }
 
+        @include mobile() {
+            min-width: 42px;
+            &.sharp {
+                transform: translateX( -50% ) scale( 1, 0.6 );
+            }
+        }
+
         &.selected, &:hover {
             background-color: #FFF;
         }
@@ -228,41 +246,43 @@ export default {
             pointer-events: none;
         }
 
-        &.C:after {
-            content: "C";
-        }
-        &.CS:after {
-            content: "C#";
-        }
-        &.D:after {
-            content: "D";
-        }
-        &.DS:after {
-            content: "D#";
-        }
-        &.E:after {
-            content: "E";
-        }
-        &.F:after {
-            content: "F";
-        }
-        &.FS:after {
-            content: "F#";
-        }
-        &.G:after {
-            content: "G";
-        }
-        &.GS:after {
-            content: "G#";
-        }
-        &.A:after {
-            content: "A";
-        }
-        &.AS:after {
-            content: "A#";
-        }
-        &.B:after {
-            content: "B";
+        @include large() {
+            &.C:after {
+                content: "C";
+            }
+            &.CS:after {
+                content: "C#";
+            }
+            &.D:after {
+                content: "D";
+            }
+            &.DS:after {
+                content: "D#";
+            }
+            &.E:after {
+                content: "E";
+            }
+            &.F:after {
+                content: "F";
+            }
+            &.FS:after {
+                content: "F#";
+            }
+            &.G:after {
+                content: "G";
+            }
+            &.GS:after {
+                content: "G#";
+            }
+            &.A:after {
+                content: "A";
+            }
+            &.AS:after {
+                content: "A#";
+            }
+            &.B:after {
+                content: "B";
+            }
         }
     }
 }

@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config                     from '@/config';
-import Actions              from '@/definitions/actions';
+import Actions                    from '@/definitions/actions';
 import ModalWindows               from '@/definitions/modal-windows';
 import EventFactory               from '@/model/factory/event-factory';
 import createAction               from "@/model/factory/action-factory";
@@ -314,7 +314,7 @@ function handleKeyDown(event) {
             if (state.dialog)
                 store.commit('closeDialog');
             else if (hasOption)
-                store.commit('showNoteEntry', true);
+                store.commit('setShowNoteEntry', !state.editor.showNoteEntry);
             else
                 store.commit('openModal', ModalWindows.MODULE_PARAM_EDITOR);
             break;

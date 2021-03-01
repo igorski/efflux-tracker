@@ -54,18 +54,16 @@
                          'settings-mode'   : mobileMode === 'settings',
                          'note-entry-mode' : showNoteEntry
                      }"
+                     :style="{ width: centerWidth }"
                 >
                     <track-editor />
                     <pattern-track-list />
                     <help-section v-if="displayHelp" />
                 </div>
-                <!-- note entry window -->
-                <div
+                <note-entry-editor
                     v-if="showNoteEntry"
-                    class="container"
-                >
-                    <note-entry-editor />
-                </div>
+                    :style="{ width: centerWidth }"
+                />
             </div>
         </template>
 
@@ -157,7 +155,7 @@ export default {
         mainSection: null,
         centerSection: null,
         canLaunch: true,
-
+        centerWidth: 0,
     }),
     computed: {
         ...mapState([
@@ -341,7 +339,7 @@ export default {
             if ( !this.scrollPending ) {
                 this.scrollPending = true;
                 this.$nextTick(() => {
-                    this.setWindowScrollOffset(window.scrollY);
+                    this.setWindowScrollOffset( window.scrollY );
                     this.scrollPending = false;
                 });
             }
@@ -355,12 +353,11 @@ export default {
             // grab references to DOM elements (we do this lazily)
             // TODO: delegate these to the Vue components in question
 
-            this.mainSection   = this.mainSection   || document.querySelector( "#properties" );
-            this.centerSection = this.centerSection || document.querySelector( "#editor" );
+            this.mainSection = this.mainSection   || document.querySelector( "#properties" );
 
             // synchronize pattern list width with mainsection width
 
-            this.centerSection.style.width = Style.getStyle( this.mainSection, "width" );
+            this.centerWidth = Style.getStyle( this.mainSection, "width" );
         }
     }
 };

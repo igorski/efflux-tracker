@@ -196,6 +196,6 @@
 
 @include ideal() {
     #editor {
-        margin-left: -( $ideal-width - $spacing-xlarge) / 2;
+        margin-left: -( $ideal-width - $spacing-xlarge ) / 2;
     }
 }
