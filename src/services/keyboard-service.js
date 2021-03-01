@@ -314,7 +314,7 @@ function handleKeyDown(event) {
             if (state.dialog)
                 store.commit('closeDialog');
             else if (hasOption)
-                store.commit('openModal', ModalWindows.NOTE_ENTRY_EDITOR);
+                store.commit('showNoteEntry', true);
             else
                 store.commit('openModal', ModalWindows.MODULE_PARAM_EDITOR);
             break;

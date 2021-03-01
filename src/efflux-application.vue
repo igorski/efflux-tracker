@@ -47,17 +47,24 @@
                     <song-editor />
                 </div>
             </div>
-
             <div class="container">
                 <div id="editor"
                      :class="{
-                         'has-help-panel': displayHelp,
-                         'settings-mode': mobileMode === 'settings'
+                         'has-help-panel'  : displayHelp,
+                         'settings-mode'   : mobileMode === 'settings',
+                         'note-entry-mode' : showNoteEntry
                      }"
                 >
                     <track-editor />
                     <pattern-track-list />
                     <help-section v-if="displayHelp" />
+                </div>
+                <!-- note entry window -->
+                <div
+                    v-if="showNoteEntry"
+                    class="container"
+                >
+                    <note-entry-editor />
                 </div>
             </div>
         </template>
@@ -108,6 +115,7 @@ import Loader from "@/components/loader";
 import ListenerUtil from "@/utils/listener-util";
 import ModalWindows from "@/definitions/modal-windows";
 import Notifications from "@/components/notifications";
+import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor";
 import PatternEditor from "@/components/pattern-editor/pattern-editor";
 import PatternTrackList from "@/components/pattern-track-list/pattern-track-list";
 import PubSubService from "@/services/pubsub-service";
@@ -136,6 +144,7 @@ export default {
         HelpSection,
         Loader,
         Notifications,
+        NoteEntryEditor,
         PatternEditor,
         PatternTrackList,
         SongEditor,
@@ -148,6 +157,7 @@ export default {
         mainSection: null,
         centerSection: null,
         canLaunch: true,
+
     }),
     computed: {
         ...mapState([
@@ -161,7 +171,8 @@ export default {
         ]),
         ...mapState({
             displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== false,
-            selectedSlot: state => state.editor.selectedSlot
+            selectedSlot: state => state.editor.selectedSlot,
+            showNoteEntry: state => state.editor.showNoteEntry,
         }),
         ...mapGetters([
             "activeSong",
@@ -173,8 +184,6 @@ export default {
                     return null;
                 case ModalWindows.ADVANCED_PATTERN_EDITOR:
                     return () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor" );
-                case ModalWindows.NOTE_ENTRY_EDITOR:
-                    return () => import( "@/components/note-entry-editor/note-entry-editor" );
                 case ModalWindows.MODULE_PARAM_EDITOR:
                     return () => import( "@/components/module-param-editor/module-param-editor" );
                 case ModalWindows.INSTRUMENT_EDITOR:
@@ -193,35 +202,35 @@ export default {
         },
     },
     watch: {
-        menuOpened(isOpen) {
+        menuOpened( isOpen ) {
             // prevent scrolling main body when scrolling menu list
             window.document.body.style.overflow = isOpen ? "hidden" : "auto";
         },
-        activeSong(song = null) {
-            if (song == null)
+        activeSong( song = null ) {
+            if ( song == null ) {
                 return;
-
-            if (AudioService.initialized) {
+            }
+            if ( AudioService.initialized ) {
                 AudioService.reset();
-                AudioService.cacheCustomTables(song.instruments);
-                AudioService.applyModules(song);
+                AudioService.cacheCustomTables( song.instruments );
+                AudioService.applyModules( song );
             }
             this.resetEditor();
             this.resetHistory();
-            this.createLinkedList(song);
-            this.setActivePattern(0);
-            this.setPlaying(false);
-            this.setLooping(false);
+            this.createLinkedList( song );
+            this.setActivePattern( 0 );
+            this.setPlaying( false );
+            this.setLooping( false );
             this.clearSelection();
 
-            if (!song.meta.title)
+            if ( !song.meta.title ) {
                 return;
-
+            }
             this.showNotification({
-                title: this.$t("songLoadedTitle"),
-                message: this.$t("songLoaded", { name: song.meta.title })
+                title   : this.$t( "songLoadedTitle" ),
+                message : this.$t( "songLoaded", { name: song.meta.title })
             });
-            this.publishMessage(PubSubMessages.SONG_LOADED);
+            this.publishMessage( PubSubMessages.SONG_LOADED );
         },
         /**
          * synchronize editor module changes with keyboard service

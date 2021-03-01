@@ -132,10 +132,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex';
-import KeyboardService from '@/services/keyboard-service';
-import ModalWindows    from '@/definitions/modal-windows';
-import Bowser          from 'bowser';
+import { mapState, mapGetters, mapMutations } from "vuex";
+import KeyboardService from "@/services/keyboard-service";
+import Bowser          from "bowser";
 
 const STEP_WIDTH  = 150;
 const STEP_HEIGHT = 32;
@@ -156,10 +155,10 @@ export default {
             windowSize: state => state.windowSize,
         }),
         ...mapGetters([
-            'amountOfSteps',
-            'hasSelection',
-            'followPlayback',
-            'paramFormat',
+            "amountOfSteps",
+            "hasSelection",
+            "followPlayback",
+            "paramFormat",
         ]),
         activeSongPattern() {
             return this.activeSong.patterns[ this.activePattern ];
@@ -215,15 +214,15 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setSelectedInstrument',
-            'setSelectedSlot',
-            'setSelectedStep',
-            'openModal',
-            'setHelpTopic',
-            'clearSelection',
-            'setSelectionChannelRange',
-            'setSelection',
-            'addEventAtPosition',
+            "setSelectedInstrument",
+            "setSelectedSlot",
+            "setSelectedStep",
+            "setHelpTopic",
+            "clearSelection",
+            "setSelectionChannelRange",
+            "setSelection",
+            "addEventAtPosition",
+            "setShowNoteEntry",
         ]),
         cacheDimensions() {
             this.containerWidth  = this.container.offsetWidth;
@@ -263,7 +262,7 @@ export default {
             }
         },
         formatModuleParam(data) {
-            let out = ( data && data.glide ) ? 'G ' : '';
+            let out = ( data && data.glide ) ? "G " : "";
 
             if ( data && data.module ) {
                 out += data.module.charAt( 0 ).toUpperCase();
@@ -275,7 +274,7 @@ export default {
             let value;
             // show parameter value in either hex or percentages
             // TODO there is a bit of code duplication with NumberUtil here...
-            if ( this.paramFormat === 'pct' )
+            if ( this.paramFormat === "pct" )
                 value = Math.min( 99, parseInt( data.value, 10 )).toString();
             else {
                 value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
@@ -284,15 +283,15 @@ export default {
         },
         handleInteraction(event) {
             // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
-            if (event.type === 'touchstart' ) {
+            if (event.type === "touchstart" ) {
                 this.interactionData.offset = window.scrollY;
                 this.interactionData.time   = Date.now();
                 return;
             }
-            if (event.target.nodeName === 'LI')
+            if (event.target.nodeName === "LI")
                 this.handleSlotClick(event);
 
-            this.setHelpTopic('tracker');
+            this.setHelpTopic("tracker");
         },
         /**
          * handle the event when the user clicks/taps a slot within the pattern
@@ -325,7 +324,7 @@ export default {
                             this.setSelectedInstrument(i); // when entering a new channel lane, make default instrument match index
                         }
 
-                        // if shift was held down, we're making a selection
+                        // if shift was held down, we"re making a selection
                         if ( shiftDown ) {
                             this.setSelectionChannelRange({ firstChannel: selectionChannelStart, lastChannel: i });
                             this.setSelection({ selectionStart: selectionStepStart, selectionEnd: j });
@@ -337,12 +336,12 @@ export default {
                         this.setSelectedSlot(-1);
 
                         // when using a mouse, select the clicked slot. on touch screens there is no benefit in slot selection
-                        if (!shiftDown && event.type === 'mousedown')
-                            this.selectSlotWithinClickedStep(event);
-
-                        if (event.type === 'dblclick') {
+                        if ( !shiftDown && event.type === "mousedown" ) {
+                            this.selectSlotWithinClickedStep( event );
+                        }
+                        if ( event.type === "dblclick" ) {
                             event.preventDefault();
-                            this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
+                            this.setShowNoteEntry( true );
                             found = true;
                         }
                         break;
@@ -378,7 +377,7 @@ export default {
          * this is a little more work for us, but prevents repeated DOM thrashing during heavy editing
          */
         grabPatternContainerStepFromTemplate(container, step) {
-            const stepElement = this.pContainerSteps[step] || container.querySelectorAll('li');
+            const stepElement = this.pContainerSteps[step] || container.querySelectorAll("li");
             this.pContainerSteps[step] = stepElement;
             return stepElement;
         },

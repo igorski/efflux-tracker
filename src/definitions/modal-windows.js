@@ -23,12 +23,11 @@
 export default
 {
     ADVANCED_PATTERN_EDITOR : "0",
-    NOTE_ENTRY_EDITOR       : "1",
-    MODULE_PARAM_EDITOR     : "2",
-    INSTRUMENT_EDITOR       : "3",
-    MIXER                   : "4",
-    SONG_BROWSER            : "5",
-    SONG_SAVE_WINDOW        : "6",
-    SETTINGS_WINDOW         : "7",
-    WELCOME_WINDOW          : "8"
+    MODULE_PARAM_EDITOR     : "1",
+    INSTRUMENT_EDITOR       : "2",
+    MIXER                   : "3",
+    SONG_BROWSER            : "4",
+    SONG_SAVE_WINDOW        : "5",
+    SETTINGS_WINDOW         : "6",
+    WELCOME_WINDOW          : "7"
 };

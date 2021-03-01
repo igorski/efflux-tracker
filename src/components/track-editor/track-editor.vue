@@ -57,7 +57,8 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            eventList: state => state.editor.eventList
+            eventList: state => state.editor.eventList,
+            showNoteEntry: state => state.editor.showNoteEntry,
         }),
         ...mapState([
             "windowSize",
@@ -95,13 +96,14 @@ export default {
             "addEventAtPosition",
             "openModal",
             "saveState",
+            "setShowNoteEntry",
         ]),
         ...mapActions([
             "undo",
             "redo"
         ]),
         addNoteOn() {
-            this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
+            this.setShowNoteEntry( !this.showNoteEntry );
         },
         addNoteOnOff(){
             const offEvent = EventFactory.createAudioEvent();
