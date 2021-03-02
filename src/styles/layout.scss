@@ -38,6 +38,10 @@
     top: 134px; /* menu + song meta */
     bottom: $footer-height;
     overflow: hidden;
+
+    &.note-entry-mode {
+        bottom: $note-entry-editor-height !important;
+    }
 }
 
 #blind {
@@ -192,6 +196,6 @@
 
 @include ideal() {
     #editor {
-        margin-left: -( $ideal-width - $spacing-xlarge) / 2;
+        margin-left: -( $ideal-width - $spacing-xlarge ) / 2;
     }
 }

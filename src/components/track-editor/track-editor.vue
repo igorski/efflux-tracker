@@ -26,13 +26,37 @@
              :class="{ fixed: isFixed }"
     >
         <ul class="controls">
-            <li class="undo" :class="{ disabled: !canUndo }" @click="navigateHistory('undo')"></li>
-            <li class="redo" :class="{ disabled: !canRedo }" @click="navigateHistory('redo')"></li>
-            <li class="add-on" @click="addNoteOn"></li>
-            <li class="add-off" @click="addNoteOnOff"></li>
-            <li class="remove-note" @click="deleteNote"></li>
-            <li class="module-params" @click="editModuleParams"></li>
-            <li class="module-glide" @click="glideParams"></li>
+            <li
+                class="undo"
+                :class="{ disabled: !canUndo }"
+                @click="navigateHistory('undo')"
+            ></li>
+            <li
+                class="redo"
+                :class="{ disabled: !canRedo }"
+                @click="navigateHistory('redo')"
+            ></li>
+            <li
+                class="add-on"
+                :class="{ active: showNoteEntry }"
+                @click="addNoteOn"
+            ></li>
+            <li
+                class="add-off"
+                @click="addNoteOnOff"
+            ></li>
+            <li
+                class="remove-note"
+                @click="deleteNote"
+            ></li>
+            <li
+                class="module-params"
+                @click="editModuleParams"
+            ></li>
+            <li
+                class="module-glide"
+                @click="glideParams"
+            ></li>
         </ul>
     </section>
 </template>
@@ -57,7 +81,8 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            eventList: state => state.editor.eventList
+            eventList: state => state.editor.eventList,
+            showNoteEntry: state => state.editor.showNoteEntry,
         }),
         ...mapState([
             "windowSize",
@@ -79,7 +104,7 @@ export default {
         windowSize() {
             this.controlOffsetY = 0; // flush cache
         },
-        windowScrollOffset(scrollY) {
+        windowScrollOffset( scrollY ) {
             // ensure the controlContainer is always visible regardless of scroll offset (for phones)
             // threshold defines when to offset the containers top, the last number defines the fixed header height
             if ( scrollY !== this.lastWindowScrollY ) {
@@ -95,13 +120,14 @@ export default {
             "addEventAtPosition",
             "openModal",
             "saveState",
+            "setShowNoteEntry",
         ]),
         ...mapActions([
             "undo",
             "redo"
         ]),
         addNoteOn() {
-            this.openModal(ModalWindows.NOTE_ENTRY_EDITOR);
+            this.setShowNoteEntry( !this.showNoteEntry );
         },
         addNoteOnOff(){
             const offEvent = EventFactory.createAudioEvent();
@@ -181,8 +207,12 @@ export default {
                 background-image: url('../../assets/images/icon-redo.png');
             }
 
-            &:hover {
+            &.active {
                 background-color: $color-1;
+            }
+
+            &:hover {
+                background-color: $color-5;
             }
 
             &.disabled {

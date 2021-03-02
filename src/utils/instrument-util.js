@@ -187,6 +187,7 @@ export default
      * handle the instruments "key up" event (will trigger noteOff)
      * @param {{ note: string, octave: number }} pitch
      * @param {Object} store root Vuex store
+     * @return {boolean} whether a note off instruction has been executed
     */
     onKeyUp( pitch, store ) {
         const id     = pitchToUniqueId( pitch );
@@ -203,6 +204,7 @@ export default
            // audioEvent.event.seq.playing = false;
         }
         delete playingNotes[ id ];
+        return !!noteVO;
     },
 
     /**

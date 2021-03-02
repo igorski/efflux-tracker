@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -88,38 +88,46 @@ export default {
          * NOTE: the linked list is NOT reactive, do not use
          * Vue.set/delete on its properties.
          */
-        eventList: null
+        eventList: null,
+
+        /**
+         * Whether the note entry panel is docked on screen
+         */
+        showNoteEntry: false,
     },
     mutations: {
-        setSelectedInstrument(state, value) {
+        setSelectedInstrument( state, value ) {
             state.selectedInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
         },
-        setSelectedStep(state, value) {
+        setSelectedStep( state, value ) {
             state.selectedStep = Math.max(0, value);
         },
-        setSelectedSlot(state, value) {
+        setSelectedSlot( state, value ) {
             state.selectedSlot = Math.max(-1, Math.min(3, value));
         },
-        setHigherKeyboardOctave(state, value) {
+        setHigherKeyboardOctave( state, value ) {
             state.higherKeyboardOctave = value;
         },
-        setLowerKeyboardOctave(state, value) {
+        setLowerKeyboardOctave( state, value ) {
             state.lowerKeyboardOctave = value;
         },
-        setSelectedOscillatorIndex(state, index) {
+        setSelectedOscillatorIndex( state, index ) {
             state.selectedOscillatorIndex = index;
         },
-        prepareLinkedList(state) {
-            state.eventList = new Array(Config.INSTRUMENT_AMOUNT);
+        prepareLinkedList( state ) {
+            state.eventList = new Array( Config.INSTRUMENT_AMOUNT );
 
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
                 state.eventList[ i ] = new LinkedList();
             }
         },
-        createLinkedList(state, song) {
-            EventUtil.linkEvents(song.patterns, state.eventList);
+        createLinkedList( state, song ) {
+            EventUtil.linkEvents( song.patterns, state.eventList );
         },
-        resetEditor(state) {
+        setShowNoteEntry( state, value ) {
+            state.showNoteEntry = value;
+        },
+        resetEditor( state ) {
             state.selectedInstrument =
             state.selectedStep       = 0;
         }
