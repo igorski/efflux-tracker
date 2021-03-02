@@ -21,42 +21,57 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="note-entry-editor">
-        <ul class="keyboard-notes">
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="C"  class="C" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="C#" class="CS sharp" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="D"  class="D" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="D#" class="DS sharp" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="E"  class="E" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="F"  class="F" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="F#" class="FS sharp" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="G"  class="G" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="G#" class="GS sharp" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="A"  class="A" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="A#" class="AS sharp" />
-            <form-list-item v-model="note" @input="handleNoteInput" option-value="B"  class="B" />
-        </ul>
-        <ul class="keyboard-octaves">
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="1">1</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="2">2</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="3">3</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="4">4</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="5">5</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="6">6</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="7">7</form-list-item>
-            <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="8">8</form-list-item>
-        </ul>
+    <div
+        class="note-entry-editor"
+        @mouseover="setHelpTopic('note-entry')"
+     >
+        <div class="section">
+            <h3 v-t="'noteInput'" class="title"></h3>
+            <ul class="keyboard">
+                <li
+                    v-for="noteName in notes"
+                    :key="noteName"
+                    class="keyboard--key"
+                    :class="{
+                        'sharp'    : noteName.includes( '#' ),
+                        'selected' : note === noteName
+                    }"
+                    @mousedown="keyDown( noteName )"
+                    @mouseup="keyUp( noteName )"
+                    @mouseout="keyUp( noteName, false )"
+                    @mouseenter="isKeyDown && keyDown( noteName )"
+                    @touchstart="keyDown( noteName )"
+                    @touchend="keyUp( noteName )"
+                    @touchcancel="keyUp( noteName )"
+                ></li>
+            </ul>
+        </div>
+        <div class="section">
+            <h3 v-t="'octave'" class="title"></h3>
+            <ul class="octaves">
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="1">1</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="2">2</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="3">3</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="4">4</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="5">5</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="6">6</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="7">7</form-list-item>
+                <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="8">8</form-list-item>
+            </ul>
+        </div>
     </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
-import Config          from "@/config";
-import EventUtil       from "@/utils/event-util";
-import EventFactory    from "@/model/factory/event-factory";
-import EventValidator  from "@/model/validators/event-validator";
-import FormListItem    from "@/components/forms/form-list-item.vue";
-import messages        from "./messages.json";
+import { mapState, mapGetters, mapMutations } from "vuex";
+import Config         from "@/config";
+import EventUtil      from "@/utils/event-util";
+import EventFactory   from "@/model/factory/event-factory";
+import EventValidator from "@/model/validators/event-validator";
+import FormListItem   from "@/components/forms/form-list-item.vue";
+import Pitch          from "@/services/audio/pitch";
+import InstrumentUtil from "@/utils/instrument-util";
+import messages       from "./messages.json";
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 
 const DEFAULT_NOTE   = "C";
@@ -71,6 +86,7 @@ export default {
         instrument: 0,
         note: DEFAULT_NOTE,
         octave: DEFAULT_OCTAVE,
+        isKeyDown: false,
     }),
     computed: {
         ...mapState({
@@ -79,6 +95,9 @@ export default {
             selectedInstrument : state => state.editor.selectedInstrument,
             selectedStep       : state => state.editor.selectedStep,
         }),
+        ...mapGetters([
+            "isRecording",
+        ]),
         instrumentSelectValue: {
             get() {
                 return this.instrument.toString();
@@ -114,9 +133,13 @@ export default {
             this.syncWithExisting();
         }
     },
+    created() {
+        this.notes = Pitch.OCTAVE_SCALE;
+    },
     methods: {
         ...mapMutations([
             "addEventAtPosition",
+            "setHelpTopic",
         ]),
         syncWithExisting() {
             // by default take the previously declared events instrument as the target instrument for the new event
@@ -133,7 +156,13 @@ export default {
                 this.octave = this.currentEvent.octave;
             }
         },
-        handleNoteInput( note ) {
+        handleOctaveInput() {
+            // if there is an event at the current position, update it with the new octave
+            if ( this.currentEvent ) {
+                this.addNoteToPattern( this.currentEvent.note );
+            }
+        },
+        addNoteToPattern( note ) {
             const eventData = {
                 instrument: this.instrument,
                 octave: this.octave,
@@ -160,12 +189,17 @@ export default {
                 }
             });
         },
-        handleOctaveInput() {
-            // if there is an event at the current position, update it with the new octave
-            if ( this.currentEvent ) {
-                this.handleNoteInput( this.currentEvent.note );
+        keyDown( note ) {
+            InstrumentUtil.onKeyDown(
+                { note, octave: this.octave }, this.activeSong.instruments[ this.instrument ], this.isRecording, this.$store
+            );
+            this.isKeyDown = true;
+        },
+        keyUp( note, unsetDownState = true ) {
+            if ( InstrumentUtil.onKeyUp({ note, octave: this.octave }, this.$store ) && unsetDownState ) {
+                this.isKeyDown = false;
             }
-        }
+        },
     }
 };
 </script>
@@ -183,6 +217,7 @@ export default {
     background-color: $color-editor-background;
     height: $note-entry-editor-height;
     padding: $spacing-small $spacing-large;
+    border-top: 2px solid $color-background;
 
     .divider {
         width: calc(100% + #{$spacing-large * 2});
@@ -191,16 +226,27 @@ export default {
 
     @include mobile() {
         z-index: 10;
+        padding: $spacing-small $spacing-medium;
     }
 }
 
-.keyboard-notes {
+.section {
+    display: inline-block;
+    vertical-align: top;
+}
+
+.title {
+    @include toolFont();
+    margin-top: 0;
+}
+
+.keyboard {
     @include list();
     display: inline-block;
     position: relative;
     vertical-align: top;
     width: 300px;
-    height: 75%;
+    height: 50%;
     margin-bottom: $spacing-small;
 
     @include mobile() {
@@ -209,7 +255,7 @@ export default {
         height: calc(100% - #{$spacing-xlarge});
     }
 
-    li {
+    &--key {
         display: inline-block;
         cursor: pointer;
         position: relative;
@@ -235,7 +281,11 @@ export default {
             }
         }
 
-        &.selected, &:hover {
+        &.selected {
+            background-color: $color-1;
+        }
+
+        &:hover {
             background-color: #FFF;
         }
 
@@ -245,71 +295,32 @@ export default {
             left: $spacing-small;
             pointer-events: none;
         }
-
-        @include large() {
-            &.C:after {
-                content: "C";
-            }
-            &.CS:after {
-                content: "C#";
-            }
-            &.D:after {
-                content: "D";
-            }
-            &.DS:after {
-                content: "D#";
-            }
-            &.E:after {
-                content: "E";
-            }
-            &.F:after {
-                content: "F";
-            }
-            &.FS:after {
-                content: "F#";
-            }
-            &.G:after {
-                content: "G";
-            }
-            &.GS:after {
-                content: "G#";
-            }
-            &.A:after {
-                content: "A";
-            }
-            &.AS:after {
-                content: "A#";
-            }
-            &.B:after {
-                content: "B";
-            }
-        }
     }
 }
 
-.keyboard-octaves {
+.octaves {
     @include list();
+    @include toolFont();
     text-transform: uppercase;
     text-indent: $spacing-small;
     display: inline-block;
 
     li {
-        float: left;
+        display: inline-block;
         border: 2px solid #666;
         padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
-        margin: $spacing-xsmall;
+        margin: $spacing-xsmall $spacing-small 0 0;
         cursor: pointer;
 
-        &.selected, &:hover {
+        &.selected {
+            background-color: $color-1;
+            color: #000;
+        }
+
+        &:hover {
             background-color: #FFF;
             color: #000;
         }
     }
-}
-
-.confirm-button {
-    @include button();
-    width: 100%;
-    padding: $spacing-medium $spacing-large;
 }
 </style>

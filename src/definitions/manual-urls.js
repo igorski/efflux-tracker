@@ -29,6 +29,5 @@ export default
      */
     ONLINE_MANUAL          : MANUAL_ROOT,
     PARAM_ENTRY_HELP       : MANUAL_ROOT + 'patterns#parameter-change-ui',
-    NOTE_ENTRY_HELP        : MANUAL_ROOT + 'patterns#note-entry',
     INSTRUMENT_EDITOR_HELP : MANUAL_ROOT + 'instrument-editor'
 };

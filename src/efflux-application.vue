@@ -54,7 +54,6 @@
                          'settings-mode'   : mobileMode === 'settings',
                          'note-entry-mode' : showNoteEntry
                      }"
-                     :style="{ width: centerWidth }"
                 >
                     <track-editor />
                     <pattern-track-list />
@@ -350,14 +349,20 @@ export default {
              * we need JavaScript to calculate to correct dimensions of the overflowed track list
              */
 
-            // grab references to DOM elements (we do this lazily)
+            // lazily grab references to DOM elements
             // TODO: delegate these to the Vue components in question
 
-            this.mainSection = this.mainSection   || document.querySelector( "#properties" );
+            this.mainSection   = this.mainSection   || document.querySelector( "#properties" );
+            this.editorSection = this.centerSection || document.querySelector( "#editor" );
 
-            // synchronize pattern list width with mainsection width
+            // synchronize center section width with mainsection width
 
             this.centerWidth = Style.getStyle( this.mainSection, "width" );
+
+            // note we do not bind a :style property onto the element inside the template as it
+            // interferes with keyboard interactions done within (offsets keep jumping to center) !!
+
+            this.editorSection.style.width = this.centerWidth;
         }
     }
 };

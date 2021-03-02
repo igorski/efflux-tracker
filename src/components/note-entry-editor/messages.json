@@ -1,7 +1,6 @@
 {
   "en-US": {
-    "title": "Note entry editor",
-    "instrument": "Instrument {index}",
-    "ok": "OK"
+    "noteInput": "Note input",
+    "octave": "Octave"
   }
 }

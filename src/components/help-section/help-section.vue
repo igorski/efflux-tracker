@@ -114,8 +114,26 @@
                     <strong>ctrl + shift + Z</strong> to redo a state.
                 </p>
                 <p>
-                    For more in-depth help you can consult the <a href="https://www.igorski.nl/efflux/help/patterns" target="_blank">pattern page</a>
+                    For more in-depth help you can consult the <a href="https://www.igorski.nl/efflux/help/patterns" rel="noopener" target="_blank">pattern page</a>
                     in the online manual.
+                </p>
+            </template>
+            <template v-if="helpTopic === 'note-entry'">
+                <h4>Note entry</h4>
+                <p>
+                    There you go, a mini piano to directly play (and hear!) the instruments. By selecting a channel in the pattern list, you are selecting
+                    the corresponding instrument for playback.
+                </p>
+                <p>
+                    By toggling the sequencers recording status, you can record a note directly into
+                    the pattern list, also while the sequencer is running.
+                </p>
+                <p>
+                    Note : this on-screen keyboard is aimed towards touch screen devices. You can have different workflows
+                    using your computers keyboard or attached MIDI controllers for note input.
+                </p>
+                <p>
+                    For more in-depth help on this topic you can consult the <a href="https://www.igorski.nl/efflux/help/note-input" rel="noopener" target="_blank">note input</a> page in the online manual.
                 </p>
             </template>
         </div>

@@ -154,17 +154,18 @@ export default KeyboardService;
 
 /* internal methods */
 
-function handleKeyDown(event) {
-    if (suspended) {
+function handleKeyDown( event ) {
+    if ( suspended ) {
         return;
     }
-    const keyCode = event.keyCode; // the current step position and channel within the pattern
-    shiftDown     = !!event.shiftKey;
+    const { keyCode } = event;
+    shiftDown = !!event.shiftKey;
 
     // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
 
-    if (blockDefaults && DEFAULT_BLOCKED.includes(keyCode))
-        preventDefault(event);
+    if ( blockDefaults && DEFAULT_BLOCKED.includes( keyCode )) {
+        preventDefault( event );
+    }
 
     if ( typeof listener === 'function' ) {
         listener( 'down', keyCode, event );
@@ -172,9 +173,9 @@ function handleKeyDown(event) {
     }
     const hasOption = KeyboardService.hasOption( event );
 
-    if ( !hasOption && !shiftDown )
+    if ( !hasOption && !shiftDown ) {
         handleInputForMode( keyCode );
-
+    }
     switch ( keyCode )
     {
         case 27: // escape
