@@ -248,7 +248,7 @@ export default {
     position: relative;
     vertical-align: top;
     width: 300px;
-    height: 50%;
+    height: $spacing-xlarge + $spacing-small;
     margin-bottom: $spacing-small;
 
     @include mobile() {
