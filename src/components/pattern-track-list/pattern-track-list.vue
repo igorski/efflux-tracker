@@ -281,17 +281,17 @@ export default {
             }
             return ( value.length === 1 ) ? ` 0${value}` : ` ${value}`;
         },
-        handleInteraction(event) {
+        handleInteraction( event ) {
             // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
-            if (event.type === "touchstart" ) {
+            if ( event.type === "touchstart" ) {
                 this.interactionData.offset = window.scrollY;
                 this.interactionData.time   = Date.now();
                 return;
             }
-            if (event.target.nodeName === "LI")
-                this.handleSlotClick(event);
-
-            this.setHelpTopic("tracker");
+            if ( event.target.nodeName === "LI" ) {
+                this.handleSlotClick( event );
+            }
+            this.setHelpTopic( "tracker" );
         },
         /**
          * handle the event when the user clicks/taps a slot within the pattern
@@ -304,16 +304,18 @@ export default {
             const shiftDown = KeyboardService.hasShift();
             let selectionChannelStart = this.selectedInstrument,
                 selectionStepStart    = this.selectedStep;
+
             let found = false;
 
-            if (this.hasSelection) {
+            if ( this.hasSelection ) {
                 selectionChannelStart = this.firstSelectedChannel;
                 selectionStepStart    = this.minSelectedStep;
             }
 
             for ( let i = 0, l = pContainers.length; i < l; ++i ) {
-                if ( found ) break;
-
+                if ( found ) {
+                    break;
+                }
                 const pContainer = pContainers[ i ];
                 const items = this.grabPatternContainerStepFromTemplate(pContainer, i);
 
@@ -324,7 +326,7 @@ export default {
                             this.setSelectedInstrument(i); // when entering a new channel lane, make default instrument match index
                         }
 
-                        // if shift was held down, we"re making a selection
+                        // if shift was held down, we're making a selection
                         if ( shiftDown ) {
                             this.setSelectionChannelRange({ firstChannel: selectionChannelStart, lastChannel: i });
                             this.setSelection({ selectionStart: selectionStepStart, selectionEnd: j });
@@ -377,8 +379,8 @@ export default {
          * this is a little more work for us, but prevents repeated DOM thrashing during heavy editing
          */
         grabPatternContainerStepFromTemplate(container, step) {
-            const stepElement = this.pContainerSteps[step] || container.querySelectorAll("li");
-            this.pContainerSteps[step] = stepElement;
+            const stepElement = this.pContainerSteps[ step ] || container.querySelectorAll( "li" );
+            this.pContainerSteps[ step ] = stepElement;
             return stepElement;
         },
     }
