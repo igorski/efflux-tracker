@@ -36,11 +36,11 @@
                         'sharp'    : noteName.includes( '#' ),
                         'selected' : note === noteName
                     }"
-                    @mousedown="keyDown( noteName )"
+                    @mousedown="keyDown( noteName, $event )"
                     @mouseup="keyUp( noteName )"
                     @mouseout="keyUp( noteName, false )"
-                    @mouseenter="isKeyDown && keyDown( noteName )"
-                    @touchstart="keyDown( noteName )"
+                    @mouseenter="isKeyDown && keyDown( noteName, $event )"
+                    @touchstart="keyDown( noteName, $event )"
                     @touchend="keyUp( noteName )"
                     @touchcancel="keyUp( noteName )"
                 ></li>
@@ -189,10 +189,12 @@ export default {
                 }
             });
         },
-        keyDown( note ) {
+        keyDown( note, event ) {
             InstrumentUtil.onKeyDown(
-                { note, octave: this.octave }, this.activeSong.instruments[ this.instrument ], this.isRecording, this.$store
+                { note, octave: this.octave }, this.activeSong.instruments[ this.instrument ],
+                this.isRecording, this.$store
             );
+            event.preventDefault(); // prevents touchstart firing mousedown/
             this.isKeyDown = true;
         },
         keyUp( note, unsetDownState = true ) {

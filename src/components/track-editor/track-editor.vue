@@ -104,7 +104,7 @@ export default {
         windowSize() {
             this.controlOffsetY = 0; // flush cache
         },
-        windowScrollOffset(scrollY) {
+        windowScrollOffset( scrollY ) {
             // ensure the controlContainer is always visible regardless of scroll offset (for phones)
             // threshold defines when to offset the containers top, the last number defines the fixed header height
             if ( scrollY !== this.lastWindowScrollY ) {
@@ -214,7 +214,7 @@ export default {
             &:hover {
                 background-color: $color-5;
             }
-            
+
             &.disabled {
                 opacity: .25;
                 @include noEvents();

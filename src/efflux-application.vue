@@ -57,7 +57,9 @@
                 >
                     <track-editor />
                     <pattern-track-list />
-                    <help-section v-if="displayHelp" />
+                    <help-section
+                        v-if="displayHelp"
+                    />
                 </div>
                 <note-entry-editor
                     v-if="showNoteEntry"
