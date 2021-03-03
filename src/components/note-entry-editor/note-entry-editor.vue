@@ -233,8 +233,11 @@ export default {
 }
 
 .section {
-    display: inline-block;
     vertical-align: top;
+
+    @include large() {
+        display: inline-block;
+    }
 }
 
 .title {
@@ -252,9 +255,8 @@ export default {
     margin-bottom: $spacing-small;
 
     @include mobile() {
-        width: auto;
+        width: 100%;
         margin-left: $spacing-small;
-        height: calc(100% - #{$spacing-xlarge});
     }
 
     &--key {
@@ -277,7 +279,7 @@ export default {
         }
 
         @include mobile() {
-            min-width: 42px;
+            max-width: 42px;
             &.sharp {
                 transform: translateX( -50% ) scale( 1, 0.6 );
             }
