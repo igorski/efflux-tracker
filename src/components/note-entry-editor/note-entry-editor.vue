@@ -158,7 +158,7 @@ export default {
         },
         handleOctaveInput() {
             // if there is an event at the current position, update it with the new octave
-            if ( this.currentEvent ) {
+            if ( this.currentEvent && this.isRecording ) {
                 this.addNoteToPattern( this.currentEvent.note );
             }
         },
