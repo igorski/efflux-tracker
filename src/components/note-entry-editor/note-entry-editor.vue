@@ -27,7 +27,10 @@
      >
         <div class="section">
             <h3 v-t="'noteInput'" class="title"></h3>
-            <ul class="keyboard">
+            <ul
+                class="keyboard"
+                @pointerleave="killAllNotes()"
+            >
                 <li
                     v-for="noteName in notes"
                     :key="noteName"
@@ -36,13 +39,13 @@
                         'sharp'    : noteName.includes( '#' ),
                         'selected' : note === noteName
                     }"
-                    @mousedown="keyDown( noteName, $event )"
-                    @mouseup="keyUp( noteName )"
-                    @mouseout="keyUp( noteName, false )"
-                    @mouseenter="isKeyDown && keyDown( noteName, $event )"
+                    @pointerdown="keyDown( noteName, $event )"
+                    @pointerup="keyUp( noteName, $event )"
+                    @pointerleave="keyUp( noteName, $event, false )"
+                    @pointerenter="isKeyDown && keyDown( noteName, $event )"
                     @touchstart="keyDown( noteName, $event )"
-                    @touchend="keyUp( noteName )"
-                    @touchcancel="keyUp( noteName )"
+                    @touchend="keyUp( noteName, $event )"
+                    @touchcancel="keyUp( noteName, $event )"
                 ></li>
             </ul>
         </div>
@@ -87,6 +90,7 @@ export default {
         note: DEFAULT_NOTE,
         octave: DEFAULT_OCTAVE,
         isKeyDown: false,
+        playingNotes: [],
     }),
     computed: {
         ...mapState({
@@ -136,6 +140,9 @@ export default {
     created() {
         this.notes = Pitch.OCTAVE_SCALE;
     },
+    beforeDestroy() {
+        this.killAllNotes();
+    },
     methods: {
         ...mapMutations([
             "addEventAtPosition",
@@ -153,7 +160,7 @@ export default {
 
             if ( this.currentEvent ) {
                 this.note   = this.currentEvent.note;
-                this.octave = this.currentEvent.octave;
+                this.octave = this.currentEvent.octave || DEFAULT_OCTAVE;
             }
         },
         handleOctaveInput() {
@@ -189,17 +196,40 @@ export default {
                 }
             });
         },
+        killAllNotes() {
+            this.playingNotes.forEach( playingNote => {
+                InstrumentUtil.onKeyUp( playingNote, this.$store );
+            });
+            this.playingNotes.splice( 0 );
+            this.isKeyDown = false;
+        },
         keyDown( note, event ) {
+            event.preventDefault(); // prevents touchstart firing mousedown in succession
+            event.pointerId && event.target.releasePointerCapture( event.pointerId );
+            const noteEvent = { note, octave: this.octave };
             InstrumentUtil.onKeyDown(
-                { note, octave: this.octave }, this.activeSong.instruments[ this.instrument ],
+                noteEvent, this.activeSong.instruments[ this.instrument ],
                 this.isRecording, this.$store
             );
-            event.preventDefault(); // prevents touchstart firing mousedown/
+            this.playingNotes.push( noteEvent );
             this.isKeyDown = true;
         },
-        keyUp( note, unsetDownState = true ) {
-            if ( InstrumentUtil.onKeyUp({ note, octave: this.octave }, this.$store ) && unsetDownState ) {
-                this.isKeyDown = false;
+        keyUp( note, event, unsetDownState = true ) {
+            event.preventDefault();
+            // we find the event that is currently playing for this key by its note (and not
+            // by the current octave, as during sequencer playback the octave might have been
+            // adjusted to match the last played note in the pattern)
+            const noteEvent = this.playingNotes.find( noteEvent => noteEvent.note === note );
+            if ( !noteEvent ) {
+                return;
+            }
+            const index = this.playingNotes.indexOf( noteEvent );
+            this.playingNotes.splice( index, 1 );
+            if ( InstrumentUtil.onKeyUp( noteEvent, this.$store ) && unsetDownState ) {
+                // we manage the down state separately from the amount of notes in
+                // the playingNotes list as we want to allow legato playing when
+                // moving from one key to the other
+                this.isKeyDown = this.playingNotes.length > 0;
             }
         },
     }
