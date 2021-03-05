@@ -66,7 +66,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import createAction from "@/model/factory/action-factory";
+import createAction from "@/model/factories/action-factory";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";

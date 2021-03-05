@@ -1,4 +1,4 @@
-import EventFactory   from '@/model/factory/event-factory';
+import EventFactory   from '@/model/factories/event-factory';
 import EventValidator from '@/model/validators/event-validator';
 
 describe('EventValidator', () => {

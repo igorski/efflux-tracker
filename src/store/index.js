@@ -12,7 +12,7 @@ import WaveTables from "@/services/audio/wave-tables";
 import KeyboardService from "@/services/keyboard-service";
 import MIDIService from "@/services/midi-service";
 import PubSubService from "@/services/pubsub-service";
-import { initHistory } from "@/model/factory/history-state-factory";
+import { initHistory } from "@/model/factories/history-state-factory";
 
 // cheat a little by exposing the vue-i18n translations directly to the
 // store so we can commit translated error/success messages from actions

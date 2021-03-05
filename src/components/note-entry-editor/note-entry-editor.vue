@@ -29,7 +29,7 @@
             <h3 v-t="'noteInput'" class="title"></h3>
             <ul
                 class="keyboard"
-                @pointerleave="killAllNotes()"
+                @mouseleave="killAllNotes()"
             >
                 <li
                     v-for="noteName in notes"
@@ -69,7 +69,7 @@
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config         from "@/config";
 import EventUtil      from "@/utils/event-util";
-import EventFactory   from "@/model/factory/event-factory";
+import EventFactory   from "@/model/factories/event-factory";
 import EventValidator from "@/model/validators/event-validator";
 import FormListItem   from "@/components/forms/form-list-item.vue";
 import Pitch          from "@/services/audio/pitch";

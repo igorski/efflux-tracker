@@ -1,6 +1,6 @@
 import Config           from '@/config';
-import EventFactory     from '@/model/factory/event-factory';
-import PatternFactory   from '@/model/factory/pattern-factory';
+import EventFactory     from '@/model/factories/event-factory';
+import PatternFactory   from '@/model/factories/pattern-factory';
 import PatternValidator from '@/model/validators/pattern-validator';
 
 describe('PatternFactory', () => {

@@ -1,6 +1,6 @@
-import EventFactory       from '@/model/factory/event-factory';
-import PatternFactory     from '@/model/factory/pattern-factory';
-import SongFactory        from '@/model/factory/song-factory';
+import EventFactory       from '@/model/factories/event-factory';
+import PatternFactory     from '@/model/factories/pattern-factory';
+import SongFactory        from '@/model/factories/song-factory';
 import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
 
 import { hasContent, updateEventOffsets } from '@/utils/song-util';

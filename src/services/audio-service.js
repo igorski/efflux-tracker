@@ -22,7 +22,7 @@
  */
 import Vue                        from "vue";
 import Config                     from "@/config";
-import ModuleFactory              from "@/model/factory/module-factory";
+import ModuleFactory              from "@/model/factories/module-factory";
 import { ACTION_NOTE_ON }         from "@/model/types/audio-event-def";
 import { applyRouting }           from "./audio/module-router";
 import { applyModuleParamChange } from "./audio/module-automation";

@@ -61,7 +61,7 @@
 <script>
 import { mapState, mapMutations } from 'vuex';
 
-import PatternFactory from '@/model/factory/pattern-factory';
+import PatternFactory from '@/model/factories/pattern-factory';
 import { clone }     from '@/utils/object-util';
 import messages       from './messages.json';
 

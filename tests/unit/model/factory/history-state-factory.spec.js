@@ -1,4 +1,4 @@
-import { initHistory, hasQueue, queueLength, flushQueue, enqueueState } from "@/model/factory/history-state-factory";
+import { initHistory, hasQueue, queueLength, flushQueue, enqueueState } from "@/model/factories/history-state-factory";
 
 describe( "History state factory", () => {
     let store;

@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import UndoManager from "undo-manager";
-import { forceProcess, flushQueue } from "@/model/factory/history-state-factory";
+import { forceProcess, flushQueue } from "@/model/factories/history-state-factory";
 
 const STATES_TO_SAVE = 99;
 

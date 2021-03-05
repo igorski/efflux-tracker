@@ -1,4 +1,4 @@
-import SongFactory         from '@/model/factory/song-factory';
+import SongFactory         from '@/model/factories/song-factory';
 import SongValidator       from '@/model/validators/song-validator';
 import SongAssemblyService from '@/services/song-assembly-service';
 

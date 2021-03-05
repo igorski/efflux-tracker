@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import AudioService from '@/services/audio-service';
-import EventFactory from '@/model/factory/event-factory';
+import EventFactory from '@/model/factories/event-factory';
 import EventUtil    from './event-util';
 import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
 import { isOscillatorNode, isAudioBufferSourceNode } from '@/services/audio/webaudio-helper';

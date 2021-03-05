@@ -22,7 +22,7 @@
  */
 import EventUtil         from '../utils/event-util';
 import SongValidator     from '../model/validators/song-validator';
-import InstrumentFactory from '../model/factory/instrument-factory';
+import InstrumentFactory from '../model/factories/instrument-factory';
 import WaveTables        from './audio/wave-tables';
 
 /* private properties */

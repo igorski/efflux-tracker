@@ -22,8 +22,8 @@
  */
 import Vue                 from "vue";
 import Config              from "@/config";
-import SongFactory         from "@/model/factory/song-factory";
-import createAction        from "@/model/factory/action-factory";
+import SongFactory         from "@/model/factories/song-factory";
+import createAction        from "@/model/factories/action-factory";
 import Actions       from "@/definitions/actions";
 import FixturesLoader      from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";

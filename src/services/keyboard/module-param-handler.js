@@ -22,8 +22,8 @@
  */
 import Vue           from "vue";
 import Actions from "@/definitions/actions";
-import EventFactory  from "@/model/factory/event-factory";
-import createAction  from "@/model/factory/action-factory";
+import EventFactory  from "@/model/factories/event-factory";
+import createAction  from "@/model/factories/action-factory";
 
 // modules parameters available to Efflux, we map keyCode to the first letter(s) of their name
 

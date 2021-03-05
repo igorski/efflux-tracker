@@ -1,5 +1,5 @@
 import InstrumentModule  from '@/store/modules/instrument-module';
-import InstrumentFactory from '@/model/factory/instrument-factory';
+import InstrumentFactory from '@/model/factories/instrument-factory';
 
 const { getters, mutations, actions } = InstrumentModule;
 

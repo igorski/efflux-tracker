@@ -1,4 +1,4 @@
-import InstrumentFactory   from '@/model/factory/instrument-factory';
+import InstrumentFactory   from '@/model/factories/instrument-factory';
 import InstrumentValidator from '@/model/validators/instrument-validator';
 
 describe('InstrumentFactory', () => {

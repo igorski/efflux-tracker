@@ -174,7 +174,7 @@
 <script>
 import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
-import { enqueueState } from "@/model/factory/history-state-factory";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import SelectBox from "@/components/forms/select-box";
 import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
 import { applyModule } from "@/services/audio-service";

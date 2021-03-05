@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import PatternFactory from '@/model/factory/pattern-factory';
+import PatternFactory from '@/model/factories/pattern-factory';
 
 export default {
     /**

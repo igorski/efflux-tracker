@@ -65,8 +65,8 @@
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Actions       from "@/definitions/actions";
 import ModalWindows        from "@/definitions/modal-windows";
-import EventFactory        from "@/model/factory/event-factory";
-import createAction        from "@/model/factory/action-factory";
+import EventFactory        from "@/model/factories/event-factory";
+import createAction        from "@/model/factories/action-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 import EventUtil           from "@/utils/event-util";
 

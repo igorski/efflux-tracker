@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue          from 'vue';
-import EventFactory from '@/model/factory/event-factory';
+import EventFactory from '@/model/factories/event-factory';
 
 import { getMeasureDurationInSeconds } from './audio-math';
 

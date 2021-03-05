@@ -132,7 +132,7 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import { ToggleButton }   from "vue-js-toggle-button";
-import EventFactory       from "@/model/factory/event-factory";
+import EventFactory       from "@/model/factories/event-factory";
 import KeyboardService    from "@/services/keyboard-service";
 import ModuleParamHandler from "@/services/keyboard/module-param-handler";
 import ManualURLs         from "@/definitions/manual-urls";
