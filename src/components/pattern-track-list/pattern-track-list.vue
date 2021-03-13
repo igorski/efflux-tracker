@@ -190,9 +190,10 @@ export default {
 
             if ( this.followPlayback ) {
                 // following activated, ensure the list auto scrolls
-                if ( stepY > this.containerHeight ) {
+                const followOffset = this.containerHeight / 2;
+                if ( stepY > followOffset ) {
                     this.mustFollow = ( ++this.lastFollowStep % 2 ) === 1;
-                    this.container.scrollTop = ( stepY + STEP_HEIGHT * 2 ) - this.containerHeight;
+                    this.container.scrollTop = ( stepY + STEP_HEIGHT * 2 ) - followOffset;
                 } else {
                     this.container.scrollTop = 0;
                     this.lastFollowStep = 0;
