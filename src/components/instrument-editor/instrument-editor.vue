@@ -69,14 +69,14 @@
             <div>
                 <oscillator-editor
                     :instrument-ref="instrumentRef"
-                    :instrument-id="selectedInstrument"
+                    :instrument-index="selectedInstrument"
                     :oscillator-index="selectedOscillatorIndex"
                     @invalidate="invalidatePreset"
                 />
                 <!-- modules -->
                 <module-editor
                     :instrument-ref="instrumentRef"
-                    :instrument-id="selectedInstrument"
+                    :instrument-index="selectedInstrument"
                     @invalidate="invalidatePreset"
                     class="module-editor"
                 />

@@ -191,7 +191,7 @@ export default {
         ControllerEditor
     ],
     props: {
-        instrumentId: {
+        instrumentIndex: {
             type: Number,
             required: true,
         },
@@ -417,7 +417,7 @@ export default {
         update( prop, value ) {
             const store    = this.$store;
             const orgValue = clone( this.instrumentRef[ prop ] );
-            const instrumentIndex = this.instrumentId;
+            const instrumentIndex = this.instrumentIndex;
             const commit = () => {
                 store.commit( "updateInstrument", { instrumentIndex, prop, value });
                 applyModule( prop, instrumentIndex, value ); // update AudioService
@@ -436,7 +436,7 @@ export default {
         },
         updateParamChange( paramId, value, orgValue ) {
             const store = this.$store;
-            const instrumentIndex = this.instrumentId;
+            const instrumentIndex = this.instrumentIndex;
             const commit = () => {
                 applyParamChange( paramId, value, instrumentIndex, store );
             };

@@ -106,12 +106,12 @@ export const prepareEnvironment = (audioContextInstance, waveTables, optExternal
  * resets unique event id counter when requested (e.g. when loading new song)
  */
 export const reset = ( resetEventCounter = false ) => {
-    instrumentEventsList.forEach((eventList, instrumentId) => {
-        processVoices(Object.values(eventList), (voice, oscillatorIndex) => {
-            returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId);
-            stopOscillation(voice.generator, audioContext.currentTime);
+    instrumentEventsList.forEach(( eventList, instrumentIndex ) => {
+        processVoices(Object.values( eventList ), ( voice, oscillatorIndex ) => {
+            returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex );
+            stopOscillation( voice.generator, audioContext.currentTime );
         });
-        instrumentEventsList[instrumentId] = {};
+        instrumentEventsList[ instrumentIndex ] = {};
     });
     if ( resetEventCounter ) {
         UNIQUE_EVENT_ID = 0;
@@ -221,19 +221,19 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
 
         const frequency = getFrequency( event.note, event.octave );
         const voices    = /** @type {EVENT_VOICE_LIST} */ ([]);
-        const modules   = instrumentModulesList[instrument.id];
+        const modules   = instrumentModulesList[ instrument.index ];
         let voice;
 
-        instrument.oscillators.forEach((oscillatorVO, oscillatorIndex) => {
+        instrument.oscillators.forEach(( oscillatorVO, oscillatorIndex ) => {
             if ( !oscillatorVO.enabled ) {
                 return;
             }
-            voice = instrument.oscillators[oscillatorIndex];
+            voice = instrument.oscillators[ oscillatorIndex ];
 
             // retrieve from pool the envelope gain structure for the oscillator voice
-            const oscillatorNodes = retrieveAvailableVoiceNodesFromPool(modules, oscillatorIndex);
+            const oscillatorNodes = retrieveAvailableVoiceNodesFromPool( modules, oscillatorIndex );
             if (oscillatorNodes === null) {
-                // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.id}`);
+                // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.index}`);
                 return;
             }
             const { oscillatorNode, adsrNode } = oscillatorNodes;
@@ -263,7 +263,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
                     if (oscillatorVO.waveform !== "CUSTOM")
                         table = pool[oscillatorVO.waveform];
                     else
-                        table = pool.CUSTOM[instrument.id][oscillatorIndex];
+                        table = pool.CUSTOM[ instrument.index ][ oscillatorIndex ];
 
                     if ( !table ) // no table ? that"s a bit of a problem. what did you break!?
                         return;
@@ -300,7 +300,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
                 gliding: false
             });
         });
-        instrumentEventsList[instrument.id][event.id] = voices;
+        instrumentEventsList[ instrument.index ][ event.id ] = voices;
     }
     // module parameter change specified ? process it.
 
@@ -308,9 +308,9 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
         applyModuleParamChange(
             audioContext,
             event,
-            instrumentModulesList[instrument.id],
+            instrumentModulesList[ instrument.index ],
             instrument,
-            Object.values(instrumentEventsList[instrument.id]),
+            Object.values(instrumentEventsList[ instrument.index ]),
             startTimeInSeconds,
             masterBus,
             eventCallback
@@ -329,22 +329,23 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
  *                  will be applied automatically
  */
 export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime ) => {
-    const eventId     = event.id, instrumentId = event.instrument;
-    const eventVoices = instrumentEventsList[instrumentId][eventId];
+    const eventId     = event.id, instrumentIndex = event.instrument;
+    const eventVoices = instrumentEventsList[ instrumentIndex ][ eventId ];
 
     if ( !eventVoices ) return; // event has no reference to playing nodes
 
     // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
-    eventVoices.forEach((voice, oscillatorIndex) => {
-        if ( !voice ) return;
-
+    eventVoices.forEach(( voice, oscillatorIndex ) => {
+        if ( !voice ) {
+            return;
+        }
         // apply release envelopes
-        ADSR.applyAmpRelease  (voice.vo, voice.outputNode, startTimeInSeconds);
-        ADSR.applyPitchRelease(voice.vo, voice.generator,  startTimeInSeconds);
+        ADSR.applyAmpRelease  ( voice.vo, voice.outputNode, startTimeInSeconds );
+        ADSR.applyPitchRelease( voice.vo, voice.generator,  startTimeInSeconds );
 
-        returnVoiceNodesToPoolOnPlaybackEnd(instrumentModulesList[instrumentId], oscillatorIndex, voice, instrumentId, eventId);
-        stopOscillation(voice.generator, startTimeInSeconds + voice.vo.adsr.release);
+        returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex, eventId );
+        stopOscillation( voice.generator, startTimeInSeconds + voice.vo.adsr.release );
     });
 };
 
@@ -520,7 +521,7 @@ function retrieveAvailableVoiceNodesFromPool(instrumentModules, oscillatorIndex)
     return null;
 }
 
-function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex, voice, instrumentId, eventId = null) {
+function returnVoiceNodesToPoolOnPlaybackEnd( instrumentModules, oscillatorIndex, voice, instrumentIndex, eventId = null ) {
     voice.generator.onended = () => {
         // OscillatorNodes will automatically disconnect() after stopping
         // except for PWM which has a custom implementation
@@ -531,11 +532,11 @@ function returnVoiceNodesToPoolOnPlaybackEnd(instrumentModules, oscillatorIndex,
         // as otherwise the voices aren"t always returned to the pool on Safari/iOS
 
         if (eventId !== null) {
-            delete instrumentEventsList[instrumentId][eventId];
+            delete instrumentEventsList[ instrumentIndex ][ eventId ];
         }
 
         // return the gain nodes for the instrument voice back to the pool
-        instrumentModules.voices[oscillatorIndex].push({
+        instrumentModules.voices[ oscillatorIndex ].push({
             oscillatorNode: voice.gain,
             adsrNode: voice.outputNode
         });

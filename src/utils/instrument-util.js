@@ -167,7 +167,7 @@ export default
         if ( playingNotes[ id ])
             return null; // note already playing
 
-        const audioEvent  = EventFactory.createAudioEvent( instrument.id );
+        const audioEvent  = EventFactory.createAudioEvent( instrument.index );
         audioEvent.note   = pitch.note;
         audioEvent.octave = pitch.octave;
         audioEvent.action = ACTION_NOTE_ON;
@@ -197,7 +197,7 @@ export default
             AudioService.noteOff( noteVO.audioEvent );
 
             if ( noteVO.recording ) {
-                const offEvent  = EventFactory.createAudioEvent( noteVO.instrument.id );
+                const offEvent  = EventFactory.createAudioEvent( noteVO.instrument.index );
                 offEvent.action = ACTION_NOTE_OFF;
                 recordEventIntoSong( offEvent, store, false );
             }

@@ -66,7 +66,7 @@ export default
             }
         }
 
-        return typeof instrument.id     === "number" &&
+        return typeof instrument.index  === "number" &&
                typeof instrument.name   === "string" &&
                typeof instrument.volume === "number" &&
                (

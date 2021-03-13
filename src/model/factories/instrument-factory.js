@@ -28,20 +28,20 @@ const InstrumentFactory =
     /**
      * create a new instrument Object
      *
-     * @param {number} aId unique identifier for instrument, relates to the
+     * @param {number} index unique identifier for instrument, relates to the
      *                 index of the instrument inside a song instrument-list
-     * @param {string=} aName optional name to use
+     * @param {string=} name optional name to use
      * @return {INSTRUMENT}
      */
-    createInstrument( aId, aName ) {
+    createInstrument( index, name ) {
         const instrument = {
-            id   : aId,
-            name : ( typeof aName === 'string' ) ? aName : `Instrument ${( aId + 1 ).toString()}`,
+            index,
+            name : ( typeof name === "string" ) ? name : `Instrument ${( index + 1 ).toString()}`,
             presetName: null,
             oscillators : [
-                InstrumentFactory.createOscillator( true,  'TRIANGLE'  ),
-                InstrumentFactory.createOscillator( false, 'SINE' ),
-                InstrumentFactory.createOscillator( false, 'SAW' )
+                InstrumentFactory.createOscillator( true,  "TRIANGLE" ),
+                InstrumentFactory.createOscillator( false, "SINE" ),
+                InstrumentFactory.createOscillator( false, "SAW" )
             ],
             volume: 1,
             panning: 0, // -1 = left, 0 = center, 1 = right
@@ -168,13 +168,13 @@ const InstrumentFactory =
     },
     /**
      * @param {Object} instrumentPreset
-     * @param {number} newInstrumentId
+     * @param {number} newInstrumentIndex
      * @param {string} newInstrumentName
      * @return {INSTRUMENT}
      */
-    loadPreset( instrumentPreset, newInstrumentId, newInstrumentName ) {
-        const newInstrument = clone(instrumentPreset);
-        newInstrument.id    = newInstrumentId;
+    loadPreset( instrumentPreset, newInstrumentIndex, newInstrumentName ) {
+        const newInstrument = clone( instrumentPreset );
+        newInstrument.index = newInstrumentIndex;
         newInstrument.name  = newInstrumentName;
 
         // legacy presets have no pitch envelopes, pan, EQ or overdrive, create now

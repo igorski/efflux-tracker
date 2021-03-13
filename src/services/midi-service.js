@@ -47,8 +47,8 @@ export default {
                 break;
 
             case zMIDIEvent.NOTE_ON:
-                const instrumentId = state.editor.selectedInstrument;
-                const instrument   = state.song.activeSong.instruments[ instrumentId ];
+                const instrumentIndex = state.editor.selectedInstrument;
+                const instrument = state.song.activeSong.instruments[ instrumentIndex ];
                 InstrumentUtil.onKeyDown( pitch, instrument, state.sequencer.recording, store );
                 break;
 

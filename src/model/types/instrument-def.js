@@ -28,7 +28,7 @@
  * id matches the index in the songs instrument list
  *
  * @typedef {{
- *     id: number,
+ *     index: number,
  *     name: string,
  *     presetName: string,
  *     oscillators: Array<INSTRUMENT_OSCILLATOR>,

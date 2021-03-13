@@ -163,7 +163,7 @@ export default {
             type: Number,
             required: true,
         },
-        instrumentId: {
+        instrumentIndex: {
             type: Number,
             required: true,
         },
@@ -303,9 +303,8 @@ export default {
         update( prop, value ) {
             const store     = this.$store;
             const component = this;
-            const { oscillatorIndex } = this;
-            const instrumentIndex     = this.instrumentId;
-            const orgValue            = clone( this.oscillator[ prop ] );
+            const { oscillatorIndex, instrumentIndex } = this;
+            const orgValue = clone( this.oscillator[ prop ] );
 
             const applyUpdate = () => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
@@ -358,8 +357,7 @@ export default {
             const orgWaveform = this.oscillator.waveform;
 
             const store = this.$store;
-            const { oscillatorIndex } = this;
-            const instrumentIndex     = this.instrumentId;
+            const { oscillatorIndex, instrumentIndex } = this;
 
             const commit = () => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
@@ -409,7 +407,7 @@ export default {
         },
         // propagate the changes to the AudioService
         cacheOscillator() {
-            AudioService.updateOscillator( "waveform", this.instrumentId, this.oscillatorIndex, this.oscillator );
+            AudioService.updateOscillator( "waveform", this.instrumentIndex, this.oscillatorIndex, this.oscillator );
         },
         invalidate() {
             this.$emit( "invalidate" );

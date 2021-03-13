@@ -20,10 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import EventUtil         from '../utils/event-util';
-import SongValidator     from '../model/validators/song-validator';
-import InstrumentFactory from '../model/factories/instrument-factory';
-import WaveTables        from './audio/wave-tables';
+import EventUtil         from "@/utils/event-util";
+import SongValidator     from "@/model/validators/song-validator";
+import InstrumentFactory from "@/model/factories/instrument-factory";
+import WaveTables        from "./audio/wave-tables";
 
 /* private properties */
 
@@ -37,13 +37,13 @@ const ASSEMBLER_VERSION = 5;
  */
 export const assemble = xtk => {
     try {
-        xtk = ( typeof xtk === 'string' ) ? JSON.parse( xtk ) : xtk;
+        xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 
         const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
 
         // first check if XTK had been saved after having been disassembled
 
-        if ( typeof xtkVersion === 'number' ) {
+        if ( typeof xtkVersion === "number" ) {
 
             const song = {};
 
@@ -114,7 +114,7 @@ const ASSEMBLER_VERSION_CODE = "av",
       META_TEMPO    = "tm",
 
       INSTRUMENTS                 = "ins",
-      INSTRUMENT_ID               = "i",
+      INSTRUMENT_INDEX            = "i",
       INSTRUMENT_NAME             = "n",
       INSTRUMENT_PRESET_NAME      = "pn",
       INSTRUMENT_VOLUME           = "v",
@@ -224,7 +224,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ];
 
         song.instruments[ index ] = {
-            id         : xtkInstrument[ INSTRUMENT_ID ],
+            index      : xtkInstrument[ INSTRUMENT_INDEX ],
             name       : xtkInstrument[ INSTRUMENT_NAME ],
             presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
@@ -323,7 +323,7 @@ function disassembleInstruments( xtk, instruments ) {
         od     = instrument.overdrive;
         eq     = instrument.eq;
 
-        xtkInstrument[ INSTRUMENT_ID ]          = instrument.id;
+        xtkInstrument[ INSTRUMENT_INDEX ]       = instrument.index;
         xtkInstrument[ INSTRUMENT_NAME ]        = instrument.name;
         xtkInstrument[ INSTRUMENT_PRESET_NAME ] = instrument.presetName;
         xtkInstrument[ INSTRUMENT_VOLUME ]      = instrument.volume;
