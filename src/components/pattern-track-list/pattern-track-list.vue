@@ -119,6 +119,14 @@
                             </template>
                         </template>
                    </li>
+                   <template v-if="followPlayback && isPlaying">
+                       <!-- to keep playback center based, while playing in follow mode, pad list bottom -->
+                       <li
+                            v-for="num in channel.length / 2"
+                            :key="num"
+                            class="pattern-row spacer"
+                       ></li>
+                   </template>
                 </ul>
                 <!--
                 <div
@@ -159,6 +167,7 @@ export default {
             "hasSelection",
             "followPlayback",
             "paramFormat",
+            "isPlaying"
         ]),
         activeSongPattern() {
             return this.activeSong.patterns[ this.activePattern ];
@@ -534,6 +543,10 @@ $stepHeight: 32px;
     &:nth-child(odd) {
         background-color: #323234;
         border-color: #323234;
+    }
+
+    .spacer {
+        background-color: #000;
     }
 
     &.active, &:hover {
