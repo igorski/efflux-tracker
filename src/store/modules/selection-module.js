@@ -20,10 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue             from 'vue';
-import EventUtil       from '@/utils/event-util';
-import { clone }       from '@/utils/object-util';
-import { ACTION_IDLE } from '@/model/types/audio-event-def';
+import Vue             from "vue";
+import EventUtil       from "@/utils/event-util";
+import { clone }       from "@/utils/object-util";
+import { ACTION_IDLE } from "@/model/types/audio-event-def";
 
 /* internal methods */
 
@@ -46,14 +46,11 @@ const clearSelection = state => {
 
     const ac = state.actionCache;
 
-    ac.stepOnSelection      = -1;
-    ac.channelOnSelection   = -1;
-    ac.directionOnSelection = 0;
-    ac.shrinkSelection      = false;
-    ac.minOnSelection       = -1;
-    ac.maxOnSelection       = -1;
-    ac.prevHorizontalKey    = -1;
-    ac.prevVerticalKey      = -1;
+    ac.stepOnSelection    = -1;
+    ac.channelOnSelection = -1;
+    ac.shrinkSelection    = false;
+    ac.minOnSelection     = -1;
+    ac.maxOnSelection     = -1;
 };
 
 const hasSelection = state => state.selectedChannels.length > 0;
@@ -147,16 +144,16 @@ const deleteSelection = (state, { song, eventList, activePattern,
     }
 };
 
-const setSelectionChannelRange = ( state, firstChannel, lastChannel) => {
-    if ( typeof lastChannel !== "number" )
+const setSelectionChannelRange = ( state, firstChannel, lastChannel ) => {
+    if ( typeof lastChannel !== "number" ) {
         lastChannel = firstChannel;
-
+    }
     state.firstSelectedChannel = firstChannel;
     state.lastSelectedChannel  = lastChannel;
 
-    for ( let i = state.firstSelectedChannel; i <= state.lastSelectedChannel; ++i )
+    for ( let i = state.firstSelectedChannel; i <= state.lastSelectedChannel; ++i ) {
         state.selectedChannels[ i ] = [];
-
+    }
     setSelection( state, state.minSelectedStep, state.maxSelectedStep );
 };
 
@@ -260,10 +257,10 @@ const module = {
         }
     },
     mutations: {
-        setMinSelectedStep(state, value) {
+        setMinSelectedStep( state, value ) {
             state.minSelectedStep = value;
         },
-        setMaxSelectedStep(state, value) {
+        setMaxSelectedStep( state, value ) {
             state.maxSelectedStep = value;
         },
         /**
@@ -276,7 +273,7 @@ const module = {
         setSelectionChannelRange(state, { firstChannel, lastChannel }) {
             setSelectionChannelRange(state, firstChannel, lastChannel);
         },
-        setStepOnSelection(state, step) {
+        setStepOnSelection( state, step ) {
             state.actionCache.stepOnSelection = step;
         },
         /**
@@ -284,9 +281,9 @@ const module = {
          * (copies their data and deletes them)
          */
         cutSelection( state, { song, activePattern, eventList }) {
-            if ( getSelectionLength(state) === 0 )
+            if ( getSelectionLength( state ) === 0 ) {
                 return;
-
+            }
             // copy first
             copySelection( state, { song, activePattern });
 
@@ -338,106 +335,107 @@ const module = {
          * @param {number} selectedChannel the active channel in the track list
          * @param {number} selectedStep the currently selected step within the current pattern
          */
-        handleVerticalKeySelectAction(state, { keyCode, selectedChannel, selectedStep }) {
-            const ac           = state.actionCache,
-                  isUp         = ( keyCode === 38 ),
-                  hadSelection = hasSelection(state);
+        handleVerticalKeySelectAction( state, { keyCode, selectedChannel, selectedStep }) {
+            const ac            = state.actionCache,
+                  isUp          = isUpKey( keyCode ),
+                  hadSelection  = hasSelection( state );
 
-            if ( !hadSelection )
+            if ( !hadSelection ) {
                 ac.channelOnSelection = selectedChannel;
+            }
 
-            if ( isUp )
-            {
+            const { minSelectedStep, maxSelectedStep } = state;
+
+            if ( isUp ) {
                 // moving up
-
-                if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode )
-                {
-                    ac.shrinkSelection = ( selectedStep === ( state.maxSelectedStep ));
-                    ac.minOnSelection  = state.minSelectedStep;
-                    ac.maxOnSelection  = state.maxSelectedStep;
-                    ac.stepOnSelection = (( ac.minOnSelection === selectedStep ) ? ac.minOnSelection : selectedStep ) + 2;
+                if ( ac.stepOnSelection === -1 ) {
+                    ac.shrinkSelection = selectedStep === maxSelectedStep;
+                    ac.minOnSelection  = minSelectedStep;
+                    ac.maxOnSelection  = maxSelectedStep;
+                    ac.stepOnSelection = ( ac.minOnSelection === selectedStep ? ac.minOnSelection : selectedStep ) + 1;
                 }
 
-                if ( !hadSelection )
+                if ( !hadSelection ) {
                     setSelectionChannelRange( state, selectedChannel );
-
+                }
                 if ( ac.shrinkSelection ) {
                     if ( ac.minOnSelection === selectedStep ) {
                         ac.stepOnSelection = -1;
                     }
                     setSelection( state, ac.minOnSelection, selectedStep );
                 }
-                else
-                    setSelection( state, selectedStep, ac.stepOnSelection - 1 );
+                else {
+                    setSelection( state, selectedStep, ac.stepOnSelection );
+                }
             }
             else {
                 // moving down
-
-                if ( ac.stepOnSelection === -1 || ac.prevVerticalKey !== keyCode ) {
-                    ac.shrinkSelection = ( ac.prevVerticalKey !== keyCode && selectedStep === state.minSelectedStep && selectedStep !== 1 );
-                    ac.minOnSelection  = state.minSelectedStep;
-                    ac.maxOnSelection  = state.maxSelectedStep;
-                    ac.stepOnSelection = ( ac.maxOnSelection === ( selectedStep - 1 )) ? ac.minOnSelection : selectedStep - 1;
+                if ( ac.stepOnSelection === -1 ) {
+                    ac.shrinkSelection = selectedStep === minSelectedStep;
+                    ac.minOnSelection  = minSelectedStep;
+                    ac.maxOnSelection  = maxSelectedStep;
+                    ac.stepOnSelection = ( ac.maxOnSelection === ( selectedStep - 1 )) ? ac.maxOnSelection : selectedStep - 1;
                 }
 
-                if ( !hadSelection )
+                if ( !hadSelection ) {
                     setSelectionChannelRange( state, selectedChannel );
-
-                if ( ac.shrinkSelection )
-                {
-                    if ( ac.maxOnSelection === selectedStep + 1 )
+                }
+                if ( ac.shrinkSelection ) {
+                    if ( ac.maxOnSelection === selectedStep + 1 ) {
                         ac.stepOnSelection = -1;
-
+                    }
                     setSelection( state, selectedStep, ac.maxOnSelection );
                 }
-                else
-                    setSelection( state, ac.stepOnSelection, Math.max( state.maxSelectedStep, selectedStep ));
+                else {
+                    setSelection( state, Math.min( ac.stepOnSelection, selectedStep ), Math.max( maxSelectedStep, selectedStep ));
+                }
             }
-            ac.prevVerticalKey = keyCode;
         },
         /**
          * hook for KeyboardController
          *
          * @param {number} keyCode the horizontal direction we're moving in (37 = left, 39 = right)
-         * @param {number} selectedChannelOnStart the selected channel when the horizontal selection started
-         * @param {number} selectedStepOnStart the selected step when the horizontal selection started
+         * @param {number} selectedChannel the currently selected channel within the current pattern
+         * @param {number} selectedStep the currently selected step within the current pattern
          */
-        handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart }) {
-            const ac           = state.actionCache,
-                  isLeft       = ( keyCode === 37 ),
-                  hadSelection = hasSelection(state);
+        handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep }) {
+            const ac = state.actionCache, isLeft = keyCode === 37;
 
-            if ( !hadSelection ) {
-                state.minSelectedStep      = selectedStepOnStart;
-                state.maxSelectedStep      = selectedStepOnStart;
-                state.lastSelectedChannel  = selectedChannelOnStart;
-                state.firstSelectedChannel = selectedChannelOnStart;
-                state.lastSelectedChannel  = selectedChannelOnStart;
-                ac.channelOnSelection      = selectedChannelOnStart;
-                ac.directionOnSelection    = keyCode;
+            if ( !hasSelection( state )) {
+                state.minSelectedStep      = selectedStep;
+                state.maxSelectedStep      = selectedStep;
+                state.lastSelectedChannel  = selectedChannel;
+                state.firstSelectedChannel = selectedChannel;
+                state.lastSelectedChannel  = selectedChannel;
+                ac.channelOnSelection      = selectedChannel;
             }
+            let firstChannelInSelection = state.firstSelectedChannel;
+            let lastChannelInSelection  = state.lastSelectedChannel;
 
-            let targetLastSelectedChannel = ( isLeft ) ? state.lastSelectedChannel - 1 : state.lastSelectedChannel + 1;
-
-            if ( hadSelection && ac.prevHorizontalKey !== keyCode )
-                targetLastSelectedChannel = ( isLeft ) ? state.lastSelectedChannel - 1 : selectedChannelOnStart + 1;
-
-            // scenario : shrinking a selection that started with left movement, by moving to the right
-
-            if ( hadSelection && !isLeft && ac.prevHorizontalKey === 37 && ac.prevHorizontalKey === ac.directionOnSelection ) {
-                setSelectionChannelRange( state, state.firstSelectedChannel + 1, --targetLastSelectedChannel );
-                return;
+            if ( isLeft ) {
+                if ( selectedChannel < state.firstSelectedChannel ) {
+                    --firstChannelInSelection;
+                } else {
+                    if ( selectedChannel < ac.channelOnSelection ) {
+                        return; // nothing left to do
+                    }
+                    if ( state.lastSelectedChannel === state.firstSelectedChannel ) {
+                        --firstChannelInSelection;
+                    } else {
+                        --lastChannelInSelection;
+                    }
+                }
+            } else {
+                if ( selectedChannel < state.lastSelectedChannel ) {
+                    ++firstChannelInSelection;
+                } else {
+                    ++lastChannelInSelection;
+                }
             }
-
-            if ( targetLastSelectedChannel >= ac.channelOnSelection )
-                setSelectionChannelRange( state, ac.channelOnSelection, targetLastSelectedChannel );
-            else
-                setSelectionChannelRange( state, state.firstSelectedChannel - 1, state.lastSelectedChannel );
-
-            ac.prevHorizontalKey = keyCode;
+            setSelectionChannelRange( state, Math.max( 0, firstChannelInSelection ), Math.min( 7, lastChannelInSelection ));
         },
-        setSelection(state, { selectionStart, selectionEnd }) {
-            setSelection(state, selectionStart, selectionEnd);
+        setSelection( state, { selectionStart, selectionEnd }) {
+            setSelection( state, selectionStart, selectionEnd );
         },
         equalizeSelection,
         copySelection,
@@ -447,6 +445,13 @@ const module = {
 };
 
 // set initial values
-clearSelection(module.state);
+clearSelection( module.state );
 
 export default module;
+
+/* internal methods */
+
+const UP_KEYS = [ 33, 36, 38 ]; // page up, home, up
+function isUpKey( keyCode ) {
+    return UP_KEYS.includes( keyCode );
+}

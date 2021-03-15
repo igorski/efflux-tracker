@@ -11,7 +11,6 @@ describe('SelectionModel', () => {
             selectedChannels: [],
             actionCache: {
                 channelOnSelection: 0,
-                directionOnSelection: 0,
             }
         };
     });
@@ -124,99 +123,86 @@ describe('SelectionModel', () => {
 
         it('should be able to expand and shrink its selection when starting key selection to the right', () => {
             let keyCode = 39; // right
-            const selectedChannelOnStart = Math.round(Math.random() * 3) + 1;
-            const selectedStepOnStart = 1;
+            let selectedChannel = 2;
+            const selectedStep  = 1;
 
             // test 1. expand
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
-            expect(
-                state.firstSelectedChannel === selectedChannelOnStart &&
-                state.lastSelectedChannel === ( selectedChannelOnStart + 1)
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 2 );
+            expect( state.lastSelectedChannel ).toEqual( 3 );
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            selectedChannel = 3;
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
-            expect(
-                state.firstSelectedChannel === selectedChannelOnStart &&
-                state.lastSelectedChannel === ( selectedChannelOnStart + 2 )
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 2 );
+            expect( state.lastSelectedChannel ).toEqual( 4 );
 
             // test 2. shrink
 
             keyCode = 37; // left
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
             // expect state to have a 1 channel wide selection range after shrinking
-            expect(
-                state.firstSelectedChannel === selectedChannelOnStart &&
-                state.lastSelectedChannel === ( selectedChannelOnStart + 1 )
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 2 );
+            expect( state.lastSelectedChannel ).toEqual( 3 );
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            selectedChannel = 2;
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
             // expect state to have a 0 channel wide selection range after shrinking (single channel selected)
-            expect(
-                state.firstSelectedChannel === selectedChannelOnStart &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            expect( state.firstSelectedChannel ).toEqual( 2 );
+            expect( state.lastSelectedChannel ).toEqual( 2 );
 
-            // expect state to have a 1 channel wide selection range after shrinking (single channel selected)
-            expect(
-                state.firstSelectedChannel === ( selectedChannelOnStart - 1 ) &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
+            selectedChannel = 1;
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
+
+            // expect state to have a 2 channel wide selection range after shrinking (original channel on selection start is now last selected channel)
+            expect( state.firstSelectedChannel ).toEqual( 1 );
+            expect( state.lastSelectedChannel ).toEqual( 2 );
         });
 
         it('should be able to expand and shrink its selection when starting key selection to the left', () => {
             let keyCode = 37; // left
-            const selectedChannelOnStart = Math.round(Math.random() * 3) + 1;
-            const selectedStepOnStart = 1;
+            let selectedChannel = 2;
+            const selectedStep  = 1;
 
             // test 1. expand
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
-            expect(
-                state.firstSelectedChannel === ( selectedChannelOnStart - 1 ) &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 1 );
+            expect( state.lastSelectedChannel ).toEqual( 2 );
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            selectedChannel = 0;
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
-            expect(
-                state.firstSelectedChannel === ( selectedChannelOnStart - 2 ) &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 0 );
+            expect( state.lastSelectedChannel ).toEqual( 2 );
 
             // test 2. shrink
 
             keyCode = 39; // right
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
             //  expect state to have a 1 channel wide selection range after shrinking
-            expect(
-                state.firstSelectedChannel === ( selectedChannelOnStart - 1 ) &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 1 );
+            expect( state.lastSelectedChannel ).toEqual( 2 );
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            selectedChannel = 1;
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
             // expect state to have a 0 channel wide selection range after shrinking (single channel selected)
-            expect(
-                state.firstSelectedChannel === selectedChannelOnStart &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 2 );
+            expect( state.lastSelectedChannel ).toEqual( 2 );
 
-            mutations.handleHorizontalKeySelectAction(state, { keyCode, selectedChannelOnStart, selectedStepOnStart });
+            selectedChannel = 3;
+            mutations.handleHorizontalKeySelectAction( state, { keyCode, selectedChannel, selectedStep });
 
             // expect state to have a 2 channel wide selection range after shrinking (single channel selected)
-            expect(
-                state.firstSelectedChannel === ( selectedChannelOnStart + 1 ) &&
-                state.lastSelectedChannel === selectedChannelOnStart
-            ).toBe(true);
+            expect( state.firstSelectedChannel ).toEqual( 2 );
+            expect( state.lastSelectedChannel ).toEqual( 3 );
         });
     });
 });
