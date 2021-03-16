@@ -1,6 +1,6 @@
 {
-  "id": 2,
-  "name": "Instrument 2",
+  "index": 0,
+  "name": "Instrument 1",
   "presetName": "FACTORY drum clap",
   "oscillators": [
     {

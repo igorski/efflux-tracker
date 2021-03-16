@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -31,11 +31,10 @@ export default
      * @param {INSTRUMENT} instrument
      * @return {boolean}
      */
-    isValid( instrument )
-    {
-        if ( !instrument )
+    isValid( instrument ) {
+        if ( !instrument ) {
             return false;
-
+        }
         if ( !Array.isArray( instrument.oscillators )) {
             return false;
         }

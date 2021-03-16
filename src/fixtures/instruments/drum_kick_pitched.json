@@ -1,6 +1,6 @@
 {
-  "id": 0,
-  "name": "Instrument 0",
+  "index": 0,
+  "name": "Instrument 1",
   "presetName": "FACTORY drum kick (pitched)",
   "oscillators": [
     {

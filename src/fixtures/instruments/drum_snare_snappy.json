@@ -1,6 +1,6 @@
 {
-  "id": 3,
-  "name": "Instrument 3",
+  "index": 0,
+  "name": "Instrument 1",
   "presetName": "FACTORY drum snare (snappy)",
   "oscillators": [
     {
