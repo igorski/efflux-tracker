@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import InstrumentFactory from '../factories/instrument-factory';
+import InstrumentFactory from "../factories/instrument-factory";
 
 export default
 {
@@ -38,9 +38,9 @@ export default
         if ( !song )
             return false;
 
-        return typeof song.id      === 'string'    &&
-               typeof song.version === 'number'    &&
-               typeof song.meta    !== 'undefined' &&
+        return typeof song.id      === "string"    &&
+               typeof song.version === "number"    &&
+               typeof song.meta    !== "undefined" &&
                Array.isArray( song.instruments )   &&
                Array.isArray( song.patterns );
     },
@@ -56,21 +56,27 @@ export default
             return null;
         }
         song.instruments.forEach(( instrument ) => {
-
             // pitch envelope was added in version 2 of SongAssemblyService
 
             instrument.oscillators.forEach(( oscillator ) => {
-                if ( typeof oscillator.pitch !== 'object' )
+                if ( typeof oscillator.pitch !== "object" ) {
                     InstrumentFactory.createPitchEnvelope( oscillator );
+                }
             });
 
             // EQ and OD were added in version 3 of SongAssemblyService
 
-            if ( typeof instrument.eq !== 'object' )
+            if ( typeof instrument.eq !== "object" ) {
                 InstrumentFactory.createEQ( instrument );
+            }
 
-            if ( typeof instrument.od !== 'object' )
+            if ( typeof instrument.od !== "object" ) {
                 InstrumentFactory.createOverdrive( instrument );
+            }
+
+            if ( typeof instrument.index === "undefined" && typeof instrument.id === "number" ) {
+                instrument.index = instrument.id; // legacy songs used id for index
+            }
         });
 
         // fix bug where copied channels have the wrong startMeasure offset
