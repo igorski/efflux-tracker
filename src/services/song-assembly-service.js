@@ -224,7 +224,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ];
 
         song.instruments[ index ] = {
-            index      : xtkInstrument[ INSTRUMENT_INDEX ],
+            index      : xtkInstrument[ INSTRUMENT_INDEX ] || xtkInstrument.id, // id in legacy versions
             name       : xtkInstrument[ INSTRUMENT_NAME ],
             presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
