@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -224,7 +224,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
         xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ];
 
         song.instruments[ index ] = {
-            index      : xtkInstrument[ INSTRUMENT_INDEX ] || xtkInstrument.id, // id in legacy versions
+            index      : xtkInstrument[ INSTRUMENT_INDEX ] ?? xtkInstrument.id, // was id in legacy versions, note index starts at 0
             name       : xtkInstrument[ INSTRUMENT_NAME ],
             presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
             volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
