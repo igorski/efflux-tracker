@@ -36,17 +36,19 @@ export default
         menuOpened: false,
         blindActive: false,
         helpTopic: "general",
-        loading: 0,
+        loadingStates: [], // wether one or more long running operations are running
         windowSize: { width: window.innerWidth, height: window.innerHeight },
         windowScrollOffset: 0,
         dialog: null,
         notifications: [],
         modal: null, /* string name of modal window to open, see modal-windows.js */
         mobileMode: null, /* string name of mobile view state */
+        dropboxConnected: false,
     },
     getters: {
         // eslint-disable-next-line no-unused-vars
-        t: state => (key, optArgs) => translate(key, optArgs),
+        t: state => ( key, optArgs ) => translate( key, optArgs ),
+        isLoading: state => state.loadingStates.length > 0,
     },
     mutations: {
         publishMessage(state, message) {
@@ -66,8 +68,8 @@ export default
             state.blindActive = false;
             state.modal = null;
         },
-        setHelpTopic(state, topic) {
-            if (typeof topic === "string") {
+        setHelpTopic( state, topic ) {
+            if ( typeof topic === "string" ) {
                 // we slightly delay showing the new help text (scenario: user is moving
                 // the mouse to helpSection to scroll its currently displayed help text)
                 //const now = Date.now();
@@ -75,11 +77,15 @@ export default
                 state.helpTopic = topic;
             }
         },
-        setLoading(state, loading) {
-            if (loading) {
-                state.loading += 1;
-            } else {
-                state.loading = Math.max(0, state.loading - 1 );
+        setLoading( state, key ) {
+            if ( !state.loadingStates.includes( key )) {
+                state.loadingStates.push( key );
+            }
+        },
+        unsetLoading( state, key ) {
+            const idx = state.loadingStates.indexOf( key );
+            if ( idx > -1 ) {
+                state.loadingStates.splice( idx, 1 );
             }
         },
         /**
@@ -123,14 +129,17 @@ export default
          * components can react to these values instead of maintaining
          * multiple listeners at the expense of DOM trashing/performance hits
          */
-        setWindowSize(state, { width, height }) {
+        setWindowSize( state, { width, height }) {
             state.windowSize = { width, height };
         },
-        setWindowScrollOffset(state, value) {
+        setWindowScrollOffset( state, value ) {
             state.windowScrollOffset = value;
         },
-        setMobileMode(state, mode) {
+        setMobileMode( state, mode ) {
             state.mobileMode = mode;
+        },
+        setDropboxConnected( state, value ) {
+            state.dropboxConnected = value;
         },
     },
     actions: {

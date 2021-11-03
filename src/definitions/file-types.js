@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,24 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default
-{
-    // subscriptions
+export const WAV = "audio/wav";
 
-    LOAD_SONG             : "S:SL", // expects song Object as payload
-    VALIDATE_AND_GET_SONG : "S:VG", // expect Function handler as payload, function will be invoked with song Object
-    SHOW_ERROR            : "S:SE", // expect String message
-    SET_LOADING_STATE     : "S:LS", // expects String key to identify the operation which started loading
-    UNSET_LOADING_STATE   : "U:LS", // expects String key to identify the operation which finished loading
-    SET_BLIND_STATE       : "S:SB", // expects boolean indicating whether obscuring blind should be displayed
-
-    // broadcasts
-
-    EFFLUX_READY             : "B:ER",
-    SONG_LOADED              : "B:SL",
-    SONG_SAVED               : "B:SS",
-    SONG_IMPORTED            : "B:SI",
-    SONG_EXPORTED            : "B:SE",
-    INSTRUMENT_EDITOR_OPENED : "B:IE",
-    MIDI_CONNECTED           : "B:MC"
-};
+export const ACCEPTED_FILE_TYPES       = [ WAV ];
+export const ACCEPTED_FILE_EXTENSIONS  = [ ".wav" ];
+export const PROJECT_FILE_EXTENSION    = ".xtk";
+export const INSTRUMENT_FILE_EXTENSION = ".xit"

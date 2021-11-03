@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config              from "@/config";
+import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import FixturesLoader      from "@/services/fixtures-loader";
 import StorageUtil         from "@/utils/storage-util";
 import InstrumentValidator from "@/model/validators/instrument-validator";
@@ -84,12 +85,12 @@ export default {
                },
                async () => {
                    // no instruments available ? load fixtures with "factory content"
-                   commit('setLoading', true);
-                   const instruments = await FixturesLoader.load('Instruments.json');
-                   commit('setLoading', false);
-                   if (Array.isArray(instruments)) {
-                       for (let i = 0; i < instruments.length; ++i) {
-                           await dispatch('saveInstrument', instruments[i]);
+                   commit( "setLoading", "INS" );
+                   const instruments = await FixturesLoader.load( "Instruments.json" );
+                   commit( "unsetLoading", "INS" );
+                   if ( Array.isArray( instruments )) {
+                       for ( let i = 0; i < instruments.length; ++i ) {
+                           await dispatch( "saveInstrument", instruments[ i ]);
                        }
                    }
                }
@@ -177,7 +178,7 @@ export default {
 
             const fileBrowser = document.createElement('input');
             fileBrowser.setAttribute('type',   'file');
-            fileBrowser.setAttribute('accept', Config.INSTRUMENT_FILE_EXTENSION);
+            fileBrowser.setAttribute('accept', INSTRUMENT_FILE_EXTENSION);
 
             const simulatedEvent = document.createEvent('MouseEvent');
             simulatedEvent.initMouseEvent(
@@ -212,7 +213,7 @@ export default {
                             }
                             resolve(amountImported);
                         } else {
-                            resolve(getters.t('error.instrumentImport', { extension: Config.INSTRUMENT_FILE_EXTENSION }));
+                            resolve(getters.t('error.instrumentImport', { extension: INSTRUMENT_FILE_EXTENSION }));
                         }
                     };
                     // start reading file contents
@@ -237,7 +238,7 @@ export default {
                     // download file to disk
                     saveAsFile(
                         `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`,
-                        `efflux_instrument_presets${Config.INSTRUMENT_FILE_EXTENSION}`
+                        `efflux_instrument_presets${INSTRUMENT_FILE_EXTENSION}`
                     );
                     resolve();
                 } else {

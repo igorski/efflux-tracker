@@ -20,11 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                 from "vue";
-import Config              from "@/config";
+import Vue from "vue";
+import Config from "@/config";
+import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import SongFactory         from "@/model/factories/song-factory";
 import createAction        from "@/model/factories/action-factory";
-import Actions       from "@/definitions/actions";
+import Actions             from "@/definitions/actions";
 import FixturesLoader      from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages      from "@/services/pubsub/messages";
@@ -161,15 +162,15 @@ export default {
 
                     // no songs available ? load fixtures with 'factory content'
 
-                    commit('setLoading', true);
-                    const songs = await FixturesLoader.load('Songs.json');
-                    commit('setLoading', false);
-                    if (Array.isArray(songs)) {
-                        commit('setShowSaveMessage', false);
-                        for (let i = 0; i < songs.length; ++i) {
-                            await dispatch('saveSong', SongAssemblyService.assemble(songs[i]));
+                    commit( "setLoading", "SNG" );
+                    const songs = await FixturesLoader.load( "Songs.json" );
+                    commit( "unsetLoading", "SNG" );
+                    if ( Array.isArray( songs )) {
+                        commit( "setShowSaveMessage", false );
+                        for ( let i = 0; i < songs.length; ++i ) {
+                            await dispatch( "saveSong", SongAssemblyService.assemble( songs[ i ]));
                         }
-                        commit('setShowSaveMessage', true);
+                        commit( "setShowSaveMessage", true );
                     }
                 }
             );
@@ -286,7 +287,7 @@ export default {
 
             const fileBrowser = document.createElement('input');
             fileBrowser.setAttribute('type',   'file');
-            fileBrowser.setAttribute('accept', Config.SONG_FILE_EXTENSION);
+            fileBrowser.setAttribute('accept', PROJECT_FILE_EXTENSION);
 
             const simulatedEvent = document.createEvent('MouseEvent');
             simulatedEvent.initMouseEvent(
@@ -329,7 +330,7 @@ export default {
                             resolve();
                         }
                         else {
-                            reject(getters.t('error.songImport', { extension: Config.SONG_FILE_EXTENSION }));
+                            reject(getters.t('error.songImport', { extension: PROJECT_FILE_EXTENSION }));
                         }
                     };
                     // start reading file contents
@@ -342,7 +343,7 @@ export default {
                 const songData = SongAssemblyService.disassemble( song );
                 saveAsFile(
                     `data:application/json;charset=utf-8,${encodeURIComponent( songData )}`,
-                    `${song.meta.title}${Config.SONG_FILE_EXTENSION}`
+                    `${song.meta.title}${PROJECT_FILE_EXTENSION}`
                 );
                 commit( "publishMessage", PubSubMessages.SONG_EXPORTED );
                 resolve();

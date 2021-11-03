@@ -32,8 +32,6 @@ export default
     WAVE_TABLE_SIZE             : 512,
     MAX_PATTERN_AMOUNT          : 128,
     MAX_OCTAVE                  : 8,
-    SONG_FILE_EXTENSION         : '.xtk',
-    INSTRUMENT_FILE_EXTENSION   : '.xit',
 
     MIN_EQ_GAIN                 : -40.0, // in dB
 

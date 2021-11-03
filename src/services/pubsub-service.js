@@ -32,10 +32,10 @@ let store, pubsub;
 
 export default
 {
-    init(storeReference, pubsubReference) {
-        if (!pubsubReference)
+    init( storeReference, pubsubReference ) {
+        if ( !pubsubReference ) {
             return;
-
+        }
         store  = storeReference;
         pubsub = pubsubReference;
 
@@ -46,6 +46,7 @@ export default
             Messages.VALIDATE_AND_GET_SONG,
             Messages.SHOW_ERROR,
             Messages.SET_LOADING_STATE,
+            Messages.UNSET_LOADING_STATE,
             Messages.SET_BLIND_STATE
 
         ].forEach(m => pubsub.subscribe(m, handleBroadcast));
@@ -84,7 +85,10 @@ function handleBroadcast(message, payload) {
             store.commit( "showError", payload );
             break;
         case Messages.SET_LOADING_STATE:
-            store.commit( "setLoading", !!payload );
+            store.commit( "setLoading", payload );
+            break;
+        case Messages.UNSET_LOADING_STATE:
+            store.commit( "unsetLoading", payload );
             break;
         case Messages.SET_BLIND_STATE:
             store.commit( "setBlindActive", !!payload );

@@ -94,7 +94,7 @@
         <notifications />
 
         <!-- loading animation -->
-        <loader v-if="loading" />
+        <loader v-if="isLoading" />
     </div>
 </template>
 
@@ -162,7 +162,6 @@ export default {
         ...mapState([
             "menuOpened",
             "blindActive",
-            "loading",
             "dialog",
             "modals",
             "modal",
@@ -176,6 +175,7 @@ export default {
         ...mapGetters([
             "activeSong",
             "displayWelcome",
+            "isLoading",
         ]),
         activeModal() {
             switch ( this.modal ) {

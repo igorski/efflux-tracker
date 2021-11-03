@@ -46,17 +46,17 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex';
-import Config from '@/config';
-import Time from '@/utils/time-util';
-import messages from './messages.json';
+import { mapGetters, mapMutations, mapActions } from "vuex";
+import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+import Time from "@/utils/time-util";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     computed: {
         ...mapGetters([
-            'getSongById',
-            'songs'
+            "getSongById",
+            "songs"
         ]),
     },
     watch: {
@@ -64,20 +64,20 @@ export default {
             immediate: true,
             handler(songs) {
                 if (songs.length === 0 ) {
-                    this.openDialog({ title: this.$t('error'), message: this.$t('errorNoSongs') });
+                    this.openDialog({ title: this.$t("error"), message: this.$t("errorNoSongs") });
                 }
             }
         },
     },
     methods: {
         ...mapMutations([
-            'openDialog',
-            'setActiveSong',
-            'showError'
+            "openDialog",
+            "setActiveSong",
+            "showError"
         ]),
         ...mapActions([
-            'loadSong',
-            'deleteSong'
+            "loadSong",
+            "deleteSong"
         ]),
         getSongDate(song) {
             return Time.timestampToDate(song.meta.modified);
@@ -86,9 +86,9 @@ export default {
             try {
                 const song = await this.loadSong(this.getSongById(songId));
                 this.setActiveSong(song);
-                this.$emit('close');
+                this.$emit("close");
             } catch(e) {
-                this.showError(this.$t('errorSongImport', { extension: Config.SONG_FILE_EXTENSION }));
+                this.showError(this.$t("errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
             }
         },
         deleteSongClick(songId) {
@@ -99,8 +99,8 @@ export default {
             }
             const self = this;
             this.openDialog({
-                type: 'confirm',
-                message:  this.$t('confirmSongDelete', { song: song.meta.title }),
+                type: "confirm",
+                message:  this.$t("confirmSongDelete", { song: song.meta.title }),
                 confirm() {
                     self.deleteSong({ song });
                 }
