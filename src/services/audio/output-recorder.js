@@ -3,89 +3,62 @@
  * Separated from node_modules to allow inlining of worker through Webpack
  * as well as freeing allocated memory to recording.
  */
-import RecorderWorker from '@/workers/recorder.worker.js';
+import RecorderWorker from "@/workers/recorder.worker.js";
 
-const Recorder = function (source, cfg = {}) {
-    const bufferLen = cfg.bufferLen || 4096;
-    this.context = source.context;
-    this.node = (this.context.createScriptProcessor ||
-    this.context.createJavaScriptNode).call(this.context,
-        bufferLen, 2, 2);
-    const worker = new RecorderWorker();
-    worker.onmessage = function (e) {
-        const blob = e.data;
-        currCallback(blob);
-    };
+export default class OutputRecorder {
+    constructor( source, { type = "audio/wav", bufferSize = 4096, callback } = {} ) {
+        this.recording   = false;
+        this.type        = type;
+        this.callback    = callback;
+        this.context     = source.context;
+        this.node        = ( this.context.createScriptProcessor || this.context.createJavaScriptNode ).call( this.context, bufferSize, 2, 2 );
 
-    worker.postMessage({
-        command: 'init',
-        config: {
-            sampleRate: this.context.sampleRate
-        }
-    });
-    let recording = false,
-        currCallback;
+        this.worker = new RecorderWorker();
+        this.worker.onmessage = e => {
+            this.callback?.( e.data );
+        };
 
-    this.node.onaudioprocess = function (e) {
-        if (!recording) return;
-        worker.postMessage({
-            command: 'record',
-            buffer: [
-                e.inputBuffer.getChannelData(0),
-                e.inputBuffer.getChannelData(1)
-            ]
-        });
-    };
-
-    this.configure = function (config) {
-        for (var prop in config) {
-            if (Object.prototype.hasOwnProperty.call(cfg, prop)) {
-                cfg[prop] = config[prop];
+        this.worker.postMessage({
+            command: "init",
+            config: {
+                sampleRate: this.context.sampleRate
             }
-        }
-    };
-
-    this.record = function () {
-        recording = true;
-    };
-
-    this.stop = function () {
-        recording = false;
-    };
-
-    this.clear = function () {
-        worker.postMessage({command: 'clear'});
-    };
-
-    this.getBuffer = function(cb) {
-        currCallback = cb || cfg.callback;
-        worker.postMessage({command: 'getBuffer'})
-    };
-
-    this.exportWAV = function (cb, type) {
-        currCallback = cb || cfg.callback;
-        type = type || cfg.type || 'audio/wav';
-        if (!currCallback) throw new Error('Callback not set');
-        worker.postMessage({
-            command: 'exportWAV',
-            type: type
         });
-    };
 
-    source.connect(this.node);
-    this.node.connect(this.context.destination); // this should not be necessary
-};
-export default Recorder;
+        this.node.onaudioprocess = e => {
+            if ( !this.recording ) {
+                return;
+            }
+            this.worker.postMessage({
+                command: "record",
+                buffer: [
+                    e.inputBuffer.getChannelData( 0 ),
+                    e.inputBuffer.getChannelData( 1 )
+                ]
+            });
+        };
+        source.connect( this.node );
+        this.node.connect( this.context.destination ); // this should not be necessary
+    }
 
-/* internal methods */
+    record() {
+        this.recording = true;
+    }
 
-Recorder.forceDownload = function(blob, filename) {
-    const url = (window.URL || window.webkitURL).createObjectURL(blob);
-    const link = window.document.createElement('a');
-    link.href = url;
-    link.download = filename || 'output.wav';
-    const click = document.createEvent('Event');
-    click.initEvent("click", true, true);
-    link.dispatchEvent(click);
-    (window.URL || window.webkitURL).revokeObjectURL(url);
-};
+    stop() {
+        this.recording = false;
+    }
+
+    dispose() {
+        this.worker.postMessage({ command: "clear" });
+        this.worker.terminate();
+        this.worker = null;
+    }
+
+    export( type ) {
+        this.worker.postMessage({
+            command: "exportWAV",
+            type: type || this.type
+        });
+    }
+}

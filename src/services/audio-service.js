@@ -69,7 +69,7 @@ let instrumentEventsList = [];
  * @param {Object} waveTables
  * @param {Function=} optExternalEventCallback to invoke for EXTERNAL_EVENT automations
  */
-export const prepareEnvironment = (audioContextInstance, waveTables, optExternalEventCallback) => {
+export const prepareEnvironment = ( audioContextInstance, waveTables, optExternalEventCallback ) => {
     audioContext  = audioContextInstance;
     eventCallback = optExternalEventCallback;
     setupRouting();
@@ -77,7 +77,7 @@ export const prepareEnvironment = (audioContextInstance, waveTables, optExternal
     // initialize the WaveTable / AudioBuffer pool
 
     pool = {
-        NOISE : audioContext.createBuffer(1, audioContext.sampleRate / 10, audioContext.sampleRate),
+        NOISE : audioContext.createBuffer( 1, audioContext.sampleRate / 10, audioContext.sampleRate ),
         CUSTOM: [] // content created and maintained by "cacheCustomTables()"
     };
 
@@ -87,14 +87,14 @@ export const prepareEnvironment = (audioContextInstance, waveTables, optExternal
 
     // create periodic waves from the entries in the WaveTables definitions file
 
-    Object.keys(waveTables).forEach(waveIdentifier => {
-        pool[waveIdentifier] = audioContext.createPeriodicWave(
-            new Float32Array(waveTables[waveIdentifier].real),
-            new Float32Array(waveTables[waveIdentifier].imag)
+    Object.keys( waveTables ).forEach( waveIdentifier => {
+        pool[ waveIdentifier] = audioContext.createPeriodicWave(
+            new Float32Array( waveTables[ waveIdentifier ].real ),
+            new Float32Array( waveTables[ waveIdentifier ].imag )
         );
     });
-    instrumentEventsList = new Array(Config.INSTRUMENT_AMOUNT);
-    for (let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i) {
+    instrumentEventsList = new Array( Config.INSTRUMENT_AMOUNT );
+    for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
         instrumentEventsList[i] = {};
     }
     createModules();
@@ -120,15 +120,15 @@ export const reset = ( resetEventCounter = false ) => {
 
 export const togglePlayback = isPlaying => {
     playing = isPlaying;
-    if (playing) {
+    if ( playing ) {
         // in case we were recording, unset the state to store the buffer
         recordOutput = !recordOutput;
         AudioService.toggleRecordingState();
     } else {
         reset();
-        if (recordOutput && recorder) {
+        if ( recordOutput && recorder ) {
             recorder.stop();
-            recorder.exportWAV();
+            recorder.export();
         }
     }
 };
@@ -139,7 +139,7 @@ export const togglePlayback = isPlaying => {
  * @param {Array<INSTRUMENT>} instruments
  */
 export const cacheCustomTables = instruments => {
-    instruments.forEach((instrument, instrumentIndex) => {
+    instruments.forEach(( instrument, instrumentIndex ) => {
         pool.CUSTOM[instrumentIndex] = new Array(instrument.oscillators.length);
         instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
             if (oscillator.table) {
@@ -388,7 +388,7 @@ const AudioService =
      *                    (should only be passed in case output recording is supported)
      * @param {Object} waveTables list of available wave tables
      */
-    async init(storeReference, outputRecorderReference, waveTables) {
+    async init( storeReference, outputRecorderReference, waveTables ) {
         store = storeReference;
         state = store.state;
 
@@ -400,21 +400,22 @@ const AudioService =
         audioContext = await init();
         prepareEnvironment( audioContext, waveTables );
 
-        AudioService.cacheCustomTables(state.song.activeSong.instruments);
+        AudioService.cacheCustomTables( state.song.activeSong.instruments );
     },
     toggleRecordingState() {
         recordOutput = !recordOutput;
-        if (recordOutput && outputRecorderRef) {
-            if (!recorder) {
-                recorder = new (outputRecorderRef)( compressor, {
+        if ( recordOutput && outputRecorderRef ) {
+            if ( !recorder) {
+                recorder = new ( outputRecorderRef )( compressor, {
                     callback : handleRecordingComplete
                 });
             }
-            if (playing)
+            if ( playing ) {
                 recorder.record();
-        } else if (recorder) {
+            }
+        } else if ( recorder ) {
             recorder.stop();
-            recorder.exportWAV();
+            recorder.export();
         }
     },
     cacheAllOscillators(instrumentIndex, instrument) {
@@ -563,7 +564,7 @@ function handleRecordingComplete( blob ) {
 
     // free recorder resources
 
-    recorder.clear();
+    recorder.dispose();
     recorder = null;
     recordOutput = false;
 
