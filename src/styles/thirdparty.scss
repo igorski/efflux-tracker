@@ -1,0 +1,11 @@
+@import "_variables";
+
+.dropbox-button {
+    background-color: #3D9AE8;
+    color: #FFF;
+
+    &:hover {
+        background-color: #FFF;
+        color: #3D9AE8;
+    }
+}

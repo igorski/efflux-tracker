@@ -150,12 +150,11 @@ export default {
         handleLoad() {
             this.openModal(ModalWindows.SONG_BROWSER);
         },
-        async handleSave(allowInstantSaveWhenSongIsValid = false) {
-            if (hasContent(this.activeSong)) {
+        async handleSave( allowInstantSaveWhenSongIsValid = false ) {
+            if ( hasContent( this.activeSong )) {
                 const { meta } = this.activeSong;
-                if (allowInstantSaveWhenSongIsValid &&
-                    meta.title && meta.author) {
-                    await this.saveSong(this.activeSong);
+                if ( allowInstantSaveWhenSongIsValid && meta.title && meta.author ) {
+                    await this.saveSong( this.activeSong );
                 } else {
                     this.openModal(ModalWindows.SONG_SAVE_WINDOW);
                 }
@@ -199,8 +198,7 @@ export default {
         },
         handleSongImport() {
             this.importSong()
-                .then(() => this.showNotification({ message: this.$t('songImported') }))
-                .catch(error => this.showError(error));
+                .then(() => this.showNotification({ message: this.$t('songImported') }));
         },
         handleSongExport() {
             this.validateSong(this.activeSong).then(() => {

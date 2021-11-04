@@ -55,7 +55,12 @@
             />
         </div>
         <hr class="divider" />
-        <div class="wrapper input">
+        <div class="pane spaced-buttons">
+            <p>{{ 'For the returning user:' }}</p>
+            <file-loader />
+        </div>
+        <hr class="divider" />
+        <div class="wrapper input footer">
             <label v-t="'showOnStartup'"></label>
             <toggle-button
                 v-model="showOnStartup"
@@ -69,6 +74,7 @@
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
+import FileLoader from "@/components/file-loader/file-loader";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import messages from "./messages.json";
@@ -76,6 +82,7 @@ import messages from "./messages.json";
 export default {
     i18n: { messages },
     components: {
+        FileLoader,
         ToggleButton,
     },
     computed: {
@@ -119,7 +126,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 550px;
-$height: 400px;
+$height: 453px;
 
 .welcome {
     @include editorComponent();
@@ -169,6 +176,19 @@ $height: 400px;
     img {
         width: 100%;
     }
+}
+
+.spaced-buttons {
+    display: flex;
+    justify-content: space-between;
+
+    p {
+        margin: $spacing-xsmall 0 0 !important;
+    }
+}
+
+.footer {
+    text-align: right;
 }
 
 .show-startup {

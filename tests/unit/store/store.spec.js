@@ -1,9 +1,10 @@
 import store from "@/store";
 const { getters, mutations }  = store;
 
+let mockFn;
 jest.mock("@/services/keyboard-service", () => ({
-    syncEditorSlot: () => "synced",
-    setSuspended: value => value,
+    syncEditorSlot: jest.fn(( ...args ) => mockFn( "syncEditorSlot", ...args )),
+    setSuspended: jest.fn(( ...args ) => mockFn( "setSuspended", ...args )),
 }));
 
 describe("Application Vuex store root", () => {
@@ -142,13 +143,22 @@ describe("Application Vuex store root", () => {
             });
         });
 
-        xit("should be able to sync the keyboard in the KeyboardService", () => {
+        it("should be able to sync the keyboard in the KeyboardService", () => {
+            mockFn = jest.fn();
             mutations.syncKeyboard();
+            expect( mockFn ).toHaveBeenCalledWith( "syncEditorSlot" );
         });
 
-        xit("should be able to suspend the keyboard in the KeyboardService", () => {
-            mutations.suspendKeyboardService({}, true);
-            mutations.suspendKeyboardService({}, false);
+        it("should be able to suspend the keyboard in the KeyboardService", () => {
+            mockFn = jest.fn();
+
+            mutations.suspendKeyboardService( {}, true );
+            expect( mockFn ).toHaveBeenCalledWith( "setSuspended", true );
+
+            mockFn = jest.fn();
+
+            mutations.suspendKeyboardService( {}, false );
+            expect( mockFn ).toHaveBeenCalledWith( "setSuspended", false );
         });
 
         it("should be able to set the window size", () => {

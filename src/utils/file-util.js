@@ -20,15 +20,21 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+import { blobToResource, disposeResource } from "@/utils/resource-manager";
 
 /**
  * Save given data as a file on disk. When working with Blob URLs
  * you can revoke these immediately after this invocation to free resources.
  *
- * @param {String} data can be inlined data: content or Blob URL
+ * @param {Blob|String} data as String, can be inlined data: content or Blob URL
+ *                      can also be Blob
  * @param {String} fileName name of file
  */
 export const saveAsFile = ( data, fileName ) => {
+    const isBlob = data instanceof Blob;
+    if ( isBlob ) {
+        data = blobToResource( data );
+    }
     const anchor  = document.createElement( "a" );
     anchor.style.display = "none";
     anchor.href = data;
@@ -41,6 +47,10 @@ export const saveAsFile = ( data, fileName ) => {
     document.body.appendChild( anchor );
     anchor.click();
     document.body.removeChild( anchor );
+
+    if ( isBlob ) {
+        disposeResource( data );
+    }
 };
 
 export const readFile = ( file, optEncoding = "UTF-8" ) => {

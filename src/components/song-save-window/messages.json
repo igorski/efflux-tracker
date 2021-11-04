@@ -3,6 +3,7 @@
     "title": "Save song",
     "songTitle": "song title",
     "songAuthor": "song author",
-    "save": "Save"
+    "save": "Save",
+    "saveInDropbox": "Save in Dropbox"
   }
 }

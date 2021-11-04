@@ -45,68 +45,94 @@
                    @blur="handleFocusOut"
                    @keyup.enter="save"
             />
-            <button v-t="'save'"
-                    type="button"
-                    class="save-button"
-                    :disabled="!title.length || !author.length"
-                    @click="save"
+            <div v-if="dropboxConnected" class="dropbox-form">
+                <div class="wrapper input footer">
+                    <label v-t="'saveInDropbox'"></label>
+                    <toggle-button
+                        v-model="saveInDropbox"
+                        class="dropbox-toggle"
+                        sync
+                    />
+                </div>
+            </div>
+            <button
+                v-t="'save'"
+                type="button"
+                class="save-button"
+                :disabled="!title.length || !author.length"
+                @click="save"
             ></button>
         </div>
     </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex';
-import messages from './messages.json';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { ToggleButton } from "vue-js-toggle-button";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        ToggleButton,
+    },
     data: () => ({
-        title: '',
-        author: '',
+        title: "",
+        author: "",
+        saveInDropbox: false,
     }),
     computed: {
+        ...mapState([
+            "dropboxConnected",
+        ]),
         ...mapGetters([
-            'activeSong',
+            "activeSong",
         ]),
     },
     mounted() {
         this.title  = this.activeSong.meta.title;
         this.author = this.activeSong.meta.author;
+        this.saveInDropbox = this.dropboxConnected;
 
         this.$refs.titleInput.focus();
     },
     methods: {
         ...mapMutations([
-            'setActiveSongAuthor',
-            'setActiveSongTitle',
-            'suspendKeyboardService',
+            "setActiveSongAuthor",
+            "setActiveSongTitle",
+            "suspendKeyboardService",
+            "showNotification",
         ]),
         ...mapActions([
-            'saveSong',
-            'validateSong',
+            "saveSongInLS",
+            "exportSongToDropbox",
+            "validateSong",
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
-         * so it doesn't broadcast the typing to its listeners
+         * so it doesn"t broadcast the typing to its listeners
          */
         handleFocusIn() {
-            this.suspendKeyboardService(true);
+            this.suspendKeyboardService( true );
         },
         /**
          * on focus out, restore the KeyboardControllers broadcasting
          */
         handleFocusOut() {
-            this.suspendKeyboardService(false);
+            this.suspendKeyboardService( false );
         },
         async save() {
             try {
-                this.setActiveSongAuthor(this.author);
-                this.setActiveSongTitle(this.title);
-                await this.validateSong(this.activeSong);
-                await this.saveSong(this.activeSong);
-                this.$emit('close');
-            } catch (e) {
+                this.setActiveSongAuthor( this.author );
+                this.setActiveSongTitle( this.title );
+                await this.validateSong( this.activeSong );
+                if ( this.saveInDropbox ) {
+                    await this.exportSongToDropbox( this.activeSong );
+                } else {
+                    await this.saveSongInLS( this.activeSong );
+                }
+                this.$emit( "close" );
+            } catch ( e ) {
                 // error popup will have been triggered by validator
             }
         },
@@ -119,7 +145,6 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 210px;
 
 .song-save-window {
     @include editorComponent();
@@ -130,16 +155,15 @@ $height: 210px;
         margin-left: $spacing-medium;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include minWidth( $width ) {
         width: $width;
-        height: $height;
+        height: auto;
         top: 50%;
         left: 50%;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2 );
+        transform: translate(-50%, -50%);
     }
 
-    @include componentFallback( $width, $height ) {
+    @include minWidthFallback( $width ) {
         @include verticalScrollOnMobile();
     }
 }
@@ -156,5 +180,13 @@ $height: 210px;
         width: 95%;
         margin: $spacing-small;
     }
+}
+
+.dropbox-form {
+    padding: $spacing-medium;
+}
+
+.dropbox-toggle {
+    margin-left: $spacing-medium;
 }
 </style>

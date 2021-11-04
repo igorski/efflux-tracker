@@ -1,29 +1,40 @@
-import songModule    from '@/store/modules/song-module';
-import SongValidator from '@/model/validators/song-validator';
+import songModule    from "@/store/modules/song-module";
+import SongValidator from "@/model/validators/song-validator";
 
 const { getters, mutations, actions } = songModule;
 
-// mock storage
+// mocks
 
-jest.mock('@/utils/storage-util', () => ({
+let mockFn;
+jest.mock( "@/services/dropbox-service", () => ({
+    uploadBlob: jest.fn(( ...args ) => mockFn( "uploadBlob", ...args )),
+}));
+jest.mock( "@/utils/file-util", () => ({
+    saveAsFile: jest.fn(( ...args ) => mockFn( "saveAsFile", ...args )),
+}));
+jest.mock( "@/utils/storage-util", () => ({
     getItem: jest.fn(),
     setItem: jest.fn(),
     removeItem: jest.fn()
 }));
+jest.mock( "@/utils/xtk-util", () => ({
+    toXTK: jest.fn(( ...args ) => mockFn( "toXTK" , ...args )),
+    parseXTK: jest.fn(( ...args ) => mockFn( "parseXTK", ...args ))
+}));
 
-describe('Song module', () => {
-    describe('getters', () => {
-        it('should be able to retrieve all the songs', () => {
+describe( "Song module", () => {
+    describe( "getters", () => {
+        it( "should be able to retrieve all the songs", () => {
             const state = { songs: [] };
             expect(getters.songs(state)).toEqual(state.songs);
         });
 
-        it('should be able to retrieve the active song', () => {
+        it( "should be able to retrieve the active song", () => {
             const state = { activeSong: {} };
             expect(getters.activeSong(state)).toEqual(state.activeSong);
         });
 
-        it('should be able to retrieve individual songs by their id', async () => {
+        it( "should be able to retrieve individual songs by their id", async () => {
             const song = await actions.createSong();
             const state = { songs: [ song ] };
             const retrieved = getters.getSongById(state)(song.id);
@@ -31,16 +42,16 @@ describe('Song module', () => {
         });
     });
 
-    describe('mutations', () => {
-        it('should be able to toggle the song save message state', () => {
+    describe( "mutations", () => {
+        it( "should be able to toggle the song save message state", () => {
             const state = { showSaveMessage: false };
             mutations.setShowSaveMessage(state, true);
             expect(state.showSaveMessage).toBe(true);
         })
     });
 
-    describe('actions', () => {
-        it('should be able to create songs', async () => {
+    describe( "actions", () => {
+        it( "should be able to create songs", async () => {
             const song = await actions.createSong();
             expect(SongValidator.isValid(song)).toBe(true);
 
@@ -52,37 +63,37 @@ describe('Song module', () => {
             }
         });
 
-        describe('when saving songs', () => {
+        describe( "when saving songs into local storage", () => {
             const mockedGetters = { t: jest.fn() };
             const dispatch = jest.fn();
             let commit;
 
-            it('should be able to save songs in storage and show a save message', async () => {
+            it( "should be able to save songs in storage and show a save message", async () => {
                 commit = jest.fn();
                 const song = await actions.createSong();
                 const state = { songs: [], showSaveMessage: true };
 
-                await actions.saveSong({ state, getters: mockedGetters, commit, dispatch }, song);
+                await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 // expected songs meta to have been saved into the song list
                 expect(state.songs).toEqual([{
                     id: song.id,
                     meta: song.meta
                 }]);
-                expect(commit).toHaveBeenNthCalledWith(2, 'showNotification', { message: undefined });
+                expect(commit).toHaveBeenNthCalledWith(2, "showNotification", { message: undefined });
             });
 
-            it('should be able to save songs in storage and suppress the save message when requested', async () => {
+            it( "should be able to save songs in storage and suppress the save message when requested", async () => {
                 commit = jest.fn();
                 const song = await actions.createSong();
                 const state = { songs: [], showSaveMessage: false };
 
-                await actions.saveSong({ state, getters: mockedGetters, commit, dispatch }, song);
+                await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
-                expect(commit).not.toHaveBeenNthCalledWith(2, 'showNotification');
+                expect(commit).not.toHaveBeenNthCalledWith(2, "showNotification");
             });
 
-            it('should update the modified timestamp when saving a song', async done => {
+            it( "should update the modified timestamp when saving a song", async done => {
                 commit = jest.fn();
                 const song = await actions.createSong();
                 const state = { songs: [song] };
@@ -91,7 +102,7 @@ describe('Song module', () => {
                 expect(song.meta.created).toEqual(song.meta.modified);
 
                 setTimeout(async () => {
-                    await actions.saveSong({ state, getters: mockedGetters, commit, dispatch }, song);
+                    await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                     expect(song.meta.created).toEqual(org); // expected creation timestamp to have remained unchanged after saving
                     expect(song.meta.modified).not.toEqual(org); // expected modified timestamp to have updated after saving
@@ -100,18 +111,68 @@ describe('Song module', () => {
                 }, 1);
             });
         });
-    });
 
-    xit('should be able to load songs from storage', async() => {
-        const song = await actions.createSong();
-        await actions.loadSong({}, song);
-    });
+        it( "should be able to delete songs from local storage", async () => {
+            const song = await actions.createSong();
+            const state = { songs: [ song ]};
+            await actions.deleteSongFromLS({ state }, { song });
 
-    it('should be able to delete songs from storage', async () => {
-        const song = await actions.createSong();
-        const state = { songs: [ song ]};
-        await actions.deleteSong({ state }, { song });
+            expect(state.songs).toEqual([]);
+        });
 
-        expect(state.songs).toEqual([]);
+        describe( "when importing songs from disk", () => {
+
+        });
+
+        describe( "when exporting songs", () => {
+            it( "should serialize the Song as an .XTK file and save it as a file when exporting to disk", async () => {
+                mockFn = jest.fn(() => Promise.resolve({}));
+                const song = { meta: { title: "foo" } };
+                const commit = jest.fn();
+
+                await actions.exportSong({ commit }, song );
+
+                expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
+                expect( mockFn ).toHaveBeenNthCalledWith( 2, "saveAsFile", expect.any( Object ), expect.any( String ));
+                expect( commit ).toHaveBeenCalledWith( "publishMessage", expect.any( String ));
+            });
+
+            it( "should serialize the Song as an .XTK file and store it remotely when exporting to Dropbox", async () => {
+                mockFn = jest.fn(() => Promise.resolve({}));
+                const song = { meta: { title: "foo" } };
+                const commit = jest.fn();
+
+                await actions.exportSongToDropbox({ commit, getters: { t: jest.fn() } }, song );
+
+                expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
+                expect( mockFn ).toHaveBeenNthCalledWith( 2, "uploadBlob", expect.any( Object ), expect.any( String ));
+                expect( commit ).toHaveBeenCalledWith( "showNotification", expect.any( Object ));
+
+                expect( song.origin ).toEqual( "dropbox" );
+            });
+        });
+
+        describe( "when calling the SaveSong action", () => {
+            it( "should validate the given Song", async () => {
+                const dispatch = jest.fn();
+                const song = { foo: "bar" };
+                await actions.saveSong({ dispatch }, song );
+                expect( dispatch ).toHaveBeenNthCalledWith( 1, "validateSong", song );
+            });
+
+            it( "should save the song in Local Storage when no origin is specified", async () => {
+                const dispatch = jest.fn();
+                const song = { foo: "bar" };
+                await actions.saveSong({ dispatch }, song );
+                expect( dispatch ).toHaveBeenNthCalledWith( 2, "saveSongInLS", song );
+            });
+
+            it( "should save the song in Dropbox when the Dropbox origin is specified", async () => {
+                const dispatch = jest.fn();
+                const song = { foo: "bar", origin: "dropbox" };
+                await actions.saveSong({ dispatch }, song );
+                expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", song );
+            });
+        });
     });
 });

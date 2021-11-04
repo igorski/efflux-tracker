@@ -39,6 +39,7 @@ import {
     init, startOscillation, stopOscillation, setValue,
     createGainNode, createStereoPanner, createPWM, createWaveTableFromGraph
 } from "./audio/webaudio-helper";
+import { blobToResource, disposeResource } from "@/utils/resource-manager";
 
 /* private properties */
 
@@ -558,9 +559,9 @@ function createTableFromCustomGraph( instrumentIndex, oscillatorIndex, table ) {
 }
 
 function handleRecordingComplete( blob ) {
-    const blobUrl = window.URL.createObjectURL( blob );
+    const blobUrl = blobToResource( blob );
     saveAsFile( blobUrl, "efflux-output.wav" );
-    window.URL.revokeObjectURL( blobUrl );
+    disposeResource( blobUrl );
 
     // free recorder resources
 

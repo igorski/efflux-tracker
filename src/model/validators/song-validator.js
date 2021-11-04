@@ -35,9 +35,9 @@ export default
      * @return {boolean}
      */
     isValid( song ) {
-        if ( !song )
+        if ( !song ) {
             return false;
-
+        }
         return typeof song.id      === "string"    &&
                typeof song.version === "number"    &&
                typeof song.meta    !== "undefined" &&

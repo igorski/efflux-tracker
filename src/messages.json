@@ -20,7 +20,8 @@
     },
     "messages": {
       "songSaved": "Song '{name}' saved",
-      "recordingSaved": "Recording saved to your download folder"
+      "recordingSaved": "Recording saved to your download folder",
+      "fileSavedInDropbox": "\"{file}\" saved in Dropbox"
     },
     "songLoadedTitle": "Song loaded",
     "songLoaded": "Loaded song '{name}'",

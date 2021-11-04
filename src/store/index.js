@@ -121,8 +121,8 @@ export default
         syncKeyboard() {
             KeyboardService.syncEditorSlot();
         },
-        suspendKeyboardService(state, isSuspended) {
-            KeyboardService.setSuspended(!!isSuspended);
+        suspendKeyboardService( state, isSuspended ) {
+            KeyboardService.setSuspended( !!isSuspended );
         },
         /**
          * cache the resize/scroll offsets in the store so

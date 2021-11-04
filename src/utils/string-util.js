@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,15 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default
-{
-    ADVANCED_PATTERN_EDITOR : "0",
-    MODULE_PARAM_EDITOR     : "1",
-    INSTRUMENT_EDITOR       : "2",
-    MIXER                   : "3",
-    SONG_BROWSER            : "4",
-    SONG_SAVE_WINDOW        : "5",
-    SETTINGS_WINDOW         : "6",
-    WELCOME_WINDOW          : "7",
-    DROPBOX_FILE_SELECTOR   : "8"
+import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+
+export const truncate = ( string = "", maxLength = 100 ) =>
+    string.length > maxLength ? `${string.substr( 0, maxLength )}...` : string;
+
+export const toFileName = string => {
+    return `${string.replace( /([^a-z0-9 ]+)/gi, "-" ).split( " " ).join( "_" )}${PROJECT_FILE_EXTENSION}`;
 };

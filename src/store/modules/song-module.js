@@ -26,6 +26,7 @@ import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import SongFactory         from "@/model/factories/song-factory";
 import createAction        from "@/model/factories/action-factory";
 import Actions             from "@/definitions/actions";
+import { uploadBlob }      from "@/services/dropbox-service";
 import FixturesLoader      from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages      from "@/services/pubsub/messages";
@@ -33,7 +34,8 @@ import SongValidator       from "@/model/validators/song-validator";
 import { clone }           from "@/utils/object-util";
 import StorageUtil         from "@/utils/storage-util";
 import { saveAsFile }      from "@/utils/file-util";
-
+import { toFileName }      from "@/utils/string-util";
+import { parseXTK, toXTK } from "@/utils/xtk-util";
 import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
 
 const SONG_STORAGE_KEY = "Efflux_Song_";
@@ -129,84 +131,84 @@ export default {
     },
     actions: {
         loadStoredSongs({ commit, dispatch }) {
-            StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then(async result => {
-                    if ( typeof result === 'string' ) {
-                        try {
-                            const songs = JSON.parse(result);
-                            let wasLegacyStorageFormat = false;
+            StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then( async result => {
+                if ( typeof result === "string" ) {
+                    try {
+                        const songs = JSON.parse( result );
+                        let wasLegacyStorageFormat = false;
 
-                            // if song contained patterns, we know that the storage was using
-                            // the legacy format where all songs were serialized in a single list
-                            // convert the storage to the new memory-friendly format
+                        // if song contained patterns, we know that the storage was using
+                        // the legacy format where all songs were serialized in a single list
+                        // convert the storage to the new memory-friendly format
 
-                            for (let i = 0; i < songs.length; ++i) {
-                                if (typeof songs[i] !== 'string') {
-                                    break;
-                                }
-                                const song = JSON.parse(songs[i]);
-                                if (Array.isArray(song.p)) {
-                                    await dispatch('saveSong', SongAssemblyService.assemble(song));
-                                    wasLegacyStorageFormat = true;
-                                }
+                        for (let i = 0; i < songs.length; ++i) {
+                            if (typeof songs[i] !== 'string') {
+                                break;
                             }
-                            if (!wasLegacyStorageFormat) {
-                                commit('setSongs', songs);
+                            const song = JSON.parse( songs[ i ]);
+                            if ( Array.isArray( song.p )) {
+                                await dispatch( "saveSongInLS", SongAssemblyService.assemble( song ));
+                                wasLegacyStorageFormat = true;
                             }
                         }
-                        catch ( e ) {
-                            // that's fine...
+                        if ( !wasLegacyStorageFormat ) {
+                            commit( "setSongs", songs);
                         }
                     }
-                },
-                async () => {
-
-                    // no songs available ? load fixtures with 'factory content'
-
-                    commit( "setLoading", "SNG" );
-                    const songs = await FixturesLoader.load( "Songs.json" );
-                    commit( "unsetLoading", "SNG" );
-                    if ( Array.isArray( songs )) {
-                        commit( "setShowSaveMessage", false );
-                        for ( let i = 0; i < songs.length; ++i ) {
-                            await dispatch( "saveSong", SongAssemblyService.assemble( songs[ i ]));
-                        }
-                        commit( "setShowSaveMessage", true );
+                    catch ( e ) {
+                        // that's fine...
                     }
                 }
-            );
-        },
-        createSong() {
-            return new Promise(resolve => {
-                resolve(SongFactory.createSong( Config.INSTRUMENT_AMOUNT ));
+            },
+            async () => {
+
+                // no songs available ? load fixtures with 'factory content'
+
+                commit( "setLoading", "SNG" );
+                const songs = await FixturesLoader.load( "Songs.json" );
+                commit( "unsetLoading", "SNG" );
+                if ( Array.isArray( songs )) {
+                    commit( "setShowSaveMessage", false );
+                    for ( let i = 0; i < songs.length; ++i ) {
+                        await dispatch( "saveSongInLS", SongAssemblyService.assemble( songs[ i ]));
+                    }
+                    commit( "setShowSaveMessage", true );
+                }
             });
         },
-        saveSong({ state, getters, commit, dispatch }, song) {
-            return new Promise(async (resolve, reject) => {
+        createSong() {
+            return new Promise( resolve => {
+                resolve( SongFactory.createSong( Config.INSTRUMENT_AMOUNT ));
+            });
+        },
+        saveSongInLS({ state, getters, commit, dispatch }, song) {
+            return new Promise( async ( resolve, reject ) => {
                 try {
-                    await dispatch('validateSong', song);
-                } catch(e) {
+                    await dispatch( "validateSong", song );
+                } catch ( e ) {
                     reject();
                     return;
                 }
                 // all is well, delete existing song and save
                 try {
-                    await dispatch('deleteSong', { song, persist: false }); // remove duplicate song if existed
+                    await dispatch( "deleteSongFromLS", { song, persist: false }); // remove duplicate song if existed
                 }
-                catch(e) {
+                catch ( e ) {
                     // that's fine.
                 }
                 song.meta.modified = Date.now(); // update timestamp
+                song.origin = "local";
 
                 // push song into song list
-                state.songs.push(getMetaForSong(song));
-                persistState(state);
+                state.songs.push( getMetaForSong( song ));
+                persistState( state );
 
                 // save song into storage
-                StorageUtil.setItem(getStorageKeyForSong(song), SongAssemblyService.disassemble(song));
+                StorageUtil.setItem( getStorageKeyForSong( song ), SongAssemblyService.disassemble( song ));
 
-                commit('publishMessage', PubSubMessages.SONG_SAVED);
-                if (state.showSaveMessage) {
-                    commit('showNotification', { message: getters.t('messages.songSaved', { name: song.meta.title }) });
+                commit( "publishMessage", PubSubMessages.SONG_SAVED );
+                if ( state.showSaveMessage ) {
+                    commit( "showNotification", { message: getters.t( "messages.songSaved", { name: song.meta.title }) });
                 }
                 resolve();
             })
@@ -214,37 +216,37 @@ export default {
                 // handled above
             });
         },
-        validateSong({ getters, commit }, song) {
-            return new Promise(async (resolve, reject) => {
+        validateSong({ getters, commit }, song ) {
+            return new Promise( async ( resolve, reject ) => {
                 try {
-                    let songHasContent = hasContent(song);
+                    let songHasContent = hasContent( song );
                     if ( !songHasContent ) {
-                        throw 'emptySong';
+                        throw "emptySong";
                     }
-                    if (song.meta.author.length === 0 || song.meta.title.length === 0) {
+                    if ( song.meta.author.length === 0 || song.meta.title.length === 0 ) {
                         songHasContent = false;
                     }
-                    if (!songHasContent) {
-                        throw 'emptyMeta';
+                    if ( !songHasContent ) {
+                        throw "emptyMeta";
                     }
                     resolve();
-                } catch(errorKey) {
-                    commit('showError', getters.t(`error.${errorKey}`));
+                } catch ( errorKey ) {
+                    commit( "showError", getters.t(`error.${errorKey}`));
                     reject();
                 }
             });
         },
-        loadSong(store, song) {
-            return new Promise(async (resolve, reject) => {
-                const storedSong = await StorageUtil.getItem(getStorageKeyForSong(song));
-                if (!storedSong) {
+        loadSongFromLS( store, song ) {
+            return new Promise( async ( resolve, reject ) => {
+                const storedSong = await StorageUtil.getItem( getStorageKeyForSong( song ));
+                if ( !storedSong ) {
                     reject();
                 }
-                resolve(SongAssemblyService.assemble(storedSong));
+                resolve( SongAssemblyService.assemble( storedSong ));
             });
         },
-        deleteSong({ state }, { song, persist = true }) {
-            return new Promise((resolve, reject) => {
+        deleteSongFromLS({ state }, { song, persist = true }) {
+            return new Promise(( resolve, reject ) => {
                 let deleted = false;
                 let i = state.songs.length;
 
@@ -282,7 +284,7 @@ export default {
                 }
             });
         },
-        importSong({ commit, dispatch, getters }) {
+        importSong({ commit, dispatch }) {
             // inline handler to overcome blocking of the file select popup by the browser
 
             const fileBrowser = document.createElement('input');
@@ -297,57 +299,54 @@ export default {
             );
             fileBrowser.dispatchEvent(simulatedEvent);
 
-            return new Promise((resolve, reject) => {
-                fileBrowser.addEventListener('change', fileBrowserEvent => {
-                    const reader = new FileReader();
-
-                    reader.onerror = () => {
-                        reject(getters.t('error.fileLoad'));
-                    };
-
-                    reader.onload = async readerEvent => {
-                        const fileData = readerEvent.target.result;
-                        let songData;
-
-                        try {
-                            // legacy songs were base64 encoded
-                            // attempt decode for backwards compatibility
-                            songData = window.atob(fileData);
-                        } catch (e) {
-                            // assume new song in Stringified JSON format
-                            songData = fileData;
-                        }
-                        const song = SongAssemblyService.assemble(songData);
-
-                        // rudimentary check if we're dealing with a valid song
-
-                        if (SongValidator.isValid(song)) {
-                            commit('setShowSaveMessage', false);
-                            await dispatch('saveSong', song);
-                            commit('setActiveSong', song);
-                            commit('publishMessage', PubSubMessages.SONG_IMPORTED);
-                            commit('setShowSaveMessage', true);
-                            resolve();
-                        }
-                        else {
-                            reject(getters.t('error.songImport', { extension: PROJECT_FILE_EXTENSION }));
-                        }
-                    };
-                    // start reading file contents
-                    reader.readAsText(fileBrowserEvent.target.files[0]);
+            return new Promise(( resolve, reject ) => {
+                fileBrowser.addEventListener( "change", async fileBrowserEvent => {
+                    try {
+                        const song = await dispatch( "loadSong", { file: fileBrowserEvent.target.files[ 0 ] });
+                        commit( "setShowSaveMessage", false );
+                        await dispatch( "saveSongInLS", song );
+                        commit( "publishMessage", PubSubMessages.SONG_IMPORTED );
+                        commit( "setShowSaveMessage", true );
+                        commit( "closeModal" );
+                        resolve();
+                    } catch ( error ) {
+                        reject( error );
+                    }
                 });
             });
         },
-        exportSong({ commit }, song) {
-            return new Promise(resolve => {
-                const songData = SongAssemblyService.disassemble( song );
-                saveAsFile(
-                    `data:application/json;charset=utf-8,${encodeURIComponent( songData )}`,
-                    `${song.meta.title}${PROJECT_FILE_EXTENSION}`
-                );
-                commit( "publishMessage", PubSubMessages.SONG_EXPORTED );
-                resolve();
+        async exportSong({ commit }, song ) {
+            saveAsFile( await toXTK( song ), toFileName( song.meta.title ));
+            commit( "publishMessage", PubSubMessages.SONG_EXPORTED );
+        },
+        async exportSongToDropbox({ commit, getters }, song ) {
+            const blob = await toXTK( song );
+            const name = toFileName( song.meta.title );
+            await uploadBlob( blob, name );
+            song.origin = "dropbox";
+            commit( "showNotification", { message: getters.t( "messages.fileSavedInDropbox", { file: name }) });
+        },
+        loadSong({ getters, commit }, { file, origin = "local" }) {
+            return new Promise( async ( resolve, reject ) => {
+                const song = await parseXTK( file );
+                if ( SongValidator.isValid( song )) {
+                    song.origin = origin;
+                    commit( "setActiveSong", song );
+                    resolve( song );
+                }
+                else {
+                    commit( "showError", getters.t( "error.songImport", { extension: PROJECT_FILE_EXTENSION }));
+                    reject();
+                }
             });
+        },
+        async saveSong({ dispatch }, song ) {
+            await dispatch( "validateSong", song );
+            if ( song.origin === "dropbox" ) {
+                await dispatch( "exportSongToDropbox", song );
+            } else {
+                await dispatch( "saveSongInLS", song );
+            }
         }
     }
 };
@@ -360,4 +359,4 @@ const getMetaForSong = song => ({
 });
 
 const getStorageKeyForSong = song => `${SONG_STORAGE_KEY}${song.id}`;
-const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify(state.songs));
+const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( state.songs ));

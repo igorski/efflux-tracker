@@ -46,7 +46,7 @@ self.addEventListener( "message", event => {
                     self.postMessage({ cmd: "complete", id, data: JSON.parse( decompressed ) });
                 })
                 .catch( error => {
-                    self.postMessage({ cmd: "loadError", error });
+                    self.postMessage({ cmd: "loadError", id, error });
                 });
             break;
 

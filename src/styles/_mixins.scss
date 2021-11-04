@@ -27,6 +27,20 @@
 // components (such as modal windows) that have an ideal width x height size
 // can specify styles at the cutoff points using the following mixins:
 
+// everything matching the ideal width for the component
+@mixin minWidth( $width ) {
+    @media screen and ( min-width: $width ) {
+        @content;
+    }
+}
+
+// everything below the ideal width for the component
+@mixin minWidthFallback( $width ) {
+    @media screen and ( max-width: $width ) {
+        @content;
+    }
+}
+
 // everything matching the ideal dimensions for the component
 @mixin componentIdeal( $width, $height ) {
     @media screen and ( min-width: $width ) and ( min-height: $height ) {

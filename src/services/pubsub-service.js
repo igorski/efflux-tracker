@@ -47,7 +47,8 @@ export default
             Messages.SHOW_ERROR,
             Messages.SET_LOADING_STATE,
             Messages.UNSET_LOADING_STATE,
-            Messages.SET_BLIND_STATE
+            Messages.SET_BLIND_STATE,
+            Messages.CLOSE_OVERLAY
 
         ].forEach(m => pubsub.subscribe(m, handleBroadcast));
     },
@@ -92,6 +93,9 @@ function handleBroadcast(message, payload) {
             break;
         case Messages.SET_BLIND_STATE:
             store.commit( "setBlindActive", !!payload );
+            break;
+        case Messages.CLOSE_OVERLAY:
+            store.commit( "closeModal" );
             break;
     }
 }

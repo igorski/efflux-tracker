@@ -42,17 +42,25 @@
                 >x</span>
             </li>
         </ul>
+        <hr class="divider" />
+        <div class="footer">
+            <file-loader class="file-loader" />
+        </div>
     </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
+import FileLoader from "@/components/file-loader/file-loader";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import Time from "@/utils/time-util";
 import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        FileLoader,
+    },
     computed: {
         ...mapGetters([
             "getSongById",
@@ -62,9 +70,9 @@ export default {
     watch: {
         songs: {
             immediate: true,
-            handler(songs) {
-                if (songs.length === 0 ) {
-                    this.openDialog({ title: this.$t("error"), message: this.$t("errorNoSongs") });
+            handler( songs ) {
+                if ( songs.length === 0 ) {
+                    this.openDialog({ title: this.$t( "error" ), message: this.$t( "errorNoSongs" ) });
                 }
             }
         },
@@ -76,33 +84,33 @@ export default {
             "showError"
         ]),
         ...mapActions([
-            "loadSong",
-            "deleteSong"
+            "loadSongFromLS",
+            "deleteSongFromLS"
         ]),
         getSongDate(song) {
             return Time.timestampToDate(song.meta.modified);
         },
         async openSongClick(songId) {
             try {
-                const song = await this.loadSong(this.getSongById(songId));
-                this.setActiveSong(song);
-                this.$emit("close");
+                const song = await this.loadSongFromLS( this.getSongById( songId ));
+                this.setActiveSong( song );
+                this.$emit( "close" );
             } catch(e) {
-                this.showError(this.$t("errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
+                this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
             }
         },
         deleteSongClick(songId) {
-            const song = this.getSongById(songId);
+            const song = this.getSongById( songId );
 
-            if (!song) {
+            if ( !song ) {
                 return;
             }
             const self = this;
             this.openDialog({
                 type: "confirm",
-                message:  this.$t("confirmSongDelete", { song: song.meta.title }),
+                message:  this.$t( "confirmSongDelete", { song: song.meta.title }),
                 confirm() {
-                    self.deleteSong({ song });
+                    self.deleteSongFromLS({ song });
                 }
             });
         }
@@ -116,6 +124,7 @@ export default {
 
 $songBrowserWidth: 750px;
 $songBrowserHeight: 500px;
+$headerFooterHeight: 128px;
 
 .song-browser {
     @include editorComponent();
@@ -125,7 +134,8 @@ $songBrowserHeight: 500px;
     overflow-y: auto;
     padding: 0;
 
-    .header {
+    .header,
+    .footer {
         padding: $spacing-small $spacing-large 0;
     }
 
@@ -135,6 +145,10 @@ $songBrowserHeight: 500px;
         margin-bottom: 0;
     }
 
+    .file-loader {
+        margin-top: $spacing-xsmall;
+    }
+
     @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
         width: $songBrowserWidth;
         height: $songBrowserHeight;
@@ -142,6 +156,10 @@ $songBrowserHeight: 500px;
         left: 50%;
         margin-left: -( $songBrowserWidth / 2 );
         margin-top: -( $songBrowserHeight / 2 );
+
+        .song-list {
+            height: calc(#{$songBrowserHeight - $headerFooterHeight});
+        }
     }
 
     @include componentFallback( $songBrowserWidth, $songBrowserHeight ) {
@@ -152,12 +170,17 @@ $songBrowserHeight: 500px;
         margin: 0;
         border-radius: 0;
         z-index: 2000;
+
+        .song-list {
+            height: calc(100% - #{$headerFooterHeight});
+        }
     }
 }
 
 .song-list {
     @include list();
     width: 100%;
+    overflow-y: auto;
 
     li {
         @include boxSize();

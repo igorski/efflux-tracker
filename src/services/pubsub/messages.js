@@ -30,6 +30,7 @@ export default
     SET_LOADING_STATE     : "S:LS", // expects String key to identify the operation which started loading
     UNSET_LOADING_STATE   : "U:LS", // expects String key to identify the operation which finished loading
     SET_BLIND_STATE       : "S:SB", // expects boolean indicating whether obscuring blind should be displayed
+    CLOSE_OVERLAY         : "S:CO",
 
     // broadcasts
 

@@ -33,7 +33,7 @@
             <fieldset>
                 <legend v-t="'generalSettings'"></legend>
                 <div class="wrapper toggle">
-                    <label v-t="'showHelpPanel'"></label>
+                    <label v-t="'showHelpPanel'" class="label"></label>
                     <toggle-button
                         v-model="displayHelpPanel"
                         @change="handleHelpPanelChange"
@@ -41,7 +41,7 @@
                     />
                 </div>
                 <div class="wrapper toggle">
-                    <label v-t="'showHelpStartup'"></label>
+                    <label v-t="'showWelcomeOnStartup'" class="label"></label>
                     <toggle-button
                         v-model="showHelpOnStartup"
                         sync
@@ -51,7 +51,7 @@
             <fieldset>
                 <legend v-t="'sequencerSettings'"></legend>
                 <div class="wrapper select">
-                    <label v-t="'parameterInputFormat'"></label>
+                    <label v-t="'parameterInputFormat'" class="label"></label>
                     <select-box
                         v-model="paramFormat"
                         :options="paramFormatOptions"
@@ -60,7 +60,7 @@
                     />
                 </div>
                 <div class="wrapper toggle">
-                    <label v-t="'followPlayback'"></label>
+                    <label v-t="'followPlayback'" class="label"></label>
                     <toggle-button
                         v-model="trackFollow"
                         @change="handleTrackFollowChange"
@@ -275,8 +275,8 @@ $height: 550px;
         margin-bottom: $spacing-medium;
     }
 
-    label {
-        min-width: 150px;
+    .label {
+        min-width: 225px;
         display: inline-block;
     }
 

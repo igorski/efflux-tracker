@@ -26,15 +26,18 @@ const jobQueue = [];
 let UID = 0;
 
 /**
- * Compress given data Object into an compressed binary Blob.
+ * Compress given data Object (JSON) into an compressed binary Blob.
+ * @returns {Promise}
  */
 export const compress = data => createJob( "compress", data );
 
 /**
  * Decompress given data Blob into a JSON structure.
+ * @returns {Promise}
  */
 export const decompress = data => createJob( "decompress", data );
 
+// same as above but for UTF16 Strings
 export const compressUTF16 = data => createJob( "compressUTF16", data );
 export const decompressUTF16 = data => createJob( "decompressUTF16", data );
 

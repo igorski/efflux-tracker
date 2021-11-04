@@ -197,6 +197,8 @@ export default {
                     return () => import( "@/components/settings-window/settings-window" );
                 case ModalWindows.WELCOME_WINDOW:
                     return () => import( "@/components/welcome-window/welcome-window" );
+                case ModalWindows.DROPBOX_FILE_SELECTOR:
+                    return () => import( "@/components/dropbox-file-selector/dropbox-file-selector" );
             }
         },
     },
