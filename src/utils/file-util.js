@@ -42,3 +42,14 @@ export const saveAsFile = ( data, fileName ) => {
     anchor.click();
     document.body.removeChild( anchor );
 };
+
+export const readFile = ( file, optEncoding = "UTF-8" ) => {
+    const reader = new FileReader();
+    return new Promise(( resolve, reject ) => {
+        reader.onload = readerEvent => {
+            resolve( readerEvent.target.result );
+        };
+        reader.onerror = reject;
+        reader.readAsText( file, optEncoding );
+    });
+};

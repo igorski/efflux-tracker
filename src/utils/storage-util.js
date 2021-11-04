@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import LZString from 'lz-string';
+import { compressUTF16, decompressUTF16 } from "@/services/compression-service";
 
 let storage;
 
@@ -42,7 +42,7 @@ const StorageUtil =
      * @return {boolean}
      */
     isAvailable() {
-        return typeof storage !== 'undefined';
+        return typeof storage !== "undefined";
     },
     /**
      * get an item from storage, returns a Promise
@@ -52,15 +52,15 @@ const StorageUtil =
      * @return {Promise}
      */
     getItem( key ) {
-        return new Promise(( resolve, reject ) => {
+        return new Promise( async ( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
-                reject( Error( 'Storage not available' ));
+                reject( Error( "Storage not available" ));
             }
             const data = storage.getItem( key );
             if ( data ) {
-                resolve( decompress( data ));
+                resolve( await decompress( data ));
             } else {
-                reject( Error( `Data for '${key}' not found'` ));
+                reject( Error( `Data for "${key}" not found"` ));
             }
         });
     },
@@ -71,11 +71,11 @@ const StorageUtil =
      * @param {*} data
      * @return {Promise}
      */
-    setItem( key, data ){
-        const compressedData = compress( data );
+    async setItem( key, data ){
+        const compressedData = await compress( data );
         return new Promise(( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
-                reject( Error( 'Storage not available' ));
+                reject( Error( "Storage not available" ));
             }
             resolve( storage.setItem( key, compressedData ));
         });
@@ -86,12 +86,12 @@ const StorageUtil =
      * @param {string} key
      * @returns {Promise}
      */
-    removeItem(key) {
+    removeItem( key ) {
         return new Promise(( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
-                reject( Error( 'Storage not available' ));
+                reject( Error( "Storage not available" ));
             }
-            resolve(storage.removeItem(key));
+            resolve( storage.removeItem( key ));
         });
     }
 };
@@ -102,38 +102,36 @@ export default StorageUtil;
 // by compressing the stringified Objects we can maximize
 // the amount data we can save in the applications quota in LocalStorage
 
-function compress( string ) {
+async function compress( string ) {
     let compressedString;
     try {
-        compressedString = LZString.compressToUTF16( string );
-    }
-    catch ( e ) {
+        compressedString = await compressUTF16( string );
+    } catch ( e ) {
         return string;
     }
-    /*
-    console.log(
-        "Compressed " + string.length + " to " + compressedString.length + " (" +
-        (( compressedString.length / string.length ) * 100 ).toFixed( 2 ) + "% of original size)"
-    );
-    */
+    if ( process.env.NODE_ENV !== "production" ) {
+        console.log(
+            "Compressed " + string.length + " to " + compressedString.length + " (" +
+            (( compressedString.length / string.length ) * 100 ).toFixed( 2 ) + "% of original size)"
+        );
+    }
     return compressedString;
 }
 
-function decompress( string ) {
+async function decompress( string ) {
     let decompressedString;
 
     try {
-        decompressedString = LZString.decompressFromUTF16( string );
-    }
-    catch ( e ) {
+        decompressedString = await decompressUTF16( string );
+    } catch ( e ) {
         return string;
     }
 
     // shorter length implies that given string could not be decompressed
     // properly, meaning it was likely not compressed in the first place
 
-    if ( !decompressedString || decompressedString.length < string.length )
+    if ( !decompressedString || decompressedString.length < string.length ) {
         return string;
-    else
-        return decompressedString;
+    }
+    return decompressedString;
 }
