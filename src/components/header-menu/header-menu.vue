@@ -34,118 +34,199 @@
                 <li>
                     <a v-t="'file'" class="title" @click.prevent=""></a>
                     <ul class="file-menu">
-                        <li
-                            v-t="'newSong'"
-                            @click="handleReset"
-                        ></li>
-                        <li
-                            v-t="'loadSong'"
-                            @click="handleLoad" data-api-song-load
-                        ></li>
-                        <li
-                            v-t="'saveSong'"
-                            @click="handleSave(true)"
-                        ></li>
-                        <li
-                            v-t="'saveSongAs'"
-                            @click="handleSave(false)"
-                            data-api-song-save
-                        ></li>
-                        <!-- note we expose these id's so external apps can hook into their behaviour -->
+                        <li>
+                            <button
+                                v-t="'newSong'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleReset()"
+                            ></button>
+                        </li>
+                        <!-- note the use of data-attributes to expose these links for external -->
+                        <!-- applications to hook into their behaviour -->
+                        <li>
+                            <button
+                                v-t="'loadSong'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleLoad()"
+                                data-api-song-load
+                            ></button>
+                        </li>
+                        <li>
+                            <button
+                                v-t="'saveSong'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleSave( true )"
+                            ></button>
+                        </li>
+                        <li>
+                            <button
+                                v-t="'saveSongAs'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleSave( false )"
+                                data-api-song-save
+                            ></button>
+                        </li>
                         <template v-if="hasImportExport">
-                            <li v-t="'importSong'" @click="handleSongImport"></li>
-                            <li v-t="'exportSong'" @click="handleSongExport"></li>
-                        </template>
-                        <template v-if="hasImportExport">
-                            <li v-t="'importInstruments'" @click="handleInstrumentImport"></li>
-                            <li v-t="'exportInstruments'" @click="handleInstrumentExport"></li>
+                            <li>
+                                <button
+                                    v-t="'importSong'"
+                                    type="button"
+                                    class="menu-button"
+                                    @click="handleSongImport()"
+                                ></button>
+                            </li>
+                            <li>
+                                <button
+                                    v-t="'exportSong'"
+                                    type="button"
+                                    class="menu-button"
+                                    @click="handleSongExport()"
+                                ></button>
+                            </li>
                         </template>
                     </ul>
                 </li>
-                <li v-t="'settings'"
-                    @click="handleSettings" data-api-settings></li>
-                <li @click="handleRecord" data-api-record>
-                    {{ recordingButtonText }}
+                <li>
+                    <a v-t="'instruments'" class="title" @click.prevent=""></a>
+                    <ul class="file-menu">
+                        <li>
+                            <button
+                                v-t="'instrumentEditor'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleInstrumentEditorClick()"
+                            ></button>
+                        </li>
+                        <template v-if="hasImportExport">
+                            <li>
+                                <button
+                                    v-t="'importInstruments'"
+                                    type="button"
+                                    class="menu-button"
+                                    @click="handleInstrumentImport()"
+                                ></button>
+                            </li>
+                            <li>
+                                <button
+                                    v-t="'exportInstruments'"
+                                    type="button"
+                                    class="menu-button"
+                                    @click="handleInstrumentExport()"
+                                ></button>
+                            </li>
+                        </template>
+                    </ul>
                 </li>
-                <li v-t="'helpTutorials'"
-                    @click="handleHelp" data-api-help></li>
+                <li>
+                    <button
+                        v-t="'settings'"
+                        type="button"
+                        class="menu-button"
+                        @click="handleSettings()"
+                        data-api-settings
+                    ></button>
+                </li>
+                <li>
+                    <button
+                        type="button"
+                        class="menu-button"
+                        @click="handleRecord()"
+                        data-api-record
+                    >{{ recordingButtonText }}</button>
+                </li>
+                <li>
+                    <button
+                        v-t="'helpTutorials'"
+                        type="button"
+                        class="menu-button"
+                        @click="handleHelp()"
+                        data-api-help
+                    ></button>
+                </li>
                 <!-- fullscreen button -->
-                <li v-if="hasFullscreen"
-                    v-t="'maximize'"
-                    ref="fullscreenBtn"
-                    class="fullscreen-button"
-                    data-api-fullscreen
-                ></li>
+                <li v-if="hasFullscreen" class="fullscreen-button">
+                    <button
+                        v-t="'maximize'"
+                        ref="fullscreenBtn"
+                        type="button"
+                        class="menu-button"
+                        data-api-fullscreen
+                    ></button>
+                </li>
             </ul>
         </section>
     </nav>
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
-import { isSupported, setToggleButton } from '@/utils/fullscreen-util';
-import AudioService from '@/services/audio-service';
-import ManualURLs from '@/definitions/manual-urls';
-import ModalWindows from '@/definitions/modal-windows';
-import { hasContent } from '@/utils/song-util';
-import messages from './messages.json';
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
+import AudioService from "@/services/audio-service";
+import ManualURLs from "@/definitions/manual-urls";
+import ModalWindows from "@/definitions/modal-windows";
+import { hasContent } from "@/utils/song-util";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     computed: {
         ...mapState([
-            'menuOpened',
-            'blindActive'
+            "menuOpened",
+            "blindActive"
         ]),
         ...mapGetters([
-            'activeSong',
-            'getInstruments',
-            'isPlaying',
+            "activeSong",
+            "getInstruments",
+            "isPlaying",
         ]),
         hasImportExport() {
-            return typeof window.btoa !== 'undefined' && typeof window.FileReader !== 'undefined';
+            return typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
         },
         hasFullscreen() {
             return isSupported();
         },
         recordingButtonText() {
-            return this.isPlaying && AudioService.isRecording() ? this.$t('stopRecording') : this.$t('recordOutput');
+            return this.isPlaying && AudioService.isRecording() ? this.$t( "stopRecording" ) : this.$t( "recordOutput" );
         },
     },
     watch: {
         blindActive(isOpen, wasOpen) {
-            if (!isOpen && wasOpen === true) {
-                this.setMenuOpened(false);
+            if ( !isOpen && wasOpen === true ) {
+                this.setMenuOpened( false );
             }
         }
     },
     mounted() {
-        if (this.$refs.fullscreenBtn) {
-            setToggleButton(this.$refs.fullscreenBtn, this.$t('maximize'), this.$t('minimize'));
+        if ( this.$refs.fullscreenBtn ) {
+            setToggleButton( this.$refs.fullscreenBtn, this.$t( "maximize" ), this.$t( "minimize" ));
         }
     },
     methods: {
         ...mapMutations([
-            'setMenuOpened',
-            'setHelpTopic',
-            'openModal',
-            'openDialog',
-            'showError',
-            'showNotification',
-            'setActiveSong',
-            'setPlaying'
+            "setMenuOpened",
+            "setHelpTopic",
+            "openModal",
+            "openDialog",
+            "showError",
+            "showNotification",
+            "setActiveSong",
+            "setPlaying"
         ]),
         ...mapActions([
-            'createSong',
-            'validateSong',
-            'saveSong',
-            'importSong',
-            'exportSong',
-            'importInstruments',
-            'exportInstruments'
+            "createSong",
+            "validateSong",
+            "saveSong",
+            "importSong",
+            "exportSong",
+            "importInstruments",
+            "exportInstruments"
         ]),
         handleMouseOver() {
-            this.setHelpTopic('menu');
+            this.setHelpTopic("menu");
         },
         handleLoad() {
             this.openModal(ModalWindows.SONG_BROWSER);
@@ -159,14 +240,14 @@ export default {
                     this.openModal(ModalWindows.SONG_SAVE_WINDOW);
                 }
             } else {
-                this.showError(this.$t('emptySong'));
+                this.showError(this.$t("emptySong"));
             }
         },
         handleReset() {
             const self = this;
             this.openDialog({
-                type: 'confirm',
-                message: this.$t('warningSongReset'),
+                type: "confirm",
+                message: this.$t("warningSongReset"),
                 confirm() {
                     self.createSong()
                         .then(song => self.setActiveSong(song));
@@ -174,49 +255,52 @@ export default {
             });
         },
         handleSettings() {
-            this.openModal(ModalWindows.SETTINGS_WINDOW);
+            this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
         handleHelp() {
-            window.open(ManualURLs.ONLINE_MANUAL);
+            window.open( ManualURLs.ONLINE_MANUAL );
         },
         handleRecord() {
-            if (AudioService.isRecording()) {
+            if ( AudioService.isRecording() ) {
                 return AudioService.toggleRecordingState();
             }
             const self = this;
             this.openDialog({
-                type: 'confirm',
-                title: this.$t('recordOutputTitle'),
-                message: this.$t('recordOutputExpl'),
+                type: "confirm",
+                title: this.$t( "recordOutputTitle" ),
+                message: this.$t( "recordOutputExpl" ),
                 confirm() {
                     AudioService.toggleRecordingState();
-                    if (!self.isPlaying) {
-                        self.setPlaying(true);
+                    if ( !self.isPlaying ) {
+                        self.setPlaying( true );
                     }
                 },
             });
         },
         handleSongImport() {
             this.importSong()
-                .then(() => this.showNotification({ message: this.$t('songImported') }));
+                .then(() => this.showNotification({ message: this.$t("songImported") }));
         },
         handleSongExport() {
             this.validateSong(this.activeSong).then(() => {
                 this.exportSong(this.activeSong)
-                    .then(() => this.showNotification({ message: this.$t('songExported', { song: this.activeSong.meta.title }) }))
-                    .catch(error => this.showError(error));
+                    .then(() => this.showNotification({ message: this.$t("songExported", { song: this.activeSong.meta.title }) }))
+                    .catch(error => this.showError( error ));
             }).catch(() => {
                 // nowt. error has been shown through store validator action.
             });
         },
+        handleInstrumentEditorClick() {
+            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+        },
         handleInstrumentImport() {
             this.importInstruments()
-                .then(amountImported => this.showNotification({ message: this.$t('instrumentsImported', { amount: amountImported.toString() }) }))
+                .then(amountImported => this.showNotification({ message: this.$t("instrumentsImported", { amount: amountImported.toString() }) }))
                 .catch(error => this.showError(error));
         },
         handleInstrumentExport() {
             this.exportInstruments()
-                .then(() => this.showNotification({ message: this.$t('instrumentsExported') }))
+                .then(() => this.showNotification({ message: this.$t("instrumentsExported") }))
                 .catch();
         },
     }
@@ -232,7 +316,24 @@ export default {
     margin: 0 auto;
     padding: 0 $spacing-medium $spacing-small;
     width: 100%;
-    @include boxSize;
+    @include boxSize();
+}
+
+.menu-button {
+    font-family: Montserrat, Helvetica, Verdana;
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #b6b6b6;
+    padding: 0;
+
+    &:hover {
+        color: #FFF;
+
+        @include mobile() {
+            color: #000;
+        }
+    }
 }
 
 .toggle {
@@ -273,8 +374,6 @@ h1 {
         display: inline-block;
         padding: 0 $spacing-medium 0 0;
         margin: 0;
-        font-family: Montserrat, Helvetica, Verdana;
-        cursor: pointer;
 
         a {
             color: #b6b6b6;
@@ -301,7 +400,7 @@ h1 {
 
         &.fullscreen-button {
             float: right;
-            margin-right: 1$spacing-medium;
+            margin: $spacing-xxsmall $spacing-medium 0 0;
         }
     }
 }
@@ -338,12 +437,7 @@ h1 {
     }
     .file-menu li {
         display: block;
-        color: #b6b6b6;
         padding: $spacing-xsmall $spacing-medium;
-
-        &:hover {
-            color: #FFF;
-        }
     }
 }
 

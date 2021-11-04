@@ -8,6 +8,8 @@
     "importSong": "Import song",
     "exportSong": "Export song",
     "newSong": "New song",
+    "instruments": "Instruments",
+    "instrumentEditor": "Instrument editor",
     "importInstruments": "Import instrument presets",
     "exportInstruments": "Export instrument presets",
     "settings": "Settings",
