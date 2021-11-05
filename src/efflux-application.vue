@@ -259,7 +259,7 @@ export default {
         // prepare model
 
         this.prepareLinkedList();
-        this.setActiveSong( await this.createSong());
+        this.openSong( await this.createSong());
         await this.prepareSequencer( this.$store );
         await this.setupServices( i18n );
         this.addListeners();
@@ -297,7 +297,6 @@ export default {
         ...mapMutations([
             "prepareLinkedList",
             "createLinkedList",
-            "setActiveSong",
             "setActivePattern",
             "setAmountOfSteps",
             "setPlaying",
@@ -316,6 +315,7 @@ export default {
         ]),
         ...mapActions([
             "setupServices",
+            "openSong",
             "prepareSequencer",
             "loadStoredSettings",
             "loadStoredInstruments",

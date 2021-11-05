@@ -68,7 +68,7 @@ function handleBroadcast(message, payload) {
             return;
         case Messages.LOAD_SONG:
             store.commit( "closeDialog" );
-            store.commit( "setActiveSong", SongValidator.transformLegacy( payload ));
+            store.dispatch( "openSong", SongValidator.transformLegacy( payload ));
             break;
         case Messages.VALIDATE_AND_GET_SONG:
             // payload is fn awaiting song object

@@ -83,10 +83,10 @@ export default {
     methods: {
         ...mapMutations([
             "openDialog",
-            "setActiveSong",
             "showError"
         ]),
         ...mapActions([
+            "openSong",
             "loadSongFromLS",
             "deleteSongFromLS"
         ]),
@@ -96,7 +96,7 @@ export default {
         async openSongClick(songId) {
             try {
                 const song = await this.loadSongFromLS( this.getSongById( songId ));
-                this.setActiveSong( song );
+                this.openSong( song );
                 this.$emit( "close" );
             } catch(e) {
                 this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));

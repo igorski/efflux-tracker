@@ -51,6 +51,16 @@ describe( "Vuex song module", () => {
     });
 
     describe( "actions", () => {
+        it( "should be able to open a song", () => {
+            const song = { name: "awesomeTune" };
+            const commit = jest.fn();
+
+            actions.openSong({ commit }, song );
+
+            expect( commit ).toHaveBeenNthCalledWith( 1, "flushSamples" );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveSong", song );
+        });
+
         it( "should be able to create songs", async () => {
             const song = await actions.createSong();
             expect(SongValidator.isValid(song)).toBe(true);

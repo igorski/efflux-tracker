@@ -223,13 +223,13 @@ export default {
             "openDialog",
             "showError",
             "showNotification",
-            "setActiveSong",
             "setPlaying"
         ]),
         ...mapActions([
             "createSong",
             "validateSong",
             "saveSong",
+            "openSong",
             "importSong",
             "exportSong",
             "importInstruments",
@@ -260,7 +260,7 @@ export default {
                 message: this.$t("warningSongReset"),
                 confirm() {
                     self.createSong()
-                        .then(song => self.setActiveSong(song));
+                        .then(song => self.openSong(song));
                 },
             });
         },

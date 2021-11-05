@@ -181,6 +181,10 @@ export default {
                 resolve( SongFactory.createSong( Config.INSTRUMENT_AMOUNT ));
             });
         },
+        openSong({ commit }, song ) {
+            commit( "flushSamples" );
+            commit( "setActiveSong", song );
+        },
         saveSongInLS({ state, getters, commit, dispatch }, song) {
             return new Promise( async ( resolve, reject ) => {
                 try {
@@ -307,12 +311,12 @@ export default {
             song.origin = "dropbox";
             commit( "showNotification", { message: getters.t( "messages.fileSavedInDropbox", { file: name }) });
         },
-        loadSong({ getters, commit }, { file, origin = "local" }) {
+        loadSong({ getters, commit, dispatch }, { file, origin = "local" }) {
             return new Promise( async ( resolve, reject ) => {
                 const song = await parseXTK( file );
                 if ( SongValidator.isValid( song )) {
                     song.origin = origin;
-                    commit( "setActiveSong", song );
+                    dispatch( "openSong", song );
                     resolve( song );
                 }
                 else {
