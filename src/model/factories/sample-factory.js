@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2021 - https://www.igorski.nl
+ * Igor Zinken 2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,14 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export const FLAC = "audio/flac";
-export const MP3  = "audio/mp3";
-export const MP4  = "audio/mp4";
-export const OGG  = "audio/ogg"; // not for Safari, see https://en.wikipedia.org/wiki/HTML5_audio
-export const WAV  = "audio/wav";
-export const WEBM = "audio/webm"; // not for Safari, see https://en.wikipedia.org/wiki/HTML5_audio
-
-export const ACCEPTED_FILE_TYPES       = [ FLAC, MP3, MP4, OGG, WAV, WEBM ];
-export const ACCEPTED_FILE_EXTENSIONS  = [ ".flac", ".mp3", ".mp4", ".ogg", ".webm", ".wav" ];
-export const PROJECT_FILE_EXTENSION    = ".xtk";
-export const INSTRUMENT_FILE_EXTENSION = ".xit"
+export default {
+    /**
+     * Wraps an AudioBuffer into a sample Object
+     * which can be serialized into a Song.
+     */
+    fromBuffer( buffer, name = "New sample" ) {
+        return {
+            name,
+            buffer,
+            rangeStart: 0,
+            rangeEnd: buffer.duration
+        };
+    }
+};

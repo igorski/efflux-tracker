@@ -63,3 +63,19 @@ export const readFile = ( file, optEncoding = "UTF-8" ) => {
         reader.readAsText( file, optEncoding );
     });
 };
+
+export const openFileBrowser = ( handler, acceptedFileTypes ) => {
+    const fileBrowser = document.createElement( "input" );
+    fileBrowser.setAttribute( "type", "file");
+    if ( Array.isArray( acceptedFileTypes )) {
+        fileBrowser.setAttribute( "accept", acceptedFileTypes );
+    }
+    const simulatedEvent = document.createEvent( "MouseEvent" );
+    simulatedEvent.initMouseEvent(
+        "click", true, true, window, 1,
+         0, 0, 0, 0, false,
+         false, false, false, 0, null
+    );
+    fileBrowser.dispatchEvent( simulatedEvent );
+    fileBrowser.addEventListener( "change", handler );
+};

@@ -101,6 +101,14 @@
                                 @click="handleInstrumentEditorClick()"
                             ></button>
                         </li>
+                        <li>
+                            <button
+                                v-t="'sampleEditor'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleSampleEditorClick()"
+                            ></button>
+                        </li>
                         <template v-if="hasImportExport">
                             <li>
                                 <button
@@ -165,9 +173,11 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
-import AudioService from "@/services/audio-service";
+import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
+import AudioService from "@/services/audio-service";
+import { openFileBrowser } from "@/utils/file-util";
 import { hasContent } from "@/utils/song-util";
 import messages from "./messages.json";
 
@@ -278,8 +288,13 @@ export default {
             });
         },
         handleSongImport() {
-            this.importSong()
-                .then(() => this.showNotification({ message: this.$t("songImported") }));
+            openFileBrowser( async fileBrowserEvent => {
+                const file = fileBrowserEvent.target.files?.[ 0 ];
+                if ( !file ) {
+                    return;
+                }
+                this.importSong( file ).then(() => this.showNotification({ message: this.$t("songImported") }));
+            }, [ PROJECT_FILE_EXTENSION ] );
         },
         handleSongExport() {
             this.validateSong(this.activeSong).then(() => {
@@ -292,6 +307,9 @@ export default {
         },
         handleInstrumentEditorClick() {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+        },
+        handleSampleEditorClick() {
+            this.openModal( ModalWindows.SAMPLE_EDITOR );
         },
         handleInstrumentImport() {
             this.importInstruments()

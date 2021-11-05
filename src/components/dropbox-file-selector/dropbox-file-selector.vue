@@ -61,7 +61,7 @@
                             <div
                                 v-else-if="node.type === 'xtk'"
                                 :key="`type_${node.path}`"
-                                class="entry entry__document"
+                                class="entry entry__project"
                                 @click="handleNodeClick( node )"
                             >
                                 <span class="title">{{ node.name }}</span>
@@ -70,9 +70,11 @@
                                 v-else
                                 :key="`audio_${node.path}`"
                                 :path="node.path"
-                                class="audio-file"
+                                class="entry entry__audio"
                                 @click="handleNodeClick( node )"
-                            />
+                            >
+                                <span class="title">{{ node.name }}</span>
+                            </div>
                         </template>
                     </template>
                 </div>
@@ -84,9 +86,13 @@
 <script>
 import { mapMutations, mapActions } from "vuex";
 import { listFolder, downloadFileAsBlob } from "@/services/dropbox-service";
-import { truncate } from "@/utils/string-util";
-import { disposeResource } from "@/utils/resource-manager";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+import ModalWindows from "@/definitions/modal-windows";
+import SampleFactory from "@/model/factories/sample-factory";
+import { getAudioContext } from "@/services/audio-service";
+import { loadSample } from "@/services/audio/sample-loader";
+import { truncate } from "@/utils/string-util";
+
 import messages from "./messages.json";
 
 // we allow listing of both Efflux projects and all accepted audio types
@@ -188,9 +194,13 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "addSample",
             "openDialog",
+            "openModal",
             "closeModal",
+            "showError",
             "showNotification",
+            "setCurrentSample",
             "setDropboxConnected",
             "setLoading",
             "unsetLoading",
@@ -238,13 +248,20 @@ export default {
                     break;
                 case "file":
                     // TODO: loader, error handling and background load (for bulk selection)
-                    const url = await downloadFileAsBlob( node.path, true );
-                    // TODO
-                    disposeResource( url ); // Blob has been converted to buffer source
-                    this.showNotification({
-                        message: this.$t( "importedFileSuccessfully", { file: truncate( node.name, 35 ) })
-                    });
-                    this.closeModal();
+                    const sampleBlob = await downloadFileAsBlob( node.path );
+                    const buffer = await loadSample( sampleBlob, getAudioContext() );
+                    if ( buffer ) {
+                        const sample = SampleFactory.fromBuffer( buffer, node.name );
+                        this.addSample( sample );
+                        this.setCurrentSample( sample );
+                        this.openModal( ModalWindows.SAMPLE_EDITOR );
+                        this.showNotification({
+                            message: this.$t( "importedFileSuccessfully", { file: truncate( node.name, 35 ) })
+                        });
+                    } else {
+                        this.showError( this.$t( "couldNotImportFile", { file: truncate( node.name, 35 ) } ));
+                        this.closeModal();
+                    }
                     break;
             }
             this.unsetLoading( "dbox" );
@@ -338,8 +355,13 @@ export default {
         background-size: 50%;
     }
 
-    &__document {
+    &__project {
         background: url("../../assets/images/icon-project.svg") no-repeat 50% $spacing-large;
+        background-size: 50%;
+    }
+
+    &__audio {
+        background: url("../../assets/images/icon-audio.png") no-repeat 50% $spacing-large;
         background-size: 50%;
     }
 }

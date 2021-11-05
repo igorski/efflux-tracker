@@ -4,7 +4,7 @@ import Config from '@/config';
 
 const { mutations } = EditorModule;
 
-describe('Editor module', () => {
+describe('Vuex editor module', () => {
     describe('Mutations', () => {
         describe('When selecting an instrument', () => {
             it('should be able to set the selected instrument', () => {

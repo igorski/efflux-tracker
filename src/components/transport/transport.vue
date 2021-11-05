@@ -228,6 +228,7 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 @import "@/styles/forms";
+@import "@/styles/transporter";
 
 /* generated font for all transporter icons */
 
@@ -371,51 +372,6 @@ export default {
 
     #songTempo {
         width: 150px;
-    }
-
-    /* icons */
-
-    [class^="icon-"]:before,
-    [class*=" icon-"]:before
-    {
-        font-family: "transporter";
-        font-style: normal;
-        font-weight: normal;
-        speak: none;
-
-        display: inline-block;
-        text-decoration: inherit;
-        width: $spacing-large;
-        margin-right: $spacing-xsmall;
-        text-align: center;
-        /* opacity: .8; */
-
-        /* For safety - reset parent styles, that can break glyph codes*/
-        font-variant: normal;
-        text-transform: none;
-
-        /* fix buttons height, for twitter bootstrap */
-        line-height: $spacing-large;
-
-        /* Animation center compensation - margins should be symmetric */
-        /* remove if not needed */
-        margin-left: $spacing-small;
-
-        /* you can be more comfortable with increased icons size */
-        /* font-size: 120%; */
-
-        /* Uncomment for 3D effect */
-        /* text-shadow: 1px 1px 1px rgba(127, 127, 127, 0.3); */
-    }
-
-    .icon-loop:before { content: "\e800"; } /* "" */
-    .icon-metronome:before { content: "\e801"; } /* "" */
-    .icon-play:before { content: "\e802"; } /* "" */
-    .icon-settings:before { content: "\e803"; } /* "" */
-    .icon-stop:before { content: "\e804"; } /* "" */
-
-    [class^="icon-"].active {
-        color: #FFF;
     }
 }
 

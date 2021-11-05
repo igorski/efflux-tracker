@@ -284,36 +284,17 @@ export default {
                 }
             });
         },
-        importSong({ commit, dispatch }) {
-            // inline handler to overcome blocking of the file select popup by the browser
-
-            const fileBrowser = document.createElement('input');
-            fileBrowser.setAttribute('type',   'file');
-            fileBrowser.setAttribute('accept', PROJECT_FILE_EXTENSION);
-
-            const simulatedEvent = document.createEvent('MouseEvent');
-            simulatedEvent.initMouseEvent(
-                'click', true, true, window, 1,
-                 0, 0, 0, 0, false,
-                 false, false, false, 0, null
-            );
-            fileBrowser.dispatchEvent(simulatedEvent);
-
-            return new Promise(( resolve, reject ) => {
-                fileBrowser.addEventListener( "change", async fileBrowserEvent => {
-                    try {
-                        const song = await dispatch( "loadSong", { file: fileBrowserEvent.target.files[ 0 ] });
-                        commit( "setShowSaveMessage", false );
-                        await dispatch( "saveSongInLS", song );
-                        commit( "publishMessage", PubSubMessages.SONG_IMPORTED );
-                        commit( "setShowSaveMessage", true );
-                        commit( "closeModal" );
-                        resolve();
-                    } catch ( error ) {
-                        reject( error );
-                    }
-                });
-            });
+        async importSong({ commit, dispatch }, file ) {
+            try {
+                const song = await dispatch( "loadSong", { file });
+                commit( "setShowSaveMessage", false );
+                await dispatch( "saveSongInLS", song );
+                commit( "publishMessage", PubSubMessages.SONG_IMPORTED );
+                commit( "setShowSaveMessage", true );
+                commit( "closeModal" );
+            } catch ( error ) {
+                // loadSong validator error will have communicated error
+            }
         },
         async exportSong({ commit }, song ) {
             saveAsFile( await toXTK( song ), toFileName( song.meta.title ));

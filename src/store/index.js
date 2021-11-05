@@ -2,6 +2,7 @@ import editor from "./modules/editor-module";
 import history from "./modules/history-module";
 import instrument from "./modules/instrument-module";
 import midi from "./modules/midi-module";
+import sample from "./modules/sample-module";
 import selection from "./modules/selection-module";
 import settings from "./modules/settings-module";
 import sequencer from "./modules/sequencer-module";
@@ -26,6 +27,7 @@ export default
         editor,
         history,
         instrument,
+        sample,
         selection,
         settings,
         sequencer,

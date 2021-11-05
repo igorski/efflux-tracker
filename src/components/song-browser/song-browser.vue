@@ -44,7 +44,10 @@
         </ul>
         <hr class="divider" />
         <div class="footer">
-            <file-loader class="file-loader" />
+            <file-loader
+                file-types="project"
+                class="file-loader"
+            />
         </div>
     </div>
 </template>

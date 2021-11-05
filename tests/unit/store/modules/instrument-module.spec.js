@@ -11,7 +11,7 @@ jest.mock('@/utils/storage-util', () => ({
     removeItem: jest.fn()
 }));
 
-describe('InstrumentModel', () => {
+describe('Vuex instrument module', () => {
     const dispatch = jest.fn();
 
     const instrument = InstrumentFactory.createInstrument(0);

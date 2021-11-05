@@ -2,7 +2,7 @@ import UndoManager from "undo-manager";
 import store from "@/store/modules/history-module";
 const { getters, mutations, actions }  = store;
 
-describe( "History State module", () => {
+describe( "Vuex history state module", () => {
     const noop = () => {}, AMOUNT_OF_STATES = 5;
     let commit = jest.fn();
     let state;

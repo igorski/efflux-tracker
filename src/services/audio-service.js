@@ -240,7 +240,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             const { oscillatorNode, adsrNode } = oscillatorNodes;
             let generatorNode;
 
-            if (oscillatorVO.waveform === "NOISE") {
+            if ( oscillatorVO.waveform === "NOISE" ) {
                 // buffer source ? assign it to the oscillator
                 generatorNode = audioContext.createBufferSource();
                 generatorNode.buffer = pool.NOISE;
@@ -249,7 +249,7 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
             }
             else {
                 // has oscillator source
-                if (oscillatorVO.waveform === "PWM") {
+                if ( oscillatorVO.waveform === "PWM" ) {
                     // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
                     generatorNode = createPWM(
                         audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode

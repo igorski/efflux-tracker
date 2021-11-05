@@ -22,7 +22,7 @@ jest.mock( "@/utils/xtk-util", () => ({
     parseXTK: jest.fn(( ...args ) => mockFn( "parseXTK", ...args ))
 }));
 
-describe( "Song module", () => {
+describe( "Vuex song module", () => {
     describe( "getters", () => {
         it( "should be able to retrieve all the songs", () => {
             const state = { songs: [] };

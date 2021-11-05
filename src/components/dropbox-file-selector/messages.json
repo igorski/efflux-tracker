@@ -3,6 +3,7 @@
         "files": "Files",
         "noAudioFiles": "This folder contains no supported audio files or Efflux projects",
         "couldNotRetrieveFilesForPath": "Could not retrieve files for \"{path}\"",
-        "importedFileSuccessfully": "Imported \"{file}\" successfully."
+        "importedFileSuccessfully": "Imported \"{file}\" successfully.",
+        "couldNotImportFile": "Could not import \"{file}\""
     }
 }

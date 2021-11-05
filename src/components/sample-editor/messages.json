@@ -1,0 +1,13 @@
+{
+    "en-US": {
+        "sampleEditor": "Sample editor",
+        "play": "Play",
+        "stop": "Stop",
+        "loop": "Loop",
+        "sampleStart": "Sample start",
+        "sampleEnd": "Sample end",
+        "totalDuration": "Total {duration}s",
+        "sampleRate": "Sample rate: {sampleRate} Hz",
+        "channelAmount": "Channels: {amount}"
+    }
+}

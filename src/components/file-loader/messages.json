@@ -1,6 +1,8 @@
 {
     "en-US": {
         "loadFile": "Load file",
-        "importFromDropbox": "Import from Dropbox"
+        "importFromDropbox": "Import from Dropbox",
+        "importedFileSuccessfully": "Imported \"{file}\" successfully.",
+        "couldNotImportFile": "Could not import \"{file}\""
     }
 }

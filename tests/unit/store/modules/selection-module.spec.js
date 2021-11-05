@@ -2,7 +2,7 @@ import SelectionModule from '@/store/modules/selection-module';
 
 const { getters, mutations } = SelectionModule;
 
-describe('SelectionModel', () => {
+describe('Vuex selection module', () => {
     let state;
     beforeEach(() => {
         state = {
