@@ -95,10 +95,10 @@ export default
          * types can be info, error or confirm. When type is confirm, optional
          * confirmation and cancellation handler can be passed.
          */
-        openDialog(state, { type = "info", title = "", message = "", confirm = null, cancel = null }) {
-            state.dialog = { type, title , message, confirm, cancel };
+        openDialog( state, { type = "info", title = "", message = "", confirm = null, cancel = null, hideActions = false }) {
+            state.dialog = { type, title , message, confirm, cancel, hideActions };
         },
-        closeDialog(state) {
+        closeDialog( state ) {
             state.dialog = null;
         },
         /**

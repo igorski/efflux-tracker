@@ -109,6 +109,11 @@
         </template>
         <hr class="divider section-divider" />
         <div class="footer">
+            <button
+                v-t="'saveChanges'"
+                type="button"
+                @click="commitChanges()"
+            ></button>
             <file-loader file-types="audio" />
         </div>
     </div>
@@ -119,6 +124,7 @@ import { mapGetters, mapMutations } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader";
 import SelectBox from "@/components/forms/select-box";
 import { getAudioContext } from "@/services/audio-service";
+import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch";
 import { bufferToWaveForm, sliceBuffer } from "@/utils/sample-util";
 
 import messages from "./messages.json";
@@ -164,11 +170,12 @@ export default {
             };
         },
         meta() {
+            const { duration } = this.sample.buffer;
             return {
-                totalDuration: this.sample.buffer.duration.toFixed( 2 ),
+                totalDuration: duration.toFixed( 2 ),
                 sampleRate: this.sample.buffer.sampleRate,
                 amountOfChannels: this.sample.buffer.numberOfChannels,
-                duration: ((( this.sampleEnd - this.sampleStart ) / 100 ) * this.sample.duration ).toFixed( 2 )
+                duration: ((( this.sampleEnd - this.sampleStart ) / 100 ) * duration ).toFixed( 2 )
             };
         },
     },
@@ -177,9 +184,6 @@ export default {
             immediate: true,
             async handler( value, oldValue ) {
                 if ( !oldValue || value.name !== oldValue.name ) {
-                    if ( this.sample ) {
-                        this.commitChanges();
-                    }
                     this.sample = value;
                     this.stopPlayback();
 
@@ -216,13 +220,14 @@ export default {
         },
     },
     beforeDestroy() {
-        this.commitChanges();
         this.stopPlayback();
     },
     methods: {
         ...mapMutations([
-            "updateSample",
+            "openDialog",
+            "setBlindActive",
             "setCurrentSample",
+            "updateSample",
         ]),
         drawWaveForm( buffer ) {
             const canvas = this.$refs.waveformDisplay;
@@ -235,7 +240,7 @@ export default {
             ctx.drawImage( bufferToWaveForm( buffer, 720, 200 ), 0, 0, width, height );
         },
         /* sample auditioning */
-        startPlayback() {
+        startPlayback( muted = false ) {
             if ( this.playbackNode ) {
                 this.stopPlayback();
             }
@@ -249,7 +254,9 @@ export default {
                 this.isPlaying = this.playbackNode && event.target !== this.playbackNode;
             });
             this.playbackNode.loop = this.loopPlayback;
-            this.playbackNode.connect( getAudioContext().destination );
+            if ( !muted ) {
+                this.playbackNode.connect( getAudioContext().destination );
+            }
             this.playbackNode.start();
             this.isPlaying = true;
         },
@@ -258,6 +265,65 @@ export default {
             this.playbackNode?.stop();
             this.playbackNode = null;
             this.isPlaying = false;
+        },
+        /* saving sample, after performing pitch analysis */
+        commitChanges() {
+            this.stopPlayback();
+            const wasLooping = this.loopPlayback;
+
+            this.openDialog({
+                title       : this.$t( "pleaseWait" ),
+                message     : this.$t( "analysingPitch" ),
+                hideActions : true,
+            });
+            this.setBlindActive( true );
+
+            this.loopPlayback = true;
+            this.pitches = [];
+            this.startPlayback( true );
+
+            this.pitchAnalyser  = createPitchAnalyser( this.playbackNode, getAudioContext() );
+            this.pitchFn        = this.detectCurrentPitch.bind( this );
+            this.detectCurrentPitch();
+
+            setTimeout(() => {
+                this.stopPlayback();
+                this.loopPlayback = wasLooping;
+
+                window.cancelAnimationFrame( this.pitchRaf );
+                this.pitchAnalyser?.disconnect();
+                this.pitchAnalyser = null;
+
+                // get the most occurring frequency from the signal
+                // TODO: should we round the frequencies here ?
+                const mode = arr => arr.sort(( a, b ) =>
+                      arr.filter( v => v === a ).length
+                    - arr.filter( v => v === b ).length
+                ).pop();
+
+                const frequency = mode( this.pitches );
+                const { note, octave, cents } = getPitchByFrequency( frequency );
+                this.pitches.length = 0;
+
+                this.updateSample({
+                    ...this.sample,
+                    pitch : { frequency, note, octave, cents },
+                    rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
+                    rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
+                });
+
+                this.openDialog({
+                    title   : this.$t( "done" ),
+                    message : this.$t( "savedDominantPitch", { note, octave } )
+                });
+            }, 2000 );
+        },
+        detectCurrentPitch() {
+            const pitch = detectPitch( this.pitchAnalyser, getAudioContext() );
+            if ( pitch ) {
+                this.pitches.push( pitch );
+            }
+            this.pitchRaf = window.requestAnimationFrame( this.pitchFn );
         },
         /* range handling */
         handleDragStart({ offsetX }) {
@@ -288,13 +354,6 @@ export default {
                 this.startPlayback();
             }
         },
-        commitChanges() {
-            this.updateSample({
-                ...this.sample,
-                rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
-                rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
-            });
-        }
     }
 };
 </script>
@@ -340,6 +399,8 @@ $height: 430px;
     }
 
     .footer {
+        display: flex;
+        justify-content: space-between;
         padding: $spacing-small $spacing-medium;
     }
 }

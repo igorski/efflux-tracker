@@ -30,7 +30,8 @@ export default {
             name,
             buffer,
             rangeStart: 0,
-            rangeEnd: buffer.duration
+            rangeEnd: buffer.duration,
+            pitch: null // @see sample-editor
         };
     }
 };

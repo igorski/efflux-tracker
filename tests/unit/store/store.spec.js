@@ -78,7 +78,8 @@ describe("Application Vuex store root", () => {
                     title: "title",
                     message: "message",
                     confirm: jest.fn(),
-                    cancel: jest.fn()
+                    cancel: jest.fn(),
+                    hideActions: true
                 };
                 mutations.openDialog(state, params);
                 expect(state.dialog).toEqual(params);
@@ -92,7 +93,8 @@ describe("Application Vuex store root", () => {
                     title: "",
                     message: "",
                     confirm: null,
-                    cancel: null
+                    cancel: null,
+                    hideActions: false
                 });
             });
 

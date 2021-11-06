@@ -83,12 +83,14 @@
         </div>
 
         <!-- dialog window used for information messages, alerts and confirmations -->
-        <dialog-window v-if="dialog"
+        <dialog-window
+            v-if="dialog"
             :type="dialog.type"
             :title="dialog.title"
             :message="dialog.message"
             :confirm-handler="dialog.confirm"
             :cancel-handler="dialog.cancel"
+            :hide-actions="dialog.hideActions"
         />
         <!-- notifications -->
         <notifications />

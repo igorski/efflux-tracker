@@ -8,6 +8,11 @@
         "sampleEnd": "Sample end",
         "totalDuration": "Total {duration}s",
         "sampleRate": "Sample rate: {sampleRate} Hz",
-        "channelAmount": "Channels: {amount}"
+        "channelAmount": "Channels: {amount}",
+        "saveChanges": "Save changes",
+        "pleaseWait": "Please wait...",
+        "analysingPitch": "Analysing pitch",
+        "done": "Done",
+        "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}"
     }
 }

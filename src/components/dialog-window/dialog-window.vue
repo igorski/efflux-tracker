@@ -24,7 +24,10 @@
     <div id="dialogWindow">
         <h3>{{ title }}</h3>
         <p>{{ message }}</p>
-        <div class="actions">
+        <div
+            v-if="!hideActions"
+            class="actions"
+        >
             <button v-t="'ok'"
                     type="button"
                     @click="handleConfirm()"
@@ -65,7 +68,11 @@ export default {
         cancelHandler: {
             type: Function,
             default: null,
-        }
+        },
+        hideActions: {
+            type: Boolean,
+            default: false,
+        },
     },
     methods: {
         ...mapMutations([

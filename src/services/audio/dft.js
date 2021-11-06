@@ -78,7 +78,7 @@ function FourierTransform(bufferSize, sampleRate) {
      *
      * @returns The middle frequency in Hz.
      */
-    this.getBandFrequency = function(index) {
+    this.getBandFrequency = function( index = 0 ) {
         return this.bandwidth * index + this.bandwidth / 2;
     };
 
