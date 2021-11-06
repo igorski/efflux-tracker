@@ -50,9 +50,13 @@
                     :sample="sample"
                     ref="waveformDisplay"
                     @mousedown="handleDragStart"
+                    @touchstart="handleDragStart"
                     @mouseup="handleDragEnd"
                     @mouseout="handleDragEnd"
+                    @touchcancel="handleDragEnd"
+                    @touchend="handleDragEnd"
                     @mousemove="handleDragMove"
+                    @touchmove="handleDragMove"
                 />
                 <div
                     class="waveform-display__range"
@@ -352,7 +356,8 @@ export default {
             this.pitchRaf = window.requestAnimationFrame( this.pitchFn );
         },
         /* range handling */
-        handleDragStart({ offsetX }) {
+        handleDragStart( event ) {
+            const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
             const waveformBounds = this.$refs.waveformDisplay.$el.getBoundingClientRect();
@@ -366,10 +371,11 @@ export default {
         handleDragEnd() {
             this.isDragging = false;
         },
-        handleDragMove({ offsetX }) {
+        handleDragMove( event ) {
             if ( !this.isDragging ) {
                 return;
             }
+            const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             const delta = offsetX - this.startOffsetX;
 
             this.sampleStart = Math.max( 0, Math.min( 100, this.dragSS + ( delta / this.dragRatio ) ));
