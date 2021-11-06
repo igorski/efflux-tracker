@@ -13,20 +13,20 @@
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
  * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
  * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { DFT } from './dft';
+import { DFT } from "./dft";
 
  // we assume that the audioContext works according to the newest standards
  // if its is available as window.AudioContext
  // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
  // method names according to spec
-const isStandards = ( !!( 'AudioContext' in window ) || ( 'webkitAudioContext' in window && typeof (new window.webkitAudioContext()).createGain === 'function'));
+const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && typeof (new window.webkitAudioContext()).createGain === "function"));
 const d = window.document;
 const features = {
     panning: false
@@ -104,10 +104,10 @@ export const beep = ( audioContext, frequencyInHertz, startTimeInSeconds, durati
 
     oscillator.frequency.value = frequencyInHertz;
 
-    if ( typeof startTimeInSeconds !== 'number' || startTimeInSeconds === 0 )
+    if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 )
         startTimeInSeconds = audioContext.currentTime;
 
-    if ( typeof durationInSeconds !== 'number' )
+    if ( typeof durationInSeconds !== "number" )
         durationInSeconds = 1;
 
     // oscillator will start, stop and can be garbage collected after going out of scope
@@ -166,7 +166,7 @@ export const createGainNode = aContext => {
  */
 export const createStereoPanner = audioContext => {
     // last minute checks on feature support
-    if (typeof audioContext.createStereoPanner !== 'function') {
+    if ( typeof audioContext.createStereoPanner !== "function" ) {
         return null;
     }
     return audioContext.createStereoPanner();
@@ -195,7 +195,7 @@ export const setValue = (param, value, audioContext) => {
  */
 export const createPWM = ( audioContext, startTime, endTime, destination = audioContext.destination ) => {
     const pulseOsc = audioContext.createOscillator();
-    pulseOsc.type  = 'sawtooth';
+    pulseOsc.type  = "sawtooth";
 
     // Shape the output into a pulse wave.
     const pulseShaper = audioContext.createWaveShaper();
@@ -220,11 +220,11 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
     const lfoDepth = createGainNode( audioContext );
     const filter = audioContext.createBiquadFilter();
 
-    lfo.type = 'triangle';
+    lfo.type = "triangle";
     lfo.frequency.value = 10;
 
-    // Override the oscillator's "connect" and "disconnect" method so that the
-    // new node's output actually comes from the pulseShaper.
+    // Override the oscillator"s "connect" and "disconnect" method so that the
+    // new node"s output actually comes from the pulseShaper.
     pulseOsc.connect = function() {
         pulseShaper.connect.apply( pulseShaper, arguments );
     };
@@ -249,7 +249,7 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
     lfo.start(startTime);
     lfo.stop(endTime);
 
-    filter.type = 'lowpass';
+    filter.type = "lowpass";
     filter.frequency.value = 16000;
     filter.frequency.exponentialRampToValueAtTime( 440, endTime );
     pulseOsc.connect( filter );
@@ -267,32 +267,34 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
  * @return {Promise} with generated AudioContext
  */
 export const init = () => {
-    return new Promise((resolve, reject) => {
+    return new Promise(( resolve, reject ) => {
         let audioContext;
         const handler = () => {
-            d.removeEventListener('click',   handler, false);
-            d.removeEventListener('keydown', handler, false);
+            d.removeEventListener( "click",   handler, false );
+            d.removeEventListener( "keydown", handler, false );
+            window.removeEventListener( "drop", handler, false );
 
-            if ( typeof window.AudioContext !== 'undefined' ) {
+            if ( typeof window.AudioContext !== "undefined" ) {
                 audioContext = new window.AudioContext();
             }
-            else if ( typeof window.webkitAudioContext !== 'undefined' ) {
+            else if ( typeof window.webkitAudioContext !== "undefined" ) {
                 audioContext = new window.webkitAudioContext();
             }
             else {
-                reject(new Error('WebAudio API not supported'));
+                reject( new Error( "WebAudio API not supported" ));
                 return;
             }
 
             // not all environments support the same features
             // within the AudioContext, check them here
 
-            features.panning = typeof audioContext.createStereoPanner === 'function';
+            features.panning = typeof audioContext.createStereoPanner === "function";
 
-            resolve(audioContext);
+            resolve( audioContext );
         };
-        d.addEventListener('click',   handler);
-        d.addEventListener('keydown', handler);
+        d.addEventListener( "click",   handler );
+        d.addEventListener( "keydown", handler );
+        window.addEventListener( "drop", handler );
     });
 };
 
