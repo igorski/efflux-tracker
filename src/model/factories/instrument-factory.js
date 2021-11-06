@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config    from "@/config";
+import Config from "@/config";
+import OscillatorTypes from "@/definitions/oscillator-types";
 import { clone } from "@/utils/object-util";
 
 const InstrumentFactory =
@@ -39,9 +40,9 @@ const InstrumentFactory =
             name : ( typeof name === "string" ) ? name : `Instrument ${( index + 1 ).toString()}`,
             presetName: null,
             oscillators : [
-                InstrumentFactory.createOscillator( true,  "TRIANGLE" ),
-                InstrumentFactory.createOscillator( false, "SINE" ),
-                InstrumentFactory.createOscillator( false, "SAW" )
+                InstrumentFactory.createOscillator( true,  OscillatorTypes.TRIANGLE ),
+                InstrumentFactory.createOscillator( false, OscillatorTypes.SINE ),
+                InstrumentFactory.createOscillator( false, OscillatorTypes.SAW )
             ],
             volume: 1,
             panning: 0, // -1 = left, 0 = center, 1 = right
@@ -53,8 +54,8 @@ const InstrumentFactory =
                 q           : Config.DEFAULT_FILTER_Q,
                 speed       : Config.DEFAULT_FILTER_LFO_SPEED,
                 depth       : Config.DEFAULT_FILTER_LFO_DEPTH,
-                type        : 'lowpass',
-                lfoType     : 'off'
+                type        : "lowpass",
+                lfoType     : "off"
             },
             delay : {
                 enabled  : false,
@@ -93,8 +94,9 @@ const InstrumentFactory =
      * @param {INSTRUMENT} instrument
      */
     createEQ( instrument ) {
-        if ( typeof instrument.eq === 'object' ) return;
-
+        if ( typeof instrument.eq === "object" ) {
+            return;
+        }
         instrument.eq = {
             enabled  : false,
             lowGain  : 1,
@@ -103,15 +105,16 @@ const InstrumentFactory =
         };
     },
     /**
-     * @param {boolean} aEnabled
-     * @param {string} aWaveform
+     * @param {boolean} enabled
+     * @param {string} type
      * @return {INSTRUMENT_OSCILLATOR}
      */
-    createOscillator( aEnabled, aWaveform = 'SAW' ) {
+    createOscillator( enabled, type = OscillatorTypes.SAW ) {
         const oscillator = {
-            enabled     : aEnabled,
-            waveform    : aWaveform,
-            table       : 0, // created when CUSTOM waveform is used
+            enabled     : enabled,
+            waveform    : type,
+            table       : 0,  // created when CUSTOM type is used
+            sample      : "", // created when SAMPLE type is used (is String name)
             volume      : 1,
             detune      : 0,
             octaveShift : 0,
@@ -134,9 +137,9 @@ const InstrumentFactory =
      * @param {INSTRUMENT_OSCILLATOR} oscillator
      */
     createPitchEnvelope( oscillator ) {
-        if ( typeof oscillator.pitch === 'object' )
+        if ( typeof oscillator.pitch === "object" ) {
             return;
-
+        }
         oscillator.pitch = {
             range   : 0,
             attack  : 0,
@@ -153,16 +156,16 @@ const InstrumentFactory =
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array<number>}
      */
-    getTableForOscillator(oscillator, size ) {
+    getTableForOscillator( oscillator, size ) {
         if ( !oscillator.table ) {
-
-            if ( typeof size !== "number" )
+            if ( typeof size !== "number" ) {
                 size = Config.WAVE_TABLE_SIZE;
-
+            }
             oscillator.table = new Array( size );
 
-            while ( size-- )
+            while ( size-- ) {
                 oscillator.table[ size ] = 0;
+            }
         }
         return oscillator.table;
     },

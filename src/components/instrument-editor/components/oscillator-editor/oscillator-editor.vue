@@ -26,7 +26,13 @@
         <div class="oscillator-waveforms">
             <select-box
                 v-model="oscillatorWaveform"
-                :options="waveformOptions"
+                :options="availableWaveforms"
+                class="vertical-middle waveform-select"
+            />
+            <select-box
+                v-if="isSampler"
+                v-model="selectedSampleName"
+                :options="availableSamples"
                 class="vertical-middle waveform-select"
             />
             <toggle-button
@@ -36,8 +42,17 @@
                 sync
             />
         </div>
-        <!-- waveform display -->
-        <div class="canvas-container" ref="canvasContainer"><!-- x --></div>
+        <!-- waveform displays -->
+        <div v-if="isSampler" class="waveform-container">
+            <sample-display :sample="selectedSample" />
+            <button
+                v-t="'editSample'"
+                type="button"
+                class="waveform-container__action-button"
+                @click="openSampleEditor()"
+            ></button>
+        </div>
+        <div v-show="!isSampler" class="waveform-container" ref="canvasContainer"><!-- x --></div>
         <!-- oscillator tuning and volume -->
         <div class="tuning-editor instrument-parameters">
             <h2 v-t="'oscillatorTuning'"></h2>
@@ -138,14 +153,18 @@
     </section>
 </template>
 <script>
-import { mapState }      from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import { canvas }        from "zcanvas";
 import { ToggleButton }  from "vue-js-toggle-button";
 import Config            from "@/config";
+import OscillatorTypes   from "@/definitions/oscillator-types";
+import ModalWindows      from "@/definitions/modal-windows";
 import AudioService      from "@/services/audio-service";
 import { enqueueState }  from "@/model/factories/history-state-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
+import SampleFactory     from "@/model/factories/sample-factory";
 import SelectBox         from "@/components/forms/select-box";
+import SampleDisplay     from "@/components/sample-display/sample-display";
 import { clone }         from "@/utils/object-util";
 import WaveTableDraw     from "../wave-table-draw";
 import messages          from "./messages.json";
@@ -155,6 +174,7 @@ const TUNING_PROPERTIES = [ "detune", "octaveShift", "fineShift" ];
 export default {
     i18n: { messages },
     components: {
+        SampleDisplay,
         SelectBox,
         ToggleButton,
     },
@@ -181,6 +201,9 @@ export default {
         ...mapState([
             "windowSize",
         ]),
+        ...mapGetters([
+            "samples",
+        ]),
         oscillator() {
             return this.instrumentRef.oscillators[ this.oscillatorIndex ];
         },
@@ -191,7 +214,12 @@ export default {
         },
         oscillatorWaveform: {
             get() { return this.oscillator.waveform; },
-            set( value ) { this.update( "waveform", value ); }
+            set( value ) {
+                this.update( "waveform", value );
+                if ( value === OscillatorTypes.SAMPLE && !this.oscillator.sample ) {
+                    this.selectedSampleName = this.samples?.length ? this.samples[ 0 ].name : "";
+                }
+            }
         },
         oscillatorVolume: {
             get() { return this.oscillator.volume; },
@@ -248,16 +276,41 @@ export default {
             get() { return this.oscillator.pitch.release; },
             set( value ) { this.update( "pitch", { ...this.oscillator.pitch, release: value }); }
         },
-        waveformOptions() {
+        availableWaveforms() {
             return [
-                { label: this.$t( "sawtooth" ), value: "SAW" },
-                { label: this.$t( "sine" ),     value: "SINE" },
-                { label: this.$t( "triangle" ), value: "TRIANGLE" },
-                { label: this.$t( "square" ),   value: "SQUARE" },
-                { label: this.$t( "pwm" ),      value: "PWM" },
-                { label: this.$t( "noise" ),    value: "NOISE" },
-                { label: this.$t( "custom" ),   value: "CUSTOM" },
+                { label: this.$t( "sawtooth" ), value: OscillatorTypes.SAW },
+                { label: this.$t( "sine" ),     value: OscillatorTypes.SINE },
+                { label: this.$t( "triangle" ), value: OscillatorTypes.TRIANGLE },
+                { label: this.$t( "square" ),   value: OscillatorTypes.SQUARE },
+                { label: this.$t( "pwm" ),      value: OscillatorTypes.PWM },
+                { label: this.$t( "noise" ),    value: OscillatorTypes.NOISE },
+                { label: this.$t( "custom" ),   value: OscillatorTypes.CUSTOM },
+                { label: this.$t( "sample" ),   value: OscillatorTypes.SAMPLE }
             ];
+        },
+        isSampler() {
+            return this.oscillator.waveform === OscillatorTypes.SAMPLE;
+        },
+        availableSamples() {
+            return this.samples.map(({ name }) => ({ label: name, value: name }));
+        },
+        selectedSampleName: {
+            get() {
+                return this.oscillator.sample;
+            },
+            set( name ) {
+                this.update( "sample", name );
+            }
+        },
+        selectedSample() {
+            const sample = this.samples.find(({ name }) => name === this.selectedSampleName );
+            if ( !sample ) {
+                return null;
+            }
+            return {
+                ...sample,
+                buffer: SampleFactory.getBuffer( sample, AudioService.getAudioContext() )
+            };
         }
     },
     watch: {
@@ -300,6 +353,10 @@ export default {
         this.canvas.dispose();
     },
     methods: {
+        ...mapMutations([
+            "openModal",
+            "setCurrentSample",
+        ]),
         update( prop, value ) {
             const store     = this.$store;
             const component = this;
@@ -362,7 +419,7 @@ export default {
             const commit = () => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
                 oscillator.table    = table;
-                oscillator.waveform = "CUSTOM";
+                oscillator.waveform = OscillatorTypes.CUSTOM;
                 AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
             };
             commit();
@@ -370,8 +427,8 @@ export default {
             // when drawing, force the oscillator type to transition to custom
             // and activate the oscillator (to make changes instantly audible)
 
-            if ( this.oscillator.waveform !== "CUSTOM" ) {
-                this.update( "waveform", "CUSTOM" );
+            if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
+                this.update( "waveform", OscillatorTypes.CUSTOM );
             } else {
                 if ( !this.oscillator.enabled ) {
                     this.update( "enabled", true );
@@ -397,7 +454,7 @@ export default {
         // render the current oscillators waveform into the WaveTableDraw renderer
         // (is a zCanvas sprite and not part of the Vue component render cycle)
         renderWaveform() {
-            if ( this.oscillator.waveform !== "CUSTOM" ) {
+            if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
                 this.wtDraw.generateAndSetTable( this.oscillator.waveform );
             } else {
                 // note we use a clone as the table references can be updated
@@ -408,6 +465,13 @@ export default {
         // propagate the changes to the AudioService
         cacheOscillator() {
             AudioService.updateOscillator( "waveform", this.instrumentIndex, this.oscillatorIndex, this.oscillator );
+        },
+        openSampleEditor() {
+            const name = this.oscillator.sample;
+            if ( name ) {
+                this.setCurrentSample( this.samples.find( sample => sample.name === name ));
+            }
+            this.openModal( ModalWindows.SAMPLE_EDITOR );
         },
         invalidate() {
             this.$emit( "invalidate" );
@@ -441,6 +505,7 @@ export default {
 
 .waveform-select {
     width: 178px;
+    margin-right: $spacing-small;
 }
 
 .waveform-enable {
@@ -448,12 +513,19 @@ export default {
     margin-top: $spacing-xsmall;
 }
 
-.canvas-container {
+.waveform-container {
+    position: relative;
     margin: $spacing-xsmall 0 $spacing-medium;
 
     canvas {
         border-radius: $spacing-small;
         border: 4px solid #666;
+    }
+
+    &__action-button {
+        position: absolute;
+        right: 0;
+        bottom: $spacing-medium;
     }
 }
 

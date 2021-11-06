@@ -20,8 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
-import Config     from "@/config";
+import { sprite }      from "zcanvas";
+import Config          from "@/config";
+import OscillatorTypes from "@/definitions/oscillator-types";
 
 // create the WaveTableDraw prototype as an extension of zSprite
 
@@ -71,7 +72,7 @@ class WaveTableDraw extends sprite
               table = new Array( size ),
               // all waveforms have their peak halfway through their cycle
               // expect for PWM (Pulse Width Modulation)
-              m     = Math.round(( aType === 'PWM' ) ? size / 3 : size / 2 );
+              m     = Math.round(( aType === OscillatorTypes.PWM ) ? size / 3 : size / 2 );
 
         let phase = 0;
         const phaseIncrement = ( 1 / size );
@@ -79,17 +80,17 @@ class WaveTableDraw extends sprite
         // generate waveform for value range -1 to +1
         switch ( aType )
         {
-            case 'SINE':
+            case OscillatorTypes.SINE:
                 for ( let i = 0; i < size; ++i )
                     table[ i ] = (( 180.0 - Math.sin( i * Math.PI / 180 ) * 180 ) / 180 ) - 1;
                 break;
 
-            case 'TRIANGLE':
+            case OscillatorTypes.TRIANGLE:
                 for ( let i = 0; i < size; ++i )
                     table[ i ] = ( m - Math.abs( i % ( 2 * m ) - m )) * ( 1 / ( m / 2 ) ) - 1;
                 break;
 
-            case 'SAW':
+            case OscillatorTypes.SAW:
                 for ( let i = 0; i < size; ++i ) {
                     table[ i ]  = ( phase < 0 ) ? phase - Math.round( phase - 1 ) : phase - Math.round( phase );
                     table[ i ] *= ( 1 / ( m / 2 )) - 2;
@@ -97,15 +98,16 @@ class WaveTableDraw extends sprite
                 }
                 break;
 
-            case 'SQUARE':
-            case 'PWM':
+            case OscillatorTypes.SQUARE:
+            case OscillatorTypes.PWM:
                 for ( let i = 0; i < size; ++i )
                     table[ i ] = ( i < m ) ? -1 : 1;
                 break;
 
-            case 'NOISE':
-                for ( let i = 0; i < size; ++i )
+            case OscillatorTypes.NOISE:
+                for ( let i = 0; i < size; ++i ) {
                     table[ i ] = Math.random() * 2 - 1;
+                }
                 break;
         }
         this.setTable( table );

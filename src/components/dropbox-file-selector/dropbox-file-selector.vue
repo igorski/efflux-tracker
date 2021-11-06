@@ -242,14 +242,26 @@ export default {
                     sessionStorage.setItem( LAST_DROPBOX_FOLDER, JSON.stringify({ path: node.path, tree: this.tree }));
                     break;
                 case "xtk":
-                    const blob = await downloadFileAsBlob( node.path );
-                    this.loadSong({ file: blob, origin: "dropbox" });
+                    this.setLoading( "dbi" );
+                    try {
+                        const blob = await downloadFileAsBlob( node.path );
+                        this.loadSong({ file: blob, origin: "dropbox" });
+                    } catch {
+                        this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
+                    }
+                    this.unsetLoading( "dbi" );
                     this.closeModal();
                     break;
                 case "file":
-                    // TODO: loader, error handling and background load (for bulk selection)
-                    const sampleBlob = await downloadFileAsBlob( node.path );
-                    const buffer = await loadSample( sampleBlob, getAudioContext() );
+                    this.setLoading( "dbd" );
+                    let buffer;
+                    try {
+                        const sampleBlob = await downloadFileAsBlob( node.path );
+                        buffer = await loadSample( sampleBlob, getAudioContext() );
+                    } catch {
+                        this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
+                    }
+                    this.unsetLoading( "dbd" );
                     if ( buffer ) {
                         const sample = SampleFactory.fromBuffer( buffer, node.name );
                         this.addSample( sample );

@@ -147,7 +147,8 @@ export default {
             mp,
             ...getPitchByFrequency(f) // TODO: we can also supply note and octave directly?
         };
-        noteOn(event, activeSong.instruments[i], t);
+        // TODO: no sample playback in tiny player
+        noteOn(event, activeSong.instruments[i], new Map(), t);
         return event;
     },
     /**

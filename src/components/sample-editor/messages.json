@@ -12,7 +12,6 @@
         "saveChanges": "Save changes",
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",
-        "done": "Done",
         "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}"
     }
 }

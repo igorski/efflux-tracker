@@ -1,4 +1,5 @@
-import ADSR from '@/services/audio/adsr-module';
+import OscillatorTypes from "@/definitions/oscillator-types";
+import ADSR from "@/services/audio/adsr-module";
 
 describe( 'ADSR', () => {
     // mock AudioGainNode
@@ -22,10 +23,10 @@ describe( 'ADSR', () => {
                 release: 0
             }
         };
-        const WAVEFORMS  = [ 'SAW', 'SQUARE', 'NOISE', 'CUSTOM' ];
-
+        const WAVEFORMS = [
+            OscillatorTypes.SAW, OscillatorTypes.SQUARE, OscillatorTypes.NOISE, OscillatorTypes.CUSTOM
+        ];
         WAVEFORMS.forEach(( waveform ) => {
-
             oscillator.waveform = waveform;
 
             const startTime    = 2;
@@ -45,7 +46,7 @@ describe( 'ADSR', () => {
                 release: 0
             }
         };
-        const WAVEFORMS  = [ 'SINE', 'TRIANGLE' ];
+        const WAVEFORMS = [ OscillatorTypes.SINE, OscillatorTypes.TRIANGLE ];
 
         WAVEFORMS.forEach(( waveform ) => {
 
@@ -69,7 +70,10 @@ describe( 'ADSR', () => {
             }
         };
         // all waveforms are now treated equally
-        const WAVEFORMS  = [ 'SAW', 'SQUARE', 'NOISE', 'CUSTOM', 'SINE', 'TRIANGLE' ];
+        const WAVEFORMS = [
+            OscillatorTypes.SAW, OscillatorTypes.SQUARE, OscillatorTypes.NOISE, OscillatorTypes.CUSTOM,
+            OscillatorTypes.SINE, OscillatorTypes.TRIANGLE
+        ];
 
         WAVEFORMS.forEach(( waveform ) => {
 
@@ -94,8 +98,9 @@ describe( 'ADSR', () => {
                 release: 0
             }
         };
-        const WAVEFORMS  = [ 'SAW', 'SQUARE', 'NOISE', 'CUSTOM' ];
-
+        const WAVEFORMS = [
+            OscillatorTypes.SAW, OscillatorTypes.SQUARE, OscillatorTypes.NOISE, OscillatorTypes.CUSTOM
+        ];
         WAVEFORMS.forEach(( waveform ) => {
 
             oscillator.waveform = waveform;
@@ -117,7 +122,7 @@ describe( 'ADSR', () => {
                 release: 0
             }
         };
-        const WAVEFORMS  = [ 'SINE', 'TRIANGLE' ];
+        const WAVEFORMS = [ OscillatorTypes.SINE, OscillatorTypes.TRIANGLE ];
 
         WAVEFORMS.forEach(( waveform ) => {
 
@@ -141,8 +146,10 @@ describe( 'ADSR', () => {
             }
         };
         // all waveforms are now treated equally
-        const WAVEFORMS  = [ 'SAW', 'SQUARE', 'NOISE', 'CUSTOM', 'SINE', 'TRIANGLE' ];
-
+        const WAVEFORMS = [
+            OscillatorTypes.SAW, OscillatorTypes.SQUARE, OscillatorTypes.NOISE,
+            OscillatorTypes.CUSTOM, OscillatorTypes.SINE, OscillatorTypes.TRIANGLE
+        ];
         WAVEFORMS.forEach(( waveform ) => {
 
             oscillator.waveform = waveform;
@@ -155,4 +162,3 @@ describe( 'ADSR', () => {
         });
     });
 });
-

@@ -26,39 +26,87 @@ describe( "Vuex song module", () => {
     describe( "getters", () => {
         it( "should be able to retrieve all the songs", () => {
             const state = { songs: [] };
-            expect(getters.songs(state)).toEqual(state.songs);
+            expect( getters.songs( state )).toEqual( state.songs );
         });
 
         it( "should be able to retrieve the active song", () => {
             const state = { activeSong: {} };
-            expect(getters.activeSong(state)).toEqual(state.activeSong);
+            expect( getters.activeSong( state )).toEqual( state.activeSong );
+        });
+
+        it( "should be able to retrieve all registered samples within the active song", () => {
+            const state = {
+                activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ] }
+            };
+            expect( getters.samples( state )).toEqual( state.activeSong.samples );
         });
 
         it( "should be able to retrieve individual songs by their id", async () => {
             const song = await actions.createSong();
             const state = { songs: [ song ] };
-            const retrieved = getters.getSongById(state)(song.id);
-            expect(song).toEqual(retrieved);
+            const retrieved = getters.getSongById( state )( song.id );
+            expect( song ).toEqual( retrieved );
         });
     });
 
     describe( "mutations", () => {
         it( "should be able to toggle the song save message state", () => {
             const state = { showSaveMessage: false };
-            mutations.setShowSaveMessage(state, true);
-            expect(state.showSaveMessage).toBe(true);
-        })
+            mutations.setShowSaveMessage( state, true );
+            expect( state.showSaveMessage ).toBe( true );
+        });
+
+        it( "should be able to set the samples", () => {
+            const state = { activeSong: { samples: [] } };
+            const samples = [{ name: "foo" }, { name: "bar" }, { name: "baz" } ];
+            mutations.setSamples( state, samples );
+            expect( state.activeSong.samples ).toEqual( samples );
+        });
+
+        it( "should be able to add a sample to the existing list", () => {
+            const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ] } };
+            const sample = { name: "qux" };
+            mutations.addSample( state, sample );
+            expect( state.activeSong.samples ).toEqual(
+                [{ name: "foo" }, { name: "bar" }, { name: "baz" }, { name: "qux" } ]
+            );
+        });
+
+        it( "should be able to flush all currently registered samples", () => {
+            const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ]} };
+            mutations.flushSamples( state );
+            expect( state.activeSong.samples ).toEqual( [] );
+        });
+
+        it( "should be able to update a registered sample of the same name as the given sample", () => {
+            const state = {
+                activeSong: {
+                    samples: [
+                        { name: "foo", bar: "baz" },
+                        { name: "qux", quux: "quuz" },
+                        { name: "corge", grault: "garply" }
+                    ]
+                }
+            };
+            mutations.updateSample(state, { name: "qux", quux: "waldo" });
+            expect( state.activeSong.samples ).toEqual([
+                { name: "foo", bar: "baz" }, { name: "qux", quux: "waldo" }, { name: "corge", grault: "garply" }
+            ]);
+        });
     });
 
     describe( "actions", () => {
         it( "should be able to open a song", () => {
-            const song = { name: "awesomeTune" };
+            const song = { name: "awesomeTune", samples: [{ foo: "bar" }] };
             const commit = jest.fn();
+            const dispatch = jest.fn();
 
-            actions.openSong({ commit }, song );
+            actions.openSong({ commit, dispatch }, song );
 
-            expect( commit ).toHaveBeenNthCalledWith( 1, "flushSamples" );
-            expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveSong", song );
+            expect( commit ).toHaveBeenNthCalledWith( 1, "setActiveSong", song );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "flushSamples" );
+            expect( commit ).toHaveBeenNthCalledWith( 3, "setSamples", song.samples );
+            expect( dispatch ).toHaveBeenNthCalledWith( 1, "cacheSongSamples", song.samples );
         });
 
         it( "should be able to create songs", async () => {

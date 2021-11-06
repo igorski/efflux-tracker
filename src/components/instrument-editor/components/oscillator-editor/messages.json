@@ -1,23 +1,25 @@
 {
-  "en-US": {
-    "oscillatorTuning": "Oscillator tuning",
-    "detuneLabel": "Detune",
-    "octaveShiftLabel": "Octave shift",
-    "fineShiftLabel": "Fine shift",
-    "volumeLabel": "Volume",
-    "amplitudeEnvelope": "Amplitude envelope",
-    "pitchEnvelope": "Pitch envelope",
-    "attack": "Attack",
-    "decay": "Decay",
-    "sustain": "Sustain",
-    "release": "Release",
-    "range": "Range",
-    "custom": "Custom",
-    "sine": "Sine",
-    "square": "Square",
-    "sawtooth": "Sawtooth",
-    "triangle": "Triangle",
-    "pwm": "PWM",
-    "noise": "Noise"
-  }
+    "en-US": {
+        "oscillatorTuning": "Oscillator tuning",
+        "detuneLabel": "Detune",
+        "octaveShiftLabel": "Octave shift",
+        "fineShiftLabel": "Fine shift",
+        "volumeLabel": "Volume",
+        "amplitudeEnvelope": "Amplitude envelope",
+        "pitchEnvelope": "Pitch envelope",
+        "attack": "Attack",
+        "decay": "Decay",
+        "sustain": "Sustain",
+        "release": "Release",
+        "range": "Range",
+        "custom": "Custom",
+        "sine": "Sine",
+        "square": "Square",
+        "sawtooth": "Sawtooth",
+        "triangle": "Triangle",
+        "pwm": "PWM",
+        "noise": "Noise",
+        "sample": "Sample",
+        "editSample": "Edit sample"
+    }
 }

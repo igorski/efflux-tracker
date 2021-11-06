@@ -104,17 +104,17 @@ export default
         /**
          * shows a dialog window stating an Error has occurred.
          */
-        showError(state, message) {
-            state.dialog = { type: "error", title: translate("title.error"), message };
+        showError( state, message ) {
+            state.dialog = { type: "error", title: translate( "title.error" ), message };
         },
         /**
          * shows a notification containing given title and message.
          * multiple notifications can be stacked.
          */
-        showNotification(state, { message = "", title = null }) {
-            state.notifications.push({ title: title || translate("title.success"), message });
+        showNotification( state, { message = "", title = null }) {
+            state.notifications.push({ title: title || translate( "title.success" ), message });
         },
-        clearNotifications(state) {
+        clearNotifications( state ) {
             state.notifications = [];
         },
         /**

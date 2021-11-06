@@ -20,7 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default {
+import AudioService from "@/services/audio-service";
+import { sliceBuffer } from "@/utils/sample-util";
+
+const SampleFactory = {
     /**
      * Wraps an AudioBuffer into a sample Object
      * which can be serialized into a Song.
@@ -33,5 +36,69 @@ export default {
             rangeEnd: buffer.duration,
             pitch: null // @see sample-editor
         };
+    },
+
+    /**
+     * Retrieves the appropriate buffer for playback of the sample.
+     * In case the sample has a custom playback range, a new AudioBuffer
+     * will be sliced. For repeated playback this should be cached and
+     * invalidated when appropriate.
+     *
+     * @param {Object} sample
+     * @param {AudioContext} audioContext
+     * @returns {AudioBuffer}
+     */
+    getBuffer( sample, audioContext ) {
+        if ( sample.rangeStart === 0 && sample.rangeEnd === sample.buffer.duration ) {
+            return sample.buffer;
+        }
+        return sliceBuffer( audioContext, sample.buffer, sample.rangeStart, sample.rangeEnd );
+    },
+
+    disassemble( sample ) {
+        // TODO : this is very brute force but should be safe (Float32 is JS Number resolution
+        // as serializable into JSON). These structures can get very big quickly though.
+        // this is stupid. serialize the sample file instead.
+        const { sampleRate, numberOfChannels, length } = sample.buffer;
+        const channels = [];
+        for ( let c = 0; c < numberOfChannels; ++c ) {
+            const channel = [];
+            const inChannel = sample.buffer.getChannelData( c ); // Float32Array
+            for ( let i = 0; i < length; ++i ) {
+                channel[ i ] = inChannel[ i ];
+            }
+            channels.push( channel );
+        }
+        return {
+            n: sample.name,
+            s: sample.rangeStart,
+            e: sample.rangeEnd,
+            p: sample.pitch,
+            b: {
+                s: sampleRate,
+                n: numberOfChannels,
+                l: length,
+                c: channels
+            }
+        };
+    },
+
+    assemble( xtkSample ) {
+        const buffer = AudioService.getAudioContext().createBuffer( xtkSample.b.n, xtkSample.b.l, xtkSample.b.s );
+        for ( let c = 0; c < xtkSample.b.c.length; ++c ) {
+            const inChannel = xtkSample.b.c[ c ];
+            const outBuffer = buffer.getChannelData( c );
+            for ( let i = 0, l = inChannel.length; i < l; ++i ) {
+                outBuffer[ i ] = inChannel[ i ];
+            }
+        }
+        const sample = SampleFactory.fromBuffer( buffer, xtkSample.n );
+
+        sample.rangeStart = xtkSample.s;
+        sample.rangeEnd   = xtkSample.e;
+        sample.pitch      = xtkSample.p;
+
+        return sample;
     }
 };
+export default SampleFactory;

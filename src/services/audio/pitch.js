@@ -111,6 +111,14 @@ export const getPitchByFrequency = frequency => {
     return { note: note.trim(), octave, cents };
 };
 
+/**
+ * Converts the interval between two frequencies (in Hz) as cents
+ * @param {Number} f1 frequency in Hz
+ * @param {Number} f2 frequency in Hz
+ * @returns {Number} delta in cents
+ */
+export const intervalToCents = ( f1, f2 ) => 1200 * Math.log( f2 / f1 ) / Math.log( 2 );
+
 export const createPitchAnalyser = ( outputNode, audioContext ) => {
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;

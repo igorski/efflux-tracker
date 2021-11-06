@@ -59,7 +59,7 @@
                 v-t="'save'"
                 type="button"
                 class="save-button"
-                :disabled="!title.length || !author.length"
+                :disabled="!title.length || !author.length || isSaving"
                 @click="save"
             ></button>
         </div>
@@ -80,6 +80,7 @@ export default {
         title: "",
         author: "",
         saveInDropbox: false,
+        isSaving: false,
     }),
     computed: {
         ...mapState([
@@ -102,6 +103,8 @@ export default {
             "setActiveSongTitle",
             "suspendKeyboardService",
             "showNotification",
+            "setLoading",
+            "unsetLoading"
         ]),
         ...mapActions([
             "saveSongInLS",
@@ -122,19 +125,27 @@ export default {
             this.suspendKeyboardService( false );
         },
         async save() {
+            this.isSaving = true;
             try {
                 this.setActiveSongAuthor( this.author );
                 this.setActiveSongTitle( this.title );
                 await this.validateSong( this.activeSong );
-                if ( this.saveInDropbox ) {
-                    await this.exportSongToDropbox( this.activeSong );
-                } else {
-                    await this.saveSongInLS( this.activeSong );
+                this.setLoading( "save" );
+                try {
+                    if ( this.saveInDropbox ) {
+                        await this.exportSongToDropbox( this.activeSong );
+                    } else {
+                        await this.saveSongInLS( this.activeSong );
+                    }
+                } catch {
+                    // TODO would that occur at this point ?
                 }
+                this.unsetLoading( "save" );
                 this.$emit( "close" );
             } catch ( e ) {
                 // error popup will have been triggered by validator
             }
+            this.isSaving = false;
         },
     },
 }

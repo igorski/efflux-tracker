@@ -57,7 +57,7 @@ function enqueueEvent( store, event, eventChannel ) {
     seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
 
     // play back the event by rendering its audio through the AudioService
-    noteOn( event, activeSong.instruments[ event.instrument ], nextNoteTime);
+    noteOn( event, activeSong.instruments[ event.instrument ], store.getters.sampleCache, nextNoteTime );
 
     // dequeue preceding events
 

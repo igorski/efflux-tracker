@@ -20,33 +20,42 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
+import SampleFactory from "@/model/factories/sample-factory";
+import AudioService from "@/services/audio-service";
 
 export default {
     state: () => ({
-        samples: [],
         currentSampleName: null, // name of sample currently being edited
+        sampleCache: new Map(),  // contains all sample buffers available for playback
     }),
     getters: {
-        samples: state => state.samples,
-        currentSample: state => state.samples.find(({ name }) => name === state.currentSampleName ),
+        currentSample: ( state, getters ) => getters.samples.find(({ name }) => name === state.currentSampleName ),
+        sampleCache: state => state.sampleCache,
+        sampleFromCache: state => name => state.sampleCache.get( name ),
     },
     mutations: {
-        setSamples( state, samples ) {
-            state.samples = samples;
-        },
-        addSample( state, sample ) {
-            state.samples.push( sample );
-        },
-        flushSamples( state ) {
-            state.samples.length = 0;
-        },
         setCurrentSample( state, { name }) {
             state.currentSampleName = name;
         },
-        updateSample( state, sample ) {
-            const index = state.samples.findIndex(({ name }) => name === sample.name );
-            Vue.set( state.samples, index, sample );
+        flushSampleCache( state ) {
+            state.sampleCache.clear();
         },
-    }
+        cacheSample( state, sample ) {
+            state.sampleCache.set( sample.name, {
+                ...sample,
+                buffer: SampleFactory.getBuffer( sample, AudioService.getAudioContext() )
+            });
+        },
+        removeSampleFromCache( state, { name }) {
+            state.sampleCache.delete( name );
+        },
+    },
+    actions: {
+        cacheSongSamples({ commit }, samples = [] ) {
+            commit( "flushSampleCache" );
+            samples.forEach( sample => {
+                commit( "cacheSample", sample );
+            });
+        },
+    },
 };

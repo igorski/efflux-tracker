@@ -33,10 +33,14 @@ self.addEventListener( "message", event => {
         // to be used with .XTK format
         // this works with binary File data
         case "compress":
-            const blob = new Blob([
-                LZString.compressToBase64( JSON.stringify( data ))
-            ], { type: "text/plain;charset=utf-8" });
-            self.postMessage({ cmd: "complete", id, data: blob });
+            try {
+                const blob = new Blob([
+                    LZString.compressToBase64( JSON.stringify( data ))
+                ], { type: "text/plain;charset=utf-8" });
+                self.postMessage({ cmd: "complete", id, data: blob });
+            } catch ( error ) {
+                self.postMessage({ cmd: "loadError", id, error });
+            }
             break;
 
         case "decompress":

@@ -41,47 +41,57 @@ import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-uti
 const SONG_STORAGE_KEY = "Efflux_Song_";
 
 export default {
-    state: {
+    state: () => ({
         songs: [], /** @type {Array<Object>} */
         activeSong: null,
         showSaveMessage: true
-    },
+    }),
     getters: {
-        activeSong(state) {
-            return state.activeSong;
-        },
-        songs(state) {
-            return state.songs;
-        },
+        songs: state => state.songs,
+        activeSong: state => state.activeSong,
+        samples: state => state.activeSong.samples,
         getSongById: state => id => state.songs.find(song => song.id === id) || null
     },
     mutations: {
-        setSongs(state, songs) {
+        setSongs( state, songs ) {
             state.songs = songs;
         },
-        setActiveSong(state, song) {
-            if (song && song.meta && song.patterns) {
+        setActiveSong( state, song ) {
+            if ( song && song.meta && song.patterns ) {
                 // close song as we do not want to modify the original song stored in list
-                state.activeSong = clone(song);
-                resetPlayState(state.activeSong.patterns); // ensures saved song hasn't got 'frozen' events
+                state.activeSong = clone( song );
+                resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got 'frozen' events
             }
         },
-        setActiveSongAuthor(state, author) {
+        setActiveSongAuthor( state, author ) {
             state.activeSong.meta.author = author;
         },
-        setActiveSongTitle(state, title) {
+        setActiveSongTitle( state, title ) {
             state.activeSong.meta.title = title;
         },
-        setTempo(state, value) {
+        setTempo( state, value ) {
             const meta     = state.activeSong.meta;
             const oldTempo = meta.tempo;
-            const newTempo = parseFloat(value);
+            const newTempo = parseFloat( value );
 
             meta.tempo = newTempo;
 
             // update existing event offsets by the tempo ratio
 
             updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
+        },
+        setSamples( state, samples ) {
+            state.activeSong.samples = samples;
+        },
+        addSample( state, sample ) {
+            state.activeSong.samples.push( sample );
+        },
+        flushSamples( state ) {
+            state.activeSong.samples.length = 0;
+        },
+        updateSample( state, sample ) {
+            const index = state.activeSong.samples.findIndex(({ name }) => name === sample.name );
+            Vue.set( state.activeSong.samples, index, sample );
         },
         /**
          * adds given AudioEvent at the currently highlighted position or by optionally defined
@@ -181,9 +191,11 @@ export default {
                 resolve( SongFactory.createSong( Config.INSTRUMENT_AMOUNT ));
             });
         },
-        openSong({ commit }, song ) {
-            commit( "flushSamples" );
+        openSong({ commit, dispatch }, song ) {
             commit( "setActiveSong", song );
+            commit( "flushSamples" );
+            commit( "setSamples", song.samples );
+            dispatch( "cacheSongSamples", song.samples );
         },
         saveSongInLS({ state, getters, commit, dispatch }, song) {
             return new Promise( async ( resolve, reject ) => {

@@ -77,7 +77,12 @@ const StorageUtil =
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
             }
-            resolve( storage.setItem( key, compressedData ));
+            try {
+                resolve( storage.setItem( key, compressedData ));
+            } catch ( e ) {
+                // TODO : catch type and return error (for instance quota exceeded, request larger quotum)
+                reject();
+            }
         });
     },
     /**

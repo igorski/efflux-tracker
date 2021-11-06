@@ -22,6 +22,7 @@
  */
 import Vue                        from "vue";
 import Config                     from "@/config";
+import OscillatorTypes            from "@/definitions/oscillator-types";
 import ModuleFactory              from "@/model/factories/module-factory";
 import { ACTION_NOTE_ON }         from "@/model/types/audio-event-def";
 import { applyRouting }           from "./audio/module-router";
@@ -31,7 +32,7 @@ import { processVoices }          from "./audio/audio-util";
 import ADSR                       from "./audio/adsr-module";
 
 import {
-    tuneToOscillator, tuneBufferPlayback, adjustEventWaveForms,
+    tuneToOscillator, tuneSamplePitch, tuneBufferPlaybackRate, adjustEventWaveForms,
     adjustEventVolume, adjustEventTunings
 } from "@/utils/instrument-util";
 import { saveAsFile } from "@/utils/file-util";
@@ -193,9 +194,10 @@ export const applyModules = ( song, connectAnalysers = false ) => {
  *
  * @param {AUDIO_EVENT} event
  * @param {INSTRUMENT} instrument to playback the event
+ * @param {Map} sampleCache used in the environment
  * @param {number=} startTimeInSeconds optional, defaults to current time
  */
-export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.currentTime ) => {
+export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = audioContext.currentTime ) => {
     if ( event.action === ACTION_NOTE_ON ) {
 
         // here we create a unique event identifier which is used to store a reference to the
@@ -233,66 +235,75 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
 
             // retrieve from pool the envelope gain structure for the oscillator voice
             const oscillatorNodes = retrieveAvailableVoiceNodesFromPool( modules, oscillatorIndex );
-            if (oscillatorNodes === null) {
+            if ( oscillatorNodes === null ) {
                 // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.index}`);
                 return;
             }
             const { oscillatorNode, adsrNode } = oscillatorNodes;
             let generatorNode;
 
-            if ( oscillatorVO.waveform === "NOISE" ) {
-                // buffer source ? assign it to the oscillator
-                generatorNode = audioContext.createBufferSource();
-                generatorNode.buffer = pool.NOISE;
-                generatorNode.loop = true;
-                generatorNode.playbackRate.value = tuneBufferPlayback(voice);
-            }
-            else {
-                // has oscillator source
-                if ( oscillatorVO.waveform === "PWM" ) {
-                    // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
-                    generatorNode = createPWM(
-                        audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
-                    );
-                }
-                else {
-                    // all other waveforms have WaveTables which are defined in the pools
+            switch ( oscillatorVO.waveform ) {
+                default:
+                    if ( oscillatorVO.waveform === OscillatorTypes.PWM ) {
+                        // PWM uses a custom Oscillator type which connects its structure directly to the oscillatorNode
+                        generatorNode = createPWM(
+                            audioContext, startTimeInSeconds, startTimeInSeconds + 2, oscillatorNode
+                        );
+                    } else {
+                        // all other waveforms have WaveTables which are defined in the pools
+                        generatorNode = audioContext.createOscillator();
+                        let table;
 
-                    generatorNode = audioContext.createOscillator();
-                    let table;
+                        if ( oscillatorVO.waveform !== OscillatorTypes.CUSTOM ) {
+                            table = pool[ oscillatorVO.waveform ];
+                        } else {
+                            table = pool.CUSTOM[ instrument.index ][ oscillatorIndex ];
+                        }
+                        if ( !table ) {
+                            return; // no table ? that's a bit of a problem. what did you break!?
+                        }
+                        generatorNode.setPeriodicWave( table );
+                    }
+                    // tune event frequency to oscillator tuning and apply pitch envelopes
+                    generatorNode.frequency.value = tuneToOscillator( frequency, voice );
+                    break;
 
-                    if (oscillatorVO.waveform !== "CUSTOM")
-                        table = pool[oscillatorVO.waveform];
-                    else
-                        table = pool.CUSTOM[ instrument.index ][ oscillatorIndex ];
+                case OscillatorTypes.SAMPLE:
+                    const sample = sampleCache.get( voice.sample );
+                    if ( !sample ) return;
+                    generatorNode = audioContext.createBufferSource();
+                    generatorNode.buffer = sample.buffer;
+                    generatorNode.loop = true;
+                    tuneSamplePitch( generatorNode, frequency, sample, voice );
+                    break;
 
-                    if ( !table ) // no table ? that"s a bit of a problem. what did you break!?
-                        return;
-
-                    generatorNode.setPeriodicWave( table );
-                }
-                // tune event frequency to oscillator tuning and apply pitch envelopes
-                generatorNode.frequency.value = tuneToOscillator(frequency, voice);
+                case OscillatorTypes.NOISE:
+                    // buffer source ? assign it to the oscillator
+                    generatorNode = audioContext.createBufferSource();
+                    generatorNode.buffer = pool.NOISE;
+                    generatorNode.loop = true;
+                    tuneBufferPlaybackRate( generatorNode, voice );
+                    break;
             }
 
             // apply envelopes
 
-            setValue(oscillatorNode.gain, oscillatorVO.volume, audioContext);
-            setValue(adsrNode.gain, 1, audioContext);
+            setValue( oscillatorNode.gain, oscillatorVO.volume, audioContext );
+            setValue( adsrNode.gain, 1, audioContext );
 
-            ADSR.applyAmpEnvelope  (oscillatorVO, adsrNode,      startTimeInSeconds);
-            ADSR.applyPitchEnvelope(oscillatorVO, generatorNode, startTimeInSeconds);
+            ADSR.applyAmpEnvelope  ( oscillatorVO, adsrNode,      startTimeInSeconds );
+            ADSR.applyPitchEnvelope( oscillatorVO, generatorNode, startTimeInSeconds );
 
             // route oscillator to track gain > envelope gain > instrument gain
 
-            if ( oscillatorVO.waveform !== "PWM" )
-                generatorNode.connect(oscillatorNode);
-
+            if ( oscillatorVO.waveform !== OscillatorTypes.PWM ) {
+                generatorNode.connect( oscillatorNode );
+            }
             // start playback
 
-            startOscillation(generatorNode, startTimeInSeconds);
+            startOscillation( generatorNode, startTimeInSeconds );
 
-            voices[oscillatorIndex] = /** @type {EVENT_VOICE} */ ({
+            voices[ oscillatorIndex ] = /** @type {EVENT_VOICE} */ ({
                 generator: generatorNode,
                 vo: oscillatorVO,
                 frequency: frequency,
@@ -305,13 +316,13 @@ export const noteOn = ( event, instrument, startTimeInSeconds = audioContext.cur
     }
     // module parameter change specified ? process it.
 
-    if (event.mp) {
+    if ( event.mp ) {
         applyModuleParamChange(
             audioContext,
             event,
             instrumentModulesList[ instrument.index ],
             instrument,
-            Object.values(instrumentEventsList[ instrument.index ]),
+            Object.values( instrumentEventsList[ instrument.index ]),
             startTimeInSeconds,
             masterBus,
             eventCallback

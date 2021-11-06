@@ -32,6 +32,7 @@
                 <select-box
                     v-model="selectedSample"
                     :options="availableSamples"
+                    class="sample-select"
                 />
             </div>
             <hr class="divider" />
@@ -45,14 +46,14 @@
             </div>
             <hr class="divider section-divider" />
             <div class="waveform-display">
-                <canvas
+                <sample-display
+                    :sample="sample"
                     ref="waveformDisplay"
-                    class="waveform-display__canvas"
                     @mousedown="handleDragStart"
                     @mouseup="handleDragEnd"
                     @mouseout="handleDragEnd"
                     @mousemove="handleDragMove"
-                ></canvas>
+                />
                 <div
                     class="waveform-display__range"
                     :style="rangeStyle"
@@ -122,10 +123,11 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader";
+import SampleDisplay from "@/components/sample-display/sample-display";
 import SelectBox from "@/components/forms/select-box";
 import { getAudioContext } from "@/services/audio-service";
 import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch";
-import { bufferToWaveForm, sliceBuffer } from "@/utils/sample-util";
+import { sliceBuffer } from "@/utils/sample-util";
 
 import messages from "./messages.json";
 
@@ -135,6 +137,7 @@ export default {
     i18n: { messages },
     components: {
         FileLoader,
+        SampleDisplay,
         SelectBox,
     },
     data: () => ({
@@ -182,7 +185,7 @@ export default {
     watch: {
         currentSample: {
             immediate: true,
-            async handler( value, oldValue ) {
+            handler( value, oldValue ) {
                 if ( !oldValue || value.name !== oldValue.name ) {
                     this.sample = value;
                     this.stopPlayback();
@@ -190,14 +193,10 @@ export default {
                     if ( !value ) {
                         return;
                     }
-
                     // convert ranges to percentile (for range controls)
                     const ratio = 100 / value.buffer.duration;
                     this.sampleStart = value.rangeStart * ratio;
-                    this.sampleEnd   = value.rangeEnd   * ratio;
-
-                    await this.$nextTick();
-                    this.drawWaveForm( value.buffer );
+                    this.sampleEnd   = value.rangeEnd * ratio;
                 }
             }
         },
@@ -224,28 +223,21 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "cacheSample",
+            "closeDialog",
             "openDialog",
             "setBlindActive",
             "setCurrentSample",
+            "showNotification",
             "updateSample",
         ]),
-        drawWaveForm( buffer ) {
-            const canvas = this.$refs.waveformDisplay;
-            const ctx    = canvas.getContext( "2d" );
-            ctx.imageSmoothingEnabled = false;
-
-            const { width, height } = canvas;
-
-            ctx.clearRect( 0, 0, width, height );
-            ctx.drawImage( bufferToWaveForm( buffer, 720, 200 ), 0, 0, width, height );
-        },
         /* sample auditioning */
         startPlayback( muted = false ) {
             if ( this.playbackNode ) {
                 this.stopPlayback();
             }
-            this.playbackNode         = getAudioContext().createBufferSource();
-            this.playbackNode.buffer  = sliceBuffer(
+            this.playbackNode = getAudioContext().createBufferSource();
+            this.playbackNode.buffer = sliceBuffer(
                 getAudioContext(), this.sample.buffer,
                 rangeToPosition( this.sampleStart, this.sample.buffer.duration ),
                 rangeToPosition( this.sampleEnd,   this.sample.buffer.duration )
@@ -297,23 +289,24 @@ export default {
                 // get the most occurring frequency from the signal
                 // TODO: should we round the frequencies here ?
                 const mode = arr => arr.sort(( a, b ) =>
-                      arr.filter( v => v === a ).length
-                    - arr.filter( v => v === b ).length
+                      arr.filter( v => v === a ).length -
+                      arr.filter( v => v === b ).length
                 ).pop();
 
                 const frequency = mode( this.pitches );
                 const { note, octave, cents } = getPitchByFrequency( frequency );
                 this.pitches.length = 0;
 
-                this.updateSample({
+                const sample = {
                     ...this.sample,
                     pitch : { frequency, note, octave, cents },
                     rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
                     rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
-                });
-
-                this.openDialog({
-                    title   : this.$t( "done" ),
+                };
+                this.updateSample( sample );
+                this.cacheSample( sample );
+                this.closeDialog();
+                this.showNotification({
                     message : this.$t( "savedDominantPitch", { note, octave } )
                 });
             }, 2000 );
@@ -329,7 +322,7 @@ export default {
         handleDragStart({ offsetX }) {
             this.isDragging = true;
 
-            const waveformBounds = this.$refs.waveformDisplay.getBoundingClientRect();
+            const waveformBounds = this.$refs.waveformDisplay.$el.getBoundingClientRect();
 
             this.dragWidth    = waveformBounds.width;
             this.dragRatio    = this.dragWidth / 100;
@@ -414,6 +407,10 @@ $height: 430px;
     }
 }
 
+.sample-select {
+    width: 180px;
+}
+
 .transport-controls {
     display: inline-block;
     padding: $spacing-xsmall 0 0 $spacing-medium;
@@ -459,13 +456,6 @@ $height: 430px;
 .waveform-display {
     position: relative;
     width: 100%;
-
-    &__canvas {
-        width: 100%;
-        height: 200px;
-        cursor: grab;
-        background-color: $color-2;
-    }
 
     &__range {
         @include noEvents();

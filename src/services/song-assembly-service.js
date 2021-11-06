@@ -20,14 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import EventUtil         from "@/utils/event-util";
+import OscillatorTypes   from "@/definitions/oscillator-types";
 import SongValidator     from "@/model/validators/song-validator";
 import InstrumentFactory from "@/model/factories/instrument-factory";
+import SampleFactory     from "@/model/factories/sample-factory";
 import WaveTables        from "./audio/wave-tables";
+import EventUtil         from "@/utils/event-util";
 
 /* private properties */
 
-const ASSEMBLER_VERSION = 5;
+const ASSEMBLER_VERSION = 6;
 
 /**
  * assembles a song Object from an .XTK file
@@ -53,6 +55,8 @@ export const assemble = xtk => {
             assembleMeta       ( song, xtkVersion, xtk[ META_OBJECT ] );
             assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
             assemblePatterns   ( song, xtkVersion, xtk, song.meta.tempo );
+
+            song.samples = ( xtk[ SAMPLES ] || [] ).map( SampleFactory.assemble );
 
             // perform transformation on legacy songs
             SongValidator.transformLegacy( song );
@@ -94,6 +98,8 @@ export default
         disassembleMeta       ( xtk, song.meta );
         disassembleInstruments( xtk, song.instruments );
         disassemblePatterns   ( xtk, song.patterns );
+
+        xtk[ SAMPLES ] = song.samples.map( SampleFactory.disassemble );
 
         return JSON.stringify( xtk );
     }
@@ -149,6 +155,8 @@ const ASSEMBLER_VERSION_CODE = "av",
       INSTRUMENT_OD_DRIVE         = "d",
       WAVE_TABLES                 = "wt",
 
+      SAMPLES = "smp",
+
       INSTRUMENT_OSCILLATORS  = "o",
       OSCILLATOR_ENABLED      = "e",
       OSCILLATOR_ADSR         = "a",
@@ -164,6 +172,7 @@ const ASSEMBLER_VERSION_CODE = "av",
       OSCILLATOR_OCTAVE_SHIFT = "o",
       OSCILLATOR_VOLUME       = "v",
       OSCILLATOR_WAVEFORM     = "w",
+      OSCILLATOR_SAMPLE       = "ws",
       OSCILLATOR_TABLE        = "t",
 
       PATTERNS         = "p",
@@ -284,6 +293,7 @@ function assembleInstruments( song, savedXtkVersion, xtkInstruments ) {
                 octaveShift : xtkOscillator[ OSCILLATOR_OCTAVE_SHIFT ],
                 volume      : xtkOscillator[ OSCILLATOR_VOLUME ],
                 waveform    : xtkOscillator[ OSCILLATOR_WAVEFORM ],
+                sample      : xtkOscillator[ OSCILLATOR_SAMPLE ] || "", // added in version 6
                 table       : xtkOscillator[ OSCILLATOR_TABLE ]
             };
 
@@ -389,13 +399,14 @@ function disassembleInstruments( xtk, instruments ) {
             xtkPitchADSR[ OSCILLATOR_ADSR_SUSTAIN ] = oscillator.pitch.sustain;
             xtkPitchADSR[ OSCILLATOR_ADSR_RELEASE ] = oscillator.pitch.release;
 
-            // oscillator tuning
+            // oscillator properties
 
             xtkOscillator[ OSCILLATOR_DETUNE       ] = oscillator.detune;
             xtkOscillator[ OSCILLATOR_FINESHIFT    ] = oscillator.fineShift;
             xtkOscillator[ OSCILLATOR_OCTAVE_SHIFT ] = oscillator.octaveShift;
             xtkOscillator[ OSCILLATOR_VOLUME       ] = oscillator.volume;
             xtkOscillator[ OSCILLATOR_WAVEFORM     ] = oscillator.waveform;
+            xtkOscillator[ OSCILLATOR_SAMPLE       ] = oscillator.sample;
             xtkOscillator[ OSCILLATOR_TABLE        ] = oscillator.table;
 
             // serialize the non-custom waveform and noise tables into the song
@@ -404,7 +415,8 @@ function disassembleInstruments( xtk, instruments ) {
 
             const waveform = oscillator.waveform;
 
-            if ( ![ "CUSTOM", "NOISE" ].includes( waveform ) && !Object.prototype.hasOwnProperty.call( xtkWaveforms, waveform )) {
+            if ( ![ OscillatorTypes.CUSTOM, OscillatorTypes.NOISE ].includes( waveform ) &&
+                 !Object.prototype.hasOwnProperty.call( xtkWaveforms, waveform )) {
                 xtkWaveforms[ waveform ] = WaveTables[ waveform ] || {};
             }
         });

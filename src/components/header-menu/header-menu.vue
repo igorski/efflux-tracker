@@ -223,7 +223,9 @@ export default {
             "openDialog",
             "showError",
             "showNotification",
-            "setPlaying"
+            "setLoading",
+            "setPlaying",
+            "unsetLoading",
         ]),
         ...mapActions([
             "createSong",
@@ -239,7 +241,7 @@ export default {
             this.setHelpTopic("menu");
         },
         handleLoad() {
-            this.openModal(ModalWindows.SONG_BROWSER);
+            this.openModal( ModalWindows.SONG_BROWSER );
         },
         async handleSave( allowInstantSaveWhenSongIsValid = false ) {
             if ( hasContent( this.activeSong )) {
@@ -247,10 +249,10 @@ export default {
                 if ( allowInstantSaveWhenSongIsValid && meta.title && meta.author ) {
                     await this.saveSong( this.activeSong );
                 } else {
-                    this.openModal(ModalWindows.SONG_SAVE_WINDOW);
+                    this.openModal( ModalWindows.SONG_SAVE_WINDOW );
                 }
             } else {
-                this.showError(this.$t("emptySong"));
+                this.showError( this.$t( "emptySong" ));
             }
         },
         handleReset() {
@@ -296,14 +298,20 @@ export default {
                 this.importSong( file ).then(() => this.showNotification({ message: this.$t("songImported") }));
             }, [ PROJECT_FILE_EXTENSION ] );
         },
-        handleSongExport() {
-            this.validateSong(this.activeSong).then(() => {
-                this.exportSong(this.activeSong)
-                    .then(() => this.showNotification({ message: this.$t("songExported", { song: this.activeSong.meta.title }) }))
-                    .catch(error => this.showError( error ));
-            }).catch(() => {
-                // nowt. error has been shown through store validator action.
-            });
+        async handleSongExport() {
+            this.setLoading( "exp" );
+            try {
+                await this.validateSong( this.activeSong );
+                try {
+                    await this.exportSong( this.activeSong );
+                    this.showNotification({ message: this.$t("songExported", { song: this.activeSong.meta.title }) });
+                } catch ( error ) {
+                    this.showError( error )
+                }
+            } catch {
+                // nowt. validation error message has been shown through store validator
+            }
+            this.unsetLoading( "exp" );
         },
         handleInstrumentEditorClick() {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );

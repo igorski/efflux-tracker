@@ -20,11 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioService from '@/services/audio-service';
-import EventFactory from '@/model/factories/event-factory';
-import EventUtil    from './event-util';
-import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from '@/model/types/audio-event-def';
-import { isOscillatorNode, isAudioBufferSourceNode } from '@/services/audio/webaudio-helper';
+import AudioService from "@/services/audio-service";
+import EventFactory from "@/model/factories/event-factory";
+import EventUtil    from "./event-util";
+import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
 import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 
 const RECORD_THRESHOLD = 50;
@@ -45,18 +45,19 @@ export const tuneToOscillator = ( frequency, oscillator ) => {
     let outFreq = tmpFreq;
 
     if ( oscillator.octaveShift !== 0 ) {
-        if ( oscillator.octaveShift < 0 )
+        if ( oscillator.octaveShift < 0 ) {
             outFreq = tmpFreq / Math.abs( oscillator.octaveShift * 2 );
-        else
+        } else {
             outFreq += ( tmpFreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
+        }
     }
     const fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
 
-    if ( oscillator.fineShift < 0 )
+    if ( oscillator.fineShift < 0 ) {
         outFreq -= fineShift;
-     else
+    } else {
         outFreq += fineShift;
-
+    }
     return outFreq;
 };
 
@@ -64,10 +65,40 @@ export const tuneToOscillator = ( frequency, oscillator ) => {
  * get a buffer playback speed in the -1 to +1 range
  * for given oscillator tuning
  *
+ * @param {AudioBufferSourceNode} node to apply shift to
  * @param {INSTRUMENT_OSCILLATOR} oscillator
- * @return {number}
+ * @returns {Number}
  */
-export const tuneBufferPlayback = oscillator => 1 + ( oscillator.detune / 50 );
+export const tuneBufferPlaybackRate = ( node, oscillator ) => {
+    node.playbackRate.value = 1 + ( oscillator.detune / 50 );
+};
+
+/**
+ * get a buffer playback speed in the -1 to +1 range, allowing
+ * given sample to play back at a rate leading its pitch to
+ * match given frequency @see sample-editor. Ideally you can use AudioBufferSourceNode.detune
+ * but this is not supported in Safari and buggy in Firefox at the moment of writing (Nov '21')
+ *
+ * Alternatively you can use BiQuadFilterNode.detune but this requires an
+ * additional node in the signal path.
+ *
+ * @param {AudioBufferSourceNode} node to apply shift to
+ * @param {Number} frequency desired frequency to play sample at
+ * @param {Object} sample property Object (@see sample-factory)
+ * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @returns {Number}
+ */
+export const tuneSamplePitch = ( node, frequency, sample, oscillator ) => {
+    if ( !sample.pitch ) {
+        return; // sample is not pitched, nothing to do here
+    }
+    /* AudioBufferSourceNode.detune
+    const value = intervalToCents( sample.pitch.frequency, frequency );
+    node.detune.value = value;
+    */
+    const value = ( frequency / sample.pitch.frequency ) + ( oscillator.detune / 50 );
+    node.playbackRate.value = value;
+};
 
 /**
  * alter the frequency of currently playing events to match changes
@@ -78,21 +109,21 @@ export const tuneBufferPlayback = oscillator => 1 + ( oscillator.detune / 50 );
  * @param {INSTRUMENT_OSCILLATOR} oscillator
  */
 export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
-    events.forEach(event => {
-        if (!event)
+    events.forEach( event => {
+        if ( !event ) {
             return;
-
+        }
         if ( event.length > oscillatorIndex ) {
             const voice = event[ oscillatorIndex ];
             if (!voice) return;
 
             const generator = voice.generator;
 
-            if ( isOscillatorNode( generator ))
+            if ( isOscillatorNode( generator )) {
                 generator.frequency.value = tuneToOscillator( voice.frequency, oscillator );
-
-            else if ( isAudioBufferSourceNode( generator ))
-                generator.playbackRate.value = tuneBufferPlayback( oscillator );
+            } else if ( isAudioBufferSourceNode( generator )) {
+                tuneBufferPlaybackRate( generator, oscillator );
+            }
         }
     });
 };
@@ -147,7 +178,7 @@ export const adjustEventWaveForms = ( events, oscillatorIndex, table ) => {
 
 export default
 {
-    tuneBufferPlayback,
+    tuneBufferPlaybackRate,
     tuneToOscillator,
     adjustEventWaveForms,
     adjustEventVolume,
@@ -179,7 +210,7 @@ export default
             instrument = store.getters.activeSong.instruments[ audioEvent.instrument ];
         }
         playingNotes[ id ] = { audioEvent, instrument, recording: record === true };
-        AudioService.noteOn( audioEvent, instrument );
+        AudioService.noteOn( audioEvent, instrument, store.getters.sampleCache );
 
         return audioEvent;
     },

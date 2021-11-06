@@ -67,6 +67,7 @@ export default {
     methods: {
         ...mapMutations([
             "addSample",
+            "cacheSample",
             "closeModal",
             "openModal",
             "setCurrentSample",
@@ -90,6 +91,7 @@ export default {
                     if ( buffer ) {
                         const sample = SampleFactory.fromBuffer( buffer, file.name );
                         this.addSample( sample );
+                        this.cacheSample( sample );
                         this.setCurrentSample( sample );
                         this.openModal( ModalWindows.SAMPLE_EDITOR );
                         this.showNotification({
