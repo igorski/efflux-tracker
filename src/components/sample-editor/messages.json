@@ -1,6 +1,7 @@
 {
     "en-US": {
         "sampleEditor": "Sample editor",
+        "noSamplesDescr": "There are no samples available to the current song. Drag an audio file into this window or load one using the import options listed below.",
         "play": "Play",
         "stop": "Stop",
         "loop": "Loop",
@@ -9,6 +10,8 @@
         "totalDuration": "Total {duration}s",
         "sampleRate": "Sample rate: {sampleRate} Hz",
         "channelAmount": "Channels: {amount}",
+        "delete": "Delete",
+        "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
         "saveChanges": "Save changes",
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",

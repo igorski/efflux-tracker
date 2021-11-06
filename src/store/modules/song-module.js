@@ -86,6 +86,10 @@ export default {
         addSample( state, sample ) {
             state.activeSong.samples.push( sample );
         },
+        removeSample( state, sample ) {
+            const index = state.activeSong.samples.findIndex(({ name }) => name === sample.name );
+            state.activeSong.samples.splice( index, 1 );
+        },
         flushSamples( state ) {
             state.activeSong.samples.length = 0;
         },

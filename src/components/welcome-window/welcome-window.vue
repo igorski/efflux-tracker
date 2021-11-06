@@ -57,7 +57,7 @@
         <hr class="divider" />
         <div class="pane spaced-buttons">
             <p>{{ 'For the returning user:' }}</p>
-            <file-loader />
+            <file-loader class="file-loader" />
         </div>
         <hr class="divider" />
         <div class="wrapper input footer">
@@ -179,8 +179,16 @@ $height: 453px;
 }
 
 .spaced-buttons {
-    display: flex;
-    justify-content: space-between;
+    @include componentIdeal( $width, $height ) {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    @include componentFallback( $width, $height ) {
+        .file-loader {
+            margin-top: $spacing-small;
+        }
+    }
 
     p {
         margin: $spacing-xsmall 0 0 !important;

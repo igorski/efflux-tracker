@@ -66,10 +66,11 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/colors";
+@import "@/styles/_variables";
 
 .sample-canvas {
     width: 100%;
-    height: 200px;
+    height: $sampleWaveformHeight;
     cursor: grab;
     background-color: $color-2;
 }

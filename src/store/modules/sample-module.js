@@ -34,7 +34,7 @@ export default {
         sampleFromCache: state => name => state.sampleCache.get( name ),
     },
     mutations: {
-        setCurrentSample( state, { name }) {
+        setCurrentSample( state, { name = null } = {}) {
             state.currentSampleName = name;
         },
         flushSampleCache( state ) {

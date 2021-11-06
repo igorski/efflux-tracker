@@ -108,13 +108,28 @@
                 <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span>
             </div>
         </template>
+        <div
+            v-else-if="availableSamples.length === 0"
+            class="no-samples"
+        >
+            <p v-t="'noSamplesDescr'"></p>
+        </div>
         <hr class="divider section-divider" />
         <div class="footer">
-            <button
-                v-t="'saveChanges'"
-                type="button"
-                @click="commitChanges()"
-            ></button>
+            <div>
+                <button
+                    v-t="'saveChanges'"
+                    type="button"
+                    :disabled="!sample"
+                    @click="commitChanges()"
+                ></button>
+                <button
+                    v-t="'delete'"
+                    type="button"
+                    :disabled="!sample"
+                    @click="deleteSample()"
+                ></button>
+            </div>
             <file-loader file-types="audio" />
         </div>
     </div>
@@ -186,7 +201,7 @@ export default {
         currentSample: {
             immediate: true,
             handler( value, oldValue ) {
-                if ( !oldValue || value.name !== oldValue.name ) {
+                if ( !oldValue || !value || value.name !== oldValue.name ) {
                     this.sample = value;
                     this.stopPlayback();
 
@@ -218,6 +233,11 @@ export default {
             this.invalidateRange();
         },
     },
+    created() {
+        if ( !this.sample && this.samples.length ) {
+             this.setCurrentSample( this.samples[ 0 ]);
+        }
+    },
     beforeDestroy() {
         this.stopPlayback();
     },
@@ -226,11 +246,24 @@ export default {
             "cacheSample",
             "closeDialog",
             "openDialog",
+            "removeSample",
+            "removeSampleFromCache",
             "setBlindActive",
             "setCurrentSample",
             "showNotification",
             "updateSample",
         ]),
+        deleteSample() {
+            this.openDialog({
+                type    : "confirm",
+                message : this.$t( "deleteConfirmDescr" ),
+                confirm : () => {
+                    this.removeSampleFromCache( this.sample );
+                    this.removeSample( this.sample );
+                    this.setCurrentSample( this.samples[ 0 ]);
+                }
+            });
+        },
         /* sample auditioning */
         startPlayback( muted = false ) {
             if ( this.playbackNode ) {
@@ -357,21 +390,20 @@ export default {
 @import "@/styles/transporter";
 
 $width: 720px;
-$height: 430px;
 
 .sample-editor {
     @include editorComponent();
     @include overlay();
+    height: auto;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
 
-    @include componentIdeal( $width, $height ) {
+    @include minWidth( $width ) {
         width: $width;
-        height: $height;
     }
 
-    @include componentFallback( $width, $height ) {
+    @include minWidthFallback( $width ) {
         width: 100%;
         height: 100%;
         @include verticalScrollOnMobile();
@@ -392,10 +424,27 @@ $height: 430px;
     }
 
     .footer {
-        display: flex;
-        justify-content: space-between;
-        padding: $spacing-small $spacing-medium;
+        @include minWidth( $width ) {
+            display: flex;
+            justify-content: space-between;
+            padding: $spacing-small $spacing-medium;
+        }
+
+        @include minWidthFallback( $width ) {
+            div {
+                display: inline;
+            }
+            button {
+                margin-top: $spacing-small;
+            }
+        }
     }
+}
+
+.no-samples {
+    height: $sampleWaveformHeight;
+    padding: 0 $spacing-medium;
+    @include boxSize();
 }
 
 .sample-meta {

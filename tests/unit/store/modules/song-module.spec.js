@@ -72,6 +72,15 @@ describe( "Vuex song module", () => {
             );
         });
 
+        it( "should be able to remove a sample from the existing list", () => {
+            const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ] } };
+            const sample = { name: "bar" };
+            mutations.removeSample( state, sample );
+            expect( state.activeSong.samples ).toEqual(
+                [{ name: "foo" }, { name: "baz" }]
+            );
+        });
+
         it( "should be able to flush all currently registered samples", () => {
             const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ]} };
             mutations.flushSamples( state );

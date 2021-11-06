@@ -430,47 +430,47 @@ const AudioService =
             recorder.export();
         }
     },
-    cacheAllOscillators(instrumentIndex, instrument) {
-        instrument.oscillators.forEach((oscillator, oscillatorIndex) => {
-            AudioService.updateOscillator("waveform", instrumentIndex, oscillatorIndex, oscillator )
+    cacheAllOscillators( instrumentIndex, instrument ) {
+        instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
+            AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
         });
     },
-    updateOscillator(property, instrumentIndex, oscillatorIndex, oscillator) {
-        if (!/waveform|tuning|volume/.test(property))
+    updateOscillator( property, instrumentIndex, oscillatorIndex, oscillator ) {
+        if ( !/waveform|tuning|volume/.test( property )) {
             throw new Error(`cannot update unsupported oscillator property ${property}`);
-
+        }
         const events = Object.values(instrumentEventsList[instrumentIndex]);
-        switch (property) {
+        switch ( property ) {
             case "waveform":
-                if ( oscillator.enabled && oscillator.waveform === "CUSTOM" ) {
-                    adjustEventWaveForms(events, oscillatorIndex,
-                        createTableFromCustomGraph(instrumentIndex, oscillatorIndex, oscillator.table)
+                if ( oscillator.enabled && oscillator.waveform === OscillatorTypes.CUSTOM ) {
+                    adjustEventWaveForms( events, oscillatorIndex,
+                        createTableFromCustomGraph( instrumentIndex, oscillatorIndex, oscillator.table )
                     );
                 }
                 else {
-                    adjustEventWaveForms(events, oscillatorIndex, pool[oscillator.waveform] );
+                    adjustEventWaveForms( events, oscillatorIndex, pool[ oscillator.waveform ] );
                 }
                 break;
             case "volume":
-                adjustEventVolume(events, oscillatorIndex, oscillator);
+                adjustEventVolume( events, oscillatorIndex, oscillator );
                 break;
             case "tuning":
-                adjustEventTunings(events, oscillatorIndex, oscillator);
+                adjustEventTunings( events, oscillatorIndex, oscillator );
                 break;
         }
     },
-    adjustInstrumentVolume(instrumentIndex, volume) {
-        instrumentModulesList[instrumentIndex].output.gain.value = volume;
+    adjustInstrumentVolume( instrumentIndex, volume ) {
+        instrumentModulesList[ instrumentIndex ].output.gain.value = volume;
     },
-    adjustInstrumentPanning(instrumentIndex, pan) {
-        instrumentModulesList[instrumentIndex].panner.pan.value = pan;
+    adjustInstrumentPanning( instrumentIndex, pan ) {
+        instrumentModulesList[ instrumentIndex ].panner.pan.value = pan;
     }
 };
 export default AudioService;
 
 export const getAnalysers = () => {
-    return ( Array.isArray(instrumentModulesList) ? instrumentModulesList : [] )
-                .map(modules => modules.analyser);
+    return ( Array.isArray( instrumentModulesList ) ? instrumentModulesList : [] )
+                .map( modules => modules.analyser );
 };
 
 export const applyModule = ( type, instrumentIndex, props ) => {
@@ -494,35 +494,35 @@ function createModules() {
     instrumentModulesList = new Array(Config.INSTRUMENT_AMOUNT);
 
     for (let i = 0; i < instrumentModulesList.length; ++i ) {
-        const instrumentModules = instrumentModulesList[i] = {
-            panner    : createStereoPanner(audioContext),
-            overdrive : ModuleFactory.createOverdrive(audioContext),
-            eq        : ModuleFactory.createEQ(audioContext),
-            filter    : ModuleFactory.createFilter(audioContext),
-            delay     : ModuleFactory.createDelay(audioContext),
+        const instrumentModules = instrumentModulesList[ i ] = {
+            panner    : createStereoPanner( audioContext ),
+            overdrive : ModuleFactory.createOverdrive( audioContext ),
+            eq        : ModuleFactory.createEQ( audioContext ),
+            filter    : ModuleFactory.createFilter( audioContext ),
+            delay     : ModuleFactory.createDelay( audioContext ),
             analyser  : audioContext.createAnalyser(),
-            voices    : new Array(Config.OSCILLATOR_AMOUNT),
-            output    : createGainNode(audioContext)
+            voices    : new Array( Config.OSCILLATOR_AMOUNT ),
+            output    : createGainNode( audioContext )
         };
         // max polyphony is 3 oscillators per channel
         for (let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j) {
-            instrumentModules.voices[j] = [];
+            instrumentModules.voices[ j ] = [];
             // the channel amount can equal the total amount of instruments as in Efflux, each instrument gets a
             // channel strip in the tracker and each channel can override its target instrument (thus 24 simultaneous
             // voices per instrument can be used) we then multiply this as creative usages (black midi??) can
             // allow multiple channels to target the same voice at fast repeating (yet sustaining) intervals
             const mult = 2;
-            for (let k = 0; k < Config.INSTRUMENT_AMOUNT * mult; ++k) {
+            for ( let k = 0; k < Config.INSTRUMENT_AMOUNT * mult; ++k ) {
                 const nodes = {
-                    oscillatorNode: createGainNode(audioContext),
-                    adsrNode: createGainNode(audioContext)
+                    oscillatorNode: createGainNode( audioContext ),
+                    adsrNode: createGainNode( audioContext )
                 };
-                nodes.oscillatorNode.connect(nodes.adsrNode);
-                nodes.adsrNode.connect(instrumentModules.output);
-                instrumentModules.voices[j].push(nodes);
+                nodes.oscillatorNode.connect( nodes.adsrNode );
+                nodes.adsrNode.connect( instrumentModules.output );
+                instrumentModules.voices[ j ].push( nodes );
             }
         }
-        applyRouting(instrumentModules, masterBus);
+        applyRouting( instrumentModules, masterBus );
     }
 }
 
