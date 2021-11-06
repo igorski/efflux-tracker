@@ -157,7 +157,7 @@ export default {
                             }
                             const song = JSON.parse( songs[ i ]);
                             if ( Array.isArray( song.p )) {
-                                await dispatch( "saveSongInLS", SongAssemblyService.assemble( song ));
+                                await dispatch( "saveSongInLS", await SongAssemblyService.assemble( song ));
                                 wasLegacyStorageFormat = true;
                             }
                         }
@@ -180,7 +180,7 @@ export default {
                 if ( Array.isArray( songs )) {
                     commit( "setShowSaveMessage", false );
                     for ( let i = 0; i < songs.length; ++i ) {
-                        await dispatch( "saveSongInLS", SongAssemblyService.assemble( songs[ i ]));
+                        await dispatch( "saveSongInLS", await SongAssemblyService.assemble( songs[ i ]));
                     }
                     commit( "setShowSaveMessage", true );
                 }
@@ -197,7 +197,7 @@ export default {
             commit( "setSamples", song.samples );
             dispatch( "cacheSongSamples", song.samples );
         },
-        saveSongInLS({ state, getters, commit, dispatch }, song) {
+        saveSongInLS({ state, getters, commit, dispatch }, song ) {
             return new Promise( async ( resolve, reject ) => {
                 try {
                     await dispatch( "validateSong", song );
@@ -220,7 +220,7 @@ export default {
                 persistState( state );
 
                 // save song into storage
-                StorageUtil.setItem( getStorageKeyForSong( song ), SongAssemblyService.disassemble( song ));
+                StorageUtil.setItem( getStorageKeyForSong( song ), await SongAssemblyService.disassemble( song ));
 
                 commit( "publishMessage", PubSubMessages.SONG_SAVED );
                 if ( state.showSaveMessage ) {
@@ -258,7 +258,7 @@ export default {
                 if ( !storedSong ) {
                     reject();
                 }
-                resolve( SongAssemblyService.assemble( storedSong ));
+                resolve( await SongAssemblyService.assemble( storedSong ));
             });
         },
         deleteSongFromLS({ state }, { song, persist = true }) {

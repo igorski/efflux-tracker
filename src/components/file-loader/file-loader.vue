@@ -89,7 +89,7 @@ export default {
                 } else {
                     const buffer = await loadSample( file, getAudioContext() );
                     if ( buffer ) {
-                        const sample = SampleFactory.fromBuffer( buffer, file.name );
+                        const sample = SampleFactory.create( file, buffer, file.name );
                         this.addSample( sample );
                         this.cacheSample( sample );
                         this.setCurrentSample( sample );

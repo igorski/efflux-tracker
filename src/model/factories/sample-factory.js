@@ -21,16 +21,22 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import AudioService from "@/services/audio-service";
+import { loadSample } from "@/services/audio/sample-loader";
 import { sliceBuffer } from "@/utils/sample-util";
 
 const SampleFactory = {
     /**
-     * Wraps an AudioBuffer into a sample Object
+     * Wraps a binary source and AudioBuffer into a sample Object
      * which can be serialized into a Song.
+     *
+     * @param {File|Blob|String} source
+     * @param {AudioBuffer} buffer
+     * @param {String=} name
      */
-    fromBuffer( buffer, name = "New sample" ) {
+    create( source, buffer = null, name = "New sample" ) {
         return {
             name,
+            source,
             buffer,
             rangeStart: 0,
             rangeEnd: buffer.duration,
@@ -56,49 +62,53 @@ const SampleFactory = {
     },
 
     disassemble( sample ) {
-        // TODO : this is very brute force but should be safe (Float32 is JS Number resolution
-        // as serializable into JSON). These structures can get very big quickly though.
-        // this is stupid. serialize the sample file instead.
-        const { sampleRate, numberOfChannels, length } = sample.buffer;
-        const channels = [];
-        for ( let c = 0; c < numberOfChannels; ++c ) {
-            const channel = [];
-            const inChannel = sample.buffer.getChannelData( c ); // Float32Array
-            for ( let i = 0; i < length; ++i ) {
-                channel[ i ] = inChannel[ i ];
-            }
-            channels.push( channel );
-        }
-        return {
-            n: sample.name,
-            s: sample.rangeStart,
-            e: sample.rangeEnd,
-            p: sample.pitch,
-            b: {
-                s: sampleRate,
-                n: numberOfChannels,
-                l: length,
-                c: channels
-            }
+        let source;
+        const toJSON = () => {
+            return {
+                b: source,
+                n: sample.name,
+                s: sample.rangeStart,
+                e: sample.rangeEnd,
+                p: sample.pitch
+            };
         };
+        return new Promise(( resolve, reject ) => {
+            // we serialize the source instead of the buffer
+            // a the latter is uncompressed audio and thus significantly larger
+            // this serialization will only happen on first save as the
+            // deserializer will keep the source intact
+            source = sample.source;
+            if ( source instanceof Blob ) { // also true for Files
+                const reader = new FileReader();
+                reader.onload = ({ target }) => {
+                    source = target.result;
+                    resolve( toJSON() );
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL( source );
+            } else {
+                resolve( toJSON() );
+            }
+        });
     },
 
     assemble( xtkSample ) {
-        const buffer = AudioService.getAudioContext().createBuffer( xtkSample.b.n, xtkSample.b.l, xtkSample.b.s );
-        for ( let c = 0; c < xtkSample.b.c.length; ++c ) {
-            const inChannel = xtkSample.b.c[ c ];
-            const outBuffer = buffer.getChannelData( c );
-            for ( let i = 0, l = inChannel.length; i < l; ++i ) {
-                outBuffer[ i ] = inChannel[ i ];
-            }
-        }
-        const sample = SampleFactory.fromBuffer( buffer, xtkSample.n );
+        return new Promise(( resolve, reject ) => {
+            fetch( xtkSample.b )
+                .then( result => result.blob() )
+                .then( async source => {
+                    // TODO: should SampleFactory.create() be able to do this loadSample from given source ?
+                    const buffer = await loadSample( source, AudioService.getAudioContext() );
+                    const sample = SampleFactory.create( source, buffer, xtkSample.n );
 
-        sample.rangeStart = xtkSample.s;
-        sample.rangeEnd   = xtkSample.e;
-        sample.pitch      = xtkSample.p;
+                    sample.rangeStart = xtkSample.s;
+                    sample.rangeEnd   = xtkSample.e;
+                    sample.pitch      = xtkSample.p;
 
-        return sample;
+                    resolve( sample );
+                })
+                .catch( reject );
+        });
     }
 };
 export default SampleFactory;

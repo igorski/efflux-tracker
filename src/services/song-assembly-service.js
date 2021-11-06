@@ -37,7 +37,7 @@ const ASSEMBLER_VERSION = 6;
  * @param {Object|string} xtk
  * @return {Object}
  */
-export const assemble = xtk => {
+export const assemble = async xtk => {
     try {
         xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 
@@ -56,7 +56,7 @@ export const assemble = xtk => {
             assembleInstruments( song, xtkVersion, xtk[ INSTRUMENTS ]);
             assemblePatterns   ( song, xtkVersion, xtk, song.meta.tempo );
 
-            song.samples = ( xtk[ SAMPLES ] || [] ).map( SampleFactory.assemble );
+            song.samples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.assemble ));
 
             // perform transformation on legacy songs
             SongValidator.transformLegacy( song );
@@ -87,7 +87,7 @@ export default
      * @param {SONG} song
      * @return {string}
      */
-    disassemble( song ) {
+    async disassemble( song ) {
 
         const xtk = {};
 
@@ -99,7 +99,7 @@ export default
         disassembleInstruments( xtk, song.instruments );
         disassemblePatterns   ( xtk, song.patterns );
 
-        xtk[ SAMPLES ] = song.samples.map( SampleFactory.disassemble );
+        xtk[ SAMPLES ] = await Promise.all( song.samples.map( SampleFactory.disassemble ));
 
         return JSON.stringify( xtk );
     }

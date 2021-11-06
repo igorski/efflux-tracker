@@ -281,7 +281,8 @@ export default {
         const loadFiles = async ({ sounds, projects }) => {
             for ( const file of sounds ) {
                 try {
-                    const sample = SampleFactory.fromBuffer( await loadSample( file, getAudioContext()), file.name );
+                    const buffer = await loadSample( file, getAudioContext());
+                    const sample = SampleFactory.create( file, buffer, file.name );
                     this.addSample( sample );
                     this.setCurrentSample( sample );
                     this.openModal( ModalWindows.SAMPLE_EDITOR );

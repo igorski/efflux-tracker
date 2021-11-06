@@ -254,16 +254,16 @@ export default {
                     break;
                 case "file":
                     this.setLoading( "dbd" );
-                    let buffer;
+                    let source, buffer;
                     try {
-                        const sampleBlob = await downloadFileAsBlob( node.path );
-                        buffer = await loadSample( sampleBlob, getAudioContext() );
+                        source = await downloadFileAsBlob( node.path );
+                        buffer = await loadSample( source, getAudioContext() );
                     } catch {
                         this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
                     }
                     this.unsetLoading( "dbd" );
                     if ( buffer ) {
-                        const sample = SampleFactory.fromBuffer( buffer, node.name );
+                        const sample = SampleFactory.create( source, buffer, node.name );
                         this.addSample( sample );
                         this.setCurrentSample( sample );
                         this.openModal( ModalWindows.SAMPLE_EDITOR );

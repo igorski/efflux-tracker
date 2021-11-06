@@ -52,11 +52,11 @@ export const parseXTK = async xtkFileOrString => {
             songData = xtkString;
         }
     }
-    return SongAssemblyService.assemble( songData );
+    return await SongAssemblyService.assemble( songData );
 };
 
 /**
  * All newly stored .XTK files are serialized
  * as compressed binary files
  */
-export const toXTK = async songJSON => compress( SongAssemblyService.disassemble( songJSON ));
+export const toXTK = async songJSON => compress( await SongAssemblyService.disassemble( songJSON ));
