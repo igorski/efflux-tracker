@@ -150,7 +150,7 @@ export default {
         },
         selectedSample: {
             get() {
-                return this.currentSample.name;
+                return this.currentSample?.name;
             },
             set( name ) {
                 this.setCurrentSample( this.samples.find( sample => sample.name === name ));
@@ -182,6 +182,10 @@ export default {
                     }
                     this.sample = value;
                     this.stopPlayback();
+
+                    if ( !value ) {
+                        return;
+                    }
 
                     // convert ranges to percentile (for range controls)
                     const ratio = 100 / value.buffer.duration;

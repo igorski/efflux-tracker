@@ -106,7 +106,7 @@ import VueI18n from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import { Style } from "zjslib";
-import AudioService from "@/services/audio-service";
+import AudioService, { getAudioContext } from "@/services/audio-service";
 import DialogWindow from "@/components/dialog-window/dialog-window";
 import HeaderMenu from "@/components/header-menu/header-menu";
 import HelpSection from "@/components/help-section/help-section";
@@ -117,11 +117,14 @@ import Notifications from "@/components/notifications";
 import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor";
 import PatternEditor from "@/components/pattern-editor/pattern-editor";
 import PatternTrackList from "@/components/pattern-track-list/pattern-track-list";
+import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SongEditor from "@/components/song-editor/song-editor";
 import TrackEditor from "@/components/track-editor/track-editor";
 import Transport from "@/components/transport/transport";
+import SampleFactory from "@/model/factories/sample-factory";
+import { readDroppedFiles } from "@/utils/file-util";
 import store from "@/store";
 import messages from "@/messages.json";
 
@@ -272,6 +275,36 @@ export default {
 
         this.publishMessage( PubSubMessages.EFFLUX_READY );
 
+        // if File content is dragged into the application, parse and load audio files within
+        const loadFiles = async ({ sounds, projects }) => {
+            for ( const file of sounds ) {
+                try {
+                    const sample = SampleFactory.fromBuffer( await loadSample( file, getAudioContext()), file.name );
+                    this.addSample( sample );
+                    this.setCurrentSample( sample );
+                    this.openModal( ModalWindows.SAMPLE_EDITOR );
+                } catch {
+                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "error.audioImport" ) });
+                }
+            }
+            for ( const file of projects ) {
+                this.loadSong({ file });
+                this.closeModal();
+            }
+        };
+
+        window.addEventListener( "dragover", event => {
+            event.stopPropagation();
+            event.preventDefault();
+            event.dataTransfer.dropEffect = "copy";
+        }, false );
+
+        window.addEventListener( "drop", event => {
+            loadFiles( readDroppedFiles( event?.dataTransfer ));
+            event.preventDefault();
+            event.stopPropagation();
+        }, false );
+
         // show confirmation message on page reload
 
         if ( process.env.NODE_ENV !== "development" ) {
@@ -295,15 +328,17 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "addSample",
             "prepareLinkedList",
             "createLinkedList",
             "setActivePattern",
             "setAmountOfSteps",
+            "setBlindActive",
+            "setCurrentSample",
             "setPlaying",
             "setLooping",
             "setWindowSize",
             "setWindowScrollOffset",
-            "setBlindActive",
             "resetEditor",
             "resetHistory",
             "openModal",
@@ -315,6 +350,7 @@ export default {
         ]),
         ...mapActions([
             "setupServices",
+            "loadSong",
             "openSong",
             "prepareSequencer",
             "loadStoredSettings",

@@ -20,6 +20,7 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+import { ACCEPTED_FILE_TYPES, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import { blobToResource, disposeResource } from "@/utils/resource-manager";
 
 /**
@@ -79,3 +80,22 @@ export const openFileBrowser = ( handler, acceptedFileTypes ) => {
     fileBrowser.dispatchEvent( simulatedEvent );
     fileBrowser.addEventListener( "change", handler );
 };
+
+export const readDroppedFiles = dataTransfer => {
+    const items = [ ...( dataTransfer?.files || []) ];
+    return {
+        sounds   : items.filter( isSoundFile ),
+        projects : items.filter( isProjectFile )
+    }
+};
+
+/* internal methods */
+
+function isSoundFile( item ) {
+    return ACCEPTED_FILE_TYPES.includes( item.type );
+}
+
+function isProjectFile( file ) {
+    const [ , ext ] = file.name.split( "." );
+    return `.${ext}` === PROJECT_FILE_EXTENSION;
+}

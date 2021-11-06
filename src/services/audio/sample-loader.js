@@ -32,7 +32,7 @@ export const loadSample = async ( sample, audioContext ) => {
         const reader = new FileReader();
         reader.readAsArrayBuffer( sample );
         reader.onload = ({ target }) => {
-            audioContext.decodeAudioData( target.result, buffer => {
+            audioContext?.decodeAudioData( target.result, buffer => {
                 resolve( buffer );
             });
         };

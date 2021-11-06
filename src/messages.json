@@ -11,8 +11,9 @@
       "emptyMeta": "Song has no title or author name, take pride in your work!",
       "fileLoad": "Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.",
       "songImport": "Could not import song, file was possibly not a valid {extension} file, or made in an incompatible version of Efflux",
-      "instrumentImport": "Could not import instruments, file was possible not a valid {extension} file, or made in an incompatible version of Efflux",
-      "paramGlide": "Could not automate module parameter glide. Define the start and end value for a specific module parameter transition within your pattern, without defining other module parameters in between."
+      "instrumentImport": "Could not import instruments, file was possibly not a valid {extension} file, or made in an incompatible version of Efflux",
+      "paramGlide": "Could not automate module parameter glide. Define the start and end value for a specific module parameter transition within your pattern, without defining other module parameters in between.",
+      "audioImport": "Coult not import given audio file. It is possibly not a valid audio file, or not a compatible type for this browser."
     },
     "title": {
       "error": "Error",
