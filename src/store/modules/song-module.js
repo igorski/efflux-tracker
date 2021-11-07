@@ -219,13 +219,20 @@ export default {
                 song.meta.modified = Date.now(); // update timestamp
                 song.origin = "local";
 
-                // push song into song list
-                state.songs.push( getMetaForSong( song ));
-                persistState( state );
-
                 // save song into storage
-                StorageUtil.setItem( getStorageKeyForSong( song ), await SongAssemblyService.disassemble( song ));
-
+                try {
+                    await StorageUtil.setItem(
+                        getStorageKeyForSong( song ),
+                        await SongAssemblyService.disassemble( song )
+                    );
+                    // push song into song list
+                    state.songs.push( getMetaForSong( song ));
+                    persistState( state );
+                } catch ( error ) {
+                    const msgKey = error?.message === "QUOTA" ? "error.quotaExceeded" : "error.unknownLSerror";
+                    commit( "openDialog", { type: "error", message: getters.t( msgKey ) });
+                    return reject();
+                }
                 commit( "publishMessage", PubSubMessages.SONG_SAVED );
                 if ( state.showSaveMessage ) {
                     commit( "showNotification", { message: getters.t( "messages.songSaved", { name: song.meta.title }) });

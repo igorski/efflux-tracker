@@ -71,17 +71,18 @@ const StorageUtil =
      * @param {*} data
      * @return {Promise}
      */
-    async setItem( key, data ){
-        const compressedData = await compress( data );
-        return new Promise(( resolve, reject ) => {
+    setItem( key, data ) {
+        return new Promise( async ( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
             }
             try {
-                resolve( storage.setItem( key, compressedData ));
+                const compressedData = await compress( data );
+                storage.setItem( key, compressedData );
+                resolve();
             } catch ( e ) {
-                // TODO : catch type and return error (for instance quota exceeded, request larger quotum)
-                reject();
+                const quotaExceeded = e instanceof DOMException;
+                reject( new Error( quotaExceeded ? "QUOTA" : "UNKNOWN" ));
             }
         });
     },

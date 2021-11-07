@@ -13,7 +13,9 @@
       "songImport": "Could not import song, file was possibly not a valid {extension} file, or made in an incompatible version of Efflux",
       "instrumentImport": "Could not import instruments, file was possibly not a valid {extension} file, or made in an incompatible version of Efflux",
       "paramGlide": "Could not automate module parameter glide. Define the start and end value for a specific module parameter transition within your pattern, without defining other module parameters in between.",
-      "audioImport": "Coult not import given audio file. It is possibly not a valid audio file, or not a compatible type for this browser."
+      "audioImport": "Coult not import given audio file. It is possibly not a valid audio file, or not a compatible type for this browser.",
+      "quotaExceeded": "You have exceeded your local storage quota. Free up space by either trimming the samples in this song or by deleting old songs. You can always export your song on your device or save it in Dropbox.",
+      "unknownLSerror": "An unknown error occurred while attempting to save your song in local storage. If the problem persists, consider exporting the song on your device or saving in Dropbox."
     },
     "title": {
       "error": "Error",
