@@ -10,11 +10,13 @@
         "totalDuration": "Total {duration}s",
         "sampleRate": "Sample rate: {sampleRate} Hz",
         "channelAmount": "Channels: {amount}",
+        "trim": "Trim",
         "delete": "Delete",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
         "saveChanges": "Save changes",
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",
+        "trimmingSample": "Trimming sample",
         "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}"
     }
 }

@@ -70,20 +70,22 @@
                 <button
                     type="button"
                     class="transport-controls__button"
-                    :class="{ active: isPlaying }"
-                    :title="$t( isPlaying ? 'stop' : 'play')"
-                    @click="isPlaying ? stopPlayback() : startPlayback()"
+                    :class="{ active: isPlaying && !isBusy }"
+                    :title="$t( isPlaying && !isBusy ? 'stop' : 'play')"
+                    :disabled="isBusy"
+                    @click="isPlaying && !isBusy ? stopPlayback() : startPlayback()"
                 >
                     <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
                 </button>
                 <button
                     type="button"
                     class="transport-controls__button"
-                    :class="{ active: loopPlayback }"
+                    :class="{ active: loopPlayback && !isBusy }"
                     :title="$t('loop')"
+                    :disabled="isBusy"
                     @click="loopPlayback = !loopPlayback"
                 >
-                    <i class="icon-loop" :class="{ active: loopPlayback }"></i>
+                    <i class="icon-loop" :class="{ active: loopPlayback && !isBusy }"></i>
                 </button>
             </div>
             <div class="range-controls">
@@ -96,6 +98,7 @@
                         min="0"
                         max="100"
                         step="0.1"
+                        :disabled="isBusy"
                     />
                 </div>
                 <div class="range-control">
@@ -107,6 +110,7 @@
                         min="0"
                         max="100"
                         step="0.1"
+                        :disabled="isBusy"
                     />
                 </div>
                 <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span>
@@ -124,15 +128,26 @@
                 <button
                     v-t="'saveChanges'"
                     type="button"
-                    :disabled="!sample"
+                    :disabled="!sample || isBusy"
                     @click="commitChanges()"
+                ></button>
+                <button
+                    v-if="canTrim"
+                    v-t="'trim'"
+                    type="button"
+                    :disabled="!sample || !hasAltRange || isBusy"
+                    @click="trimSample()"
                 ></button>
                 <button
                     v-t="'delete'"
                     type="button"
-                    :disabled="!sample"
+                    :disabled="!sample || isBusy"
                     @click="deleteSample()"
                 ></button>
+                <span
+                    v-if="isBusy && encodeProgress"
+                    class="progress"
+                >{{ ( encodeProgress * 100 ).toFixed() }}</span>
             </div>
             <file-loader file-types="audio" />
         </div>
@@ -141,11 +156,12 @@
 
 <script>
 import { mapGetters, mapMutations } from "vuex";
+import AudioEncoder from "audio-encoder";
 import FileLoader from "@/components/file-loader/file-loader";
 import SampleDisplay from "@/components/sample-display/sample-display";
 import SelectBox from "@/components/forms/select-box";
 import { getAudioContext } from "@/services/audio-service";
-import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch";
+import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch"
 import { sliceBuffer } from "@/utils/sample-util";
 
 import messages from "./messages.json";
@@ -164,6 +180,8 @@ export default {
         playbackNode   : null,
         isPlaying      : false,
         loopPlayback   : false,
+        encodeProgress : 0,
+        isBusy         : false,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
@@ -184,12 +202,18 @@ export default {
                 this.setCurrentSample( this.samples.find( sample => sample.name === name ));
             }
         },
+        hasAltRange() {
+            return this.sampleStart !== 0 || this.sampleEnd !== 100;
+        },
         rangeStyle() {
             return {
                 left  : `${this.sampleStart}%`,
                 right : `${this.sampleEnd}%`,
                 width : `${this.sampleEnd - this.sampleStart}%`
             };
+        },
+        canTrim() {
+            return this.sample?.buffer?.sampleRate === 44100; // TODO only 44.1 kHz supported.
         },
         meta() {
             const { duration } = this.sample.buffer;
@@ -274,11 +298,7 @@ export default {
                 this.stopPlayback();
             }
             this.playbackNode = getAudioContext().createBufferSource();
-            this.playbackNode.buffer = sliceBuffer(
-                getAudioContext(), this.sample.buffer,
-                rangeToPosition( this.sampleStart, this.sample.buffer.duration ),
-                rangeToPosition( this.sampleEnd,   this.sample.buffer.duration )
-            );
+            this.playbackNode.buffer = this.sliceBufferForRange();
             this.playbackNode.addEventListener( "ended", event => {
                 this.isPlaying = this.playbackNode && event.target !== this.playbackNode;
             });
@@ -297,6 +317,7 @@ export default {
         },
         /* saving sample, after performing pitch analysis */
         commitChanges() {
+            this.isBusy = true;
             this.stopPlayback();
             const wasLooping = this.loopPlayback;
 
@@ -346,6 +367,7 @@ export default {
                 this.showNotification({
                     message : this.$t( "savedDominantPitch", { note, octave } )
                 });
+                this.isBusy = false;
             }, 2000 );
         },
         detectCurrentPitch() {
@@ -380,6 +402,41 @@ export default {
 
             this.sampleStart = Math.max( 0, Math.min( 100, this.dragSS + ( delta / this.dragRatio ) ));
             this.sampleEnd   = Math.max( 0, Math.min( 100, this.dragSE + ( delta / this.dragRatio ) ));
+        },
+        /* other */
+        sliceBufferForRange() {
+            return sliceBuffer(
+                getAudioContext(), this.sample.buffer,
+                rangeToPosition( this.sampleStart, this.sample.buffer.duration ),
+                rangeToPosition( this.sampleEnd,   this.sample.buffer.duration )
+            )
+        },
+        trimSample() {
+            this.isBusy = true;
+            this.openDialog({
+                title       : this.$t( "pleaseWait" ),
+                message     : this.$t( "trimmingSample" ),
+                hideActions : true,
+            });
+            const buffer = this.sliceBufferForRange();
+            AudioEncoder( buffer, 192, progress => {
+                this.encodeProgress = progress;
+            }, async blob => {
+                const sample = {
+                    ...this.sample,
+                    source: blob,
+                    buffer,
+                    rangeStart : 0,
+                    rangeEnd   : buffer.duration
+                };
+                this.updateSample( sample );
+                this.sampleStart = 0;
+                this.sampleEnd   = 100;
+                this.sample = sample;
+
+                this.closeDialog();
+                this.isBusy = false;
+            });
         },
         invalidateRange() {
             if ( this.isPlaying ) {
@@ -508,9 +565,14 @@ $width: 720px;
     }
 }
 
+.progress {
+    @include toolFont();
+}
+
 .waveform-display {
     position: relative;
     width: 100%;
+    height: $sampleWaveformHeight;
 
     &__range {
         @include noEvents();
