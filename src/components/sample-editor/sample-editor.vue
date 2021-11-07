@@ -161,6 +161,7 @@ import FileLoader from "@/components/file-loader/file-loader";
 import SampleDisplay from "@/components/sample-display/sample-display";
 import SelectBox from "@/components/forms/select-box";
 import { getAudioContext } from "@/services/audio-service";
+import { loadSample } from "@/services/audio/sample-loader";
 import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch"
 import { sliceBuffer } from "@/utils/sample-util";
 
@@ -418,10 +419,14 @@ export default {
                 message     : this.$t( "trimmingSample" ),
                 hideActions : true,
             });
-            const buffer = this.sliceBufferForRange();
+            let buffer = this.sliceBufferForRange();
             AudioEncoder( buffer, 192, progress => {
                 this.encodeProgress = progress;
             }, async blob => {
+                // we generate the buffer again as the encoded file might
+                // have slightly different sample lengths (otherwise rangeEnd
+                // will not be 100 % upon opening this saved sample once more)
+                buffer = await loadSample( blob, getAudioContext() );
                 const sample = {
                     ...this.sample,
                     source: blob,
