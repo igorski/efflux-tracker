@@ -8,7 +8,7 @@ describe('PatternUtil', () => {
         let patterns = new Array(amount);
 
         for (let i = 0; i < amount; ++i)
-            patterns[i] = temp[i] = PatternFactory.createEmptyPattern(steps);
+            patterns[i] = temp[i] = PatternFactory.create(steps);
 
         const insertion = 5;
         patterns = PatternUtil.addPatternAtIndex(patterns, insertion, steps);
@@ -25,9 +25,9 @@ describe('PatternUtil', () => {
         let patterns = new Array(amount);
 
         for (let i = 0; i < amount; ++i)
-            patterns[i] = temp[i] = PatternFactory.createEmptyPattern(steps);
+            patterns[i] = temp[i] = PatternFactory.create(steps);
 
-        const patternToInsert = PatternFactory.createEmptyPattern(steps);
+        const patternToInsert = PatternFactory.create(steps);
         const insertion = 5;
 
         PatternUtil.addPatternAtIndex(patterns, insertion, steps, patternToInsert);
@@ -39,7 +39,7 @@ describe('PatternUtil', () => {
         let i;
 
         for (i = 0; i < amount; ++i)
-            patterns[i] = PatternFactory.createEmptyPattern(steps);
+            patterns[i] = PatternFactory.create(steps);
 
         // generate some events
 
@@ -69,7 +69,7 @@ describe('PatternUtil', () => {
         let patterns = new Array(amount), i;
 
         for (i = 0; i < amount; ++i)
-            patterns[i] = PatternFactory.createEmptyPattern(steps);
+            patterns[i] = PatternFactory.create(steps);
 
         patterns = PatternUtil.addPatternAtIndex(patterns, insertion, newSteps);
 
@@ -88,7 +88,7 @@ describe('PatternUtil', () => {
         let patterns = new Array(amount);
 
         for (let i = 0; i < amount; ++i)
-            patterns[i] = temp[i] = PatternFactory.createEmptyPattern(16);
+            patterns[i] = temp[i] = PatternFactory.create(16);
 
         const deletion = 5;
         patterns = PatternUtil.removePatternAtIndex(patterns, deletion);
@@ -103,7 +103,7 @@ describe('PatternUtil', () => {
         let i;
 
         for (i = 0; i < amount; ++i)
-            patterns[i] = PatternFactory.createEmptyPattern(16);
+            patterns[i] = PatternFactory.create(16);
 
         // generate some events
 

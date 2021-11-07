@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import InstrumentFactory from "../factories/instrument-factory";
+import InstrumentFactory from "@/model/factories/instrument-factory";
+import { FACTORY_VERSION, LEGACY_VERSION } from "@/model/factories/song-factory";
 
 export default
 {
@@ -52,9 +53,14 @@ export default
      * @return {SONG}
      */
     transformLegacy( song ) {
-        if (!song || !song.instruments) {
+        if ( !song || !song.instruments ) {
             return null;
         }
+
+        if ( song.version === FACTORY_VERSION ) {
+            return song; // latest version of factory, nothing to transform
+        }
+        song.version = LEGACY_VERSION;
         song.instruments.forEach(( instrument ) => {
             // pitch envelope was added in version 2 of SongAssemblyService
 

@@ -1,19 +1,19 @@
-import EventFactory       from '@/model/factories/event-factory';
-import PatternFactory     from '@/model/factories/pattern-factory';
-import SongFactory        from '@/model/factories/song-factory';
-import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
+import EventFactory       from "@/model/factories/event-factory";
+import PatternFactory     from "@/model/factories/pattern-factory";
+import SongFactory        from "@/model/factories/song-factory";
+import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
 
-import { hasContent, updateEventOffsets } from '@/utils/song-util';
+import { hasContent, updateEventOffsets } from "@/utils/song-util";
 
-describe( 'SongUtil', () => {
+describe( "SongUtil", () => {
     let song;
 
     beforeEach(() => {
-        song = SongFactory.createSong(8);
+        song = SongFactory.create( 8 );
     });
 
 
-    it( 'should know whether or not a song has content', () => {
+    it( "should know whether or not a song has content", () => {
         // expected song not to have content as no events with an action were defined in any pattern
         expect(hasContent(song)).toBe(false);
 
@@ -27,14 +27,14 @@ describe( 'SongUtil', () => {
         expect(hasContent(song)).toBe(true);
     });
 
-    it( 'should be able to update existing AudioEvent offsets recursively', () => {
+    it( "should be able to update existing AudioEvent offsets recursively", () => {
         // generate a random multiplication ratio
 
         const ratio = Math.random();
 
         // add some extra channels
 
-        song.patterns.push( PatternFactory.createEmptyPattern( 16 ));
+        song.patterns.push( PatternFactory.create( 16 ));
 
         // generate some events
 

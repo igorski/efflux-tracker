@@ -4,7 +4,7 @@ import SongAssemblyService from "@/services/song-assembly-service";
 
 describe( "SongAssemblyService", () => {
     it( "should be able to disassemble a Song into a Stringified XTK", async () => {
-        const song = SongFactory.createSong( 8 );
+        const song = SongFactory.create( 8 );
         const xtk  = await SongAssemblyService.disassemble( song );
 
         // expected Song to have been disassembled into a stringified XTK
@@ -12,7 +12,7 @@ describe( "SongAssemblyService", () => {
     });
 
     it( "should be able to assemble a stringified XTK into a valid Song", async () => {
-        const song  = SongFactory.createSong( 8 );
+        const song  = SongFactory.create( 8 );
         const xtk   = await SongAssemblyService.disassemble( song );
         const song2 = await SongAssemblyService.assemble( xtk );
 
@@ -21,7 +21,7 @@ describe( "SongAssemblyService", () => {
     });
 
     it( "should be able to assemble and disassemble a Song without loss of data", async () => {
-        const song  = SongFactory.createSong( 8 );
+        const song  = SongFactory.create( 8 );
         const xtk   = await SongAssemblyService.disassemble( song );
         const song2 = await SongAssemblyService.assemble( xtk );
 

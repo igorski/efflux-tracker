@@ -132,7 +132,7 @@ export default {
             // clone the patterns into the insertion list
 
             patternsToClone.forEach(p => {
-                const clonedPattern = PatternFactory.createEmptyPattern(p.steps);
+                const clonedPattern = PatternFactory.create(p.steps);
 
                 for ( let i = firstChannelValue; i <= lastChannelValue; ++i )
                     clonedPattern.channels[ i ] = clone( p.channels[ i ]);

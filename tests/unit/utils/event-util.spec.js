@@ -9,7 +9,7 @@ describe( 'EventUtil', () => {
     let song;
 
     beforeEach(() => {
-        song = SongFactory.createSong(8);
+        song = SongFactory.create(8);
     });
 
     /* actual unit tests */
@@ -318,7 +318,7 @@ describe( 'EventUtil', () => {
             const lists         = [ new LinkedList() ]; // we'll operate on a single channel (0)
 
             for ( let i = 0; i < patternAmount; ++i )
-                song.patterns[ i ] = PatternFactory.createEmptyPattern( 16 );
+                song.patterns[ i ] = PatternFactory.create( 16 );
 
             song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
 
@@ -392,7 +392,7 @@ describe( 'EventUtil', () => {
             const lists         = [ new LinkedList() ]; // we'll operate on a single channel (0)
 
             for ( let i = 0; i < patternAmount; ++i )
-                song.patterns[ i ] = PatternFactory.createEmptyPattern( 16 );
+                song.patterns[ i ] = PatternFactory.create( 16 );
 
             song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
 

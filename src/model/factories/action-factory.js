@@ -303,7 +303,7 @@ function clearPattern({ store }) {
     const pattern = clonePattern( song, patternIndex );
 
     function act() {
-        commit( "replacePattern", { patternIndex, pattern: PatternFactory.createEmptyPattern( amountOfSteps ) });
+        commit( "replacePattern", { patternIndex, pattern: PatternFactory.create( amountOfSteps ) });
     }
     act(); // perform action
 
@@ -348,7 +348,7 @@ function addPattern({ store }) {
     // patterns list is effectively replaced by below actions
 
     function act() {
-        const pattern = PatternFactory.createEmptyPattern( amountOfSteps );
+        const pattern = PatternFactory.create( amountOfSteps );
         commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex + 1, amountOfSteps, pattern ));
     }
     act(); // perform action

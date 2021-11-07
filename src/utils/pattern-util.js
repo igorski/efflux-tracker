@@ -36,7 +36,7 @@ export default {
         const front = patterns.slice( 0, index );
         const back  = patterns.slice( index );
 
-        front.push( pattern ? pattern : PatternFactory.createEmptyPattern( amountOfSteps ));
+        front.push( pattern ? pattern : PatternFactory.create( amountOfSteps ));
 
         // update event offset for back patterns (as their start/end offsets should now shift)
 

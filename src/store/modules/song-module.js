@@ -192,7 +192,7 @@ export default {
         },
         createSong() {
             return new Promise( resolve => {
-                resolve( SongFactory.createSong( Config.INSTRUMENT_AMOUNT ));
+                resolve( SongFactory.create( Config.INSTRUMENT_AMOUNT ));
             });
         },
         openSong({ commit, dispatch }, song ) {
@@ -329,7 +329,7 @@ export default {
         },
         loadSong({ getters, commit, dispatch }, { file, origin = "local" }) {
             return new Promise( async ( resolve, reject ) => {
-                const song = await parseXTK( file );
+                const song = SongValidator.transformLegacy( await parseXTK( file ));
                 if ( SongValidator.isValid( song )) {
                     song.origin = origin;
                     dispatch( "openSong", song );

@@ -14,7 +14,7 @@ jest.mock('@/utils/storage-util', () => ({
 describe('Vuex instrument module', () => {
     const dispatch = jest.fn();
 
-    const instrument = InstrumentFactory.createInstrument(0);
+    const instrument = InstrumentFactory.create(0);
     instrument.presetName = 'foo';
 
     let state;
@@ -42,7 +42,7 @@ describe('Vuex instrument module', () => {
         });
 
         it('should be able to set the given instruments preset name', () => {
-            const ins = InstrumentFactory.createInstrument(0);
+            const ins = InstrumentFactory.create(0);
             mutations.setPresetName(state, { instrument: ins, presetName: 'quux' });
             expect(ins.presetName).toEqual('quux');
         });
@@ -51,7 +51,7 @@ describe('Vuex instrument module', () => {
     describe('actions', () => {
         describe('when saving instruments', () => {
             it('should not save instruments without a valid preset name', async () => {
-                const invalidInstrument = InstrumentFactory.createInstrument(0);
+                const invalidInstrument = InstrumentFactory.create(0);
                 const commit = jest.fn();
 
                 try {
