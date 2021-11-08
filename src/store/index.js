@@ -45,6 +45,7 @@ export default
         modal: null, /* string name of modal window to open, see modal-windows.js */
         mobileMode: null, /* string name of mobile view state */
         dropboxConnected: false,
+        mediaConnected: false,
     },
     getters: {
         // eslint-disable-next-line no-unused-vars
@@ -138,6 +139,9 @@ export default
         },
         setDropboxConnected( state, value ) {
             state.dropboxConnected = value;
+        },
+        setMediaConnected( state, value ) {
+            state.mediaConnected = value;
         },
     },
     actions: {

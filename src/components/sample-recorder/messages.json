@@ -1,0 +1,8 @@
+{
+    "en-US": {
+        "recordInput": "Record input",
+        "start": "Start",
+        "stop": "Stop",
+        "errorNoDeviceAccess": "Could not access any input devices. Verify whether your browser has granted access to the microphone."
+    }
+}

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+const months = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+
 export default {
     /**
      * convert a given timestamp into a formatted date string
@@ -27,9 +29,8 @@ export default {
      * @param {number} aTimestamp
      * @return {string}
      */
-    timestampToDate( aTimestamp ) {
+    timestampToDate( aTimestamp = Date.now() ) {
         const a      = new Date( aTimestamp );
-        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
         const year   = a.getFullYear();
         const month  = months[a.getMonth()];
         const date   = a.getDate();
@@ -37,7 +38,7 @@ export default {
         const min    = a.getMinutes();
         const sec    = a.getSeconds();
 
-        return date + ' ' + month + ' ' + year + ' ' + prependZero( hour ) + ':' + prependZero( min ) + ':' + prependZero( sec );
+        return `${date} ${month} ${year} ${prependZero( hour )}:${prependZero( min )}:${prependZero( sec )}`;
     }
 };
 

@@ -175,6 +175,18 @@ describe("Application Vuex store root", () => {
             const state = { mobileMode: null };
             mutations.setMobileMode(state, "foo");
             expect(state.mobileMode).toEqual("foo");
-        })
+        });
+
+        it( "should be able to set the Dropbox connected state", () => {
+            const state = { dropboxConnected: false };
+            mutations.setDropboxConnected( state, true );
+            expect( state.dropboxConnected ).toBe( true );
+        });
+
+        it( "should be able to set the media connected state", () => {
+            const state = { mediaConnected: false };
+            mutations.setMediaConnected( state, true );
+            expect( state.mediaConnected ).toBe( true );
+        });
     });
 });

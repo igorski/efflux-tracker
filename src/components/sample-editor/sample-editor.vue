@@ -22,6 +22,10 @@
  */
 <template>
     <div class="sample-editor">
+        <sample-recorder
+            v-if="recordInput"
+            @close="recordInput = false"
+        />
         <div class="header">
             <h2 v-t="'sampleEditor'"></h2>
             <button
@@ -30,6 +34,7 @@
             >x</button>
             <div class="actions">
                 <select-box
+                    v-if="availableSamples.length"
                     v-model="selectedSample"
                     :options="availableSamples"
                     class="sample-select"
@@ -149,7 +154,14 @@
                     class="progress"
                 >{{ ( encodeProgress * 100 ).toFixed() }}</span>
             </div>
-            <file-loader file-types="audio" />
+            <div>
+                <button
+                    type="button"
+                    v-t="'record'"
+                    @click="recordInput = true"
+                ></button>
+                <file-loader file-types="audio" class="file-loader" />
+            </div>
         </div>
     </div>
 </template>
@@ -159,6 +171,7 @@ import { mapGetters, mapMutations } from "vuex";
 import AudioEncoder from "audio-encoder";
 import FileLoader from "@/components/file-loader/file-loader";
 import SampleDisplay from "@/components/sample-display/sample-display";
+import SampleRecorder from "@/components/sample-recorder/sample-recorder";
 import SelectBox from "@/components/forms/select-box";
 import { getAudioContext } from "@/services/audio-service";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -174,10 +187,12 @@ export default {
     components: {
         FileLoader,
         SampleDisplay,
+        SampleRecorder,
         SelectBox,
     },
     data: () => ({
         sample         : null,
+        recordInput    : false,
         playbackNode   : null,
         isPlaying      : false,
         loopPlayback   : false,
@@ -499,12 +514,13 @@ $width: 720px;
         }
 
         @include minWidthFallback( $width ) {
-            div {
-                display: inline;
-            }
             button {
                 margin-top: $spacing-small;
             }
+        }
+
+        .file-loader {
+            display: inline;
         }
     }
 }

@@ -1,7 +1,7 @@
 {
     "en-US": {
         "sampleEditor": "Sample editor",
-        "noSamplesDescr": "There are no samples available to the current song. Drag an audio file into this window or load one using the import options listed below.",
+        "noSamplesDescr": "There are no samples available to the current song. You can drag an audio file into this window or load one using the import options listed below. Alternatively, you can also record directly from your microphone or connected audio devices.",
         "play": "Play",
         "stop": "Stop",
         "loop": "Loop",
