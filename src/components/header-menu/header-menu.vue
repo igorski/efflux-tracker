@@ -345,13 +345,15 @@ export default {
     @include boxSize();
 }
 
-.menu-button {
+.menu-button,
+.title {
     font-family: Montserrat, Helvetica, Verdana;
     cursor: pointer;
     background: none;
     border: none;
     color: #b6b6b6;
     padding: 0;
+    font-size: 100%;
 
     &:hover {
         color: #FFF;
@@ -426,7 +428,7 @@ h1 {
 
         &.fullscreen-button {
             float: right;
-            margin: $spacing-xxsmall $spacing-medium 0 0;
+            margin-right: $spacing-medium;
         }
     }
 }

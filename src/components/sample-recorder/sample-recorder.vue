@@ -121,14 +121,14 @@ export default {
                     audio: { deviceId : this.inputs[ parseFloat( this.selectedInput )].deviceId }
                 });
                 const chunks = [];
-                this.mediaRecorder = new MediaRecorder( stream, { mimeType: "audio/wav" });
-                this.mediaRecorder.addEventListener( "dataavailable", ({ data }) => {
+                const mediaRecorder = new MediaRecorder( stream, { mimeType: "audio/wav" });
+                mediaRecorder.addEventListener( "dataavailable", ({ data }) => {
                     if ( data.size > 0 ) {
                         chunks.push( data );
                     }
                 });
 
-                this.mediaRecorder.addEventListener( "stop", async () => {
+                mediaRecorder.addEventListener( "stop", async () => {
                     const blob = new Blob( chunks );
                     const buffer = await loadSample( blob, AudioService.getAudioContext() );
                     const sample = SampleFactory.create( blob, buffer, `recording_${TimeUtil.timestampToDate()}` );
@@ -146,14 +146,14 @@ export default {
                     this.pct = (( 1 - elapsed ) / 1 ) * C;
 
                     if ( !this.isRecording || now >= end ) {
-                        this.mediaRecorder.stop();
+                        mediaRecorder.stop();
                         stream.getTracks().forEach( track => track.stop());
                     } else {
                         window.requestAnimationFrame( handleProgress );
                     }
                 };
                 this.isRecording = true;
-                this.mediaRecorder.start();
+                mediaRecorder.start();
                 handleProgress();
             } catch {
                 this.handleError();
