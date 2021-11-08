@@ -42,18 +42,23 @@
             </header>
             <!-- actual application -->
             <div class="container">
-                <div id="properties">
+                <div
+                    ref="properties"
+                    class="application-properties"
+                >
                     <pattern-editor />
                     <song-editor />
                 </div>
             </div>
             <div class="container">
-                <div id="editor"
-                     :class="{
-                         'has-help-panel'  : displayHelp,
-                         'settings-mode'   : mobileMode === 'settings',
-                         'note-entry-mode' : showNoteEntry
-                     }"
+                <div
+                    ref="editor"
+                    class="application-editor"
+                    :class="{
+                        'has-help-panel'  : displayHelp,
+                        'settings-mode'   : mobileMode === 'settings',
+                        'note-entry-mode' : showNoteEntry
+                    }"
                 >
                     <track-editor />
                     <pattern-track-list />
@@ -107,13 +112,11 @@ import Vuex from "vuex";
 import VueI18n from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
-import { Style } from "zjslib";
 import AudioService, { getAudioContext } from "@/services/audio-service";
 import DialogWindow from "@/components/dialog-window/dialog-window";
 import HeaderMenu from "@/components/header-menu/header-menu";
 import HelpSection from "@/components/help-section/help-section";
 import Loader from "@/components/loader";
-import ListenerUtil from "@/utils/listener-util";
 import ModalWindows from "@/definitions/modal-windows";
 import Notifications from "@/components/notifications";
 import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor";
@@ -157,9 +160,6 @@ export default {
     },
     data: () => ({
         prepared: false,
-        scrollPending: false,
-        mainSection: null,
-        centerSection: null,
         canLaunch: true,
         centerWidth: 0,
     }),
@@ -341,7 +341,6 @@ export default {
             "setPlaying",
             "setLooping",
             "setWindowSize",
-            "setWindowScrollOffset",
             "resetEditor",
             "resetHistory",
             "openModal",
@@ -364,7 +363,6 @@ export default {
         addListeners() {
             // no need to dispose as these will be active during application lifetime
             window.addEventListener( "resize", this.handleResize );
-            ListenerUtil.listen( window,  "scroll", this.handleScroll );
         },
         handleReady() {
             if ( this.displayWelcome ) {
@@ -376,38 +374,20 @@ export default {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             this.calculateDimensions();
         },
-        handleScroll() {
-            // only fire this event on next frame to avoid
-            // DOM thrashing by all subscribed listeners
-
-            if ( !this.scrollPending ) {
-                this.scrollPending = true;
-                this.$nextTick(() => {
-                    this.setWindowScrollOffset( window.scrollY );
-                    this.scrollPending = false;
-                });
-            }
-        },
         calculateDimensions() {
             /**
              * due to the nature of the table display of the pattern editors track list
              * we need JavaScript to calculate to correct dimensions of the overflowed track list
              */
 
-            // lazily grab references to DOM elements
-            // TODO: delegate these to the Vue components in question
+            // synchronize center section width with properties section width
 
-            this.mainSection   = this.mainSection   || document.querySelector( "#properties" );
-            this.editorSection = this.centerSection || document.querySelector( "#editor" );
-
-            // synchronize center section width with mainsection width
-
-            this.centerWidth = Style.getStyle( this.mainSection, "width" );
+            this.centerWidth = `${this.$refs.properties.offsetWidth}px`;
 
             // note we do not bind a :style property onto the element inside the template as it
             // interferes with keyboard interactions done within (offsets keep jumping to center) !!
 
-            this.editorSection.style.width = this.centerWidth;
+            this.$refs.editor.style.width = this.centerWidth;
         }
     }
 };

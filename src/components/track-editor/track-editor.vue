@@ -21,9 +21,9 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="trackEditor"
-             ref="container"
-             :class="{ fixed: isFixed }"
+    <section
+        id="trackEditor"
+        ref="container"
     >
         <ul class="controls">
             <li
@@ -70,14 +70,7 @@ import createAction        from "@/model/factories/action-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 import EventUtil           from "@/utils/event-util";
 
-import { DOM } from "zjslib";
-
 export default {
-    data: () => ({
-        controlOffsetY: 0,
-        lastWindowScrollY: 0,
-        isFixed: false
-    }),
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -86,7 +79,6 @@ export default {
         }),
         ...mapState([
             "windowSize",
-            "windowScrollOffset",
         ]),
         ...mapGetters([
             "canUndo",
@@ -99,21 +91,6 @@ export default {
             selectedInstrument: state => state.editor.selectedInstrument,
             eventList: state => state.editor.eventList,
         })
-    },
-    watch: {
-        windowSize() {
-            this.controlOffsetY = 0; // flush cache
-        },
-        windowScrollOffset( scrollY ) {
-            // ensure the controlContainer is always visible regardless of scroll offset (for phones)
-            // threshold defines when to offset the containers top, the last number defines the fixed header height
-            if ( scrollY !== this.lastWindowScrollY ) {
-                const threshold = ( this.controlOffsetY = this.controlOffsetY || DOM.getElementCoordinates( this.$refs.container, true ).y - 46 );
-
-                this.isFixed = scrollY > threshold;
-                this.lastWindowScrollY = scrollY;
-            }
-        }
     },
     methods: {
         ...mapMutations([

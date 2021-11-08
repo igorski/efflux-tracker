@@ -171,12 +171,6 @@ describe("Application Vuex store root", () => {
             expect(state.windowSize).toEqual({ width, height });
         });
 
-        it("should be able to set the window scroll offset", () => {
-            const state = { windowScrollOffset: 0 };
-            mutations.setWindowScrollOffset(state, 300);
-            expect(state.windowScrollOffset).toEqual(300);
-        });
-
         it("should be able to set the mobile view mode", () => {
             const state = { mobileMode: null };
             mutations.setMobileMode(state, "foo");

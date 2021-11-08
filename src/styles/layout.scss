@@ -26,13 +26,13 @@
     margin: 0 auto;
 }
 
-#properties {
+.application-properties {
     @include editorComponent();
     padding: $spacing-small 0;
     margin: 82px auto 0; /* offset top margin by menu height */
 }
 
-#editor {
+.application-editor {
     @include flex();
     position: absolute;
     top: 134px; /* menu + song meta */
@@ -89,7 +89,7 @@
         padding: 0;
     }
 
-    #editor {
+    .application-editor {
         left: 50%;
         margin-left: -($ideal-width / 2);
     }
@@ -111,10 +111,10 @@
         @include boxSize;
     }
     /* when mobileMode is "settings" we show the tempo control and song editor by expanding these */
-    #properties {
+    .application-properties {
         margin: 116px auto 0;
     }
-    #editor {
+    .application-editor {
         width: inherit;
         top: 85px !important;
 
@@ -162,7 +162,7 @@
         display: none;
         width: 0;
     }
-    #editor {
+    .application-editor {
         overflow-x: scroll !important;
         overflow-y: hidden !important; // body scrolls instead
     }
@@ -171,7 +171,7 @@
 /* TABLET/DESKTOP medium to large */
 
 @media screen and (min-width: $app-width) and (max-width: $ideal-width) {
-    #editor {
+    .application-editor {
         left: auto;
         margin-left: 0;
 
@@ -195,7 +195,7 @@
 /* DESKTOP wide screen */
 
 @include ideal() {
-    #editor {
+    .application-editor {
         margin-left: -( $ideal-width - $spacing-xlarge ) / 2;
     }
 }

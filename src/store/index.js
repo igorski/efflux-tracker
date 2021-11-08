@@ -40,7 +40,6 @@ export default
         helpTopic: "general",
         loadingStates: [], // wether one or more long running operations are running
         windowSize: { width: window.innerWidth, height: window.innerHeight },
-        windowScrollOffset: 0,
         dialog: null,
         notifications: [],
         modal: null, /* string name of modal window to open, see modal-windows.js */
@@ -133,9 +132,6 @@ export default
          */
         setWindowSize( state, { width, height }) {
             state.windowSize = { width, height };
-        },
-        setWindowScrollOffset( state, value ) {
-            state.windowScrollOffset = value;
         },
         setMobileMode( state, mode ) {
             state.mobileMode = mode;
