@@ -52,7 +52,15 @@ export const assemble = async xtk => {
         }
         else {
             // no assembly present on the XTK, assume legacy Song (is Object)
-            return xtk;
+            // note we invoke the SongFactory to ensure all newer properties
+            // of the newer XTK format are defined.
+            return {
+                ...SongFactory.create(),
+                ...xtk,
+                // deliberate as it can be undefined for ancient XTK's
+                // this will make the SongValidator inject the missing properties
+                version: xtk.version
+            };
         }
     }
     catch ( e ) {
