@@ -29,6 +29,10 @@
         <div class="header">
             <h2 v-t="'sampleEditor'"></h2>
             <button
+                class="help-button"
+                @click="openHelp()"
+            >?</button>
+            <button
                 class="close-button"
                 @click="$emit( 'close' )"
             >x</button>
@@ -170,6 +174,7 @@
 import { mapGetters, mapMutations } from "vuex";
 import AudioEncoder from "audio-encoder";
 import FileLoader from "@/components/file-loader/file-loader";
+import ManualURLs from "@/definitions/manual-urls";
 import SampleDisplay from "@/components/sample-display/sample-display";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder";
 import SelectBox from "@/components/forms/select-box";
@@ -297,6 +302,9 @@ export default {
             "showNotification",
             "updateSample",
         ]),
+        openHelp() {
+            window.open( ManualURLs.SAMPLE_EDITOR_HELP, "_blank" );
+        },
         deleteSample() {
             this.openDialog({
                 type    : "confirm",
@@ -499,7 +507,7 @@ $width: 720px;
     .actions {
         position: absolute;
         top: $action-button-top;
-        right: #{$spacing-xlarge + $spacing-medium};
+        right: #{$spacing-xlarge * 2 - $spacing-xsmall};
     }
 
     .section-divider {
