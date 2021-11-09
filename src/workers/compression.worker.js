@@ -20,8 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import LZString     from "lz-string";
-import { readFile } from "@/utils/file-util";
+import LZString from "lz-string";
+import { readTextFromFile } from "@/utils/file-util";
 
 self.addEventListener( "message", event => {
     const { cmd, data, id } = event.data;
@@ -44,7 +44,7 @@ self.addEventListener( "message", event => {
             break;
 
         case "decompress":
-            readFile( data )
+            readTextFromFile( data )
                 .then( fileData => {
                     const decompressed = LZString.decompressFromBase64( fileData );
                     self.postMessage({ cmd: "complete", id, data: JSON.parse( decompressed ) });

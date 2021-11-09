@@ -54,14 +54,54 @@ export const saveAsFile = ( data, fileName ) => {
     }
 };
 
-export const readFile = ( file, optEncoding = "UTF-8" ) => {
+/**
+ * Reads the text content of given File
+ *
+ * @param {File|Blob} file
+ * @returns {Promise<String>}
+ */
+export const readTextFromFile = ( file, optEncoding = "UTF-8" ) => {
     const reader = new FileReader();
     return new Promise(( resolve, reject ) => {
-        reader.onload = readerEvent => {
-            resolve( readerEvent.target.result );
+        reader.onload = event => {
+            resolve( event.target.result );
         };
         reader.onerror = reject;
         reader.readAsText( file, optEncoding );
+    });
+};
+
+/**
+ * Reads the content of given File as a base64 String
+ *
+ * @param {File|Blob} file
+ * @returns {Promise<String>}
+ */
+export const fileToBase64 = file => {
+    const reader = new FileReader();
+    return new Promise(( resolve, reject ) => {
+        reader.onload = event => {
+            resolve( event.target.result );
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL( file );
+    });
+};
+
+/**
+ * Converts a base64 String to its binary data
+ *
+ * @param {String} base64
+ * @returns {Promise<Blob>}
+ */
+export const base64ToBlob = base64 => {
+    return new Promise(( resolve, reject ) => {
+        fetch( base64 )
+            .then( result => result.blob() )
+            .then( blob => {
+                resolve( blob );
+            }).
+            catch( reject );
     });
 };
 

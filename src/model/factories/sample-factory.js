@@ -23,6 +23,7 @@
 import AudioService from "@/services/audio-service";
 import { loadSample } from "@/services/audio/sample-loader";
 import { sliceBuffer } from "@/utils/sample-util";
+import { fileToBase64, base64ToBlob } from "@/utils/file-util";
 
 const SampleFactory = {
     /**
@@ -79,13 +80,11 @@ const SampleFactory = {
             // deserializer will keep the source intact
             source = sample.source;
             if ( source instanceof Blob ) { // also true for Files
-                const reader = new FileReader();
-                reader.onload = ({ target }) => {
-                    source = target.result;
-                    resolve( toJSON() );
-                };
-                reader.onerror = reject;
-                reader.readAsDataURL( source );
+                fileToBase64( source )
+                    .then( result => {
+                        source = result;
+                        resolve( toJSON() );
+                    }).catch( reject );
             } else {
                 resolve( toJSON() );
             }
@@ -93,21 +92,21 @@ const SampleFactory = {
     },
 
     assemble( xtkSample ) {
-        return new Promise(( resolve, reject ) => {
-            fetch( xtkSample.b )
-                .then( result => result.blob() )
-                .then( async source => {
-                    // TODO: should SampleFactory.create() be able to do this loadSample from given source ?
-                    const buffer = await loadSample( source, AudioService.getAudioContext() );
-                    const sample = SampleFactory.create( source, buffer, xtkSample.n );
+        return new Promise( async ( resolve, reject ) => {
+            try {
+                const source = await base64ToBlob( xtkSample.b );
+                // TODO: should SampleFactory.create() be able to do this loadSample from given source ?
+                const buffer = await loadSample( source, AudioService.getAudioContext() );
+                const sample = SampleFactory.create( source, buffer, xtkSample.n );
 
-                    sample.rangeStart = xtkSample.s;
-                    sample.rangeEnd   = xtkSample.e;
-                    sample.pitch      = xtkSample.p;
+                sample.rangeStart = xtkSample.s;
+                sample.rangeEnd   = xtkSample.e;
+                sample.pitch      = xtkSample.p;
 
-                    resolve( sample );
-                })
-                .catch( reject );
+                resolve( sample );
+            } catch {
+                reject();
+            }
         });
     }
 };

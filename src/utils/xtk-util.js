@@ -22,7 +22,7 @@
  */
 import { compress, decompress } from "@/services/compression-service";
 import SongAssemblyService from "@/services/song-assembly-service";
-import { readFile } from "@/utils/file-util";
+import { readTextFromFile } from "@/utils/file-util";
 
 /**
  * XTK parser in several stages. Assumes latest binary format but
@@ -39,12 +39,12 @@ export const parseXTK = async xtkFileOrString => {
         songData = await decompress( xtkFileOrString );
         if ( !songData && isFile ) {
             // however, previous versions were compressed JSON strings
-            songData = await readFile( xtkFileOrString );
+            songData = await readTextFromFile( xtkFileOrString );
         }
     } catch {
         // legacy songs were base64 encoded Strings
         // attempt decode for backwards compatibility
-        let xtkString = isFile ? await readFile( xtkFileOrString ) : xtkFileOrString;
+        let xtkString = isFile ? await readTextFromFile( xtkFileOrString ) : xtkFileOrString;
         try {
             songData = window.atob( xtkString );
         } catch {
