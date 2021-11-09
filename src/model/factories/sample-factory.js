@@ -41,7 +41,8 @@ const SampleFactory = {
             buffer,
             rangeStart: 0,
             rangeEnd: buffer.duration,
-            pitch: null // @see sample-editor
+            pitch: null, // @see sample-editor
+            repitch: true, // whether to actually apply repitching
         };
     },
 
@@ -70,7 +71,8 @@ const SampleFactory = {
                 n: sample.name,
                 s: sample.rangeStart,
                 e: sample.rangeEnd,
-                p: sample.pitch
+                p: sample.pitch,
+                r: sample.repitch
             };
         };
         return new Promise(( resolve, reject ) => {
@@ -102,6 +104,7 @@ const SampleFactory = {
                 sample.rangeStart = xtkSample.s;
                 sample.rangeEnd   = xtkSample.e;
                 sample.pitch      = xtkSample.p;
+                sample.repitch    = xtkSample.r;
 
                 resolve( sample );
             } catch {

@@ -131,7 +131,7 @@ export default {
                 mediaRecorder.addEventListener( "stop", async () => {
                     const blob = new Blob( chunks );
                     const buffer = await loadSample( blob, AudioService.getAudioContext() );
-                    const sample = SampleFactory.create( blob, buffer, `recording_${TimeUtil.timestampToDate()}` );
+                    const sample = SampleFactory.create( blob, buffer, TimeUtil.timestampToDate() );
 
                     this.addSample( sample );
                     this.setCurrentSample( sample );

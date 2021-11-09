@@ -29,7 +29,8 @@ describe( "SampleFactory", () => {
             buffer,
             rangeStart: 0,
             rangeEnd: buffer.duration,
-            pitch: null
+            pitch: null,
+            repitch: true
         });
     });
 
@@ -70,7 +71,8 @@ describe( "SampleFactory", () => {
                 n: "foo",
                 s: 0,
                 e: 1000,
-                p: null
+                p: null,
+                r: true
             });
         });
 
@@ -87,7 +89,8 @@ describe( "SampleFactory", () => {
                 n: "foo",
                 s: 0,
                 e: 1000,
-                p: null
+                p: null,
+                r: true
             });
         });
 
@@ -102,6 +105,7 @@ describe( "SampleFactory", () => {
                 cents: 12
             };
             sample.pitch = pitch;
+            sample.repitch = false;
 
             const disassembled = await SampleFactory.disassemble( sample );
             expect( disassembled ).toEqual({
@@ -109,7 +113,8 @@ describe( "SampleFactory", () => {
                 n: "foo",
                 s: 5,
                 e: 10,
-                p: pitch
+                p: pitch,
+                r: sample.repitch
             })
         });
     });
@@ -125,7 +130,8 @@ describe( "SampleFactory", () => {
                 note: "A",
                 octave: 3,
                 cents: 12
-            }
+            },
+            r: false
         };
         const source = new Blob();
         const buffer = { duration: 1000 };
@@ -142,7 +148,8 @@ describe( "SampleFactory", () => {
             name: "foo",
             rangeStart: 5,
             rangeEnd: 10,
-            pitch: disassembled.p
+            pitch: disassembled.p,
+            repitch: false
         });
     });
 });

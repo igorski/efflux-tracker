@@ -122,7 +122,14 @@
                         :disabled="isBusy"
                     />
                 </div>
-                <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span>
+                <div class="toggle-control">
+                    <label v-t="'repitch'"></label>
+                    <toggle-button
+                        v-model="sample.repitch"
+                        sync
+                    />
+                </div>
+                <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
             </div>
         </template>
         <div
@@ -178,6 +185,7 @@ import ManualURLs from "@/definitions/manual-urls";
 import SampleDisplay from "@/components/sample-display/sample-display";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder";
 import SelectBox from "@/components/forms/select-box";
+import { ToggleButton } from "vue-js-toggle-button";
 import { getAudioContext } from "@/services/audio-service";
 import { loadSample } from "@/services/audio/sample-loader";
 import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch"
@@ -194,6 +202,7 @@ export default {
         SampleDisplay,
         SampleRecorder,
         SelectBox,
+        ToggleButton,
     },
     data: () => ({
         sample         : null,
@@ -251,7 +260,7 @@ export default {
             immediate: true,
             handler( value, oldValue ) {
                 if ( !oldValue || !value || value.name !== oldValue.name ) {
-                    this.sample = value;
+                    this.sample = value ? { ...value } : null;
                     this.stopPlayback();
 
                     if ( !value ) {
@@ -544,7 +553,7 @@ $width: 720px;
     @include toolFont();
 
     span {
-        margin: 0 $spacing-small;
+        margin-right: $spacing-medium;
     }
 }
 
@@ -579,10 +588,10 @@ $width: 720px;
 .range-controls {
     display: inline-block;
     margin: 0 $spacing-small;
-    @include toolFont();
     vertical-align: middle;
 
     .range-control {
+        @include toolFont();
         display: inline;
         margin-right: $spacing-small;
 
@@ -591,6 +600,15 @@ $width: 720px;
             width: auto;
             display: inline;
         }
+    }
+}
+
+.toggle-control {
+    @include toolFont();
+    display: inline;
+
+    label {
+        margin-right: $spacing-small;
     }
 }
 

@@ -274,7 +274,11 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
                     generatorNode = audioContext.createBufferSource();
                     generatorNode.buffer = sample.buffer;
                     generatorNode.loop = true;
-                    tuneSamplePitch( generatorNode, frequency, sample, voice );
+                    if ( sample.repitch ) {
+                        tuneSamplePitch( generatorNode, frequency, sample, voice );
+                    } else {
+                        tuneBufferPlaybackRate( generatorNode, voice );
+                    }
                     break;
 
                 case OscillatorTypes.NOISE:
