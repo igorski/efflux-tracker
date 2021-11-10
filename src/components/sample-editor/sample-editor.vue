@@ -148,17 +148,17 @@
                     @click="commitChanges()"
                 ></button>
                 <button
+                    v-t="'delete'"
+                    type="button"
+                    :disabled="!sample || isBusy"
+                    @click="deleteSample()"
+                ></button>
+                <button
                     v-if="canTrim"
                     v-t="'trim'"
                     type="button"
                     :disabled="!sample || !hasAltRange || isBusy"
                     @click="trimSample()"
-                ></button>
-                <button
-                    v-t="'delete'"
-                    type="button"
-                    :disabled="!sample || isBusy"
-                    @click="deleteSample()"
                 ></button>
                 <span
                     v-if="isBusy && encodeProgress"
