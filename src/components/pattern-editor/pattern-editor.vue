@@ -21,36 +21,53 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section class="pattern-editor"
-             :class="{ 'settings-mode': mobileMode === 'settings' }"
-             @mouseover="setHelpTopic('pattern')"
+    <section
+        class="pattern-editor"
+        :class="{ 'settings-mode': mobileMode === 'settings' }"
+        @mouseover="setHelpTopic('pattern')"
     >
         <h2 v-t="'title'"></h2>
         <ul class="inline-list">
             <li class="list-item">
-                <button v-t="'clear'" type="button"
-                        @click="handlePatternClear"></button>
+                <button
+                    v-t="'clear'"
+                    type="button"
+                    @click="handlePatternClear()"
+                ></button>
             </li>
             <li class="list-item">
-                <button v-t="'copy'" type="button"
-                        @click="handlePatternCopy"></button>
+                <button
+                    v-t="'copy'"
+                    type="button"
+                    @click="handlePatternCopy()"
+                ></button>
             </li>
             <li class="list-item">
-                <button v-t="'paste'" type="button"
-                        @click="handlePatternPaste"></button>
+                <button
+                    v-t="'paste'"
+                    type="button"
+                    @click="handlePatternPaste()"
+                ></button>
             </li>
             <li class="list-item">
-                <button v-t="'add'" type="button"
-                        @click="handlePatternAdd"></button>
+                <button
+                    v-t="'add'"
+                    type="button"
+                    @click="handlePatternAdd()"
+                ></button>
             </li>
             <li class="list-item">
-                <button v-t="'delete'" type="button"
-                        @click="handlePatternDelete"></button>
+                <button
+                    v-t="'delete'"
+                    type="button"
+                    @click="handlePatternDelete()"
+                ></button>
             </li>
             <li class="list-item">
-                <button v-t="'advanced'"
-                        type="button"
-                        @click="handlePatternAdvanced"
+                <button
+                    v-t="'advanced'"
+                    type="button"
+                    @click="handlePatternAdvanced()"
                 ></button>
             </li>
             <li class="list-item">
@@ -178,7 +195,10 @@ export default {
         .list-item {
             display: inline;
             cursor: pointer;
-            vertical-align: middle;
+
+            @include large() {
+                vertical-align: middle;
+            }
         }
 
         button {

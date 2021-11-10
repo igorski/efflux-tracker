@@ -25,37 +25,40 @@
         class="song-editor"
         :class="{ 'settings-mode': mobileMode === 'settings' }"
     >
-        <button v-t="'instrumentEditor'"
-                id="instrumentEditBtn"
-                @click="handleInstrumentEditorClick"
+        <button
+            v-t="'instrumentEditor'"
+            type="button"
+            @click="handleInstrumentEditorClick()"
         ></button>
-        <button v-t="'mixer'"
-                @click="handleMixerClick"
+        <button
+            v-t="'mixer'"
+            type="button"
+            @click="handleMixerClick()"
         ></button>
     </section>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
-import ModalWindows from '@/definitions/modal-windows';
-import messages from './messages.json';
+import { mapState, mapMutations } from "vuex";
+import ModalWindows from "@/definitions/modal-windows";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     computed: {
         ...mapState([
-            'mobileMode',
+            "mobileMode",
         ]),
     },
     methods: {
         ...mapMutations([
-            'openModal'
+            "openModal"
         ]),
         handleInstrumentEditorClick() {
-            this.openModal(ModalWindows.INSTRUMENT_EDITOR);
+            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         handleMixerClick() {
-            this.openModal(ModalWindows.MIXER);
+            this.openModal( ModalWindows.MIXER );
         },
     }
 };

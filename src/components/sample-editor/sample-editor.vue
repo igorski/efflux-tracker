@@ -514,9 +514,14 @@ $width: 720px;
     }
 
     .actions {
-        position: absolute;
-        top: $action-button-top;
-        right: #{$spacing-xlarge * 2 - $spacing-xsmall};
+        @include large() {
+            position: absolute;
+            top: $action-button-top;
+            right: #{$spacing-xlarge * 2 - $spacing-xsmall};
+        }
+        @include mobile() {
+            margin: $spacing-small #{$spacing-medium - $spacing-xxsmall};
+        }
     }
 
     .section-divider {
