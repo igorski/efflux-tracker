@@ -282,6 +282,9 @@ export default {
             for ( const file of sounds ) {
                 try {
                     const buffer = await loadSample( file, getAudioContext());
+                    if ( !buffer ) {
+                        throw new Error();
+                    }
                     const sample = SampleFactory.create( file, buffer, file.name );
                     this.addSample( sample );
                     this.setCurrentSample( sample );

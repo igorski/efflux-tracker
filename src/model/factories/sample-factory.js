@@ -97,8 +97,10 @@ const SampleFactory = {
         return new Promise( async ( resolve, reject ) => {
             try {
                 const source = await base64ToBlob( xtkSample.b );
-                // TODO: should SampleFactory.create() be able to do this loadSample from given source ?
                 const buffer = await loadSample( source, AudioService.getAudioContext() );
+                if ( !buffer ) {
+                    throw new Error();
+                }
                 const sample = SampleFactory.create( source, buffer, xtkSample.n );
 
                 sample.rangeStart = xtkSample.s;

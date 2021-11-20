@@ -34,6 +34,10 @@ export const loadSample = async ( sample, audioContext ) => {
         reader.onload = ({ target }) => {
             audioContext?.decodeAudioData( target.result, buffer => {
                 resolve( buffer );
+            }, error => {
+                // eslint-disable-next-line no-console
+                console?.warn( error );
+                resolve( null );
             });
         };
         reader.onerror = () => {
