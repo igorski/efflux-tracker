@@ -42,7 +42,7 @@ export default {
         sample: {
             immediate: true,
             async handler( sample ) {
-                if ( sample ) {
+                if ( sample?.buffer ) {
                     await this.$nextTick(); // wait for component to mount on first run
                     this.render( sample.buffer );
                 }

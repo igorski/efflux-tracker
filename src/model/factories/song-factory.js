@@ -93,7 +93,8 @@ const SongFactory =
          song.instruments = InstrumentFactory.assemble( xtk, xtkVersion );
          song.patterns    = PatternFactory.assemble( xtk, xtkVersion, song.meta.tempo );
 
-         song.samples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.assemble ));
+         const assembledSamples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.assemble ));
+         song.samples = assembledSamples.filter( Boolean );
 
          return song;
      },

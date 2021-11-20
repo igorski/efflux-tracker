@@ -34,13 +34,14 @@ const SampleFactory = {
      * @param {AudioBuffer} buffer
      * @param {String=} name
      */
-    create( source, buffer = null, name = "New sample" ) {
+    create( source, buffer, name = "New sample" ) {
         return {
             name,
             source,
             buffer,
             rangeStart: 0,
             rangeEnd: buffer.duration,
+            rate: buffer.sampleRate,
             pitch: null, // @see sample-editor
             repitch: true, // whether to actually apply repitching
         };
@@ -63,16 +64,23 @@ const SampleFactory = {
         return sliceBuffer( audioContext, sample.buffer, sample.rangeStart, sample.rangeEnd );
     },
 
+    /**
+     * Disassembles a sample Object into a serialized .XTK sample
+     *
+     * @param {Object} sample
+     * @return {Object}
+     */
     disassemble( sample ) {
         let source;
         const toJSON = () => {
             return {
-                b: source,
-                n: sample.name,
-                s: sample.rangeStart,
-                e: sample.rangeEnd,
-                p: sample.pitch,
-                r: sample.repitch
+                b  : source,
+                n  : sample.name,
+                s  : sample.rangeStart,
+                e  : sample.rangeEnd,
+                p  : sample.pitch,
+                r  : sample.repitch,
+                sr : sample.rate,
             };
         };
         return new Promise(( resolve, reject ) => {
@@ -93,13 +101,19 @@ const SampleFactory = {
         });
     },
 
+    /**
+     * assembles a sample Object from a serialized XTK sample
+     *
+     * @param {Object} xtkSample
+     * @return {Promise<Object|null>}
+     */
     assemble( xtkSample ) {
-        return new Promise( async ( resolve, reject ) => {
+        return new Promise( async resolve => {
             try {
                 const source = await base64ToBlob( xtkSample.b );
                 const buffer = await loadSample( source, AudioService.getAudioContext() );
                 if ( !buffer ) {
-                    throw new Error();
+                    throw Error();
                 }
                 const sample = SampleFactory.create( source, buffer, xtkSample.n );
 
@@ -107,10 +121,22 @@ const SampleFactory = {
                 sample.rangeEnd   = xtkSample.e;
                 sample.pitch      = xtkSample.p;
                 sample.repitch    = xtkSample.r;
+                sample.rate       = xtkSample.sr || buffer.sampleRate;
+
+                // curious : when loading samples, sometimes the range end is beyond the
+                // buffer duration. This is likely because of different sample rates used
+                // in the environment that created and the one that is loading the sample.
+                // consider using OfflineAudioContext with sample rate matched to saved sample.rate
+
+                if ( sample.rangeEnd > buffer.duration ) {
+                    sample.rangeEnd = buffer.duration;
+                    // eslint-disable-next-line no-console
+                    console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
+                }
 
                 resolve( sample );
             } catch {
-                reject();
+                resolve( null );
             }
         });
     }
