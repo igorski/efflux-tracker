@@ -70,9 +70,7 @@
                 <div
                     class="waveform-display__range"
                     :style="rangeStyle"
-                >
-                    <div class="waveform-display__range--background"></div>
-                </div>
+                ></div>
             </div>
             <hr class="divider" />
             <div class="transport-controls">
@@ -633,13 +631,8 @@ $width: 720px;
         height: 100%;
         border-left: 2px solid $color-1;
         border-right: 2px solid $color-1;
-
-        &--background {
-            width: 100%;
-            height: 100%;
-            background-color: $color-2;
-            mix-blend-mode: difference;
-        }
+        background-color: $color-2;
+        mix-blend-mode: difference;
     }
 }
 </style>

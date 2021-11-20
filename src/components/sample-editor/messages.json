@@ -5,6 +5,7 @@
         "play": "Play",
         "stop": "Stop",
         "loop": "Loop",
+        "record": "Record",
         "repitch": "Repitch",
         "sampleStart": "Sample start",
         "sampleEnd": "Sample end",
