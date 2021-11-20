@@ -4,7 +4,10 @@ let mockFn;
 jest.mock( "@/utils/sample-util", () => ({
     sliceBuffer: jest.fn(( ...args ) => mockFn( "sliceBuffer", ...args )),
 }));
-let mockAudioContext = "audioContext";
+let mockAudioContext = { sampleRate: 48000 };
+jest.mock( "@/services/audio/webaudio-helper", () => ({
+    createOfflineAudioContext: jest.fn(() => mockAudioContext )
+}));
 jest.mock( "@/services/audio-service", () => ({
     getAudioContext: jest.fn(() => mockAudioContext )
 }));
@@ -17,7 +20,7 @@ jest.mock( "@/utils/file-util", () => ({
     base64ToBlob: jest.fn(( ...args ) => Promise.resolve( mockFnFileUtil( "base64ToBlob", ...args )))
 }));
 
-const MOCK_BUFFER = { duration: 1000, sampleRate: 48000 };
+const MOCK_BUFFER = { duration: 4.5, sampleRate: 44100 };
 
 describe( "SampleFactory", () => {
     it( "should be able to construct a new instance from given source, buffer and name", () => {
@@ -32,7 +35,8 @@ describe( "SampleFactory", () => {
             rangeEnd: MOCK_BUFFER.duration,
             pitch: null,
             repitch: true,
-            rate: MOCK_BUFFER.sampleRate
+            rate: MOCK_BUFFER.sampleRate,
+            length: MOCK_BUFFER.duration,
         });
     });
 
@@ -70,28 +74,31 @@ describe( "SampleFactory", () => {
                 b  : "serializedSource",
                 n  : "foo",
                 s  : 0,
-                e  : 1000,
+                e  : MOCK_BUFFER.duration,
                 p  : null,
                 r  : true,
-                sr : sample.rate
+                sr : sample.rate,
+                l  : sample.length
             });
         });
 
         it( "should leave sample sources of the String type unchanged", async () => {
             const source = "base64";
-            const sample = SampleFactory.create( source, { duration: 1000 }, "foo" );
+            const sample = SampleFactory.create( source, MOCK_BUFFER, "foo" );
             mockFnFileUtil = jest.fn(() => "serializedSource" );
 
             const disassembled = await SampleFactory.disassemble( sample );
             expect( mockFnFileUtil ).not.toHaveBeenCalled();
 
             expect( disassembled ).toEqual({
-                b: "base64",
-                n: "foo",
-                s: 0,
-                e: 1000,
-                p: null,
-                r: true
+                b  : "base64",
+                n  : "foo",
+                s  : 0,
+                e  : MOCK_BUFFER.duration,
+                p  : null,
+                r  : true,
+                sr : MOCK_BUFFER.sampleRate,
+                l  : MOCK_BUFFER.duration
             });
         });
 
@@ -116,7 +123,8 @@ describe( "SampleFactory", () => {
                 e  : 10,
                 p  : pitch,
                 r  : sample.repitch,
-                sr : sample.rate
+                sr : sample.rate,
+                l  : MOCK_BUFFER.duration
             })
         });
     });
@@ -125,8 +133,8 @@ describe( "SampleFactory", () => {
         const disassembled = {
             b: "base64",
             n: "foo",
-            s: 5,
-            e: 10,
+            s: 1,
+            e: 2.5,
             p: {
                 frequency: 440.12,
                 note: "A",
@@ -135,6 +143,7 @@ describe( "SampleFactory", () => {
             },
             r: false,
             sr: 44100,
+            l: 3.5
         };
         const source = new Blob();
         mockFnFileUtil = jest.fn(() => source );
@@ -148,11 +157,49 @@ describe( "SampleFactory", () => {
             source,
             buffer: MOCK_BUFFER,
             name: "foo",
-            rangeStart: 5,
-            rangeEnd: 10,
+            rangeStart: 1,
+            rangeEnd: 2.5,
             pitch: disassembled.p,
             repitch: false,
-            rate: 44100
+            rate: 44100,
+            length: MOCK_BUFFER.duration
+        });
+    });
+
+    it( "should cap the sample range end to not exceed the sample length", async () => {
+        const disassembled = {
+            b: "base64",
+            n: "foo",
+            s: 1,
+            e: 5,
+            p: {
+                frequency: 440.12,
+                note: "A",
+                octave: 3,
+                cents: 12
+            },
+            r: false,
+            sr: 44100,
+            l: MOCK_BUFFER.duration
+        };
+        const source = new Blob();
+        mockFnFileUtil = jest.fn(() => source );
+        mockFn = jest.fn(() => MOCK_BUFFER );
+
+        const assembled = await SampleFactory.assemble( disassembled );
+
+        expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", disassembled.b );
+        expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
+        expect( assembled ).toEqual({
+            source,
+            buffer: MOCK_BUFFER,
+            name: "foo",
+            rangeStart: 1,
+            rangeEnd: MOCK_BUFFER.duration,
+            pitch: disassembled.p,
+            repitch: false,
+            rate: 44100,
+            length: MOCK_BUFFER.duration
         });
     });
 });

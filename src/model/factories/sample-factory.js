@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioService from "@/services/audio-service";
+import { getAudioContext } from "@/services/audio-service";
+import { createOfflineAudioContext } from "@/services/audio/webaudio-helper";
 import { loadSample } from "@/services/audio/sample-loader";
 import { sliceBuffer } from "@/utils/sample-util";
 import { fileToBase64, base64ToBlob } from "@/utils/file-util";
@@ -39,11 +40,12 @@ const SampleFactory = {
             name,
             source,
             buffer,
-            rangeStart: 0,
-            rangeEnd: buffer.duration,
-            rate: buffer.sampleRate,
-            pitch: null, // @see sample-editor
-            repitch: true, // whether to actually apply repitching
+            rangeStart : 0,
+            rangeEnd   : buffer.duration,
+            rate       : buffer.sampleRate, // in Hz
+            length     : buffer.duration,   // in seconds
+            pitch      : null, // @see sample-editor
+            repitch    : true, // whether to actually apply repitching
         };
     },
 
@@ -81,6 +83,7 @@ const SampleFactory = {
                 p  : sample.pitch,
                 r  : sample.repitch,
                 sr : sample.rate,
+                l  : sample.length,
             };
         };
         return new Promise(( resolve, reject ) => {
@@ -111,7 +114,10 @@ const SampleFactory = {
         return new Promise( async resolve => {
             try {
                 const source = await base64ToBlob( xtkSample.b );
-                const buffer = await loadSample( source, AudioService.getAudioContext() );
+                const rate   = xtkSample.sr || getAudioContext().sampleRate;
+                const length = xtkSample.l  || 120;
+
+                const buffer = await loadSample( source, createOfflineAudioContext( length, rate ));
                 if ( !buffer ) {
                     throw Error();
                 }
@@ -121,15 +127,15 @@ const SampleFactory = {
                 sample.rangeEnd   = xtkSample.e;
                 sample.pitch      = xtkSample.p;
                 sample.repitch    = xtkSample.r;
-                sample.rate       = xtkSample.sr || buffer.sampleRate;
+                sample.rate       = buffer.sampleRate;
+                sample.length     = buffer.duration;
 
                 // curious : when loading samples, sometimes the range end is beyond the
                 // buffer duration. This is likely because of different sample rates used
                 // in the environment that created and the one that is loading the sample.
-                // consider using OfflineAudioContext with sample rate matched to saved sample.rate
 
-                if ( sample.rangeEnd > buffer.duration ) {
-                    sample.rangeEnd = buffer.duration;
+                if ( sample.rangeEnd > sample.length ) {
+                    sample.rangeEnd = sample.length;
                     // eslint-disable-next-line no-console
                     console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
                 }

@@ -459,10 +459,12 @@ export default {
                 buffer = await loadSample( blob, getAudioContext() );
                 const sample = {
                     ...this.sample,
-                    source: blob,
+                    source     : blob,
                     buffer,
                     rangeStart : 0,
-                    rangeEnd   : buffer.duration
+                    rangeEnd   : buffer.duration,
+                    rate       : buffer.sampleRate,
+                    length     : buffer.duration
                 };
                 this.updateSample( sample );
                 this.sampleStart = 0;

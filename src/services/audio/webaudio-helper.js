@@ -299,6 +299,14 @@ export const init = () => {
 };
 
 /**
+ * Create an OfflineAudioContext of given duration in seconds in length for
+ * given sample rate and channel amount.
+ */
+export const createOfflineAudioContext = ( durationInSeconds, sampleRateInHz = 44100, channels = 2 ) => {
+    return new OfflineAudioContext( channels, Math.ceil( sampleRateInHz * durationInSeconds ), sampleRateInHz );
+};
+
+/**
  * verify whether given feature is supported by the
  * audioContext in the current environment
  */
