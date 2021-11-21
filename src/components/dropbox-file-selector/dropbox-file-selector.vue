@@ -34,10 +34,11 @@
             <div v-if="leaf">
                 <div class="breadcrumbs">
                     <!-- parent folders -->
-                    <button v-for="parent in breadcrumbs"
-                            :key="parent.path"
-                            type="button"
-                            @click="handleNodeClick( parent )"
+                    <button
+                        v-for="parent in breadcrumbs"
+                        :key="parent.path"
+                        type="button"
+                        @click="handleNodeClick( parent )"
                     >{{ parent.name || "./" }}</button>
                     <!-- current folder -->
                     <button
@@ -49,33 +50,40 @@
                     <!-- files and folders within current leaf -->
                     <p v-if="!filesAndFolders.length" v-t="'noAudioFiles'"></p>
                     <template v-else>
-                        <template v-for="node in filesAndFolders">
+                        <div
+                            v-for="node in filesAndFolders"
+                            :key="`entry_${node.path}`"
+                            class="entry"
+                        >
                             <div
                                 v-if="node.type === 'folder'"
-                                :key="`folder_${node.path}`"
-                                class="entry entry__folder"
+                                class="entry__icon entry__icon--folder"
                                 @click="handleNodeClick( node )"
                             >
                                 <span class="title">{{ node.name }}</span>
                             </div>
                             <div
                                 v-else-if="node.type === 'xtk'"
-                                :key="`type_${node.path}`"
-                                class="entry entry__project"
+                                class="entry__icon entry__icon--project"
                                 @click="handleNodeClick( node )"
                             >
                                 <span class="title">{{ node.name }}</span>
                             </div>
                             <div
                                 v-else
-                                :key="`audio_${node.path}`"
                                 :path="node.path"
-                                class="entry entry__audio"
+                                class="entry__icon entry__icon--audio"
                                 @click="handleNodeClick( node )"
                             >
                                 <span class="title">{{ node.name }}</span>
                             </div>
-                        </template>
+                            <button
+                                type="button"
+                                class="entry__delete-button"
+                                :title="$t('delete')"
+                                @click="handleDeleteClick( node )"
+                            >x</button>
+                        </div>
                     </template>
                 </div>
             </div>
@@ -85,7 +93,7 @@
 
 <script>
 import { mapMutations, mapActions } from "vuex";
-import { listFolder, downloadFileAsBlob } from "@/services/dropbox-service";
+import { listFolder, downloadFileAsBlob, deleteEntry } from "@/services/dropbox-service";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
 import SampleFactory from "@/model/factories/sample-factory";
@@ -278,6 +286,23 @@ export default {
             }
             this.unsetLoading( "dbox" );
         },
+        handleDeleteClick({ path }) {
+            this.openDialog({
+                type: "confirm",
+                message: this.$t( "deleteEntryWarning", { entry: path }),
+                confirm: async () => {
+                    const success = await deleteEntry( path );
+                    if ( success ) {
+                        this.showNotification({
+                            message: this.$t( "entryDeletedSuccessfully", { entry: path })
+                        });
+                        this.retrieveFiles( this.leaf.path );
+                    } else {
+                        this.showError( this.$t( "couldNotDeleteEntry", { entry: path } ));
+                    }
+                },
+            });
+        },
     },
 };
 </script>
@@ -326,6 +351,7 @@ export default {
     button {
         display: inline;
         position: relative;
+        cursor: pointer;
         margin-right: $spacing-small;
         border: none;
         background: none;
@@ -349,11 +375,6 @@ export default {
     cursor: pointer;
     @include toolFont();
 
-    &:hover {
-        background-color: $color-1;
-        color: #000;
-    }
-
     .title {
         position: absolute;
         left: $spacing-small;
@@ -362,19 +383,49 @@ export default {
         @include truncate();
     }
 
-    &__folder {
-        background: url("../../assets/images/icon-folder.png") no-repeat 50% $spacing-large;
-        background-size: 50%;
+    &__icon {
+        width: inherit;
+        height: inherit;
+
+        &--folder {
+            background: url("../../assets/images/icon-folder.png") no-repeat 50% $spacing-large;
+            background-size: 50%;
+        }
+
+        &--project {
+            background: url("../../assets/images/icon-project.svg") no-repeat 50% $spacing-large;
+            background-size: 50%;
+        }
+
+        &--audio {
+            background: url("../../assets/images/icon-audio.png") no-repeat 50% $spacing-large;
+            background-size: 50%;
+        }
     }
 
-    &__project {
-        background: url("../../assets/images/icon-project.svg") no-repeat 50% $spacing-large;
-        background-size: 50%;
+    &__delete-button {
+        display: none;
+        position: absolute;
+        cursor: pointer;
+        top: -$spacing-small;
+        right: -$spacing-small;
+        background-color: $color-2;
+        color: #000;
+        width: $spacing-large;
+        height: $spacing-large;
+        border: none;
+        border-radius: 50%;
     }
 
-    &__audio {
-        background: url("../../assets/images/icon-audio.png") no-repeat 50% $spacing-large;
-        background-size: 50%;
+    &:hover {
+        .entry__icon {
+            background-color: $color-1;
+            color: #000;
+        }
+
+        .entry__delete-button {
+            display: block;
+        }
     }
 }
 </style>

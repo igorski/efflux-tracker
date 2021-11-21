@@ -94,6 +94,15 @@ export const listFolder = async ( path = "" ) => {
     return entries;
 };
 
+export const deleteEntry = async path => {
+    try {
+        const { result } = await dbx.filesDelete({ path });
+        return !!result;
+    } catch {
+        return false;
+    }
+};
+
 export const downloadFileAsBlob = async ( path, returnAsURL = false ) => {
     try {
         const { result } = await dbx.filesDownload({ path });
