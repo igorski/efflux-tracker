@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import decode from "audio-decode";
 
 /**
  * Loads a sample file for use within the AudioContext
@@ -31,14 +32,25 @@ export const loadSample = async ( sample, audioContext ) => {
     return new Promise( resolve => {
         const reader = new FileReader();
         reader.readAsArrayBuffer( sample );
-        reader.onload = ({ target }) => {
-            audioContext?.decodeAudioData( target.result, buffer => {
+        reader.onload = async ({ target }) => {
+            try {
+                const buffer = await audioContext?.decodeAudioData( target.result );
                 resolve( buffer );
-            }, error => {
+            } catch ( error ) {
                 // eslint-disable-next-line no-console
                 console?.warn( error );
-                resolve( null );
-            });
+                // there is an issue in Safari 15 where MP3 content cannot be decoded
+                // (regression: worked fine in previous versions!) in this case try
+                // once more using audio-decode library to decode the sample.
+                try {
+                    const data = await decode( target.result, { context: audioContext });
+                    // eslint-disable-next-line no-console
+                    console.warn(data);
+                    resolve( data );
+                } catch {
+                    resolve( null );
+                }
+            }
         };
         reader.onerror = () => {
             resolve( null );
