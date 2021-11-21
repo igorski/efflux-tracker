@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import decode from "audio-decode";
+import { MPEGDecoderWebWorker } from "mpg123-decoder";
 
 /**
  * Loads a sample file for use within the AudioContext
@@ -41,14 +41,28 @@ export const loadSample = async ( sample, audioContext ) => {
                 console?.warn( error );
                 // there is an issue in Safari 15 where MP3 content cannot be decoded
                 // (regression: worked fine in previous versions!) in this case try
-                // once more using audio-decode library to decode the sample.
+                // once more using mpg123-decoder library to decode the sample.
+                // eventually we'd like to remove this code and the mpg123-decoder library.
+                let decoder;
                 try {
-                    const data = await decode( target.result, { context: audioContext });
+                    decoder = new MPEGDecoderWebWorker();
+                    await decoder.ready;
+                    const { channelData, samplesDecoded, sampleRate } = await decoder.decode( new Uint8Array( target.result ));
+                    const buffer = new AudioBuffer({
+                        length: samplesDecoded,
+                        numberOfChannels: channelData.length,
+                        sampleRate: sampleRate
+                    });
+                    for ( let i = 0; i < channelData.length; ++i ) {
+                        buffer.copyToChannel( channelData[ i ], i );
+                    }
+                    resolve( buffer );
+                } catch ( error2 ) {
                     // eslint-disable-next-line no-console
-                    console.warn(data);
-                    resolve( data );
-                } catch {
+                    console?.warn( error2 );
                     resolve( null );
+                } finally {
+                    decoder?.free();
                 }
             }
         };
