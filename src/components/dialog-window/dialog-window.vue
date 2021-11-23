@@ -21,7 +21,10 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="dialogWindow">
+    <div
+        class="dialog-window"
+        :class="{ 'has-actions' : !hideActions }"
+    >
         <h3>{{ title }}</h3>
         <p>{{ message }}</p>
         <div
@@ -100,7 +103,7 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 
-#dialogWindow {
+.dialog-window {
     @include editorComponent();
     @include overlay();
     @include noSelect();
@@ -146,14 +149,16 @@ export default {
     }
 
     @include mobile() {
-        border-radius: 0;
-        width: 100%;
-        height: 100%;
-
-        button {
-            display: block;
+        &.has-actions {
+            border-radius: 0;
             width: 100%;
-            margin-bottom: $spacing-small;
+            height: 100%;
+
+            button {
+                display: block;
+                width: 100%;
+                margin-bottom: $spacing-small;
+            }
         }
     }
 }
