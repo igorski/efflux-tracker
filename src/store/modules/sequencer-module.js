@@ -70,11 +70,14 @@ function enqueueEvent( store, event, eventChannel ) {
         let playingNote = queue.tail;
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
+        // not sure what the logic here was : this causes the first note in a looped measure to be cut short
+        // in this implementation, the note will sustain indefinitely without retrigger until loop stops) */
+        /*
         if ( !playingNote && sequencer.looping ) {
             dequeueEvent( sequencer, event, nextNoteTime + seq.length ); // or measure length minus event pos??
             return;
         }
-
+        */
         while ( playingNote ) {
             if ( playingNote.data.id !== event.id ) {
                 dequeueEvent( sequencer, playingNote.data, nextNoteTime );
@@ -109,7 +112,7 @@ function dequeueEvent( state, event, time ) {
     // a playback retrigger...
 
     // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-    // we"d like to use AudioService.noteOff(event, time) scheduled at the right note off time
+    // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
     // without using a timer in dequeueEvent(), but we suffer from stability issues
     const clock = createTimer( getAudioContext(), time, () => {
         event.seq.playing = false;
@@ -221,20 +224,23 @@ function step( store ) {
 
         let sync = true;
         const nextPattern = state.activePattern + 1;
-        if ( nextPattern > maxMeasure ) {
-            // last measure reached, jump back to first
-            commit( "setActivePattern", 0 );
 
-            // stop playing if we"re recording output and looping is disabled
+        // advance/update the measure only when the Sequencer isn't looping
+        if ( !state.looping ) {
+            if ( nextPattern > maxMeasure ) {
+                // last measure reached, jump back to first
+                commit( "setActivePattern", 0 );
 
-            if ( isRecording() && !state.looping ) {
-                commit( "setPlaying", false );
-                return;
+                // stop playing if we're recording output
+
+                if ( isRecording() ) {
+                    commit( "setPlaying", false );
+                    return;
+                }
+            } else {
+                commit( "gotoNextPattern", activeSong );
+                sync = false; // gotoNextPattern already syncs
             }
-        } else if ( !state.looping ) {
-            // advance the measure only when the Sequencer isn't looping
-            commit( "gotoNextPattern", activeSong );
-            sync = false; // gotoNextPattern already syncs
         }
         if ( sync ) {
             syncPositionToSequencerUpdate( state, activeSong );
@@ -288,23 +294,25 @@ function setPosition( state, { activeSong, pattern, currentTime }) {
     }
 
     if ( typeof currentTime !== "number" ) {
-        const audioContext = getAudioContext();
-        currentTime = audioContext ? audioContext.currentTime : 0;
+        currentTime = getAudioContext()?.currentTime || 0;
     }
     state.activePattern         = pattern;
     state.nextNoteTime          = currentTime;
     state.measureStartTime      = currentTime;
     state.firstMeasureStartTime = currentTime - ( pattern * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
 
-    state.channels = patterns[ state.activePattern ].channels;
+    state.channels = patterns[ pattern ].channels;
 
     // when going to the first measure we should stop playing all currently sounding notes
 
-    if ( state.activePattern === 0 ) {
+    if ( pattern === 0 ) {
         state.channelQueue.forEach( list => {
             let playingNote = list.head;
             while ( playingNote ) {
-                dequeueEvent( state, playingNote.data, currentTime );
+                // we add a value sightly below DEFAULT_POLLING_INTERVAL to the current time
+                // this prevents us performing the noteOff after a possible noteOn (e.g. first
+                // event in a looped measure) of the same event
+                dequeueEvent( state, playingNote.data, getAudioContext().currentTime + 0.015 );
                 playingNote.data.seq.playing = false;
                 playingNote.remove();
                 playingNote = list.head;
