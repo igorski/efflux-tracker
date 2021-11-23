@@ -71,7 +71,7 @@ function enqueueEvent( store, event, eventChannel ) {
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
         // not sure what the logic here was : this causes the first note in a looped measure to be cut short
-        // in this implementation, the note will sustain indefinitely without retrigger until loop stops) */
+        // (in this commented implementation, the note will sustain indefinitely without retrigger until loop stops)
         /*
         if ( !playingNote && sequencer.looping ) {
             dequeueEvent( sequencer, event, nextNoteTime + seq.length ); // or measure length minus event pos??
@@ -108,7 +108,7 @@ function enqueueEvent( store, event, eventChannel ) {
  */
 function dequeueEvent( state, event, time ) {
     // unset the playing state of the event at the moment it is killed (though
-    // it"s release cycle is started, we can consider the event eligible for
+    // it's release cycle is started, we can consider the event eligible for
     // a playback retrigger...
 
     // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
@@ -303,19 +303,21 @@ function setPosition( state, { activeSong, pattern, currentTime }) {
 
     state.channels = patterns[ pattern ].channels;
 
-    // when going to the first measure we should stop playing all currently sounding notes
+    // when going to the first measure after having reached the end of the song, stop playing
+    // all currently sounding notes (that were enqueued after the first measure, in case we
+    // are looping the first measure or the song is only one measure in length)
 
     if ( pattern === 0 ) {
         state.channelQueue.forEach( list => {
-            let playingNote = list.head;
+            let playingNote = list.tail;
             while ( playingNote ) {
-                // we add a value sightly below DEFAULT_POLLING_INTERVAL to the current time
-                // this prevents us performing the noteOff after a possible noteOn (e.g. first
-                // event in a looped measure) of the same event
-                dequeueEvent( state, playingNote.data, getAudioContext().currentTime + 0.015 );
-                playingNote.data.seq.playing = false;
-                playingNote.remove();
-                playingNote = list.head;
+                const nextNote = playingNote.previous;
+                if ( playingNote.data.seq.startMeasure !== 0 ) {
+                    dequeueEvent( state, playingNote.data, currentTime );
+                    playingNote.data.seq.playing = false;
+                    playingNote.remove();
+                }
+                playingNote = nextNote;
             }
         });
     }
@@ -379,7 +381,7 @@ export default {
                     interval: ( state.scheduleAheadTime * 1000 ) / 4
                 });
             } else {
-                state.worker.postMessage({ "cmd" : "stop" });
+                state.worker.postMessage({ cmd : "stop" });
                 while ( state.queueHandlers.length ) {
                     freeHandler( state, state.queueHandlers[ 0 ]);
                 }
