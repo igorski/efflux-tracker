@@ -22,10 +22,13 @@
  */
 import Config              from "@/config";
 import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
+import OscillatorTypes     from "@/definitions/oscillator-types";
 import FixturesLoader      from "@/services/fixtures-loader";
 import StorageUtil         from "@/utils/storage-util";
+import SampleFactory       from "@/model/factories/sample-factory";
 import InstrumentValidator from "@/model/validators/instrument-validator";
-import { saveAsFile }      from "@/utils/file-util";
+import { clone }           from "@/utils/object-util";
+import { openFileBrowser, readTextFromFile, saveAsFile } from "@/utils/file-util";
 
 const INSTRUMENT_STORAGE_KEY = "Efflux_Ins_";
 
@@ -96,35 +99,52 @@ export default {
                }
             );
         },
-        loadInstrument(store, instrument) {
-            return new Promise(async (resolve, reject) => {
-                const storedInstrument = await StorageUtil.getItem(getStorageKeyForInstrument(instrument));
-                if (!storedInstrument) {
+        loadInstrument({ getters, commit }, instrumentMeta ) {
+            return new Promise( async ( resolve, reject ) => {
+                const storedInstrument = await StorageUtil.getItem( getStorageKeyForInstrument( instrumentMeta ));
+                if ( !storedInstrument ) {
                     reject();
                 }
-                resolve(JSON.parse(storedInstrument));
+                const instrument = JSON.parse( storedInstrument );
+                for ( const oscillator of instrument.oscillators ) {
+                    if ( oscillator.sample && typeof oscillator.sample === "object" ) {
+                        const sample = await SampleFactory.assemble( oscillator.sample );
+                        if ( sample ) {
+                            // if sample didn't exist in song sample list yet, add it now
+                            if ( !getters.samples.find(({ name }) => name === sample.name )) {
+                                commit( "addSample", sample );
+                                commit( "cacheSample", sample );
+                            }
+                            // sample can now be referenced by name, active instruments
+                            // should never manage their own sample (the song is responsible
+                            // for managing all its used resources)
+                            oscillator.sample = sample.name;
+                        }
+                    }
+                }
+                resolve( instrument );
             });
         },
-        saveInstrument({ state, dispatch }, instrument) {
-            return new Promise(async (resolve, reject) => {
+        saveInstrument({ state, getters, dispatch }, instrument ) {
+            return new Promise( async ( resolve, reject ) => {
                 if ( InstrumentValidator.isValid( instrument ) &&
-                   ( typeof instrument.presetName === 'string' && instrument.presetName.length > 0 )) {
-
+                   ( typeof instrument.presetName === "string" && instrument.presetName.length > 0 )) {
                     try {
-                        // remove duplicate instrument if existed
-                        await dispatch('deleteInstrument', { instrument, persist: false });
+                        // remove duplicate instrument when existing
+                        await dispatch( "deleteInstrument", { instrument, persist: false });
                     }
-                    catch(e) {
+                    catch ( e ) {
                         // that's fine...
                     }
-
                     // push instrument into instrument list
-                    state.instruments.push(getMetaForInstrument(instrument));
-                    persistState(state);
+                    state.instruments.push( getMetaForInstrument( instrument ));
+                    persistState( state );
 
-                    // save instrument into storage
-                    StorageUtil.setItem(getStorageKeyForInstrument(instrument), JSON.stringify(instrument));
-
+                    // serialize instrument and save instrument into storage
+                    StorageUtil.setItem(
+                        getStorageKeyForInstrument( instrument ),
+                        JSON.stringify( await serializeInstrument( instrument, getters.samples ) )
+                    );
                     resolve();
                 } else {
                     reject();
@@ -163,10 +183,10 @@ export default {
                     }
                 }
 
-                if (deleted) {
-                    if (persist)
-                        persistState(state);
-
+                if ( deleted ) {
+                    if ( persist ) {
+                        persistState( state );
+                    }
                     resolve();
                 } else {
                     reject();
@@ -174,62 +194,46 @@ export default {
             });
         },
         importInstruments({ getters, dispatch }) {
-            // inline handler to overcome blocking of the file select popup by the browser
+            // directly invoke file browser to overcome blocking of the file select popup by the browser
+            let fileHandlerFn;
+            openFileBrowser( fileBrowserEvent => {
+                fileHandlerFn( fileBrowserEvent );
+            }, INSTRUMENT_FILE_EXTENSION );
 
-            const fileBrowser = document.createElement('input');
-            fileBrowser.setAttribute('type',   'file');
-            fileBrowser.setAttribute('accept', INSTRUMENT_FILE_EXTENSION);
-
-            const simulatedEvent = document.createEvent('MouseEvent');
-            simulatedEvent.initMouseEvent(
-                'click', true, true, window, 1,
-                 0, 0, 0, 0, false,
-                 false, false, false, 0, null
-            );
-            fileBrowser.dispatchEvent(simulatedEvent);
-
-            return new Promise((resolve, reject) => {
-                fileBrowser.addEventListener('change', fileBrowserEvent => {
-                    const reader = new FileReader();
-
-                    reader.onerror = () => {
-                        reject(getters.t('error.fileLoad'));
-                    };
-
-                    reader.onload = async readerEvent => {
-                        const fileData    = readerEvent.target.result;
-                        const instruments = JSON.parse(window.atob(fileData));
+            return new Promise(( resolve, reject ) => {
+                fileHandlerFn = async fileBrowserEvent => {
+                    try {
+                        const fileData = await readTextFromFile( fileBrowserEvent.target.files[ 0 ] );
+                        const instruments = JSON.parse( window.atob( fileData ));
 
                         // check if we're dealing with valid instruments
 
-                        if (Array.isArray(instruments)) {
+                        if ( Array.isArray( instruments )) {
                             let amountImported = 0;
-                            for (let i = 0; i < instruments.length; ++i) {
-                                const instrument = instruments[i];
-                                if (InstrumentValidator.isValid(instrument)) {
-                                    await dispatch('saveInstrument', instrument);
+                            for ( const instrument of instruments ) {
+                                if ( InstrumentValidator.isValid( instrument )) {
+                                    await dispatch( "saveInstrument", instrument );
                                     ++amountImported;
                                 }
                             }
-                            resolve(amountImported);
+                            resolve( amountImported );
                         } else {
-                            resolve(getters.t('error.instrumentImport', { extension: INSTRUMENT_FILE_EXTENSION }));
+                            resolve( getters.t( "error.instrumentImport", { extension: INSTRUMENT_FILE_EXTENSION }));
                         }
-                    };
-                    // start reading file contents
-                    reader.readAsText( fileBrowserEvent.target.files[ 0 ] );
-                });
+                    } catch {
+                        reject( getters.t( "error.fileLoad" ));
+                    }
+                };
             });
         },
         exportInstruments({ state, getters, dispatch }) {
-            return new Promise(async (resolve, reject) => {
-                if (Array.isArray(state.instruments ) && state.instruments.length > 0) {
+            return new Promise( async ( resolve, reject ) => {
+                if ( Array.isArray( state.instruments ) && state.instruments.length > 0 ) {
                     // retrieve all instrument data
                     const instruments = [];
-                    for (let i = 0; i < state.instruments.length; ++i) {
-                        const ins = state.instruments[i];
-                        const instrument = await dispatch('loadInstrument', getters.getInstrumentByPresetName(ins.presetName));
-                        instruments.push(instrument);
+                    for ( const ins of state.instruments ) {
+                        const instrument = await dispatch( "loadInstrument", getters.getInstrumentByPresetName( ins.presetName ));
+                        instruments.push( await serializeInstrument( instrument, getters.samples ));
                     }
 
                     // encode instrument data
@@ -255,5 +259,22 @@ const getMetaForInstrument = instrument => ({
     presetName: instrument.presetName,
 });
 
-const getStorageKeyForInstrument = instrument => `${INSTRUMENT_STORAGE_KEY}${instrument.presetName.replace(/\s/g, '')}`;
-const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify(state.instruments));
+const getStorageKeyForInstrument = instrument => `${INSTRUMENT_STORAGE_KEY}${instrument.presetName.replace( /\s/g, "" )}`;
+const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
+
+const serializeInstrument = async ( instrumentToSave, songSampleList ) => {
+    const instrument = clone( instrumentToSave );
+
+    // serialize used samples (these are managed by the song, but on import/export
+    // of individual instruments these are serialized as part of the instrument "bundle")
+    for ( const oscillator of instrument.oscillators ) {
+        if ( oscillator.waveform !== OscillatorTypes.SAMPLE ) {
+            continue;
+        }
+        const sampleEntity = songSampleList.find(({ name }) => name === oscillator.sample );
+        if ( sampleEntity ) {
+            oscillator.sample = await SampleFactory.disassemble( sampleEntity );
+        }
+    }
+    return instrument;
+};

@@ -336,7 +336,7 @@ const InstrumentFactory =
             enabled     : enabled,
             waveform    : type,
             table       : 0,  // created when CUSTOM type is used
-            sample      : "", // created when SAMPLE type is used (is String name)
+            sample      : "", // created when SAMPLE type is used (is String name or Stringified XTK for saved instruments)
             volume      : 1,
             detune      : 0,
             octaveShift : 0,

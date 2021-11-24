@@ -70,7 +70,7 @@ const SampleFactory = {
      * Disassembles a sample Object into a serialized .XTK sample
      *
      * @param {Object} sample
-     * @return {Object}
+     * @return {Promise<Object>}
      */
     disassemble( sample ) {
         let source;
