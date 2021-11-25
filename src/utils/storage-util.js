@@ -99,6 +99,23 @@ const StorageUtil =
             }
             resolve( storage.removeItem( key ));
         });
+    },
+    /**
+     * returns the local storage keys matching optional prefix and their size in kilobytes
+     *
+     * @param {String=} optPrefix
+     * @returns {Object}
+     */
+    getItemSizes( optPrefix = "" ) {
+        const out = {};
+        for ( const name in localStorage ) {
+            if ( !name.startsWith( optPrefix ) || !Object.prototype.hasOwnProperty.call( localStorage, name )) {
+                continue;
+            }
+            const size = (( localStorage[ name ].length + name.length) * 2 );
+            out[ name ] = `${( size / 1024 ).toFixed( 2 )} Kb`;
+        }
+        return out;
     }
 };
 export default StorageUtil;

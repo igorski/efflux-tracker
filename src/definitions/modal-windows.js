@@ -26,10 +26,11 @@ export default
     MODULE_PARAM_EDITOR     : "1",
     INSTRUMENT_EDITOR       : "2",
     SAMPLE_EDITOR           : "3",
-    MIXER                   : "4",
-    SONG_BROWSER            : "5",
-    SONG_SAVE_WINDOW        : "6",
-    SETTINGS_WINDOW         : "7",
-    WELCOME_WINDOW          : "8",
-    DROPBOX_FILE_SELECTOR   : "9"
+    INSTRUMENT_MANAGER      : "4",
+    MIXER                   : "5",
+    SONG_BROWSER            : "6",
+    SONG_SAVE_WINDOW        : "7",
+    SETTINGS_WINDOW         : "8",
+    WELCOME_WINDOW          : "9",
+    DROPBOX_FILE_SELECTOR   : "10"
 };

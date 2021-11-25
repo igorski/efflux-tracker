@@ -137,6 +137,21 @@
     }
 }
 
+.button {
+    @include button();
+}
+
+@mixin ghostButton {
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    @include globalFont();
+
+    &:hover {
+        color: #000;
+    }
+}
+
 @mixin editorComponent {
     padding: $spacing-small;
     background-color: $color-editor-background;

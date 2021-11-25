@@ -38,7 +38,8 @@ import { toFileName }      from "@/utils/string-util";
 import { parseXTK, toXTK } from "@/utils/xtk-util";
 import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
 
-const SONG_STORAGE_KEY = "Efflux_Song_";
+export const SONG_STORAGE_KEY = "Efflux_Song_";
+export const getStorageKeyForSong = ({ id }) => `${SONG_STORAGE_KEY}${id}`;
 
 export default {
     state: () => ({
@@ -366,5 +367,4 @@ const getMetaForSong = song => ({
     meta: { ...song.meta }
 });
 
-const getStorageKeyForSong = song => `${SONG_STORAGE_KEY}${song.id}`;
 const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( state.songs ));

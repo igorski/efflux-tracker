@@ -95,6 +95,14 @@
                     <ul class="file-menu">
                         <li>
                             <button
+                                v-t="'manageInstruments'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleInstrumentBrowserClick()"
+                            ></button>
+                        </li>
+                        <li>
+                            <button
                                 v-t="'instrumentEditor'"
                                 type="button"
                                 class="menu-button"
@@ -109,24 +117,6 @@
                                 @click="handleSampleEditorClick()"
                             ></button>
                         </li>
-                        <template v-if="hasImportExport">
-                            <li>
-                                <button
-                                    v-t="'importInstruments'"
-                                    type="button"
-                                    class="menu-button"
-                                    @click="handleInstrumentImport()"
-                                ></button>
-                            </li>
-                            <li>
-                                <button
-                                    v-t="'exportInstruments'"
-                                    type="button"
-                                    class="menu-button"
-                                    @click="handleInstrumentExport()"
-                                ></button>
-                            </li>
-                        </template>
                     </ul>
                 </li>
                 <li>
@@ -193,9 +183,6 @@ export default {
             "getInstruments",
             "isPlaying",
         ]),
-        hasImportExport() {
-            return typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
-        },
         hasFullscreen() {
             return isSupported();
         },
@@ -209,6 +196,9 @@ export default {
                 this.setMenuOpened( false );
             }
         }
+    },
+    created() {
+        this.hasImportExport = typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
     },
     mounted() {
         if ( this.$refs.fullscreenBtn ) {
@@ -234,8 +224,6 @@ export default {
             "openSong",
             "importSong",
             "exportSong",
-            "importInstruments",
-            "exportInstruments"
         ]),
         handleMouseOver() {
             this.setHelpTopic("menu");
@@ -319,15 +307,8 @@ export default {
         handleSampleEditorClick() {
             this.openModal( ModalWindows.SAMPLE_EDITOR );
         },
-        handleInstrumentImport() {
-            this.importInstruments()
-                .then(amountImported => this.showNotification({ message: this.$t("instrumentsImported", { amount: amountImported.toString() }) }))
-                .catch(error => this.showError(error));
-        },
-        handleInstrumentExport() {
-            this.exportInstruments()
-                .then(() => this.showNotification({ message: this.$t("instrumentsExported") }))
-                .catch();
+        handleInstrumentBrowserClick() {
+            this.openModal( ModalWindows.INSTRUMENT_MANAGER );
         },
     }
 };

@@ -194,6 +194,8 @@ export default {
                     return () => import( "@/components/instrument-editor/instrument-editor" );
                 case ModalWindows.SAMPLE_EDITOR:
                     return () => import( "@/components/sample-editor/sample-editor" );
+                case ModalWindows.INSTRUMENT_MANAGER:
+                    return () => import( "@/components/instrument-manager/instrument-manager" );
                 case ModalWindows.MIXER:
                     return () => import( "@/components/mixer/mixer" );
                 case ModalWindows.SONG_BROWSER:

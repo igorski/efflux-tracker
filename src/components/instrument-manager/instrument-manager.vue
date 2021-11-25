@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the 'Software'), to deal in
@@ -21,9 +21,9 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="song-browser">
+    <div class="instrument-manager">
         <div class="header">
-            <h2 v-t="'songs'"></h2>
+            <h2 v-t="'instrumentManager'"></h2>
             <button
                 type="button"
                 class="close-button"
@@ -31,109 +31,105 @@
             >x</button>
         </div>
         <hr class="divider" />
-        <ul class="song-list">
+        <ul class="instrument-list">
             <li
-                v-for="( song, index ) in mappedSongs"
-                :key="`song_${index}`"
-                @click="openSongClick( song.id )"
+                v-for="instrument in mappedInstruments"
+                :key="instrument.presetName"
             >
-                <span class="title">{{ `${song.meta.title}, by ${song.meta.author}` }}</span>
-                <!-- <span class="date">{{ getSongDate(song) }}</span> -->
-                <span class="size">{{ song.size }}</span>
+                <span class="title">{{ instrument.presetName }}</span>
+                <span class="size">{{ instrument.size }}</span>
                 <button
                     type="button"
                     class="delete-button"
-                    @click.stop="deleteSongClick( song.id )"
+                    @click.stop="requestDelete( instrument )"
                 >x</button>
             </li>
         </ul>
         <hr class="divider" />
-        <div class="footer">
-            <file-loader
-                file-types="project"
-                class="file-loader"
-            />
+        <div v-if="hasImportExport" class="footer">
+            <button
+                v-t="'importInstruments'"
+                type="button"
+                class="button"
+                @click="handleInstrumentImport()"
+            ></button>
+            <button
+                v-t="'exportInstruments'"
+                type="button"
+                class="button"
+                @click="handleInstrumentExport()"
+            ></button>
         </div>
     </div>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from "vuex";
-import FileLoader from "@/components/file-loader/file-loader";
-import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
-import { SONG_STORAGE_KEY, getStorageKeyForSong } from "@/store/modules/song-module";
-import Time from "@/utils/time-util";
+import { mapState, mapMutations, mapActions } from "vuex";
+import { INSTRUMENT_STORAGE_KEY, getStorageKeyForInstrument } from "@/store/modules/instrument-module";
 import StorageUtil from "@/utils/storage-util";
 import messages from "./messages.json";
 
 export default {
     i18n: { messages },
-    components: {
-        FileLoader,
-    },
     computed: {
-        ...mapGetters([
-            "getSongById",
-            "songs"
-        ]),
-        mappedSongs() {
-            const sizes = StorageUtil.getItemSizes( SONG_STORAGE_KEY );
-            return this.songs.map( song => ({
-                ...song,
-                size: sizes[ getStorageKeyForSong( song )]
+        ...mapState({
+            instruments : state => state.instrument.instruments,
+        }),
+        mappedInstruments() {
+            const sizes = StorageUtil.getItemSizes( INSTRUMENT_STORAGE_KEY );
+            return this.instruments.map( instrument => ({
+                ...instrument,
+                size: sizes[ getStorageKeyForInstrument( instrument )]
             })).sort(( a, b ) => {
-                if ( a.meta.title < b.meta.title ) return -1;
-                if ( a.meta.title > b.meta.title ) return 1;
+                if( a.presetName < b.presetName ) return -1;
+                if( a.presetName > b.presetName ) return 1;
                 return 0;
             });
         }
     },
-    watch: {
-        songs: {
-            immediate: true,
-            handler( songs ) {
-                if ( songs.length === 0 ) {
-                    this.openDialog({ title: this.$t( "error" ), message: this.$t( "errorNoSongs" ) });
-                }
-            }
-        },
+    created() {
+        this.hasImportExport = typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
     },
     methods: {
         ...mapMutations([
             "openDialog",
-            "showError"
+            "showNotification",
+            "setLoading",
+            "unsetLoading",
         ]),
         ...mapActions([
-            "openSong",
-            "loadSongFromLS",
-            "deleteSongFromLS"
+            "deleteInstrument",
+            "exportInstruments",
+            "importInstruments",
         ]),
-        getSongDate(song) {
-            return Time.timestampToDate(song.meta.modified);
-        },
-        async openSongClick(songId) {
-            try {
-                const song = await this.loadSongFromLS( this.getSongById( songId ));
-                this.openSong( song );
-                this.$emit( "close" );
-            } catch(e) {
-                this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
-            }
-        },
-        deleteSongClick(songId) {
-            const song = this.getSongById( songId );
-            if ( !song ) {
-                return;
-            }
+        requestDelete( instrument ) {
             this.openDialog({
                 type: "confirm",
-                message:  this.$t( "confirmSongDelete", { song: song.meta.title }),
+                message: this.$t( "confirmInstrumentDelete", { instrument: instrument.presetName }),
                 confirm: () => {
-                    this.deleteSongFromLS({ song });
+                    this.deleteInstrument({ instrument });
                 }
             });
-        }
-    }
+        },
+        async handleInstrumentImport() {
+            try {
+                const amountImported = await this.importInstruments();
+                this.showNotification({ message: this.$t( "instrumentsImported", { amount: amountImported.toString() }) });
+            } catch ( error ) {
+                this.showError( error );
+            }
+        },
+        async handleInstrumentExport() {
+            try {
+                this.setLoading( "exp" );
+                await this.exportInstruments();
+                this.showNotification({ message: this.$t( "instrumentsExported" ) });
+            } catch ( error ) {
+                this.showError( error );
+            }
+            this.unsetLoading( "exp" );
+        },
+    },
 };
 </script>
 
@@ -141,11 +137,11 @@ export default {
 @import "@/styles/_mixins";
 @import "@/styles/typography";
 
-$songBrowserWidth: 750px;
-$songBrowserHeight: 500px;
+$width: 750px;
+$height: 500px;
 $headerFooterHeight: 128px;
 
-.song-browser {
+.instrument-manager {
     @include editorComponent();
     @include overlay();
     @include noSelect();
@@ -168,20 +164,20 @@ $headerFooterHeight: 128px;
         margin-top: $spacing-xsmall;
     }
 
-    @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
-        width: $songBrowserWidth;
-        height: $songBrowserHeight;
+    @include componentIdeal( $width, $height ) {
+        width: $width;
+        height: $height;
         top: 50%;
         left: 50%;
-        margin-left: -( $songBrowserWidth / 2 );
-        margin-top: -( $songBrowserHeight / 2 );
+        margin-left: -( $width / 2 );
+        margin-top: -( $height / 2 );
 
-        .song-list {
-            height: calc(#{$songBrowserHeight - $headerFooterHeight});
+        .instrument-list {
+            height: calc(#{$height - $headerFooterHeight});
         }
     }
 
-    @include componentFallback( $songBrowserWidth, $songBrowserHeight ) {
+    @include componentFallback( $width, $height ) {
         top: 0;
         left: 0;
         width: 100%;
@@ -190,24 +186,22 @@ $headerFooterHeight: 128px;
         border-radius: 0;
         z-index: 2000;
 
-        .song-list {
+        .instrument-list {
             height: calc(100% - #{$headerFooterHeight});
         }
     }
 }
 
-.song-list {
+.instrument-list {
     @include list();
     width: 100%;
     overflow-y: auto;
 
     li {
         @include boxSize();
-        @include animate(padding, .1s);
         float: left;
         width: 100%;
         padding: $spacing-small $spacing-large;
-        cursor: pointer;
         border-bottom: 1px solid #53565c;
         font-family: Montserrat, Helvetica, sans-serif;
 
@@ -215,7 +209,7 @@ $headerFooterHeight: 128px;
             display: inline-block;
         }
 
-        .title, .date {
+        .title {
             @include noEvents();
         }
 
@@ -228,13 +222,7 @@ $headerFooterHeight: 128px;
         .size {
             width: 15%;
         }
-/*
-        .date {
-            width: 40%;
-            padding-left: $spacing-small;
-            @include boxSize();
-        }
-*/
+
         .delete-button {
             width: 5%;
             @include ghostButton();
@@ -252,12 +240,6 @@ $headerFooterHeight: 128px;
         &:nth-child(even) {
             background-color: #53565c;
             /*color: #FFF;*/
-        }
-
-        &:hover {
-            background-color: $color-5;
-            color: #000;
-            padding: $spacing-medium $spacing-large;
         }
     }
 }

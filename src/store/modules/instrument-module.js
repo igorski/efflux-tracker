@@ -30,7 +30,8 @@ import InstrumentValidator from "@/model/validators/instrument-validator";
 import { clone }           from "@/utils/object-util";
 import { openFileBrowser, readTextFromFile, saveAsFile } from "@/utils/file-util";
 
-const INSTRUMENT_STORAGE_KEY = "Efflux_Ins_";
+export const INSTRUMENT_STORAGE_KEY = "Efflux_Ins_";
+export const getStorageKeyForInstrument = ({ presetName }) => `${INSTRUMENT_STORAGE_KEY}${presetName.replace( /\s/g, "" )}`;
 
 // module that can store and retrieve saved instrument presets
 
@@ -259,7 +260,6 @@ const getMetaForInstrument = instrument => ({
     presetName: instrument.presetName,
 });
 
-const getStorageKeyForInstrument = instrument => `${INSTRUMENT_STORAGE_KEY}${instrument.presetName.replace( /\s/g, "" )}`;
 const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
 
 const serializeInstrument = async ( instrumentToSave, songSampleList ) => {

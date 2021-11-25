@@ -11,8 +11,7 @@
     "instruments": "Instruments",
     "instrumentEditor": "Instrument editor",
     "sampleEditor": "Sample editor",
-    "importInstruments": "Import instrument presets",
-    "exportInstruments": "Export instrument presets",
+    "manageInstruments": "Manage instruments",
     "settings": "Settings",
     "helpTutorials": "Help / Tutorials",
     "maximize": "Maximize",
@@ -24,8 +23,6 @@
     "stopRecording": "Stop recording",
     "songImported": "Song imported successfully.",
     "songExported": "Song '{song}' exported to your download folder",
-    "instrumentsImported": "{amount} instrument presets have been imported",
-    "instrumentsExported": "Instrument presets exported to your download folder",
     "emptySong": "Song has no pattern content!"
   }
 }

@@ -1,5 +1,5 @@
-import OscillatorTypes   from "@/definitions/oscillator-types";
-import InstrumentModule  from "@/store/modules/instrument-module";
+import OscillatorTypes from "@/definitions/oscillator-types";
+import InstrumentModule, { INSTRUMENT_STORAGE_KEY } from "@/store/modules/instrument-module";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 
 const { getters, mutations, actions } = InstrumentModule;
@@ -131,7 +131,7 @@ describe( "Vuex instrument module", () => {
                 await actions.loadInstrument({ getters: mockedGetters, commit }, { presetName: mockStoredInstrument.presetName });
 
                 // assert serialized instrument has been retrieved from storage
-                expect( mockStorageFn ).toHaveBeenCalledWith( "getItem", `Efflux_Ins_${mockStoredInstrument.presetName}` );
+                expect( mockStorageFn ).toHaveBeenCalledWith( "getItem", `${INSTRUMENT_STORAGE_KEY}${mockStoredInstrument.presetName}` );
 
                 // assert sample deserialization has been invoked
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
