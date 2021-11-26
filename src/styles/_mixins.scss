@@ -145,6 +145,7 @@
     cursor: pointer;
     background: transparent;
     border: none;
+    vertical-align: middle;
     @include globalFont();
 
     &:hover {

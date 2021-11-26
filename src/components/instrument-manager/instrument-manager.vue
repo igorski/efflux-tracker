@@ -41,8 +41,9 @@
                 <button
                     type="button"
                     class="delete-button"
+                    :title="$t('deleteInstrument')"
                     @click.stop="requestDelete( instrument )"
-                >x</button>
+                ><img src="@/assets/images/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
             </li>
         </ul>
         <hr class="divider" />

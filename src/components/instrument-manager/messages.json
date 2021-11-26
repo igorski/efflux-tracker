@@ -1,6 +1,7 @@
 {
     "en-US": {
         "instrumentManager": "Instrument manager",
+        "deleteInstrument": "Delete instrument",
         "confirmInstrumentDelete": "Are you sure you want to delete instrument '{instrument}' ? This operation cannot be undone.",
         "importInstruments": "Import instruments",
         "exportInstruments": "Export instruments",
