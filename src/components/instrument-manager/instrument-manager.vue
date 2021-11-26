@@ -43,7 +43,7 @@
                     class="delete-button"
                     :title="$t('deleteInstrument')"
                     @click.stop="requestDelete( instrument )"
-                ><img src="@/assets/images/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
+                ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
             </li>
         </ul>
         <hr class="divider" />
@@ -199,13 +199,13 @@ $headerFooterHeight: 128px;
     overflow-y: auto;
 
     li {
+        @include titleFont();
         @include boxSize();
         float: left;
         width: 100%;
         padding: $spacing-small $spacing-large;
         border-bottom: 1px solid #53565c;
-        font-family: Montserrat, Helvetica, sans-serif;
-
+        
         .title, .size, .delete-button {
             display: inline-block;
         }

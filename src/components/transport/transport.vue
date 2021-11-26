@@ -25,30 +25,60 @@
         <div class="transport-controls"
              :class="{ 'settings-mode': mobileMode === 'settings' }"
         >
-            <ul class="inline-block">
-                <li id="playBTN"
-                    :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
-                    @click="setPlaying(!isPlaying)"
-                ></li>
-                <li id="loopBTN" class="icon-loop"
-                    :class="{ active: isLooping }"
-                    @click="setLooping(!isLooping)"
-                ></li>
-                <li id="recordBTN"
-                    :class="[{ disabled: !canRecord }, isRecording ? 'active' : '' ]"
-                    @click="setRecording(!isRecording)"
-                ></li>
-                <li class="icon-metronome"
-                    :class="{ active: isMetronomeEnabled }"
-                    @click="setMetronomeEnabled(!isMetronomeEnabled)"
-                ></li>
-                <li class="icon-settings"
-                    @click="handleSettingsToggle"
-                ></li>
+            <ul class="transport-controls__buttons">
+                <li>
+                    <button
+                        id="playBTN"
+                        type="button"
+                        :title="$t( isPlaying ? 'stop' : 'play' )"
+                        :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
+                        @click="setPlaying( !isPlaying )"
+                    ></button>
+                </li>
+                <li>
+                    <button
+                         id="loopBTN"
+                         type="button"
+                         :title="$t('loop')"
+                         class="icon-loop"
+                         :class="{ active: isLooping }"
+                         @click="setLooping( !isLooping )"
+                     ></button>
+                </li>
+                <li>
+                    <button
+                        id="recordBTN"
+                        type="button"
+                        :title="$t('recordInput')"
+                        @click="setRecording( !isRecording )"
+                    ><i class="record-icon" :class="{ active: isRecording }"></i></button>
+                </li>
+                <li>
+                    <button
+                        type="button"
+                        :title="$t('metronome')"
+                        class="icon-metronome"
+                        :class="{ active: isMetronomeEnabled }"
+                        @click="setMetronomeEnabled( !isMetronomeEnabled )"
+                    ></button>
+                </li>
+                <li>
+                    <button
+                        type="button"
+                        class="icon-settings"
+                        :title="$t('settings')"
+                        @click="handleSettingsToggle()"
+                    ></button>
+                </li>
                 <li class="section-divider"><!-- x --></li>
-                <li class="pattern-back"
-                    @click="gotoPreviousPattern( activeSong )"
-                >&lt;&lt;</li>
+                <li>
+                    <button
+                        type="button"
+                        class="pattern-back"
+                        :title="$t('previousPattern')"
+                        @click="gotoPreviousPattern( activeSong )"
+                    >&lt;&lt;</button>
+                </li>
                 <li class="current-pattern">
                     <input
                         class="current"
@@ -60,10 +90,16 @@
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
                 </li>
-                <li class="pattern-next"
-                    @click="gotoNextPattern( activeSong )">&gt;&gt;</li>
+                <li>
+                    <button
+                        type="button"
+                        class="pattern-next"
+                        :title="$t('nextPattern')"
+                        @click="gotoNextPattern( activeSong )"
+                    >&gt;&gt;</button>
+                </li>
             </ul>
-            <ul class="tempo-control wrapper input range">
+            <ul class="transport-controls__tempo wrapper input range">
                 <li class="section-divider"><!-- x --></li>
                 <li>
                     <label
@@ -142,29 +178,30 @@ export default {
         },
     },
     watch: {
-        isPlaying(playing) {
-            if (playing) {
+        isPlaying( playing ) {
+            if ( playing ) {
                 this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
             } else {
-                if (this.isRecording) {
-                    this.setRecording(false);
+                if ( this.isRecording ) {
+                    this.setRecording( false );
                 }
-                resetPlayState(this.activeSong.patterns); // unset playing state of existing events
+                resetPlayState( this.activeSong.patterns ); // unset playing state of existing events
             }
         },
-        isRecording(recording, wasRecording) {
-            if (wasRecording) {
+        isRecording( recording, wasRecording ) {
+            if ( wasRecording ) {
                 // unflag the recorded state of all the events
                 const patterns = this.activeSong.patterns;
                 let event, i;
 
-                patterns.forEach(pattern => {
-                    pattern.channels.forEach(events => {
+                patterns.forEach( pattern => {
+                    pattern.channels.forEach( events => {
                         i = events.length;
                         while ( i-- ) {
                             event = events[ i ];
-                            if ( event )
-                                Vue.set(event, "recording", false);
+                            if ( event ) {
+                                Vue.set( event, "recording", false );
+                            }
                         }
                     });
                 });
@@ -172,10 +209,13 @@ export default {
         },
         activePattern: {
             immediate: true,
-            handler(value) {
-                const newSteps = this.activeSong.patterns[value].steps;
-                if (this.amountOfSteps !== newSteps) {
-                    this.setPatternSteps({ pattern: this.activeSong.patterns[this.activePattern], steps: newSteps });
+            handler( value ) {
+                const newSteps = this.activeSong.patterns[ value ].steps;
+                if ( this.amountOfSteps !== newSteps ) {
+                    this.setPatternSteps({
+                        pattern: this.activeSong.patterns[ this.activePattern ],
+                        steps: newSteps
+                    });
                 }
             }
         },
@@ -248,54 +288,36 @@ export default {
 }
 
 .transport-controls {
-    font-family: "Montserrat", Helvetica, Verdana, sans-serif;
+    @include titleFont();
     border: none;
     border-radius: 0;
     margin: 0 auto;
     min-width: 100%;
     max-width: $ideal-width;
 
-    ul {
+    &__buttons,
+    &__tempo {
         @include list();
         padding-left: $spacing-medium;
+        display: inline-block;
+        vertical-align: middle;
 
         li {
             display: inline;
             margin: $spacing-small 0;
             padding: 0;
             font-weight: bold;
-            cursor: pointer;
 
             @include large() {
                 &:first-child {
                     padding-left: $spacing-xsmall;
                 }
             }
+        }
+    }
 
-            /* play button */
-            &#playBTN:before {
-                margin-right: 0;
-                @include mobile() {
-                    margin: 0;
-                }
-            }
-
-            /* record button */
-            &#recordBTN {
-                background-color: #d00e57;
-                padding: 0 9px;
-                border-radius: 50%;
-                margin-left: $spacing-small;
-
-                &.active {
-                    background-color: #FFF;
-                }
-
-                &.disabled {
-                    display: none;
-                }
-            }
-
+    &__buttons {
+        li {
             /* measure indicator */
             &.current-pattern {
                 display: inline-block;
@@ -322,8 +344,53 @@ export default {
                     @include toolFont();
                 }
             }
+        }
+
+        button {
+            @include ghostButton();
+            margin: 0;
+            padding: 0;
+
+            &:hover {
+                color: #FFF;
+            }
+
+            /* play button */
+            &#playBTN:before {
+                margin-right: 0;
+                @include mobile() {
+                    margin: 0;
+                }
+            }
+
+            /* record button */
+            &#recordBTN {
+                padding: 0 0 0 10px;
+
+                .record-icon {
+                    display: block;
+                    width: 18px;
+                    height: 18px;
+                    background-color: #d00e57;
+                    border-radius: 50%;
+
+                    &.active,
+                    &:hover {
+                        background-color: #FFF;
+                    }
+
+                    &.disabled {
+                        display: none;
+                    }
+                }
+            }
 
             /* pattern jump buttons */
+            &.pattern-next,
+            &.pattern-back {
+                @include titleFont();
+            }
+
             &.pattern-next {
                 padding-left: 0;
             }
@@ -334,10 +401,10 @@ export default {
 
             &.icon-settings {
                 display: none; /* mobile only (see below) */
-            }
-
-            &.icon-settings {
                 padding: 0 $spacing-small;
+                &:before {
+                    margin-left: -$spacing-small;
+                }
             }
 
             &.enabled {
@@ -348,7 +415,7 @@ export default {
 
     /* tempo control */
 
-    .tempo-control {
+    &__tempo {
         padding: $spacing-medium 0 0 $spacing-small;
         display: inline;
 
@@ -409,18 +476,22 @@ export default {
         label {
             display: none !important;
         }
+
         .current-pattern {
             width: auto;
         }
-        .tempo-control {
+
+        &__tempo {
             display: none;
         }
-        &.settings-mode .tempo-control {
+
+        &.settings-mode &__tempo {
             display: inline-block;
             margin: 0 $spacing-small $spacing-small;
             padding: 0 0 0 $spacing-small;
         }
-        ul li.icon-settings {
+
+        &__buttons button.icon-settings {
             display: inline;
         }
     }

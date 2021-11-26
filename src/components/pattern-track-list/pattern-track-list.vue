@@ -439,8 +439,8 @@ $stepHeight: 32px;
 }
 
 .index {
+    @include titleFont();
     display: block;
-    font-family: "Montserrat", Helvetica, Verdana, sans-serif;
     font-weight: bold;
     text-align: center;
     border-top: 2px solid #000;

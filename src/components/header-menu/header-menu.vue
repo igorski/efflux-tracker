@@ -328,7 +328,7 @@ export default {
 
 .menu-button,
 .title {
-    font-family: Montserrat, Helvetica, Verdana;
+    @include titleFont();
     cursor: pointer;
     background: none;
     border: none;

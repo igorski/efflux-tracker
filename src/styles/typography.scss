@@ -7,6 +7,10 @@
     line-height: 1.5;
 }
 
+@mixin titleFont() {
+    font-family: "Montserrat", Helvetica, Verdana, sans-serif;
+}
+
 @mixin toolFont() {
     font-family: "Squada One", sans-serif;
     text-transform: uppercase;

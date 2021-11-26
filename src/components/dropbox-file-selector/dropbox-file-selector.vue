@@ -388,17 +388,17 @@ export default {
         height: inherit;
 
         &--folder {
-            background: url("../../assets/images/icon-folder.png") no-repeat 50% $spacing-large;
+            background: url("../../assets/icons/icon-folder.png") no-repeat 50% $spacing-large;
             background-size: 50%;
         }
 
         &--project {
-            background: url("../../assets/images/icon-project.svg") no-repeat 50% $spacing-large;
+            background: url("../../assets/icons/icon-project.svg") no-repeat 50% $spacing-large;
             background-size: 50%;
         }
 
         &--audio {
-            background: url("../../assets/images/icon-audio.png") no-repeat 50% $spacing-large;
+            background: url("../../assets/icons/icon-audio.png") no-repeat 50% $spacing-large;
             background-size: 50%;
         }
     }

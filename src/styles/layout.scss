@@ -61,7 +61,7 @@
     width: 100%;
     height: $footer-height;
     color: #EEE;
-    font-family: Montserrat, Helvetica, Verdana;
+    @include titleFont();
 
     span {
         width: auto;

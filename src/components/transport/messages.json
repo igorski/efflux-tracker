@@ -1,6 +1,14 @@
 {
   "en-US": {
     "tempoLabel": "Tempo",
-    "tempo": "{tempo} BPM"
+    "tempo": "{tempo} BPM",
+    "play": "Play",
+    "stop": "Stop",
+    "loop": "Loop",
+    "recordInput": "Record input",
+    "metronome": "Metronome",
+    "settings": "Settings",
+    "previousPattern": "Previous pattern",
+    "nextPattern": "Next pattern"
   }
 }

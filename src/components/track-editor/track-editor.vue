@@ -163,25 +163,25 @@ export default {
             cursor: pointer;
 
             &.add-on {
-                background-image: url('../../assets/images/icon-note-add.png');
+                background-image: url('../../assets/icons/icon-note-add.png');
             }
             &.add-off {
-                background-image: url('../../assets/images/icon-note-mute.png');
+                background-image: url('../../assets/icons/icon-note-mute.png');
             }
             &.remove-note {
-                background-image: url('../../assets/images/icon-note-delete.png');
+                background-image: url('../../assets/icons/icon-note-delete.png');
             }
             &.module-params {
-                background-image: url('../../assets/images/icon-module-params.png');
+                background-image: url('../../assets/icons/icon-module-params.png');
             }
             &.module-glide {
-                background-image: url('../../assets/images/icon-module-glide.png');
+                background-image: url('../../assets/icons/icon-module-glide.png');
             }
             &.undo {
-                background-image: url('../../assets/images/icon-undo.png');
+                background-image: url('../../assets/icons/icon-undo.png');
             }
             &.redo {
-                background-image: url('../../assets/images/icon-redo.png');
+                background-image: url('../../assets/icons/icon-redo.png');
             }
 
             &.active {
