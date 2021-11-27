@@ -6,6 +6,9 @@
         "importInstruments": "Import instruments",
         "exportInstruments": "Export instruments",
         "instrumentsImported": "{amount} instrument presets have been imported",
-        "instrumentsExported": "Instrument presets exported to your download folder"
+        "instrumentsExported": "Instrument presets exported to your download folder",
+        "exportInstrument": "Export instrument",
+        "instrumentExported": "Instrument '{instrument}' exported to your download folder",
+        "errorInstrumentExport": "Could not export instrument."
     }
 }

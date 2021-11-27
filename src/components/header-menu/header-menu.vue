@@ -148,12 +148,23 @@
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen" class="fullscreen-button">
                     <button
-                        v-t="'maximize'"
                         ref="fullscreenBtn"
                         type="button"
                         class="menu-button"
+                        :title="$t( isFullscreen ? 'minimize' : 'maximize' )"
                         data-api-fullscreen
-                    ></button>
+                    >
+                        <img
+                            v-if="isFullscreen"
+                            src="@/assets/icons/icon-minimize.svg"
+                            :alt="$t( 'minimize' )"
+                        />
+                        <img
+                            v-else
+                            src="@/assets/icons/icon-maximize.svg"
+                            :alt="$t( 'maximize' )"
+                        />
+                    </button>
                 </li>
             </ul>
         </section>
@@ -173,6 +184,9 @@ import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    data: () => ({
+        isFullscreen: false,
+    }),
     computed: {
         ...mapState([
             "menuOpened",
@@ -183,9 +197,6 @@ export default {
             "getInstruments",
             "isPlaying",
         ]),
-        hasFullscreen() {
-            return isSupported();
-        },
         recordingButtonText() {
             return this.isPlaying && AudioService.isRecording() ? this.$t( "stopRecording" ) : this.$t( "recordOutput" );
         },
@@ -199,10 +210,13 @@ export default {
     },
     created() {
         this.hasImportExport = typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
+        this.hasFullscreen   = isSupported();
     },
     mounted() {
         if ( this.$refs.fullscreenBtn ) {
-            setToggleButton( this.$refs.fullscreenBtn, this.$t( "maximize" ), this.$t( "minimize" ));
+            setToggleButton( this.$refs.fullscreenBtn, isFullscreen => {
+                this.isFullscreen = isFullscreen;
+            });
         }
     },
     methods: {
@@ -410,6 +424,10 @@ h1 {
         &.fullscreen-button {
             float: right;
             margin-right: $spacing-medium;
+
+            img:hover {
+                filter: brightness(0) invert(1);
+            }
         }
     }
 }

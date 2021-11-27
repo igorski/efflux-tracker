@@ -42,7 +42,13 @@
                 <span class="size">{{ song.size }}</span>
                 <button
                     type="button"
-                    class="delete-button"
+                    class="action-button"
+                    :title="$t('exportSong')"
+                    @click.stop="exportSongClick( song.id )"
+                ><img src="@/assets/icons/icon-download.svg" :alt="$t('exportSong')" /></button>
+                <button
+                    type="button"
+                    class="action-button"
                     :title="$t('deleteSong')"
                     @click.stop="deleteSongClick( song.id )"
                 ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteSong')" /></button>
@@ -102,26 +108,37 @@ export default {
     methods: {
         ...mapMutations([
             "openDialog",
-            "showError"
+            "showError",
+            "showNotification"
         ]),
         ...mapActions([
             "openSong",
             "loadSongFromLS",
-            "deleteSongFromLS"
+            "deleteSongFromLS",
+            "exportSong"
         ]),
-        getSongDate(song) {
+        getSongDate( song ) {
             return Time.timestampToDate(song.meta.modified);
         },
-        async openSongClick(songId) {
+        async openSongClick( songId ) {
             try {
                 const song = await this.loadSongFromLS( this.getSongById( songId ));
                 this.openSong( song );
                 this.$emit( "close" );
-            } catch(e) {
+            } catch {
                 this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
             }
         },
-        deleteSongClick(songId) {
+        async exportSongClick( songId ) {
+            try {
+                const song = await this.loadSongFromLS( this.getSongById( songId ));
+                await this.exportSong( song );
+                this.showNotification({ message: this.$t( "songExported", { song: song.meta.title }) });
+            } catch {
+                this.showError( this.$t( "errorSongExport" ));
+            }
+        },
+        deleteSongClick( songId ) {
             const song = this.getSongById( songId );
             if ( !song ) {
                 return;
@@ -212,7 +229,7 @@ $headerFooterHeight: 128px;
         cursor: pointer;
         border-bottom: 1px solid #53565c;
 
-        .title, .size, .delete-button {
+        .title, .size, .action-button {
             display: inline-block;
         }
 
@@ -221,7 +238,7 @@ $headerFooterHeight: 128px;
         }
 
         .title {
-            width: 80%;
+            width: 75%;
             @include truncate();
             vertical-align: middle;
         }
@@ -236,9 +253,13 @@ $headerFooterHeight: 128px;
             @include boxSize();
         }
 */
-        .delete-button {
+        .action-button {
             width: 5%;
             @include ghostButton();
+
+            &:hover {
+                filter: brightness(0) invert(1);
+            }
         }
 
         @include mobile() {

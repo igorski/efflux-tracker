@@ -40,7 +40,13 @@
                 <span class="size">{{ instrument.size }}</span>
                 <button
                     type="button"
-                    class="delete-button"
+                    class="action-button"
+                    :title="$t('exportInstrument')"
+                    @click.stop="handleExportClick( instrument )"
+                ><img src="@/assets/icons/icon-download.svg" :alt="$t('exportInstrument')" /></button>
+                <button
+                    type="button"
+                    class="action-button"
                     :title="$t('deleteInstrument')"
                     @click.stop="requestDelete( instrument )"
                 ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
@@ -100,9 +106,20 @@ export default {
         ]),
         ...mapActions([
             "deleteInstrument",
+            "exportInstrument",
             "exportInstruments",
             "importInstruments",
         ]),
+        async handleExportClick( instrument ) {
+            this.setLoading( "exp" );
+            try {
+                await this.exportInstrument( instrument );
+                this.showNotification({ message: this.$t( "instrumentExported", { instrument: instrument.presetName }) });
+            } catch {
+                this.showError( this.$t( "errorInstrumentExport" ));
+            }
+            this.unsetLoading( "exp" );
+        },
         requestDelete( instrument ) {
             this.openDialog({
                 type: "confirm",
@@ -205,8 +222,8 @@ $headerFooterHeight: 128px;
         width: 100%;
         padding: $spacing-small $spacing-large;
         border-bottom: 1px solid #53565c;
-        
-        .title, .size, .delete-button {
+
+        .title, .size, .action-button {
             display: inline-block;
         }
 
@@ -215,7 +232,7 @@ $headerFooterHeight: 128px;
         }
 
         .title {
-            width: 80%;
+            width: 75%;
             @include truncate();
             vertical-align: middle;
         }
@@ -224,9 +241,13 @@ $headerFooterHeight: 128px;
             width: 15%;
         }
 
-        .delete-button {
+        .action-button {
             width: 5%;
             @include ghostButton();
+
+            &:hover {
+                filter: brightness(0) invert(1);
+            }
         }
 
         @include mobile() {

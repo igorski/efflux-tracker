@@ -227,6 +227,18 @@ export default {
                 };
             });
         },
+        exportInstrument({ getters, dispatch }, instrumentMeta ) {
+            return new Promise( async( resolve, reject ) => {
+                try {
+                    const instrument = await dispatch( "loadInstrument", getters.getInstrumentByPresetName( instrumentMeta.presetName ));
+                    const serialized = await serializeInstrument( instrument, getters.samples );
+                    downloadInstrumentFile([ serialized ], `${instrumentMeta.presetName}${INSTRUMENT_FILE_EXTENSION}` );
+                    resolve();
+                } catch {
+                    reject();
+                }
+            });
+        },
         exportInstruments({ state, getters, dispatch }) {
             return new Promise( async ( resolve, reject ) => {
                 if ( Array.isArray( state.instruments ) && state.instruments.length > 0 ) {
@@ -236,15 +248,7 @@ export default {
                         const instrument = await dispatch( "loadInstrument", getters.getInstrumentByPresetName( ins.presetName ));
                         instruments.push( await serializeInstrument( instrument, getters.samples ));
                     }
-
-                    // encode instrument data
-                    const data = window.btoa( JSON.stringify( instruments ));
-
-                    // download file to disk
-                    saveAsFile(
-                        `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`,
-                        `efflux_instrument_presets${INSTRUMENT_FILE_EXTENSION}`
-                    );
+                    downloadInstrumentFile( instruments, `efflux_instrument_presets${INSTRUMENT_FILE_EXTENSION}` );
                     resolve();
                 } else {
                     reject();
@@ -259,6 +263,16 @@ export default {
 const getMetaForInstrument = instrument => ({
     presetName: instrument.presetName,
 });
+
+const downloadInstrumentFile = ( instrumentList, fileName ) => {
+    // encode instrument data
+    const data = window.btoa( JSON.stringify( instrumentList ));
+
+    // download file to disk
+    saveAsFile(
+        `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`, fileName
+    );
+};
 
 const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
 

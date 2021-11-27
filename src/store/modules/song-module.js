@@ -51,7 +51,7 @@ export default {
         songs: state => state.songs,
         activeSong: state => state.activeSong,
         samples: state => state.activeSong.samples,
-        getSongById: state => id => state.songs.find(song => song.id === id) || null
+        getSongById: state => id => state.songs.find( song => song.id === id ) || null
     },
     mutations: {
         setSongs( state, songs ) {

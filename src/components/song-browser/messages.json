@@ -5,6 +5,9 @@
     "errorNoSongs": "There are currently no songs available to load. Why not create one?",
     "errorSongImport": "Could not import song, file was possibly not a valid {extension} file, or made by an incompatible version of Efflux",
     "deleteSong": "Delete song",
-    "confirmSongDelete": "Are you sure you want to delete song '{song}' ? This operation cannot be undone."
+    "confirmSongDelete": "Are you sure you want to delete song '{song}' ? This operation cannot be undone.",
+    "exportSong": "Export song",
+    "songExported": "Song '{song}' exported to your download folder",
+    "errorSongExport": "Could not export song."
   }
 }
