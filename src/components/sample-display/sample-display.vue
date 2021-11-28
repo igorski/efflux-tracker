@@ -37,6 +37,10 @@ export default {
             type: Object,
             default: null,
         },
+        color: {
+            type: String,
+            default: "#FF5900"
+        },
     },
     watch: {
         sample: {
@@ -58,7 +62,7 @@ export default {
             const { width, height } = canvas;
 
             ctx.clearRect( 0, 0, width, height );
-            ctx.drawImage( bufferToWaveForm( buffer, 720, 200 ), 0, 0, width, height );
+            ctx.drawImage( bufferToWaveForm( buffer, this.color, 720, 200 ), 0, 0, width, height );
         }
     }
 };
@@ -72,6 +76,6 @@ export default {
     width: 100%;
     height: $sampleWaveformHeight;
     cursor: grab;
-    background-color: $color-2;
+    background-color: #000;
 }
 </style>

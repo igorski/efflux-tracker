@@ -44,7 +44,11 @@
         </div>
         <!-- waveform displays -->
         <div v-if="isSampler" class="waveform-container">
-            <sample-display :sample="selectedSample" />
+            <sample-display
+                :sample="selectedSample"
+                :color="instrumentColor"
+                class="waveform-canvas"
+            />
             <button
                 v-t="'editSample'"
                 type="button"
@@ -170,6 +174,11 @@ import WaveTableDraw     from "../wave-table-draw";
 import messages          from "./messages.json";
 
 const TUNING_PROPERTIES = [ "detune", "octaveShift", "fineShift" ];
+
+// see colors.scss
+const INSTRUMENT_COLORS = [
+    "#b25050", "#b28050", "#a9b250", "#60b250", "#50b292", "#5071b2", "#8850b2", "#FF813D"
+];
 
 export default {
     i18n: { messages },
@@ -311,6 +320,9 @@ export default {
                 ...sample,
                 buffer: SampleFactory.getBuffer( sample, AudioService.getAudioContext() )
             };
+        },
+        instrumentColor() {
+            return INSTRUMENT_COLORS[ this.instrumentIndex ];
         }
     },
     watch: {
@@ -333,17 +345,23 @@ export default {
         },
         oscillatorWaveform() { this.renderWaveform(); },
         oscillatorIndex() { this.renderWaveform(); },
-        instrumentRef() { this.renderWaveform(); }
+        instrumentRef() { this.renderWaveform(); },
+        instrumentIndex() {
+            this.wtDraw.setColor( this.instrumentColor );
+            this.canvas.invalidate();
+        }
     },
     mounted() {
         this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200 });
         this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
+        this.canvas.getElement().className = "waveform-canvas";
         this.wtDraw = new WaveTableDraw(
             this.canvas.getWidth(),
             this.canvas.getHeight(),
             this.handleWaveformUpdate,
-            this.oscillatorEnabled
+            this.oscillatorEnabled,
+            this.instrumentColor
         );
         this.canvas.addChild( this.wtDraw );
         this.resizeWaveTableDraw();
@@ -480,6 +498,14 @@ export default {
 };
 </script>
 
+<style lang="scss">
+@import "@/styles/_variables";
+// global because zCanvas injection is outside of component scope
+.waveform-canvas {
+    border-radius: $spacing-small;
+}
+</style>
+
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 @import "@/styles/tabs";
@@ -516,11 +542,6 @@ export default {
 .waveform-container {
     position: relative;
     margin: $spacing-xsmall 0 $spacing-medium;
-
-    canvas {
-        border-radius: $spacing-small;
-        border: 4px solid #666;
-    }
 
     &__action-button {
         position: absolute;

@@ -349,10 +349,12 @@ export default {
                 }
             });
         },
-        async saveSong({ dispatch }, song ) {
+        async saveSong({ commit, dispatch }, song ) {
             await dispatch( "validateSong", song );
             if ( song.origin === "dropbox" ) {
+                commit( "setLoading", "dbxS" );
                 await dispatch( "exportSongToDropbox", song );
+                commit( "unsetLoading", "dbxS" );
             } else {
                 await dispatch( "saveSongInLS", song );
             }

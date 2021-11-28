@@ -230,14 +230,14 @@ describe( "Vuex song module", () => {
             it( "should save the song in Local Storage when no origin is specified", async () => {
                 const dispatch = jest.fn();
                 const song = { foo: "bar" };
-                await actions.saveSong({ dispatch }, song );
+                await actions.saveSong({ dispatch, commit: jest.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "saveSongInLS", song );
             });
 
             it( "should save the song in Dropbox when the Dropbox origin is specified", async () => {
                 const dispatch = jest.fn();
                 const song = { foo: "bar", origin: "dropbox" };
-                await actions.saveSong({ dispatch }, song );
+                await actions.saveSong({ dispatch, commit: jest.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", song );
             });
         });

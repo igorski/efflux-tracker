@@ -26,15 +26,18 @@ import { WAV } from "@/definitions/file-types";
  * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
  *
  * @param {AudioBuffer} buffer
+ * @param {String} color
  * @param {number=} width of the resulting PNG image
  * @param {number=} height of the resulting PNG image
  * @returns {HTMLCanvasElement}
  */
-export const bufferToWaveForm = ( buffer, width = 400, height = 150 ) => {
+export const bufferToWaveForm = ( buffer, color, width = 400, height = 150 ) => {
     const canvas  = document.createElement( "canvas" );
     const ctx     = canvas.getContext( "2d" );
     canvas.width  = width;
     canvas.height = height;
+
+    ctx.fillStyle = color;
 
     // TODO: render all channels ?
     const data = buffer.getChannelData( 0 );

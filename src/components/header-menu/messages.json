@@ -5,8 +5,6 @@
     "loadSong": "Load song",
     "saveSong": "Save song",
     "saveSongAs": "Save song as",
-    "importSong": "Import song",
-    "exportSong": "Export song",
     "newSong": "New song",
     "instruments": "Instruments",
     "instrumentEditor": "Instrument editor",
@@ -21,8 +19,6 @@
     "recordOutputExpl": "You can record your song as a .WAV file and download it onto your device. Recording takes place during playback and will stop automatically once the end of the song is reached. Enjoy your listen or grab a drink while waiting.",
     "recordOutput": "Record output",
     "stopRecording": "Stop recording",
-    "songImported": "Song imported successfully.",
-    "songExported": "Song '{song}' exported to your download folder",
     "emptySong": "Song has no pattern content!"
   }
 }

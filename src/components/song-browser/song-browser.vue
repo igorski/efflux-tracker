@@ -60,6 +60,12 @@
                 file-types="project"
                 class="file-loader"
             />
+            <button
+                v-t="'importFile'"
+                type="button"
+                class="import-button"
+                @click="handleSongImport()"
+            ></button>
         </div>
     </div>
 </template>
@@ -69,6 +75,7 @@ import { mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import { SONG_STORAGE_KEY, getStorageKeyForSong } from "@/store/modules/song-module";
+import { openFileBrowser } from "@/utils/file-util";
 import Time from "@/utils/time-util";
 import StorageUtil from "@/utils/storage-util";
 import messages from "./messages.json";
@@ -115,6 +122,7 @@ export default {
             "openSong",
             "loadSongFromLS",
             "deleteSongFromLS",
+            "importSong",
             "exportSong"
         ]),
         getSongDate( song ) {
@@ -150,7 +158,16 @@ export default {
                     this.deleteSongFromLS({ song });
                 }
             });
-        }
+        },
+        handleSongImport() {
+            openFileBrowser( async fileBrowserEvent => {
+                const file = fileBrowserEvent.target.files?.[ 0 ];
+                if ( !file ) {
+                    return;
+                }
+                this.importSong( file ).then(() => this.showNotification({ message: this.$t( "songImported" ) }));
+            }, [ PROJECT_FILE_EXTENSION ] );
+        },
     }
 };
 </script>
@@ -182,8 +199,14 @@ $headerFooterHeight: 128px;
         margin-bottom: 0;
     }
 
+    .import-button {
+        @include button();
+        display: inline-block;
+    }
+
     .file-loader {
         margin-top: $spacing-xsmall;
+        display: inline-block;
     }
 
     @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
@@ -222,7 +245,6 @@ $headerFooterHeight: 128px;
     li {
         @include titleFont();
         @include boxSize();
-        @include animate(padding, .1s);
         float: left;
         width: 100%;
         padding: $spacing-small $spacing-large;
@@ -264,7 +286,7 @@ $headerFooterHeight: 128px;
 
         @include mobile() {
             .title {
-                width: 95%;
+                width: 90%;
             }
             .size {
                 display: none;
@@ -279,7 +301,6 @@ $headerFooterHeight: 128px;
         &:hover {
             background-color: $color-5;
             color: #000;
-            padding: $spacing-medium $spacing-large;
         }
     }
 }

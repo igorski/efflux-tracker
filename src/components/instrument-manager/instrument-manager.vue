@@ -263,6 +263,11 @@ $headerFooterHeight: 128px;
             background-color: #53565c;
             /*color: #FFF;*/
         }
+
+        &:hover {
+            background-color: $color-5;
+            color: #000;
+        }
     }
 }
 </style>

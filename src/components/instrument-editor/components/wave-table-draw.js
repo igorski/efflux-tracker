@@ -28,7 +28,7 @@ import OscillatorTypes from "@/definitions/oscillator-types";
 
 class WaveTableDraw extends sprite
 {
-    constructor( width, height, updateHandler, enabled ) {
+    constructor( width, height, updateHandler, enabled, color ) {
         super({ x: 0, y: 0, width, height });
 
         this.setDraggable( true );
@@ -40,6 +40,8 @@ class WaveTableDraw extends sprite
         this.updateHandler    = updateHandler;
         this.interactionCache = { x: -1, y: -1 };
         this.updateRequested  = false;
+
+        this.setColor( color );
     }
 
     /* public methods */
@@ -53,10 +55,7 @@ class WaveTableDraw extends sprite
     setTable( table )
     {
         this.table = table;
-
-        if ( this.canvas ) {
-            this.canvas.invalidate(); // force re-render
-        }
+        this.canvas?.invalidate(); // force re-render
     }
 
     /**
@@ -113,8 +112,16 @@ class WaveTableDraw extends sprite
         this.setTable( table );
     }
 
+    setColor( color ) {
+        this.color = color;
+        if ( this.enabled ) {
+            this.strokeStyle = color;
+        }
+    }
+
     setEnabled( enabled ) {
-        this.strokeStyle = enabled ? "#CC0000" : "#444";
+        this.enabled = enabled;
+        this.strokeStyle = enabled ? this.color : "#444";
     }
 
     /* zCanvas overrides */
@@ -145,8 +152,8 @@ class WaveTableDraw extends sprite
     {
         if ( this.isDragging ) {
 
-            if ( aEvent.type === 'touchend' ||
-                 aEvent.type === 'mouseup' ) {
+            if ( aEvent.type === "touchend" ||
+                 aEvent.type === "mouseup" ) {
 
                 this.isDragging = false;
                 return true;
@@ -205,8 +212,8 @@ class WaveTableDraw extends sprite
                 });
             }
         }
-        else if ( aEvent.type === 'touchstart' ||
-                  aEvent.type === 'mousedown' )
+        else if ( aEvent.type === "touchstart" ||
+                  aEvent.type === "mousedown" )
         {
             this.isDragging = true;
             return true;

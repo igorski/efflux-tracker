@@ -475,43 +475,43 @@ $stepHeight: 32px;
 
     &:nth-child(2) {
         .note, .module-value {
-            color: #b25050;
+            color: $color-instrument-1;
         }
     }
 
     &:nth-child(3) {
         .note, .module-value {
-            color: #b28050;
+            color: $color-instrument-2;
         }
     }
 
     &:nth-child(4) {
         .note, .module-value {
-            color: #a9b250;
+            color: $color-instrument-3;
         }
     }
 
     &:nth-child(5) {
         .note, .module-value {
-            color: #60b250;
+            color: $color-instrument-4;
         }
     }
 
     &:nth-child(6) {
         .note, .module-value {
-            color: #50b292;
+            color: $color-instrument-5;
         }
     }
 
     &:nth-child(7) {
         .note, .module-value {
-            color: #5071b2;
+            color: $color-instrument-6;
         }
     }
 
     &:nth-child(8) {
         .note, .module-value {
-            color: #8850b2;
+            color: $color-instrument-7;
         }
     }
 }
@@ -586,7 +586,7 @@ $stepHeight: 32px;
             width: 33%;
             text-transform: uppercase;
             text-align: right;
-            color: $color-5;
+            color: $color-instrument-8;
 
             &.empty {
                 color: #b6b6b6;
@@ -611,7 +611,7 @@ $stepHeight: 32px;
 
         &.module-value {
             width: 26%;
-            color: $color-5;
+            color: $color-instrument-8;
         }
     }
 }

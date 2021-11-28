@@ -70,24 +70,6 @@
                                 data-api-song-save
                             ></button>
                         </li>
-                        <template v-if="hasImportExport">
-                            <li>
-                                <button
-                                    v-t="'importSong'"
-                                    type="button"
-                                    class="menu-button"
-                                    @click="handleSongImport()"
-                                ></button>
-                            </li>
-                            <li>
-                                <button
-                                    v-t="'exportSong'"
-                                    type="button"
-                                    class="menu-button"
-                                    @click="handleSongExport()"
-                                ></button>
-                            </li>
-                        </template>
                     </ul>
                 </li>
                 <li>
@@ -174,11 +156,9 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
-import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import AudioService from "@/services/audio-service";
-import { openFileBrowser } from "@/utils/file-util";
 import { hasContent } from "@/utils/song-util";
 import messages from "./messages.json";
 
@@ -209,8 +189,7 @@ export default {
         }
     },
     created() {
-        this.hasImportExport = typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
-        this.hasFullscreen   = isSupported();
+        this.hasFullscreen = isSupported();
     },
     mounted() {
         if ( this.$refs.fullscreenBtn ) {
@@ -233,11 +212,8 @@ export default {
         ]),
         ...mapActions([
             "createSong",
-            "validateSong",
             "saveSong",
             "openSong",
-            "importSong",
-            "exportSong",
         ]),
         handleMouseOver() {
             this.setHelpTopic("menu");
@@ -258,13 +234,11 @@ export default {
             }
         },
         handleReset() {
-            const self = this;
             this.openDialog({
                 type: "confirm",
                 message: this.$t("warningSongReset"),
-                confirm() {
-                    self.createSong()
-                        .then(song => self.openSong(song));
+                confirm: () => {
+                    this.createSong().then( song => this.openSong( song ));
                 },
             });
         },
@@ -278,42 +252,17 @@ export default {
             if ( AudioService.isRecording() ) {
                 return AudioService.toggleRecordingState();
             }
-            const self = this;
             this.openDialog({
                 type: "confirm",
                 title: this.$t( "recordOutputTitle" ),
                 message: this.$t( "recordOutputExpl" ),
-                confirm() {
+                confirm: () => {
                     AudioService.toggleRecordingState();
-                    if ( !self.isPlaying ) {
-                        self.setPlaying( true );
+                    if ( !this.isPlaying ) {
+                        this.setPlaying( true );
                     }
                 },
             });
-        },
-        handleSongImport() {
-            openFileBrowser( async fileBrowserEvent => {
-                const file = fileBrowserEvent.target.files?.[ 0 ];
-                if ( !file ) {
-                    return;
-                }
-                this.importSong( file ).then(() => this.showNotification({ message: this.$t("songImported") }));
-            }, [ PROJECT_FILE_EXTENSION ] );
-        },
-        async handleSongExport() {
-            this.setLoading( "exp" );
-            try {
-                await this.validateSong( this.activeSong );
-                try {
-                    await this.exportSong( this.activeSong );
-                    this.showNotification({ message: this.$t("songExported", { song: this.activeSong.meta.title }) });
-                } catch ( error ) {
-                    this.showError( error )
-                }
-            } catch {
-                // nowt. validation error message has been shown through store validator
-            }
-            this.unsetLoading( "exp" );
         },
         handleInstrumentEditorClick() {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
@@ -423,7 +372,7 @@ h1 {
 
         &.fullscreen-button {
             float: right;
-            margin-right: $spacing-medium;
+            margin: 2px $spacing-medium 0 0;
 
             img:hover {
                 filter: brightness(0) invert(1);

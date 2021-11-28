@@ -1,13 +1,13 @@
 <template>
     <div>
         <button
-            v-t="'loadFile'"
+            v-t="buttonText.local"
             type="button"
-            @click="importFile()"
+            @click="loadFile()"
         ></button>
         <button
             v-if="!dropbox"
-            v-t="'importFromDropbox'"
+            v-t="buttonText.dropbox"
             type="button"
             class="dropbox-button"
             @click="dropbox = true"
@@ -41,6 +41,13 @@ export default {
         dropbox: false,
     }),
     computed: {
+        buttonText() {
+            const useImport = this.fileTypes === "audio";
+            return {
+                local   : this.$t( useImport ? "importFile" : "loadFile" ),
+                dropbox : this.$t( useImport ? "importFromDropbox" : "loadFromDropbox" )
+            };
+        },
         /**
          * Cloud import are loaded at runtime to omit packaging
          * third party SDK within the core bundle.
@@ -77,7 +84,7 @@ export default {
         ...mapActions([
             "loadSong",
         ]),
-        importFile() {
+        loadFile() {
             openFileBrowser( async fileBrowserEvent => {
                 const file = fileBrowserEvent.target.files?.[ 0 ];
                 if ( !file ) {

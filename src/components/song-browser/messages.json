@@ -6,8 +6,10 @@
     "errorSongImport": "Could not import song, file was possibly not a valid {extension} file, or made by an incompatible version of Efflux",
     "deleteSong": "Delete song",
     "confirmSongDelete": "Are you sure you want to delete song '{song}' ? This operation cannot be undone.",
+    "importFile": "Import file",
+    "songImported": "Song imported successfully.",
     "exportSong": "Export song",
-    "songExported": "Song '{song}' exported to your download folder",
+    "songExported": "Song \"{song}\" exported to your download folder",
     "errorSongExport": "Could not export song."
   }
 }
