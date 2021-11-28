@@ -12,6 +12,8 @@ modular synthesis environment, where the synths are driven by the tracker.
 ## Feature list
 
 * Create custom waveforms for multiple synth instruments
+* Load and manipulate audio files into samples
+* Record samples on the fly using your device microphone / inputs
 * Tons of keyboard shortcuts to provide nice and easy arranging using cutting, copying and cloning of (sub)patterns
 * State history that allows undo / redo of your actions
 * Save songs locally to continue working on them later or export / import them between devices
