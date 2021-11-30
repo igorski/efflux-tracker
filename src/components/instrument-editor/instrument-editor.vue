@@ -180,7 +180,9 @@ export default {
             return out;
         },
         presetOptions() {
-            return this.presets.map(({ presetName }) => ({ label: presetName, value: presetName }));
+            return this.presets
+                .map(({ presetName }) => ({ label: presetName, value: presetName }))
+                .sort(( a, b ) => a.label.toLowerCase().localeCompare( b.label.toLowerCase()));
         },
     },
     watch: {

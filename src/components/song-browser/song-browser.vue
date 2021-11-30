@@ -97,11 +97,7 @@ export default {
             return this.songs.map( song => ({
                 ...song,
                 size: sizes[ getStorageKeyForSong( song )]
-            })).sort(( a, b ) => {
-                if ( a.meta.title < b.meta.title ) return -1;
-                if ( a.meta.title > b.meta.title ) return 1;
-                return 0;
-            });
+            })).sort(( a, b ) => a.meta.title.toLowerCase().localeCompare( b.meta.title.toLowerCase()));
         }
     },
     watch: {

@@ -87,11 +87,7 @@ export default {
             return this.instruments.map( instrument => ({
                 ...instrument,
                 size: sizes[ getStorageKeyForInstrument( instrument )]
-            })).sort(( a, b ) => {
-                if( a.presetName < b.presetName ) return -1;
-                if( a.presetName > b.presetName ) return 1;
-                return 0;
-            });
+            })).sort(( a, b ) => a.presetName.toLowerCase().localeCompare( b.presetName.toLowerCase()));
         }
     },
     created() {
