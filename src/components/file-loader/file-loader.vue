@@ -44,8 +44,8 @@ export default {
         buttonText() {
             const useImport = this.fileTypes === "audio";
             return {
-                local   : this.$t( useImport ? "importFile" : "loadFile" ),
-                dropbox : this.$t( useImport ? "importFromDropbox" : "loadFromDropbox" )
+                local   : useImport ? "importFile" : "loadFile",
+                dropbox : useImport ? "importFromDropbox" : "loadFromDropbox"
             };
         },
         /**
