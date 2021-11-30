@@ -142,7 +142,6 @@
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
 import KeyboardService from "@/services/keyboard-service";
-import Bowser          from "bowser";
 
 const STEP_WIDTH  = 150;
 const STEP_HEIGHT = 32;
@@ -309,9 +308,9 @@ export default {
          * add the listener directly on the slots themselves, but consider the excessive
          * amount of event listeners that would be attached to a large amount of DOM elements...
          */
-        handleSlotClick(event) {
+        handleSlotClick( event ) {
             const pContainers = this.$refs.pattern;
-            const shiftDown = KeyboardService.hasShift();
+            const shiftDown   = KeyboardService.hasShift();
             let selectionChannelStart = this.selectedInstrument,
                 selectionStepStart    = this.selectedStep;
 
@@ -327,7 +326,7 @@ export default {
                     break;
                 }
                 const pContainer = pContainers[ i ];
-                const items = this.grabPatternContainerStepFromTemplate(pContainer, i);
+                const items = this.grabPatternContainerStepFromTemplate( pContainer, i );
 
                 let j = items.length;
                 while ( j-- ) {
@@ -341,11 +340,11 @@ export default {
                             this.setSelectionChannelRange({ firstChannel: selectionChannelStart, lastChannel: i });
                             this.setSelection({ selectionStart: selectionStepStart, selectionEnd: j });
                         }
-                        else
+                        else {
                             this.clearSelection();
-
-                        this.setSelectedStep(j);
-                        this.setSelectedSlot(-1);
+                        }
+                        this.setSelectedStep( j );
+                        this.setSelectedSlot( -1 );
 
                         // when using a mouse, select the clicked slot. on touch screens there is no benefit in slot selection
                         if ( !shiftDown && event.type === "mousedown" ) {
@@ -362,25 +361,30 @@ export default {
             }
         },
         selectSlotWithinClickedStep( event ) {
-            // only when supported, and even then not on Safari... =/
-            if ( !( "caretRangeFromPoint" in document ) || Bowser.safari ) {
-                return;
-            }
-            const el = document.caretRangeFromPoint( event.clientX, event.clientY );
+            const { clientX, clientY } = event;
+            let el = document.caretRangeFromPoint?.( clientX, clientY )?.startContainer;
             let slot = 0;
-
-            if ( el?.startContainer ) {
-                let startContainer = el.startContainer;
-                if ( !( startContainer instanceof Element && startContainer.parentElement instanceof Element )) {
-                    startContainer = startContainer.parentElement;
+            if ( el ) {
+                if ( !( el instanceof Element && el.parentElement instanceof Element )) {
+                    el = el.parentElement;
                 }
-                if ( startContainer.classList.contains("module-value")) {
-                    slot = 3;
-                } else if ( startContainer.classList.contains("module-param")) {
-                    slot = 2;
-                } else if ( startContainer.classList.contains("instrument")) {
-                    slot = 1;
+            } else {
+                // likely no caretRangeFromPoint support (available in Safari, but broken...)
+                // let's do some manual work...
+                for ( const node of event.target.childNodes ) {
+                    const rect = node.getBoundingClientRect();
+                    if ( clientX >= rect.left && clientX <= rect.right ) {
+                        el = node;
+                        break;
+                    }
                 }
+            }
+            if ( el.classList.contains( "module-value" )) {
+                slot = 3;
+            } else if ( el.classList.contains( "module-param" )) {
+                slot = 2;
+            } else if ( el.classList.contains( "instrument" )) {
+                slot = 1;
             }
             this.setSelectedSlot( slot );
         },
