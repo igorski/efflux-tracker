@@ -19,6 +19,9 @@
     "recordOutputExpl": "You can record your song as a .WAV file and download it onto your device. Recording takes place during playback and will stop automatically once the end of the song is reached. Enjoy your listen or grab a drink while waiting.",
     "recordOutput": "Record output",
     "stopRecording": "Stop recording",
-    "emptySong": "Song has no pattern content!"
+    "emptySong": "Song has no pattern content!",
+    "exportSong": "Export song",
+    "songExported": "Song \"{song}\" exported to your download folder",
+    "errorSongExport": "Could not export song."
   }
 }

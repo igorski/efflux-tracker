@@ -70,6 +70,14 @@
                                 data-api-song-save
                             ></button>
                         </li>
+                        <li>
+                            <button
+                                v-t="'exportSong'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleExport()"
+                            ></button>
+                        </li>
                     </ul>
                 </li>
                 <li>
@@ -176,6 +184,7 @@ export default {
             "activeSong",
             "getInstruments",
             "isPlaying",
+            "totalSaved",
         ]),
         recordingButtonText() {
             return this.isPlaying && AudioService.isRecording() ? this.$t( "stopRecording" ) : this.$t( "recordOutput" );
@@ -208,10 +217,12 @@ export default {
             "showNotification",
             "setLoading",
             "setPlaying",
+            "setStatesOnSave",
             "unsetLoading",
         ]),
         ...mapActions([
             "createSong",
+            "exportSong",
             "saveSong",
             "openSong",
         ]),
@@ -231,6 +242,17 @@ export default {
                 }
             } else {
                 this.showError( this.$t( "emptySong" ));
+            }
+        },
+        async handleExport() {
+            try {
+                await this.exportSong( this.activeSong );
+                // we do not make setStatesOnSave part of the Vuex action as it can also be called
+                // from the song browser for currently unloaded songs
+                this.setStatesOnSave( this.totalSaved );
+                this.showNotification({ message: this.$t( "songExported", { song: this.activeSong.meta.title }) });
+            } catch {
+                this.showError( this.$t( "errorSongExport" ));
             }
         },
         handleReset() {
