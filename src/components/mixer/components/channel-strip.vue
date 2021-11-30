@@ -37,7 +37,7 @@
             />
             <meter v-if="supportsAnalyzer"
                    class="meter"
-                   min="-100" max="10" :value="output"
+                   min="-100" max="10" low="-100" high="-5" optimum="0" :value="output"
             ></meter>
         </div>
         <div class="toggles">
@@ -242,11 +242,28 @@ $width: 80px;
 }
 
 .meter {
+    position: relative;
     transform-origin: 0;
-    margin: 0 8px 0;
+    top: -$spacing-small;
+    margin: 0 $spacing-small 0;
     width: 105px;
-    height: 8px;
-    background-color: #000;
+    height: $spacing-medium;
+
+    // hot signals display as red, otherwise green
+
+    &:-moz-meter-sub-optimum::-moz-meter-bar {
+        background: green;
+    }
+    &::-webkit-meter-suboptimum-value {
+        background: green;
+    }
+
+    &:-moz-meter-optimum::-moz-meter-bar {
+        background: red;
+    }
+    &::-webkit-meter-optimum-value {
+        background: red;
+    }
 }
 
 .volume-title {
