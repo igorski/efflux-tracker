@@ -43,15 +43,17 @@ export const getStorageKeyForSong = ({ id }) => `${SONG_STORAGE_KEY}${id}`;
 
 export default {
     state: () => ({
-        songs: [], /** @type {Array<Object>} */
-        activeSong: null,
-        showSaveMessage: true
+        songs           : [], /** @type {Array<Object>} */
+        activeSong      : null,
+        showSaveMessage : true,
+        statesOnSave    : 0, // the last amount of available history states on song save (used to detect changes)
     }),
     getters: {
-        songs: state => state.songs,
-        activeSong: state => state.activeSong,
-        samples: state => state.activeSong.samples,
-        getSongById: state => id => state.songs.find( song => song.id === id ) || null
+        songs       : state => state.songs,
+        activeSong  : state => state.activeSong,
+        samples     : state => state.activeSong.samples,
+        getSongById : state => id => state.songs.find( song => song.id === id ) || null,
+        hasChanges  : ( state, getters ) => state.statesOnSave < getters.totalSaved,
     },
     mutations: {
         setSongs( state, songs ) {
@@ -61,7 +63,7 @@ export default {
             if ( song && song.meta && song.patterns ) {
                 // close song as we do not want to modify the original song stored in list
                 state.activeSong = clone( song );
-                resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got 'frozen' events
+                resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
             }
         },
         setActiveSongAuthor( state, author ) {
@@ -142,6 +144,9 @@ export default {
         },
         setShowSaveMessage(state, value) {
             state.showSaveMessage = !!value;
+        },
+        setStatesOnSave( state, value ) {
+            state.statesOnSave = value;
         }
     },
     actions: {
@@ -200,6 +205,7 @@ export default {
             commit( "setActiveSong", song );
             commit( "flushSamples" );
             commit( "setSamples", song.samples );
+            commit( "setStatesOnSave", 0 );
             dispatch( "cacheSongSamples", song.samples );
         },
         saveSongInLS({ state, getters, commit, dispatch }, song ) {
@@ -230,10 +236,11 @@ export default {
                     state.songs.push( getMetaForSong( song ));
                     persistState( state );
                 } catch ( error ) {
-                    const msgKey = error?.message === "QUOTA" ? "error.quotaExceeded" : "error.unknownLSerror";
+                    const msgKey = error?.message === "QUOTA" ? "errors.quotaExceeded" : "errors.unknownLSerror";
                     commit( "openDialog", { type: "error", message: getters.t( msgKey ) });
                     return reject();
                 }
+                commit( "setStatesOnSave", getters.totalSaved );
                 commit( "publishMessage", PubSubMessages.SONG_SAVED );
                 if ( state.showSaveMessage ) {
                     commit( "showNotification", { message: getters.t( "messages.songSaved", { name: song.meta.title }) });
@@ -259,7 +266,7 @@ export default {
                     }
                     resolve();
                 } catch ( errorKey ) {
-                    commit( "showError", getters.t(`error.${errorKey}`));
+                    commit( "showError", getters.t(`errors.${errorKey}`));
                     reject();
                 }
             });
@@ -303,9 +310,9 @@ export default {
                 }
 
                 if ( deleted ) {
-                    if (persist)
-                        persistState(state);
-
+                    if ( persist ) {
+                        persistState( state );
+                    }
                     resolve();
                 } else {
                     reject();
@@ -333,6 +340,7 @@ export default {
             const name = toFileName( song.meta.title );
             await uploadBlob( blob, name );
             song.origin = "dropbox";
+            commit( "setStatesOnSave", getters.totalSaved );
             commit( "showNotification", { message: getters.t( "messages.fileSavedInDropbox", { file: name }) });
         },
         loadSong({ getters, commit, dispatch }, { file, origin = "local" }) {
@@ -344,7 +352,7 @@ export default {
                     resolve( song );
                 }
                 else {
-                    commit( "showError", getters.t( "error.songImport", { extension: PROJECT_FILE_EXTENSION }));
+                    commit( "showError", getters.t( "errors.songImport", { extension: PROJECT_FILE_EXTENSION }));
                     reject();
                 }
             });

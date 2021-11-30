@@ -35,18 +35,14 @@ const STATES_TO_SAVE = 99;
 const module = {
     state: {
         undoManager  : new UndoManager(),
-        historyIndex : -1    // used for reactivity (as undo manager isn"t bound to Vue)
+        historyIndex : -1, // used for reactivity (as undo manager isn't bound to Vue, goes to STATES_TO_SAVE - 1 )
+        totalSaved   : 0,  // total amount of states saved, this can exceed STATES_TO_SAVE
     },
     getters: {
-        canUndo( state ) {
-            return state.historyIndex >= 0 && state.undoManager.hasUndo();
-        },
-        canRedo( state ) {
-            return state.historyIndex < STATES_TO_SAVE && state.undoManager.hasRedo();
-        },
-        amountOfStates( state ) {
-            return state.historyIndex + 1;
-        }
+        canUndo        : state => state.historyIndex >= 0 && state.undoManager.hasUndo(),
+        canRedo        : state => state.historyIndex < STATES_TO_SAVE && state.undoManager.hasRedo(),
+        amountOfStates : state => state.historyIndex + 1,
+        totalSaved     : state => state.totalSaved,
     },
     mutations: {
         /**
@@ -64,6 +60,7 @@ const module = {
             }
             state.undoManager.add({ undo, redo });
             state.historyIndex = state.undoManager.getIndex();
+            ++state.totalSaved;
         },
         setHistoryIndex( state, value ) {
             state.historyIndex = value;
@@ -75,6 +72,7 @@ const module = {
             flushQueue();
             state.undoManager.clear();
             state.historyIndex = state.undoManager.getIndex();
+            state.totalSaved = 0;
         }
     },
     actions: {

@@ -219,10 +219,10 @@ export default {
                             }
                             resolve( amountImported );
                         } else {
-                            resolve( getters.t( "error.instrumentImport", { extension: INSTRUMENT_FILE_EXTENSION }));
+                            resolve( getters.t( "errors.instrumentImport", { extension: INSTRUMENT_FILE_EXTENSION }));
                         }
                     } catch {
-                        reject( getters.t( "error.fileLoad" ));
+                        reject( getters.t( "errors.fileLoad" ));
                     }
                 };
             });

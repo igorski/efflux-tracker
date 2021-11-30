@@ -92,7 +92,7 @@
 </template>
 
 <script>
-import { mapMutations, mapActions } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import { listFolder, downloadFileAsBlob, deleteEntry } from "@/services/dropbox-service";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
@@ -100,6 +100,7 @@ import SampleFactory from "@/model/factories/sample-factory";
 import { getAudioContext } from "@/services/audio-service";
 import { loadSample } from "@/services/audio/sample-loader";
 import { truncate } from "@/utils/string-util";
+import sharedMessages from "@/messages.json";
 
 import messages from "./messages.json";
 
@@ -158,7 +159,7 @@ function recurseChildren( node, path ) {
 }
 
 export default {
-    i18n: { messages },
+    i18n: { messages, sharedMessages },
     data: () => ({
         loading: false,
         tree: {
@@ -170,6 +171,9 @@ export default {
         leaf: null,
     }),
     computed: {
+        ...mapGetters([
+            "hasChanges",
+        ]),
         breadcrumbs() {
             let parent = this.leaf.parent;
             const out = [];
@@ -250,15 +254,26 @@ export default {
                     sessionStorage.setItem( LAST_DROPBOX_FOLDER, JSON.stringify({ path: node.path, tree: this.tree }));
                     break;
                 case "xtk":
-                    this.setLoading( "dbi" );
-                    try {
-                        const blob = await downloadFileAsBlob( node.path );
-                        this.loadSong({ file: blob, origin: "dropbox" });
-                    } catch {
-                        this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
+                    const open = async () => {
+                        this.setLoading( "dbi" );
+                        try {
+                            const blob = await downloadFileAsBlob( node.path );
+                            this.loadSong({ file: blob, origin: "dropbox" });
+                        } catch {
+                            this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
+                        }
+                        this.unsetLoading( "dbi" );
+                        this.closeModal();
+                    };
+                    if ( this.hasChanges ) {
+                        this.openDialog({
+                            type: "confirm",
+                            message: this.$t( "warnings.loadNewPendingChanges" ),
+                            confirm: () => open(),
+                        });
+                    } else {
+                        open();
                     }
-                    this.unsetLoading( "dbi" );
-                    this.closeModal();
                     break;
                 case "file":
                     this.setLoading( "dbd" );

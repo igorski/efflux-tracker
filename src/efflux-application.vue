@@ -292,7 +292,7 @@ export default {
                     this.setCurrentSample( sample );
                     this.openModal( ModalWindows.SAMPLE_EDITOR );
                 } catch {
-                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "error.audioImport" ) });
+                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.audioImport" ) });
                 }
             }
             for ( const file of projects ) {
@@ -316,7 +316,7 @@ export default {
         // show confirmation message on page reload
 
         if ( process.env.NODE_ENV !== "development" ) {
-            const handleUnload = () => this.$t( "warningUnload" );
+            const handleUnload = () => this.$t( "warnings.unload" );
             if ( Bowser.ios ) {
                 window.addEventListener( "popstate", handleUnload );
             }

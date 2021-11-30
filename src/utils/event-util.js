@@ -396,7 +396,7 @@ const EventUtil =
                 redo: addFn
             });
         } else
-            store.commit('showError', store.getters.t('error.paramGlide'));
+            store.commit('showError', store.getters.t('errors.paramGlide'));
     },
 };
 export default EventUtil;

@@ -6,7 +6,7 @@
       "download": "Luckily, you can get a web browser that offers support for free. We recommend {0} for an optimal experience.",
       "googleChrome": "Google Chrome"
     },
-    "error": {
+    "errors": {
       "emptySong": "Song has no pattern content!",
       "emptyMeta": "Song has no title or author name, take pride in your work!",
       "fileLoad": "Unknown error occurred while importing file, please try again, if the problems persists, drop us a line.",
@@ -26,8 +26,11 @@
       "recordingSaved": "Recording saved to your download folder",
       "fileSavedInDropbox": "\"{file}\" saved in Dropbox"
     },
+    "warnings": {
+        "loadNewPendingChanges": "You have unsaved changes in your current song. Are you sure you want to proceed with opening the selected song ?",
+        "unload": "Are you sure you want to leave this page ? All unsaved changes will be lost."
+    },
     "songLoadedTitle": "Song loaded",
-    "songLoaded": "Loaded song '{name}'",
-    "warningUnload": "Are you sure you want to leave this page ? All unsaved changes will be lost."
+    "songLoaded": "Loaded song '{name}'"
   }
 }

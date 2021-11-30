@@ -47,6 +47,17 @@ describe( "Vuex song module", () => {
             const retrieved = getters.getSongById( state )( song.id );
             expect( song ).toEqual( retrieved );
         });
+
+        it( "should be able to detect changes to the currently loaded song", () => {
+            const state = { statesOnSave: 10 };
+            const mockedGetters = { totalSaved: 10 };
+
+            expect( getters.hasChanges( state, mockedGetters )).toBe( false );
+
+            ++mockedGetters.totalSaved; // increment amount of saved states
+
+            expect( getters.hasChanges( state, mockedGetters )).toBe( true );
+        });
     });
 
     describe( "mutations", () => {
@@ -102,6 +113,12 @@ describe( "Vuex song module", () => {
                 { name: "foo", bar: "baz" }, { name: "qux", quux: "waldo" }, { name: "corge", grault: "garply" }
             ]);
         });
+
+        it( "should be able to the amount of stored states upon song save", () => {
+            const state = { statesOnSave: 0 };
+            mutations.setStatesOnSave( state, 5 );
+            expect( state.statesOnSave ).toEqual( 5 );
+        });
     });
 
     describe( "actions", () => {
@@ -115,6 +132,7 @@ describe( "Vuex song module", () => {
             expect( commit ).toHaveBeenNthCalledWith( 1, "setActiveSong", song );
             expect( commit ).toHaveBeenNthCalledWith( 2, "flushSamples" );
             expect( commit ).toHaveBeenNthCalledWith( 3, "setSamples", song.samples );
+            expect( commit ).toHaveBeenNthCalledWith( 4, "setStatesOnSave", 0 );
             expect( dispatch ).toHaveBeenNthCalledWith( 1, "cacheSongSamples", song.samples );
         });
 
@@ -122,7 +140,7 @@ describe( "Vuex song module", () => {
             const song = await actions.createSong();
             expect(SongValidator.isValid(song)).toBe(true);
 
-            for (let i = 0; i < 1024; ++i) {
+            for (let i = 0; i < 16; ++i) {
                 const compare = await actions.createSong();
 
                 // songs should have unique identifiers
@@ -138,16 +156,17 @@ describe( "Vuex song module", () => {
             it( "should be able to save songs in storage and show a save message", async () => {
                 commit = jest.fn();
                 const song = await actions.createSong();
-                const state = { songs: [], showSaveMessage: true };
+                const state = { songs: [], showSaveMessage: true, totalSaved: 10 };
 
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 // expected songs meta to have been saved into the song list
-                expect(state.songs).toEqual([{
+                expect( state.songs ).toEqual([{
                     id: song.id,
                     meta: song.meta
                 }]);
-                expect(commit).toHaveBeenNthCalledWith(2, "showNotification", { message: undefined });
+                expect( commit ).toHaveBeenNthCalledWith( 1, "setStatesOnSave", mockedGetters.totalSaved );
+                expect( commit ).toHaveBeenNthCalledWith( 3, "showNotification", { message: undefined });
             });
 
             it( "should be able to save songs in storage and suppress the save message when requested", async () => {
@@ -205,15 +224,18 @@ describe( "Vuex song module", () => {
             });
 
             it( "should serialize the Song as an .XTK file and store it remotely when exporting to Dropbox", async () => {
-                mockFn = jest.fn(() => Promise.resolve({}));
                 const song = { meta: { title: "foo" } };
-                const commit = jest.fn();
 
-                await actions.exportSongToDropbox({ commit, getters: { t: jest.fn() } }, song );
+                mockFn = jest.fn(() => Promise.resolve({}));
+                const commit = jest.fn();
+                const mockedGetters = { t: jest.fn(), totalSaved: 7 };
+
+                await actions.exportSongToDropbox({ commit, getters: mockedGetters }, song );
 
                 expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
                 expect( mockFn ).toHaveBeenNthCalledWith( 2, "uploadBlob", expect.any( Object ), expect.any( String ));
-                expect( commit ).toHaveBeenCalledWith( "showNotification", expect.any( Object ));
+                expect( commit ).toHaveBeenNthCalledWith( 1, "setStatesOnSave", mockedGetters.totalSaved );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "showNotification", expect.any( Object ));
 
                 expect( song.origin ).toEqual( "dropbox" );
             });

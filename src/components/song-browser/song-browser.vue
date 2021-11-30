@@ -78,15 +78,17 @@ import { SONG_STORAGE_KEY, getStorageKeyForSong } from "@/store/modules/song-mod
 import { openFileBrowser } from "@/utils/file-util";
 import Time from "@/utils/time-util";
 import StorageUtil from "@/utils/storage-util";
+import sharedMessages from "@/messages.json";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
+    i18n: { messages, sharedMessages },
     components: {
         FileLoader,
     },
     computed: {
         ...mapGetters([
+            "hasChanges",
             "getSongById",
             "songs"
         ]),
@@ -126,15 +128,26 @@ export default {
             "exportSong"
         ]),
         getSongDate( song ) {
-            return Time.timestampToDate(song.meta.modified);
+            return Time.timestampToDate( song.meta.modified );
         },
-        async openSongClick( songId ) {
-            try {
-                const song = await this.loadSongFromLS( this.getSongById( songId ));
-                this.openSong( song );
-                this.$emit( "close" );
-            } catch {
-                this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
+        openSongClick( songId ) {
+            const open = async () => {
+                try {
+                    const song = await this.loadSongFromLS( this.getSongById( songId ));
+                    this.openSong( song );
+                    this.$emit( "close" );
+                } catch {
+                    this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
+                }
+            };
+            if ( this.hasChanges ) {
+                this.openDialog({
+                    type: "confirm",
+                    message: this.$t( "warnings.loadNewPendingChanges" ),
+                    confirm: () => open(),
+                });
+            } else {
+                open();
             }
         },
         async exportSongClick( songId ) {
@@ -153,7 +166,7 @@ export default {
             }
             this.openDialog({
                 type: "confirm",
-                message:  this.$t( "confirmSongDelete", { song: song.meta.title }),
+                message: this.$t( "confirmSongDelete", { song: song.meta.title }),
                 confirm: () => {
                     this.deleteSongFromLS({ song });
                 }
