@@ -1,0 +1,107 @@
+{
+	"index": 0,
+	"name": "Instrument 1",
+	"presetName": "FACTORY drum hat",
+	"oscillators": [{
+		"enabled": true,
+		"adsr": {
+			"attack": 0,
+			"decay": 0.09,
+			"sustain": 0.03,
+			"release": 0.05
+		},
+		"detune": 27.1,
+		"fineShift": 0,
+		"octaveShift": 0,
+		"volume": 0.46,
+		"waveform": "NOISE",
+		"sample": "",
+		"table": 0,
+		"pitch": {
+			"range": -21,
+			"attack": 0,
+			"decay": 0.11,
+			"sustain": 0,
+			"release": 0,
+			"org": 1.5420000553131104
+		}
+	}, {
+		"enabled": false,
+		"adsr": {
+			"attack": 0,
+			"decay": 0,
+			"sustain": 0.75,
+			"release": 0
+		},
+		"detune": 0,
+		"fineShift": 0,
+		"octaveShift": 0,
+		"volume": 1,
+		"waveform": "SAW",
+		"sample": "",
+		"table": 0,
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}, {
+		"enabled": false,
+		"adsr": {
+			"attack": 0,
+			"decay": 0,
+			"sustain": 0.75,
+			"release": 0
+		},
+		"detune": 0,
+		"fineShift": 0,
+		"octaveShift": 0,
+		"volume": 1,
+		"waveform": "SAW",
+		"sample": "",
+		"table": 0,
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}],
+	"volume": 0.22,
+	"panning": 0,
+	"solo": false,
+	"muted": false,
+	"filter": {
+		"enabled": true,
+		"depth": 50,
+		"frequency": 9839.04,
+		"q": 7,
+		"speed": 0.5,
+		"lfoType": "off",
+		"type": "lowpass"
+	},
+	"delay": {
+		"enabled": false,
+		"type": 0,
+		"cutoff": 880,
+		"feedback": 0.5,
+		"offset": 0,
+		"time": 0.5
+	},
+	"overdrive": {
+		"enabled": false,
+		"preBand": 1,
+		"postCut": 8000,
+		"color": 4000,
+		"drive": 0.8
+	},
+	"eq": {
+		"enabled": false,
+		"lowGain": 1,
+		"midGain": 1,
+		"highGain": 1
+	}
+}

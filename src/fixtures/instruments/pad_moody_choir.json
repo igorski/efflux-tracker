@@ -1,6 +1,7 @@
 {
   "index": 0,
   "name": "Instrument 1",
+  "presetName": "FACTORY pad moody choir",
   "volume": 0.34,
   "delay": {
     "enabled": true,
@@ -578,6 +579,5 @@
       "waveform": "SQUARE",
       "table": 0
     }
-  ],
-  "presetName": "FACTORY pad wide"
+  ]
 }

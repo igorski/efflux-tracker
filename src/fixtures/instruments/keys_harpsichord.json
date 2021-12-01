@@ -1,0 +1,106 @@
+{
+	"index": 0,
+	"name": "Instrument 1",
+    "presetName": "FACTORY keys sustained harpsichord",
+	"oscillators": [{
+		"enabled": true,
+		"adsr": {
+			"attack": 0.16,
+			"decay": 0.1,
+			"sustain": 0.45,
+			"release": 0.42
+		},
+		"detune": 3,
+		"fineShift": 0,
+		"octaveShift": 0,
+		"volume": 1,
+		"waveform": "SAW",
+		"sample": "",
+		"table": 0,
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}, {
+		"enabled": true,
+		"adsr": {
+			"attack": 0,
+			"decay": 0,
+			"sustain": 0.57,
+			"release": 0.09
+		},
+		"detune": 0,
+		"fineShift": 0,
+		"octaveShift": -1,
+		"volume": 1,
+		"waveform": "SAW",
+		"sample": "",
+		"table": 0,
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}, {
+		"enabled": false,
+		"adsr": {
+			"attack": 0,
+			"decay": 0,
+			"sustain": 0.75,
+			"release": 0
+		},
+		"detune": 0,
+		"fineShift": 0,
+		"octaveShift": 0,
+		"volume": 1,
+		"waveform": "SAW",
+		"sample": "",
+		"table": 0,
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}],
+	"volume": 1,
+	"panning": 0,
+	"solo": false,
+	"muted": false,
+	"filter": {
+		"enabled": false,
+		"depth": 50,
+		"frequency": 880,
+		"q": 5,
+		"speed": 0.5,
+		"lfoType": "off",
+		"type": "lowpass"
+	},
+	"delay": {
+		"enabled": true,
+		"type": 1,
+		"cutoff": 3979,
+		"feedback": 0.5,
+		"offset": 0,
+		"time": 0.5
+	},
+	"overdrive": {
+		"enabled": false,
+		"preBand": 1,
+		"postCut": 8000,
+		"color": 4000,
+		"drive": 0.8
+	},
+	"eq": {
+		"enabled": false,
+		"lowGain": 1,
+		"midGain": 1,
+		"highGain": 1
+	}
+}

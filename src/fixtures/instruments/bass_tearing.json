@@ -1,6 +1,7 @@
 {
   "index": 0,
   "name": "Instrument 1",
+  "presetName": "FACTORY bass tearing",
   "volume": 0.64,
   "delay": {
     "enabled": false,
@@ -1091,6 +1092,5 @@
       "waveform": "TRIANGLE",
       "table": 0
     }
-  ],
-  "presetName": "FACTORY bass tearing"
+  ]
 }

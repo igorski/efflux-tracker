@@ -1,105 +1,102 @@
 {
-  "index": 0,
-  "name": "Instrument 0",
-  "presetName": "FACTORY pad PWM overload",
-  "oscillators": [
-    {
-      "enabled": true,
-      "waveform": "PWM",
-      "table": 0,
-      "volume": 1,
-      "detune": -16.2,
-      "octaveShift": 1,
-      "fineShift": -3,
-      "adsr": {
-        "attack": 1,
-        "decay": 0,
-        "sustain": 0,
-        "release": 0
-      },
-      "pitch": {
-        "range": 20,
-        "attack": 0.4,
-        "decay": 1,
-        "sustain": 0.75,
-        "release": 0.42,
-        "org": 210.0121612548828
-      }
-    },
-    {
-      "enabled": true,
-      "waveform": "PWM",
-      "table": 0,
-      "volume": 1,
-      "detune": -19.5,
-      "octaveShift": 1,
-      "fineShift": 0,
-      "adsr": {
-        "attack": 0,
-        "decay": 0,
-        "sustain": 0.75,
-        "release": 0
-      },
-      "pitch": {
-        "range": 0,
-        "attack": 0,
-        "decay": 1,
-        "sustain": 0.75,
-        "release": 0
-      }
-    },
-    {
-      "enabled": true,
-      "waveform": "PWM",
-      "table": 0,
-      "volume": 1,
-      "detune": -11.8,
-      "octaveShift": 1,
-      "fineShift": 0,
-      "adsr": {
-        "attack": 0,
-        "decay": 0,
-        "sustain": 0.75,
-        "release": 0
-      },
-      "pitch": {
-        "range": 0,
-        "attack": 0,
-        "decay": 1,
-        "sustain": 0.75,
-        "release": 0
-      }
-    }
-  ],
-  "volume": 0.51,
-  "filter": {
-    "enabled": true,
-    "frequency": 11944.65,
-    "q": 31,
-    "speed": 0.5,
-    "depth": 50,
-    "type": "lowpass",
-    "lfoType": "off"
-  },
-  "delay": {
-    "enabled": false,
-    "type": 0,
-    "time": 0.5,
-    "feedback": 0.57,
-    "cutoff": 15861,
-    "offset": 0.30000000000000004
-  },
-  "overdrive": {
-    "enabled": false,
-    "preBand": 1,
-    "postCut": 8000,
-    "color": 5350,
-    "drive": 0.97
-  },
-  "eq": {
-    "enabled": false,
-    "lowGain": 1,
-    "midGain": 1,
-    "highGain": 1
-  }
+	"index": 0,
+	"name": "Instrument 1",
+	"presetName": "FACTORY pad PWM overload",
+	"oscillators": [{
+		"enabled": true,
+		"waveform": "PWM",
+		"table": 0,
+		"volume": 1,
+		"detune": -16.2,
+		"octaveShift": 1,
+		"fineShift": -3,
+		"adsr": {
+			"attack": 1,
+			"decay": 0,
+			"sustain": 0,
+			"release": 0
+		},
+		"pitch": {
+			"range": 20,
+			"attack": 0.4,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0.42,
+			"org": 530.7167358398438
+		}
+	}, {
+		"enabled": true,
+		"waveform": "PWM",
+		"table": 0,
+		"volume": 1,
+		"detune": -19.5,
+		"octaveShift": 1,
+		"fineShift": 0,
+		"adsr": {
+			"attack": 0,
+			"decay": 0,
+			"sustain": 0.75,
+			"release": 0
+		},
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}, {
+		"enabled": true,
+		"waveform": "PWM",
+		"table": 0,
+		"volume": 1,
+		"detune": 5.6,
+		"octaveShift": 1,
+		"fineShift": 0,
+		"adsr": {
+			"attack": 0,
+			"decay": 0,
+			"sustain": 0.75,
+			"release": 0
+		},
+		"pitch": {
+			"range": 0,
+			"attack": 0,
+			"decay": 1,
+			"sustain": 0.75,
+			"release": 0
+		}
+	}],
+	"volume": 0.51,
+	"filter": {
+		"enabled": true,
+		"frequency": 11944.65,
+		"q": 31,
+		"speed": 0.5,
+		"depth": 50,
+		"type": "lowpass",
+		"lfoType": "off"
+	},
+	"delay": {
+		"enabled": false,
+		"type": 0,
+		"time": 0.5,
+		"feedback": 0.57,
+		"cutoff": 15861,
+		"offset": 0.30000000000000004
+	},
+	"overdrive": {
+		"enabled": false,
+		"preBand": 1,
+		"postCut": 8000,
+		"color": 5350,
+		"drive": 0.97
+	},
+	"eq": {
+		"enabled": false,
+		"lowGain": 1,
+		"midGain": 1,
+		"highGain": 1
+	},
+	"panning": 0
 }

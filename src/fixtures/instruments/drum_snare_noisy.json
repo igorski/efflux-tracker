@@ -1,6 +1,7 @@
 {
   "index": 0,
   "name": "Instrument 1",
+  "presetName": "FACTORY drum snare (noisy)",
   "volume": 0.3,
   "delay": {
     "enabled": false,
@@ -65,6 +66,5 @@
       "waveform": "SAW",
       "table": 0
     }
-  ],
-  "presetName": "FACTORY drum snare (noisy)"
+  ]
 }

@@ -1,6 +1,7 @@
 {
   "index": 0,
   "name": "Instrument 1",
+  "presetName": "FACTORY bass throaty",
   "volume": 1,
   "delay": {
     "enabled": false,
@@ -578,6 +579,5 @@
       "waveform": "SAW",
       "table": 0
     }
-  ],
-  "presetName": "FACTORY bass throaty"
+  ]
 }
