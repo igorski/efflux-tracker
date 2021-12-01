@@ -97,8 +97,49 @@ In Vuex, the song is stored inside its own Vuex store module _"song-module.js"_.
 audio playback, an additional Object structure (e.g. _AudioEvent.seq_) is used. This separates the _data_ aspect (maintained
 by the Vuex store mutations) from the _audio rendering_.
 
-The history module provides custom methods for saving and restoring individual actions for specific sections of a song.
-While Vuex makes it easy to simply save an entire song upon each mutation, this will consume a lot (!) of memory fast.
+The history module provides custom methods for saving and restoring individual actions for specific sections of a song. While Vuex makes it easy to simply save an entire song upon each mutation, this will consume a lot (!) of memory fast. Which brings us to:
+
+#### State history
+
+Mutations can be registered in state history (Vuex _history-module.js_) in order to provide undo and redo
+of operations. In order to prevent storing a lot of changes of the same property (for instance when dragging a slider), the storage of a new state is deferred through a queue. This is why history states are enqueued by _propertyName_:
+
+When enqueuing a new state while there is an existing one enqueued for the same property name, the first state is updated so its redo will match that of the newest state, the undo remaining unchanged. The second state will not
+be added to the queue.
+
+It is good to understand that the undo/redo for an action should be considered separate
+from the Vue component that is triggering the transaction, the reason being that the component can be
+unmounted at the moment the history state is changed (and the component is no longer active).
+
+That's why undo/redo handlers should either work on variables in a local scope, or on the Vuex store
+when mutating store properties. When relying on store state and getters, be sure to cache their
+values in the local scope to avoid conflicts (for instance in below example we cache _selectedInstrument_
+as it is used by the undo/redo methods to update a specific instrument. _selectedInstrument_ can change during
+the application lifetime before the undo/redo handler fires which would otherwise lead to the _wrong instrument_
+being updated.
+
+```javascript
+update( propertyName, newValue ) {
+    // cache the existing values of the property value we are about to mutate...
+    const existingValue = this.getterForExistingValue;
+    // ...and the instrument index that is used to identify the instrument containing the property
+    const instrumentIndex = this.selectedInstrument;
+    const store = this.$store;
+    // define the method that will mutate the existing value to given newValue
+    const commit = () => store.commit( "updateInstrument", { instrumentIndex, prop: propertyName, value: newValue });
+    // and perform the mutation directly
+    commit();
+    // now define and enqueue undo/redo handlers to reverse and redo the commit mutation for given propertyName
+    enqueueState( propertyName, {
+        undo() {
+            store.commit( "updateInstrument", { instrumentIndex, prop: propertyName, value: existingValue });
+        },
+        redo() {
+            commit();
+        },
+    });
+}
+```
 
 ### Audio rendering
 

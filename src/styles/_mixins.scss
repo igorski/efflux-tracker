@@ -166,6 +166,10 @@
         margin: $spacing-medium 0 $spacing-xsmall -#{$spacing-small};
         border: none;
         border-top: 1px dashed #666;
+
+        &--bottom {
+            margin-top: 0;
+        }
     }
 }
 

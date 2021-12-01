@@ -58,7 +58,7 @@
                 ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteSong')" /></button>
             </li>
         </ul>
-        <hr class="divider song-browser__bottom-divider" />
+        <hr class="divider divider--bottom" />
         <div class="footer">
             <file-loader
                 file-types="project"
@@ -227,10 +227,6 @@ $headerFooterHeightNoExpl: 102px;
         padding: $spacing-medium 0 0;
         @include boxSize();
         width: 90%;
-    }
-
-    &__bottom-divider {
-        margin-top: 0 !important;
     }
 
     @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {

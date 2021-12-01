@@ -35,6 +35,7 @@
                            :instrument-index="index"
                            :analyser="analysers[index]"
             />
+            <hr class="divider divider--bottom" />
         </div>
     </div>
 </template>
@@ -78,7 +79,7 @@ export default {
 @import "@/styles/_mixins";
 
 $ideal-mixer-width: 785px;
-$ideal-mixer-height: 400px;
+$ideal-mixer-height: 460px;
 
 .mixer {
     @include editorComponent();
