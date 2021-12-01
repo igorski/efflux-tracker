@@ -462,7 +462,7 @@ $stepHeight: 32px;
 
 .pattern {
     width: $patternWidth;
-    background-color: #101015;
+    background-color: $color-pattern-even;
 
     &:before {
         position: absolute;
@@ -545,8 +545,8 @@ $stepHeight: 32px;
     }
 
     &:nth-child(odd) {
-        background-color: #212123;
-        border-color: #212123;
+        background-color: $color-pattern-odd;
+        border-color: $color-pattern-odd;
     }
 
     .spacer {
@@ -626,8 +626,8 @@ $stepHeight: 32px;
     &.follow {
         .pattern li {
             &:nth-child(even) {
-                background-color: #323234;
-                border-color: #323234;
+                background-color: $color-pattern-odd;
+                border-color: $color-pattern-odd;
             }
             &:nth-child(odd) {
                 background-color: transparent;

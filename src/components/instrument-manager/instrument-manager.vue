@@ -218,7 +218,7 @@ $headerFooterHeight: 104px;
         align-items: center;
         width: 100%;
         padding: $spacing-small $spacing-large;
-        border-bottom: 1px solid #53565c;
+        background-color: $color-pattern-even;
 
         .title, .size, .action-button {
             display: inline-block;
@@ -254,7 +254,7 @@ $headerFooterHeight: 104px;
         }
 
         &:nth-child(even) {
-            background-color: #53565c;
+            background-color: $color-pattern-odd;
             /*color: #FFF;*/
         }
 

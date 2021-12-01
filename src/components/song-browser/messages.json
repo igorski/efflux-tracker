@@ -3,6 +3,7 @@
     "songs": "Songs",
     "error": "Error",
     "errorNoSongs": "There are currently no songs available to load. Why not create one?",
+    "titleByAuthor": "\"{title}\" by {author}",
     "errorSongImport": "Could not import song, file was possibly not a valid {extension} file, or made by an incompatible version of Efflux",
     "deleteSong": "Delete song",
     "confirmSongDelete": "Are you sure you want to delete song '{song}' ? This operation cannot be undone.",

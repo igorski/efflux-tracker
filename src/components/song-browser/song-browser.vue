@@ -41,7 +41,7 @@
                 :key="`song_${index}`"
                 @click="openSongClick( song.id )"
             >
-                <span class="title">{{ `${song.meta.title}, by ${song.meta.author}` }}</span>
+                <span class="title">{{ $t( "titleByAuthor", { title: song.meta.title, author: song.meta.author }) }}</span>
                 <!-- <span class="date">{{ getSongDate(song) }}</span> -->
                 <span class="size">{{ song.size }}</span>
                 <button
@@ -274,7 +274,7 @@ $headerFooterHeightNoExpl: 102px;
         width: 100%;
         padding: $spacing-small $spacing-large;
         cursor: pointer;
-        border-bottom: 1px solid #53565c;
+        background-color: $color-pattern-even;
 
         .title, .date {
             @include noEvents();
@@ -313,9 +313,8 @@ $headerFooterHeightNoExpl: 102px;
             }
         }
 
-        &:nth-child(even) {
-            background-color: #53565c;
-            /*color: #FFF;*/
+        &:nth-child(odd) {
+            background-color: $color-pattern-odd;
         }
 
         &:hover {
