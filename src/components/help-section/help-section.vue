@@ -21,8 +21,8 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section id="helpSection">
-        <div class="content">
+    <section class="help-section">
+        <div class="help-section__content">
             <!-- topic "general" -->
             <template v-if="helpTopic === 'general'">
                 <h4>Efflux help</h4>
@@ -141,12 +141,12 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 
 export default {
     computed: {
         ...mapState([
-            'helpTopic'
+            "helpTopic"
         ])
     },
 };
@@ -155,17 +155,18 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 
-#helpSection {
+.help-section {
     @include editorComponent();
     @include inlineFlex();
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
+    border-right: none;
+    border-bottom: none;
+    border-radius: 0;
     vertical-align: top;
     overflow-x: hidden;
     overflow-y: auto;
     height: 100%;
 
-    .content {
+    &__content {
         padding: $spacing-small $spacing-medium;
     }
 

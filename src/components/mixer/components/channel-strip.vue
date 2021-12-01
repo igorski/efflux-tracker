@@ -25,19 +25,24 @@
         <h3>{{ title }}</h3>
         <h4 class="preset-name">{{ name }}</h4>
         <div class="wrapper input range volume-wrapper">
-            <label v-t="'volumeTitle'"
-                   for="instrumentVolume"
-                   class="volume-title"
-            ></label>
-            <input v-model.number="volume"
-                   type="range"
-                   id="instrumentVolume"
-                   min="0" max="1" step="0.01" value="1"
-                   class="range"
+            <input
+                v-model.number="volume"
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value="1"
+                class="range"
             />
-            <meter v-if="supportsAnalyzer"
-                   class="meter"
-                   min="-100" max="10" low="-100" high="-5" optimum="0" :value="output"
+            <meter
+                v-if="supportsAnalyzer"
+                :value="output"
+                class="meter"
+                min="-100"
+                max="10"
+                low="-100"
+                high="-5"
+                optimum="0"
             ></meter>
         </div>
         <div class="toggles">
@@ -427,7 +432,7 @@ $width: 80px;
 .volume-wrapper {
     transform: rotate(-90deg);
     transform-origin: 0;
-    margin: 130px 0 0 8px;
+    margin: 130px 0 0 20px;
 }
 
 .panning-wrapper {

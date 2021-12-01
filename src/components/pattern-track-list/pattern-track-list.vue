@@ -406,7 +406,7 @@ export default {
 
 $patternWidth: 150px;
 $indicesWidth: 30px;
-$fullPatternListWidth: (( 8 * $patternWidth ) + $indicesWidth );
+$fullPatternListWidth: ( 8 * $patternWidth ) + $indicesWidth;
 $stepHeight: 32px;
 
 .pattern-track-list-container {

@@ -29,7 +29,9 @@
 .application-properties {
     @include editorComponent();
     padding: $spacing-small 0;
-    margin: 82px auto 0; /* offset top margin by menu height */
+    margin: 88px auto 0; /* offset top margin by menu height */
+    border-radius: 0;
+    border: none;
 }
 
 .application-editor {
@@ -158,7 +160,7 @@
         overflow: auto;
     }
 
-    #helpSection {
+    .help-section {
         display: none;
         width: 0;
     }
@@ -179,7 +181,7 @@
             .pattern-track-list {
                 width: 72%;
             }
-            #helpSection {
+            .help-section {
                 width: 25%;
             }
         }
@@ -188,7 +190,7 @@
         width: 3%;
     }
     .pattern-track-list {
-        width: 96.8%;
+        width: 97%;
     }
 }
 
