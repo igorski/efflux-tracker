@@ -545,8 +545,8 @@ $stepHeight: 32px;
     }
 
     &:nth-child(odd) {
-        background-color: #323234;
-        border-color: #323234;
+        background-color: #212123;
+        border-color: #212123;
     }
 
     .spacer {
