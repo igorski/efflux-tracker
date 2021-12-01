@@ -52,7 +52,7 @@
                 ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
             </li>
         </ul>
-        <hr class="divider" />
+        <hr class="divider instrument-manager__bottom-divider" />
         <div v-if="hasImportExport" class="footer">
             <button
                 v-t="'importInstruments'"
@@ -153,7 +153,7 @@ export default {
 
 $width: 750px;
 $height: 500px;
-$headerFooterHeight: 128px;
+$headerFooterHeight: 104px;
 
 .instrument-manager {
     @include editorComponent();
@@ -176,6 +176,10 @@ $headerFooterHeight: 128px;
 
     .file-loader {
         margin-top: $spacing-xsmall;
+    }
+
+    &__bottom-divider {
+        margin-top: 0 !important;
     }
 
     @include componentIdeal( $width, $height ) {

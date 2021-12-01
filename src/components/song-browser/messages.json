@@ -10,6 +10,7 @@
     "songImported": "Song imported successfully.",
     "exportSong": "Export song",
     "songExported": "Song \"{song}\" exported to your download folder",
-    "errorSongExport": "Could not export song."
+    "errorSongExport": "Could not export song.",
+    "localSongsExpl": "The songs listed here are stored in your browser. You can also import/export songs from/to your local device storage or connect to Dropbox to save your projects directly to your cloud storage."
   }
 }

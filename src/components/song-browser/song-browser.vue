@@ -29,6 +29,10 @@
                 class="close-button"
                 @click="$emit('close')"
             >x</button>
+            <section class="song-browser__explanation">
+                <hr class="divider" />
+                <div v-t="'localSongsExpl'" class="song-browser__explanation-text"></div>
+            </section>
         </div>
         <hr class="divider" />
         <ul class="song-list">
@@ -54,7 +58,7 @@
                 ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteSong')" /></button>
             </li>
         </ul>
-        <hr class="divider" />
+        <hr class="divider song-browser__bottom-divider" />
         <div class="footer">
             <file-loader
                 file-types="project"
@@ -187,7 +191,8 @@ export default {
 
 $songBrowserWidth: 750px;
 $songBrowserHeight: 500px;
-$headerFooterHeight: 128px;
+$headerFooterHeight: 184px;
+$headerFooterHeightNoExpl: 102px;
 
 .song-browser {
     @include editorComponent();
@@ -218,6 +223,16 @@ $headerFooterHeight: 128px;
         display: inline-block;
     }
 
+    &__explanation-text {
+        padding: $spacing-medium 0 0;
+        @include boxSize();
+        width: 90%;
+    }
+
+    &__bottom-divider {
+        margin-top: 0 !important;
+    }
+
     @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
         width: $songBrowserWidth;
         height: $songBrowserHeight;
@@ -240,8 +255,12 @@ $headerFooterHeight: 128px;
         border-radius: 0;
         z-index: 2000;
 
+        &__explanation {
+            display: none;
+        }
+
         .song-list {
-            height: calc(100% - #{$headerFooterHeight});
+            height: calc(100% - #{$headerFooterHeightNoExpl});
         }
     }
 }
