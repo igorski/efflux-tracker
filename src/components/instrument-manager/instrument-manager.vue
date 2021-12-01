@@ -214,7 +214,8 @@ $headerFooterHeight: 128px;
     li {
         @include titleFont();
         @include boxSize();
-        float: left;
+        display: flex;
+        align-items: center;
         width: 100%;
         padding: $spacing-small $spacing-large;
         border-bottom: 1px solid #53565c;
@@ -224,11 +225,8 @@ $headerFooterHeight: 128px;
         }
 
         .title {
+            flex: 1;
             @include noEvents();
-        }
-
-        .title {
-            width: 75%;
             @include truncate();
             vertical-align: middle;
         }
@@ -238,11 +236,11 @@ $headerFooterHeight: 128px;
         }
 
         .action-button {
-            width: 5%;
+            width: #{$spacing-large + $spacing-xsmall};
             @include ghostButton();
 
             &:hover {
-                filter: brightness(0) invert(1);
+                filter: brightness(0) invert(1) !important;
             }
         }
 
@@ -263,6 +261,10 @@ $headerFooterHeight: 128px;
         &:hover {
             background-color: $color-5;
             color: #000;
+
+            .action-button {
+                filter: brightness(0);
+            }
         }
     }
 }
