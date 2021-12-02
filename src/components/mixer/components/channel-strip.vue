@@ -405,16 +405,16 @@ $width: 80px;
     transform-origin: 0;
     top: -$spacing-small;
     margin: 0 $spacing-small 0;
-    width: 105px;
-    height: $spacing-medium;
+    width: 109px;
+    height: 22px;
 
     // hot signals display as red, otherwise green
 
     &:-moz-meter-sub-optimum::-moz-meter-bar {
-        background: green;
+        background: #00BB00;
     }
     &::-webkit-meter-suboptimum-value {
-        background: green;
+        background: #00BB00;
     }
 
     &:-moz-meter-optimum::-moz-meter-bar {
@@ -432,7 +432,7 @@ $width: 80px;
 .volume-wrapper {
     transform: rotate(-90deg);
     transform-origin: 0;
-    margin: 130px 0 0 20px;
+    margin: 130px 0 0 16px;
 }
 
 .panning-wrapper {
