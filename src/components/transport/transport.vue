@@ -112,11 +112,26 @@
                         name="tempo"
                         v-model="tempo"
                         @change="handleTempoControlChange"
-                        min="40"
-                        max="300"
+                        :min="minTempo"
+                        :max="maxTempo"
                         step="0.1"
                     />
-                    <span class="value">{{ $t('tempo', { tempo }) }}</span>
+                    <input
+                        v-if="showTempoInput"
+                        ref="tempoInput"
+                        :value="tempo"
+                        type="number"
+                        :min="minTempo"
+                        :max="maxTempo"
+                        step="0.1"
+                        @blur="handleTempoInputBlur()"
+                        @keyup.enter="handleTempoInputBlur()"
+                    />
+                    <span
+                        v-else
+                        class="value"
+                        @click="handleTempoInputShow()"
+                    >{{ $t('tempo', { tempo }) }}</span>
                 </li>
             </ul>
         </div>
@@ -135,6 +150,7 @@ export default {
     i18n: { messages },
     data: () => ({
         originalTempo: 0,
+        showTempoInput: false,
     }),
     computed: {
         ...mapState({
@@ -161,7 +177,11 @@ export default {
                 return this.activeSong.meta.tempo;
             },
             set( value ) {
-                this.setTempo( value );
+                if ( isNaN( value )) {
+                    return;
+                }
+                value = Math.max( this.minTempo, Math.min( this.maxTempo, value ));
+                this.setTempo( parseFloat( value ));
             }
         },
         currentPatternValue: {
@@ -226,6 +246,10 @@ export default {
             }
         },
     },
+    created() {
+        this.minTempo = 40;
+        this.maxTempo = 300;
+    },
     methods: {
         ...mapMutations([
             "setPlaying",
@@ -260,6 +284,17 @@ export default {
                 }
             });
             this.originalTempo = newTempo;
+        },
+        async handleTempoInputShow() {
+            this.showTempoInput = true;
+            this.suspendKeyboardService( true );
+            await this.$nextTick();
+            this.$refs.tempoInput.focus();
+        },
+        handleTempoInputBlur() {
+            this.tempo = parseFloat( this.$refs.tempoInput.value );
+            this.showTempoInput = false;
+            this.suspendKeyboardService( false );
         }
     }
 };
@@ -434,6 +469,7 @@ export default {
         .value {
             display: inline-block;
             @include toolFont();
+            cursor: pointer;
         }
     }
 
