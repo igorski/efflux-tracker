@@ -113,18 +113,12 @@ import VueI18n from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
-import HeaderMenu from "@/components/header-menu/header-menu";
 import Loader from "@/components/loader";
 import ModalWindows from "@/definitions/modal-windows";
 import Notifications from "@/components/notifications";
-import PatternEditor from "@/components/pattern-editor/pattern-editor";
-import PatternTrackList from "@/components/pattern-track-list/pattern-track-list";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
-import SongEditor from "@/components/song-editor/song-editor";
-import TrackEditor from "@/components/track-editor/track-editor";
-import Transport from "@/components/transport/transport";
 import SampleFactory from "@/model/factories/sample-factory";
 import { readDroppedFiles } from "@/utils/file-util";
 import store from "@/store";
@@ -138,22 +132,38 @@ const i18n = new VueI18n({
     messages
 });
 
+// wrapper for loading dynamic components with custom loading states
+function asyncComponent( key, importFn ) {
+    return {
+        component: new Promise( async ( resolve, reject ) => {
+            Pubsub.publish( PubSubMessages.SET_LOADING_STATE, key );
+            try {
+                const component = await importFn();
+                resolve( component );
+            } catch {
+                reject();
+            }
+            Pubsub.publish( PubSubMessages.UNSET_LOADING_STATE, key );
+        })
+    };
+}
+
 export default {
     name: "Efflux",
     store: new Vuex.Store( store ),
     i18n,
     components: {
-        DialogWindow: () => import( "@/components/dialog-window/dialog-window" ),
-        HeaderMenu,
-        HelpSection: () => import( "@/components/help-section/help-section" ),
+        DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window" )),
+        HeaderMenu: () => asyncComponent( "hm", () => import( "@/components/header-menu/header-menu" )),
+        HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section" )),
         Loader,
         Notifications,
-        NoteEntryEditor: () => import( "@/components/note-entry-editor/note-entry-editor" ),
-        PatternEditor,
-        PatternTrackList,
-        SongEditor,
-        TrackEditor,
-        Transport
+        NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor" )),
+        PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor" )),
+        PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list" )),
+        SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor" )),
+        TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor" )),
+        Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport" )),
     },
     data: () => ({
         prepared: false,
@@ -180,32 +190,45 @@ export default {
             "isLoading",
         ]),
         activeModal() {
+            let loadFn;
             switch ( this.modal ) {
                 default:
                     return null;
                 case ModalWindows.ADVANCED_PATTERN_EDITOR:
-                    return () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor" );
+                    loadFn = () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor" );
+                    break;
                 case ModalWindows.MODULE_PARAM_EDITOR:
-                    return () => import( "@/components/module-param-editor/module-param-editor" );
+                    loadFn = () => import( "@/components/module-param-editor/module-param-editor" );
+                    break;
                 case ModalWindows.INSTRUMENT_EDITOR:
-                    return () => import( "@/components/instrument-editor/instrument-editor" );
+                    loadFn = () => import( "@/components/instrument-editor/instrument-editor" );
+                    break;
                 case ModalWindows.SAMPLE_EDITOR:
-                    return () => import( "@/components/sample-editor/sample-editor" );
+                    loadFn = () => import( "@/components/sample-editor/sample-editor" );
+                    break;
                 case ModalWindows.INSTRUMENT_MANAGER:
-                    return () => import( "@/components/instrument-manager/instrument-manager" );
+                    loadFn = () => import( "@/components/instrument-manager/instrument-manager" );
+                    break;
                 case ModalWindows.MIXER:
-                    return () => import( "@/components/mixer/mixer" );
+                    loadFn = () => import( "@/components/mixer/mixer" );
+                    break;
                 case ModalWindows.SONG_BROWSER:
-                    return () => import( "@/components/song-browser/song-browser" );
+                    loadFn = () => import( "@/components/song-browser/song-browser" );
+                    break;
                 case ModalWindows.SONG_SAVE_WINDOW:
-                    return () => import( "@/components/song-save-window/song-save-window" );
+                    loadFn = () => import( "@/components/song-save-window/song-save-window" );
+                    break;
                 case ModalWindows.SETTINGS_WINDOW:
-                    return () => import( "@/components/settings-window/settings-window" );
+                    loadFn = () => import( "@/components/settings-window/settings-window" );
+                    break;
                 case ModalWindows.WELCOME_WINDOW:
-                    return () => import( "@/components/welcome-window/welcome-window" );
+                    loadFn = () => import( "@/components/welcome-window/welcome-window" );
+                    break;
                 case ModalWindows.DROPBOX_FILE_SELECTOR:
-                    return () => import( "@/components/dropbox-file-selector/dropbox-file-selector" );
+                    loadFn = () => import( "@/components/dropbox-file-selector/dropbox-file-selector" );
+                    break;
             }
+            return () => asyncComponent( "mw", loadFn );
         },
     },
     watch: {

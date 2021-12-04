@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019 - https://www.igorski.nl
+* Igor Zinken 2019-2021 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -20,35 +20,49 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-<template> <!-- functional> // https://github.com/vuejs/vue/issues/8822 -->
-    <div id="loader">
-        <div class="uil-default-css">
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(0deg) translate(0,-60px);transform:rotate(0deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(30deg) translate(0,-60px);transform:rotate(30deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(60deg) translate(0,-60px);transform:rotate(60deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(90deg) translate(0,-60px);transform:rotate(90deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(120deg) translate(0,-60px);transform:rotate(120deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(150deg) translate(0,-60px);transform:rotate(150deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(180deg) translate(0,-60px);transform:rotate(180deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(210deg) translate(0,-60px);transform:rotate(210deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(240deg) translate(0,-60px);transform:rotate(240deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(270deg) translate(0,-60px);transform:rotate(270deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(300deg) translate(0,-60px);transform:rotate(300deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
-            <div style="top:80px;left:93px;width:14px;height:40px;background:#FFE23D;-webkit-transform:rotate(330deg) translate(0,-60px);transform:rotate(330deg) translate(0,-60px);border-radius:14px;position:absolute;"></div>
+<template>
+    <div class="loader">
+        <div v-if="show" class="uil-default-css">
+            <div class="loader__element" style="transform:rotate(0deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(30deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(60deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(90deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(120deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(150deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(180deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(210deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(240deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(270deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(300deg) translate(0,-60px);"></div>
+            <div class="loader__element" style="transform:rotate(330deg) translate(0,-60px);"></div>
         </div>
     </div>
 </template>
 
 <script>
-export default {
+// delay in milliseconds before we show ourselves
+// this to prevent flickering animations when loading completes fast enough
+const DELAY = 250;
 
+export default {
+    data: () => ({
+        show: false,
+    }),
+    created() {
+        this.to = window.setTimeout(() => {
+            this.show = true;
+        }, DELAY );
+    },
+    beforeDestroy() {
+        window.clearTimeout( this.to );
+    }
 };
 </script>
 
 <style lang="scss" scoped>
 $loaderSize: 200px;
 
-#loader {
+.loader {
     position: fixed;
     background: #000;
     top: 50%;
@@ -58,8 +72,18 @@ $loaderSize: 200px;
     margin-left: -( $loaderSize / 2 );
     margin-top: -( $loaderSize / 2 );
     border-radius: 24px;
-    transform:scale(0.33);
+    transform: scale(0.33);
     z-index: 500;
+
+    &__element {
+        position:absolute;
+        top: 80px;
+        left: 93px;
+        width: 14px;
+        height: 40px;
+        background: #FFE23D;
+        border-radius:14px;
+    }
 }
 
 /* generated by loading.io */
