@@ -32,21 +32,23 @@
                 @mouseleave="killAllNotes()"
             >
                 <li
-                    v-for="noteName in notes"
-                    :key="noteName"
-                    class="keyboard--key"
+                    v-for="noteData in mappedNotes"
+                    :key="noteData.name"
+                    class="keyboard__key"
                     :class="{
-                        'sharp'    : noteName.includes( '#' ),
-                        'selected' : note === noteName
+                        'sharp'    : noteData.sharp,
+                        'selected' : noteData.selected,
                     }"
-                    @pointerdown="keyDown( noteName, $event )"
-                    @pointerup="keyUp( noteName, $event )"
-                    @pointerleave="keyUp( noteName, $event, false )"
-                    @pointerenter="isKeyDown && keyDown( noteName, $event )"
-                    @touchstart="keyDown( noteName, $event )"
-                    @touchend="keyUp( noteName, $event )"
-                    @touchcancel="keyUp( noteName, $event )"
-                ></li>
+                    @pointerdown="keyDown( noteData.name, $event )"
+                    @pointerup="keyUp( noteData.name, $event )"
+                    @pointerleave="keyUp( noteData.name, $event, false )"
+                    @pointerenter="isKeyDown && keyDown( noteData.name, $event )"
+                    @touchstart="keyDown( noteData.name, $event )"
+                    @touchend="keyUp( noteData.name, $event )"
+                    @touchcancel="keyUp( noteData.name, $event )"
+                >
+                    <span class="keyboard__key-name">{{ noteData.key }}</span>
+                </li>
             </ul>
         </div>
         <div class="section">
@@ -67,18 +69,18 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import Config         from "@/config";
-import EventUtil      from "@/utils/event-util";
-import EventFactory   from "@/model/factories/event-factory";
+import Config from "@/config";
+import EventUtil from "@/utils/event-util";
+import EventFactory from "@/model/factories/event-factory";
 import EventValidator from "@/model/validators/event-validator";
-import FormListItem   from "@/components/forms/form-list-item.vue";
-import Pitch          from "@/services/audio/pitch";
+import FormListItem from "@/components/forms/form-list-item.vue";
+import Pitch from "@/services/audio/pitch";
+import NoteInputHandler from "@/services/keyboard/note-input-handler";
 import InstrumentUtil from "@/utils/instrument-util";
-import messages       from "./messages.json";
+import messages from "./messages.json";
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 
-const DEFAULT_NOTE   = "C";
-const DEFAULT_OCTAVE = 3;
+const DEFAULT_NOTE = "C";
 
 export default {
     i18n: { messages },
@@ -88,20 +90,38 @@ export default {
     data: () => ({
         instrument: 0,
         note: DEFAULT_NOTE,
-        octave: DEFAULT_OCTAVE,
         isKeyDown: false,
         playingNotes: [],
     }),
     computed: {
         ...mapState({
-            activeSong         : state => state.song.activeSong,
-            activePattern      : state => state.sequencer.activePattern,
-            selectedInstrument : state => state.editor.selectedInstrument,
-            selectedStep       : state => state.editor.selectedStep,
+            activeSong           : state => state.song.activeSong,
+            activePattern        : state => state.sequencer.activePattern,
+            currentStep          : state => state.sequencer.currentStep,
+            higherKeyboardOctave : state => state.editor.higherKeyboardOctave,
+            playing              : state => state.sequencer.playing,
+            selectedInstrument   : state => state.editor.selectedInstrument,
+            selectedStep         : state => state.editor.selectedStep,
         }),
         ...mapGetters([
             "isRecording",
         ]),
+        octave: {
+            get() {
+                return this.higherKeyboardOctave;
+            },
+            set( value ) {
+                this.setHigherKeyboardOctave( value );
+            }
+        },
+        mappedNotes() {
+            return Pitch.OCTAVE_SCALE.map( name => ({
+                name,
+                sharp    : name.includes( "#" ),
+                selected : this.note === name,
+                key      : NoteInputHandler.keyForNote( name )
+            }));
+        },
         instrumentSelectValue: {
             get() {
                 return this.instrument.toString();
@@ -135,10 +155,15 @@ export default {
         },
         selectedStep() {
             this.syncWithExisting();
+        },
+        higherKeyboardOctave: {
+            immediate: true,
+            handler( value ) {
+                if ( !this.currentEvent ) {
+                    this.octave = value;
+                }
+            }
         }
-    },
-    created() {
-        this.notes = Pitch.OCTAVE_SCALE;
     },
     beforeDestroy() {
         this.killAllNotes();
@@ -147,6 +172,8 @@ export default {
         ...mapMutations([
             "addEventAtPosition",
             "setHelpTopic",
+            "setHigherKeyboardOctave",
+            "setSelectedStep",
         ]),
         syncWithExisting() {
             // by default take the previously declared events instrument as the target instrument for the new event
@@ -159,17 +186,17 @@ export default {
             this.instrument = ( previousEvent ) ? previousEvent.instrument : this.selectedInstrument;
 
             if ( this.currentEvent ) {
-                this.note   = this.currentEvent.note;
-                this.octave = this.currentEvent.octave || DEFAULT_OCTAVE;
+                this.note   = this.currentEvent.note   || DEFAULT_NOTE;
+                this.octave = this.currentEvent.octave || this.higherKeyboardOctave;
             }
         },
         handleOctaveInput() {
-            // if there is an event at the current position, update it with the new octave
+            // in record mode, when there is an event at the current position, update it with the new octave
             if ( this.currentEvent && this.isRecording ) {
                 this.addNoteToPattern( this.currentEvent.note );
             }
         },
-        addNoteToPattern( note ) {
+        addNoteToPattern( note, stayAtCurrentStep = false ) {
             const eventData = {
                 instrument: this.instrument,
                 octave: this.octave,
@@ -185,16 +212,20 @@ export default {
             if ( isNewEvent ) {
                 event = EventFactory.createAudioEvent();
             }
+            const step = this.selectedStep;
             this.addEventAtPosition({
                 store: this.$store,
                 event: { ...event, ...eventData, action: ACTION_NOTE_ON },
                 optData: {
                     patternIndex : this.activePattern,
                     channelIndex : this.selectedInstrument,
-                    step         : this.selectedStep,
-                    newEvent     : isNewEvent
+                    newEvent     : isNewEvent,
+                    step
                 }
             });
+            if ( stayAtCurrentStep ) {
+                this.setSelectedStep( step );
+            }
         },
         killAllNotes() {
             this.playingNotes.forEach( playingNote => {
@@ -289,7 +320,7 @@ export default {
         margin-left: $spacing-small;
     }
 
-    &--key {
+    &__key {
         display: inline-block;
         cursor: pointer;
         position: relative;
@@ -302,16 +333,27 @@ export default {
         &.sharp {
             position: absolute;
             z-index: 100;
-            width: 12.5%;
+            // smaller size than normal key
+            width: 8%;
+            height: 45%;
             background-color: #000;
-            transform-origin: center top;
-            transform: translateX( -50% ) scale( 0.6 );
+            transform: translateX( -50% );
+        }
+
+        &-name {
+            position: absolute;
+            bottom: 0;
+            left: $spacing-xsmall;
+            @include toolFont();
         }
 
         @include mobile() {
             max-width: 42px;
             &.sharp {
-                transform: translateX( -50% ) scale( 1, 0.6 );
+                width: 11.111%;
+            }
+            &-name {
+                display: none;
             }
         }
 

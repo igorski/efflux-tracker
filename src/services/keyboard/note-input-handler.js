@@ -27,18 +27,21 @@ let store, state;
 // High notes:  2 3   5 6 7   9 0
 //             Q W E R T Y U I O P
 const HIGHER_KEYS = [ 81, 50, 87, 51, 69, 82, 53, 84, 54, 89, 55, 85, 73, 57, 79, 48, 80 ];
+const HIGHER_KEY_NAMES = [ "Q", "2", "W", "3", "E", "R", "5", "T", "6", "Y", "7", "U", "I", "9", "O", "0", "P" ];
 
 // Low notes:  S D   G H J   L ;
 //            Z X C V B N M , . /
-const LOWER_KEYS    = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190, 186, 191 ];
+const LOWER_KEYS = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190, 186, 191 ];
+const LOWER_KEY_NAMES = [ "Z", "S", "X", "D", "C", "V", "G", "B", "H", "M", ",", "L", ".", ";", "/" ];
+
 const KEY_NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E" ];
+
 
 export default {
     init( storeReference ) {
         store = storeReference;
         state = store.state;
     },
-
     createNoteOnEvent( keyCode ) {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
@@ -50,12 +53,14 @@ export default {
             );
         }
     },
-
     createNoteOffEvent( keyCode ) {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
             InstrumentUtil.onKeyUp( note, store );
         }
+    },
+    keyForNote( note, higher = true ) {
+        return ( higher ? HIGHER_KEY_NAMES : LOWER_KEY_NAMES )[ KEY_NOTE_LIST.indexOf( note )];
     }
 };
 

@@ -133,6 +133,12 @@
                     using your computers keyboard or attached MIDI controllers for note input.
                 </p>
                 <p>
+                    For one, you can play notes instantly by using the following keyboard keys:<br /><br />
+                    <strong>&nbsp;2 3   5 6 7   9 0<br />
+                    Q W E R T Y U I O P</strong><br /><br />
+                    ...which mimic the layout of a 1.5 octave piano keyboard. You can adjust the root octave by using the <strong>-</strong> and <strong>+</strong> keys.
+                </p>
+                <p>
                     For more in-depth help on this topic you can consult the <a href="https://www.igorski.nl/efflux/help/note-input" rel="noopener" target="_blank">note input</a> page in the online manual.
                 </p>
             </template>
