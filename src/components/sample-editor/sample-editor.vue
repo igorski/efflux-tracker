@@ -52,6 +52,7 @@
                 <span>{{ $t( "totalDuration", { duration: meta.totalDuration }) }}</span>
                 <span>{{ $t( "sampleRate", { sampleRate: meta.sampleRate }) }}</span>
                 <span>{{ $t( "channelAmount", { amount: meta.amountOfChannels }) }}</span>
+                <span v-if="!isInUse" v-t="'notInUse'"></span>
             </div>
             <hr class="divider section-divider" />
             <div class="waveform-display">
@@ -210,12 +211,14 @@ export default {
         loopPlayback   : false,
         encodeProgress : 0,
         isBusy         : false,
+        isInUse        : false,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
     }),
     computed: {
         ...mapGetters([
+            "activeSong",
             "currentSample",
             "samples",
         ]),
@@ -268,6 +271,10 @@ export default {
                     const ratio = 100 / value.buffer.duration;
                     this.sampleStart = value.rangeStart * ratio;
                     this.sampleEnd   = value.rangeEnd * ratio;
+
+                    this.isInUse = this.activeSong.instruments.some(({ oscillators }) =>
+                        oscillators.some(({ sample }) => sample === value.name )
+                    );
                 }
             }
         },

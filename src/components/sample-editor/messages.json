@@ -12,6 +12,7 @@
         "totalDuration": "Duration {duration}s",
         "sampleRate": "Sample rate: {sampleRate} Hz",
         "channelAmount": "Channels: {amount}",
+        "notInUse": "Sample is currently not in use",
         "trim": "Trim",
         "delete": "Delete",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
