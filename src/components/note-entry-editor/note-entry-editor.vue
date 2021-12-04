@@ -33,19 +33,20 @@
             >
                 <li
                     v-for="noteData in mappedNotes"
-                    :key="noteData.name"
+                    :key="noteData.key"
                     class="keyboard__key"
                     :class="{
                         'sharp'    : noteData.sharp,
-                        'selected' : noteData.selected,
+                        'selected' : noteData.name === note && !noteData.higher,
+                        'higher'   : noteData.higher
                     }"
-                    @pointerdown="keyDown( noteData.name, $event )"
-                    @pointerup="keyUp( noteData.name, $event )"
-                    @pointerleave="keyUp( noteData.name, $event, false )"
-                    @pointerenter="isKeyDown && keyDown( noteData.name, $event )"
-                    @touchstart="keyDown( noteData.name, $event )"
-                    @touchend="keyUp( noteData.name, $event )"
-                    @touchcancel="keyUp( noteData.name, $event )"
+                    @pointerdown="keyDown( noteData, $event )"
+                    @pointerup="keyUp( noteData, $event )"
+                    @pointerleave="keyUp( noteData, $event, false )"
+                    @pointerenter="isKeyDown && keyDown( noteData, $event )"
+                    @touchstart="keyDown( noteData, $event )"
+                    @touchend="keyUp( noteData, $event )"
+                    @touchcancel="keyUp( noteData, $event )"
                 >
                     <span class="keyboard__key-name">{{ noteData.key }}</span>
                 </li>
@@ -115,12 +116,16 @@ export default {
             }
         },
         mappedNotes() {
-            return Pitch.OCTAVE_SCALE.map( name => ({
-                name,
-                sharp    : name.includes( "#" ),
-                selected : this.note === name,
-                key      : NoteInputHandler.keyForNote( name )
-            }));
+            // create a 1.5 octave scale
+            return [ ...Pitch.OCTAVE_SCALE, ...Pitch.OCTAVE_SCALE.slice( 0, 5 )].map(( name, index ) => {
+                const isHigherOctave = index > 11;
+                return {
+                    name,
+                    sharp  : name.includes( "#" ),
+                    key    : NoteInputHandler.keyForNote( name, isHigherOctave ),
+                    higher : isHigherOctave,
+                };
+            });
         },
         instrumentSelectValue: {
             get() {
@@ -234,10 +239,10 @@ export default {
             this.playingNotes.splice( 0 );
             this.isKeyDown = false;
         },
-        keyDown( note, event ) {
+        keyDown({ name, higher }, event ) {
             event.preventDefault(); // prevents touchstart firing mousedown in succession
             event.pointerId && event.target.releasePointerCapture( event.pointerId );
-            const noteEvent = { note, octave: this.octave };
+            const noteEvent = { note: name, octave: higher ? this.octave + 1 : this.octave };
             InstrumentUtil.onKeyDown(
                 noteEvent, this.activeSong.instruments[ this.instrument ],
                 this.isRecording, this.$store
@@ -245,12 +250,12 @@ export default {
             this.playingNotes.push( noteEvent );
             this.isKeyDown = true;
         },
-        keyUp( note, event, unsetDownState = true ) {
+        keyUp({ name }, event, unsetDownState = true ) {
             event.preventDefault();
             // we find the event that is currently playing for this key by its note (and not
             // by the current octave, as during sequencer playback the octave might have been
             // adjusted to match the last played note in the pattern)
-            const noteEvent = this.playingNotes.find( noteEvent => noteEvent.note === note );
+            const noteEvent = this.playingNotes.find( noteEvent => noteEvent.note === name );
             if ( !noteEvent ) {
                 return;
             }
@@ -307,24 +312,20 @@ export default {
 }
 
 .keyboard {
+    $keyboardWidth: 425px; // ideal width for 1.5 octaves
     @include list();
     display: inline-block;
     position: relative;
     vertical-align: top;
-    width: 300px;
+    width: $keyboardWidth;
     height: $spacing-xlarge + $spacing-small;
     margin-bottom: $spacing-small;
-
-    @include mobile() {
-        width: 100%;
-        margin-left: $spacing-small;
-    }
 
     &__key {
         display: inline-block;
         cursor: pointer;
         position: relative;
-        width: 11.111%;
+        width: 7.835%;
         height: 75%;
         background-color: #666;
         vertical-align: top;
@@ -332,12 +333,12 @@ export default {
 
         &.sharp {
             position: absolute;
-            z-index: 100;
+            z-index: 1;
+            margin: 0 0 0 -5%;
             // smaller size than normal key
-            width: 8%;
+            width: 7%;
             height: 45%;
             background-color: #000;
-            transform: translateX( -50% );
         }
 
         &-name {
@@ -345,16 +346,6 @@ export default {
             bottom: 0;
             left: $spacing-xsmall;
             @include toolFont();
-        }
-
-        @include mobile() {
-            max-width: 42px;
-            &.sharp {
-                width: 11.111%;
-            }
-            &-name {
-                display: none;
-            }
         }
 
         &.selected {
@@ -370,6 +361,25 @@ export default {
             bottom: $spacing-small;
             left: $spacing-small;
             pointer-events: none;
+        }
+    }
+
+    @include minWidthFallback( $keyboardWidth ) {
+        width: 100%;
+        margin-left: $spacing-small;
+
+        &__key {
+            width: 11.111%; // just a single octave
+
+            max-width: 42px;
+            &.sharp {
+                width: 11.111%;
+                margin-left: -7%;
+            }
+            &.higher,
+            &-name {
+                display: none;
+            }
         }
     }
 }

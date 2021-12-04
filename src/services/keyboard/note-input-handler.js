@@ -32,10 +32,8 @@ const HIGHER_KEY_NAMES = [ "Q", "2", "W", "3", "E", "R", "5", "T", "6", "Y", "7"
 // Low notes:  S D   G H J   L ;
 //            Z X C V B N M , . /
 const LOWER_KEYS = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 190, 186, 191 ];
-const LOWER_KEY_NAMES = [ "Z", "S", "X", "D", "C", "V", "G", "B", "H", "M", ",", "L", ".", ";", "/" ];
 
 const KEY_NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E" ];
-
 
 export default {
     init( storeReference ) {
@@ -60,7 +58,7 @@ export default {
         }
     },
     keyForNote( note, higher = true ) {
-        return ( higher ? HIGHER_KEY_NAMES : LOWER_KEY_NAMES )[ KEY_NOTE_LIST.indexOf( note )];
+        return HIGHER_KEY_NAMES[ KEY_NOTE_LIST[ higher ? "lastIndexOf" : "indexOf" ]( note ) ];
     }
 };
 
