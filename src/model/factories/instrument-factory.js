@@ -345,7 +345,7 @@ const InstrumentFactory =
                 attack  : 0,
                 decay   : 0,
                 sustain : 0.75,
-                release : 0
+                release : 0.02 // a little release to prevent sudden pops when dragging over the keyboard
             }
         };
         InstrumentFactory.createPitchEnvelope( oscillator );
