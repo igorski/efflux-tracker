@@ -113,13 +113,10 @@ import VueI18n from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
-import DialogWindow from "@/components/dialog-window/dialog-window";
 import HeaderMenu from "@/components/header-menu/header-menu";
-import HelpSection from "@/components/help-section/help-section";
 import Loader from "@/components/loader";
 import ModalWindows from "@/definitions/modal-windows";
 import Notifications from "@/components/notifications";
-import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor";
 import PatternEditor from "@/components/pattern-editor/pattern-editor";
 import PatternTrackList from "@/components/pattern-track-list/pattern-track-list";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -146,12 +143,12 @@ export default {
     store: new Vuex.Store( store ),
     i18n,
     components: {
-        DialogWindow,
+        DialogWindow: () => import( "@/components/dialog-window/dialog-window" ),
         HeaderMenu,
-        HelpSection,
+        HelpSection: () => import( "@/components/help-section/help-section" ),
         Loader,
         Notifications,
-        NoteEntryEditor,
+        NoteEntryEditor: () => import( "@/components/note-entry-editor/note-entry-editor" ),
         PatternEditor,
         PatternTrackList,
         SongEditor,
