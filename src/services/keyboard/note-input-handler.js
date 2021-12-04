@@ -22,7 +22,7 @@
  */
 import InstrumentUtil from "@/utils/instrument-util";
 
-let store, state;
+let store, state, extHandler;
 
 // High notes:  2 3   5 6 7   9 0
 //             Q W E R T Y U I O P
@@ -40,21 +40,29 @@ export default {
         store = storeReference;
         state = store.state;
     },
+    registerHandler( handlerFn ) {
+        extHandler = handlerFn;
+    },
+    unregisterHandler() {
+        extHandler = null;
+    },
     createNoteOnEvent( keyCode ) {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
-            InstrumentUtil.onKeyDown(
+            const audioEvent = InstrumentUtil.onKeyDown(
                 note,
                 state.song.activeSong.instruments[ state.editor.selectedInstrument ],
                 state.sequencer.recording,
                 store
             );
+            audioEvent && extHandler?.( "on", audioEvent );
         }
     },
     createNoteOffEvent( keyCode ) {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
-            InstrumentUtil.onKeyUp( note, store );
+            const audioEvent = InstrumentUtil.onKeyUp( note, store );
+            audioEvent && extHandler?.( "off", audioEvent );
         }
     },
     keyForNote( note, higher = true ) {

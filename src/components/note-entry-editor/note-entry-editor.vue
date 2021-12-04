@@ -36,9 +36,9 @@
                     :key="noteData.key"
                     class="keyboard__key"
                     :class="{
-                        'sharp'    : noteData.sharp,
-                        'selected' : noteData.name === note && !noteData.higher,
-                        'higher'   : noteData.higher
+                        'sharp'  : noteData.sharp,
+                        'active' : displayAsActive( noteData ),
+                        'higher' : noteData.higher
                     }"
                     @pointerdown="keyDown( noteData, $event )"
                     @pointerup="keyUp( noteData, $event )"
@@ -81,8 +81,6 @@ import InstrumentUtil from "@/utils/instrument-util";
 import messages from "./messages.json";
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 
-const DEFAULT_NOTE = "C";
-
 export default {
     i18n: { messages },
     components: {
@@ -90,9 +88,10 @@ export default {
     },
     data: () => ({
         instrument: 0,
-        note: DEFAULT_NOTE,
+        note: null,
         isKeyDown: false,
-        playingNotes: [],
+        playingNotes  : [], // notes where the playback was triggered by mouse/touch in this component
+        keyboardNotes : [], // notes where the playback was triggered externally using the keyboard
     }),
     computed: {
         ...mapState({
@@ -170,7 +169,11 @@ export default {
             }
         }
     },
+    created() {
+        NoteInputHandler.registerHandler( this.handleKeyboardEntry.bind( this ));
+    },
     beforeDestroy() {
+        NoteInputHandler.unregisterHandler();
         this.killAllNotes();
     },
     methods: {
@@ -191,7 +194,7 @@ export default {
             this.instrument = ( previousEvent ) ? previousEvent.instrument : this.selectedInstrument;
 
             if ( this.currentEvent ) {
-                this.note   = this.currentEvent.note   || DEFAULT_NOTE;
+                this.note   = this.currentEvent.note;
                 this.octave = this.currentEvent.octave || this.higherKeyboardOctave;
             }
         },
@@ -268,6 +271,31 @@ export default {
                 this.isKeyDown = this.playingNotes.length > 0;
             }
         },
+        /**
+         * Invoked whenever the user is using the keys of the computer
+         * keyboard to play notes. This can be used to highlight the currently
+         * playing notes in the keyboard UI.
+         */
+        handleKeyboardEntry( type, audioEvent ) {
+            const id = `${audioEvent.note}${audioEvent.octave}`;
+            if ( type === "on" && !this.keyboardNotes.includes( id )) {
+                this.keyboardNotes.push( id );
+            }
+            if ( type === "off" ) {
+                const index = this.keyboardNotes.indexOf( id );
+                if ( index > -1 ) {
+                    this.keyboardNotes.splice( index, 1 );
+                }
+            }
+        },
+        displayAsActive( noteData ) {
+            const octave = noteData.higher ? this.octave + 1 : this.octave;
+            const id = `${noteData.name}${octave}`;
+            if ( this.keyboardNotes.includes( id )) {
+                return true;
+            }
+            return noteData.name === this.note && !noteData.higher;
+        }
     }
 };
 </script>
@@ -348,8 +376,9 @@ export default {
             @include toolFont();
         }
 
-        &.selected {
+        &.active {
             background-color: $color-1;
+            color: #000;
         }
 
         &:hover {
