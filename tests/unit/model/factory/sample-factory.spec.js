@@ -28,6 +28,7 @@ describe( "SampleFactory", () => {
         const name = "foo";
         const sample = SampleFactory.create( blob, MOCK_BUFFER, name );
         expect( sample ).toEqual({
+            id: expect.any( String ),
             name,
             source: blob,
             buffer: MOCK_BUFFER,
@@ -154,6 +155,7 @@ describe( "SampleFactory", () => {
         expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", disassembled.b );
         expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
         expect( assembled ).toEqual({
+            id: expect.any( String ),
             source,
             buffer: MOCK_BUFFER,
             name: "foo",
@@ -191,6 +193,7 @@ describe( "SampleFactory", () => {
         expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", disassembled.b );
         expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
         expect( assembled ).toEqual({
+            id: expect.any( String ),
             source,
             buffer: MOCK_BUFFER,
             name: "foo",

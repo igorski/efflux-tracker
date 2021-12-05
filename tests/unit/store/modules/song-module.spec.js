@@ -84,11 +84,11 @@ describe( "Vuex song module", () => {
         });
 
         it( "should be able to remove a sample from the existing list", () => {
-            const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ] } };
-            const sample = { name: "bar" };
+            const state = { activeSong: { samples: [{ id: "foo" }, { id: "bar" }, { id: "baz" } ] } };
+            const sample = { id: "bar" };
             mutations.removeSample( state, sample );
             expect( state.activeSong.samples ).toEqual(
-                [{ name: "foo" }, { name: "baz" }]
+                [{ id: "foo" }, { id: "baz" }]
             );
         });
 
@@ -102,15 +102,15 @@ describe( "Vuex song module", () => {
             const state = {
                 activeSong: {
                     samples: [
-                        { name: "foo", bar: "baz" },
-                        { name: "qux", quux: "quuz" },
-                        { name: "corge", grault: "garply" }
+                        { id: "foo",   bar: "baz" },
+                        { id: "qux",   quux: "quuz" },
+                        { id: "corge", grault: "garply" }
                     ]
                 }
             };
-            mutations.updateSample(state, { name: "qux", quux: "waldo" });
+            mutations.updateSample(state, { id: "qux", quux: "waldo" });
             expect( state.activeSong.samples ).toEqual([
-                { name: "foo", bar: "baz" }, { name: "qux", quux: "waldo" }, { name: "corge", grault: "garply" }
+                { id: "foo", bar: "baz" }, { id: "qux", quux: "waldo" }, { id: "corge", grault: "garply" }
             ]);
         });
 

@@ -25,21 +25,22 @@ import AudioService from "@/services/audio-service";
 
 export default {
     state: () => ({
-        currentSampleName: null, // name of sample currently being edited
-        sampleCache: new Map(),  // contains all sample buffers available for playback
+        currentSampleId: null,  // id of sample currently being edited
+        sampleCache: new Map(), // contains all sample buffers available for playback
     }),
     getters: {
-        currentSample: ( state, getters ) => getters.samples.find(({ name }) => name === state.currentSampleName ),
+        currentSample: ( state, getters ) => getters.samples.find(({ id }) => id === state.currentSampleId ),
         sampleCache: state => state.sampleCache,
         sampleFromCache: state => name => state.sampleCache.get( name ),
     },
     mutations: {
-        setCurrentSample( state, { name = null } = {}) {
-            state.currentSampleName = name;
+        setCurrentSample( state, { id = null } = {}) {
+            state.currentSampleId = id;
         },
         flushSampleCache( state ) {
             state.sampleCache.clear();
         },
+        /* caching works on name basis (names are used across sessions - contrary to ids - and referenced by instruments) */
         cacheSample( state, sample ) {
             state.sampleCache.set( sample.name, {
                 ...sample,
@@ -57,5 +58,31 @@ export default {
                 commit( "cacheSample", sample );
             });
         },
+        updateSampleName({ getters, commit }, { id, name }) {
+            const sample = getters.samples.find( s => s.id === id );
+            // first check if name exists under different id as we don't take kindly to duplicates
+            const hasDuplicate = getters.samples.find( s => s.name === name && s.id !== id );
+            if ( hasDuplicate ) {
+                name += " #2";
+            }
+            const currentName   = sample.name;
+            const updatedSample = { ...sample, name };
+
+            commit( "removeSampleFromCache", sample );
+            commit( "updateSample", updatedSample );
+            commit( "cacheSample", updatedSample );
+
+            // update all instruments as the sample name is the key
+            getters.activeSong.instruments.forEach(( instrument, instrumentIndex ) => {
+                instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
+                    if ( oscillator.sample === currentName ) {
+                        commit( "updateOscillator", {
+                            instrumentIndex, oscillatorIndex, prop: "sample", value: name
+                        });
+                    }
+                });
+            });
+            return name;
+        }
     },
 };

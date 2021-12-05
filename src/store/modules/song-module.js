@@ -90,14 +90,14 @@ export default {
             state.activeSong.samples.push( sample );
         },
         removeSample( state, sample ) {
-            const index = state.activeSong.samples.findIndex(({ name }) => name === sample.name );
+            const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
             state.activeSong.samples.splice( index, 1 );
         },
         flushSamples( state ) {
             state.activeSong.samples.length = 0;
         },
         updateSample( state, sample ) {
-            const index = state.activeSong.samples.findIndex(({ name }) => name === sample.name );
+            const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
             Vue.set( state.activeSong.samples, index, sample );
         },
         /**

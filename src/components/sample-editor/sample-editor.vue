@@ -48,7 +48,22 @@
         </div>
         <template v-if="sample">
             <div class="sample-meta">
-                <span>{{ sample.name }}</span>
+                <input
+                    v-if="showNameInput"
+                    :value="sample.name"
+                    ref="nameInput"
+                    @blur="handleNameInputBlur()"
+                    @keyup.enter="handleNameInputBlur()"
+                />
+                <span>{{ $t( "sampleName", { name: sample.name }) }}</span>
+                <button
+                    type="button"
+                    :title="$t('editName')"
+                    class="sample-meta__edit-button"
+                    @click="handleNameInputShow()"
+                >
+                    <img src="@/assets/icons/icon-pencil.svg" />
+                </button>
                 <span>{{ $t( "totalDuration", { duration: meta.totalDuration }) }}</span>
                 <span>{{ $t( "sampleRate", { sampleRate: meta.sampleRate }) }}</span>
                 <span>{{ $t( "channelAmount", { amount: meta.amountOfChannels }) }}</span>
@@ -177,7 +192,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import AudioEncoder from "audio-encoder";
 import FileLoader from "@/components/file-loader/file-loader";
 import ManualURLs from "@/definitions/manual-urls";
@@ -212,6 +227,7 @@ export default {
         encodeProgress : 0,
         isBusy         : false,
         isInUse        : false,
+        showNameInput  : false,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
@@ -223,14 +239,14 @@ export default {
             "samples",
         ]),
         availableSamples() {
-            return this.samples.map(({ name }) => ({ label: name, value: name }));
+            return this.samples.map(({ id, name }) => ({ label: name, value: id }));
         },
         selectedSample: {
             get() {
-                return this.currentSample?.name;
+                return this.currentSample?.id;
             },
-            set( name ) {
-                this.setCurrentSample( this.samples.find( sample => sample.name === name ));
+            set( id ) {
+                this.setCurrentSample( this.samples.find( sample => sample.id === id ));
             }
         },
         hasAltRange() {
@@ -260,7 +276,7 @@ export default {
         currentSample: {
             immediate: true,
             handler( value, oldValue ) {
-                if ( !oldValue || !value || value.name !== oldValue.name ) {
+                if ( !oldValue || !value || value.id !== oldValue.id ) {
                     this.sample = value ? { ...value } : null;
                     this.stopPlayback();
 
@@ -314,7 +330,12 @@ export default {
             "setBlindActive",
             "setCurrentSample",
             "showNotification",
+            "suspendKeyboardService",
+            "updateOscillator",
             "updateSample",
+        ]),
+        ...mapActions([
+            "updateSampleName",
         ]),
         openHelp() {
             window.open( ManualURLs.SAMPLE_EDITOR_HELP, "_blank" );
@@ -487,6 +508,20 @@ export default {
                 this.startPlayback();
             }
         },
+        async handleNameInputShow() {
+            this.showNameInput = true;
+            await this.$nextTick();
+            this.suspendKeyboardService( true );
+            this.$refs.nameInput.focus();
+        },
+        async handleNameInputBlur() {
+            this.showNameInput = false;
+            this.suspendKeyboardService( false );
+            let name = this.$refs.nameInput.value;
+            if ( name ) {
+                this.sample.name = await this.updateSampleName({ id: this.sample.id, name });
+            }
+        }
     }
 };
 </script>
@@ -566,6 +601,11 @@ $width: 720px;
 
     span {
         margin-right: $spacing-medium;
+    }
+
+    &__edit-button {
+        padding: $spacing-small;
+        margin-right: #{$spacing-small + $spacing-xsmall};
     }
 }
 

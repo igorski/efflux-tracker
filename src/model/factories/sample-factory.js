@@ -26,6 +26,11 @@ import { loadSample } from "@/services/audio/sample-loader";
 import { sliceBuffer } from "@/utils/sample-util";
 import { fileToBase64, base64ToBlob } from "@/utils/file-util";
 
+// only used internally during a session
+// samples are referenced (by instruments) through their name
+let uid = 0;
+const generateUid = () => ++uid;
+
 const SampleFactory = {
     /**
      * Wraps a binary source and AudioBuffer into a sample Object
@@ -37,6 +42,7 @@ const SampleFactory = {
      */
     create( source, buffer, name = "New sample" ) {
         return {
+            id: `s${generateUid()}`,
             name,
             source,
             buffer,
