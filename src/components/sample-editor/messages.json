@@ -22,6 +22,7 @@
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",
         "trimmingSample": "Trimming sample",
-        "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}"
+        "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}",
+        "savedChanges": "Saved changes"
     }
 }

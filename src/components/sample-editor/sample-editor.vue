@@ -228,6 +228,7 @@ export default {
         isBusy         : false,
         isInUse        : false,
         showNameInput  : false,
+        hasPitch       : false,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
@@ -291,6 +292,9 @@ export default {
                     this.isInUse = this.activeSong.instruments.some(({ oscillators }) =>
                         oscillators.some(({ sample }) => sample === value.name )
                     );
+                    this.$nextTick(() => {
+                        this.hasPitch = !!this.sample.pitch;
+                    });
                 }
             }
         },
@@ -374,8 +378,16 @@ export default {
             this.playbackNode = null;
             this.isPlaying = false;
         },
-        /* saving sample, after performing pitch analysis */
+        /* saving sample, after performing pitch analysis, when required */
         commitChanges() {
+            // if no pitch changes need to be calculated (e.g. had pitch and range wasn't adjusted)
+            if ( this.hasPitch ) {
+                this.updateSample({ ...this.sample });
+                this.showNotification({
+                    message : this.$t( "savedChanges" )
+                });
+                return;
+            }
             this.isBusy = true;
             this.stopPlayback();
             const wasLooping = this.loopPlayback;
@@ -406,8 +418,8 @@ export default {
                 // get the most occurring frequency from the signal
                 // TODO: should we round the frequencies here ?
                 const mode = arr => arr.sort(( a, b ) =>
-                      arr.filter( v => v === a ).length -
-                      arr.filter( v => v === b ).length
+                    arr.filter( v => v === a ).length -
+                    arr.filter( v => v === b ).length
                 ).pop();
 
                 const frequency = mode( this.pitches );
@@ -420,6 +432,7 @@ export default {
                     rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
                     rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
                 };
+                this.hasPitch = true;
                 this.updateSample( sample );
                 this.cacheSample( sample );
                 this.closeDialog();
@@ -477,6 +490,7 @@ export default {
                 message     : this.$t( "trimmingSample" ),
                 hideActions : true,
             });
+            const hadPitch = this.hasPitch; // needs no recalculation after trim
             let buffer = this.sliceBufferForRange();
             AudioEncoder( buffer, 192, progress => {
                 this.encodeProgress = progress;
@@ -497,8 +511,11 @@ export default {
                 this.updateSample( sample );
                 this.sampleStart = 0;
                 this.sampleEnd   = 100;
-                this.sample = sample;
+                this.sample      = sample;
 
+                this.$nextTick(() => {
+                    this.hasPitch = hadPitch;
+                });
                 this.closeDialog();
                 this.isBusy = false;
             });
@@ -507,6 +524,7 @@ export default {
             if ( this.isPlaying ) {
                 this.startPlayback();
             }
+            this.hasPitch = false; // pitch must be recalculated
         },
         async handleNameInputShow() {
             this.showNameInput = true;
