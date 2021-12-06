@@ -492,6 +492,7 @@ export default {
             });
             const hadPitch = this.hasPitch; // needs no recalculation after trim
             let buffer = this.sliceBufferForRange();
+            const duration = buffer.duration;
             AudioEncoder( buffer, 192, progress => {
                 this.encodeProgress = progress;
             }, async blob => {
@@ -499,18 +500,22 @@ export default {
                 // have slightly different sample lengths (otherwise rangeEnd
                 // will not be 100 % upon opening this saved sample once more)
                 buffer = await loadSample( blob, getAudioContext() );
+                // encoded MP3 is expected to have a longer duration than the source https://lame.sourceforge.io/tech-FAQ.txt
+                // we expect 1057 padded samples at the start which we set as the new range start
+                const rangeStart = buffer.duration > duration ? 1057 / buffer.sampleRate : 0;
                 const sample = {
                     ...this.sample,
                     source     : blob,
                     buffer,
-                    rangeStart : 0,
-                    rangeEnd   : buffer.duration,
-                    rate       : buffer.sampleRate,
-                    length     : buffer.duration
+                    rangeStart,
+                    // note we keep the original duration for the new range (MP3 also has padded samples at the end)
+                    rangeEnd : Math.min( buffer.duration, rangeStart + duration ),
+                    rate     : buffer.sampleRate,
+                    length   : buffer.duration
                 };
                 this.updateSample( sample );
-                this.sampleStart = 0;
-                this.sampleEnd   = 100;
+                this.sampleStart = sample.rangeStart * ( 100 / buffer.duration );
+                this.sampleEnd   = sample.rangeEnd * ( 100 / buffer.duration );
                 this.sample      = sample;
 
                 this.$nextTick(() => {

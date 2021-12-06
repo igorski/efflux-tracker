@@ -94,7 +94,7 @@ const SampleFactory = {
         };
         return new Promise(( resolve, reject ) => {
             // we serialize the source instead of the buffer
-            // a the latter is uncompressed audio and thus significantly larger
+            // as the latter is uncompressed audio and thus significantly larger.
             // this serialization will only happen on first save as the
             // deserializer will keep the source intact
             source = sample.source;
