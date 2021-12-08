@@ -207,7 +207,9 @@ import { sliceBuffer } from "@/utils/sample-util";
 
 import messages from "./messages.json";
 
+const MP3_PAD_START = 1057; // samples added at the beginning of an MP3 encoded file
 const rangeToPosition = ( rangeValue, length ) => length * ( rangeValue / 100 );
+const secToPctRatio   = ({ duration }) => 100 / duration;
 
 export default {
     i18n: { messages },
@@ -251,6 +253,18 @@ export default {
             }
         },
         hasAltRange() {
+            if ( !this.sample?.buffer ) {
+                return false;
+            }
+            // if the sampleStart is at the exact MP3 padding we assume we don't have an alt range
+            // (after trimming the sample, it is MP3 encoded which adds this padding)
+            const paddedSamples = MP3_PAD_START / this.sample.buffer.sampleRate;
+            if ( this.sampleStart === paddedSamples * secToPctRatio( this.sample.buffer )
+                // guesstimate whether sample end was untouched (MP3 adds end padding as well)
+                 && this.sampleEnd >= 100 - paddedSamples * secToPctRatio( this.sample.buffer ))
+            {
+                return false;
+            }
             return this.sampleStart !== 0 || this.sampleEnd !== 100;
         },
         rangeStyle() {
@@ -261,7 +275,7 @@ export default {
             };
         },
         canTrim() {
-            return this.sample?.buffer?.sampleRate === 44100; // TODO only 44.1 kHz supported.
+            return this.sample?.buffer?.sampleRate === 44100; // TODO currently only 44.1 kHz supported.
         },
         meta() {
             const { duration } = this.sample.buffer;
@@ -285,7 +299,7 @@ export default {
                         return;
                     }
                     // convert ranges to percentile (for range controls)
-                    const ratio = 100 / value.buffer.duration;
+                    const ratio = secToPctRatio( value.buffer );
                     this.sampleStart = value.rangeStart * ratio;
                     this.sampleEnd   = value.rangeEnd * ratio;
 
@@ -502,7 +516,7 @@ export default {
                 buffer = await loadSample( blob, getAudioContext() );
                 // encoded MP3 is expected to have a longer duration than the source https://lame.sourceforge.io/tech-FAQ.txt
                 // we expect 1057 padded samples at the start which we set as the new range start
-                const rangeStart = buffer.duration > duration ? 1057 / buffer.sampleRate : 0;
+                const rangeStart = buffer.duration > duration ? MP3_PAD_START / buffer.sampleRate : 0;
                 const sample = {
                     ...this.sample,
                     source     : blob,
@@ -514,8 +528,9 @@ export default {
                     length   : buffer.duration
                 };
                 this.updateSample( sample );
-                this.sampleStart = sample.rangeStart * ( 100 / buffer.duration );
-                this.sampleEnd   = sample.rangeEnd * ( 100 / buffer.duration );
+                const ratio = secToPctRatio( buffer );
+                this.sampleStart = sample.rangeStart * ratio;
+                this.sampleEnd   = sample.rangeEnd * ratio;
                 this.sample      = sample;
 
                 this.$nextTick(() => {
