@@ -32,6 +32,16 @@
         <section>
             <fieldset>
                 <legend v-t="'generalSettings'"></legend>
+                <div
+                    v-if="supportsTimelineMode"
+                    class="wrapper toggle"
+                >
+                    <label v-t="'timelineMode'" class="label"></label>
+                    <toggle-button
+                        v-model="useTimelineMode"
+                        syc
+                    />
+                </div>
                 <div class="wrapper toggle">
                     <label v-t="'showHelpPanel'" class="label"></label>
                     <toggle-button
@@ -130,8 +140,15 @@ export default {
             "displayWelcome",
             "getSetting",
             "midiMessageHandler",
-            "hasMidiSupport"
+            "hasMidiSupport",
+            "timelineMode",
         ]),
+        supportsTimelineMode() {
+            if ( process.env.NODE_ENV !== "production" ) {
+                return true; // still very much under development
+            }
+            return false;
+        },
         showHelpOnStartup: {
             get() {
                 return this.displayWelcome;
@@ -141,6 +158,16 @@ export default {
                     { name: this.settings.DISPLAY_WELCOME, value }
                 );
             }
+        },
+        useTimelineMode: {
+            get() {
+                return this.timelineMode;
+            },
+            set( value ) {
+                this.saveSetting(
+                    { name: this.settings.TIMELINE_MODE, value }
+                );
+            },
         },
         portNumber: {
             get() {

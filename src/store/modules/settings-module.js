@@ -44,6 +44,7 @@ export default {
             FOLLOW_PLAYBACK : "fp",
             DISPLAY_HELP    : "dh",
             DISPLAY_WELCOME : "dw",
+            TIMELINE_MODE   : "tl",
         }
     },
     getters: {
@@ -55,6 +56,7 @@ export default {
         },
         displayWelcome : state => state._settings[ state.PROPERTIES.DISPLAY_WELCOME ] ?? true,
         followPlayback : state => state._settings[ state.PROPERTIES.FOLLOW_PLAYBACK ] || false,
+        timelineMode   : state => state._settings[ state.PROPERTIES.TIMELINE_MODE ] || false,
         paramFormat    : state => state._settings[ state.PROPERTIES.INPUT_FORMAT ]
     },
     mutations: {
@@ -73,7 +75,7 @@ export default {
                 ( result ) => {
                     if ( typeof result === "string" ) {
                         try {
-                            commit("setStoredSettings", JSON.parse( result ));
+                            commit( "setStoredSettings", JSON.parse( result ));
                         }
                         catch ( e ) {
                             // that"s fine

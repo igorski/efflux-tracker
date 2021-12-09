@@ -178,7 +178,8 @@
         margin-left: 0;
 
         &.has-help-panel {
-            .pattern-track-list {
+            .pattern-track-list,
+            .timeline-editor {
                 width: 72%;
             }
             .help-section {
@@ -189,7 +190,8 @@
     #trackEditor {
         width: 3%;
     }
-    .pattern-track-list {
+    .pattern-track-list,
+    .timeline-editor {
         width: 97%;
     }
 }

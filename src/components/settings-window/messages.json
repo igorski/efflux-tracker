@@ -18,6 +18,7 @@
     "noMidiDevices": "There are no available MIDI devices. Attach a new/different device and try again.",
     "error": "Error",
     "midiFailure": "MIDI Unavailable, Efflux could not connect to MIDI device(s)",
-    "midiEnabled": "Listening to MIDI messages coming from {device}"
+    "midiEnabled": "Listening to MIDI messages coming from {device}",
+    "timelineMode": "Timeline (instead of tracker)-mode"
   }
 }

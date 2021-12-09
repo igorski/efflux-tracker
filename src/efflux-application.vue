@@ -61,10 +61,9 @@
                     }"
                 >
                     <track-editor />
-                    <pattern-track-list />
-                    <help-section
-                        v-if="displayHelp"
-                    />
+                    <timeline-editor v-if="timelineMode" />
+                    <pattern-track-list v-else />
+                    <help-section v-if="displayHelp" />
                 </div>
                 <note-entry-editor
                     v-if="showNoteEntry"
@@ -162,6 +161,7 @@ export default {
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list" )),
         SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor" )),
+        TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor" )),
         TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport" )),
     },
@@ -188,6 +188,7 @@ export default {
             "activeSong",
             "displayWelcome",
             "isLoading",
+            "timelineMode",
         ]),
         activeModal() {
             let loadFn;
