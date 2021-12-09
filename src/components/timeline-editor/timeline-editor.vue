@@ -32,14 +32,22 @@
 <script>
 import { mapState } from "vuex";
 import { canvas } from "zcanvas";
+import PatternRenderer from "./renderers/pattern-renderer";
 import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     computed: {
-        ...mapState([
-            "windowSize",
-        ]),
+        ...mapState({
+            activeSong: state => state.song.activeSong,
+            activePattern: state => state.sequencer.activePattern,
+            currentStep: state => state.sequencer.currentStep,
+            selectedInstrument: state => state.editor.selectedInstrument,
+            windowSize: state => state.windowSize,
+        }),
+        patterns() {
+            return this.activeSong.patterns;
+        },
     },
     watch: {
         windowSize: {
@@ -49,12 +57,19 @@ export default {
                 }
             },
         },
+        patterns() {
+            this.syncActors();
+        },
     },
     mounted() {
+        this._renderers = [];
+
         this.canvas = new canvas({ width: 100, height: 100 });
         this.canvas.setBackgroundColor( "blue" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
         this.canvas.getElement().className = "timeline-container__canvas";
+
+        this.syncActors();
         this.resizeCanvas();
     },
     beforeDestroy() {
@@ -64,6 +79,22 @@ export default {
         resizeCanvas() {
             const { width, height } = this.$el.getBoundingClientRect();
             this.canvas.setDimensions( width, height );
+            // TODO: implement zooming ?
+            this._renderers.forEach( renderer => {
+                renderer.setWidth( width );
+                renderer.setHeight( height );
+            });
+        },
+        syncActors() {
+            while ( this._renderers.length ) {
+                this._renderers[ 0 ].dispose();
+                this._renderers.splice( 0, 1 );
+            }
+            this.patterns.forEach(( pattern, index ) => {
+                const renderer = new PatternRenderer( pattern, index );
+                this._renderers.push( renderer );
+                this.canvas.addChild( renderer );
+            });
         }
     }
 };
