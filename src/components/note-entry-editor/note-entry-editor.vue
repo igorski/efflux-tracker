@@ -23,6 +23,7 @@
 <template>
     <div
         class="note-entry-editor"
+        :class="{ large: largeView }"
         @mouseover="setHelpTopic('note-entry')"
      >
         <div class="section">
@@ -64,12 +65,20 @@
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="7">7</form-list-item>
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="8">8</form-list-item>
             </ul>
+            <div class="large-view-control">
+                <label v-t="'expand'" class="large-view-control__title"></label>
+                <toggle-button
+                    v-model="largeView"
+                    sync
+                />
+            </div>
         </div>
     </div>
 </template>
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
+import { ToggleButton } from "vue-js-toggle-button";
 import Config from "@/config";
 import EventUtil from "@/utils/event-util";
 import EventFactory from "@/model/factories/event-factory";
@@ -85,8 +94,10 @@ export default {
     i18n: { messages },
     components: {
         FormListItem,
+        ToggleButton,
     },
     data: () => ({
+        largeView: false,
         instrument: 0,
         note: null,
         isKeyDown: false,
@@ -303,6 +314,8 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 
+$largeWidth: 700px;
+
 .note-entry-editor {
     @include noSelect();
     @include boxSize();
@@ -323,6 +336,23 @@ export default {
     @include mobile() {
         z-index: 10;
         padding: $spacing-small $spacing-medium;
+    }
+
+    &.large {
+        height: $note-entry-editor-height * 2;
+
+        .keyboard {
+            width: $largeWidth;
+            height: 112px;
+
+            &__key {
+                height: 100%;
+
+                &.sharp {
+                    height: 60%;
+                }
+            }
+        }
     }
 }
 
@@ -436,6 +466,21 @@ export default {
             background-color: #FFF;
             color: #000;
         }
+    }
+}
+
+.large-view-control {
+    position: absolute;
+    top: $spacing-medium;
+    right: $spacing-small;
+
+    @include minWidthFallback( $largeWidth ) {
+        display: none;
+    }
+
+    &__title {
+        @include toolFont();
+        margin-right: $spacing-small;
     }
 }
 </style>
