@@ -381,14 +381,21 @@ function handleKeyDown( event ) {
         case 76: // L
             if ( hasOption ) {
                 store.commit( "setLooping", !sequencer.looping );
-                preventDefault(event); // location bar
+                preventDefault( event ); // location bar
+            }
+            break;
+
+        case 79: // O
+            if ( hasOption ) {
+                store.commit( "openModal", ModalWindows.SONG_BROWSER );
+                preventDefault( event ); // file open dialog
             }
             break;
 
         case 82: // R
             if ( hasOption ) {
                 store.commit( "setRecording", !sequencer.recording );
-                preventDefault(event); // page refresh
+                preventDefault( event ); // page refresh
             }
             break;
 

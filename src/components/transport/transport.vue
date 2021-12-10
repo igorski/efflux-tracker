@@ -252,7 +252,6 @@ export default {
         activeSong: {
             immediate: true,
             handler() {
-                console.warn("song changeD?");
                 this.originalTempo = this.tempo;
             }
         },
