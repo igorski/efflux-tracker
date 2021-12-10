@@ -111,7 +111,6 @@
                         id="songTempo"
                         name="tempo"
                         v-model="tempo"
-                        @change="handleTempoControlChange"
                         :min="minTempo"
                         :max="maxTempo"
                         step="0.1"
@@ -142,9 +141,9 @@
 import Vue from "vue";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
-
+import { enqueueState } from "@/model/factories/history-state-factory";
 import { resetPlayState } from "@/utils/song-util";
-import messages           from "./messages.json";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -180,8 +179,19 @@ export default {
                 if ( isNaN( value )) {
                     return;
                 }
-                value = Math.max( this.minTempo, Math.min( this.maxTempo, value ));
-                this.setTempo( parseFloat( value ));
+                value = Math.max( this.minTempo, Math.min( this.maxTempo, parseFloat( value )));
+                const { originalTempo } = this;
+                const store = this.$store;
+                const commit = () => store.commit( "setTempo", value );
+                // Actions.TEMPO_CHANGE
+                enqueueState( "tc", {
+                    undo() {
+                        store.commit( "setTempo", originalTempo );
+                    },
+                    redo: commit
+                });
+                commit();
+                this.originalTempo = value;
             }
         },
         currentPatternValue: {
@@ -242,6 +252,7 @@ export default {
         activeSong: {
             immediate: true,
             handler() {
+                console.warn("song changeD?");
                 this.originalTempo = this.tempo;
             }
         },
@@ -265,25 +276,9 @@ export default {
             "gotoPreviousPattern",
             "gotoNextPattern",
             "setMobileMode",
-            "saveState",
         ]),
         handleSettingsToggle() {
             this.setMobileMode( this.mobileMode ? null : "settings" );
-        },
-        handleTempoControlChange({ target }) {
-            const { originalTempo } = this;
-            const newTempo = parseFloat( target.value );
-            const store = this.$store;
-            // Actions.TEMPO_CHANGE
-            this.saveState({
-                undo() {
-                    store.commit( "setTempo", originalTempo );
-                },
-                redo() {
-                    store.commit( "setTempo", newTempo );
-                }
-            });
-            this.originalTempo = newTempo;
         },
         async handleTempoInputShow() {
             this.showTempoInput = true;
