@@ -80,6 +80,10 @@ export default
                 InstrumentFactory.createOverdrive( instrument );
             }
 
+            if ( typeof instrument.delay.dry !== "number" ) {
+                instrument.delay.dry = 1.0; // delay dry control added in version 7 of SongAssemblyService
+            }
+
             if ( typeof instrument.index === "undefined" && typeof instrument.id === "number" ) {
                 instrument.index = instrument.id; // legacy songs used id for index
             }

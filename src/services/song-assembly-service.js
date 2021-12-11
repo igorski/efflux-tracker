@@ -23,7 +23,7 @@
 import SongValidator from "@/model/validators/song-validator";
 import SongFactory from "@/model/factories/song-factory";
 
-export const ASSEMBLER_VERSION = 6;
+export const ASSEMBLER_VERSION = 7;
 
 const ASSEMBLER_VERSION_CODE = "av";
 
