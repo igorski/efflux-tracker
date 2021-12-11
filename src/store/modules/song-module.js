@@ -23,6 +23,7 @@
 import Vue from "vue";
 import Config from "@/config";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+import ModalWindows        from "@/definitions/modal-windows";
 import SongFactory         from "@/model/factories/song-factory";
 import createAction        from "@/model/factories/action-factory";
 import Actions             from "@/definitions/actions";
@@ -339,14 +340,17 @@ export default {
             await dispatch( "validateSong", song );
             return await SongAssemblyService.disassemble( song );
         },
-        async openSharedSong({ dispatch }, disassembledSong ) {
+        async openSharedSong({ commit, dispatch }, disassembledSong ) {
             let song;
             if ( disassembledSong.version ) { // legacy non disassembled shares
                 song = SongValidator.transformLegacy( disassembledSong );
             } else { // new disassembled version
                 song = await SongAssemblyService.assemble( disassembledSong );
             }
-            await dispatch( "openSong", song );
+            if ( song ) {
+                await dispatch( "openSong", song );
+                commit( "openModal", ModalWindows.WELCOME_SHARED_SONG );
+            }
         },
         async exportSongToDropbox({ commit, getters }, song ) {
             const blob = await toXTK( song );

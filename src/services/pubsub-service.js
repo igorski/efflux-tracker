@@ -49,13 +49,13 @@ export default
             Messages.SET_BLIND_STATE,
             Messages.CLOSE_OVERLAY
 
-        ].forEach(m => pubsub.subscribe(m, handleBroadcast));
+        ].forEach( m => pubsub.subscribe( m, handleBroadcast ));
     },
-    publish(message, payload) {
-        if (!pubsub)
+    publish( message, payload ) {
+        if ( !pubsub ) {
             return;
-
-        pubsub.publish(message, payload);
+        }
+        pubsub.publish( message, payload );
     }
 };
 

@@ -228,6 +228,9 @@ export default {
                 case ModalWindows.DROPBOX_FILE_SELECTOR:
                     loadFn = () => import( "@/components/dropbox-file-selector/dropbox-file-selector" );
                     break;
+                case ModalWindows.WELCOME_SHARED_SONG:
+                    loadFn = () => import( "@/components/shared-song-window/shared-song-window" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },

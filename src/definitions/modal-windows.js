@@ -32,5 +32,6 @@ export default
     SONG_SAVE_WINDOW        : "7",
     SETTINGS_WINDOW         : "8",
     WELCOME_WINDOW          : "9",
-    DROPBOX_FILE_SELECTOR   : "10"
+    DROPBOX_FILE_SELECTOR   : "10",
+    WELCOME_SHARED_SONG     : "11",
 };

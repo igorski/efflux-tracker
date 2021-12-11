@@ -24,8 +24,10 @@
     <div class="welcome">
         <div class="header">
             <h2 v-t="'title'"></h2>
-            <button class="close-button"
-                    @click="$emit('close')"
+            <button
+                type="button"
+                class="close-button"
+                @click="$emit('close')"
             >x</button>
         </div>
         <hr class="divider" />
