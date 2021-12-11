@@ -27,7 +27,7 @@
             <button
                 type="button"
                 class="close-button"
-                @click="close()"
+                @click="handleCloseClick()"
             >x</button>
         </div>
         <hr class="divider" />
@@ -42,7 +42,7 @@
                     type="button"
                     :title="'playSong'"
                     class="button play-button icon-play"
-                    @click="playSong()"
+                    @click="handlePlayClick()"
                 ></button>
             </div>
         </div>
@@ -63,6 +63,20 @@ export default {
             "activeSong",
         ]),
     },
+    data: () => ({
+        inited: false,
+    }),
+    mounted() {
+        this.keydownHandler = async () => {
+            if ( !this.inited ) {
+                await this.setupSong();
+            }
+        };
+        window.addEventListener( "keydown", this.keydownHandler );
+    },
+    beforeDestroy() {
+        window.removeEventListener( "keydown", this.keydownHandler );
+    },
     methods: {
         ...mapMutations([
             "setPlaying",
@@ -70,14 +84,31 @@ export default {
         ...mapActions([
             "cacheSongSamples",
         ]),
-        async playSong() {
-            // AudioContext will now start after this user interaction (which is necessary for sample caching)
-            setTimeout( async () => {
-                await this.cacheSongSamples( this.activeSong.samples );
-                applyModules( this.activeSong );
-                this.setPlaying( true );
-                this.close();
-            }, 250 );
+        async handlePlayClick() {
+            await this.setupSong();
+            this.setPlaying( true );
+            this.close();
+        },
+        async handleCloseClick() {
+            await this.setupSong();
+            this.close();
+        },
+        setupSong() {
+            // The song may have preloaded, but the AudioContext is silenced until a
+            // user interaction occurs. Call this method after one such interaction
+            // so we can cache the song samples (requires active AudioContext) and
+            // apply the modules.
+            return new Promise( resolve => {
+                if ( this.inited ) {
+                    return resolve();
+                }
+                setTimeout( async () => {
+                    await this.cacheSongSamples( this.activeSong.samples );
+                    applyModules( this.activeSong );
+                    this.inited = true;
+                    resolve();
+                }, 100 );
+            });
         },
         close() {
             this.$emit( "close" );
