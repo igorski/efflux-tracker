@@ -53,6 +53,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
+import { applyModules } from "@/services/audio-service";
 import messages from "./messages.json";
 
 export default {
@@ -73,6 +74,7 @@ export default {
             // AudioContext will now start after this user interaction (which is necessary for sample caching)
             setTimeout( async () => {
                 await this.cacheSongSamples( this.activeSong.samples );
+                applyModules( this.activeSong );
                 this.setPlaying( true );
                 this.close();
             }, 250 );
