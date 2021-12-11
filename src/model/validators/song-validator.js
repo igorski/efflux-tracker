@@ -62,6 +62,12 @@ export default
         }
         song.version = LEGACY_VERSION;
         song.instruments.forEach(( instrument ) => {
+            // panning and mute/solo controls added at a later stage
+            
+            instrument.muted   = false;
+            instrument.solo    = false;
+            instrument.panning = instrument.panning || 0;
+
             // pitch envelope was added in version 2 of SongAssemblyService
 
             instrument.oscillators.forEach(( oscillator ) => {
