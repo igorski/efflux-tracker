@@ -25,8 +25,7 @@
  * Here we expose parts of Efflux as an API to
  * integrate with third party applications
  */
-import Messages      from "./pubsub/messages";
-import SongValidator from "../model/validators/song-validator";
+import Messages from "./pubsub/messages";
 
 let store, pubsub;
 
@@ -68,16 +67,16 @@ function handleBroadcast(message, payload) {
             return;
         case Messages.LOAD_SONG:
             store.commit( "closeDialog" );
-            store.dispatch( "openSong", SongValidator.transformLegacy( payload ));
+            store.dispatch( "openSharedSong", payload );
             break;
         case Messages.VALIDATE_AND_GET_SONG:
             // payload is fn awaiting song object
             if ( typeof payload !== "function" ) {
                 return;
             }
-            store.dispatch( "validateSong", store.state.song.activeSong )
-                .then(() => {
-                    payload( store.state.song.activeSong );
+            store.dispatch( "exportSongForShare", store.state.song.activeSong )
+                .then( xtk => {
+                    payload( xtk, store.state.song.activeSong.meta );
                 }).catch(() => {
                     // ...nowt, validation messages will have been triggered by store validate
                 });

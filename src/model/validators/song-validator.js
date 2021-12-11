@@ -102,6 +102,10 @@ export default
                 });
             });
         });
+
+        if ( !Array.isArray( song.samples )) {
+            song.samples = [];
+        }
         return song;
     }
 };

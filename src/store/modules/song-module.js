@@ -335,6 +335,19 @@ export default {
             saveAsFile( await toXTK( song ), toFileName( song.meta.title ));
             commit( "publishMessage", PubSubMessages.SONG_EXPORTED );
         },
+        async exportSongForShare({ dispatch }, song ) {
+            await dispatch( "validateSong", song );
+            return await SongAssemblyService.disassemble( song );
+        },
+        async openSharedSong({ dispatch }, disassembledSong ) {
+            let song;
+            if ( disassembledSong.version ) { // legacy non disassembled shares
+                song = SongValidator.transformLegacy( disassembledSong );
+            } else { // new disassembled version
+                song = await SongAssemblyService.assemble( disassembledSong );
+            }
+            await dispatch( "openSong", song );
+        },
         async exportSongToDropbox({ commit, getters }, song ) {
             const blob = await toXTK( song );
             const name = toFileName( song.meta.title );
