@@ -92,6 +92,10 @@
                                 v-model="module"
                                 :option-value="automationParam('delayFeedback')"
                 />
+                <form-list-item v-t="'delayDry'"
+                                v-model="module"
+                                :option-value="automationParam('delayDry')"
+                />
                 <form-list-item v-t="'delayCutoff'"
                                 v-model="module"
                                 :option-value="automationParam('delayCutoff')"
@@ -141,7 +145,7 @@ import FormListItem       from "../forms/form-list-item";
 import messages           from "./messages.json";
 
 import {
-    DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
+    DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
     FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
     PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
@@ -229,6 +233,7 @@ export default {
                 case 'delayEnabled': return DELAY_ENABLED;
                 case 'delayTime': return DELAY_TIME;
                 case 'delayFeedback': return DELAY_FEEDBACK;
+                case 'delayDry': return DELAY_DRY;
                 case 'delayCutoff': return DELAY_CUTOFF;
                 case 'delayOffset': return DELAY_OFFSET;
             }
