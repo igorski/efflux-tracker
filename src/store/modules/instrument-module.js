@@ -25,6 +25,7 @@ import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import OscillatorTypes     from "@/definitions/oscillator-types";
 import FixturesLoader      from "@/services/fixtures-loader";
 import StorageUtil         from "@/utils/storage-util";
+import { createFromSaved } from "@/model/factories/instrument-factory";
 import SampleFactory       from "@/model/factories/sample-factory";
 import InstrumentValidator from "@/model/validators/instrument-validator";
 import { clone }           from "@/utils/object-util";
@@ -106,7 +107,7 @@ export default {
                 if ( !storedInstrument ) {
                     reject();
                 }
-                const instrument = JSON.parse( storedInstrument );
+                const instrument = createFromSaved( JSON.parse( storedInstrument ));
                 for ( const oscillator of instrument.oscillators ) {
                     if ( oscillator.sample && typeof oscillator.sample === "object" ) {
                         const sample = await SampleFactory.assemble( oscillator.sample );

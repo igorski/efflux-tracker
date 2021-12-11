@@ -63,6 +63,7 @@ const InstrumentFactory =
                 type     : 0,
                 time     : 0.5,
                 feedback : 0.5,
+                dry      : 1,
                 cutoff   : 880,
                 offset   : 0
             }
@@ -107,6 +108,7 @@ const InstrumentFactory =
                     type     : xtkDelay[ INSTRUMENT_DELAY_TYPE ],
                     cutoff   : parseFloat( xtkDelay[ INSTRUMENT_DELAY_CUTOFF ]),
                     feedback : parseFloat( xtkDelay[ INSTRUMENT_DELAY_FEEDBACK ]),
+                    dry      : assertFloat( xtkDelay[ INSTRUMENT_DELAY_DRY ], 1 ), // non existing in legacy versions
                     offset   : parseFloat( xtkDelay[ INSTRUMENT_DELAY_OFFSET ]),
                     time     : parseFloat( xtkDelay[ INSTRUMENT_DELAY_TIME ])
                 },
@@ -218,6 +220,7 @@ const InstrumentFactory =
             xtkDelay[ INSTRUMENT_DELAY_ENABLED  ] = delay.enabled;
             xtkDelay[ INSTRUMENT_DELAY_CUTOFF   ] = delay.cutoff;
             xtkDelay[ INSTRUMENT_DELAY_FEEDBACK ] = delay.feedback;
+            xtkDelay[ INSTRUMENT_DELAY_DRY      ] = delay.dry;
             xtkDelay[ INSTRUMENT_DELAY_OFFSET   ] = delay.offset;
             xtkDelay[ INSTRUMENT_DELAY_TIME     ] = delay.time;
             xtkDelay[ INSTRUMENT_DELAY_TYPE     ] = delay.type;
@@ -414,7 +417,25 @@ const InstrumentFactory =
 };
 export default InstrumentFactory;
 
+/**
+ * Ensures legacy stored instrument presets
+ * contain all features added in later versions
+ * TODO saved instruments should be assembled so they go through InstrumentFactory.create() !
+ */
+export const createFromSaved = savedInstrument => {
+    const instrument = savedInstrument;
+    if ( typeof instrument.delay.dry === "undefined" ) {
+        instrument.delay.dry = 1; // new addition
+    }
+    return instrument;
+};
+
 /* internal definitions */
+
+function assertFloat( value, fallback = 0 ) {
+    const parsedValue = parseFloat( value );
+    return isNaN( parsedValue ) ? fallback : parsedValue;
+}
 
 const INSTRUMENTS     = "ins",
 
@@ -429,6 +450,7 @@ const INSTRUMENTS     = "ins",
       INSTRUMENT_DELAY            = "d",
       INSTRUMENT_DELAY_ENABLED    = "e",
       INSTRUMENT_DELAY_CUTOFF     = "c",
+      INSTRUMENT_DELAY_DRY        = "dr",
       INSTRUMENT_DELAY_FEEDBACK   = "f",
       INSTRUMENT_DELAY_OFFSET     = "o",
       INSTRUMENT_DELAY_TIME       = "t",

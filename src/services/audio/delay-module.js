@@ -187,7 +187,6 @@ Filter.prototype = Object.create(null, {
       this._dry.gain.setValueAtTime(value, 0);
     }
   }
-
 });
 
 /**

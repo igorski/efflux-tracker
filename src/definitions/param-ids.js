@@ -28,6 +28,7 @@ import { applyModule } from "@/services/audio-service";
 
 export const DELAY_ENABLED  = "delayEnabled";
 export const DELAY_FEEDBACK = "delayFeedback";
+export const DELAY_DRY      = "delayDry";
 export const DELAY_CUTOFF   = "delayCutoff";
 export const DELAY_TIME     = "delayTime";
 export const DELAY_OFFSET   = "delayOffset";
@@ -52,6 +53,7 @@ export const OD_POST_CUT = "odPostCut";
 
 export const MIDI_ASSIGNABLE = {
     DELAY_FEEDBACK,
+    DELAY_DRY,
     DELAY_CUTOFF,
     DELAY_TIME,
     DELAY_OFFSET,
@@ -134,6 +136,7 @@ function getInstrumentPropKeysByParamId( paramId ) {
         // Delay
         case DELAY_TIME     : return [ DELAY, "time" ];
         case DELAY_FEEDBACK : return [ DELAY, "feedback" ];
+        case DELAY_DRY      : return [ DELAY, "dry" ];
         case DELAY_CUTOFF   : return [ DELAY, "cutoff" ];
         case DELAY_OFFSET   : return [ DELAY, "offset" ];
         // EQ

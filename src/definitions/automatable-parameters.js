@@ -23,6 +23,7 @@
 import {
     DELAY_ENABLED,
     DELAY_FEEDBACK,
+    DELAY_DRY,
     DELAY_CUTOFF,
     DELAY_TIME,
     DELAY_OFFSET,
@@ -63,7 +64,7 @@ export const EXTERNAL_EVENT = "XE";
 // here we have the parameters grouped by their first letter. This is used by the keyboard
 // handlers to map single or double characters quickly to the appropriate parameter
 
-export const D_MODULES = [ DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET ];
+export const D_MODULES = [ DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET ];
 export const E_MODULES = [ EQ_ENABLED, EQ_LOW, EQ_MID, EQ_HIGH ];
 export const F_MODULES = [
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED, FILTER_LFO_SPEED, FILTER_LFO_DEPTH

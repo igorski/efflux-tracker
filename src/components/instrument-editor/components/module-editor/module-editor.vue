@@ -156,6 +156,11 @@
                         :label="$t('feedback')"
                     />
                     <assignable-range-control
+                        v-model.number="delayDry"
+                        :param-id="MIDI_ASSIGNABLE.DELAY_DRY"
+                        :label="$t('dryMix')"
+                    />
+                    <assignable-range-control
                         v-model.number="delayCutoff"
                         :param-id="MIDI_ASSIGNABLE.DELAY_CUTOFF"
                         :label="$t('cutoff')"
@@ -366,6 +371,14 @@ export default {
             },
             set( value ) {
                 this.updateParamChange( MIDI_ASSIGNABLE.DELAY_FEEDBACK, value, this.delayFeedback );
+            }
+        },
+        delayDry: {
+            get() {
+                return this.instrumentRef.delay.dry;
+            },
+            set( value ) {
+                this.updateParamChange( MIDI_ASSIGNABLE.DELAY_DRY, value, this.delayDry );
             }
         },
         delayCutoff: {

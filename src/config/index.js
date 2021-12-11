@@ -45,7 +45,7 @@ export default
     MAX_FILTER_LFO_SPEED        : 25,
     MAX_FILTER_LFO_DEPTH        : 100,
 
-    DEFAULT_DELAY_MIX           : 0.65,
+    DEFAULT_DELAY_DRY           : 1,
     DEFAULT_DELAY_FEEDBACK      : 0.01,
     DEFAULT_DELAY_TIME          : 0.33,
     DEFAULT_DELAY_CUT_OFF       : 1500,

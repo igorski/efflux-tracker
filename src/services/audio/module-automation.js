@@ -30,7 +30,7 @@ import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from "./webaud
 const filterTypes = ["off", "sine", "square", "sawtooth", "triangle"];
 
 import {
-    DELAY_ENABLED, DELAY_FEEDBACK, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
+    DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
     EQ_ENABLED, EQ_LOW, EQ_MID, EQ_HIGH,
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED, FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
     OD_ENABLED, OD_DRIVE, OD_PRE_BAND, OD_COLOR, OD_POST_CUT,
@@ -123,6 +123,7 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
 
         case DELAY_TIME:
         case DELAY_FEEDBACK:
+        case DELAY_DRY:
         case DELAY_CUTOFF:
         case DELAY_OFFSET:
             applyDelay( audioEvent, modules, startTimeInSeconds );
@@ -265,6 +266,9 @@ function applyDelay( audioEvent, modules ) {
             break;
         case DELAY_FEEDBACK:
             module.feedback = target; // 0 - 1 range
+            break;
+        case DELAY_DRY:
+            module.dry = target; // 0 - 1 range
             break;
         case DELAY_CUTOFF:
             module.cutoff = target * Config.MAX_DELAY_CUTOFF;

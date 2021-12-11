@@ -262,6 +262,7 @@ const ModuleFactory = {
 
         delay.type     = props.type;
         delay.feedback = props.feedback;
+        delay.dry      = props.dry;
         delay.cutoff   = props.cutoff;
         delay.delay    = props.time;
         delay.offset   = props.offset; // should come after delay time
