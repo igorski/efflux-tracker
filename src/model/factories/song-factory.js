@@ -25,7 +25,7 @@ import InstrumentFactory from "./instrument-factory";
 import PatternFactory from "./pattern-factory";
 import SampleFactory from "./sample-factory";
 
-export const FACTORY_VERSION = 2;
+export const FACTORY_VERSION = 3;
 export const LEGACY_VERSION  = 1;
 
 const SongFactory =
