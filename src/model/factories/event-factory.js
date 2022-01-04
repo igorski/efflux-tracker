@@ -31,7 +31,7 @@ export default
      *                  create the AudioEvent for
      * @param {string=} note optional note
      * @param {number=} octave optional octave
-     * @param {number=} action optional action
+     * @param {number=} action optional action, @see audio-event-def.js
      * @return {AUDIO_EVENT}
      */
     createAudioEvent( instrument = 0, note = '', octave = 0, action = 0 )

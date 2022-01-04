@@ -36,6 +36,7 @@
     "extendable-media-recorder-wav-encoder": "^7.0.62",
     "lz-string": "^1.4.4",
     "merge-jsons-webpack-plugin": "^1.0.19",
+    "midi-writer-js": "^2.0.1",
     "mpg123-decoder": "^0.3.2",
     "node-sass": "^4.12.0",
     "pubsub-js": "^1.9.3",

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -76,6 +76,14 @@
                                 type="button"
                                 class="menu-button"
                                 @click="handleExport()"
+                            ></button>
+                        </li>
+                        <li>
+                            <button
+                                v-t="'exportAsMidi'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleMidiExport()"
                             ></button>
                         </li>
                     </ul>
@@ -163,11 +171,13 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import AudioService from "@/services/audio-service";
-import { hasContent } from "@/utils/song-util";
+import { saveAsFile } from "@/utils/file-util";
+import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
+import { toFileName } from "@/utils/string-util";
+import { hasContent, exportAsMIDI } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
@@ -254,6 +264,18 @@ export default {
             } catch {
                 this.showError( this.$t( "errorSongExport" ));
             }
+        },
+        async handleMidiExport() {
+            const midiData = await exportAsMIDI( this.activeSong );
+            const filename = toFileName( this.activeSong.meta.title, ".mid" );
+            this.openDialog({
+                type: "confirm",
+                title: this.$t( "midiExportTitle" ),
+                message: this.$t( "midiExportExpl", { filename }),
+                confirm: () => {
+                    saveAsFile( midiData, filename );
+                },
+            });
         },
         handleReset() {
             this.openDialog({

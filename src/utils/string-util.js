@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,6 +25,6 @@ import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 export const truncate = ( string = "", maxLength = 100 ) =>
     string.length > maxLength ? `${string.substr( 0, maxLength )}...` : string;
 
-export const toFileName = string => {
-    return `${string.replace( /([^a-z0-9 ]+)/gi, "-" ).split( " " ).join( "_" )}${PROJECT_FILE_EXTENSION}`;
+export const toFileName = ( string, extension = PROJECT_FILE_EXTENSION ) => {
+    return `${string.replace( /([^a-z0-9 ]+)/gi, "-" ).split( " " ).join( "_" )}${extension}`;
 };

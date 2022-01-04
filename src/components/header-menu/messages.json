@@ -21,6 +21,9 @@
     "stopRecording": "Stop recording",
     "emptySong": "Song has no pattern content!",
     "exportSong": "Export song",
+    "exportAsMidi": "Export MIDI",
+    "midiExportTitle": "Export as MIDI file",
+    "midiExportExpl": "MIDI data generated for your project. Click to save \"{filename}\" to your download folder.",
     "songExported": "Song \"{song}\" exported to your download folder",
     "errorSongExport": "Could not export song."
   }

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { ACTION_IDLE } from '@/model/types/audio-event-def';
+import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
 /**
  * validates whether the song has any pattern content
@@ -30,9 +31,9 @@ import { ACTION_IDLE } from '@/model/types/audio-event-def';
  */
 export const hasContent = song => {
     let hasContent = false;
-    song.patterns.forEach(pattern => {
-        pattern.channels.forEach(channel => {
-            if (channel.find( event => event && event.action !== ACTION_IDLE )) {
+    song.patterns.forEach( pattern => {
+        pattern.channels.forEach( channel => {
+            if ( channel.find( event => event && event.action !== ACTION_IDLE )) {
                 hasContent = true;
             }
         });
@@ -80,12 +81,56 @@ export const updateEventOffsets = ( patterns, ratio ) => {
  * @param {Array<PATTERN>} patterns
  */
 export const resetPlayState = patterns => {
-    patterns.forEach(pattern => {
-        pattern.channels.forEach(channel => {
-            channel.forEach(event => {
-                if ( event )
+    patterns.forEach( pattern => {
+        pattern.channels.forEach( channel => {
+            channel.forEach( event => {
+                if ( event ) {
                     event.seq.playing = false;
+                }
             });
         });
     });
+};
+
+export const exportAsMIDI = async song => {
+    const midiWriter = await import( "midi-writer-js" );
+
+    // create tracks for each instrument
+    const midiTracks = [];
+    song.instruments.forEach( instrument => {
+        const track = new midiWriter.Track();
+        track.setTempo( song.meta.tempo );
+        track.addTrackName( instrument.presetName || instrument.name );
+        track.setTimeSignature( 4, 4 );
+        midiTracks.push( track );
+    });
+
+    // all measures have the same duration (currently...)
+    const measureDuration = getMeasureDurationInSeconds( song.meta.tempo );
+    // we specify event ranges in ticks (128 ticks == 1 beat)
+    const TICKS = ( 128 * 4 ) / measureDuration; // ticks per measure, songs are always in 4/4 time (currently...)
+
+    // walk through all patterns
+    song.patterns.forEach(({ channels }) => {
+        channels.forEach( events => {
+            events.forEach( event => {
+                if ( event?.action !== ACTION_NOTE_ON ) {
+                    return;
+                }
+                const { length, startMeasure, startMeasureOffset } = event.seq;
+                const duration = `T${Math.round( length * TICKS )}`;
+                const startTick = Math.round((( startMeasure * measureDuration ) + startMeasureOffset ) * TICKS );
+
+                midiTracks[ event.instrument ].addEvent(
+                    new midiWriter.NoteEvent({
+                        // NOTE we increment the octave as otherwise data is generated one octave too low...
+                        pitch    : `${event.note}${event.octave + 1}`,
+                        duration,
+                        startTick
+                    })
+                );
+            });
+        });
+    });
+    return ( new midiWriter.Writer( midiTracks )).dataUri();
 };
