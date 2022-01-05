@@ -92,9 +92,18 @@ export const resetPlayState = patterns => {
     });
 };
 
-export const exportAsMIDI = async song => {
-    const midiWriter = await import( "midi-writer-js" );
-
+/**
+ * Export song contents for given pattern and instrument range as a MIDI file
+ *
+ * @param {MidiWriter} midiWriter module (midi-writer-js)
+ * @param {SONG} song to export
+ * @param {number=} firstPattern optional index of first pattern to export, defaults to first
+ * @param {number=} lastPattern optional index of last pattern to export, defaults to last
+ * @param {number=} firstInstrument optional index of first instrument to export, defaults to first
+ * @param {number=} lastInstrument optional index of last instrument to export, defaults to last
+ */
+export const exportAsMIDI = ( midiWriter, song,
+    firstPattern = 0, lastPattern = Infinity, firstInstrument = 0, lastInstrument = Infinity ) => {
     // create tracks for each instrument
     const midiTracks = [];
     song.instruments.forEach( instrument => {
@@ -111,19 +120,30 @@ export const exportAsMIDI = async song => {
     const TICKS = ( 128 * 4 ) / measureDuration; // ticks per measure, songs are always in 4/4 time (currently...)
 
     // walk through all patterns
-    song.patterns.forEach(({ channels }) => {
+    song.patterns.forEach(({ channels }, patternIndex ) => {
+        // ignore patterns outside of allowed range
+        if ( patternIndex < firstPattern || patternIndex > lastPattern ) {
+            return;
+        }
         channels.forEach( events => {
             events.forEach( event => {
+                // only process note-on events
+                // TODO: how to process module automations into CC/pitch bend messages
                 if ( event?.action !== ACTION_NOTE_ON ) {
+                    return;
+                }
+                // ignore instruments outside of allowed range
+                if ( event.instrument < firstInstrument || event.instrument > lastInstrument ) {
                     return;
                 }
                 const { length, startMeasure, startMeasureOffset } = event.seq;
                 const duration = `T${Math.round( length * TICKS )}`;
-                const startTick = Math.round((( startMeasure * measureDuration ) + startMeasureOffset ) * TICKS );
-
+                const startTick = Math.round(
+                    ((( startMeasure - firstPattern ) * measureDuration ) + startMeasureOffset ) * TICKS
+                );
                 midiTracks[ event.instrument ].addEvent(
                     new midiWriter.NoteEvent({
-                        // NOTE we increment the octave as otherwise data is generated one octave too low...
+                        // NOTE we increment the octave as otherwise MIDI data is generated one octave too low...
                         pitch    : `${event.note}${event.octave + 1}`,
                         duration,
                         startTick

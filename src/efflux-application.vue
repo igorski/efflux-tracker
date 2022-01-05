@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -37,7 +37,7 @@
             <header class="application-header"
                     :class="{ expanded: menuOpened }"
             >
-                <header-menu />
+                <application-menu />
                 <transport />
             </header>
             <!-- actual application -->
@@ -153,7 +153,7 @@ export default {
     i18n,
     components: {
         DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window" )),
-        HeaderMenu: () => asyncComponent( "hm", () => import( "@/components/header-menu/header-menu" )),
+        ApplicationMenu: () => asyncComponent( "am", () => import( "@/components/application-menu/application-menu" )),
         HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section" )),
         Loader,
         Notifications,
@@ -230,6 +230,9 @@ export default {
                     break;
                 case ModalWindows.WELCOME_SHARED_SONG:
                     loadFn = () => import( "@/components/shared-song-window/shared-song-window" );
+                    break;
+                case ModalWindows.MIDI_EXPORT_WINDOW:
+                    loadFn = () => import( "@/components/midi-export-window/midi-export-window" );
                     break;
             }
             return () => asyncComponent( "mw", loadFn );

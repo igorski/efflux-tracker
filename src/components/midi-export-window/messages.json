@@ -1,0 +1,8 @@
+{
+    "en-US": {
+        "title": "Export MIDI",
+        "patternRange": "Pattern range",
+        "instrumentRange": "Instrument range",
+        "export": "Export"
+    }
+}

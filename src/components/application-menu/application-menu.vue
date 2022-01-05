@@ -174,10 +174,8 @@ import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import AudioService from "@/services/audio-service";
-import { saveAsFile } from "@/utils/file-util";
 import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
-import { toFileName } from "@/utils/string-util";
-import { hasContent, exportAsMIDI } from "@/utils/song-util";
+import { hasContent } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
@@ -265,17 +263,8 @@ export default {
                 this.showError( this.$t( "errorSongExport" ));
             }
         },
-        async handleMidiExport() {
-            const midiData = await exportAsMIDI( this.activeSong );
-            const filename = toFileName( this.activeSong.meta.title, ".mid" );
-            this.openDialog({
-                type: "confirm",
-                title: this.$t( "midiExportTitle" ),
-                message: this.$t( "midiExportExpl", { filename }),
-                confirm: () => {
-                    saveAsFile( midiData, filename );
-                },
-            });
+        handleMidiExport() {
+            this.openModal( ModalWindows.MIDI_EXPORT_WINDOW );
         },
         handleReset() {
             this.openDialog({
