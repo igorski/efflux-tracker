@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import midiWriter from "midi-writer-js";
 import { saveAsFile } from "@/utils/file-util";
 import { exportAsMIDI } from "@/utils/song-util";
@@ -71,17 +71,16 @@ export default {
         pastePattern : 1,
     }),
     computed: {
-        ...mapState({
-            activeSong    : state => state.song.activeSong,
-            activePattern : state => state.sequencer.activePattern,
-        }),
+        ...mapGetters([
+            "activeSong",
+        ]),
         maxPattern() {
             return this.activeSong.patterns.length;
         },
     },
     created() {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
-        this.firstPattern = this.activePattern + 1;
+        this.firstPattern = 1;
         this.lastPattern  = this.activeSong.patterns.length;
         this.firstChannel = 1;
         this.lastChannel  = this.activeSong.instruments.length;
