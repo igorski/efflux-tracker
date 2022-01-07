@@ -2,10 +2,10 @@
   "en-US": {
     "title": "efflux",
     "file": "File",
-    "loadSong": "Load song",
-    "saveSong": "Save song",
-    "saveSongAs": "Save song as",
-    "newSong": "New song",
+    "new": "New",
+    "open": "Open",
+    "save": "Save",
+    "saveAs": "Save as",
     "instruments": "Instruments",
     "instrumentEditor": "Instrument editor",
     "sampleEditor": "Sample editor",
@@ -20,8 +20,8 @@
     "recordOutput": "Record output",
     "stopRecording": "Stop recording",
     "emptySong": "Song has no pattern content!",
-    "exportSong": "Export song",
-    "exportAsMidi": "Export MIDI",
+    "exportProject": "Export project",
+    "exportMidi": "Export MIDI",
     "songExported": "Song \"{song}\" exported to your download folder",
     "errorSongExport": "Could not export song."
   }

@@ -36,7 +36,7 @@
                     <ul class="file-menu">
                         <li>
                             <button
-                                v-t="'newSong'"
+                                v-t="'new'"
                                 type="button"
                                 class="menu-button"
                                 @click="handleReset()"
@@ -46,7 +46,7 @@
                         <!-- applications to hook into their behaviour -->
                         <li>
                             <button
-                                v-t="'loadSong'"
+                                v-t="'open'"
                                 type="button"
                                 class="menu-button"
                                 @click="handleLoad()"
@@ -55,7 +55,7 @@
                         </li>
                         <li>
                             <button
-                                v-t="'saveSong'"
+                                v-t="'save'"
                                 type="button"
                                 class="menu-button"
                                 @click="handleSave( true )"
@@ -63,7 +63,7 @@
                         </li>
                         <li>
                             <button
-                                v-t="'saveSongAs'"
+                                v-t="'saveAs'"
                                 type="button"
                                 class="menu-button"
                                 @click="handleSave( false )"
@@ -72,7 +72,7 @@
                         </li>
                         <li>
                             <button
-                                v-t="'exportSong'"
+                                v-t="'exportProject'"
                                 type="button"
                                 class="menu-button"
                                 @click="handleExport()"
@@ -80,7 +80,7 @@
                         </li>
                         <li>
                             <button
-                                v-t="'exportAsMidi'"
+                                v-t="'exportMidi'"
                                 type="button"
                                 class="menu-button"
                                 @click="handleMidiExport()"
