@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -22,9 +22,9 @@
 */
 <template>
     <section class="pattern-track-list">
-        <div ref="container"
-             class="pattern-track-list-container"
-             :class="{ follow: mustFollow }"
+        <div
+            ref="container"
+            class="pattern-track-list-container"
         >
             <div class="wrapper"
                  ref="wrapper"
@@ -45,6 +45,14 @@
                     class="pattern"
                     ref="pattern"
                 >
+                    <template v-if="followPlayback && isPlaying">
+                        <!-- to keep playback center based, while playing in follow mode, pad list top -->
+                        <li
+                             v-for="num in topPaddings"
+                             :key="num"
+                             class="pattern-row spacer"
+                        ></li>
+                    </template>
                     <li
                         v-for="(event, stepIndex) in channel"
                         :key="`channel_${channelIndex}_${stepIndex}`"
@@ -122,18 +130,12 @@
                    <template v-if="followPlayback && isPlaying">
                        <!-- to keep playback center based, while playing in follow mode, pad list bottom -->
                        <li
-                            v-for="num in channel.length / 2"
-                            :key="num"
+                            v-for="num in bottomPaddings"
+                            :key="`b_${num}`"
                             class="pattern-row spacer"
                        ></li>
                    </template>
                 </ul>
-                <!--
-                <div
-                    class="playback-header"
-                    :style="{ top: playingStep * 32 }"
-                ></div>
-                -->
             </div>
         </div>
     </section>
@@ -145,6 +147,8 @@ import KeyboardService from "@/services/keyboard-service";
 
 const STEP_WIDTH  = 150;
 const STEP_HEIGHT = 32;
+const MAX_PADDING = 8; // min top padding when followPlayback is active on high resolutions
+const DOUBLE_STEP_HEIGHT = STEP_HEIGHT * 2;
 
 export default {
     computed: {
@@ -175,13 +179,13 @@ export default {
     data: () => ({
         container: null,
         wrapper: null,
-        lastFollowStep: 0,
-        mustFollow: false,
         playingStep: 0,
         containerWidth: 0,
         containerHeight: 0,
         interactionData: { offset: 0, time: 0 },
         pContainerSteps: [], // will cache DOM elements for interation events
+        topPaddings: 0,
+        bottomPaddings: 0,
     }),
     watch: {
         activePattern() {
@@ -194,18 +198,12 @@ export default {
             const diff = this.stepPrecision / stepsInPattern;
 
             this.playingStep = Math.round( step / diff ) % stepsInPattern;
-            const stepY = this.playingStep * STEP_HEIGHT;
 
             if ( this.followPlayback ) {
                 // following activated, ensure the list auto scrolls
-                const followOffset = this.containerHeight / 2;
-                if ( stepY > followOffset ) {
-                    this.mustFollow = ( ++this.lastFollowStep % 2 ) === 1;
-                    this.container.scrollTop = ( stepY + STEP_HEIGHT * 2 ) - followOffset;
-                } else {
-                    this.container.scrollTop = 0;
-                    this.lastFollowStep = 0;
-                }
+                this.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
+            } else {
+                this.container.scrollTop = 0;
             }
         },
         windowSize() {
@@ -234,13 +232,16 @@ export default {
             "setShowNoteEntry",
         ]),
         cacheDimensions() {
-            this.containerWidth  = this.container.offsetWidth;
+            this.containerWidth = this.container.offsetWidth;
             this.containerHeight = this.container.offsetHeight;
+            const padding = Math.round(( this.containerHeight / 2 ) / STEP_HEIGHT ) + 1;
+            this.topPaddings = Math.min( MAX_PADDING, padding );
+            this.bottomPaddings = this.topPaddings === MAX_PADDING ? padding * 2 : padding;
         },
-        isStepSelected(channelIndex, stepIndex) {
-            return this.selectedChannels[channelIndex] && this.selectedChannels[channelIndex].includes(stepIndex);
+        isStepSelected( channelIndex, stepIndex ) {
+            return this.selectedChannels[ channelIndex ]?.includes( stepIndex );
         },
-        isSlotHighlighted(channelIndex, stepIndex, slotIndex) {
+        isSlotHighlighted( channelIndex, stepIndex, slotIndex ) {
             return channelIndex === this.selectedInstrument && stepIndex === this.selectedStep && slotIndex === this.selectedSlot;
         },
         /**
@@ -270,8 +271,8 @@ export default {
                 this.container.scrollLeft = slotLeft;
             }
         },
-        formatModuleParam(data) {
-            let out = ( data && data.glide ) ? "G " : "";
+        formatModuleParam( data ) {
+            let out = data?.glide ? "G " : "";
 
             if ( data && data.module ) {
                 out += data.module.charAt( 0 ).toUpperCase();
@@ -279,7 +280,7 @@ export default {
             }
             return out;
         },
-        formatModuleValue(data = {}) {
+        formatModuleValue( data = {} ) {
             let value;
             // show parameter value in either hex or percentages
             // TODO there is a bit of code duplication with NumberUtil here...
@@ -392,7 +393,7 @@ export default {
          * maintain a cache for step slots within a single pattern container
          * this is a little more work for us, but prevents repeated DOM thrashing during heavy editing
          */
-        grabPatternContainerStepFromTemplate(container, step) {
+        grabPatternContainerStepFromTemplate( container, step ) {
             const stepElement = this.pContainerSteps[ step ] || container.querySelectorAll( "li" );
             this.pContainerSteps[ step ] = stepElement;
             return stepElement;
@@ -413,6 +414,10 @@ $stepHeight: 32px;
     position: relative;
     overflow: auto;
     background-color: #101015;
+
+    @include ideal() {
+        overflow-x: hidden; // no need to show scroll
+    }
 }
 
 .pattern-track-list {
@@ -549,8 +554,10 @@ $stepHeight: 32px;
         border-color: $color-pattern-odd;
     }
 
-    .spacer {
-        background-color: #000;
+    &.spacer {
+        background-color: $color-pattern-even;
+        border-color: #000;
+        border-top: transparent;
     }
 
     &.active, &:hover {
@@ -619,41 +626,4 @@ $stepHeight: 32px;
         }
     }
 }
-
-.pattern-track-list-container {
-    /* when the view should be following the sequencer we switch the odd/even pattern */
-    /* of the list for less eye strain (only the instructions will seem to be scrolling) */
-    &.follow {
-        .pattern li {
-            &:nth-child(even) {
-                background-color: $color-pattern-odd;
-                border-color: $color-pattern-odd;
-            }
-            &:nth-child(odd) {
-                background-color: transparent;
-                border-color: transparent;
-            }
-        }
-    }
-
-    @include ideal() {
-        overflow-x: hidden; // no need to show scroll
-    }
-}
-
-/*
-// optional playback header that is a single element moving over the table. it should
-// be less CPU intensive, but doesn't look quite as nice as blend mode results differ
-// across browsers. when active .pattern-row can remove its playing class and animation CSS rules
-.playback-header {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 32px;
-    background-color: $color-2;
-    mix-blend-mode: darken;
-}
-*/
-
 </style>
