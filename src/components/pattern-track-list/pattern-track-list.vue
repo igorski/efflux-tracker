@@ -25,6 +25,7 @@
         <div
             ref="container"
             class="pattern-track-list-container"
+            :class="{ follow: mustFollow }"
         >
             <div class="wrapper"
                  ref="wrapper"
@@ -33,108 +34,58 @@
                  @touchstart.passive="handleInteraction"
                  @touchend.passive="handleInteraction"
             >
-                <ul class="indices">
+                <ul
+                    class="indices"
+                    :class="{ fixed: mustFollow }"
+                    :style="{ 'padding-top': `${mustFollow ? indicesTop : 0}px` }"
+                >
                     <li
                         v-for="(step, index) in amountOfSteps"
                         :key="`index_${index}`"
                         class="index"
                     >{{ index }}</li>
                 </ul>
-                <ul v-for="(channel, channelIndex) in activeSongPattern.channels"
+                <ul
+                    v-for="(channel, channelIndex) in activeSongPattern.channels"
                     :key="`channel_${channelIndex}`"
                     class="pattern"
                     ref="pattern"
                 >
-                    <template v-if="followPlayback && isPlaying">
+                    <template v-if="mustFollow">
                         <!-- to keep playback center based, while playing in follow mode, pad list top -->
-                        <li
-                             v-for="num in topPaddings"
-                             :key="num"
-                             class="pattern-row spacer"
-                        ></li>
+                        <pattern-event
+                            v-for="(event, stepIndex) in previousPatternChannels[ channelIndex ]"
+                            :key="`prevchannel_${channelIndex}_${stepIndex}`"
+                            :event="event"
+                            :selected-slot="stepIndex === selectedStep && channelIndex === selectedInstrument ? selectedSlot : -1"
+                            :formatted-param="formatModuleParam( event.mp )"
+                            class="pattern-row"
+                            :class="{ spacer: activePattern === 1 }"
+                        />
                     </template>
-                    <li
+                    <pattern-event
                         v-for="(event, stepIndex) in channel"
                         :key="`channel_${channelIndex}_${stepIndex}`"
-                        :class="{
-                            active   : stepIndex === selectedStep && channelIndex === selectedInstrument,
-                            selected : isStepSelected( channelIndex, stepIndex ),
-                            playing  : stepIndex === playingStep
-                        }"
+                        :event="event"
+                        :selected-slot="stepIndex === selectedStep && channelIndex === selectedInstrument ? selectedSlot : -1"
+                        :formatted-param="formatModuleParam( event.mp )"
+                        :active="stepIndex === selectedStep && channelIndex === selectedInstrument"
+                        :selected="isStepSelected( channelIndex, stepIndex )"
+                        :playing="stepIndex === playingStep"
                         class="pattern-row"
-                    >
-                        <!-- note instruction -->
-                        <template v-if="event.action">
-                            <template v-if="event.note">
-                                <!-- note on event -->
-                                <span v-if="event.note"
-                                      class="note"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
-                                >
-                                    {{ event.note }} - {{ event.octave }}
-                                </span>
-                                <span class="instrument"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
-                                >
-                                    {{ event.instrument + 1 }}
-                                </span>
-                            </template>
-                            <template v-else>
-                                <!-- note off event -->
-                                <span class="full"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
-                                >//// OFF ////</span>
-                            </template>
-                        </template>
-                        <template v-else>
-                            <!-- no note event -->
-                            <span class="note empty"
-                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 0)}"
-                            >----</span>
-                            <span class="instrument"
-                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 1)}"
-                            >-</span>
-                        </template>
-                        <!-- module parameter instruction -->
-                        <template v-if="event.mp">
-                            <span class="module-param"
-                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
-                            >
-                                {{ formatModuleParam( event.mp ) }}
-                            </span>
-                            <span class="module-value"
-                                  :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
-                            >
-                                {{ formatModuleValue( event.mp ) }}
-                            </span>
-                        </template>
-                        <template v-else>
-                            <template v-if="!event.action">
-                                <span class="module-param empty"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
-                                >--</span>
-                                <span class="module-value empty"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
-                                >--</span>
-                            </template>
-                            <template v-else-if="event.note">
-                                <span class="module-param empty"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 2)}"
-                                >--</span>
-                                <span class="module-value empty"
-                                      :class="{ active: isSlotHighlighted(channelIndex, stepIndex, 3)}"
-                                >--</span>
-                            </template>
-                        </template>
-                   </li>
-                   <template v-if="followPlayback && isPlaying">
-                       <!-- to keep playback center based, while playing in follow mode, pad list bottom -->
-                       <li
-                            v-for="num in bottomPaddings"
-                            :key="`b_${num}`"
-                            class="pattern-row spacer"
-                       ></li>
-                   </template>
+                    />
+                    <template v-if="mustFollow">
+                        <!-- to keep playback center based, while playing in follow mode, pad list bottom -->
+                        <pattern-event
+                            v-for="(event, stepIndex) in nextPatternChannels[ channelIndex ]"
+                            :key="`nextchannel_${channelIndex}_${stepIndex}`"
+                            :event="event"
+                            :selected-slot="stepIndex === selectedStep && channelIndex === selectedInstrument ? selectedSlot : -1"
+                            :formatted-param="formatModuleParam( event.mp )"
+                            class="pattern-row"
+                            :class="{ spacer: activePattern === activeSong.patterns.length - 1 }"
+                        />
+                    </template>
                 </ul>
             </div>
         </div>
@@ -143,14 +94,17 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
+import PatternEvent from "./pattern-event";
 import KeyboardService from "@/services/keyboard-service";
 
 const STEP_WIDTH  = 150;
 const STEP_HEIGHT = 32;
 const MAX_PADDING = 8; // min top padding when followPlayback is active on high resolutions
 const DOUBLE_STEP_HEIGHT = STEP_HEIGHT * 2;
+let BOTTOM_PADDINGS = [];
 
 export default {
+    components: { PatternEvent },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -175,6 +129,46 @@ export default {
         activeSongPattern() {
             return this.activeSong.patterns[ this.activePattern ];
         },
+        previousPatternChannels() {
+            if ( !this.mustFollow ) {
+                return null;
+            }
+            const prevPattern = this.activePattern - 1;
+            const prevIndex = prevPattern < 0 ? this.activeSong.patterns.length - 1 : prevPattern;
+            return this.activeSong.patterns[ prevIndex ].channels.map( channel => {
+                return channel.slice(( channel.length - 1 ) - this.topPaddings );
+            });
+        },
+        nextPatternChannels() {
+            if ( !this.mustFollow ) {
+                return null;
+            }
+            const amountOfPatterns = this.activeSong.patterns.length;
+            const nextPattern = this.activePattern + 1;
+            // also provide lookahead for the pattern(s) coming after the next one for a seamless scrolling list
+            const nextIndex = nextPattern >= amountOfPatterns ? 0 : nextPattern;
+            let nextNextIndex = nextIndex;
+
+            // the amount of events we require to visualize the next pattern(s) for the current resolution
+            let sliceAmount = this.visibleSteps - this.topPaddings;
+            return this.activeSong.patterns[ nextIndex ].channels.map(( channelEvents, channelIndex ) => {
+                const out = [ ...channelEvents ];
+                while ( out.length < sliceAmount ) {
+                    if ( ++nextNextIndex >= amountOfPatterns ) {
+                        nextNextIndex = 0;
+                    }
+                    let nextChannelEvents = BOTTOM_PADDINGS;
+                    if ( nextNextIndex !== 0 ) {
+                        nextChannelEvents = this.activeSong.patterns[ nextNextIndex ].channels[ channelIndex ];
+                    }
+                    out.push( ...nextChannelEvents );
+                }
+                return out.slice( 0, sliceAmount );
+            });
+        },
+        mustFollow() {
+            return this.followPlayback && this.isPlaying;
+        },
     },
     data: () => ({
         container: null,
@@ -186,6 +180,7 @@ export default {
         pContainerSteps: [], // will cache DOM elements for interation events
         topPaddings: 0,
         bottomPaddings: 0,
+        indicesTop: 0,
     }),
     watch: {
         activePattern() {
@@ -197,14 +192,13 @@ export default {
             const stepsInPattern = this.activeSongPattern.steps;
             const diff = this.stepPrecision / stepsInPattern;
 
-            this.playingStep = Math.round( step / diff ) % stepsInPattern;
+            this.playingStep = Math.floor( step / diff ) % stepsInPattern;
 
-            if ( this.followPlayback ) {
+            if ( this.mustFollow ) {
                 // following activated, ensure the list auto scrolls
-                this.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
-            } else {
-                this.container.scrollTop = 0;
+                this.$refs.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
             }
+            this.indicesTop = this.topPaddings * STEP_HEIGHT;
         },
         windowSize() {
             this.cacheDimensions();
@@ -234,15 +228,20 @@ export default {
         cacheDimensions() {
             this.containerWidth = this.container.offsetWidth;
             this.containerHeight = this.container.offsetHeight;
+
+            // the amount of events we can fit vertically on the screen
+            this.visibleSteps = Math.ceil( this.containerHeight / STEP_HEIGHT );
+
             const padding = Math.round(( this.containerHeight / 2 ) / STEP_HEIGHT ) + 1;
             this.topPaddings = Math.min( MAX_PADDING, padding );
-            this.bottomPaddings = this.topPaddings === MAX_PADDING ? padding * 2 : padding;
+            this.bottomPaddings = this.visibleSteps - this.topPaddings;
+
+            if ( BOTTOM_PADDINGS.length !== this.bottomPaddings ) {
+                BOTTOM_PADDINGS = new Array( this.bottomPaddings ).fill( 0 );
+            }
         },
         isStepSelected( channelIndex, stepIndex ) {
             return this.selectedChannels[ channelIndex ]?.includes( stepIndex );
-        },
-        isSlotHighlighted( channelIndex, stepIndex, slotIndex ) {
-            return channelIndex === this.selectedInstrument && stepIndex === this.selectedStep && slotIndex === this.selectedSlot;
         },
         /**
          * ensure the currently active step (after a keyboard navigation)
@@ -271,25 +270,26 @@ export default {
                 this.container.scrollLeft = slotLeft;
             }
         },
-        formatModuleParam( data ) {
-            let out = data?.glide ? "G " : "";
-
-            if ( data && data.module ) {
-                out += data.module.charAt( 0 ).toUpperCase();
-                out += data.module.match(/([A-Z]?[^A-Z]*)/g)[1].charAt( 0 );
+        formatModuleParam( eventMpData ) {
+            if ( !eventMpData ) {
+                return null;
             }
-            return out;
-        },
-        formatModuleValue( data = {} ) {
+            let param = eventMpData.glide ? "G " : "";
+
+            if ( eventMpData.module ) {
+                param += eventMpData.module.charAt( 0 ).toUpperCase();
+                param += eventMpData.module.match(/([A-Z]?[^A-Z]*)/g)[1].charAt( 0 );
+            }
             let value;
             // show parameter value in either hex or percentages
             // TODO there is a bit of code duplication with NumberUtil here...
             if ( this.paramFormat === "pct" )
-                value = Math.min( 99, parseInt( data.value, 10 )).toString();
+                value = Math.min( 99, parseInt( eventMpData.value, 10 )).toString();
             else {
-                value = Math.round( data.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
+                value = Math.round( eventMpData.value * ( 255 / 100 )).toString( 16 ).toUpperCase();
             }
-            return ( value.length === 1 ) ? ` 0${value}` : ` ${value}`;
+            value = value.length === 1 ? ` 0${value}` : ` ${value}`;
+            return { param, value };
         },
         handleInteraction( event ) {
             // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
@@ -298,6 +298,7 @@ export default {
                 this.interactionData.time   = Date.now();
                 return;
             }
+            // check if we interacted with a <pattern-event />
             if ( event.target.nodeName === "LI" ) {
                 this.handleSlotClick( event );
             }
@@ -418,6 +419,16 @@ $stepHeight: 32px;
     @include ideal() {
         overflow-x: hidden; // no need to show scroll
     }
+
+    /* when the view should be following the sequencer, we disable the odd/even pattern */
+    /* of the list for less eye strain (only the instructions will seem to be scrolling) */
+    &.follow {
+        .pattern li {
+            background-color: $color-pattern-even;
+            border-top-color: #000;
+            border-bottom-color: $color-pattern-odd;
+        }
+    }
 }
 
 .pattern-track-list {
@@ -445,6 +456,10 @@ $stepHeight: 32px;
 
 .indices {
     width: $indicesWidth;
+
+    &.fixed {
+        vertical-align: top;
+    }
 }
 
 .index {
