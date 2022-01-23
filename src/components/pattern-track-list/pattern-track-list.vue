@@ -37,13 +37,26 @@
                 <ul
                     class="indices"
                     :class="{ fixed: mustFollow }"
-                    :style="{ 'padding-top': `${mustFollow ? indicesTop : 0}px` }"
                 >
+                    <template v-if="mustFollow">
+                        <li
+                            v-for="index in lastIndices"
+                            :key="`prev_index_${index}`"
+                            class="index next"
+                        >{{ index }}</li>
+                    </template>
                     <li
                         v-for="(step, index) in amountOfSteps"
                         :key="`index_${index}`"
                         class="index"
                     >{{ index }}</li>
+                    <template v-if="mustFollow">
+                        <li
+                            v-for="index in nextIndices"
+                            :key="`next_index_${index}`"
+                            class="index next"
+                        >{{ index }}</li>
+                    </template>
                 </ul>
                 <ul
                     v-for="(channel, channelIndex) in activeSongPattern.channels"
@@ -101,10 +114,21 @@ const STEP_WIDTH  = 150;
 const STEP_HEIGHT = 32;
 const MAX_PADDING = 8; // min top padding when followPlayback is active on high resolutions
 const DOUBLE_STEP_HEIGHT = STEP_HEIGHT * 2;
-let BOTTOM_PADDINGS = [];
+let NEXT_EVENTS = [];
 
 export default {
     components: { PatternEvent },
+    data: () => ({
+        container: null,
+        wrapper: null,
+        playingStep: 0,
+        containerWidth: 0,
+        containerHeight: 0,
+        interactionData: { offset: 0, time: 0 },
+        pContainerSteps: [], // will cache DOM elements for interation events
+        prevEvents: 0,
+        nextEvents: 0,
+    }),
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -136,7 +160,7 @@ export default {
             const prevPattern = this.activePattern - 1;
             const prevIndex = prevPattern < 0 ? this.activeSong.patterns.length - 1 : prevPattern;
             return this.activeSong.patterns[ prevIndex ].channels.map( channel => {
-                return channel.slice(( channel.length - 1 ) - this.topPaddings );
+                return channel.slice(( channel.length - 1 ) - this.prevEvents );
             });
         },
         nextPatternChannels() {
@@ -150,14 +174,14 @@ export default {
             let nextNextIndex = nextIndex;
 
             // the amount of events we require to visualize the next pattern(s) for the current resolution
-            let sliceAmount = this.visibleSteps - this.topPaddings;
+            let sliceAmount = this.visibleSteps - this.prevEvents;
             return this.activeSong.patterns[ nextIndex ].channels.map(( channelEvents, channelIndex ) => {
                 const out = [ ...channelEvents ];
                 while ( out.length < sliceAmount ) {
                     if ( ++nextNextIndex >= amountOfPatterns ) {
                         nextNextIndex = 0;
                     }
-                    let nextChannelEvents = BOTTOM_PADDINGS;
+                    let nextChannelEvents = NEXT_EVENTS;
                     if ( nextNextIndex !== 0 ) {
                         nextChannelEvents = this.activeSong.patterns[ nextNextIndex ].channels[ channelIndex ];
                     }
@@ -166,22 +190,25 @@ export default {
                 return out.slice( 0, sliceAmount );
             });
         },
+        lastIndices() {
+            const out = [];
+            const lastPatternAmount = this.activeSong.patterns[ this.activePattern - 1 ]?.steps || this.activeSongPattern.steps;
+            for ( let i = lastPatternAmount - this.prevEvents; i <= lastPatternAmount; ++i ) {
+                out.push( i );
+            }
+            return out;
+        },
+        nextIndices() {
+            const out = new Array( this.nextEvents );
+            for ( let i = 0; i < this.nextEvents; ++i ) {
+                out[ i ] = i;
+            }
+            return out;
+        },
         mustFollow() {
             return this.followPlayback && this.isPlaying;
         },
     },
-    data: () => ({
-        container: null,
-        wrapper: null,
-        playingStep: 0,
-        containerWidth: 0,
-        containerHeight: 0,
-        interactionData: { offset: 0, time: 0 },
-        pContainerSteps: [], // will cache DOM elements for interation events
-        topPaddings: 0,
-        bottomPaddings: 0,
-        indicesTop: 0,
-    }),
     watch: {
         activePattern() {
             this.clearSelection();
@@ -198,7 +225,6 @@ export default {
                 // following activated, ensure the list auto scrolls
                 this.$refs.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
             }
-            this.indicesTop = this.topPaddings * STEP_HEIGHT;
         },
         windowSize() {
             this.cacheDimensions();
@@ -232,12 +258,12 @@ export default {
             // the amount of events we can fit vertically on the screen
             this.visibleSteps = Math.ceil( this.containerHeight / STEP_HEIGHT );
 
-            const padding = Math.round(( this.containerHeight / 2 ) / STEP_HEIGHT ) + 1;
-            this.topPaddings = Math.min( MAX_PADDING, padding );
-            this.bottomPaddings = this.visibleSteps - this.topPaddings;
+            const padding   = Math.round(( this.containerHeight / 2 ) / STEP_HEIGHT ) + 1;
+            this.prevEvents = Math.min( MAX_PADDING, padding );
+            this.nextEvents = this.visibleSteps - this.prevEvents;
 
-            if ( BOTTOM_PADDINGS.length !== this.bottomPaddings ) {
-                BOTTOM_PADDINGS = new Array( this.bottomPaddings ).fill( 0 );
+            if ( NEXT_EVENTS.length !== this.nextEvents ) {
+                NEXT_EVENTS = new Array( this.nextEvents ).fill( 0 );
             }
         },
         isStepSelected( channelIndex, stepIndex ) {
@@ -427,6 +453,9 @@ $stepHeight: 32px;
             background-color: $color-pattern-even;
             border-top-color: #000;
             border-bottom-color: $color-pattern-odd;
+            // the below effectively cancel out selection outlines during playback
+            border-left: none;
+            border-right: none;
         }
     }
 }
@@ -477,6 +506,10 @@ $stepHeight: 32px;
 
     &.active {
         color: #FFF;
+    }
+
+    &.next {
+        color: #666;
     }
 }
 
