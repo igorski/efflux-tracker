@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,6 +27,7 @@ import EventFactory               from "@/model/factories/event-factory";
 import createAction               from "@/model/factories/action-factory";
 import EventUtil                  from "@/utils/event-util";
 import { ACTION_NOTE_OFF }        from "@/model/types/audio-event-def";
+import { PROPERTIES }             from "@/store/modules/settings-module";
 import NoteInputHandler           from "./keyboard/note-input-handler";
 import InstrumentSelectionHandler from "./keyboard/instrument-selection-handler";
 import ModuleParamHandler         from "./keyboard/module-param-handler";
@@ -358,7 +359,14 @@ function handleKeyDown( event ) {
             // deselect all
             if ( hasOption ) {
                 store.commit( "clearSelection" );
-                preventDefault(event);  // "add to bookmark" :)
+                preventDefault( event );  // "add to bookmark" :)
+            }
+            break;
+
+        case 70: // F
+            if ( hasOption ) {
+                store.commit( "saveSetting", { name: PROPERTIES.FOLLOW_PLAYBACK, value: !store.getters.followPlayback });
+                preventDefault( event ); // text search
             }
             break;
 
@@ -368,7 +376,7 @@ function handleKeyDown( event ) {
                     activeSong, editor.selectedStep, sequencer.activePattern,
                     editor.selectedInstrument, editor.eventList, store
                 );
-                preventDefault(event); // in-page search
+                preventDefault( event ); // in-page search
             }
             break;
 

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2021 - https://www.igorski.nl
+ * Igor Zinken 2017-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,8 +21,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue         from "vue";
-import Config      from "../../config";
-import StorageUtil from "../../utils/storage-util";
+import Config      from "@/config";
+import StorageUtil from "@/utils/storage-util";
+
+export const PROPERTIES = {
+    INPUT_FORMAT    : "if",
+    FOLLOW_PLAYBACK : "fp",
+    DISPLAY_HELP    : "dh",
+    DISPLAY_WELCOME : "dw",
+    TIMELINE_MODE   : "tl",
+};
 
 /* internal methods */
 
@@ -39,53 +47,38 @@ const persistState = state => {
 export default {
     state: {
         _settings: {},
-        PROPERTIES: {
-            INPUT_FORMAT    : "if",
-            FOLLOW_PLAYBACK : "fp",
-            DISPLAY_HELP    : "dh",
-            DISPLAY_WELCOME : "dw",
-            TIMELINE_MODE   : "tl",
-        }
     },
     getters: {
-        getSetting: state => name => {
-            if ( Object.prototype.hasOwnProperty.call( state._settings, name )) {
-                return state._settings[ name ];
-            }
-            return null;
-        },
-        displayWelcome : state => state._settings[ state.PROPERTIES.DISPLAY_WELCOME ] ?? true,
-        followPlayback : state => state._settings[ state.PROPERTIES.FOLLOW_PLAYBACK ] || false,
-        timelineMode   : state => state._settings[ state.PROPERTIES.TIMELINE_MODE ] || false,
-        paramFormat    : state => state._settings[ state.PROPERTIES.INPUT_FORMAT ]
+        displayHelp    : state => state._settings[ PROPERTIES.DISPLAY_HELP ] !== false,
+        displayWelcome : state => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,
+        followPlayback : state => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
+        timelineMode   : state => state._settings[ PROPERTIES.TIMELINE_MODE ] === true,
+        paramFormat    : state => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex"
     },
     mutations: {
         saveSetting( state, { name, value }) {
             Vue.set( state._settings, name, value );
-            persistState(state);
+            persistState( state );
         },
         setStoredSettings( state, settings ) {
             state._settings = settings;
         }
     },
     actions: {
-        loadStoredSettings({ commit }) {
+        async loadStoredSettings({ commit }) {
             StorageUtil.init();
-            StorageUtil.getItem( Config.LOCAL_STORAGE_SETTINGS ).then(
-                ( result ) => {
-                    if ( typeof result === "string" ) {
-                        try {
-                            commit( "setStoredSettings", JSON.parse( result ));
-                        }
-                        catch ( e ) {
-                            // that"s fine
-                        }
+            try {
+                const result = await StorageUtil.getItem( Config.LOCAL_STORAGE_SETTINGS );
+                if ( typeof result === "string" ) {
+                    try {
+                        commit( "setStoredSettings", JSON.parse( result ));
+                    } catch {
+                        // that's fine (non-blocking)
                     }
-                },
-                () => {
-                    // no settings available yet, that is fine.
                 }
-            );
-        }
+            } catch {
+                // no settings available yet, that is fine (non-blocking)
+            }
+        },
     }
 };

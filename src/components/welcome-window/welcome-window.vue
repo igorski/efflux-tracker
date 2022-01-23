@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -74,11 +74,13 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import FileLoader from "@/components/file-loader/file-loader";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
+import { PROPERTIES } from "@/store/modules/settings-module";
+
 import messages from "./messages.json";
 
 export default {
@@ -88,9 +90,6 @@ export default {
         ToggleButton,
     },
     computed: {
-        ...mapState({
-            settings: state => state.settings.PROPERTIES,
-        }),
         ...mapGetters([
             "displayWelcome",
         ]),
@@ -100,7 +99,7 @@ export default {
             },
             set( value ) {
                 this.saveSetting(
-                    { name: this.settings.DISPLAY_WELCOME, value }
+                    { name: PROPERTIES.DISPLAY_WELCOME, value }
                 );
             }
         },

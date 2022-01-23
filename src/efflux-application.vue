@@ -180,12 +180,12 @@ export default {
             "mobileMode",
         ]),
         ...mapState({
-            displayHelp: state => state.settings._settings[state.settings.PROPERTIES.DISPLAY_HELP] !== false,
             selectedSlot: state => state.editor.selectedSlot,
             showNoteEntry: state => state.editor.showNoteEntry,
         }),
         ...mapGetters([
             "activeSong",
+            "displayHelp",
             "displayWelcome",
             "isLoading",
             "timelineMode",
@@ -286,7 +286,7 @@ export default {
 
         // load both persistent model data as well as data fixtures
 
-        this.loadStoredSettings();
+        await this.loadStoredSettings();
         this.loadStoredInstruments();
         this.loadStoredSongs();
 

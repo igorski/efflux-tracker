@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -24,8 +24,10 @@
     <div class="settings">
         <div class="header">
             <h2 v-t="'title'"></h2>
-            <button class="close-button"
-                    @click="$emit('close')"
+            <button
+                type="button"
+                class="close-button"
+                @click="$emit('close')"
             >x</button>
         </div>
         <hr class="divider" />
@@ -46,7 +48,6 @@
                     <label v-t="'showHelpPanel'" class="label"></label>
                     <toggle-button
                         v-model="displayHelpPanel"
-                        @change="handleHelpPanelChange"
                         sync
                     />
                 </div>
@@ -63,9 +64,8 @@
                 <div class="wrapper select">
                     <label v-t="'parameterInputFormat'" class="label"></label>
                     <select-box
-                        v-model="paramFormat"
+                        v-model="paramFormatType"
                         :options="paramFormatOptions"
-                        @input="handleParameterInputFormatChange"
                         class="param-select"
                     />
                 </div>
@@ -73,7 +73,6 @@
                     <label v-t="'followPlayback'" class="label"></label>
                     <toggle-button
                         v-model="trackFollow"
-                        @change="handleTrackFollowChange"
                         sync
                     />
                 </div>
@@ -116,6 +115,8 @@ import { ToggleButton } from "vue-js-toggle-button";
 import SelectBox from "@/components/forms/select-box";
 import MIDIService from "@/services/midi-service";
 import PubSubMessages from "@/services/pubsub/messages";
+import { PROPERTIES } from "@/store/modules/settings-module";
+
 import messages from "./messages.json";
 
 export default {
@@ -124,22 +125,18 @@ export default {
         SelectBox,
         ToggleButton,
     },
-    data: () => ({
-        paramFormat: "hex",
-        trackFollow: false,
-        displayHelpPanel: true,
-    }),
     computed: {
         ...mapState({
             midiPortNumber : state => state.midi.midiPortNumber,
             midiDeviceList : state => state.midi.midiDeviceList,
             midiConnected  : state => state.midi.midiConnected,
-            settings       : state => state.settings.PROPERTIES,
         }),
         ...mapGetters([
+            "displayHelp",
             "displayWelcome",
-            "getSetting",
+            "followPlayback",
             "midiMessageHandler",
+            "paramFormat",
             "hasMidiSupport",
             "timelineMode",
         ]),
@@ -149,14 +146,36 @@ export default {
             }
             return false;
         },
+        displayHelpPanel: {
+            get() {
+                return this.displayHelp;
+            },
+            set( value ) {
+                this.saveSetting({ name: PROPERTIES.DISPLAY_HELP, value });
+            }
+        },
+        paramFormatType: {
+            get() {
+                return this.paramFormat;
+            },
+            set( value ) {
+                this.saveSetting({ name: PROPERTIES.INPUT_FORMAT, value });
+            }
+        },
+        trackFollow: {
+            get() {
+                return this.followPlayback;
+            },
+            set( value ) {
+                this.saveSetting({ name: PROPERTIES.FOLLOW_PLAYBACK, value });
+            }
+        },
         showHelpOnStartup: {
             get() {
                 return this.displayWelcome;
             },
             set( value ) {
-                this.saveSetting(
-                    { name: this.settings.DISPLAY_WELCOME, value }
-                );
+                this.saveSetting({ name: PROPERTIES.DISPLAY_WELCOME, value });
             }
         },
         useTimelineMode: {
@@ -164,9 +183,7 @@ export default {
                 return this.timelineMode;
             },
             set( value ) {
-                this.saveSetting(
-                    { name: this.settings.TIMELINE_MODE, value }
-                );
+                this.saveSetting({ name: PROPERTIES.TIMELINE_MODE, value });
             },
         },
         portNumber: {
@@ -210,21 +227,6 @@ export default {
             });
         },
     },
-    mounted() {
-        // load settings from the model
-        let setting = this.getSetting( this.settings.INPUT_FORMAT );
-        if ( setting !== null ) {
-            this.paramFormat = setting;
-        }
-        setting = this.getSetting( this.settings.FOLLOW_PLAYBACK );
-        if ( setting !== null ) {
-            this.trackFollow = setting;
-        }
-        setting = this.getSetting( this.settings.DISPLAY_HELP );
-        if ( setting !== null ) {
-            this.displayHelpPanel = setting;
-        }
-    },
     destroyed() {
         if ( this.changeListener ) {
             zMIDI.removeChangeListener( this.changeListener );
@@ -232,27 +234,12 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'saveSetting',
-            'showNotification',
-            'createMidiDeviceList',
-            'setMidiPortNumber',
-            'publishMessage',
+            "saveSetting",
+            "showNotification",
+            "createMidiDeviceList",
+            "setMidiPortNumber",
+            "publishMessage",
         ]),
-        handleParameterInputFormatChange() {
-            this.saveSetting(
-                { name: this.settings.INPUT_FORMAT, value: this.paramFormat }
-            );
-        },
-        handleTrackFollowChange() {
-            this.saveSetting(
-                { name: this.settings.FOLLOW_PLAYBACK, value: this.trackFollow }
-            );
-        },
-        handleHelpPanelChange() {
-            this.saveSetting(
-                { name: this.settings.DISPLAY_HELP, value: this.displayHelpPanel }
-            );
-        },
         connectMidiDevices() {
             zMIDI.connect()
                  .then( this.handleMIDIconnectSuccess )
