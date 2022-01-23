@@ -229,6 +229,11 @@ export default {
         windowSize() {
             this.cacheDimensions();
         },
+        isPlaying( value ) {
+            if ( this.followPlayback && !value ) {
+                this.$refs.container.scrollTop = 0;
+            }
+        },
         selectedStep() { this.focusActiveStep() },
         selectedSlot() { this.focusActiveStep() },
     },
@@ -449,6 +454,8 @@ $stepHeight: 32px;
     /* when the view should be following the sequencer, we disable the odd/even pattern */
     /* of the list for less eye strain (only the instructions will seem to be scrolling) */
     &.follow {
+        overflow-y: hidden; // no vertical scrollbar during playback
+
         .pattern li {
             background-color: $color-pattern-even;
             border-top-color: #000;
