@@ -38,7 +38,7 @@
                     class="indices"
                     :class="{ fixed: mustFollow }"
                 >
-                    <template v-if="mustFollow">
+                    <template v-if="mustFollow && stepCentered">
                         <li
                             v-for="index in lastIndices"
                             :key="`prev_index_${index}`"
@@ -64,7 +64,7 @@
                     class="pattern"
                     ref="pattern"
                 >
-                    <template v-if="mustFollow">
+                    <template v-if="mustFollow && stepCentered">
                         <!-- to keep playback center based, while playing in follow mode, pad list top -->
                         <pattern-event
                             v-for="(event, stepIndex) in previousPatternChannels[ channelIndex ]"
@@ -128,6 +128,7 @@ export default {
         pContainerSteps: [], // will cache DOM elements for interation events
         prevEvents: 0,
         nextEvents: 0,
+        stepCentered: false, // whether active step is aligned to center of screen (in followPlayback mode)
     }),
     computed: {
         ...mapState({
@@ -221,18 +222,31 @@ export default {
 
             this.playingStep = Math.floor( step / diff ) % stepsInPattern;
 
-            if ( this.mustFollow ) {
-                // following activated, ensure the list auto scrolls
-                this.$refs.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
+            if ( !this.mustFollow ) {
+                return;
             }
+
+            if ( !this.stepCentered ) {
+                if ( this.playingStep >= this.prevEvents ) {
+                    this.stepCentered = true;
+                } else {
+                    return;
+                }
+            }
+            // following activated, ensure the list auto scrolls
+            this.$refs.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
         },
         windowSize() {
             this.cacheDimensions();
         },
         isPlaying( value ) {
-            if ( this.followPlayback && !value ) {
-                this.$refs.container.scrollTop = 0;
+            if ( !this.followPlayback ) {
+                return;
             }
+            if ( value ) {
+                 this.stepCentered = false;
+            }
+            this.$refs.container.scrollTop = 0;
         },
         selectedStep() { this.focusActiveStep() },
         selectedSlot() { this.focusActiveStep() },
@@ -263,7 +277,7 @@ export default {
             // the amount of events we can fit vertically on the screen
             this.visibleSteps = Math.ceil( this.containerHeight / STEP_HEIGHT );
 
-            const padding   = Math.round(( this.containerHeight / 2 ) / STEP_HEIGHT ) + 1;
+            const padding   = Math.round(( this.containerHeight / 2 ) / STEP_HEIGHT );
             this.prevEvents = Math.min( MAX_PADDING, padding );
             this.nextEvents = this.visibleSteps - this.prevEvents;
 
