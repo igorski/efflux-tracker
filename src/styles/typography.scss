@@ -16,3 +16,11 @@
     text-transform: uppercase;
     font-weight: normal;
 }
+
+@mixin smallText() {
+    font-size: 85%;
+    padding: $spacing-medium;
+    @include boxSize();
+    border: 1px solid #666;
+    border-radius: $spacing-medium;
+}

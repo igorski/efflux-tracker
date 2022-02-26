@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,30 +23,32 @@
 <template>
     <div class="dropbox-file-modal">
         <div class="header">
-            <h2 v-t="'files'"></h2>
+            <h2 v-t="'files'" class="header__title"></h2>
             <button
                 type="button"
                 class="close-button"
                 @click="closeModal()"
             >&#215;</button>
         </div>
-        <div class="content">
-            <div v-if="leaf">
+        <hr class="divider" />
+        <div class="component__content">
+            <div v-if="leaf" class="content__wrapper">
                 <div class="breadcrumbs">
                     <!-- parent folders -->
                     <button
                         v-for="parent in breadcrumbs"
                         :key="parent.path"
                         type="button"
+                        class="breadcrumbs__button"
                         @click="handleNodeClick( parent )"
-                    >{{ parent.name || "./" }}</button>
+                    >{{ parent.name || "." }}</button>
                     <!-- current folder -->
                     <button
                         type="button"
-                        class="active"
+                        class="breadcrumbs__button breadcrumbs__button--active"
                     >{{ leaf.name }}</button>
                 </div>
-                <div v-if="!loading" class="file-browser">
+                <div v-if="!loading" class="content__folders">
                     <!-- files and folders within current leaf -->
                     <p v-if="!filesAndFolders.length" v-t="'noAudioFiles'"></p>
                     <template v-else>
@@ -88,12 +90,35 @@
                 </div>
             </div>
         </div>
+        <div class="component__actions">
+            <div class="component__actions-content">
+                <div class="form component__actions-form">
+                    <div class="wrapper input">
+                        <input
+                            v-model="newFolderName"
+                            :placeholder="$t('newFolderName')"
+                            type="text"
+                            class="input-field full"
+                            @focus="handleFocusIn"
+                            @blur="handleFocusOut"
+                        />
+                    </div>
+                </div>
+                <button
+                    v-t="'createFolder'"
+                    type="button"
+                    class="button"
+                    :disabled="!newFolderName"
+                    @click="handleCreateFolderClick()"
+                ></button>
+            </div>
+        </div>
     </div>
 </template>
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { listFolder, downloadFileAsBlob, deleteEntry } from "@/services/dropbox-service";
+import { listFolder, createFolder, downloadFileAsBlob, deleteEntry } from "@/services/dropbox-service";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
 import SampleFactory from "@/model/factories/sample-factory";
@@ -169,6 +194,7 @@ export default {
             children: [],
         },
         leaf: null,
+        newFolderName: "",
     }),
     computed: {
         ...mapGetters([
@@ -215,11 +241,25 @@ export default {
             "setCurrentSample",
             "setDropboxConnected",
             "setLoading",
+            "suspendKeyboardService",
             "unsetLoading",
         ]),
         ...mapActions([
             "loadSong",
         ]),
+        /**
+         * when typing, we want to suspend the KeyboardController
+         * so it doesn't broadcast the typing to its listeners
+         */
+        handleFocusIn() {
+            this.suspendKeyboardService( true );
+        },
+        /**
+         * on focus out, restore the KeyboardControllers broadcasting
+         */
+        handleFocusOut() {
+            this.suspendKeyboardService( false );
+        },
         async retrieveFiles( path ) {
             this.loading = true;
             try {
@@ -318,29 +358,54 @@ export default {
                 },
             });
         },
+        async handleCreateFolderClick() {
+            const folder = this.newFolderName;
+            try {
+                const result = await createFolder( this.leaf.path, folder );
+                if ( !result ) {
+                    throw new Error();
+                }
+                this.retrieveFiles( this.leaf.path );
+                this.newFolderName = "";
+                this.showNotification({
+                    message: this.$t( "folderCreatedSuccessfully", { folder })
+                });
+            } catch {
+                this.showNotification({
+                    message: this.$t( "couldNotCreateFolder", { folder })
+                });
+            }
+        },
     },
 };
 </script>
 
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
+@import "@/styles/forms";
 @import "@/styles/typography";
+
+$headingHeight: 53px;
+$breadcrumbsHeight: 47px;
+$actionsHeight: 50px;
 
 .dropbox-file-modal {
     @include editorComponent();
     @include overlay();
     @include noSelect();
-    overflow-x: hidden;
-    overflow-y: auto;
+    overflow: hidden;
     padding: 0;
+
+    .component__title {
+        color: #FFF;
+    }
 
     .header {
         padding: $spacing-small $spacing-large 0;
     }
 
-
-    h2 {
-        color: #FFF;
+    .divider {
+        margin-bottom: 0;
     }
 
     @include large() {
@@ -352,30 +417,45 @@ export default {
         transform: translate(-50%, -50%);
     }
 
-    .file-browser {
+    .content__wrapper {
+        height: 100%;
+    }
+
+    .content__folders {
         overflow: auto;
-        padding: $spacing-small $spacing-large;
+        height: calc(100% - #{$headingHeight + $breadcrumbsHeight + $actionsHeight});
+    }
+
+    @include mobile() {
+        .component__content {
+            height: calc(100% - #{$actionsHeight});
+        }
     }
 }
 
 .breadcrumbs {
-    padding: $spacing-medium 0;
-    margin: $spacing-medium 0 $spacing-small;
-    background-color: #b6b6b6;
+    padding: $spacing-small 0 $spacing-small $spacing-small;
+    background-color: $color-background;
 
-    button {
+    &__button {
         display: inline;
         position: relative;
         cursor: pointer;
-        margin-right: $spacing-small;
         border: none;
-        background: none;
-        padding: 0 $spacing-small;
-        border-left: 1px solid $color-3;
+        background: none !important;
+        padding-left: $spacing-xsmall;
+        padding-right: 0;
         font-size: 100%;
-        @include toolFont();
 
-        &:hover, &.active {
+        &:after {
+            content: " /";
+        }
+
+        &:hover {
+            color: $color-1;
+        }
+
+        &--active {
             color: #FFF;
         }
     }
@@ -423,7 +503,7 @@ export default {
         position: absolute;
         cursor: pointer;
         top: -$spacing-small;
-        right: -$spacing-small;
+        right: -#{$spacing-medium + $spacing-small};
         background-color: $color-2;
         color: #000;
         width: $spacing-large;
@@ -441,6 +521,33 @@ export default {
         .entry__delete-button {
             display: block;
         }
+    }
+}
+
+.component__actions {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: $actionsHeight;
+    border-top: 1px dashed #666;
+    text-align: center;
+    display: flex;
+    box-sizing: border-box;
+    background-color: $color-editor-background;
+    padding: $spacing-xxsmall $spacing-medium;
+
+    button {
+        flex: 1;
+        margin: $spacing-small;
+    }
+
+    &-content {
+        display: flex;
+        width: 100%;
+        max-width: 400px;
+        margin-left: auto;
+        align-items: baseline;
     }
 }
 </style>

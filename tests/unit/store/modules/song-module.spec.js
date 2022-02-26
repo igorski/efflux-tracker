@@ -8,6 +8,7 @@ const { getters, mutations, actions } = songModule;
 let mockFn;
 jest.mock( "@/services/dropbox-service", () => ({
     uploadBlob: jest.fn(( ...args ) => mockFn( "uploadBlob", ...args )),
+    getCurrentFolder: jest.fn(() => "folder")
 }));
 jest.mock( "@/utils/file-util", () => ({
     saveAsFile: jest.fn(( ...args ) => mockFn( "saveAsFile", ...args )),
@@ -230,10 +231,10 @@ describe( "Vuex song module", () => {
                 const commit = jest.fn();
                 const mockedGetters = { t: jest.fn(), totalSaved: 7 };
 
-                await actions.exportSongToDropbox({ commit, getters: mockedGetters }, song );
+                await actions.exportSongToDropbox({ commit, getters: mockedGetters }, { song, folder: "foo" });
 
                 expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
-                expect( mockFn ).toHaveBeenNthCalledWith( 2, "uploadBlob", expect.any( Object ), expect.any( String ));
+                expect( mockFn ).toHaveBeenNthCalledWith( 2, "uploadBlob", expect.any( Object ), "foo", expect.any( String ));
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setStatesOnSave", mockedGetters.totalSaved );
                 expect( commit ).toHaveBeenNthCalledWith( 2, "showNotification", expect.any( Object ));
 
@@ -260,7 +261,7 @@ describe( "Vuex song module", () => {
                 const dispatch = jest.fn();
                 const song = { foo: "bar", origin: "dropbox" };
                 await actions.saveSong({ dispatch, commit: jest.fn() }, song );
-                expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", song );
+                expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", { song, folder: "folder" });
             });
         });
     });

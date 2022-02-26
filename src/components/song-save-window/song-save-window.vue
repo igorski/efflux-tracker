@@ -54,6 +54,19 @@
                         sync
                     />
                 </div>
+                <template v-if="saveInDropbox">
+                    <div class="wrapper input">
+                        <input
+                            type="text"
+                            v-model="folder"
+                            class="input-field"
+                            :placeholder="$t('folder')"
+                            @focus="handleFocusIn"
+                            @blur="handleFocusOut"
+                        />
+                    </div>
+                    <p v-t="'folderExpl'" class="expl"></p>
+                </template>
             </div>
             <button
                 v-t="'save'"
@@ -68,6 +81,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
+import { getCurrentFolder, setCurrentFolder } from "@/services/dropbox-service";
 import { ToggleButton } from "vue-js-toggle-button";
 import messages from "./messages.json";
 
@@ -79,6 +93,7 @@ export default {
     data: () => ({
         title: "",
         author: "",
+        folder: "",
         saveInDropbox: false,
         isSaving: false,
     }),
@@ -94,6 +109,8 @@ export default {
         this.title  = this.activeSong.meta.title;
         this.author = this.activeSong.meta.author;
         this.saveInDropbox = this.dropboxConnected;
+
+        this.folder = getCurrentFolder();
 
         this.$refs.titleInput.focus();
     },
@@ -113,7 +130,7 @@ export default {
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
-         * so it doesn"t broadcast the typing to its listeners
+         * so it doesn't broadcast the typing to its listeners
          */
         handleFocusIn() {
             this.suspendKeyboardService( true );
@@ -133,7 +150,8 @@ export default {
                 this.setLoading( "save" );
                 try {
                     if ( this.saveInDropbox ) {
-                        await this.exportSongToDropbox( this.activeSong );
+                        await this.exportSongToDropbox({ song: this.activeSong, folder: this.folder });
+                        setCurrentFolder( this.folder );
                     } else {
                         await this.saveSongInLS( this.activeSong );
                     }
@@ -199,5 +217,9 @@ $width: 450px;
 
 .dropbox-toggle {
     margin-left: $spacing-medium;
+}
+
+.expl {
+    @include smallText();
 }
 </style>

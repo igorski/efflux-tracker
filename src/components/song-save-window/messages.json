@@ -4,6 +4,8 @@
     "songTitle": "song title",
     "songAuthor": "song author",
     "save": "Save",
-    "saveInDropbox": "Save in Dropbox"
+    "saveInDropbox": "Save in Dropbox",
+    "folder": "Folder",
+    "folderExpl": "You can create a folder structure directly in your Dropbox by typing a new folder name. Nested folders are separated with a slash (/)."
   }
 }

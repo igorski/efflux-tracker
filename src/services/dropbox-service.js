@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,12 +22,12 @@
  */
 import { blobToResource } from "@/utils/resource-manager";
 
-const PROJECT_FOLDER = "/efflux";
 const UPLOAD_FILE_SIZE_LIMIT = 150 * 1024 * 1024;
 
 let Dropbox;
 let accessToken;
 let dbx;
+let currentFolder = "";
 
 /**
  * Lazily loads the Dropbox SDK. This is invoked through the
@@ -54,7 +54,7 @@ function getDropboxConstructor() {
 export const requestLogin = ( clientId, loginUrl ) => {
     dbx = new Dropbox({ clientId });
     return dbx.auth.getAuthenticationUrl( loginUrl );
-}
+};
 
 /**
  * Authentication step 2: user has received access token, register it in the
@@ -91,8 +91,24 @@ export const listFolder = async ( path = "" ) => {
         ({ result } = await dbx.filesListFolderContinue({ cursor: result.cursor }));
         entries.push( ...result.entries );
     }
+    currentFolder = path;
     return entries;
 };
+
+export const createFolder = async ( path = "/", folder = "folder" ) => {
+    try {
+        await dbx.filesCreateFolderV2({
+            path: `${sanitizePath( path )}/${folder}`
+        });
+        return true;
+    } catch {
+        return false;
+    }
+};
+
+export const getCurrentFolder = () => currentFolder;
+
+export const setCurrentFolder = folder => currentFolder = folder;
 
 export const deleteEntry = async path => {
     try {
@@ -115,8 +131,8 @@ export const downloadFileAsBlob = async ( path, returnAsURL = false ) => {
     }
 };
 
-export const uploadBlob = async ( fileOrBlob, fileName ) => {
-    const path = `${PROJECT_FOLDER}/${fileName.split( " " ).join ( "_" )}`;
+export const uploadBlob = async ( fileOrBlob, folder, fileName ) => {
+    const path = `${sanitizePath( folder )}/${fileName.split( " " ).join ( "_" )}`;
     if ( fileOrBlob.size < UPLOAD_FILE_SIZE_LIMIT ) {
         // File is smaller than 150 Mb - use filesUpload API
         try {
@@ -158,10 +174,17 @@ export const uploadBlob = async ( fileOrBlob, fileName ) => {
                 // Last chunk of data, close session
                 return acc.then( sessionId => {
                     const cursor = { session_id: sessionId, offset: fileOrBlob.size - blob.size };
-                    const commit = { path: '/' + fileOrBlob.name, mode: 'add', autorename: true, mute: false };
+                    const commit = { path: "/" + fileOrBlob.name, mode: "add", autorename: true, mute: false };
                     return dbx.filesUploadSessionFinish({ cursor: cursor, commit: commit, contents: blob });
                 });
             }
         }, Promise.resolve());
     }
 };
+
+/* internal methods */
+
+function sanitizePath( path = "" ) {
+    path = path.charAt( path.length - 1 ) === "/" ? path.substr( 0, path.length - 1 ) : path;
+    return ( path.charAt( 0 ) !== "/" && path.length > 1 ) ? `/${path}` : path;
+}

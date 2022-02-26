@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -27,7 +27,7 @@ import ModalWindows        from "@/definitions/modal-windows";
 import SongFactory         from "@/model/factories/song-factory";
 import createAction        from "@/model/factories/action-factory";
 import Actions             from "@/definitions/actions";
-import { uploadBlob }      from "@/services/dropbox-service";
+import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
 import FixturesLoader      from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages      from "@/services/pubsub/messages";
@@ -352,10 +352,10 @@ export default {
                 commit( "openModal", ModalWindows.WELCOME_SHARED_SONG );
             }
         },
-        async exportSongToDropbox({ commit, getters }, song ) {
+        async exportSongToDropbox({ commit, getters }, { song, folder }) {
             const blob = await toXTK( song );
             const name = toFileName( song.meta.title );
-            await uploadBlob( blob, name );
+            await uploadBlob( blob, folder, name );
             song.origin = "dropbox";
             commit( "setStatesOnSave", getters.totalSaved );
             commit( "showNotification", { message: getters.t( "messages.fileSavedInDropbox", { file: name }) });
@@ -378,7 +378,7 @@ export default {
             await dispatch( "validateSong", song );
             if ( song.origin === "dropbox" ) {
                 commit( "setLoading", "dbxS" );
-                await dispatch( "exportSongToDropbox", song );
+                await dispatch( "exportSongToDropbox", { song, folder: getCurrentFolder() });
                 commit( "unsetLoading", "dbxS" );
             } else {
                 await dispatch( "saveSongInLS", song );
