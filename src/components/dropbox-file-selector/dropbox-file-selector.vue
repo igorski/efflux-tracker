@@ -117,7 +117,7 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { listFolder, createFolder, downloadFileAsBlob, deleteEntry } from "@/services/dropbox-service";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
@@ -133,6 +133,7 @@ import messages from "./messages.json";
 const FILE_EXTENSIONS = [ ...ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION ]
     .map( ext => ext.replace( ".", "" ));
 
+const RETRIEVAL_LOAD_KEY  = "dbx_r";
 const LAST_DROPBOX_FOLDER = "efx_dropboxDb";
 
 function mapEntry( entry, children = [], parent = null ) {
@@ -186,7 +187,6 @@ function recurseChildren( node, path ) {
 export default {
     i18n: { messages, sharedMessages },
     data: () => ({
-        loading: false,
         tree: {
             type: "folder",
             name: "",
@@ -197,9 +197,15 @@ export default {
         newFolderName: "",
     }),
     computed: {
+        ...mapState([
+            "loadingStates",
+        ]),
         ...mapGetters([
             "hasChanges",
         ]),
+        loading() {
+            return this.loadingStates.includes( RETRIEVAL_LOAD_KEY );
+        },
         breadcrumbs() {
             let parent = this.leaf.parent;
             const out = [];
@@ -261,7 +267,7 @@ export default {
             this.suspendKeyboardService( false );
         },
         async retrieveFiles( path ) {
-            this.loading = true;
+            this.setLoading( RETRIEVAL_LOAD_KEY );
             try {
                 const entries = await listFolder( path );
                 this.setDropboxConnected( true ); // opened browser implies we have a valid connection
@@ -283,7 +289,7 @@ export default {
                 this.openDialog({ type: "error", message: this.$t( "couldNotRetrieveFilesForPath", { path } ) });
                 sessionStorage.removeItem( LAST_DROPBOX_FOLDER );
             }
-            this.loading = false;
+            this.unsetLoading( RETRIEVAL_LOAD_KEY );
         },
         async handleNodeClick( node ) {
             this.setLoading( "dbox" );
