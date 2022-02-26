@@ -396,10 +396,6 @@ $actionsHeight: 50px;
     overflow: hidden;
     padding: 0;
 
-    .component__title {
-        color: #FFF;
-    }
-
     .header {
         padding: $spacing-small $spacing-large 0;
     }
@@ -424,12 +420,6 @@ $actionsHeight: 50px;
     .content__folders {
         overflow: auto;
         height: calc(100% - #{$headingHeight + $breadcrumbsHeight + $actionsHeight});
-    }
-
-    @include mobile() {
-        .component__content {
-            height: calc(100% - #{$actionsHeight});
-        }
     }
 }
 
