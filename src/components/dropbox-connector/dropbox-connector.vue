@@ -70,7 +70,14 @@ export default {
     },
     async created() {
         this.loading = true;
+
+        // note we wrap the authentication check inside a global loading state as Dropbox
+        // API has been observed to have high latencies
+        const LOADING_KEY = "dbxc";
+        this.setLoading( LOADING_KEY );
         this.authenticated = await isAuthenticated();
+        this.unsetLoading( LOADING_KEY );
+
         if ( this.authenticated ) {
             if ( !this.dropboxConnected ) {
                 this.showConnectionMessage();
@@ -95,6 +102,8 @@ export default {
             "openDialog",
             "openModal",
             "showNotification",
+            "setLoading",
+            "unsetLoading",
         ]),
         login() {
             loginWindow  = window.open( this.authUrl );
