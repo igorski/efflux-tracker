@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -42,5 +42,6 @@ export default
     DELETE_PATTERN           : "S:8",
     CUT_SELECTION            : "S:9",
     PASTE_SELECTION          : "S:10",
-    TEMPO_CHANGE             : "S:11"
+    TEMPO_CHANGE             : "S:11",
+    REPLACE_INSTRUMENT       : "S:12",
 };

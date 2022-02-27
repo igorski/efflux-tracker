@@ -62,7 +62,7 @@ describe( "Vuex instrument module", () => {
                 let thrown = false;
 
                 try {
-                    await actions.saveInstrument({ state, getters: {}, dispatch }, invalidInstrument);
+                    await actions.saveInstrumentIntoLS({ state, getters: {}, dispatch }, invalidInstrument);
                 } catch ( e ) {
                     thrown = true;
                 }
@@ -73,7 +73,7 @@ describe( "Vuex instrument module", () => {
             it( "should be able to save instruments in storage", async () => {
                 state = { instruments: [] };
 
-                await actions.saveInstrument({ state, getters: {}, dispatch }, instrument );
+                await actions.saveInstrumentIntoLS({ state, getters: {}, dispatch }, instrument );
 
                 // expected instruments meta to have been saved into the instruments list
                 expect( state.instruments ).toEqual([
@@ -104,7 +104,7 @@ describe( "Vuex instrument module", () => {
 
                 mockSampleFn = jest.fn();
 
-                await actions.saveInstrument({ state, getters: mockedGetters, dispatch }, sampledInstrument );
+                await actions.saveInstrumentIntoLS({ state, getters: mockedGetters, dispatch }, sampledInstrument );
 
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
                 expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "disassemble", sample1 );
@@ -128,7 +128,7 @@ describe( "Vuex instrument module", () => {
                 const sample1 = { name: "foo" };
                 const mockedGetters = { samples: [ sample1 ] };
 
-                await actions.loadInstrument({ getters: mockedGetters, commit }, { presetName: mockStoredInstrument.presetName });
+                await actions.loadInstrumentFromLS({ getters: mockedGetters, commit }, { presetName: mockStoredInstrument.presetName });
 
                 // assert serialized instrument has been retrieved from storage
                 expect( mockStorageFn ).toHaveBeenCalledWith( "getItem", `${INSTRUMENT_STORAGE_KEY}${mockStoredInstrument.presetName}` );

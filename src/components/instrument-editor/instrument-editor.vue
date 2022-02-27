@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2021 - https://www.igorski.nl
+* Igor Zinken 2019-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the 'Software'), to deal in
@@ -85,13 +85,14 @@
         <hr class="divider" />
         <!-- current preset -->
         <div class="current-preset">
-            <input v-model="presetName"
-                   class="preset-name-input"
-                   type="text"
-                   :placeholder="$t('presetName')"
-                   @focus="handleFocusIn"
-                   @blur="handleFocusOut"
-                   @keyup.enter="savePreset"
+            <input
+                v-model="presetName"
+                class="preset-name-input"
+                type="text"
+                :placeholder="$t('presetName')"
+                @focus="handleFocusIn"
+                @blur="handleFocusOut"
+                @keyup.enter="savePreset"
             />
             <button v-t="'savePreset'"
                     type="button"
@@ -104,12 +105,12 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Config            from "@/config";
+import Actions           from "@/definitions/actions";
 import ManualURLs        from "@/definitions/manual-urls";
 import ModalWindows      from "@/definitions/modal-windows";
-import AudioService      from "@/services/audio-service";
 import PubSubMessages    from "@/services/pubsub/messages";
+import createAction      from "@/model/factories/action-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
-import { enqueueState }  from "@/model/factories/history-state-factory";
 import { clone }         from "@/utils/object-util";
 import SelectBox         from "@/components/forms/select-box";
 import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor";
@@ -128,7 +129,6 @@ export default {
     data: () => ({
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
         currentPreset: null,
-        presetName: '',
     }),
     computed: {
         ...mapState({
@@ -141,7 +141,7 @@ export default {
         }),
         ...mapGetters([
             "getInstrumentByPresetName",
-            "hasMidiSupport"
+            "hasMidiSupport",
         ]),
         instrument: {
             get() {
@@ -160,6 +160,14 @@ export default {
         },
         instrumentRef() {
             return this.activeSong.instruments[this.selectedInstrument];
+        },
+        presetName: {
+            get() {
+                return this.instrumentRef?.presetName;
+            },
+            set( presetName ) {
+                this.setPresetName({ instrument: this.instrumentRef, presetName });
+            },
         },
         presets() {
             const out = [
@@ -192,36 +200,16 @@ export default {
             }
             let instrumentPreset;
             try {
-                instrumentPreset = await this.loadInstrument( this.getInstrumentByPresetName( selectedPresetName ));
+                instrumentPreset = await this.loadInstrumentFromLS( this.getInstrumentByPresetName( selectedPresetName ));
             } catch {
                 return;
             }
-            const { activeSong }     = this;
-            const instrumentIndex    = this.selectedInstrument;
-            const existingPresetName = this.presetName;
-            const existingInstrument = clone( activeSong.instruments[ instrumentIndex]);
             const newInstrument = InstrumentFactory.loadPreset(
-                instrumentPreset, instrumentIndex, this.instrumentRef.name
+                instrumentPreset, this.selectedInstrument, this.instrumentRef.name
             );
-            const store = this.$store;
-            const applyUpdate = () => {
-                this.setSelectedOscillatorIndex( 0 );
-                AudioService.cacheAllOscillators( instrumentIndex, newInstrument );
-                AudioService.applyModules( activeSong );
-            };
-            const commit = () => {
-                store.commit( "replaceInstrument", { instrumentIndex, instrument: newInstrument });
-                this.presetName = selectedPresetName;
-                applyUpdate();
-            };
-            commit();
-            enqueueState( `preset_${instrumentIndex}`, {
-                undo() {
-                    store.commit( "replaceInstrument", { instrumentIndex, instrument: existingInstrument });
-                    this.presetName = existingPresetName;
-                    applyUpdate();
-                },
-                redo: commit,
+            createAction( Actions.REPLACE_INSTRUMENT, {
+                store: this.$store,
+                instrument: newInstrument,
             });
         },
     },
@@ -247,8 +235,8 @@ export default {
             "openModal",
         ]),
         ...mapActions([
-            "loadInstrument",
-            "saveInstrument",
+            "loadInstrumentFromLS",
+            "saveInstrumentIntoLS",
         ]),
         openHelp() {
             window.open( ManualURLs.INSTRUMENT_EDITOR_HELP, "_blank" );
@@ -257,8 +245,8 @@ export default {
             this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
         invalidatePreset() {
-            if ( this.instrumentRef.presetName && !this.instrumentRef.presetName.includes( "*" )) {
-                this.presetName = `${this.instrumentRef.presetName}*`;
+            if ( this.presetName && !this.presetName.includes( "*" )) {
+                this.setPresetName({ instrument: this.instrumentRef, presetName: `${this.presetName}*` });
             }
         },
         savePreset() {
@@ -269,7 +257,7 @@ export default {
             else {
                 newPresetName = newPresetName.replace( "*", "" );
                 this.setPresetName({ instrument: this.instrumentRef, presetName: newPresetName });
-                if ( this.saveInstrument( clone( this.instrumentRef ) )) {
+                if ( this.saveInstrumentIntoLS( clone( this.instrumentRef ) )) {
                     this.showNotification({ message: this.$t( "instrumentSaved", { name: newPresetName }) });
                 }
             }

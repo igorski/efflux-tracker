@@ -307,8 +307,8 @@ export default {
 
         this.publishMessage( PubSubMessages.EFFLUX_READY );
 
-        // if File content is dragged into the application, parse and load audio files within
-        const loadFiles = async ({ sounds, projects }) => {
+        // if File content is dragged or pasted into the application, parse and load supported files within
+        const loadFiles = async ({ sounds, projects, instruments }) => {
             for ( const file of sounds ) {
                 try {
                     const buffer = await loadSample( file, getAudioContext());
@@ -337,6 +337,9 @@ export default {
                 } else {
                     confirm();
                 }
+            }
+            for ( const instrument of instruments ) {
+                this.loadInstrumentFromFile( instrument );
             }
         };
 
@@ -406,6 +409,7 @@ export default {
             "prepareSequencer",
             "loadStoredSettings",
             "loadStoredInstruments",
+            "loadInstrumentFromFile",
             "loadStoredSongs",
             "createSong"
         ]),

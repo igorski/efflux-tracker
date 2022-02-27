@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +26,8 @@ import EventUtil           from "@/utils/event-util";
 import { clone }           from "@/utils/object-util";
 import PatternUtil         from "@/utils/pattern-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import { enqueueState }    from "@/model/factories/history-state-factory";
+import AudioService        from "@/services/audio-service";
 import PatternFactory      from "./pattern-factory";
 
 /**
@@ -74,6 +76,9 @@ export default function( type, data ) {
 
         case Actions.PASTE_SELECTION:
             return pasteSelectionAction( data );
+
+        case Actions.REPLACE_INSTRUMENT:
+            return replaceInstrumentAction( data );
     }
 }
 
@@ -508,6 +513,30 @@ function pasteSelectionAction({ store }) {
         },
         redo: act
     };
+}
+
+function replaceInstrumentAction({ store, instrument }) {
+    const instrumentIndex    = ( store.rootState || store.state ).editor.selectedInstrument;
+    const existingInstrument = clone( store.getters.activeSong.instruments[ instrumentIndex ]);
+    instrument.index = instrumentIndex;
+
+    const applyUpdate = instrument => {
+        store.commit( "setSelectedOscillatorIndex", 0 );
+        AudioService.cacheAllOscillators( instrumentIndex, instrument );
+        AudioService.applyModules( store.getters.activeSong );
+    };
+    const commit = () => {
+        store.commit( "replaceInstrument", { instrumentIndex, instrument });
+        applyUpdate( instrument );
+    };
+    commit();
+    enqueueState( `preset_${instrumentIndex}`, {
+        undo() {
+            store.commit( "replaceInstrument", { instrumentIndex, instrument: existingInstrument });
+            applyUpdate( existingInstrument );
+        },
+        redo: commit,
+    });
 }
 
 // when changing states of observables, we need to take heed to always restore

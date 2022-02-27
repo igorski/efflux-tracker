@@ -20,7 +20,7 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import { ACCEPTED_FILE_TYPES, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+import { ACCEPTED_FILE_TYPES, PROJECT_FILE_EXTENSION, INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import { blobToResource, disposeResource } from "@/utils/resource-manager";
 
 /**
@@ -127,16 +127,18 @@ export const readClipboardFiles = clipboardData => {
         .map( item => item.getAsFile() );
 
     return {
-        sounds   : items.filter( isSoundFile ),
-        projects : items.filter( isProjectFile )
+        sounds      : items.filter( isSoundFile ),
+        projects    : items.filter( isProjectFile ),
+        instruments : items.filter( isInstrument )
     };
 };
 
 export const readDroppedFiles = dataTransfer => {
     const items = [ ...( dataTransfer?.files || []) ];
     return {
-        sounds   : items.filter( isSoundFile ),
-        projects : items.filter( isProjectFile )
+        sounds      : items.filter( isSoundFile ),
+        projects    : items.filter( isProjectFile ),
+        instruments : items.filter( isInstrument )
     }
 };
 
@@ -149,4 +151,9 @@ function isSoundFile( item ) {
 function isProjectFile( file ) {
     const [ , ext ] = file.name.split( "." );
     return `.${ext}` === PROJECT_FILE_EXTENSION;
+}
+
+function isInstrument( file ) {
+    const [ , ext ] = file.name.split( "." );
+    return `.${ext}` === INSTRUMENT_FILE_EXTENSION;
 }
