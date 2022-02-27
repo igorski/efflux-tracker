@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2021 - https://www.igorski.nl
+* Igor Zinken 2019-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -119,6 +119,17 @@ export const openFileBrowser = ( handler, acceptedFileTypes ) => {
     );
     fileBrowser.dispatchEvent( simulatedEvent );
     fileBrowser.addEventListener( "change", handler );
+};
+
+export const readClipboardFiles = clipboardData => {
+    const items = [ ...( clipboardData?.items || []) ]
+        .filter( item => item.kind === "file" )
+        .map( item => item.getAsFile() );
+
+    return {
+        sounds   : items.filter( isSoundFile ),
+        projects : items.filter( isProjectFile )
+    };
 };
 
 export const readDroppedFiles = dataTransfer => {

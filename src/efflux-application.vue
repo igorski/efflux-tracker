@@ -119,7 +119,7 @@ import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SampleFactory from "@/model/factories/sample-factory";
-import { readDroppedFiles } from "@/utils/file-util";
+import { readClipboardFiles, readDroppedFiles } from "@/utils/file-util";
 import store from "@/store";
 import messages from "@/messages.json";
 
@@ -187,6 +187,7 @@ export default {
             "activeSong",
             "displayHelp",
             "displayWelcome",
+            "hasChanges",
             "isLoading",
             "timelineMode",
         ]),
@@ -323,10 +324,25 @@ export default {
                 }
             }
             for ( const file of projects ) {
-                this.loadSong({ file });
-                this.closeModal();
+                const confirm = () => {
+                    this.loadSong({ file });
+                    this.closeModal();
+                };
+                if ( this.hasChanges ) {
+                    this.openDialog({
+                        type: "confirm",
+                        message: this.$t( "warnings.loadNewPendingChanges" ),
+                        confirm
+                    });
+                } else {
+                    confirm();
+                }
             }
         };
+
+        window.addEventListener( "paste", event => {
+            loadFiles( readClipboardFiles( event?.clipboardData ));
+        }, false );
 
         window.addEventListener( "dragover", event => {
             event.stopPropagation();
@@ -375,6 +391,7 @@ export default {
             "setWindowSize",
             "resetEditor",
             "resetHistory",
+            "openDialog",
             "openModal",
             "closeModal",
             "showNotification",

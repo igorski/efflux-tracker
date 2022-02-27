@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -67,7 +67,7 @@ const getSelectionLength = state => ( state.maxSelectedStep - state.minSelectedS
  *        this model so it can later on be pasted from this model
  */
 const copySelection = ( state, { song, activePattern, optOutputArray }) => {
-    if ( getSelectionLength(state) === 0 )
+    if ( getSelectionLength( state ) === 0 )
         return;
 
     let i, max = state.selectedChannels.length;
@@ -80,7 +80,7 @@ const copySelection = ( state, { song, activePattern, optOutputArray }) => {
     for ( i = 0; i < max; ++i )
         optOutputArray.push( [] );
 
-    let pattern = song.patterns[activePattern], stepValue;
+    let pattern = song.patterns[ activePattern ], stepValue;
     let channel;
     let copyIndex = 0;
 
@@ -96,6 +96,9 @@ const copySelection = ( state, { song, activePattern, optOutputArray }) => {
             ++copyIndex;
         }
     }
+    // by writing into the clipboard we ensure that copied files are no
+    // longer in the clipboard history (prevents double load on paste shortcut)
+    window.navigator.clipboard.writeText( JSON.stringify( optOutputArray ));
 };
 
 /**
@@ -254,7 +257,8 @@ const module = {
             const out = [];
             copySelection( state, { song, activePattern, out });
             return out;
-        }
+        },
+        hasCopiedEvents: state => !!state.copySelection?.length,
     },
     mutations: {
         setMinSelectedStep( state, value ) {

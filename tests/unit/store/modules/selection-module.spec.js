@@ -1,8 +1,8 @@
-import SelectionModule from '@/store/modules/selection-module';
+import SelectionModule from "@/store/modules/selection-module";
 
 const { getters, mutations } = SelectionModule;
 
-describe('Vuex selection module', () => {
+describe("Vuex selection module", () => {
     let state;
     beforeEach(() => {
         state = {
@@ -15,8 +15,8 @@ describe('Vuex selection module', () => {
         };
     });
 
-    describe('getters', () => {
-        it('should know the full length of its selection', () => {
+    describe("getters", () => {
+        it("should know the full length of its selection", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 1 });
             const min = 0;
             const max = 16;
@@ -28,7 +28,7 @@ describe('Vuex selection module', () => {
             expect(expected).toEqual(getters.getSelectionLength(state));
         });
 
-        it('should know whether it has a selection', () => {
+        it("should know whether it has a selection", () => {
             expect(getters.hasSelection(state)).toBe(false);
 
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 4 });
@@ -36,10 +36,21 @@ describe('Vuex selection module', () => {
 
             expect(getters.hasSelection(state)).toBe(true);
         });
+
+        it("should know whether there is a range of copied events in the selection state", () => {
+            const state = { copySelection: null };
+            expect( getters.hasCopiedEvents( state )).toBe( false );
+
+            state.copySelection = [];
+            expect( getters.hasCopiedEvents( state )).toBe( false );
+
+            state.copySelection = [{ foo: "bar" }];
+            expect( getters.hasCopiedEvents( state )).toBe( true );
+        });
     });
 
-    describe('mutations', () => {
-        it('should be able to select multiple channels for its selection', () => {
+    describe("mutations", () => {
+        it("should be able to select multiple channels for its selection", () => {
              mutations.setSelectionChannelRange(state, { firstChannel: 0 });
 
              expect(1).toEqual(state.selectedChannels.length);
@@ -51,7 +62,7 @@ describe('Vuex selection module', () => {
              expect(3).toEqual(state.lastSelectedChannel);
         });
 
-        it('should add indices to its current selection', () => {
+        it("should add indices to its current selection", () => {
             let min = 0, i;
             const max = 16;
 
@@ -63,7 +74,7 @@ describe('Vuex selection module', () => {
             }
         });
 
-        it('should know the minimum and maximum indices of its selection', () => {
+        it("should know the minimum and maximum indices of its selection", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0 }); // select a single channel
 
             let min = 0;
@@ -76,7 +87,7 @@ describe('Vuex selection module', () => {
             expect(max).toEqual(state.maxSelectedStep);
         });
 
-        it('should add not add the same index twice to its current selection', () => {
+        it("should add not add the same index twice to its current selection", () => {
             const activeChannel = 0, max = 1;
 
             mutations.setSelectionChannelRange(state, { firstChannel: activeChannel, lastChannel: max });
@@ -89,7 +100,7 @@ describe('Vuex selection module', () => {
             expect(2).toEqual(state.selectedChannels[activeChannel].length);
         });
 
-        it('should be able to clear its selection', () => {
+        it("should be able to clear its selection", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 1 });
 
             mutations.setSelection(state, { selectionStart: 0, selectionEnd: 1 });
@@ -101,7 +112,7 @@ describe('Vuex selection module', () => {
             expect(getters.hasSelection(state)).toBe(false);
         });
 
-        it('should be able to equalize the selection for all channels', () => {
+        it("should be able to equalize the selection for all channels", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 3 });
 
             const activeChannel = 0;
@@ -114,14 +125,14 @@ describe('Vuex selection module', () => {
             expect(JSON.stringify(state.selectedChannels[activeChannel])).toEqual(JSON.stringify(state.selectedChannels[otherChannel]));
         });
 
-        it('should treat a single step as 1 unit range', () => {
+        it("should treat a single step as 1 unit range", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 1 });
             mutations.setSelection(state, { selectionStart: 0 });
 
             expect(1).toEqual(getters.getSelectionLength(state));
         });
 
-        it('should be able to expand and shrink its selection when starting key selection to the right', () => {
+        it("should be able to expand and shrink its selection when starting key selection to the right", () => {
             let keyCode = 39; // right
             let selectedChannel = 2;
             const selectedStep  = 1;
@@ -163,7 +174,7 @@ describe('Vuex selection module', () => {
             expect( state.lastSelectedChannel ).toEqual( 2 );
         });
 
-        it('should be able to expand and shrink its selection when starting key selection to the left', () => {
+        it("should be able to expand and shrink its selection when starting key selection to the left", () => {
             let keyCode = 37; // left
             let selectedChannel = 2;
             const selectedStep  = 1;

@@ -422,9 +422,8 @@ function handleKeyDown( event ) {
         case 86: // V
 
             // paste current selection
-            if ( hasOption ) {
+            if ( hasOption && store.getters.hasCopiedEvents ) {
                 store.commit( "saveState", createAction( Actions.PASTE_SELECTION, { store }));
-                preventDefault( event ); // override browser paste
             }
             break;
 
@@ -434,7 +433,7 @@ function handleKeyDown( event ) {
 
             if ( hasOption ) {
                 store.commit( "saveState", createAction( Actions.CUT_SELECTION, { store }));
-                preventDefault(event); // override browser cut
+                preventDefault( event ); // override browser cut
             }
             break;
 
