@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import InstrumentValidator from "@/model/validators/instrument-validator";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";

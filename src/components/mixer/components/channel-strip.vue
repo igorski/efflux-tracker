@@ -297,6 +297,7 @@ export default {
         }
         // if an AnalyserNode is provided, start the render loop to update the meter
 
+        // eslint-disable-next-line vue/no-mutating-props
         this.analyser.fftSize = 2048;
         const sampleBuffer    = new Float32Array( this.analyser.fftSize );
 

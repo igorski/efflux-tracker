@@ -10,12 +10,6 @@ module.exports = {
     },
     module: {
         rules: [
-            {
-                // inline Workers as Blobs
-
-                test: /\.worker\.js$/,
-                use: { loader: "worker-loader", options: { inline: "no-fallback" } }
-            }
             // comment to prevent transpilation to ES2015 (as it increases filesize)
             /*, {
                 test: /\.js$/,

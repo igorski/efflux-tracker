@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import songModule    from "@/store/modules/song-module";
 import SongValidator from "@/model/validators/song-validator";
 
@@ -180,7 +183,7 @@ describe( "Vuex song module", () => {
                 expect(commit).not.toHaveBeenNthCalledWith(2, "showNotification");
             });
 
-            it( "should update the modified timestamp when saving a song", async done => {
+            it( "should update the modified timestamp when saving a song", async () => {
                 commit = jest.fn();
                 const song = await actions.createSong();
                 const state = { songs: [song] };
@@ -188,14 +191,16 @@ describe( "Vuex song module", () => {
 
                 expect(song.meta.created).toEqual(song.meta.modified);
 
-                setTimeout(async () => {
-                    await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
+                return new Promise(resolve => {
+                    setTimeout(async () => {
+                        await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
-                    expect(song.meta.created).toEqual(org); // expected creation timestamp to have remained unchanged after saving
-                    expect(song.meta.modified).not.toEqual(org); // expected modified timestamp to have updated after saving
+                        expect(song.meta.created).toEqual(org); // expected creation timestamp to have remained unchanged after saving
+                        expect(song.meta.modified).not.toEqual(org); // expected modified timestamp to have updated after saving
 
-                    done();
-                }, 1);
+                        resolve();
+                    }, 1);
+                });
             });
         });
 

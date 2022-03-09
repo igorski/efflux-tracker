@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import SampleFactory from "@/model/factories/sample-factory";
 
 let mockFn;

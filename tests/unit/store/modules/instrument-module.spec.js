@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import OscillatorTypes from "@/definitions/oscillator-types";
 import InstrumentModule, { INSTRUMENT_STORAGE_KEY } from "@/store/modules/instrument-module";
 import InstrumentFactory from "@/model/factories/instrument-factory";

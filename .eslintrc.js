@@ -11,9 +11,10 @@ module.exports = {
         "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
         "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
         "no-case-declarations": "off",
-        "no-async-promise-executor": "off"
+        "no-async-promise-executor": "off",
+        "vue/multi-word-component-names": "off"
     },
     parserOptions: {
-        parser: "babel-eslint"
+        parser: '@babel/eslint-parser'
     }
 };

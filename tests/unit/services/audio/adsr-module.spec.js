@@ -1,7 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
 import OscillatorTypes from "@/definitions/oscillator-types";
 import ADSR from "@/services/audio/adsr-module";
 
-describe( 'ADSR', () => {
+describe( "ADSR", () => {
     // mock AudioGainNode
 
     const output = {
@@ -14,7 +17,7 @@ describe( 'ADSR', () => {
 
     // attack envelopes
 
-    it( 'should allow notes to playback at full volume instantly for most waveforms at 0 attack', () => {
+    it( "should allow notes to playback at full volume instantly for most waveforms at 0 attack", () => {
         const oscillator = {
             adsr: {
                 attack: 0,
@@ -37,7 +40,7 @@ describe( 'ADSR', () => {
         });
     });
 
-    it( 'should have a short fade-in for certain waveforms with 0 attack to prevent popping', () => {
+    it( "should have a short fade-in for certain waveforms with 0 attack to prevent popping", () => {
         const oscillator = {
             adsr: {
                 attack: 0,
@@ -60,7 +63,7 @@ describe( 'ADSR', () => {
         });
     });
 
-    it( 'should delay full volume for a positive attack range', () => {
+    it( "should delay full volume for a positive attack range", () => {
         const oscillator = {
             adsr: {
                 attack: .89,
@@ -89,7 +92,7 @@ describe( 'ADSR', () => {
 
     // release envelopes
 
-    it( 'should allow notes to instantly stop playing for most waveforms at 0 release', () => {
+    it( "should allow notes to instantly stop playing for most waveforms at 0 release", () => {
         const oscillator = {
             adsr: {
                 attack: 0,
@@ -113,7 +116,7 @@ describe( 'ADSR', () => {
         });
     });
 
-    it( 'should have a short fade-out for certain waveforms at 0 release to prevent popping', () => {
+    it( "should have a short fade-out for certain waveforms at 0 release to prevent popping", () => {
         const oscillator = {
             adsr: {
                 attack: 0,
@@ -136,7 +139,7 @@ describe( 'ADSR', () => {
         });
     });
 
-    it( 'should delay killing playback for a positive release range', () => {
+    it( "should delay killing playback for a positive release range", () => {
         const oscillator = {
             adsr: {
                 attack: 0,
