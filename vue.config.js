@@ -4,6 +4,7 @@ const path = require( "path" );
 
 const dirSrc    = `./src`;
 const dirAssets = `${dirSrc}/assets`;
+const dest      = `${__dirname}/dist`;
 
 module.exports = {
     publicPath: "./",
@@ -14,8 +15,8 @@ module.exports = {
 
             new CopyWebpackPlugin({
                 patterns: [
-                    { from: `${dirAssets}/images/favicon`,  to: path.resolve( __dirname, "assets", "favicon" ) },
-                    { from: `${dirAssets}/images/logo.png`, to: path.resolve( __dirname, "assets" ) }
+                    { from: `${dirAssets}/images/favicon`,  to: path.resolve( dest, "assets", "favicon" ) },
+                    { from: `${dirAssets}/images/logo.png`, to: path.resolve( dest, "assets" ) }
                 ]
             }),
 
