@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -91,6 +91,9 @@ export const prepareEnvironment = ( audioContextInstance, waveTables, optExterna
     // create periodic waves from the entries in the WaveTables definitions file
 
     Object.keys( waveTables ).forEach( waveIdentifier => {
+        if ( waveIdentifier === OscillatorTypes.SAMPLE ) {
+            return;
+        }
         pool[ waveIdentifier] = audioContext.createPeriodicWave(
             new Float32Array( waveTables[ waveIdentifier ].real ),
             new Float32Array( waveTables[ waveIdentifier ].imag )

@@ -35,6 +35,7 @@ import { assemble } from "@/services/song-assembly-service";
 import { getPitchByFrequency } from "@/services/audio/pitch";
 import { init } from "@/services/audio/webaudio-helper";
 import { resetPlayState } from "@/utils/song-util";
+import SampleFactory from "@/model/factories/sample-factory";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
 import {
     prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
@@ -48,12 +49,12 @@ const WINDOW = window, TRUE = !!1, FALSE = !!0;
 let audioContext, activeSong, event;
 const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
 
-init().then( ac => { audioContext = ac; });
+const sampleCache = new Map();
 
 // mock Vuex root store
 const rootStore = {
     state: { sequencer: state, song: {} },
-    getters: { sampleCache: new Map() },
+    getters: { sampleCache },
     commit( mutationType, value ) {
         mutations[ mutationType ]( state, value );
     }
@@ -76,12 +77,16 @@ export default {
      *
      * @param {Object|string} xtkObject
      * @param {Function=} optExternalEventCallback
+     * @param {AudioContext=} optAudioContext optional AudioContext (should note be
+     *        in suspended state), when null audioContext will be initialized on user interaction
      * @return {boolean} whether player is ready for playback
      */
-    l: async ( xtkObject, optExternalEventCallback ) => {
+    l: async ( xtkObject, optExternalEventCallback, optAudioContext ) => {
         try {
-            if ( !audioContext ) {
-                await init();
+            if ( optAudioContext ) {
+                audioContext = optAudioContext;
+            } else if ( !audioContext ) {
+                audioContext = await init();
             }
             xtkObject = typeof xtkObject === "string" ? JSON.parse( xtkObject ) : xtkObject;
 
@@ -105,6 +110,12 @@ export default {
 
             reset();
             cacheCustomTables( activeSong.instruments );
+            activeSong.samples?.forEach( sample => {
+                sampleCache.set( sample.name, {
+                    ...sample,
+                    buffer: SampleFactory.getBuffer( sample, audioContext )
+                });
+            });
             applyModules( activeSong );
 
             jp( 0 ); // start at first pattern

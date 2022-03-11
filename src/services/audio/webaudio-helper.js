@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -265,7 +265,7 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
  * keyboard interaction.
  *
  * @param {Function=} optCallback optional callback to execute on initialization
- * @return {Promise} with generated AudioContext
+ * @return {Promise<AudioContext>} with generated AudioContext
  */
 export const init = optCallback => {
     return new Promise(( resolve, reject ) => {
