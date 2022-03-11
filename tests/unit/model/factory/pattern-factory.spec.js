@@ -154,6 +154,6 @@ describe( "PatternFactory", () => {
         const xtk = {};
 
         serialize( xtk, patterns );
-        expect( PatternFactory.assemble( xtk, ASSEMBLER_VERSION, 120 )).toEqual( patterns );
+        expect( PatternFactory.deserialize( xtk, ASSEMBLER_VERSION, 120 )).toEqual( patterns );
     });
 });

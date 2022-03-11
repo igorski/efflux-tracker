@@ -300,7 +300,7 @@ const assembleInstrumentFromJSON = async({ getters, commit }, json ) => {
     const instrument = createFromSaved( json );
     for ( const oscillator of instrument.oscillators ) {
         if ( oscillator.sample && typeof oscillator.sample === "object" ) {
-            const sample = await SampleFactory.assemble( oscillator.sample );
+            const sample = await SampleFactory.deserialize( oscillator.sample );
             if ( sample ) {
                 // if sample didn't exist in song sample list yet, add it now
                 if ( !getters.samples.find(({ name }) => name === sample.name )) {

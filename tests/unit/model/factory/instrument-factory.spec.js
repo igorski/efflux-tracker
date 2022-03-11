@@ -64,6 +64,6 @@ describe( "InstrumentFactory", () => {
         const xtk = {};
 
         serialize( xtk, instruments );
-        expect( InstrumentFactory.assemble( xtk, ASSEMBLER_VERSION )).toEqual( instruments );
+        expect( InstrumentFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( instruments );
     });
 });

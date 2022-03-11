@@ -231,7 +231,7 @@ export default {
                 try {
                     await StorageUtil.setItem(
                         getStorageKeyForSong( song ),
-                        await SongAssemblyService.serialize( song )
+                        await SongAssemblyService.disassemble( song )
                     );
                     // push song into song list
                     state.songs.push( getMetaForSong( song ));
@@ -338,7 +338,7 @@ export default {
         },
         async exportSongForShare({ dispatch }, song ) {
             await dispatch( "validateSong", song );
-            return await SongAssemblyService.serialize( song );
+            return await SongAssemblyService.disassemble( song );
         },
         async openSharedSong({ commit, dispatch }, serializedSong ) {
             let song;

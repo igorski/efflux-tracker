@@ -93,7 +93,7 @@ routed through multiple processors before its output is mixed into the master ch
 
 All model types are generated through their respected _FACTORIES_. The factory should be able to create a new
 instance of the model type, as well as be able to assemble an instance from a _serialized_ version. _SERIALIZERS_ are
-separate files (to minimize file size of the Tiny player that should only be able to assemble from serialized songs).
+separate files (to minimize file size of the Tiny player that should only be able to assemble (deserialize) serialized songs).
 
 ### Efflux song model and Vuex
 

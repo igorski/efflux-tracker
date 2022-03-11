@@ -44,7 +44,7 @@ export const assemble = async xtk => {
 
         if ( typeof xtkVersion === "number" ) {
 
-            const song = await SongFactory.assemble( xtk, xtkVersion );
+            const song = await SongFactory.deserialize( xtk, xtkVersion );
 
             // perform transformation on legacy songs
             SongValidator.transformLegacy( song );
@@ -83,7 +83,7 @@ export default
      * @param {SONG} song
      * @return {string}
      */
-    async serialize( song ) {
+    async disassemble( song ) {
         const xtk = await serialize( song );
 
         xtk[ ASSEMBLER_VERSION_CODE ] = ASSEMBLER_VERSION;

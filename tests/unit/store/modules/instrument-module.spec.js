@@ -17,7 +17,7 @@ jest.mock( "@/utils/storage-util", () => ({
 }));
 let mockSampleFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    assemble: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "assemble", ...args )))
+    deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "assemble", ...args )))
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))

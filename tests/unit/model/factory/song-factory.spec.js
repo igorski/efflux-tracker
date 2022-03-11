@@ -5,7 +5,7 @@ import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 let mockFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    assemble: jest.fn(( ...args ) => mockFn( "assemble", ...args )),
+    deserialize: jest.fn(( ...args ) => mockFn( "assemble", ...args )),
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => mockFn( "serialize", ...args ))
@@ -38,7 +38,7 @@ describe( "Song factory", () => {
             const xtk = await serialize( song );
 
             mockFn = jest.fn();
-            const songAssembled = await SongFactory.assemble( xtk, ASSEMBLER_VERSION );
+            const songAssembled = await SongFactory.deserialize( xtk, ASSEMBLER_VERSION );
 
             expect( mockFn ).toHaveBeenNthCalledWith( 1, "assemble", song.samples[ 0 ], 0, song.samples );
             expect( mockFn ).toHaveBeenNthCalledWith( 2, "assemble", song.samples[ 1 ], 1, song.samples );
@@ -48,7 +48,7 @@ describe( "Song factory", () => {
             const song = SongFactory.create( 8 );
 
             const xtk = await serialize( song );
-            expect( await SongFactory.assemble( xtk, ASSEMBLER_VERSION )).toEqual( song );
+            expect( await SongFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( song );
         });
     });
 });

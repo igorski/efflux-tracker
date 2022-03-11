@@ -81,24 +81,24 @@ const SongFactory =
     },
 
     /**
-     * assembles a song Object from a serialized .XTK file
+     * deserializes a song Object from a .XTK file
      *
      * @param {Object} xtk
      * @param {Number} xtkVersion
      * @return {Object}
      */
-     async assemble( xtk, xtkVersion ) {
+     async deserialize( xtk, xtkVersion ) {
          const song = SongFactory.create( 0 );
 
          song.id      = xtk[ SONG_ID ];
          song.version = xtk[ SONG_VERSION_ID ];
-         song.meta    = assembleMeta( xtk[ META_OBJECT ] );
+         song.meta    = deserializeMeta( xtk[ META_OBJECT ] );
 
-         song.instruments = InstrumentFactory.assemble( xtk, xtkVersion );
-         song.patterns    = PatternFactory.assemble( xtk, xtkVersion, song.meta.tempo );
+         song.instruments = InstrumentFactory.deserialize( xtk, xtkVersion );
+         song.patterns    = PatternFactory.deserialize( xtk, xtkVersion, song.meta.tempo );
 
-         const assembledSamples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.assemble ));
-         song.samples = assembledSamples.filter( Boolean );
+         const deserializedSamples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.deserialize ));
+         song.samples = deserializedSamples.filter( Boolean );
 
          return song;
      },
@@ -107,7 +107,7 @@ export default SongFactory;
 
 /* internal methods */
 
-function assembleMeta( xtkMeta ) {
+function deserializeMeta( xtkMeta ) {
     return {
         title    : xtkMeta[ META_TITLE ],
         author   : xtkMeta[ META_AUTHOR ],

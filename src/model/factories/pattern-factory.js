@@ -54,14 +54,14 @@ const PatternFactory =
     },
 
     /**
-     * assembles a pattern list from a serialized .XTK file
+     * deserializes the pattern lists from a .XTK file
      *
      * @param {Object} xtk
      * @param {Number} savedXtkVersion
      * @param {Number} tempo of song
      * @return {Array<PATTERN>}
      */
-    assemble( xtk, savedXtkVersion, tempo ) {
+    deserialize( xtk, savedXtkVersion, tempo ) {
         const patterns = new Array( xtk[ PATTERNS ].length );
         let pattern, channel, event;
 
@@ -87,7 +87,7 @@ const PatternFactory =
 
                     if ( xtkEvent ) {
 
-                        // assembler version 4 introduced note and automation pooling
+                        // factory version 4 introduced note and automation pooling
                         // to reduce file size, xtkEvent is a stringified reference to pool indices
 
                         if ( savedXtkVersion >= 4 && typeof xtkEvent === "string" ) {

@@ -96,13 +96,13 @@ const InstrumentFactory =
     },
 
     /**
-     * assembles an instrument list from a serialized .XTK file
+     * deserializes the instrument list from a .XTK file
      *
      * @param {Object} xtk
      * @param {Number} savedXtkVersion
      * @return {Array<INSTRUMENT>}
      */
-    assemble( xtk, savedXtkVersion ) {
+    deserialize( xtk, savedXtkVersion ) {
         const xtkInstruments = xtk[ INSTRUMENTS ];
         const instruments    = new Array( xtkInstruments.length );
         let xtkEq, xtkOD, xtkDelay, xtkFilter;
@@ -146,7 +146,7 @@ const InstrumentFactory =
                 oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
             };
 
-            // EQ and OD introduced in assembly version 3
+            // EQ and OD introduced in factory version 3
 
             if ( savedXtkVersion >= 3 ) {
                 instruments[ index ].eq = {
@@ -183,7 +183,7 @@ const InstrumentFactory =
                     table       : xtkOscillator[ OSCILLATOR_TABLE ]
                 };
 
-                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in version 2 of assembler
+                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in version 2 of factory
 
                     osc.pitch = {
                         range   : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_PITCH_RANGE ],
@@ -323,7 +323,7 @@ export default InstrumentFactory;
 /**
  * Ensures legacy stored instrument presets
  * contain all features added in later versions
- * TODO saved instruments should be assembled so they go through InstrumentFactory.create() !
+ * TODO saved instruments should be deserialized so they go through InstrumentFactory.create() !
  */
 export const createFromSaved = savedInstrument => {
     const instrument = savedInstrument;

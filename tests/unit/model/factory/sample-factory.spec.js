@@ -154,7 +154,7 @@ describe( "SampleFactory", () => {
         mockFnFileUtil = jest.fn(() => source );
         mockFn = jest.fn(() => MOCK_BUFFER );
 
-        const assembled = await SampleFactory.assemble( serialized );
+        const assembled = await SampleFactory.deserialize( serialized );
 
         expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", serialized.b );
         expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
@@ -192,7 +192,7 @@ describe( "SampleFactory", () => {
         mockFnFileUtil = jest.fn(() => source );
         mockFn = jest.fn(() => MOCK_BUFFER );
 
-        const assembled = await SampleFactory.assemble( serialized );
+        const assembled = await SampleFactory.deserialize( serialized );
 
         expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", serialized.b );
         expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
