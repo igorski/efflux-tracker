@@ -2,6 +2,7 @@
  * @jest-environment jsdom
  */
 import SampleFactory from "@/model/factories/sample-factory";
+import { serialize } from "@/model/serializers/sample-serializer";
 
 let mockFn;
 jest.mock( "@/utils/sample-util", () => ({
@@ -65,16 +66,16 @@ describe( "SampleFactory", () => {
         });
     });
 
-    describe( "when disassembling a sample", () => {
+    describe( "when serializing a sample", () => {
         it( "should convert sample sources of the binary type into base64", async () => {
             const source = new Blob();
             const sample = SampleFactory.create( source, MOCK_BUFFER, "foo" );
             mockFnFileUtil = jest.fn(() => "serializedSource" );
 
-            const disassembled = await SampleFactory.disassemble( sample );
+            const serialized = await serialize( sample );
             expect( mockFnFileUtil ).toHaveBeenCalledWith( "fileToBase64", source );
 
-            expect( disassembled ).toEqual({
+            expect( serialized ).toEqual({
                 b  : "serializedSource",
                 n  : "foo",
                 s  : 0,
@@ -91,10 +92,10 @@ describe( "SampleFactory", () => {
             const sample = SampleFactory.create( source, MOCK_BUFFER, "foo" );
             mockFnFileUtil = jest.fn(() => "serializedSource" );
 
-            const disassembled = await SampleFactory.disassemble( sample );
+            const serialized = await serialize( sample );
             expect( mockFnFileUtil ).not.toHaveBeenCalled();
 
-            expect( disassembled ).toEqual({
+            expect( serialized ).toEqual({
                 b  : "base64",
                 n  : "foo",
                 s  : 0,
@@ -119,8 +120,8 @@ describe( "SampleFactory", () => {
             sample.pitch = pitch;
             sample.repitch = false;
 
-            const disassembled = await SampleFactory.disassemble( sample );
-            expect( disassembled ).toEqual({
+            const serialized = await serialize( sample );
+            expect( serialized ).toEqual({
                 b  : "base64",
                 n  : "foo",
                 s  : 5,
@@ -134,7 +135,7 @@ describe( "SampleFactory", () => {
     });
 
     it( "should convert the Stringified source back into binary when assembling a sample", async () => {
-        const disassembled = {
+        const serialized = {
             b: "base64",
             n: "foo",
             s: 1,
@@ -153,9 +154,9 @@ describe( "SampleFactory", () => {
         mockFnFileUtil = jest.fn(() => source );
         mockFn = jest.fn(() => MOCK_BUFFER );
 
-        const assembled = await SampleFactory.assemble( disassembled );
+        const assembled = await SampleFactory.assemble( serialized );
 
-        expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", disassembled.b );
+        expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", serialized.b );
         expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
         expect( assembled ).toEqual({
             id: expect.any( String ),
@@ -164,7 +165,7 @@ describe( "SampleFactory", () => {
             name: "foo",
             rangeStart: 1,
             rangeEnd: 2.5,
-            pitch: disassembled.p,
+            pitch: serialized.p,
             repitch: false,
             rate: 44100,
             length: MOCK_BUFFER.duration
@@ -172,7 +173,7 @@ describe( "SampleFactory", () => {
     });
 
     it( "should cap the sample range end to not exceed the sample length", async () => {
-        const disassembled = {
+        const serialized = {
             b: "base64",
             n: "foo",
             s: 1,
@@ -191,9 +192,9 @@ describe( "SampleFactory", () => {
         mockFnFileUtil = jest.fn(() => source );
         mockFn = jest.fn(() => MOCK_BUFFER );
 
-        const assembled = await SampleFactory.assemble( disassembled );
+        const assembled = await SampleFactory.assemble( serialized );
 
-        expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", disassembled.b );
+        expect( mockFnFileUtil ).toHaveBeenCalledWith( "base64ToBlob", serialized.b );
         expect( mockFn ).toHaveBeenCalledWith( "loadSample", source, mockAudioContext );
         expect( assembled ).toEqual({
             id: expect.any( String ),
@@ -202,7 +203,7 @@ describe( "SampleFactory", () => {
             name: "foo",
             rangeStart: 1,
             rangeEnd: MOCK_BUFFER.duration,
-            pitch: disassembled.p,
+            pitch: serialized.p,
             repitch: false,
             rate: 44100,
             length: MOCK_BUFFER.duration

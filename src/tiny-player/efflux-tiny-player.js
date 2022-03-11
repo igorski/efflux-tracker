@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2020 - https://www.igorski.nl
+ * Igor Zinken 2019-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -28,16 +28,17 @@
  * TinyPlayer plays back songs that were saved using SongAssemblyService version 4
  */
 
-// destructure imports from Efflux source to include what we need
+// destructure imports from Efflux source to only include what we need
 
-import sequencerModule from '@/store/modules/sequencer-module';
-import { assemble } from '@/services/song-assembly-service';
-import { getPitchByFrequency } from '@/services/audio/pitch';
-import { resetPlayState } from '@/utils/song-util';
-import { ACTION_NOTE_ON } from '@/model/types/audio-event-def';
+import sequencerModule from "@/store/modules/sequencer-module";
+import { assemble } from "@/services/song-assembly-service";
+import { getPitchByFrequency } from "@/services/audio/pitch";
+import { init } from "@/services/audio/webaudio-helper";
+import { resetPlayState } from "@/utils/song-util";
+import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
 import {
     prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
-} from '@/services/audio-service';
+} from "@/services/audio-service";
 
 // short hands, note these variable names can be as long/descriptive as
 // you want, inline variables will compress to single digits on build
@@ -47,22 +48,25 @@ const WINDOW = window, TRUE = !!1, FALSE = !!0;
 let audioContext, activeSong, event;
 const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
 
+init().then( ac => { audioContext = ac; });
+
 // mock Vuex root store
 const rootStore = {
     state: { sequencer: state, song: {} },
-    commit(mutationType, value) {
-        mutations[mutationType](state, value);
+    getters: { sampleCache: new Map() },
+    commit( mutationType, value ) {
+        mutations[ mutationType ]( state, value );
     }
 };
 
 // helpers
 
-const jp = i => mutations.setPosition(state, { activeSong, pattern: i });
+const jp = i => mutations.setPosition( state, { activeSong, pattern: i });
 
 // logging
 const { console } = WINDOW;
-const log = (type = 'log', message, optData) => {
-    console && console[type](message, optData);
+const log = ( type = "log", message, optData ) => {
+    console && console[ type ]( message, optData );
 };
 
 export default {
@@ -74,43 +78,41 @@ export default {
      * @param {Function=} optExternalEventCallback
      * @return {boolean} whether player is ready for playback
      */
-    l: (xtkObject, optExternalEventCallback) => {
+    l: async ( xtkObject, optExternalEventCallback ) => {
         try {
-            // 1. create AudioContext, this will throw into catch block when unsupported
-            if (!audioContext) {
-                audioContext = new (WINDOW.AudioContext || WINDOW.webkitAudioContext)();
+            if ( !audioContext ) {
+                await init();
             }
-
             xtkObject = typeof xtkObject === "string" ? JSON.parse( xtkObject ) : xtkObject;
 
-            // 2. parse .XTK into a Song Object
-            activeSong = assemble(xtkObject);
-            if (!activeSong) {
-                log('error', 'INVALID SONG');
+            // 1. parse .XTK into a Song Object
+            activeSong = await assemble( xtkObject );
+            if ( !activeSong ) {
+                log( "error", "INVALID SONG" );
                 return FALSE;
             }
 
-            // 3. assemble waveTables from stored song
+            // 2. assemble waveTables from stored song
 
             const waveTables = xtkObject.wt || {};
 
-            // 4. all is well, set up environment
+            // 3. all is well, set up environment
 
-            prepareEnvironment(audioContext, waveTables, optExternalEventCallback);
-            actions.prepareSequencer({ state }, rootStore);
+            prepareEnvironment( audioContext, waveTables, optExternalEventCallback );
+            actions.prepareSequencer({ state }, rootStore );
 
             rootStore.state.song.activeSong = activeSong;
 
             reset();
-            cacheCustomTables(activeSong.instruments);
-            applyModules(activeSong);
+            cacheCustomTables( activeSong.instruments );
+            applyModules( activeSong );
 
-            jp(0); // start at first pattern
+            jp( 0 ); // start at first pattern
 
             return TRUE;
 
-        } catch(e) {
-            log('error', 'LOAD ERROR', e);
+        } catch ( e ) {
+            log( "error", "LOAD ERROR", e );
             return FALSE;
         }
     },
@@ -118,20 +120,20 @@ export default {
      * Play loaded song
      */
     p: () => {
-        mutations.setPlaying(state, TRUE);
+        mutations.setPlaying( state, TRUE );
     },
     /**
      * Stop playing song
      */
     s: () => {
-        mutations.setPlaying(state, FALSE);
-        resetPlayState(activeSong.patterns); // unset playing state of existing events
+        mutations.setPlaying( state, FALSE );
+        resetPlayState( activeSong.patterns ); // unset playing state of existing events
     },
     /**
      * Jump to pattern at given index
      */
     j: i => {
-        jp(i);
+        jp( i );
     },
     /**
      * Play a note with given properties, using the
@@ -145,10 +147,10 @@ export default {
             instrument: i,
             action: a || ACTION_NOTE_ON,
             mp,
-            ...getPitchByFrequency(f) // TODO: we can also supply note and octave directly?
+            ...getPitchByFrequency( f ) // TODO: we can also supply note and octave directly?
         };
         // TODO: no sample playback in tiny player
-        noteOn(event, activeSong.instruments[i], new Map(), t);
+        noteOn( event, activeSong.instruments[ i ], new Map(), t );
         return event;
     },
     /**
@@ -157,7 +159,7 @@ export default {
      * @param {Object} e event Object of the note returned by the on() method
      */
     off: e => {
-        noteOff(e);
+        noteOff( e );
     },
     /**
      * Retrieve the generated AudioContext. This can be used

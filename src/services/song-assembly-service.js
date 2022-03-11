@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,6 +22,7 @@
  */
 import SongValidator from "@/model/validators/song-validator";
 import SongFactory from "@/model/factories/song-factory";
+import { serialize } from "@/model/serializers/song-serializer";
 
 export const ASSEMBLER_VERSION = 7;
 
@@ -39,7 +40,7 @@ export const assemble = async xtk => {
 
         const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
 
-        // first check if XTK had been saved after having been disassembled
+        // first check if XTK had been saved after having been serialized
 
         if ( typeof xtkVersion === "number" ) {
 
@@ -77,13 +78,13 @@ export default
 {
     assemble,
     /**
-     * disassembles a song Object into an .XTK file
+     * serializes a song into an .XTK file
      *
      * @param {SONG} song
      * @return {string}
      */
-    async disassemble( song ) {
-        const xtk = await SongFactory.disassemble( song );
+    async serialize( song ) {
+        const xtk = await serialize( song );
 
         xtk[ ASSEMBLER_VERSION_CODE ] = ASSEMBLER_VERSION;
 

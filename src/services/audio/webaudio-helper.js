@@ -264,9 +264,10 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
  * This method will lazily create the AudioContext on the first click/touch/
  * keyboard interaction.
  *
+ * @param {Function=} optCallback optional callback to execute on initialization
  * @return {Promise} with generated AudioContext
  */
-export const init = () => {
+export const init = optCallback => {
     return new Promise(( resolve, reject ) => {
         let audioContext;
         const handler = () => {
@@ -291,6 +292,7 @@ export const init = () => {
             features.panning = typeof audioContext.createStereoPanner === "function";
 
             resolve( audioContext );
+            optCallback?.();
         };
         d.addEventListener( "click",   handler );
         d.addEventListener( "keydown", handler );

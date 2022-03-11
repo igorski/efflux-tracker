@@ -84,8 +84,9 @@ export const prepareEnvironment = ( audioContextInstance, waveTables, optExterna
     };
 
     const noiseChannel = pool.NOISE.getChannelData( 0 );
-    for ( let i = 0, l = noiseChannel.length; i < l; ++i )
-      noiseChannel[ i ] = Math.random() * 2 - 1;
+    for ( let i = 0, l = noiseChannel.length; i < l; ++i ) {
+        noiseChannel[ i ] = Math.random() * 2 - 1;
+    }
 
     // create periodic waves from the entries in the WaveTables definitions file
 
@@ -97,7 +98,7 @@ export const prepareEnvironment = ( audioContextInstance, waveTables, optExterna
     });
     instrumentEventsList = new Array( Config.INSTRUMENT_AMOUNT );
     for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-        instrumentEventsList[i] = {};
+        instrumentEventsList[ i ] = {};
     }
     createModules();
     AudioService.initialized = true;

@@ -59,4 +59,4 @@ export const parseXTK = async xtkFileOrString => {
  * All newly stored .XTK files are serialized
  * as compressed binary files
  */
-export const toXTK = async songJSON => compress( await SongAssemblyService.disassemble( songJSON ));
+export const toXTK = async songJSON => compress( await SongAssemblyService.serialize( songJSON ));

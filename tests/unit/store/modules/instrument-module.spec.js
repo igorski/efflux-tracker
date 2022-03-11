@@ -17,8 +17,10 @@ jest.mock( "@/utils/storage-util", () => ({
 }));
 let mockSampleFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    assemble: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "assemble", ...args ))),
-    disassemble: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "disassemble", ...args )))
+    assemble: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "assemble", ...args )))
+}));
+jest.mock( "@/model/serializers/sample-serializer", () => ({
+    serialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))
 }));
 
 describe( "Vuex instrument module", () => {
@@ -110,8 +112,8 @@ describe( "Vuex instrument module", () => {
                 await actions.saveInstrumentIntoLS({ state, getters: mockedGetters, dispatch }, sampledInstrument );
 
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "disassemble", sample1 );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "disassemble", sample2 );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "serialize", sample1 );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "serialize", sample2 );
             });
         });
 

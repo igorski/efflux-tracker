@@ -231,7 +231,7 @@ export default {
                 try {
                     await StorageUtil.setItem(
                         getStorageKeyForSong( song ),
-                        await SongAssemblyService.disassemble( song )
+                        await SongAssemblyService.serialize( song )
                     );
                     // push song into song list
                     state.songs.push( getMetaForSong( song ));
@@ -338,14 +338,14 @@ export default {
         },
         async exportSongForShare({ dispatch }, song ) {
             await dispatch( "validateSong", song );
-            return await SongAssemblyService.disassemble( song );
+            return await SongAssemblyService.serialize( song );
         },
-        async openSharedSong({ commit, dispatch }, disassembledSong ) {
+        async openSharedSong({ commit, dispatch }, serializedSong ) {
             let song;
-            if ( disassembledSong.version ) { // legacy non disassembled shares
-                song = SongValidator.transformLegacy( disassembledSong );
-            } else { // new disassembled version
-                song = await SongAssemblyService.assemble( disassembledSong );
+            if ( serializedSong.version ) { // legacy non-serialized shares
+                song = SongValidator.transformLegacy( serializedSong );
+            } else { // new serialized version
+                song = await SongAssemblyService.assemble( serializedSong );
             }
             if ( song ) {
                 await dispatch( "openSong", song );
