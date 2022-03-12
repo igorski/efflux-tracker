@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import EventUtil          from '@/utils/event-util';
 import LinkedList         from '@/utils/linked-list';
 import EventFactory       from '@/model/factories/event-factory';

@@ -340,12 +340,12 @@ export default {
             await dispatch( "validateSong", song );
             return await SongAssemblyService.disassemble( song );
         },
-        async openSharedSong({ commit, dispatch }, disassembledSong ) {
+        async openSharedSong({ commit, dispatch }, serializedSong ) {
             let song;
-            if ( disassembledSong.version ) { // legacy non disassembled shares
-                song = SongValidator.transformLegacy( disassembledSong );
-            } else { // new disassembled version
-                song = await SongAssemblyService.assemble( disassembledSong );
+            if ( serializedSong.version ) { // legacy non-serialized shares
+                song = SongValidator.transformLegacy( serializedSong );
+            } else { // new serialized version
+                song = await SongAssemblyService.assemble( serializedSong );
             }
             if ( song ) {
                 await dispatch( "openSong", song );

@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import LZString from "lz-string";
-import { readTextFromFile } from "@/utils/file-util";
 
 self.addEventListener( "message", event => {
     const { cmd, data, id } = event.data;
@@ -68,3 +67,16 @@ self.addEventListener( "message", event => {
 
     }
 });
+
+/* internal methods */
+
+function readTextFromFile( file, optEncoding = "UTF-8" ) {
+    const reader = new FileReader();
+    return new Promise(( resolve, reject ) => {
+        reader.onload = event => {
+            resolve( event.target.result );
+        };
+        reader.onerror = reject;
+        reader.readAsText( file, optEncoding );
+    });
+}

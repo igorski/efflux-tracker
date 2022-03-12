@@ -41,7 +41,7 @@ using [Vue](https://vuejs.org).
 
  * _./src/_ contains all JavaScript sourcecode with _main.js_ and _efflux-application.vue_ being the application entry points
  * _./src/assets_ contains all used fonts and images
- * _./src/model_ contains factories and utilities to create an Efflux song (see _"Efflux song model"_ below)
+ * _./src/model_ contains factories and utilities to create and serialize an Efflux song (see _"Efflux song model"_ below)
  * _./src/services_ contains a variety of services used to integrate hardware interaction within the application
  * _./src/workers_ contains all Workers (which will be inlined into the compiled output and loaded as Blobs)
  * _./src/utils_ contains utilities for common operations or to orchestrate batch changes
@@ -90,6 +90,10 @@ synthesizers, each INSTRUMENT has a list of _INSTRUMENT_OSCILLATORS_ which can b
 
 INSTRUMENTS also reference _MODULES_. A MODULE is basically an effects processor. Each instrument can have its output
 routed through multiple processors before its output is mixed into the master channel (by the _AudioService_).
+
+All model types are generated through their respected _FACTORIES_. The factory should be able to create a new
+instance of the model type, as well as be able to assemble an instance from a _serialized_ version. _SERIALIZERS_ are
+separate files (to minimize file size of the Tiny player that should only be able to assemble (deserialize) serialized songs).
 
 ### Efflux song model and Vuex
 

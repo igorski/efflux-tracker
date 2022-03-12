@@ -1,6 +1,10 @@
+/**
+ * @jest-environment jsdom
+ */
 import Config           from "@/config";
 import EventFactory     from "@/model/factories/event-factory";
 import PatternFactory   from "@/model/factories/pattern-factory";
+import { serialize } from "@/model/serializers/pattern-serializer";
 import PatternValidator from "@/model/validators/pattern-validator";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
@@ -142,14 +146,14 @@ describe( "PatternFactory", () => {
         expect(targetPatternIndex).toEqual(m1channel1[15].seq.startMeasure);
     });
 
-    it( "should be able to disassemble an assembled pattern list without loss of data", () => {
+    it( "should be able to serialize a pattern list without loss of data", () => {
         const pattern1 = PatternFactory.create( 16 );
         const pattern2 = PatternFactory.create( 32 );
 
         const patterns = [ pattern1, pattern2 ];
         const xtk = {};
 
-        PatternFactory.disassemble( xtk, patterns );
-        expect( PatternFactory.assemble( xtk, ASSEMBLER_VERSION, 120 )).toEqual( patterns );
+        serialize( xtk, patterns );
+        expect( PatternFactory.deserialize( xtk, ASSEMBLER_VERSION, 120 )).toEqual( patterns );
     });
 });

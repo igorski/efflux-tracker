@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import { initHistory, hasQueue, queueLength, flushQueue, enqueueState } from "@/model/factories/history-state-factory";
 
 describe( "History state factory", () => {
@@ -9,12 +12,12 @@ describe( "History state factory", () => {
         };
         flushQueue();
         initHistory( store );
-        jest.useFakeTimers();
+        jest.useFakeTimers( "legacy" );
     });
 
     afterEach(() => {
-        jest.runOnlyPendingTimers()
-        jest.useRealTimers()
+        jest.runOnlyPendingTimers();
+        jest.useRealTimers();
     });
 
     describe( "when enqueue-ing history states", () => {

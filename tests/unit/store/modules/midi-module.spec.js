@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import store from "@/store/modules/midi-module";
 const { getters, mutations }  = store;
 

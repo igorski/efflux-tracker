@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import EventFactory       from "@/model/factories/event-factory";
 import PatternFactory     from "@/model/factories/pattern-factory";
 import SongFactory        from "@/model/factories/song-factory";

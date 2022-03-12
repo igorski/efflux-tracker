@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import store from "@/store";
 const { getters, mutations }  = store;
 

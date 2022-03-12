@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -264,9 +264,10 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
  * This method will lazily create the AudioContext on the first click/touch/
  * keyboard interaction.
  *
- * @return {Promise} with generated AudioContext
+ * @param {Function=} optCallback optional callback to execute on initialization
+ * @return {Promise<AudioContext>} with generated AudioContext
  */
-export const init = () => {
+export const init = optCallback => {
     return new Promise(( resolve, reject ) => {
         let audioContext;
         const handler = () => {
@@ -291,6 +292,7 @@ export const init = () => {
             features.panning = typeof audioContext.createStereoPanner === "function";
 
             resolve( audioContext );
+            optCallback?.();
         };
         d.addEventListener( "click",   handler );
         d.addEventListener( "keydown", handler );

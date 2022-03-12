@@ -3,8 +3,6 @@
  * Separated from node_modules to allow inlining of worker through Webpack
  * as well as freeing allocated memory to recording.
  */
-import RecorderWorker from "@/workers/recorder.worker.js";
-
 export default class OutputRecorder {
     constructor( source, { type = "audio/wav", bufferSize = 4096, callback } = {} ) {
         this.recording   = false;
@@ -13,7 +11,7 @@ export default class OutputRecorder {
         this.context     = source.context;
         this.node        = ( this.context.createScriptProcessor || this.context.createJavaScriptNode ).call( this.context, bufferSize, 2, 2 );
 
-        this.worker = new RecorderWorker();
+        this.worker = new Worker( new URL( "@/workers/recorder.worker.js", import.meta.url ));
         this.worker.onmessage = e => {
             this.callback?.( e.data );
         };

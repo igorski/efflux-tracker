@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,8 +22,30 @@
  */
 import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
-import WaveTables from "@/services/audio/wave-tables";
 import { clone } from "@/utils/object-util";
+
+import {
+    INSTRUMENTS,
+    INSTRUMENT_INDEX, INSTRUMENT_NAME, INSTRUMENT_PRESET_NAME, INSTRUMENT_VOLUME,
+    INSTRUMENT_PANNING, INSTRUMENT_MUTED, INSTRUMENT_SOLOD,
+
+    INSTRUMENT_DELAY, INSTRUMENT_DELAY_ENABLED, INSTRUMENT_DELAY_CUTOFF, INSTRUMENT_DELAY_DRY,
+    INSTRUMENT_DELAY_FEEDBACK, INSTRUMENT_DELAY_OFFSET, INSTRUMENT_DELAY_TIME, INSTRUMENT_DELAY_TYPE,
+
+    INSTRUMENT_FILTER, INSTRUMENT_FILTER_ENABLED, INSTRUMENT_FILTER_DEPTH, INSTRUMENT_FILTER_FREQUENCY,
+    INSTRUMENT_FILTER_LFO_TYPE, INSTRUMENT_FILTER_Q, INSTRUMENT_FILTER_SPEED, INSTRUMENT_FILTER_TYPE,
+
+    INSTRUMENT_EQ, INSTRUMENT_EQ_ENABLED, INSTRUMENT_EQ_LOW, INSTRUMENT_EQ_MID, INSTRUMENT_EQ_HIGH,
+
+    INSTRUMENT_OD, INSTRUMENT_OD_ENABLED, INSTRUMENT_OD_PREBAND, INSTRUMENT_OD_POSTCUT,
+    INSTRUMENT_OD_COLOR, INSTRUMENT_OD_DRIVE,
+
+    INSTRUMENT_OSCILLATORS, OSCILLATOR_ENABLED, OSCILLATOR_ADSR, OSCILLATOR_PITCH, OSCILLATOR_PITCH_RANGE,
+
+    OSCILLATOR_ADSR_ATTACK, OSCILLATOR_ADSR_DECAY, OSCILLATOR_ADSR_SUSTAIN, OSCILLATOR_ADSR_RELEASE,
+    OSCILLATOR_DETUNE, OSCILLATOR_FINESHIFT, OSCILLATOR_OCTAVE_SHIFT, OSCILLATOR_VOLUME,
+    OSCILLATOR_WAVEFORM, OSCILLATOR_SAMPLE, OSCILLATOR_TABLE
+} from "@/model/serializers/instrument-serializer";
 
 const InstrumentFactory =
 {
@@ -74,13 +96,13 @@ const InstrumentFactory =
     },
 
     /**
-     * assembles an instrument list from an .XTK file
+     * deserializes the instrument list from a .XTK file
      *
      * @param {Object} xtk
      * @param {Number} savedXtkVersion
      * @return {Array<INSTRUMENT>}
      */
-    assemble( xtk, savedXtkVersion ) {
+    deserialize( xtk, savedXtkVersion ) {
         const xtkInstruments = xtk[ INSTRUMENTS ];
         const instruments    = new Array( xtkInstruments.length );
         let xtkEq, xtkOD, xtkDelay, xtkFilter;
@@ -124,7 +146,7 @@ const InstrumentFactory =
                 oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
             };
 
-            // EQ and OD introduced in assembly version 3
+            // EQ and OD introduced in ASSEMBLER_VERSION 3
 
             if ( savedXtkVersion >= 3 ) {
                 instruments[ index ].eq = {
@@ -161,7 +183,7 @@ const InstrumentFactory =
                     table       : xtkOscillator[ OSCILLATOR_TABLE ]
                 };
 
-                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in version 2 of assembler
+                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in ASSEMBLER_VERSION 2
 
                     osc.pitch = {
                         range   : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_PITCH_RANGE ],
@@ -174,125 +196,6 @@ const InstrumentFactory =
             });
         });
         return instruments;
-    },
-
-    /**
-     * disassembles an instrument list into an .XTK file
-     *
-     * @param {Object} xtk to serialize into
-     * @param {Array<INSTRUMENT>} instruments
-     */
-    disassemble( xtk, instruments ) {
-        const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
-        const xtkWaveforms   = xtk[ WAVE_TABLES ] = {};
-
-        let xtkInstrument, delay, filter, eq, od,
-            xtkDelay, xtkFilter, xtkEq, xtkOD, xtkOscillator, xtkADSR, xtkPitchADSR;
-
-        instruments.forEach(( instrument, index ) => {
-
-            xtkInstrument = xtkInstruments[ index ] = {};
-
-            // these modules were only added in a later factory version
-            // assert they exist by calling these functions
-
-            InstrumentFactory.createOverdrive( instrument );
-            InstrumentFactory.createEQ( instrument );
-
-            delay  = instrument.delay;
-            filter = instrument.filter;
-            od     = instrument.overdrive;
-            eq     = instrument.eq;
-
-            xtkInstrument[ INSTRUMENT_INDEX ]       = instrument.index;
-            xtkInstrument[ INSTRUMENT_NAME ]        = instrument.name;
-            xtkInstrument[ INSTRUMENT_PRESET_NAME ] = instrument.presetName;
-            xtkInstrument[ INSTRUMENT_VOLUME ]      = instrument.volume;
-            xtkInstrument[ INSTRUMENT_PANNING ]     = instrument.panning;
-            xtkInstrument[ INSTRUMENT_MUTED ]       = instrument.muted;
-            xtkInstrument[ INSTRUMENT_SOLOD ]       = instrument.solo;
-
-            xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ]  = {};
-            xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ] = {};
-            xtkEq     = xtkInstrument[ INSTRUMENT_EQ ]     = {};
-            xtkOD     = xtkInstrument[ INSTRUMENT_OD ]     = {};
-
-            xtkDelay[ INSTRUMENT_DELAY_ENABLED  ] = delay.enabled;
-            xtkDelay[ INSTRUMENT_DELAY_CUTOFF   ] = delay.cutoff;
-            xtkDelay[ INSTRUMENT_DELAY_FEEDBACK ] = delay.feedback;
-            xtkDelay[ INSTRUMENT_DELAY_DRY      ] = delay.dry;
-            xtkDelay[ INSTRUMENT_DELAY_OFFSET   ] = delay.offset;
-            xtkDelay[ INSTRUMENT_DELAY_TIME     ] = delay.time;
-            xtkDelay[ INSTRUMENT_DELAY_TYPE     ] = delay.type;
-
-            xtkFilter[ INSTRUMENT_FILTER_ENABLED   ] = filter.enabled;
-            xtkFilter[ INSTRUMENT_FILTER_DEPTH     ] = filter.depth;
-            xtkFilter[ INSTRUMENT_FILTER_FREQUENCY ] = filter.frequency;
-            xtkFilter[ INSTRUMENT_FILTER_LFO_TYPE  ] = filter.lfoType;
-            xtkFilter[ INSTRUMENT_FILTER_Q         ] = filter.q;
-            xtkFilter[ INSTRUMENT_FILTER_SPEED     ] = filter.speed;
-            xtkFilter[ INSTRUMENT_FILTER_TYPE      ] = filter.type;
-
-            xtkEq[ INSTRUMENT_EQ_ENABLED ] = eq.enabled;
-            xtkEq[ INSTRUMENT_EQ_LOW ]     = eq.lowGain;
-            xtkEq[ INSTRUMENT_EQ_MID ]     = eq.midGain;
-            xtkEq[ INSTRUMENT_EQ_HIGH ]    = eq.highGain;
-
-            xtkOD[ INSTRUMENT_OD_ENABLED ] = od.enabled;
-            xtkOD[ INSTRUMENT_OD_PREBAND ] = od.preBand;
-            xtkOD[ INSTRUMENT_OD_POSTCUT ] = od.postCut;
-            xtkOD[ INSTRUMENT_OD_COLOR ]   = od.color;
-            xtkOD[ INSTRUMENT_OD_DRIVE ]   = od.drive;
-
-            xtkInstrument[ INSTRUMENT_OSCILLATORS ] = new Array( instrument.oscillators.length );
-
-            instrument.oscillators.forEach(( oscillator, oIndex ) => {
-
-                xtkOscillator = xtkInstrument[ INSTRUMENT_OSCILLATORS ][ oIndex ] = {};
-
-                xtkOscillator[ OSCILLATOR_ENABLED ]= oscillator.enabled;
-                xtkADSR      = xtkOscillator[ OSCILLATOR_ADSR ]  = {};
-                xtkPitchADSR = xtkOscillator[ OSCILLATOR_PITCH ] = {};
-
-                // amplitude envelope
-
-                xtkADSR[ OSCILLATOR_ADSR_ATTACK  ] = oscillator.adsr.attack;
-                xtkADSR[ OSCILLATOR_ADSR_DECAY   ] = oscillator.adsr.decay;
-                xtkADSR[ OSCILLATOR_ADSR_SUSTAIN ] = oscillator.adsr.sustain;
-                xtkADSR[ OSCILLATOR_ADSR_RELEASE ] = oscillator.adsr.release;
-
-                // pitch envelope (added in factory version 2, assert there is a pitch envelope for backwards compatibility)
-
-                InstrumentFactory.createPitchEnvelope( oscillator );
-
-                xtkPitchADSR[ OSCILLATOR_PITCH_RANGE ]  = oscillator.pitch.range;
-                xtkPitchADSR[ OSCILLATOR_ADSR_ATTACK  ] = oscillator.pitch.attack;
-                xtkPitchADSR[ OSCILLATOR_ADSR_DECAY   ] = oscillator.pitch.decay;
-                xtkPitchADSR[ OSCILLATOR_ADSR_SUSTAIN ] = oscillator.pitch.sustain;
-                xtkPitchADSR[ OSCILLATOR_ADSR_RELEASE ] = oscillator.pitch.release;
-
-                // oscillator properties
-
-                xtkOscillator[ OSCILLATOR_DETUNE       ] = oscillator.detune;
-                xtkOscillator[ OSCILLATOR_FINESHIFT    ] = oscillator.fineShift;
-                xtkOscillator[ OSCILLATOR_OCTAVE_SHIFT ] = oscillator.octaveShift;
-                xtkOscillator[ OSCILLATOR_VOLUME       ] = oscillator.volume;
-                xtkOscillator[ OSCILLATOR_WAVEFORM     ] = oscillator.waveform;
-                xtkOscillator[ OSCILLATOR_SAMPLE       ] = oscillator.sample;
-                xtkOscillator[ OSCILLATOR_TABLE        ] = oscillator.table;
-
-                // serialize the non-custom waveform and noise tables into the song
-                // for use with Tiny player (and backwards compatibility in case of
-                // later changes made to default waveforms)
-
-                const waveform = oscillator.waveform;
-
-                if ( ![ OscillatorTypes.CUSTOM, OscillatorTypes.NOISE ].includes( waveform ) &&
-                     !Object.prototype.hasOwnProperty.call( xtkWaveforms, waveform )) {
-                    xtkWaveforms[ waveform ] = WaveTables[ waveform ] || {};
-                }
-            });
-        });
     },
 
     /**
@@ -420,7 +323,7 @@ export default InstrumentFactory;
 /**
  * Ensures legacy stored instrument presets
  * contain all features added in later versions
- * TODO saved instruments should be assembled so they go through InstrumentFactory.create() !
+ * TODO saved instruments should be deserialized so they go through InstrumentFactory.create() !
  */
 export const createFromSaved = savedInstrument => {
     const instrument = savedInstrument;
@@ -436,64 +339,3 @@ function assertFloat( value, fallback = 0 ) {
     const parsedValue = parseFloat( value );
     return isNaN( parsedValue ) ? fallback : parsedValue;
 }
-
-const INSTRUMENTS     = "ins",
-
-      INSTRUMENT_INDEX            = "i",
-      INSTRUMENT_NAME             = "n",
-      INSTRUMENT_PRESET_NAME      = "pn",
-      INSTRUMENT_VOLUME           = "v",
-      INSTRUMENT_PANNING          = "ip",
-      INSTRUMENT_MUTED            = "im",
-      INSTRUMENT_SOLOD            = "is",
-
-      INSTRUMENT_DELAY            = "d",
-      INSTRUMENT_DELAY_ENABLED    = "e",
-      INSTRUMENT_DELAY_CUTOFF     = "c",
-      INSTRUMENT_DELAY_DRY        = "dr",
-      INSTRUMENT_DELAY_FEEDBACK   = "f",
-      INSTRUMENT_DELAY_OFFSET     = "o",
-      INSTRUMENT_DELAY_TIME       = "t",
-      INSTRUMENT_DELAY_TYPE       = "tp",
-
-      INSTRUMENT_FILTER           = "f",
-      INSTRUMENT_FILTER_ENABLED   = "e",
-      INSTRUMENT_FILTER_DEPTH     = "d",
-      INSTRUMENT_FILTER_FREQUENCY = "f",
-      INSTRUMENT_FILTER_LFO_TYPE  = "lt",
-      INSTRUMENT_FILTER_Q         = "q",
-      INSTRUMENT_FILTER_SPEED     = "s",
-      INSTRUMENT_FILTER_TYPE      = "ft",
-
-      INSTRUMENT_EQ               = "eq",
-      INSTRUMENT_EQ_ENABLED       = "e",
-      INSTRUMENT_EQ_LOW           = "l",
-      INSTRUMENT_EQ_MID           = "m",
-      INSTRUMENT_EQ_HIGH          = "h",
-
-      INSTRUMENT_OD               = "od",
-      INSTRUMENT_OD_ENABLED       = "e",
-      INSTRUMENT_OD_PREBAND       = "pb",
-      INSTRUMENT_OD_POSTCUT       = "pc",
-      INSTRUMENT_OD_COLOR         = "c",
-      INSTRUMENT_OD_DRIVE         = "d",
-
-      WAVE_TABLES                 = "wt",
-
-      INSTRUMENT_OSCILLATORS  = "o",
-      OSCILLATOR_ENABLED      = "e",
-      OSCILLATOR_ADSR         = "a",
-      OSCILLATOR_PITCH        = "pe",
-      OSCILLATOR_PITCH_RANGE  = "pr",
-      // ADSR used for both amplitude and pitch envelopes
-      OSCILLATOR_ADSR_ATTACK  = "a",
-      OSCILLATOR_ADSR_DECAY   = "d",
-      OSCILLATOR_ADSR_SUSTAIN = "s",
-      OSCILLATOR_ADSR_RELEASE = "r",
-      OSCILLATOR_DETUNE       = "d",
-      OSCILLATOR_FINESHIFT    = "f",
-      OSCILLATOR_OCTAVE_SHIFT = "o",
-      OSCILLATOR_VOLUME       = "v",
-      OSCILLATOR_WAVEFORM     = "w",
-      OSCILLATOR_SAMPLE       = "ws",
-      OSCILLATOR_TABLE        = "t";

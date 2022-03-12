@@ -26,7 +26,6 @@ import LinkedList      from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
 import { createTimer } from "@/services/audio/webaudio-helper";
 import Metronome       from "@/services/audio/metronome";
-import SequencerWorker from "@/workers/sequencer.worker.js";
 import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
 
 /* internal methods */
@@ -465,7 +464,7 @@ export default {
                 }
 
                 // spawn Worker to handle the intervallic polling
-                state.worker = new SequencerWorker();
+                state.worker = new Worker( new URL( "@/workers/sequencer.worker.js", import.meta.url ));
                 state.worker.onmessage = ({ data }) => {
                     if ( data.cmd === "collect" && state.playing ) {
                         collect( rootStore );

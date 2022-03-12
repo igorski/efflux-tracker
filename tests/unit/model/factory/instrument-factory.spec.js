@@ -1,4 +1,8 @@
+/**
+ * @jest-environment jsdom
+ */
 import InstrumentFactory from "@/model/factories/instrument-factory";
+import { serialize } from "@/model/serializers/instrument-serializer";
 import InstrumentValidator from "@/model/validators/instrument-validator";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
@@ -52,14 +56,14 @@ describe( "InstrumentFactory", () => {
         });
     });
 
-    it( "should be able to disassemble an assembled instrument list without loss of data", () => {
+    it( "should be able to serialize an instrument list without loss of data", () => {
         const instrument1 = InstrumentFactory.create( 0, "foo" );
         const instrument2 = InstrumentFactory.create( 0, "bar" );
 
         const instruments = [ instrument1, instrument2 ];
         const xtk = {};
 
-        InstrumentFactory.disassemble( xtk, instruments );
-        expect( InstrumentFactory.assemble( xtk, ASSEMBLER_VERSION )).toEqual( instruments );
+        serialize( xtk, instruments );
+        expect( InstrumentFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( instruments );
     });
 });

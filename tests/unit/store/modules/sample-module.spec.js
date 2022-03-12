@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import storeModule from "@/store/modules/sample-module";
 
 const { getters, mutations, actions } = storeModule;

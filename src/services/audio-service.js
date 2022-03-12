@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -84,12 +84,16 @@ export const prepareEnvironment = ( audioContextInstance, waveTables, optExterna
     };
 
     const noiseChannel = pool.NOISE.getChannelData( 0 );
-    for ( let i = 0, l = noiseChannel.length; i < l; ++i )
-      noiseChannel[ i ] = Math.random() * 2 - 1;
+    for ( let i = 0, l = noiseChannel.length; i < l; ++i ) {
+        noiseChannel[ i ] = Math.random() * 2 - 1;
+    }
 
     // create periodic waves from the entries in the WaveTables definitions file
 
     Object.keys( waveTables ).forEach( waveIdentifier => {
+        if ( waveIdentifier === OscillatorTypes.SAMPLE ) {
+            return;
+        }
         pool[ waveIdentifier] = audioContext.createPeriodicWave(
             new Float32Array( waveTables[ waveIdentifier ].real ),
             new Float32Array( waveTables[ waveIdentifier ].imag )
@@ -97,7 +101,7 @@ export const prepareEnvironment = ( audioContextInstance, waveTables, optExterna
     });
     instrumentEventsList = new Array( Config.INSTRUMENT_AMOUNT );
     for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-        instrumentEventsList[i] = {};
+        instrumentEventsList[ i ] = {};
     }
     createModules();
     AudioService.initialized = true;

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -24,6 +24,13 @@ import Config from "@/config";
 import EventFactory from "./event-factory";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
+import {
+    PATTERNS, PATTERN_STEPS, PATTERN_CHANNELS,
+    NOTE_POOLS, AUTOMATION_POOLS,
+    EVENT_ACTION, // EVENT_ID,
+    EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE, EVENT_LENGTH,
+    EVENT_MODULE_AUTOMATION, EVENT_MODULE, EVENT_MODULE_VALUE, EVENT_MODULE_GLIDE
+} from "../serializers/pattern-serializer";
 import { ACTION_IDLE } from "../types/audio-event-def";
 
 const PatternFactory =
@@ -47,14 +54,14 @@ const PatternFactory =
     },
 
     /**
-     * assembles a pattern list from an .XTK file
+     * deserializes the pattern lists from a .XTK file
      *
      * @param {Object} xtk
      * @param {Number} savedXtkVersion
      * @param {Number} tempo of song
      * @return {Array<PATTERN>}
      */
-    assemble( xtk, savedXtkVersion, tempo ) {
+    deserialize( xtk, savedXtkVersion, tempo ) {
         const patterns = new Array( xtk[ PATTERNS ].length );
         let pattern, channel, event;
 
@@ -80,7 +87,7 @@ const PatternFactory =
 
                     if ( xtkEvent ) {
 
-                        // assembler version 4 introduced note and automation pooling
+                        // ASSEMBLER_VERSION 4 introduced note and automation pooling
                         // to reduce file size, xtkEvent is a stringified reference to pool indices
 
                         if ( savedXtkVersion >= 4 && typeof xtkEvent === "string" ) {
@@ -134,66 +141,6 @@ const PatternFactory =
             });
         });
         return patterns;
-    },
-
-    /**
-     * disassembles a pattern list into an .XTK file
-     *
-     * @param {Object} xtk
-     * @param {Array<PATTERN>} patterns
-     */
-    disassemble( xtk, patterns ) {
-        const xtkPatterns       = xtk[ PATTERNS ]   = new Array( patterns.length );
-        const xtkNotePool       = xtk[ NOTE_POOLS ] = [];
-        const xtkAutomationPool = xtk[ AUTOMATION_POOLS ] = [];
-
-        let xtkPattern, xtkChannel, xtkEvent, xtkAutomation, poolRef;
-
-        patterns.forEach(( pattern, pIndex ) => {
-
-            xtkPattern = xtkPatterns[ pIndex ] = {};
-
-            xtkPattern[ PATTERN_STEPS ]    = pattern.steps;
-            xtkPattern[ PATTERN_CHANNELS ] = new Array( pattern.channels.length );
-
-            pattern.channels.forEach(( channel, cIndex ) => {
-
-                xtkChannel = xtkPattern[ PATTERN_CHANNELS ][ cIndex ] = new Array( channel.length );
-
-                channel.forEach(( event, eIndex ) => {
-
-                    if ( event ) {
-
-                        xtkEvent = {};
-
-                        xtkEvent[ EVENT_ACTION ]     = event.action;
-                        xtkEvent[ EVENT_INSTRUMENT ] = event.instrument;
-                        xtkEvent[ EVENT_NOTE ]       = event.note;
-                        xtkEvent[ EVENT_OCTAVE ]     = event.octave;
-                        xtkEvent[ EVENT_LENGTH ]     = event.seq.length;
-
-                        // pool the event or reference the pool if its definition already existed
-                        poolRef = poolObject(xtkNotePool, xtkEvent);
-
-                        if ( event.mp ) {
-                            xtkAutomation = {};
-
-                            xtkAutomation[ EVENT_MODULE ]       = event.mp.module;
-                            xtkAutomation[ EVENT_MODULE_VALUE ] = event.mp.value;
-                            xtkAutomation[ EVENT_MODULE_GLIDE ] = event.mp.glide;
-
-                            // pool the automation or reference the pool if its definition already existed
-                            poolRef += `|${poolObject(xtkAutomationPool, xtkAutomation)}`;
-                        }
-                        xtkEvent = poolRef;
-                    }
-                    else {
-                        xtkEvent = 0; // "0" is 3 bytes smaller than "null" ;)
-                    }
-                    xtkChannel[ eIndex ] = xtkEvent;
-                });
-            });
-        });
     },
 
     /**
@@ -281,27 +228,6 @@ export default PatternFactory;
 
 /* internal methods */
 
-const PATTERNS         = "p",
-      PATTERN_STEPS    = "s",
-      PATTERN_CHANNELS = "c",
-
-      // as notes and automation instruction might be repeated
-      // throughout a song we create pools to prevent redefining them
-
-      NOTE_POOLS       = "np",
-      AUTOMATION_POOLS = "ap",
-
-      EVENT_ACTION            = "a",
-    // EVENT_ID                = "i", // ids are a runtime requirement, will be regenerated on load just fine
-      EVENT_INSTRUMENT        = "ins",
-      EVENT_NOTE              = "n",
-      EVENT_OCTAVE            = "o",
-      EVENT_LENGTH            = "l",
-      EVENT_MODULE_AUTOMATION = "ma",
-      EVENT_MODULE            = "m",
-      EVENT_MODULE_VALUE      = "v",
-      EVENT_MODULE_GLIDE      = "g";
-
 /**
  * @private
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
@@ -327,13 +253,4 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep ) {
         }
     });
     return out;
-}
-
-function poolObject( pool, object ) {
-    const hash = JSON.stringify( object );
-    let idx = pool.indexOf( hash );
-    if ( idx === -1 ) {
-        idx = pool.push( hash ) - 1;
-    }
-    return idx.toString();
 }

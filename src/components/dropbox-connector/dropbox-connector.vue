@@ -84,7 +84,7 @@ export default {
             }
             this.openFileBrowser();
         } else {
-            this.authUrl = requestLogin(
+            this.authUrl = await requestLogin(
                 window.dropboxClientId || localStorage?.getItem( "effluxDropboxClientId" ),
                 window.dropboxRedirect || `${window.location.href}login.html`
             );

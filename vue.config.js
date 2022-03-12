@@ -1,8 +1,10 @@
 const MergeJsonWebpackPlugin = require( "merge-jsons-webpack-plugin" );
-const CopyWebpackPlugin      = require( "copy-webpack-plugin" );
+const CopyWebpackPlugin = require( "copy-webpack-plugin" );
+const path = require( "path" );
 
 const dirSrc    = `./src`;
 const dirAssets = `${dirSrc}/assets`;
+const dest      = `${__dirname}/dist`;
 
 module.exports = {
     publicPath: "./",
@@ -11,10 +13,12 @@ module.exports = {
     configureWebpack: {
         plugins: [
 
-            new CopyWebpackPlugin([
-                { from: `${dirAssets}/images/favicon`,  to: "assets/favicon", flatten: false },
-                { from: `${dirAssets}/images/logo.png`, to: "assets",         flatten: false }
-            ]),
+            new CopyWebpackPlugin({
+                patterns: [
+                    { from: `${dirAssets}/images/favicon`,  to: path.resolve( dest, "assets", "favicon" ) },
+                    { from: `${dirAssets}/images/logo.png`, to: path.resolve( dest, "assets" ) }
+                ]
+            }),
 
             // Fixtures comes as JSON files, do not bundle these with the application
             // but concatenate and copy them to the output folder for runtime loading
@@ -34,19 +38,17 @@ module.exports = {
                     ]
                 }
             })
-        ]
+        ],
+        resolve: {
+            fallback: {
+                "buffer" : require.resolve( "buffer" ),
+                "crypto" : require.resolve( "crypto-browserify" ),
+                "util"   : require.resolve( "util/" ),
+                "stream" : require.resolve( "stream-browserify" ),
+            }
+        }
     },
     chainWebpack: config => {
-        // inline Workers as Blobs
-        config.module
-            .rule( "worker" )
-            .test( /\.worker\.js$/ )
-            .use( "worker-loader" )
-            .loader( "worker-loader" )
-            .end();
-
-        config.module.rule( "js" ).exclude.add( /\.worker\.js$/ );
-
         // this solves an issue with hot module reload on Safari...
         config.plugins.delete( "preload" );
     },

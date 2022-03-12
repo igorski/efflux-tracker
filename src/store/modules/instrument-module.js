@@ -29,6 +29,7 @@ import StorageUtil         from "@/utils/storage-util";
 import createAction        from "@/model/factories/action-factory";
 import { createFromSaved } from "@/model/factories/instrument-factory";
 import SampleFactory       from "@/model/factories/sample-factory";
+import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
 import InstrumentValidator from "@/model/validators/instrument-validator";
 import { clone }           from "@/utils/object-util";
 import { openFileBrowser, readTextFromFile, saveAsFile } from "@/utils/file-util";
@@ -289,7 +290,7 @@ const serializeInstrument = async ( instrumentToSave, songSampleList ) => {
         }
         const sampleEntity = songSampleList.find(({ name }) => name === oscillator.sample );
         if ( sampleEntity ) {
-            oscillator.sample = await SampleFactory.disassemble( sampleEntity );
+            oscillator.sample = await serializeSample( sampleEntity );
         }
     }
     return instrument;
@@ -299,7 +300,7 @@ const assembleInstrumentFromJSON = async({ getters, commit }, json ) => {
     const instrument = createFromSaved( json );
     for ( const oscillator of instrument.oscillators ) {
         if ( oscillator.sample && typeof oscillator.sample === "object" ) {
-            const sample = await SampleFactory.assemble( oscillator.sample );
+            const sample = await SampleFactory.deserialize( oscillator.sample );
             if ( sample ) {
                 // if sample didn't exist in song sample list yet, add it now
                 if ( !getters.samples.find(({ name }) => name === sample.name )) {

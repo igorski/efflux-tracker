@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import OscillatorTypes from "@/definitions/oscillator-types";
 import InstrumentModule, { INSTRUMENT_STORAGE_KEY } from "@/store/modules/instrument-module";
 import InstrumentFactory from "@/model/factories/instrument-factory";
@@ -14,8 +17,10 @@ jest.mock( "@/utils/storage-util", () => ({
 }));
 let mockSampleFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    assemble: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "assemble", ...args ))),
-    disassemble: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "disassemble", ...args )))
+    deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args )))
+}));
+jest.mock( "@/model/serializers/sample-serializer", () => ({
+    serialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))
 }));
 
 describe( "Vuex instrument module", () => {
@@ -107,8 +112,8 @@ describe( "Vuex instrument module", () => {
                 await actions.saveInstrumentIntoLS({ state, getters: mockedGetters, dispatch }, sampledInstrument );
 
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "disassemble", sample1 );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "disassemble", sample2 );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "serialize", sample1 );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "serialize", sample2 );
             });
         });
 
@@ -135,8 +140,8 @@ describe( "Vuex instrument module", () => {
 
                 // assert sample deserialization has been invoked
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "assemble", mockStoredInstrument.oscillators[ 0 ].sample );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "assemble", mockStoredInstrument.oscillators[ 1 ].sample );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "deserialize", mockStoredInstrument.oscillators[ 0 ].sample );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "deserialize", mockStoredInstrument.oscillators[ 1 ].sample );
 
                 // assert that the second sample (which didn't exist in the songs song list yet)
                 // has been added to the list and requested to be precached
