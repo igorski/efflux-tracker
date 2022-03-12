@@ -36,7 +36,7 @@ export const saveAsFile = ( data, fileName ) => {
     if ( isBlob ) {
         data = blobToResource( data );
     }
-    const anchor  = document.createElement( "a" );
+    const anchor = document.createElement( "a" );
     anchor.style.display = "none";
     anchor.href = data;
     anchor.setAttribute( "download", fileName );

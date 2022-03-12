@@ -80,6 +80,14 @@
                         </li>
                         <li>
                             <button
+                                v-t="'exportJSON'"
+                                type="button"
+                                class="menu-button"
+                                @click="handleJSONExport()"
+                            ></button>
+                        </li>
+                        <li>
+                            <button
                                 v-t="'exportMidi'"
                                 type="button"
                                 class="menu-button"
@@ -175,7 +183,9 @@ import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import AudioService from "@/services/audio-service";
 import { isSupported, setToggleButton } from "@/utils/fullscreen-util";
+import { saveAsFile } from "@/utils/file-util";
 import { hasContent } from "@/utils/song-util";
+import { toFileName } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
@@ -231,6 +241,7 @@ export default {
         ...mapActions([
             "createSong",
             "exportSong",
+            "exportSongForShare",
             "saveSong",
             "openSong",
         ]),
@@ -259,6 +270,16 @@ export default {
                 // from the song browser for currently unloaded songs
                 this.setStatesOnSave( this.totalSaved );
                 this.showNotification({ message: this.$t( "songExported", { song: this.activeSong.meta.title }) });
+            } catch {
+                this.showError( this.$t( "errorSongExport" ));
+            }
+        },
+        async handleJSONExport() {
+            try {
+                const { title } = this.activeSong.meta;
+                const data = await this.exportSongForShare( this.activeSong );
+                saveAsFile( new Blob([ data ], { type: "text/plain" }), toFileName( title, ".json" ));
+                this.showNotification({ message: this.$t( "songExported", { song: title }) });
             } catch {
                 this.showError( this.$t( "errorSongExport" ));
             }

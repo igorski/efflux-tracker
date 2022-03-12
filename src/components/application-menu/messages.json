@@ -20,7 +20,8 @@
     "recordOutput": "Record output",
     "stopRecording": "Stop recording",
     "emptySong": "Song has no pattern content!",
-    "exportProject": "Export project",
+    "exportProject": "Export project (.xtk)",
+    "exportJSON": "Export project (.json)",
     "exportMidi": "Export MIDI",
     "songExported": "Song \"{song}\" exported to your download folder",
     "errorSongExport": "Could not export song."
