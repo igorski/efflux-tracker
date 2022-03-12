@@ -33,7 +33,6 @@
 import sequencerModule from "@/store/modules/sequencer-module";
 import { assemble } from "@/services/song-assembly-service";
 import { getPitchByFrequency } from "@/services/audio/pitch";
-import { init } from "@/services/audio/webaudio-helper";
 import { resetPlayState } from "@/utils/song-util";
 import SampleFactory from "@/model/factories/sample-factory";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
@@ -78,7 +77,8 @@ export default {
      * @param {Object|string} xtkObject
      * @param {Function=} optExternalEventCallback
      * @param {AudioContext=} optAudioContext optional AudioContext (when provided, should not be
-     *        in suspended state. when null, audioContext will be initialized on user interaction)
+     *        in suspended state. when null, audioContext will be initialized inline, though be sure
+     *        to call this method after a user interaction to prevent muted playback)
      * @return {boolean} whether player is ready for playback
      */
     l: async ( xtkObject, optExternalEventCallback, optAudioContext ) => {
@@ -86,7 +86,7 @@ export default {
             if ( optAudioContext ) {
                 audioContext = optAudioContext;
             } else if ( !audioContext ) {
-                audioContext = await init();
+                audioContext = new ( WINDOW.AudioContext || WINDOW.webkitAudioContext )();
             }
             xtkObject = typeof xtkObject === "string" ? JSON.parse( xtkObject ) : xtkObject;
 
