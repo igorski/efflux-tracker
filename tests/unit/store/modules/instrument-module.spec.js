@@ -17,7 +17,7 @@ jest.mock( "@/utils/storage-util", () => ({
 }));
 let mockSampleFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "assemble", ...args )))
+    deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args )))
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))
@@ -140,8 +140,8 @@ describe( "Vuex instrument module", () => {
 
                 // assert sample deserialization has been invoked
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "assemble", mockStoredInstrument.oscillators[ 0 ].sample );
-                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "assemble", mockStoredInstrument.oscillators[ 1 ].sample );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "deserialize", mockStoredInstrument.oscillators[ 0 ].sample );
+                expect( mockSampleFn ).toHaveBeenNthCalledWith( 2, "deserialize", mockStoredInstrument.oscillators[ 1 ].sample );
 
                 // assert that the second sample (which didn't exist in the songs song list yet)
                 // has been added to the list and requested to be precached

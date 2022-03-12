@@ -146,7 +146,7 @@ const InstrumentFactory =
                 oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
             };
 
-            // EQ and OD introduced in factory version 3
+            // EQ and OD introduced in ASSEMBLER_VERSION 3
 
             if ( savedXtkVersion >= 3 ) {
                 instruments[ index ].eq = {
@@ -183,7 +183,7 @@ const InstrumentFactory =
                     table       : xtkOscillator[ OSCILLATOR_TABLE ]
                 };
 
-                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in version 2 of factory
+                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in ASSEMBLER_VERSION 2
 
                     osc.pitch = {
                         range   : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_PITCH_RANGE ],

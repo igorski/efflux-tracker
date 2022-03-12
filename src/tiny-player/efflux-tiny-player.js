@@ -77,8 +77,8 @@ export default {
      *
      * @param {Object|string} xtkObject
      * @param {Function=} optExternalEventCallback
-     * @param {AudioContext=} optAudioContext optional AudioContext (should note be
-     *        in suspended state), when null audioContext will be initialized on user interaction
+     * @param {AudioContext=} optAudioContext optional AudioContext (when provided, should not be
+     *        in suspended state. when null, audioContext will be initialized on user interaction)
      * @return {boolean} whether player is ready for playback
      */
     l: async ( xtkObject, optExternalEventCallback, optAudioContext ) => {

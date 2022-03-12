@@ -87,7 +87,7 @@ const PatternFactory =
 
                     if ( xtkEvent ) {
 
-                        // factory version 4 introduced note and automation pooling
+                        // ASSEMBLER_VERSION 4 introduced note and automation pooling
                         // to reduce file size, xtkEvent is a stringified reference to pool indices
 
                         if ( savedXtkVersion >= 4 && typeof xtkEvent === "string" ) {

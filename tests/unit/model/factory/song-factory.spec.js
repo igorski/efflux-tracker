@@ -5,7 +5,7 @@ import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 let mockFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    deserialize: jest.fn(( ...args ) => mockFn( "assemble", ...args )),
+    deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => mockFn( "serialize", ...args ))
@@ -40,8 +40,8 @@ describe( "Song factory", () => {
             mockFn = jest.fn();
             const songAssembled = await SongFactory.deserialize( xtk, ASSEMBLER_VERSION );
 
-            expect( mockFn ).toHaveBeenNthCalledWith( 1, "assemble", song.samples[ 0 ], 0, song.samples );
-            expect( mockFn ).toHaveBeenNthCalledWith( 2, "assemble", song.samples[ 1 ], 1, song.samples );
+            expect( mockFn ).toHaveBeenNthCalledWith( 1, "deserialize", song.samples[ 0 ], 0, song.samples );
+            expect( mockFn ).toHaveBeenNthCalledWith( 2, "deserialize", song.samples[ 1 ], 1, song.samples );
         });
 
         it( "should be able to serialize a Song without loss of data", async () => {
