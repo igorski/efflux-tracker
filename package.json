@@ -44,7 +44,7 @@
     "merge-jsons-webpack-plugin": "^2.0.1",
     "midi-writer-js": "^2.0.1",
     "mpg123-decoder": "^0.3.2",
-    "node-sass": "^4.12.0",
+    "node-sass": "^7.0.0",
     "pubsub-js": "^1.9.3",
     "sass-loader": "^8.0.2",
     "script-loader": "^0.7.2",
