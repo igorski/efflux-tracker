@@ -42,7 +42,7 @@ export const loadSample = async ( sample, audioContext ) => {
                 // (regression: worked fine in previous versions!) in this case try
                 // once more using mpg123-decoder library to decode the sample.
                 // eventually we'd like to remove this code and the mpg123-decoder library.
-                const { MPEGDecoderWebWorker } = await import( "mpg123-decoder" );
+                const { MPEGDecoderWebWorker } = await import( /* webpackChunkName: "mpg123-decoder" */ "mpg123-decoder" );
                 let decoder;
                 try {
                     decoder = new MPEGDecoderWebWorker();
