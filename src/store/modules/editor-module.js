@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from "@/config";
-import PatternFactory from "@/model/factories/pattern-factory";
 import EventUtil from "@/utils/event-util";
 import LinkedList from "@/utils/linked-list";
 import { clone } from "@/utils/object-util";
@@ -99,7 +98,7 @@ export default {
     },
     mutations: {
         setSelectedInstrument( state, value ) {
-            state.selectedInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
+            state.selectedInstrument = Math.max( 0, Math.min( Config.INSTRUMENT_AMOUNT - 1, value ));
         },
         setSelectedStep( state, value ) {
             state.selectedStep = Math.max(0, value);
@@ -135,35 +134,22 @@ export default {
         },
     },
     actions: {
-        async pastePatternsIntoSong({ getters, commit }, { patterns, channelRange = [ 0, Config.INSTRUMENT_AMOUNT ], insertIndex = -1 }) {
+        async pastePatternsIntoSong({ getters, commit, rootState }, { patterns, insertIndex = -1 }) {
             const songPatterns = getters.activeSong.patterns;
 
             // splice the pattern list at the insertion point, head will contain
             // the front of the list, tail the end of the list, and inserted will contain the cloned content
 
-            const patternsHead     = clone( songPatterns );
-            const patternsTail     = patternsHead.splice( insertIndex );
-            const patternsInserted = [];
-
-            const [ firstChannel, lastChannel ] = channelRange;
+            const patternsHead = clone( songPatterns );
+            const patternsTail = patternsHead.splice( insertIndex );
 
             if ( insertIndex === -1 ) {
-                insertIndex = getters.activePattern; // if no index was specified, insert at current position
+                insertIndex = rootState.sequencer.activePattern; // if no index was specified, insert at current position
             }
-
-            // clone the patterns into the insertion list
-
-            patterns.forEach( p => {
-                const clonedPattern = PatternFactory.create( p.steps );
-                for ( let i = firstChannel; i <= lastChannel; ++i ) {
-                    clonedPattern.channels[ i ] = clone( p.channels[ i ]);
-                }
-                patternsInserted.push( clonedPattern );
-            });
 
             // commit the changes
 
-            commit( "replacePatterns", patternsHead.concat( patternsInserted, patternsTail ));
+            commit( "replacePatterns", patternsHead.concat( patterns, patternsTail ));
 
             // update event offsets
 

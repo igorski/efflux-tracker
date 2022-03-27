@@ -22,7 +22,8 @@
  */
 import Config from "@/config";
 import PatternFactory from "@/model/factories/pattern-factory";
-import { readTextFromFile } from "@/utils/file-util";
+import PatternValidator from "@/model/validators/pattern-validator";
+import { clone } from "@/utils/object-util";
 
 export default {
     /**
@@ -84,22 +85,35 @@ export default {
 };
 
 /**
- * Serializes a list of patterns into a binary PATTERN_FILE_EXTENSION file
+ * Serializes a list of patterns ranges into an encoded PATTERN_FILE_EXTENSION file
  *
  * @param {Array<PATTERN>} patterns to serialize
- * @param {number} firstChannel first channel index to hold pattern data
- * @param {number} lastChannel last channel index to hold pattern data
- * @return {String} encoded PATTERN_FILE_EXTENSION file content
+ * @param {number} firstChannel first channel index to serialize pattern data from
+ * @param {number} lastChannel last channel index to serialize pattern data from
+ * @return {String} base64 encoded PATTERN_FILE_EXTENSION file content
  */
-export const serializePatternFile = ( patterns, firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT ) => window.btoa( JSON.stringify({
-    channelRange : [ firstChannel, lastChannel ],
-    patterns
-}));
+export const serializePatternFile = ( patterns, firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ) => {
+    // clone the pattern contents
+    const cloned = [];
+    patterns.forEach( p => {
+        const clonedPattern = PatternFactory.create( p.steps );
+        for ( let i = firstChannel; i <= lastChannel; ++i ) {
+            clonedPattern.channels[ i ] = clone( p.channels[ i ]);
+        }
+        cloned.push( clonedPattern );
+    });
+    // serialize
+    return window.btoa( JSON.stringify({ patterns: cloned }));
+};
 
-export const deserializePatternFile = async file => {
+export const deserializePatternFile = encodedPatternData => {
     try {
-        const data = window.atob( await readTextFromFile( file ));
-        return JSON.parse( data );
+        const parsed = JSON.parse( window.atob( encodedPatternData ));
+        // validate contents
+        if ( !Array.isArray( parsed.patterns ) || !parsed.patterns.every( PatternValidator.isValid )) {
+            return null;
+        }
+        return parsed.patterns;
     } catch {
         return null;
     }

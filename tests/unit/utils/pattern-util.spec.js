@@ -1,9 +1,12 @@
-import PatternUtil    from '@/utils/pattern-util';
-import EventFactory   from '@/model/factories/event-factory';
-import PatternFactory from '@/model/factories/pattern-factory';
+/**
+ * @jest-environment jsdom
+ */
+import PatternUtil, { serializePatternFile, deserializePatternFile } from "@/utils/pattern-util";
+import EventFactory from "@/model/factories/event-factory";
+import PatternFactory from "@/model/factories/pattern-factory";
 
-describe('PatternUtil', () => {
-    it('should be able to add a new pattern at the given insertion index', () => {
+describe( "PatternUtil", () => {
+    it( "should be able to add a new pattern at the given insertion index", () => {
         const amount = 10, steps = 16, temp = new Array(amount);
         let patterns = new Array(amount);
 
@@ -20,7 +23,7 @@ describe('PatternUtil', () => {
         expect(temp.indexOf(patterns[insertion])).toEqual(-1); // expected the content inserted at the insertion point not to be present in the original list
     });
 
-    it('should be able to add the given pattern at the given insertion index', () => {
+    it( "should be able to add the given pattern at the given insertion index", () => {
         const amount = 10, steps = 16, temp = new Array(amount);
         let patterns = new Array(amount);
 
@@ -34,7 +37,7 @@ describe('PatternUtil', () => {
         expect(temp[insertion]).toEqual(patternToInsert); // expected the content inserted at the insertion point to be the given pattern
     });
 
-    it('should update the start indices of all events present in the patterns after the insertion point', () => {
+    it( "should update the start indices of all events present in the patterns after the insertion point", () => {
         const amount = 3, steps = 16, patterns = new Array(amount);
         let i;
 
@@ -64,7 +67,7 @@ describe('PatternUtil', () => {
         expect(insertion + 2).toEqual(event2.seq.endMeasure); // expected event 2 end measure to have incremented as it was present after the insertion point
     });
 
-    it('should be able to add a new pattern with a unique amount of steps different to the existing pattern step amounts', () => {
+    it( "should be able to add a new pattern with a unique amount of steps different to the existing pattern step amounts", () => {
         const amount = 10, steps = 16, newSteps = 32, insertion = 5;
         let patterns = new Array(amount), i;
 
@@ -83,7 +86,7 @@ describe('PatternUtil', () => {
         }
     });
 
-    it('should be able to remove a pattern from the given deletion index', () => {
+    it( "should be able to remove a pattern from the given deletion index", () => {
         const amount = 10, temp = new Array(amount);
         let patterns = new Array(amount);
 
@@ -98,7 +101,7 @@ describe('PatternUtil', () => {
         expect(temp[deletion + 1]).toEqual(patterns[deletion]); // expected the first pattern after the removal to equal the original one at the deletion index
     });
 
-    it('should update the start indices of all events present in the patterns after the deletion index', () => {
+    it( "should update the start indices of all events present in the patterns after the deletion index", () => {
         const amount = 3, patterns = new Array(amount);
         let i;
 
@@ -126,5 +129,49 @@ describe('PatternUtil', () => {
         expect(0).toEqual(event1.seq.endMeasure); // expected event 1 end measure to have remained unchanged as it was present before the removal point
         expect(deletion).toEqual(event2.seq.startMeasure); // expected event 2 start measure to have decremented as it was present after the removal point
         expect(deletion).toEqual(event2.seq.endMeasure); // expected event 2 end measure to have decremented as it was present after the removal point
+    });
+
+    describe( "when serializing and deserializing a pattern into a encoded file", () => {
+        const patternSteps = 4;
+        const patterns     = [];
+
+        beforeAll(() => {
+            const pattern = PatternFactory.create( patternSteps );
+            pattern.channels.forEach(( channel, channelIndex ) => {
+                for ( let i = 0; i < 4; i += 2 ) {
+                    channel[ i ] = EventFactory.createAudioEvent( channelIndex );
+                }
+            });
+            patterns.push( pattern );
+        });
+
+        it( "should be able to serialize a pattern list into a base64 encoded String", () => {
+            expect( serializePatternFile( patterns )).toEqual( expect.any( String ));
+        });
+
+        it( "should be able to deserialize an encoded pattern list back into a pattern list", () => {
+            expect( deserializePatternFile( serializePatternFile( patterns ))).toEqual( patterns );
+        });
+
+        it( "should return null when an deserialized pattern list failed to validate as a valid pattern list", () => {
+            const invalid = window.btoa( JSON.stringify({ patterns: [{ id: "not a pattern" }] }));
+            expect( deserializePatternFile( invalid )).toBeNull();
+        });
+
+        it( "should by default copy the full channel range", () => {
+            const copied = deserializePatternFile( serializePatternFile( patterns ));
+            expect( copied ).toEqual( patterns );
+        });
+
+        it( "should allow copying from arbitrary channel ranges", () => {
+            const copied = deserializePatternFile( serializePatternFile( patterns, 3, 6 ));
+            const emptyChannel = new Array( patternSteps ).fill( 0 );
+            const sourceChannels = patterns[ 0 ].channels;
+            expect( copied[ 0 ].channels ).toEqual([
+                emptyChannel, emptyChannel, emptyChannel, // 0, 1, 2
+                sourceChannels[ 3 ],  sourceChannels[ 4 ],  sourceChannels[ 5 ],  sourceChannels[ 6 ], // 3, 4, 5, 6
+                emptyChannel, // 7
+            ]);
+        });
     });
 });
