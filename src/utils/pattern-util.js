@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import PatternFactory from '@/model/factories/pattern-factory';
+import Config from "@/config";
+import PatternFactory from "@/model/factories/pattern-factory";
+import { readTextFromFile } from "@/utils/file-util";
 
 export default {
     /**
@@ -78,5 +80,27 @@ export default {
             });
         });
         return front.concat( back );
+    }
+};
+
+/**
+ * Serializes a list of patterns into a binary PATTERN_FILE_EXTENSION file
+ *
+ * @param {Array<PATTERN>} patterns to serialize
+ * @param {number} firstChannel first channel index to hold pattern data
+ * @param {number} lastChannel last channel index to hold pattern data
+ * @return {String} encoded PATTERN_FILE_EXTENSION file content
+ */
+export const serializePatternFile = ( patterns, firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT ) => window.btoa( JSON.stringify({
+    channelRange : [ firstChannel, lastChannel ],
+    patterns
+}));
+
+export const deserializePatternFile = async file => {
+    try {
+        const data = window.atob( await readTextFromFile( file ));
+        return JSON.parse( data );
+    } catch {
+        return null;
     }
 };

@@ -20,7 +20,10 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import { ACCEPTED_FILE_TYPES, PROJECT_FILE_EXTENSION, INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
+import {
+    ACCEPTED_FILE_TYPES, PATTERN_FILE_EXTENSION,
+    PROJECT_FILE_EXTENSION, INSTRUMENT_FILE_EXTENSION
+} from "@/definitions/file-types";
 import { blobToResource, disposeResource } from "@/utils/resource-manager";
 
 /**
@@ -126,23 +129,24 @@ export const readClipboardFiles = clipboardData => {
         .filter( item => item.kind === "file" )
         .map( item => item.getAsFile() );
 
-    return {
-        sounds      : items.filter( isSoundFile ),
-        projects    : items.filter( isProjectFile ),
-        instruments : items.filter( isInstrument )
-    };
+    return filterImportableFiles( items );
 };
 
 export const readDroppedFiles = dataTransfer => {
     const items = [ ...( dataTransfer?.files || []) ];
-    return {
-        sounds      : items.filter( isSoundFile ),
-        projects    : items.filter( isProjectFile ),
-        instruments : items.filter( isInstrument )
-    }
+    return filterImportableFiles( items );
 };
 
 /* internal methods */
+
+function filterImportableFiles( items ) {
+    return {
+        instruments : items.filter( isInstrument ),
+        patterns    : items.filter( isPattern ),
+        projects    : items.filter( isProjectFile ),
+        sounds      : items.filter( isSoundFile ),
+    };
+}
 
 function isSoundFile( item ) {
     return ACCEPTED_FILE_TYPES.includes( item.type );
@@ -156,4 +160,9 @@ function isProjectFile( file ) {
 function isInstrument( file ) {
     const [ , ext ] = file.name.split( "." );
     return `.${ext}` === INSTRUMENT_FILE_EXTENSION;
+}
+
+function isPattern( file ) {
+    const [ , ext ] = file.name.split( "." );
+    return `.${ext}` === PATTERN_FILE_EXTENSION;
 }

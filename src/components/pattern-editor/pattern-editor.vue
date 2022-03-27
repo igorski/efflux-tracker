@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -106,7 +106,7 @@ export default {
             mobileMode: state => state.mobileMode
         }),
         ...mapGetters([
-            'amountOfSteps',
+            "amountOfSteps",
         ]),
         patternStep: {
             get() {
@@ -125,31 +125,36 @@ export default {
     },
     methods: {
         ...mapMutations([
-            'setHelpTopic',
-            'saveState',
-            'clearSelection',
-            'setPatternSteps',
-            'gotoNextPattern',
-            'openModal',
-            'showError',
+            "setHelpTopic",
+            "saveState",
+            "clearSelection",
+            "setPatternSteps",
+            "gotoNextPattern",
+            "openModal",
+            "showError",
         ]),
         handlePatternClear() {
             this.clearSelection();
             this.saveState(createAction(Actions.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy() {
-            this.patternCopy = clone(this.activeSong.patterns[this.activePattern]);
+            this.patternCopy = clone( this.activeSong.patterns[ this.activePattern ]);
         },
         handlePatternPaste() {
-            if (this.patternCopy) {
+            if ( this.patternCopy ) {
                 this.clearSelection();
-                this.saveState(createAction(Actions.PASTE_PATTERN, { store: this.$store, patternCopy: this.patternCopy }));
+                this.saveState(
+                    createAction(
+                        Actions.PASTE_PATTERN,
+                        { store: this.$store, patternCopy: this.patternCopy }
+                    )
+                );
             }
         },
         handlePatternAdd() {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-                this.showError(this.$t('errorMaxExceeded', { amount: Config.MAX_PATTERN_AMOUNT }));
+                this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
             this.saveState(createAction(Actions.ADD_PATTERN, { store: this.$store }));

@@ -120,6 +120,7 @@ import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SampleFactory from "@/model/factories/sample-factory";
 import { readClipboardFiles, readDroppedFiles } from "@/utils/file-util";
+import { deserializePatternFile } from "@/utils/pattern-util";
 import store from "@/store";
 import messages from "@/messages.json";
 
@@ -308,19 +309,14 @@ export default {
         this.publishMessage( PubSubMessages.EFFLUX_READY );
 
         // if File content is dragged or pasted into the application, parse and load supported files within
-        const loadFiles = async ({ sounds, projects, instruments }) => {
-            for ( const file of sounds ) {
-                try {
-                    const buffer = await loadSample( file, getAudioContext());
-                    if ( !buffer ) {
-                        throw new Error();
-                    }
-                    const sample = SampleFactory.create( file, buffer, file.name );
-                    this.addSample( sample );
-                    this.setCurrentSample( sample );
-                    this.openModal( ModalWindows.SAMPLE_EDITOR );
-                } catch {
-                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.audioImport" ) });
+        const loadFiles = async ({ instruments, patterns, projects, sounds }) => {
+            for ( const instrument of instruments ) {
+                this.loadInstrumentFromFile( instrument );
+            }
+            for ( const pattern of patterns ) {
+                const deserializedPattern = await deserializePatternFile( pattern );
+                if ( deserializedPattern ) {
+                    this.pastePatternsIntoSong( deserializedPattern );
                 }
             }
             for ( const file of projects ) {
@@ -338,8 +334,19 @@ export default {
                     confirm();
                 }
             }
-            for ( const instrument of instruments ) {
-                this.loadInstrumentFromFile( instrument );
+            for ( const file of sounds ) {
+                try {
+                    const buffer = await loadSample( file, getAudioContext());
+                    if ( !buffer ) {
+                        throw new Error();
+                    }
+                    const sample = SampleFactory.create( file, buffer, file.name );
+                    this.addSample( sample );
+                    this.setCurrentSample( sample );
+                    this.openModal( ModalWindows.SAMPLE_EDITOR );
+                } catch {
+                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.audioImport" ) });
+                }
             }
         };
 
@@ -406,6 +413,7 @@ export default {
             "setupServices",
             "loadSong",
             "openSong",
+            "pastePatternsIntoSong",
             "prepareSequencer",
             "loadStoredSettings",
             "loadStoredInstruments",

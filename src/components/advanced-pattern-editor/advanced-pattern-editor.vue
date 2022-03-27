@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -21,12 +21,17 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div id="advancedPatternEditor">
+    <div
+        class="advanced-pattern-editor"
+        @keyup.esc="handleClose()"
+    >
         <div class="header">
             <h2 v-t="'title'"></h2>
-            <button type="button"
-                    class="close-button"
-                    @click="handleClose">x</button>
+            <button
+                type="button"
+                class="close-button"
+                @click="handleClose"
+            >x</button>
         </div>
         <hr class="divider" />
         <fieldset>
@@ -43,27 +48,35 @@
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
+        <button
+            v-t="'exportContent'"
+            type="button"
+            class="export-button"
+            @click="handleExportClick()"
+        ></button>
         <fieldset>
             <div class="wrapper input">
                 <label v-t="'insertAfterLabel'"></label>
                 <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
         </fieldset>
-        <button v-t="'copyContent'"
-                type="button"
-                class="confirm-button"
-                @keyup.enter="handleConfirm"
-                @click="handleConfirm"
+        <button
+            v-t="'duplicateContent'"
+            type="button"
+            class="confirm-button"
+            @keyup.enter="handleDuplicateClick()"
+            @click="handleDuplicateClick()"
         ></button>
     </div>
 </template>
 
 <script>
-import { mapState, mapMutations } from 'vuex';
+import { mapState, mapMutations, mapActions } from "vuex";
 
-import PatternFactory from '@/model/factories/pattern-factory';
-import { clone }     from '@/utils/object-util';
-import messages       from './messages.json';
+import { PATTERN_FILE_EXTENSION } from "@/definitions/file-types";
+import { saveAsFile } from "@/utils/file-util";
+import { serializePatternFile } from "@/utils/pattern-util";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -91,77 +104,88 @@ export default {
         this.lastChannel  = this.activeSong.instruments.length;
         this.pastePattern = this.maxPattern;
 
-        this.suspendKeyboardService(true);
+        this.suspendKeyboardService( true );
 
         this.$nextTick(() => {
             this.$refs.firstPatternInput.focus();
         });
     },
     beforeDestroy() {
-        this.suspendKeyboardService(false);
+        this.suspendKeyboardService( false );
     },
     methods: {
         ...mapMutations([
-            'createLinkedList',
-            'replacePatterns',
-            'suspendKeyboardService',
+            "setLoading",
+            "showError",
+            "showNotification",
+            "suspendKeyboardService",
+            "unsetLoading",
         ]),
-        handleClose() {
-            this.$emit('close');
+        ...mapActions([
+            "pastePatternsIntoSong",
+        ]),
+        async handleExportClick() {
+            this.setLoading( "pexp" );
+            try {
+                const {
+                    firstChannelValue, lastChannelValue,
+                    firstPatternValue, lastPatternValue,
+                    patternsToClone,
+                }  = this.clonePatternRange();
+
+                // encode pattern range
+                const data = serializePatternFile( patternsToClone, firstChannelValue, lastChannelValue );
+                const name = `${this.activeSong.meta.title}_${firstPatternValue}-${lastPatternValue}_${firstChannelValue}-${lastChannelValue}`;
+
+                // download file to disk
+                saveAsFile(
+                    `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`, `${name}${PATTERN_FILE_EXTENSION}`
+                );
+                this.showNotification({ message: this.$t( "patternRangeExported" ) });
+            } catch {
+                this.showError( this.$t( "errorPatternRangeExport" ));
+            }
+            this.unsetLoading( "pexp" );
         },
-        handleConfirm() {
+        handleClose() {
+            this.$emit( "close" );
+        },
+        async handleDuplicateClick() {
+            const patterns = this.activeSong.patterns;
+            const pastePatternValue = Math.min( patterns.length, this.pastePattern );
+
+            const {
+                firstChannelValue,
+                lastChannelValue,
+                patternsToClone,
+            }  = this.clonePatternRange();
+
+            await this.pastePatternsIntoSong({
+                patterns     : patternsToClone,
+                channelRange : [ firstChannelValue, lastChannelValue ],
+                insertIndex  : pastePatternValue
+            });
+            this.handleClose();
+        },
+        clonePatternRange() {
             const patterns        = this.activeSong.patterns;
-            const maxPatternValue = patterns.length;
             const maxChannelValue = this.activeSong.instruments.length - 1;
 
-            const firstPatternValue = Math.min( maxPatternValue, this.firstPattern - 1 );
-            const lastPatternValue  = Math.min( maxPatternValue, this.lastPattern - 1 );
             const firstChannelValue = Math.min( maxChannelValue, this.firstChannel - 1 );
             const lastChannelValue  = Math.min( maxChannelValue, this.lastChannel - 1 );
-            const pastePatternValue = Math.min( maxPatternValue, this.pastePattern );
+
+            const firstPatternValue = Math.min( patterns.length, this.firstPattern - 1 );
+            const lastPatternValue  = Math.min( patterns.length, this.lastPattern - 1 );
 
             const patternsToClone = patterns.slice( firstPatternValue, lastPatternValue + 1 );
 
-            // splice the pattern list at the insertion point, head will contain
-            // the front of the list, tail the end of the list, and inserted will contain the cloned content
-
-            const patternsHead     = clone(patterns);
-            const patternsTail     = patternsHead.splice( pastePatternValue );
-            const patternsInserted = [];
-
-            // clone the patterns into the insertion list
-
-            patternsToClone.forEach(p => {
-                const clonedPattern = PatternFactory.create(p.steps);
-
-                for ( let i = firstChannelValue; i <= lastChannelValue; ++i )
-                    clonedPattern.channels[ i ] = clone( p.channels[ i ]);
-
-                patternsInserted.push(clonedPattern);
-            });
-
-            // commit the changes
-
-            this.replacePatterns(patternsHead.concat(patternsInserted, patternsTail));
-
-            // update event offsets
-
-            for ( let patternIndex = pastePatternValue; patternIndex < this.activeSong.patterns.length; ++patternIndex ) {
-                this.activeSong.patterns[ patternIndex ].channels.forEach(channel => {
-                    channel.forEach(event => {
-                        if ( event && event.seq ) {
-                            const eventStart  = event.seq.startMeasure;
-                            const eventEnd    = event.seq.endMeasure;
-                            const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                            event.seq.startMeasure = patternIndex;
-                            event.seq.endMeasure   = event.seq.startMeasure + eventLength;
-                        }
-                    });
-                });
-            }
-            this.createLinkedList(this.activeSong);
-            this.handleClose();
+            return {
+                firstPatternValue,
+                lastPatternValue,
+                firstChannelValue,
+                lastChannelValue,
+                patternsToClone,
+            };
         },
     },
 };
@@ -172,9 +196,9 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 355px;
+$height: 410px;
 
-#advancedPatternEditor {
+.advanced-pattern-editor {
     @include editorComponent();
     @include overlay();
     @include noSelect();
@@ -207,12 +231,6 @@ $height: 355px;
         margin: 0;
     }
 
-    fieldset {
-        h2 {
-            padding-left: 0;
-        }
-    }
-
     .wrapper.input {
         label {
             width: 50%;
@@ -223,9 +241,14 @@ $height: 355px;
         }
     }
 
+    .export-button,
     .confirm-button {
         width: 100%;
         padding: $spacing-medium $spacing-large;
+    }
+
+    .export-button {
+        margin-bottom: $spacing-medium;
     }
 }
 </style>

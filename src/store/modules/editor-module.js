@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config     from '@/config';
-import EventUtil  from '@/utils/event-util';
-import LinkedList from '@/utils/linked-list';
+import Config from "@/config";
+import PatternFactory from "@/model/factories/pattern-factory";
+import EventUtil from "@/utils/event-util";
+import LinkedList from "@/utils/linked-list";
+import { clone } from "@/utils/object-util";
 
 // editor module stores all states of the editor such as
 // the instrument which is currently be edited, the active track
@@ -128,8 +130,58 @@ export default {
             state.showNoteEntry = value;
         },
         resetEditor( state ) {
-            state.selectedInstrument =
+            state.selectedInstrument = 0;
             state.selectedStep       = 0;
+        },
+    },
+    actions: {
+        async pastePatternsIntoSong({ getters, commit }, { patterns, channelRange = [ 0, Config.INSTRUMENT_AMOUNT ], insertIndex = -1 }) {
+            const songPatterns = getters.activeSong.patterns;
+
+            // splice the pattern list at the insertion point, head will contain
+            // the front of the list, tail the end of the list, and inserted will contain the cloned content
+
+            const patternsHead     = clone( songPatterns );
+            const patternsTail     = patternsHead.splice( insertIndex );
+            const patternsInserted = [];
+
+            const [ firstChannel, lastChannel ] = channelRange;
+
+            if ( insertIndex === -1 ) {
+                insertIndex = getters.activePattern; // if no index was specified, insert at current position
+            }
+
+            // clone the patterns into the insertion list
+
+            patterns.forEach( p => {
+                const clonedPattern = PatternFactory.create( p.steps );
+                for ( let i = firstChannel; i <= lastChannel; ++i ) {
+                    clonedPattern.channels[ i ] = clone( p.channels[ i ]);
+                }
+                patternsInserted.push( clonedPattern );
+            });
+
+            // commit the changes
+
+            commit( "replacePatterns", patternsHead.concat( patternsInserted, patternsTail ));
+
+            // update event offsets
+
+            for ( let patternIndex = insertIndex; patternIndex < songPatterns.length; ++patternIndex ) {
+                songPatterns[ patternIndex ].channels.forEach( channel => {
+                    channel.forEach( event => {
+                        if ( event?.seq ) {
+                            const eventStart  = event.seq.startMeasure;
+                            const eventEnd    = event.seq.endMeasure;
+                            const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
+
+                            event.seq.startMeasure = patternIndex;
+                            event.seq.endMeasure   = event.seq.startMeasure + eventLength;
+                        }
+                    });
+                });
+            }
+            commit( "createLinkedList", getters.activeSong );
         }
     }
 };
