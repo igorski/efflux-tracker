@@ -321,8 +321,8 @@ function clearPattern({ store }) {
 }
 
 function pastePattern({ store, patternCopy }) {
-    const song          = store.state.song.activeSong,
-          patternIndex  = store.state.sequencer.activePattern;
+    const song         = store.state.song.activeSong,
+          patternIndex = store.state.sequencer.activePattern;
 
     const { commit } = store;
 

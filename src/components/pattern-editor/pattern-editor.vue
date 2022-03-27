@@ -135,7 +135,7 @@ export default {
         ]),
         handlePatternClear() {
             this.clearSelection();
-            this.saveState(createAction(Actions.CLEAR_PATTERN, { store: this.$store }));
+            this.saveState( createAction( Actions.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy() {
             this.patternCopy = clone( this.activeSong.patterns[ this.activePattern ]);
@@ -157,8 +157,8 @@ export default {
                 this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
-            this.saveState(createAction(Actions.ADD_PATTERN, { store: this.$store }));
-            this.gotoNextPattern(this.activeSong);
+            this.saveState( createAction( Actions.ADD_PATTERN, { store: this.$store }));
+            this.gotoNextPattern( this.activeSong );
         },
         handlePatternDelete() {
             const patterns = this.activeSong.patterns;
@@ -166,11 +166,11 @@ export default {
                 this.handlePatternClear();
             }
             else {
-                this.saveState(createAction(Actions.DELETE_PATTERN, { store: this.$store }));
+                this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store }));
             }
         },
         handlePatternAdvanced() {
-            this.openModal(ModalWindows.ADVANCED_PATTERN_EDITOR);
+            this.openModal( ModalWindows.ADVANCED_PATTERN_EDITOR );
         }
     }
 };
