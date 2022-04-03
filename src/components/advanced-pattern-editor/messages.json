@@ -5,7 +5,7 @@
     "copyChannelRangeLabel": "Copy channel range:",
     "insertAfterLabel": "Insert after pattern:",
     "exportContent": "Export content",
-    "duplicateContent": "Duplicate content",
+    "insertClonedContent": "Insert cloned content",
     "patternRangeExported": "Pattern range exported",
     "errorPatternRangeExport": "An error has occurred while exporting the pattern range"
   }

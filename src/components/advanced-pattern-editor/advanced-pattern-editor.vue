@@ -61,7 +61,7 @@
             </div>
         </fieldset>
         <button
-            v-t="'duplicateContent'"
+            v-t="'insertClonedContent'"
             type="button"
             class="confirm-button"
             @keyup.enter="handleDuplicateClick()"
