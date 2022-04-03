@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import EditorModule from '@/store/modules/editor-module';
 import LinkedList from '@/utils/linked-list';
 import Config from '@/config';

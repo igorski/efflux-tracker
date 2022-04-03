@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config     from '@/config';
-import EventUtil  from '@/utils/event-util';
-import LinkedList from '@/utils/linked-list';
+import Config from "@/config";
+import Actions from "@/definitions/actions";
+import createAction from "@/model/factories/action-factory";
+import EventUtil from "@/utils/event-util";
+import LinkedList from "@/utils/linked-list";
 
 // editor module stores all states of the editor such as
 // the instrument which is currently be edited, the active track
@@ -97,7 +99,7 @@ export default {
     },
     mutations: {
         setSelectedInstrument( state, value ) {
-            state.selectedInstrument = Math.max(0, Math.min(Config.INSTRUMENT_AMOUNT - 1, value));
+            state.selectedInstrument = Math.max( 0, Math.min( Config.INSTRUMENT_AMOUNT - 1, value ));
         },
         setSelectedStep( state, value ) {
             state.selectedStep = Math.max(0, value);
@@ -128,8 +130,19 @@ export default {
             state.showNoteEntry = value;
         },
         resetEditor( state ) {
-            state.selectedInstrument =
+            state.selectedInstrument = 0;
             state.selectedStep       = 0;
+        },
+    },
+    actions: {
+        async pastePatternsIntoSong( storeRef, { patterns, insertIndex = -1 }) {
+            storeRef.commit( "saveState",
+                createAction( Actions.PASTE_PATTERN_MULTIPLE, {
+                    store: storeRef,
+                    patterns,
+                    insertIndex
+                })
+            );
         }
     }
 };

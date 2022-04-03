@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,7 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import PatternFactory from '@/model/factories/pattern-factory';
+import Config from "@/config";
+import PatternFactory from "@/model/factories/pattern-factory";
+import PatternValidator from "@/model/validators/pattern-validator";
+import { clone } from "@/utils/object-util";
 
 export default {
     /**
@@ -78,5 +81,40 @@ export default {
             });
         });
         return front.concat( back );
+    }
+};
+
+/**
+ * Serializes a list of patterns ranges into an encoded PATTERN_FILE_EXTENSION file
+ *
+ * @param {Array<PATTERN>} patterns to serialize
+ * @param {number} firstChannel first channel index to serialize pattern data from
+ * @param {number} lastChannel last channel index to serialize pattern data from
+ * @return {String} base64 encoded PATTERN_FILE_EXTENSION file content
+ */
+export const serializePatternFile = ( patterns, firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ) => {
+    // clone the pattern contents
+    const cloned = [];
+    patterns.forEach( p => {
+        const clonedPattern = PatternFactory.create( p.steps );
+        for ( let i = firstChannel; i <= lastChannel; ++i ) {
+            clonedPattern.channels[ i ] = clone( p.channels[ i ]);
+        }
+        cloned.push( clonedPattern );
+    });
+    // serialize
+    return window.btoa( JSON.stringify({ patterns: cloned }));
+};
+
+export const deserializePatternFile = encodedPatternData => {
+    try {
+        const parsed = JSON.parse( window.atob( encodedPatternData ));
+        // validate contents
+        if ( !Array.isArray( parsed.patterns ) || !parsed.patterns.every( PatternValidator.isValid )) {
+            return null;
+        }
+        return parsed.patterns;
+    } catch {
+        return null;
     }
 };

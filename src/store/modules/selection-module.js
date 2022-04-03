@@ -20,9 +20,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue             from "vue";
-import EventUtil       from "@/utils/event-util";
-import { clone }       from "@/utils/object-util";
+import Vue from "vue";
+import { writeToClipboard } from "@/utils/clipboard-util";
+import EventUtil from "@/utils/event-util";
+import { clone } from "@/utils/object-util";
 import { ACTION_IDLE } from "@/model/types/audio-event-def";
 
 /* internal methods */
@@ -98,7 +99,7 @@ const copySelection = ( state, { song, activePattern, optOutputArray }) => {
     }
     // by writing into the clipboard we ensure that copied files are no
     // longer in the clipboard history (prevents double load on paste shortcut)
-    window.navigator.clipboard.writeText( JSON.stringify( optOutputArray ));
+    writeToClipboard( JSON.stringify( optOutputArray ));
 };
 
 /**

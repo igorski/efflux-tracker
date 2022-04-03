@@ -383,7 +383,7 @@ export default {
             } else {
                 await dispatch( "saveSongInLS", song );
             }
-        }
+        },
     }
 };
 

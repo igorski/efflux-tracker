@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -30,5 +30,6 @@ export const WEBM = "audio/webm"; // not for Safari, see https://en.wikipedia.or
 
 export const ACCEPTED_FILE_TYPES       = [ FLAC, MPG, MP3, MP4, OGG, WAV, WEBM ];
 export const ACCEPTED_FILE_EXTENSIONS  = [ ".flac", ".mp3", ".mp4", ".ogg", ".webm", ".wav" ];
+export const PATTERN_FILE_EXTENSION    = ".xpt";
 export const PROJECT_FILE_EXTENSION    = ".xtk";
-export const INSTRUMENT_FILE_EXTENSION = ".xit"
+export const INSTRUMENT_FILE_EXTENSION = ".xit";
