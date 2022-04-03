@@ -21,9 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from "@/config";
+import Actions from "@/definitions/actions";
+import createAction from "@/model/factories/action-factory";
 import EventUtil from "@/utils/event-util";
 import LinkedList from "@/utils/linked-list";
-import { clone } from "@/utils/object-util";
 
 // editor module stores all states of the editor such as
 // the instrument which is currently be edited, the active track
@@ -134,40 +135,14 @@ export default {
         },
     },
     actions: {
-        async pastePatternsIntoSong({ getters, commit, rootState }, { patterns, insertIndex = -1 }) {
-            const songPatterns = getters.activeSong.patterns;
-
-            // splice the pattern list at the insertion point, head will contain
-            // the front of the list, tail the end of the list, and inserted will contain the cloned content
-
-            const patternsHead = clone( songPatterns );
-            const patternsTail = patternsHead.splice( insertIndex );
-
-            if ( insertIndex === -1 ) {
-                insertIndex = rootState.sequencer.activePattern; // if no index was specified, insert at current position
-            }
-
-            // commit the changes
-
-            commit( "replacePatterns", patternsHead.concat( patterns, patternsTail ));
-
-            // update event offsets
-
-            for ( let patternIndex = insertIndex; patternIndex < songPatterns.length; ++patternIndex ) {
-                songPatterns[ patternIndex ].channels.forEach( channel => {
-                    channel.forEach( event => {
-                        if ( event?.seq ) {
-                            const eventStart  = event.seq.startMeasure;
-                            const eventEnd    = event.seq.endMeasure;
-                            const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                            event.seq.startMeasure = patternIndex;
-                            event.seq.endMeasure   = event.seq.startMeasure + eventLength;
-                        }
-                    });
-                });
-            }
-            commit( "createLinkedList", getters.activeSong );
+        async pastePatternsIntoSong( storeRef, { patterns, insertIndex = -1 }) {
+            storeRef.commit( "saveState",
+                createAction( Actions.PASTE_PATTERN_MULTIPLE, {
+                    store: storeRef,
+                    patterns,
+                    insertIndex
+                })
+            );
         }
     }
 };

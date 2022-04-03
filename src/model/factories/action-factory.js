@@ -65,6 +65,9 @@ export default function( type, data ) {
         case Actions.PASTE_PATTERN:
             return pastePattern( data );
 
+        case Actions.PASTE_PATTERN_MULTIPLE:
+            return pastePatternMultiple( data );
+
         case Actions.ADD_PATTERN:
             return addPattern( data );
 
@@ -337,6 +340,59 @@ function pastePattern({ store, patternCopy }) {
     return {
         undo() {
             commit( "replacePattern", { patternIndex, pattern: targetPattern });
+        },
+        redo: act
+    };
+}
+
+function pastePatternMultiple({ store, patterns, insertIndex }) {
+    const { getters, commit, rootState } = store;
+    const songPatterns = getters.activeSong.patterns;
+
+    if ( insertIndex === -1 ) {
+         // if no index was specified, insert after current position
+        insertIndex = rootState.sequencer.activePattern;
+    }
+
+    // splice the pattern list at the insertion point, head will contain
+    // the front of the list, tail the end of the list, and inserted will contain the cloned content
+
+    const patternsHead = clone( songPatterns );
+    const patternsTail = patternsHead.splice( insertIndex );
+
+    function linkLists() {
+        // update event offsets to match insert position
+        const activeSongPatterns = getters.activeSong.patterns;
+        for ( let patternIndex = insertIndex, l = activeSongPatterns.length; patternIndex < l; ++patternIndex ) {
+            activeSongPatterns[ patternIndex ].channels.forEach( channel => {
+                channel.forEach( event => {
+                    if ( event?.seq ) {
+                        const eventStart  = event.seq.startMeasure;
+                        const eventEnd    = event.seq.endMeasure;
+                        const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
+
+                        event.seq.startMeasure = patternIndex;
+                        event.seq.endMeasure   = event.seq.startMeasure + eventLength;
+                    }
+                });
+            });
+        }
+        commit( "createLinkedList", getters.activeSong );
+    }
+
+    function act() {
+        commit( "replacePatterns", clone( patternsHead.concat( patterns, patternsTail )));
+        linkLists();
+    }
+    act(); // perform action
+
+    return {
+        undo() {
+            commit( "replacePatterns", patternsHead.concat( patternsTail ));
+            if ( getters.activeSong.patterns.length <= rootState.sequencer.activePattern ) {
+                commit( "setActivePattern", getters.activeSong.patterns.length - 1 );
+            }
+            linkLists();
         },
         redo: act
     };
