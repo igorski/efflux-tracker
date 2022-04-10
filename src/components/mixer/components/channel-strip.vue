@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -203,27 +203,31 @@ export default {
                     };
                     return acc;
                 }, []);
-                const hadExistingSolo = instrumentStates.some(({ solo }) => !!solo );
+                // whether another instrument also has solo mode activated
+                const hadExistingSolo = instrumentStates.some(({ solo }, index ) => index !== instrumentIndex && !!solo );
 
                 this.update( "solo", value, newValue => {
                     const isUndo = newValue === wasSolod;
+                    // update volumes of all other instruments
                     instruments.forEach(( instrument, index ) => {
-                        if ( index !== instrumentIndex ) {
-                            const oldState = instrumentStates[ index ];
-                            let volume = 0;
-                            if ( !oldState.muted ) {
-                                if ( newValue ) {
-                                    volume = oldState.solo ? instrument.volume : 0;
-                                } else {
-                                    volume = oldState.solo || !hadExistingSolo ? instrument.volume : 0;
-                                }
-                            }
-                            if ( isUndo ) {
-                                store.commit( "updateInstrument", { instrumentIndex, prop: "solo", value: oldState.solo });
-                            }
-                            AudioService.adjustInstrumentVolume( index, volume );
+                        if ( index === instrumentIndex ) {
+                            return;
                         }
+                        const oldState = instrumentStates[ index ];
+                        let volume = 0;
+                        if ( !oldState.muted ) {
+                            if ( newValue ) {
+                                volume = oldState.solo ? instrument.volume : 0;
+                            } else {
+                                volume = oldState.solo || !hadExistingSolo ? instrument.volume : 0;
+                            }
+                        }
+                        if ( isUndo ) {
+                            store.commit( "updateInstrument", { instrumentIndex: index, prop: "solo", value: oldState.solo });
+                        }
+                        AudioService.adjustInstrumentVolume( index, volume );
                     });
+                    // update volume of this instrument
                     if ( newValue ) {
                         if ( wasMuted ) {
                             // activating solo always unmutes instrument
