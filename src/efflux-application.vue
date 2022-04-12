@@ -114,6 +114,7 @@ import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
 import Loader from "@/components/loader";
 import ModalWindows from "@/definitions/modal-windows";
+import ApplicationMenu from "@/components/application-menu/application-menu";
 import Notifications from "@/components/notifications";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
@@ -154,7 +155,7 @@ export default {
     i18n,
     components: {
         DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window" )),
-        ApplicationMenu: () => asyncComponent( "am", () => import( "@/components/application-menu/application-menu" )),
+        ApplicationMenu, // sync as it should be ready when EFFLUX_READY is broadcast over pubsub
         HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section" )),
         Loader,
         Notifications,
