@@ -329,7 +329,7 @@ export default {
         playing               : false,
         looping               : false,
         recording             : false, // whether we should record non-sequenced noteOn/noteOff events into the patterns
-        scheduleAheadTime     : 0.3, // scheduler lookahead in seconds
+        scheduleAheadTime     : 0.2, // scheduler lookahead in seconds
         stepPrecision         : 64,
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
         beatUnit              : 4,
