@@ -327,19 +327,21 @@ function pastePattern({ store, patternCopy }) {
     const song         = store.state.song.activeSong,
           patternIndex = store.state.sequencer.activePattern;
 
-    const { commit } = store;
+    const { getters, commit } = store;
 
     const targetPattern = clonePattern( song, patternIndex );
     const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy, patternIndex );
 
     function act() {
         commit( "replacePattern", { patternIndex, pattern: pastedPattern });
+        commit( "createLinkedList", getters.activeSong );
     }
     act(); // perform action
 
     return {
         undo() {
             commit( "replacePattern", { patternIndex, pattern: targetPattern });
+            commit( "createLinkedList", getters.activeSong );
         },
         redo: act
     };
