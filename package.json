@@ -59,7 +59,7 @@
     "vue-template-compiler": "^2.6.14",
     "wa-overdrive": "^0.0.3",
     "webpack-cli": "^4.9.2",
-    "zcanvas": "^4.3.0",
+    "zcanvas": "^5.1.1",
     "zmidi": "^1.1.1"
   },
   "license": "MIT"
