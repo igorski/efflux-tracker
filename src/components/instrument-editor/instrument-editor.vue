@@ -42,6 +42,7 @@
                 <select-box
                     v-model="instrument"
                     :options="instrumentOptions"
+                    class="instrument-selector"
                 />
             </div>
         </div>
@@ -315,6 +316,8 @@ export default {
 
 .actions {
     position: absolute;
+    display: flex;
+    align-items: center;
     top: $action-button-top;
     right: #{$spacing-xlarge * 2 - $spacing-xxsmall};
 }
@@ -357,6 +360,10 @@ export default {
             width: 100%;
         }
     }
+}
+
+.instrument-selector {
+    width: 130px;
 }
 
 .preset-selector {
