@@ -21,12 +21,17 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="midi-export-window">
+    <div
+        class="midi-export-window"
+        @keyup.esc="handleClose()"
+    >
         <div class="header">
             <h2 v-t="'title'"></h2>
-            <button type="button"
-                    class="close-button"
-                    @click="handleClose">x</button>
+            <button
+                type="button"
+                class="close-button"
+                @click="handleClose()"
+            >x</button>
         </div>
         <hr class="divider" />
         <fieldset>
