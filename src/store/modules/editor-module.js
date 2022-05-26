@@ -35,8 +35,10 @@ export default {
         /**
          * which instrument is currently selected
          * this is represented in the track list as a column
-         * as each instrument has it dedicated output channel, this
-         * is also analogous to the currently selected channel
+         * or as the instrument being edited inside the instrument editor
+         *
+         * as each instrument has its dedicated output channel, this
+         * value is also analogous to the currently selected channel
          *
          * @type {number}
          */

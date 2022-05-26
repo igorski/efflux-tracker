@@ -23,7 +23,10 @@
 <template>
     <div class="channel-strip">
         <h3>{{ title }}</h3>
-        <h4 class="preset-name">{{ name }}</h4>
+        <h4
+            class="preset-name"
+            @click="openInstrumentEditor()"
+        >{{ name }}</h4>
         <div class="wrapper input range volume-wrapper">
             <input
                 v-model.number="volume"
@@ -96,6 +99,7 @@
 <script>
 import { mapState, mapMutations } from "vuex";
 import { EQ_LOW, EQ_MID, EQ_HIGH, applyParamChange } from "@/definitions/param-ids";
+import ModalWindows from "@/definitions/modal-windows";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import AudioService, { applyModule } from "@/services/audio-service";
 import { supports } from "@/services/audio/webaudio-helper";
@@ -325,8 +329,14 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "openModal",
+            "setSelectedInstrument",
             "updateInstrument",
         ]),
+        openInstrumentEditor() {
+            this.setSelectedInstrument( this.instrumentIndex );
+            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+        },
         hasSolo() {
             // whether one or more of the other channels in the songs instrument list has solo enabled
             return this.activeSong.instruments.find(( instrument, index ) => index !== this.instrumentIndex && instrument.solo );
@@ -391,6 +401,7 @@ $width: 80px;
 .preset-name {
     @include toolFont();
     @include truncate();
+    cursor: pointer;
     margin-left: -$spacing-medium;
     font-size: 85%;
     text-align: center;
@@ -398,6 +409,10 @@ $width: 80px;
     background-color: $color-2;
     padding: 5px;
     color: #000;
+
+    &:hover {
+        background-color: $color-1;
+    }
 }
 
 .range {
