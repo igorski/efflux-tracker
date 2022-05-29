@@ -1,0 +1,10 @@
+{
+  "en-US": {
+    "title": "Tranposition editor",
+    "patternRange": "Pattern range:",
+    "instrumentRange": "Instrument range",
+    "semitones": "Semitones",
+    "semitonesExpl": "You can shift the pitch by -{semitones} to +{semitones} semitones",
+    "transpose": "Transpose"
+  }
+}

@@ -34,5 +34,6 @@ export default
     WELCOME_WINDOW          : "9",
     DROPBOX_FILE_SELECTOR   : "10",
     WELCOME_SHARED_SONG     : "11",
-    MIDI_EXPORT_WINDOW      : "12"
+    MIDI_EXPORT_WINDOW      : "12",
+    TRANSPOSITION_EDITOR    : "13"
 };

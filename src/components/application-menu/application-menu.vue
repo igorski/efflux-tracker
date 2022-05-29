@@ -21,9 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <nav class="menu"
-         :class="{ opened: menuOpened }"
-         @mouseover="handleMouseOver"
+    <nav
+        class="menu"
+        :class="{ opened: menuOpened }"
+        @mouseover="handleMouseOver"
     >
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
             <span>&#9776;</span>
@@ -32,13 +33,13 @@
         <section class="inline">
             <ul class="menu-list">
                 <li>
-                    <a v-t="'file'" class="title" @click.prevent=""></a>
-                    <ul class="file-menu">
+                    <a v-t="'file'" class="menu-list__title" @click.prevent=""></a>
+                    <ul class="menu-list__submenu">
                         <li>
                             <button
                                 v-t="'new'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleReset()"
                             ></button>
                         </li>
@@ -48,7 +49,7 @@
                             <button
                                 v-t="'open'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleLoad()"
                                 data-api-song-load
                             ></button>
@@ -57,7 +58,7 @@
                             <button
                                 v-t="'save'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleSave( true )"
                             ></button>
                         </li>
@@ -65,7 +66,7 @@
                             <button
                                 v-t="'saveAs'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleSave( false )"
                                 data-api-song-save
                             ></button>
@@ -74,7 +75,7 @@
                             <button
                                 v-t="'exportProject'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleExport()"
                             ></button>
                         </li>
@@ -82,7 +83,7 @@
                             <button
                                 v-t="'exportJSON'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleJSONExport()"
                             ></button>
                         </li>
@@ -90,20 +91,33 @@
                             <button
                                 v-t="'exportMidi'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleMidiExport()"
                             ></button>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a v-t="'instruments'" class="title" @click.prevent=""></a>
-                    <ul class="file-menu">
+                    <a v-t="'edit'" class="menu-list__title" @click.prevent=""></a>
+                    <ul class="menu-list__submenu">
+                        <li>
+                            <button
+                                v-t="'transposePitch'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="handleTransposeClick()"
+                            ></button>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a v-t="'instruments'" class="menu-list__title" @click.prevent=""></a>
+                    <ul class="menu-list__submenu">
                         <li>
                             <button
                                 v-t="'manageInstruments'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleInstrumentBrowserClick()"
                             ></button>
                         </li>
@@ -111,7 +125,7 @@
                             <button
                                 v-t="'instrumentEditor'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleInstrumentEditorClick()"
                             ></button>
                         </li>
@@ -119,7 +133,7 @@
                             <button
                                 v-t="'sampleEditor'"
                                 type="button"
-                                class="menu-button"
+                                class="menu-list__button"
                                 @click="handleSampleEditorClick()"
                             ></button>
                         </li>
@@ -129,7 +143,7 @@
                     <button
                         v-t="'settings'"
                         type="button"
-                        class="menu-button"
+                        class="menu-list__button"
                         @click="handleSettings()"
                         data-api-settings
                     ></button>
@@ -137,7 +151,7 @@
                 <li>
                     <button
                         type="button"
-                        class="menu-button"
+                        class="menu-list__button"
                         @click="handleRecord()"
                         data-api-record
                     >{{ recordingButtonText }}</button>
@@ -146,7 +160,7 @@
                     <button
                         v-t="'helpTutorials'"
                         type="button"
-                        class="menu-button"
+                        class="menu-list__button"
                         @click="handleHelp()"
                         data-api-help
                     ></button>
@@ -156,7 +170,7 @@
                     <button
                         ref="fullscreenBtn"
                         type="button"
-                        class="menu-button"
+                        class="menu-list__button"
                         :title="$t( isFullscreen ? 'minimize' : 'maximize' )"
                         data-api-fullscreen
                     >
@@ -287,6 +301,9 @@ export default {
         handleMidiExport() {
             this.openModal( ModalWindows.MIDI_EXPORT_WINDOW );
         },
+        handleTransposeClick() {
+            this.openModal( ModalWindows.TRANSPOSITION_EDITOR );
+        },
         handleReset() {
             this.openDialog({
                 type: "confirm",
@@ -343,8 +360,8 @@ export default {
     @include boxSize();
 }
 
-.menu-button,
-.title {
+.menu-list__button,
+.menu-list__title {
     @include titleFont();
     cursor: pointer;
     background: none;
@@ -465,7 +482,7 @@ h1 {
             @include boxSize;
         }
     }
-    .file-menu li {
+    .menu-list__submenu li {
         display: block;
         padding: $spacing-xsmall $spacing-medium;
     }
@@ -533,7 +550,7 @@ h1 {
             li {
                 padding: $spacing-small $spacing-large;
 
-                .file-menu li {
+                .menu-list__submenu li {
                     padding: $spacing-small 0;
                 }
 
@@ -569,7 +586,7 @@ h1 {
             background-repeat: repeat-x;
             display: none;
 
-            .title {
+            &__title {
                 display: none;
             }
         }

@@ -237,6 +237,9 @@ export default {
                 case ModalWindows.MIDI_EXPORT_WINDOW:
                     loadFn = () => import( "@/components/midi-export-window/midi-export-window" );
                     break;
+                case ModalWindows.TRANSPOSITION_EDITOR:
+                    loadFn = () => import( "@/components/transposition-editor/transposition-editor" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },

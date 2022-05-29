@@ -28,6 +28,7 @@ import PatternUtil         from "@/utils/pattern-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 import { enqueueState }    from "@/model/factories/history-state-factory";
 import AudioService        from "@/services/audio-service";
+import { Transpose }       from "@/services/audio/pitch";
 import PatternFactory      from "./pattern-factory";
 
 /**
@@ -82,6 +83,9 @@ export default function( type, data ) {
 
         case Actions.REPLACE_INSTRUMENT:
             return replaceInstrumentAction( data );
+
+        case Actions.TRANSPOSE:
+            return transpositionAction( data );
     }
 }
 
@@ -595,6 +599,44 @@ function replaceInstrumentAction({ store, instrument }) {
         },
         redo: commit,
     });
+}
+
+/* eslint-disable no-unused-vars */
+function transpositionAction({ store, semitones, firstPattern, lastPattern, firstChannel, lastChannel }) {
+    const { getters, commit, rootState } = store;
+    const songPatterns = getters.activeSong.patterns;
+
+    const transposedPatterns = clone( songPatterns );
+
+    let p = firstPattern;
+    do {
+        const channels = transposedPatterns[ p ].channels;
+        let c = firstChannel;
+        do {
+            channels[ c ].forEach( event => {
+                if ( !event ) {
+                    return;
+                }
+                const { note, octave } = Transpose( event.note, event.octave, semitones );
+                event.note = note;
+                event.octave = octave;
+            })
+            ++c;
+        } while ( c <= lastChannel );
+        ++p;
+    } while ( p <= lastPattern );
+
+    function act() {
+        commit( "replacePatterns", transposedPatterns );
+    }
+    act(); // perform action
+
+    return {
+        undo() {
+            commit( "replacePatterns", songPatterns );
+        },
+        redo: act
+    };
 }
 
 // when changing states of observables, we need to take heed to always restore

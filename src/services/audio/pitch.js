@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import Config from "@/config";
 
 /**
  * @param {string} aNote - musical note to return ( A, B, C, D, E, F, G with
@@ -202,6 +203,29 @@ export const detectPitch = ( analyserNode, audioContext ) => {
         T0 = T0 - b / ( 2 * a );
     }
     return audioContext.sampleRate / T0;
+};
+
+/**
+ * Transpose given note and octave by given amount of semitones
+ *
+ * @param {string} note
+ * @param {number} octave
+ * @param {number} semitones to shift by, can be negative for downwards transposition
+ */
+export const Transpose = ( note, octave, semitones ) => {
+    const isPitchDown   = semitones < 0;
+    const notesInOctave = Pitch.OCTAVE_SCALE.length;
+    const octaves = Math.abs( semitones ) >= notesInOctave ? Math.floor( semitones / notesInOctave ) : 0;
+
+    if ( isPitchDown ) {
+        semitones = ( notesInOctave - Math.abs( semitones % 12 ));
+    }
+    const startIndex = Pitch.OCTAVE_SCALE.indexOf( note );
+
+    return {
+        note   : Pitch.OCTAVE_SCALE[( startIndex + semitones ) % notesInOctave ],
+        octave : Math.max( 1, Math.min( Config.MAX_OCTAVE, octave + octaves ))
+    };
 };
 
 const Pitch =

@@ -6,6 +6,8 @@
     "open": "Open",
     "save": "Save",
     "saveAs": "Save as",
+    "edit": "Edit",
+    "transposePitch": "Transpose note pitch",
     "instruments": "Instruments",
     "instrumentEditor": "Instrument editor",
     "sampleEditor": "Sample editor",

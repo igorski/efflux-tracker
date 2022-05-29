@@ -45,4 +45,5 @@ export default
     PASTE_SELECTION          : "S:11",
     TEMPO_CHANGE             : "S:12",
     REPLACE_INSTRUMENT       : "S:13",
+    TRANSPOSE                : "S:14",
 };
