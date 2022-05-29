@@ -91,6 +91,7 @@
                 step=".01"
                 value="0"
                 class="range"
+                @dblclick="resetPan()"
             />
         </div>
     </div>
@@ -340,6 +341,9 @@ export default {
         hasSolo() {
             // whether one or more of the other channels in the songs instrument list has solo enabled
             return this.activeSong.instruments.find(( instrument, index ) => index !== this.instrumentIndex && instrument.solo );
+        },
+        resetPan() {
+            this.panning = 0;
         },
         update( prop, value, optChangeHandler ) {
             const store    = this.$store;
