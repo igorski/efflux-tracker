@@ -96,6 +96,15 @@ export default {
             return this.activeSong.patterns.length;
         },
     },
+    watch: {
+        semitones( value ) {
+            if ( value < -24 ) {
+                this.semitones = -24;
+            } else if ( value > 24 ) {
+                this.semitones = 24;
+            }
+        }
+    },
     created() {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
         this.firstPattern = 1;
