@@ -171,10 +171,12 @@ export const applyModules = ( song, connectAnalysers = false ) => {
     const hasSoloChannel = song.instruments.find( instrument => !!instrument.solo );
     song.instruments.forEach(( instrument, instrumentIndex ) => {
         const instrumentModules        = instrumentModulesList[ instrumentIndex ];
-        const { muted, solo, panning } = instrument;
+        const { muted, solo } = instrument;
 
         instrumentModules.output.gain.value = muted || ( hasSoloChannel && !solo ) ? 0 : instrument.volume;
-        if (instrumentModules.panner && typeof panning === "number") {
+
+        if ( instrumentModules.panner ) {
+            const panning = instrument.panning ? parseFloat( instrument.panning ) : 0;
             instrumentModules.panner.pan.value = panning;
         }
         const analyser = instrumentModules.analyser;
