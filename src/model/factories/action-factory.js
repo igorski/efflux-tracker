@@ -601,9 +601,8 @@ function replaceInstrumentAction({ store, instrument }) {
     });
 }
 
-/* eslint-disable no-unused-vars */
 function transpositionAction({ store, semitones, firstPattern, lastPattern, firstChannel, lastChannel }) {
-    const { getters, commit, rootState } = store;
+    const { getters, commit } = store;
     const songPatterns = getters.activeSong.patterns;
 
     const transposedPatterns = clone( songPatterns );

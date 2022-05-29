@@ -113,7 +113,7 @@ export const prepareEnvironment = ( audioContextInstance, waveTables, optExterna
  */
 export const reset = ( resetEventCounter = false ) => {
     instrumentEventsList.forEach(( eventList, instrumentIndex ) => {
-        processVoices(Object.values( eventList ), ( voice, oscillatorIndex ) => {
+        processVoices( Object.values( eventList ), ( voice, oscillatorIndex ) => {
             returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex );
             stopOscillation( voice.generator, audioContext.currentTime );
         });
@@ -536,8 +536,8 @@ function createModules() {
     }
 }
 
-function retrieveAvailableVoiceNodesFromPool(instrumentModules, oscillatorIndex) {
-    const availableVoices = instrumentModules.voices[oscillatorIndex];
+function retrieveAvailableVoiceNodesFromPool( instrumentModules, oscillatorIndex ) {
+    const availableVoices = instrumentModules.voices[ oscillatorIndex ];
     if (availableVoices.length) {
         return availableVoices.shift();
     }
@@ -552,9 +552,9 @@ function returnVoiceNodesToPoolOnPlaybackEnd( instrumentModules, oscillatorIndex
 
         // delete the associated event from the playback list
         // we delay this until the voices have actually halted playback
-        // as otherwise the voices aren"t always returned to the pool on Safari/iOS
+        // as otherwise the voices aren't always returned to the pool on Safari/iOS
 
-        if (eventId !== null) {
+        if ( eventId !== null ) {
             delete instrumentEventsList[ instrumentIndex ][ eventId ];
         }
 
