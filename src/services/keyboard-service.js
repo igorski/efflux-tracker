@@ -160,19 +160,19 @@ function handleKeyDown( event ) {
         return;
     }
     const { keyCode } = event;
-    shiftDown = !!event.shiftKey;
+
+    if ( typeof listener === "function" ) {
+        listener( "down", keyCode, event );
+        return;
+    }
 
     // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
 
     if ( blockDefaults && DEFAULT_BLOCKED.includes( keyCode )) {
         preventDefault( event );
     }
-
-    if ( typeof listener === "function" ) {
-        listener( "down", keyCode, event );
-        return;
-    }
     const hasOption = KeyboardService.hasOption( event );
+    shiftDown = !!event.shiftKey;
 
     if ( !hasOption && !shiftDown ) {
         handleInputForMode( keyCode );

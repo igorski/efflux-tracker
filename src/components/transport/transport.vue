@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,8 +22,9 @@
  */
 <template>
     <section class="transport-section">
-        <div class="transport-controls"
-             :class="{ 'settings-mode': mobileMode === 'settings' }"
+        <div
+            class="transport-controls"
+            :class="{ 'settings-mode': mobileMode === 'settings' }"
         >
             <ul class="transport-controls__buttons">
                 <li>
@@ -82,10 +83,11 @@
                 <li class="current-pattern">
                     <input
                         class="current"
+                        ref="currentPatternInput"
                         v-model.number="currentPatternValue"
                         maxlength="3"
-                        @focus="suspendKeyboardService(true)"
-                        @blur="suspendKeyboardService(false)"
+                        @focus="focusPatternInput( true )"
+                        @blur="focusPatternInput( false )"
                     />
                     <span class="divider">/</span>
                     <span class="total">{{ activeSong.patterns.length.toString() }}</span>
@@ -142,12 +144,15 @@ import Vue from "vue";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
 import { enqueueState } from "@/model/factories/history-state-factory";
+import KeyboardService from "@/services/keyboard-service";
 import { resetPlayState } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
     i18n: { messages },
     data: () => ({
+        tempPatternValue: 0,
+        patternFocused: false,
         originalTempo: 0,
         showTempoInput: false,
     }),
@@ -196,13 +201,13 @@ export default {
         },
         currentPatternValue: {
             get() {
-                return this.activePattern + 1;
+                return ( this.patternFocused ? this.tempPatternValue : this.activePattern ) + 1;
             },
             set( patternValue ) {
                 // normalize to Array indices (0 == first, not 1)
-                const value = Math.min( patternValue, this.activeSong.patterns.length ) - 1;
+                const value = Math.min( parseFloat( patternValue ), this.activeSong.patterns.length ) - 1;
                 if ( value >= 0 && value !== this.activePattern ) {
-                    this.setActivePattern( value );
+                    this.tempPatternValue = value;
                 }
             }
         },
@@ -271,13 +276,45 @@ export default {
             "setTempo",
             "setActivePattern",
             "setPatternSteps",
-            "suspendKeyboardService",
             "gotoPreviousPattern",
             "gotoNextPattern",
             "setMobileMode",
         ]),
         handleSettingsToggle() {
             this.setMobileMode( this.mobileMode ? null : "settings" );
+        },
+        focusPatternInput( value ) {
+            KeyboardService.setListener( value ? this.handlePatternInput.bind( this ) : null );
+            if ( value ) {
+                this.tempPatternValue = this.activePattern;
+            } else {
+                this.setActivePattern( this.tempPatternValue );
+            }
+            this.patternFocused = value;
+        },
+        blurPatternInput() {
+            this.$refs.currentPatternInput?.blur();
+        },
+        handlePatternInput( type, keyCode ) {
+            if ( type !== "up" ) {
+                return;
+            }
+            switch ( keyCode ) {
+                default:
+                    return;
+                case 13: // enter
+                    this.blurPatternInput();
+                    break;
+                case 27: // esc
+                    this.tempPatternValue = this.activePattern; // cancel changes
+                    this.blurPatternInput();
+                    break;
+                case 32: // spacebar
+                    this.blurPatternInput();
+                    this.setPlaying( !this.isPlaying );
+                    break;
+            }
+            event.preventDefault();
         },
         async handleTempoInputShow() {
             this.showTempoInput = true;

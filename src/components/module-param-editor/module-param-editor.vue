@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -24,85 +24,102 @@
     <div class="module-param-editor">
         <div class="header">
             <h2 v-t="'title'"></h2>
-            <button class="help-button"  @click="handleHelp">?</button>
-            <button class="close-button" @click="handleClose">x</button>
+            <button type="button" class="help-button" @click="handleHelp">?</button>
+            <button type="button" class="close-button" @click="handleClose">x</button>
         </div>
         <hr class="divider" />
         <ul id="moduleSelect">
             <ul class="event">
-                <form-list-item v-t="'volume'"
-                                v-model="module"
-                                :option-value="automationParam('volume')"
+                <form-list-item
+                    v-t="'volume'"
+                    v-model="module"
+                    :option-value="automationParam('volume')"
                 />
                 <template v-if="supportsPanning">
-                    <form-list-item v-t="'panLeft'"
-                                    v-model="module"
-                                    :option-value="automationParam('panLeft')"
+                    <form-list-item
+                        v-t="'panLeft'"
+                        v-model="module"
+                        :option-value="automationParam('panLeft')"
                     />
-                    <form-list-item v-t="'panRight'"
-                                    v-model="module"
-                                    :option-value="automationParam('panRight')"
+                    <form-list-item
+                        v-t="'panRight'"
+                        v-model="module"
+                        :option-value="automationParam('panRight')"
                     />
                 </template>
-                <form-list-item v-t="'pitchUp'"
-                                v-model="module"
-                                :option-value="automationParam('pitchUp')"
+                <form-list-item
+                    v-t="'pitchUp'"
+                    v-model="module"
+                    :option-value="automationParam('pitchUp')"
                 />
-                <form-list-item v-t="'pitchDown'"
-                                v-model="module"
-                                :option-value="automationParam('pitchDown')"
+                <form-list-item
+                    v-t="'pitchDown'"
+                    v-model="module"
+                    :option-value="automationParam('pitchDown')"
                 />
             </ul>
             <ul class="filter">
-                <form-list-item v-t="'filterOnOff'"
-                                v-model="module"
-                                :option-value="automationParam('filterEnabled')"
+                <form-list-item
+                    v-t="'filterOnOff'"
+                    v-model="module"
+                    :option-value="automationParam('filterEnabled')"
                 />
-                <form-list-item v-t="'filterFreq'"
-                                v-model="module"
-                                :option-value="automationParam('filterFreq')"
+                <form-list-item
+                    v-t="'filterFreq'"
+                    v-model="module"
+                    :option-value="automationParam('filterFreq')"
                 />
-                <form-list-item v-t="'filterQ'"
-                                v-model="module"
-                                :option-value="automationParam('filterQ')"
+                <form-list-item
+                    v-t="'filterQ'"
+                    v-model="module"
+                    :option-value="automationParam('filterQ')"
                 />
-                <form-list-item v-t="'filterLfoOnOff'"
-                                v-model="module"
-                                :option-value="automationParam('filterLFOEnabled')"
+                <form-list-item
+                    v-t="'filterLfoOnOff'"
+                    v-model="module"
+                    :option-value="automationParam('filterLFOEnabled')"
                 />
-                <form-list-item v-t="'filterLfoSpeed'"
-                                v-model="module"
-                                :option-value="automationParam('filterLFOSpeed')"
+                <form-list-item
+                    v-t="'filterLfoSpeed'"
+                    v-model="module"
+                    :option-value="automationParam('filterLFOSpeed')"
                 />
-                <form-list-item v-t="'filterLfoDepth'"
-                                v-model="module"
-                                :option-value="automationParam('filterLFODepth')"
+                <form-list-item
+                    v-t="'filterLfoDepth'"
+                    v-model="module"
+                    :option-value="automationParam('filterLFODepth')"
                 />
             </ul>
             <ul class="delay">
-                <form-list-item v-t="'delayOnOff'"
-                                v-model="module"
-                                :option-value="automationParam('delayEnabled')"
+                <form-list-item
+                    v-t="'delayOnOff'"
+                    v-model="module"
+                    :option-value="automationParam('delayEnabled')"
                 />
-                <form-list-item v-t="'delayTime'"
-                                v-model="module"
-                                :option-value="automationParam('delayTime')"
+                <form-list-item
+                    v-t="'delayTime'"
+                    v-model="module"
+                    :option-value="automationParam('delayTime')"
                 />
-                <form-list-item v-t="'delayFeedback'"
-                                v-model="module"
-                                :option-value="automationParam('delayFeedback')"
+                <form-list-item
+                    v-t="'delayFeedback'"
+                    v-model="module"
+                    :option-value="automationParam('delayFeedback')"
                 />
-                <form-list-item v-t="'delayDry'"
-                                v-model="module"
-                                :option-value="automationParam('delayDry')"
+                <form-list-item
+                    v-t="'delayDry'"
+                    v-model="module"
+                    :option-value="automationParam('delayDry')"
                 />
-                <form-list-item v-t="'delayCutoff'"
-                                v-model="module"
-                                :option-value="automationParam('delayCutoff')"
+                <form-list-item
+                    v-t="'delayCutoff'"
+                    v-model="module"
+                    :option-value="automationParam('delayCutoff')"
                 />
-                <form-list-item v-t="'delayOffset'"
-                                v-model="module"
-                                :option-value="automationParam('delayOffset')"
+                <form-list-item
+                    v-t="'delayOffset'"
+                    v-model="module"
+                    :option-value="automationParam('delayOffset')"
                 />
             </ul>
         </ul>
@@ -116,18 +133,19 @@
             </div>
             <div class="wrapper input range">
                 <label v-t="'parameterValue'" for="moduleValue"></label>
-                <input v-model.number="value"
-                       type="range"
-                       id="moduleValue"
-                       min="0" max="100" step="1"
+                <input
+                    v-model.number="value"
+                    type="range"
+                    min="0" max="100" step="1"
                 />
                 <div id="moduleInputValue" v-html="valueText"></div>
             </div>
             <p v-t="'fastEditDescr'"></p>
-            <button v-t="'ok'"
-                    type="button"
-                    class="confirm-button"
-                    @click="handleSubmit"
+            <button
+                v-t="'ok'"
+                type="button"
+                class="confirm-button"
+                @click="handleSubmit()"
             ></button>
         </fieldset>
     </div>
@@ -150,7 +168,7 @@ import {
     FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
     PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
     VOLUME
-} from '@/definitions/automatable-parameters';
+} from "@/definitions/automatable-parameters";
 
 const DEFAULT_MODULE = VOLUME;
 let lastValueTypeAction = 0, lastValueChar = 0;
@@ -200,56 +218,56 @@ export default {
         this.channelIndex = this.selectedInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
         this.step         = this.selectedStep;
 
-        KeyboardService.setBlockDefaults(false);
-        KeyboardService.setListener(this.handleKey);
+        KeyboardService.setBlockDefaults( false );
+        KeyboardService.setListener( this.handleKey );
 
-        this.supportsPanning = supports('panning');
+        this.supportsPanning = supports("panning");
     },
     beforeDestroy() {
         KeyboardService.reset();
     },
     methods: {
         ...mapMutations([
-            'addEventAtPosition',
+            "addEventAtPosition",
         ]),
         handleClose() {
-            this.$emit('close');
+            this.$emit("close");
         },
         automationParam(key) {
             switch (key) {
                 default:
                     throw new Error(`Param ${key} is not a valid module automation`);
-                case 'volume': return VOLUME;
-                case 'panLeft': return PAN_LEFT;
-                case 'panRight': return PAN_RIGHT;
-                case 'pitchUp': return PITCH_UP;
-                case 'pitchDown': return PITCH_DOWN;
-                case 'filterEnabled': return FILTER_ENABLED;
-                case 'filterFreq': return FILTER_FREQ;
-                case 'filterQ': return FILTER_Q;
-                case 'filterLFOEnabled': return FILTER_LFO_ENABLED;
-                case 'filterLFOSpeed': return FILTER_LFO_SPEED;
-                case 'filterLFODepth': return FILTER_LFO_DEPTH;
-                case 'delayEnabled': return DELAY_ENABLED;
-                case 'delayTime': return DELAY_TIME;
-                case 'delayFeedback': return DELAY_FEEDBACK;
-                case 'delayDry': return DELAY_DRY;
-                case 'delayCutoff': return DELAY_CUTOFF;
-                case 'delayOffset': return DELAY_OFFSET;
+                case "volume": return VOLUME;
+                case "panLeft": return PAN_LEFT;
+                case "panRight": return PAN_RIGHT;
+                case "pitchUp": return PITCH_UP;
+                case "pitchDown": return PITCH_DOWN;
+                case "filterEnabled": return FILTER_ENABLED;
+                case "filterFreq": return FILTER_FREQ;
+                case "filterQ": return FILTER_Q;
+                case "filterLFOEnabled": return FILTER_LFO_ENABLED;
+                case "filterLFOSpeed": return FILTER_LFO_SPEED;
+                case "filterLFODepth": return FILTER_LFO_DEPTH;
+                case "delayEnabled": return DELAY_ENABLED;
+                case "delayTime": return DELAY_TIME;
+                case "delayFeedback": return DELAY_FEEDBACK;
+                case "delayDry": return DELAY_DRY;
+                case "delayCutoff": return DELAY_CUTOFF;
+                case "delayOffset": return DELAY_OFFSET;
             }
         },
         /**
          * invoked by KeyboardService
          */
-        handleKey(type, keyCode/*, event*/) {
-            if ( type !== 'down' )
+        handleKey( type, keyCode/*, event*/ ) {
+            if ( type !== "down" ) {
                 return;
-
-            switch (keyCode) {
+            }
+            switch ( keyCode ) {
                 // modules and parameters
 
                 default:
-                    this.module = ModuleParamHandler.selectModuleByKeyAction(keyCode, this.module) || DEFAULT_MODULE;
+                    this.module = ModuleParamHandler.selectModuleByKeyAction( keyCode, this.module ) || DEFAULT_MODULE;
                     break;
 
                 case 27: // escape
@@ -284,9 +302,9 @@ export default {
                     // if this character was typed shortly after the previous one, combine
                     // their numerical values for more precise control
 
-                    if ( now - lastValueTypeAction < 500 )
+                    if ( now - lastValueTypeAction < 500 ) {
                         value = parseFloat( '' + lastValueChar + num );
-
+                    }
                     this.value = value;
                     lastValueTypeAction = now;
                     lastValueChar = num;
@@ -300,8 +318,9 @@ export default {
             let event        = channel[ this.step ];
             const isNewEvent = !event;
 
-            if ( isNewEvent )
+            if ( isNewEvent ) {
                 event = EventFactory.createAudioEvent();
+            }
 
             event.mp = {
                 module: this.module,
@@ -323,7 +342,7 @@ export default {
             this.handleClose();
         },
         handleHelp() {
-            window.open( ManualURLs.PARAM_ENTRY_HELP, '_blank' );
+            window.open( ManualURLs.PARAM_ENTRY_HELP, "_blank" );
         },
     },
 };
@@ -334,7 +353,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 470px;
+$height: 485px;
 
 .module-param-editor {
     @include editorComponent();
