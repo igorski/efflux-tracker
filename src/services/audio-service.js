@@ -340,6 +340,8 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
     }
 };
 
+const releaseQueue = {};
+
 /**
  * immediately stop playing audio for the given event (or after a small
  * delay in case a positive release envelope is set)
@@ -349,14 +351,32 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
  *                  this will default to the current time. This time should
  *                  equal the end of the note's sustain period as its release
  *                  phase will be applied automatically
- * @param {Function=} optCallback optional callback to execute once release phase starts
+ * @param {Function=} optReleaseCallback optional callback to execute once release phase starts
  */
-export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime, optCallback = null ) => {
+export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime, optReleaseCallback = null ) => {
+    const { id } = event; // grab reference as event.id can be updated on loop
     const instrumentIndex = event.instrument;
-    const eventVoices = instrumentEventsList[ instrumentIndex ][ event.id ];
+    const eventVoices = instrumentEventsList[ instrumentIndex ][ id ];
 
-    if ( !eventVoices ) return; // event has no reference to playing nodes
+    const releaseFn = optReleaseCallback !== null ? () => {
+        releaseQueue[ id ] = createTimer( audioContext, startTimeInSeconds, () => {
+            // by checking prior to calling callback we ensure the sequencer can
+            // perform an early cancel of playback during enqueueEvent() of new noteOn event
+            // (we accept possible "double enqueue" of createTimer as this happens rarely)
+            if ( releaseQueue[ id ]) {
+                optReleaseCallback();
+            }
+            delete releaseQueue[ id ];
+        });
+    } : null;
 
+    if ( !eventVoices ) {
+        // event has no reference to playing nodes, is module automation
+        if ( optReleaseCallback ) {
+            releaseFn();
+        }
+        return;
+    }
     // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
     eventVoices.forEach(( voice, oscillatorIndex ) => {
@@ -367,15 +387,15 @@ export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime, o
         ADSR.applyAmpRelease  ( voice.vo, voice.outputNode, startTimeInSeconds );
         ADSR.applyPitchRelease( voice.vo, voice.generator,  startTimeInSeconds );
 
-        // once the release phase starts, call the optional callback
+        // once the release phase starts, call the optional callback (once!)
         // for instance to make an event eligible for sequencing again (on loop
         // we may choose to play an event again though the previous instance still
         // has a sustaining release phase note...)
 
-        if ( optCallback ) {
-            createTimer( audioContext, startTimeInSeconds, optCallback );
+        if ( optReleaseCallback && oscillatorIndex === 0 ) {
+            releaseFn();
         }
-        returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex, event.id );
+        returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex, id );
         stopOscillation( voice.generator, startTimeInSeconds + voice.vo.adsr.release );
     });
 };

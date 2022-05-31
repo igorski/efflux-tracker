@@ -24,7 +24,6 @@ import Vue             from "vue";
 import Config          from "@/config";
 import LinkedList      from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
-import { createTimer } from "@/services/audio/webaudio-helper";
 import Metronome       from "@/services/audio/metronome";
 import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
 
@@ -39,7 +38,7 @@ import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
  */
 function enqueueEvent( store, event, eventChannel ) {
     const { sequencer } = store.state;
-    const { beatAmount, nextNoteTime, activePattern, channelQueue } = sequencer;
+    const { nextNoteTime } = sequencer;
     const activeSong = store.state.song.activeSong;
     const { action } = event;
 
@@ -54,7 +53,7 @@ function enqueueEvent( store, event, eventChannel ) {
     // this allows killing of sustaining notes on tempo change / sequencer position jumps
 
     if ( action !== ACTION_IDLE ) {
-        const queue = channelQueue[ eventChannel ];
+        const queue = sequencer.channelQueue[ eventChannel ];
 
         let playingNote = queue.tail;
 
@@ -69,7 +68,7 @@ function enqueueEvent( store, event, eventChannel ) {
         */
         while ( playingNote ) {
             if ( playingNote.data.id !== event.id ) {
-                dequeueEvent( sequencer, playingNote.data, nextNoteTime, true );
+                dequeueEvent( sequencer, playingNote.data, nextNoteTime );
             }
             playingNote.remove();
             playingNote = queue.tail;
@@ -81,7 +80,7 @@ function enqueueEvent( store, event, eventChannel ) {
     }
 
     // dequeue the noteOff action for the event
-    dequeueEvent( sequencer, event, nextNoteTime + event.seq.length, isNoteOn );
+    dequeueEvent( sequencer, event, nextNoteTime + event.seq.length );
 }
 
 /**
@@ -90,44 +89,12 @@ function enqueueEvent( store, event, eventChannel ) {
  * @param {Object} state sequencer Vuex module state
  * @param {AUDIO_EVENT} event
  * @param {number} time
- * @param {boolean=} isNoteOn
  */
-function dequeueEvent( state, event, time, isNoteOn = false ) {
-    if ( isNoteOn ) {
-        noteOff( event, time, () => {
-            // upon release phase start, we make the event eligible for playback again
-            event.seq.playing = false;
-        });
-    } else {
-        // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
-        // without using a timer in dequeueEvent(), but we suffer from stability issues
-        const clock = createTimer( getAudioContext(), time, () => {
-            event.seq.playing = false;
-
-            noteOff( event );
-            freeHandler( state, clock ); // clear reference to this timed event
-        });
-
-        // store reference to prevent garbage collection prior to callback execution, this
-        // seems unnecessary but is actually necessary to guarantee stability under Safari (!)
-        state.queueHandlers.push( clock );
-    }
-}
-
-/**
- * free reference to given "clock" (makes it eligible for garbage collection)
- *
- * @param {Object} state sequencer Vuex module state
- * @param {OscillatorNode} node
- */
-function freeHandler( state, node ) {
-    node.disconnect();
-    node.onended = null;
-
-    const i = state.queueHandlers.indexOf( node );
-    if ( i !== -1 ) {
-        state.queueHandlers.splice( i, 1 );
-    }
+function dequeueEvent( state, event, time ) {
+    noteOff( event, time, () => {
+        // upon release phase start, we make the event eligible for playback again
+        event.seq.playing = false;
+    });
 }
 
 function collect( store ) {
@@ -311,7 +278,6 @@ export default {
         stepPrecision         : 64,
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
         beatUnit              : 4,
-        queueHandlers         : [],
         channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ), // holds all noteOn events
         activePattern         : 0,
         measureStartTime      : 0,
@@ -359,9 +325,6 @@ export default {
                 });
             } else {
                 state.worker.postMessage({ cmd : "stop" });
-                while ( state.queueHandlers.length ) {
-                    freeHandler( state, state.queueHandlers[ 0 ]);
-                }
                 state.channelQueue.forEach( list => list.flush());
             }
             togglePlayback( state.playing );
