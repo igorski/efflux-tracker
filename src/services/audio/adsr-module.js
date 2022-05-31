@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,9 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import OscillatorTypes from "@/definitions/oscillator-types";
+import { isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+
 let ADSR, envelope, attack, release, attackEnd, decayEnd, step;
 const MAX_PITCH_ENVELOPE_VALUE = 24; // max value we expect for the pitch envelope's range
-import { isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
 
 export default
 {
@@ -44,8 +46,8 @@ export default
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case 'SINE':
-            case 'TRIANGLE':
+            case OscillatorTypes.SINE:
+            case OscillatorTypes.TRIANGLE:
                 attack = ( ADSR.attack === 0 ) ? 0.002 : ADSR.attack;
                 break;
         }
@@ -76,8 +78,8 @@ export default
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case 'SINE':
-            case 'TRIANGLE':
+            case OscillatorTypes.SINE:
+            case OscillatorTypes.TRIANGLE:
                 release = ( ADSR.release === 0 ) ? 0.002 : ADSR.release;
                 break;
         }
@@ -97,9 +99,9 @@ export default
     applyPitchEnvelope( oscillator, generator, startTimeInSeconds ) {
         ADSR = /** @type {Object} */ ( oscillator.pitch );
 
-        if ( ADSR.range === 0 )
+        if ( ADSR.range === 0 ) {
             return; // do not apply pitch envelopes if no deviating pitch range was defined
-
+        }
         const isSample  = isAudioBufferSourceNode( generator );
 
         envelope  = ( isSample ) ? generator.playbackRate : generator.frequency;
@@ -108,14 +110,15 @@ export default
 
         const orgValue  = ADSR.org = envelope.value;
 
-        if ( isSample )
+        if ( isSample ) {
             step = ( ADSR.range / MAX_PITCH_ENVELOPE_VALUE );
-        else
+        } else {
             step = orgValue + ( orgValue / 1200 ); // 1200 cents == octave
+        }
 
-        if ( isSample && ADSR.range < 0 )
+        if ( isSample && ADSR.range < 0 ) {
             step = -step; // inverse direction
-
+        }
         const shifted = step * ( ADSR.range / MAX_PITCH_ENVELOPE_VALUE );
 
         envelope.cancelScheduledValues( startTimeInSeconds );
@@ -133,9 +136,9 @@ export default
     applyPitchRelease( oscillator, generator, startTimeInSeconds ) {
         ADSR = /** @type {Object} */ ( oscillator.pitch );
 
-        if ( ADSR.range === 0 || typeof ADSR.org !== 'number' )
+        if ( ADSR.range === 0 || typeof ADSR.org !== "number" ) {
             return; // do not apply pitch envelopes if no deviating pitch range was defined
-
+        }
         envelope = isAudioBufferSourceNode( generator ) ? generator.playbackRate : generator.frequency;
 
         envelope.cancelScheduledValues  ( startTimeInSeconds );

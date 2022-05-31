@@ -126,7 +126,7 @@ export default {
             }
         },
         createLinkedList( state, song ) {
-            EventUtil.linkEvents( song.patterns, state.eventList );
+            EventUtil.linkEvents( song, state.eventList );
         },
         setShowNoteEntry( state, value ) {
             state.showNoteEntry = value;

@@ -37,7 +37,7 @@ import {
 } from "@/utils/instrument-util";
 import { saveAsFile } from "@/utils/file-util";
 import {
-    init, startOscillation, stopOscillation, setValue,
+    init, createTimer, startOscillation, stopOscillation, setValue,
     createGainNode, createStereoPanner, createPWM, createWaveTableFromGraph
 } from "./audio/webaudio-helper";
 import { blobToResource, disposeResource } from "@/utils/resource-manager";
@@ -220,7 +220,7 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
             // afterwards dispose of playing nodes).
 
             noteOff( event, startTimeInSeconds ); // will clear previously playing notes for event
-            event.id = null;  // generates a new id below
+            event.id = null; // generates a new id below
         }
         if ( !event.id ) {
             Vue.set( event, "id", ( ++UNIQUE_EVENT_ID ));
@@ -347,12 +347,13 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
  * @param {AUDIO_EVENT} event
  * @param {number=} startTimeInSeconds optional time to start the noteOff,
  *                  this will default to the current time. This time should
- *                  equal the end of the note"s sustain period as release
- *                  will be applied automatically
+ *                  equal the end of the note's sustain period as its release
+ *                  phase will be applied automatically
+ * @param {Function=} optCallback optional callback to execute once release phase starts
  */
-export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime ) => {
-    const eventId     = event.id, instrumentIndex = event.instrument;
-    const eventVoices = instrumentEventsList[ instrumentIndex ][ eventId ];
+export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime, optCallback = null ) => {
+    const instrumentIndex = event.instrument;
+    const eventVoices = instrumentEventsList[ instrumentIndex ][ event.id ];
 
     if ( !eventVoices ) return; // event has no reference to playing nodes
 
@@ -362,11 +363,19 @@ export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime ) 
         if ( !voice ) {
             return;
         }
-        // apply release envelopes
+        // schedule release envelopes on noteOff start
         ADSR.applyAmpRelease  ( voice.vo, voice.outputNode, startTimeInSeconds );
         ADSR.applyPitchRelease( voice.vo, voice.generator,  startTimeInSeconds );
 
-        returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex, eventId );
+        // once the release phase starts, call the optional callback
+        // for instance to make an event eligible for sequencing again (on loop
+        // we may choose to play an event again though the previous instance still
+        // has a sustaining release phase note...)
+
+        if ( optCallback ) {
+            createTimer( audioContext, startTimeInSeconds, optCallback );
+        }
+        returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex, event.id );
         stopOscillation( voice.generator, startTimeInSeconds + voice.vo.adsr.release );
     });
 };
@@ -503,7 +512,7 @@ function createModules() {
     // create new modules for each possible instrument
     instrumentModulesList = new Array(Config.INSTRUMENT_AMOUNT);
 
-    for (let i = 0; i < instrumentModulesList.length; ++i ) {
+    for ( let i = 0; i < instrumentModulesList.length; ++i ) {
         const instrumentModules = instrumentModulesList[ i ] = {
             panner    : createStereoPanner( audioContext ),
             overdrive : ModuleFactory.createOverdrive( audioContext ),
@@ -515,7 +524,7 @@ function createModules() {
             output    : createGainNode( audioContext )
         };
         // max polyphony is 3 oscillators per channel
-        for (let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j) {
+        for ( let j = 0; j < Config.OSCILLATOR_AMOUNT; ++j ) {
             instrumentModules.voices[ j ] = [];
             // the channel amount can equal the total amount of instruments as in Efflux, each instrument gets a
             // channel strip in the tracker and each channel can override its target instrument (thus 24 simultaneous
@@ -538,7 +547,7 @@ function createModules() {
 
 function retrieveAvailableVoiceNodesFromPool( instrumentModules, oscillatorIndex ) {
     const availableVoices = instrumentModules.voices[ oscillatorIndex ];
-    if (availableVoices.length) {
+    if ( availableVoices.length ) {
         return availableVoices.shift();
     }
     return null;

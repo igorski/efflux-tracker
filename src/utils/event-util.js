@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue          from 'vue';
-import EventFactory from '@/model/factories/event-factory';
+import Vue          from "vue";
+import EventFactory from "@/model/factories/event-factory";
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
 
-import { getMeasureDurationInSeconds } from './audio-math';
+const NOTE_EVENTS = [ ACTION_NOTE_ON, ACTION_NOTE_OFF ];
+
+import { getMeasureDurationInSeconds } from "./audio-math";
 
 const EventUtil =
 {
@@ -41,20 +44,22 @@ const EventUtil =
     setPosition( event, pattern, patternNum, patternStep, tempo, length ) {
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
-        const { seq }       = event;
 
         if ( typeof length !== "number" ) {
            length = ( 1 / pattern.steps ) * measureLength;
         }
-        Vue.set(seq, 'length', length);
-        Vue.set(seq, 'startOffset', patternNum * getMeasureDurationInSeconds( tempo ));
-        Vue.set(seq, 'startMeasure', patternNum);
-        Vue.set(seq, 'startMeasureOffset', eventOffset);
-        Vue.set(seq, 'endMeasure', patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength )));
+        Vue.set( event, "seq", {
+            ...event.seq,
+            length,
+            startOffset  : patternNum * getMeasureDurationInSeconds( tempo ),
+            startMeasure : patternNum,
+            startMeasureOffset : eventOffset,
+            endMeasure : patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength ))
+        });
     },
     /**
      * add a (new) event at the correct position within the
-     * LinkedList queried by the SequencerController
+     * LinkedList queried by the Sequencer
      *
      * @param {AUDIO_EVENT} event
      * @param {number} channelIndex index of the channel the event belongs to
@@ -70,7 +75,10 @@ const EventUtil =
                    compareEvent.seq.startMeasure       === event.seq.startMeasure &&
                    compareEvent.seq.startMeasureOffset === event.seq.startMeasureOffset
         });
-        if ( existed ) list.remove( existed );
+
+        if ( existed ) {
+            list.remove( existed );
+        }
 
         // find previous and next events through the pattern list
 
@@ -80,12 +88,10 @@ const EventUtil =
         );
         if ( nextEvent ) {
             insertedNode = list.addBefore( nextEvent, event );
-            // update this event duration when the next event is known
-            updateLengthDelta( event, insertedNode.next.data, song.meta.tempo );
         } else {
             insertedNode = list.add( event ); // event is new tail
         }
-        updatePreviousEventLength( insertedNode, song.meta.tempo );
+        updateEventLength( insertedNode, song );
 
         return insertedNode;
     },
@@ -94,16 +100,17 @@ const EventUtil =
      * pattern lists. The sequencer will read
      * from the LinkedList for more performant results
      *
-     * @param {Array<PATTERN>} patterns
+     * @param {SONG} song
      * @param {Array<LinkedList>} lists
      */
-    linkEvents( patterns, lists ) {
+    linkEvents( song, lists ) {
         lists.forEach(( list, channelIndex ) => {
             list.flush(); // clear existing list contents
-            patterns.forEach(pattern => {
-                pattern.channels[ channelIndex ].forEach(event => {
-                    if ( event )
-                        list.add( event );
+            song.patterns.forEach( pattern => {
+                pattern.channels[ channelIndex ].forEach( event => {
+                    if ( event ) {
+                        updateEventLength( list.add( event ), song );
+                    }
                 });
             });
         });
@@ -123,18 +130,17 @@ const EventUtil =
         const channel = pattern.channels[ channelNum ];
 
         if ( list ) {
-
             const listNode = list.getNodeByData( channel[ step ]);
 
             if ( listNode ) {
                 const next = listNode.next;
                 listNode.remove();
-
-                if ( next )
-                    updatePreviousEventLength( next, song.meta.tempo );
+                if ( next && next.previous ) {
+                    updateLengthDelta( next.previous.data, next.data, song.meta.tempo );
+                }
             }
         }
-        Vue.set(channel, step, 0);
+        Vue.set( channel, step, 0 );
     },
     /**
      * Brute force way to remove an event from a song
@@ -147,14 +153,14 @@ const EventUtil =
         let found = false;
         song.patterns.forEach(( pattern, patternIndex ) => {
             pattern.channels.forEach(( channel, channelIndex ) => {
-
-                if ( found )
+                if ( found ) {
                     return;
-
+                }
                 channel.forEach(( compareEvent, eventIndex ) => {
                     if ( compareEvent === event ) {
                         EventUtil.clearEvent( song, patternIndex, channelIndex, eventIndex, lists[ channelIndex ]);
                         found = true;
+                        return;
                     }
                 });
             });
@@ -174,7 +180,7 @@ const EventUtil =
         for ( let i = step - 1; i >= 0; --i ) {
             previousEvent = channelEvents[ i ];
             if ( previousEvent &&
-                ( typeof optCompareFn !== 'function' || optCompareFn( previousEvent ))) {
+                ( typeof optCompareFn !== "function" || optCompareFn( previousEvent ))) {
                 return previousEvent;
             }
         }
@@ -200,7 +206,7 @@ const EventUtil =
             for ( let i = start; i >= 0; --i ) {
                 previousEvent = channelEvents[ i ];
                 if ( previousEvent && previousEvent !== event &&
-                    ( typeof optCompareFn !== 'function' || optCompareFn( previousEvent ))) {
+                    ( typeof optCompareFn !== "function" || optCompareFn( previousEvent ))) {
                     return previousEvent;
                 }
             }
@@ -227,7 +233,7 @@ const EventUtil =
             for ( let i = start, cl = channelEvents.length; i < cl; ++i ) {
                 nextEvent = channelEvents[ i ];
                 if ( nextEvent && nextEvent !== event &&
-                    ( typeof optCompareFn !== 'function' || optCompareFn( nextEvent ))) {
+                    ( typeof optCompareFn !== "function" || optCompareFn( nextEvent ))) {
                     return nextEvent;
                 }
             }
@@ -256,13 +262,12 @@ const EventUtil =
         let secondEvent, secondParam;
         let compareNode;
 
-        if ( !firstParam || !listNode )
+        if ( !firstParam || !listNode ) {
             return null;
-
+        }
         compareNode = listNode.next;
 
         while ( compareNode ) {
-
             secondEvent = compareNode.data;
             secondParam = secondEvent.mp;
 
@@ -273,22 +278,24 @@ const EventUtil =
                 // if new event has a module parameter change for the
                 // same module, we have found our second event
 
-                if ( secondParam.module === firstParam.module )
+                if ( secondParam.module === firstParam.module ) {
                     break;
-                else
+                } else {
                     return null;
+                }
             }
             // keep iterating through the linked list
             compareNode = compareNode.next;
         }
 
-        if ( !secondParam )
+        if ( !secondParam ) {
             return null;
+        }
 
         // ensure events glide their module parameter change
 
-        Vue.set(firstParam,  'glide', true);
-        Vue.set(secondParam, 'glide', true);
+        Vue.set( firstParam,  "glide", true );
+        Vue.set( secondParam, "glide", true );
 
         // find distance (in steps) between these two events
         // TODO: keep patterns' optional resolution differences in mind
@@ -297,14 +304,14 @@ const EventUtil =
         const events = [];
 
         const addOrUpdateEvent = ( evt, pattern, patternIndex, channel, eventIndex ) => {
-            if ( typeof evt !== 'object' ) {
+            if ( typeof evt !== "object" ) {
                 // event didn't exist... create it, insert into the channel and update LinkedList
                 evt = EventFactory.createAudioEvent( firstEvent.instrument );
-                Vue.set(channel, eventIndex, evt);
+                Vue.set( channel, eventIndex, evt );
                 list.addAfter( prevEvent, evt );
                 EventUtil.setPosition( evt, pattern, patternIndex, eventIndex, song.meta.tempo );
             }
-            Vue.set(evt, 'mp', {
+            Vue.set( evt, "mp", {
                 module: firstEvent.mp.module,
                 value: 0,
                 glide: true
@@ -340,7 +347,7 @@ const EventUtil =
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event, index ) => {
                 const mp = event.mp;
-                Vue.set(mp, 'value', firstParam.value + (( index + 1 ) * increment));
+                Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment ));
             });
         }
         else {
@@ -348,7 +355,7 @@ const EventUtil =
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event, index ) => {
                 const mp = event.mp;
-                Vue.set(mp, 'value', firstParam.value + (( index + 1 ) * increment));
+                Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment ));
             });
         }
         return events;
@@ -368,14 +375,14 @@ const EventUtil =
      * @param {Object} store the root Vuex store
      * @return {Array<AUDIO_EVENT>|null} created audio events
      */
-    glideParameterAutomations(song, step, patternIndex, channelIndex, lists, store) {
+    glideParameterAutomations( song, step, patternIndex, channelIndex, lists, store ) {
         const channelEvents = song.patterns[ patternIndex ].channels[ channelIndex ];
         const event         = EventUtil.getFirstEventBeforeStep(
                                 channelEvents, step, compareEvent => !!compareEvent.mp
                               );
         let createdEvents = null;
         const addFn = () => {
-            const eventIndex = channelEvents.indexOf(event);
+            const eventIndex = channelEvents.indexOf( event );
             createdEvents = EventUtil.glideModuleParams(
                 song, patternIndex, channelIndex, eventIndex, lists
             );
@@ -384,31 +391,26 @@ const EventUtil =
             addFn();
         }
         if ( createdEvents ) {
-            store.commit('saveState', {
+            store.commit( "saveState", {
                 undo: () => {
                     createdEvents.forEach(( event ) => {
-                        if (event.note === '')
-                            EventUtil.clearEventByReference(song, event, lists);
-                        else
-                            Vue.set(event, 'mp', null);
+                        if ( event.note === "" ) {
+                            EventUtil.clearEventByReference( song, event, lists );
+                        } else {
+                            Vue.set( event, "mp", null );
+                        }
                     });
                 },
                 redo: addFn
             });
-        } else
-            store.commit('showError', store.getters.t('errors.paramGlide'));
+        } else {
+            store.commit( "showError", store.getters.t( "errors.paramGlide" ));
+        }
     },
 };
 export default EventUtil;
 
 /* internal methods */
-
-function updatePreviousEventLength( eventListNode, songTempo ) {
-    if ( !eventListNode.previous ) {
-        return;
-    }
-    updateLengthDelta( eventListNode.previous.data, eventListNode.data, songTempo );
-}
 
 /**
  * Updates the length of given firstEvent to match the delta
@@ -419,7 +421,7 @@ function updateLengthDelta( firstEvent, lastEvent, songTempo ) {
     const eventSeq     = lastEvent.seq;
 
     if ( prevEventSeq.startMeasure === eventSeq.startMeasure ) {
-        Vue.set(prevEventSeq, 'length',
+        Vue.set( prevEventSeq, "length",
             eventSeq.startMeasureOffset - prevEventSeq.startMeasureOffset
         );
     }
@@ -432,14 +434,60 @@ function updateLengthDelta( firstEvent, lastEvent, songTempo ) {
         let i = 0;
 
         while ( previousStartMeasure < currentStartMeasure ) {
-
-            if ( i > 0 )
+            if ( i > 0 ) {
                 length += measureLength;
-
+            }
             ++previousStartMeasure;
             ++i;
         }
-        Vue.set(prevEventSeq, 'length', length + eventSeq.startMeasureOffset);
+        Vue.set( prevEventSeq, "length", length + eventSeq.startMeasureOffset );
+    }
+}
+
+function untilNodeEvent( node, dir = "next" ) {
+    let other = node[ dir ];
+    while ( other ) {
+        if ( NOTE_EVENTS.includes( other.data.action )) {
+            return other;
+        }
+        other = other[ dir ];
+    }
+    return null;
+}
+
+/**
+ * Updates the length of the event wrapped in given eventNode to last until
+ * the next NOTE_ON|NOTE_OFF event. This also retroactively updates the length of
+ * the previous node when existing.
+ */
+function updateEventLength( eventNode, song ) {
+    const { tempo } = song.meta;
+    const event = eventNode.data;
+    const { startMeasure } = event.seq;
+
+    // non note on-events last for a single step
+
+    if ( event.action !== ACTION_NOTE_ON ) {
+        const pattern = song.patterns[ startMeasure ];
+        event.seq.length = ( 1 / pattern.steps ) * calculateMeasureLength( tempo );
+        if ( !NOTE_EVENTS.includes( event.action )) {
+            return; // module automation events don't update previous and next event lengths
+        }
+    }
+
+    const prev = untilNodeEvent( eventNode, "previous" );
+    const next = untilNodeEvent( eventNode, "next" );
+
+    if ( prev ) {
+        updateLengthDelta( prev.data, event, tempo );
+    }
+
+    if ( next ) {
+        updateLengthDelta( event, next.data, tempo );
+    } else {
+        // TODO get start measure and total song length to extend beyond single measure...
+        const post = song.patterns.length - startMeasure;
+        event.seq.length = ( calculateMeasureLength( tempo ) * post ) - event.seq.startMeasureOffset;
     }
 }
 

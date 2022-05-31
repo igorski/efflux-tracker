@@ -441,10 +441,7 @@ function handleKeyDown( event ) {
 
             if ( hasOption ) {
                 const action = !shiftDown ? "undo" : "redo";
-                store.dispatch( action ).then(() => {
-                    // TODO this is wasteful, can we do this more elegantly?
-                    EventUtil.linkEvents( activeSong.patterns, editor.eventList );
-                });
+                store.dispatch( action );
                 preventDefault( event ); // override browser undo
             }
             break;

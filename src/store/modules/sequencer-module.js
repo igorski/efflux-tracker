@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -41,31 +41,21 @@ function enqueueEvent( store, event, eventChannel ) {
     const { sequencer } = store.state;
     const { beatAmount, nextNoteTime, activePattern, channelQueue } = sequencer;
     const activeSong = store.state.song.activeSong;
-    const { action, seq } = event;
+    const { action } = event;
 
-    seq.playing = true; // prevents retriggering of same event
-
-    // calculate the total duration for the events optional module parameter
-    // automation glide (a noteOn lasts until a new note or a kill event is
-    // triggered within the same channel)
-
-    const patternDuration = ( 60 / activeSong.meta.tempo ) * beatAmount;
-    const patterns        = activeSong.patterns;
-    const eventPattern    = patterns[activePattern];
-
-    seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
+    event.seq.playing = true; // prevents retriggering of same event
 
     // play back the event by rendering its audio through the AudioService
     noteOn( event, activeSong.instruments[ event.instrument ], store.getters.sampleCache, nextNoteTime );
 
-    // dequeue preceding events
-
     const isNoteOn = action === ACTION_NOTE_ON;
-    const queue    = channelQueue[ eventChannel ];
+
+    // for noteOn|noteOff actions, dequeue preceding events
+    // this allows killing of sustaining notes on tempo change / sequencer position jumps
 
     if ( action !== ACTION_IDLE ) {
+        const queue = channelQueue[ eventChannel ];
 
-        // all non-module parameter change events kill previously playing notes
         let playingNote = queue.tail;
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
@@ -79,23 +69,19 @@ function enqueueEvent( store, event, eventChannel ) {
         */
         while ( playingNote ) {
             if ( playingNote.data.id !== event.id ) {
-                dequeueEvent( sequencer, playingNote.data, nextNoteTime );
+                dequeueEvent( sequencer, playingNote.data, nextNoteTime, true );
             }
             playingNote.remove();
             playingNote = queue.tail;
         }
+
+        if ( isNoteOn ) {
+            queue.add( event );
+        }
     }
 
-    // noteOn events are pushed in a queue to be dequeued when a new noteOn/noteOff
-    // event is enqueued for this events channel. Non-noteOn events are immediately
-    // dequeued after a single sequencer tick/step (the length of a module parameter
-    // automation glide)
-
-    if ( isNoteOn ) {
-        queue.add( event );
-    } else {
-        dequeueEvent( sequencer, event, nextNoteTime + seq.mpLength );
-    }
+    // dequeue the noteOff action for the event
+    dequeueEvent( sequencer, event, nextNoteTime + event.seq.length, isNoteOn );
 }
 
 /**
@@ -104,27 +90,28 @@ function enqueueEvent( store, event, eventChannel ) {
  * @param {Object} state sequencer Vuex module state
  * @param {AUDIO_EVENT} event
  * @param {number} time
+ * @param {boolean=} isNoteOn
  */
-function dequeueEvent( state, event, time ) {
-    // unset the playing state of the event at the moment it is killed (though
-    // it's release cycle is started, we can consider the event eligible for
-    // a playback retrigger...
+function dequeueEvent( state, event, time, isNoteOn = false ) {
+    if ( isNoteOn ) {
+        noteOff( event, time, () => {
+            // upon release phase start, we make the event eligible for playback again
+            event.seq.playing = false;
+        });
+    } else {
+        // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
+        // without using a timer in dequeueEvent(), but we suffer from stability issues
+        const clock = createTimer( getAudioContext(), time, () => {
+            event.seq.playing = false;
 
-    // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-    // we'd like to use AudioService.noteOff(event, time) scheduled at the right note off time
-    // without using a timer in dequeueEvent(), but we suffer from stability issues
-    const clock = createTimer( getAudioContext(), time, () => {
-        event.seq.playing = false;
+            noteOff( event );
+            freeHandler( state, clock ); // clear reference to this timed event
+        });
 
-        noteOff( event );
-        freeHandler( state, clock ); // clear reference to this timed event
-    });
-
-    // store reference to prevent garbage collection prior to callback execution, this
-    // seems unnecessary but is actually necessary to guarantee stability under Safari (!)
-    state.queueHandlers.push( clock );
-    // noteOff(event, time);
-    // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
+        // store reference to prevent garbage collection prior to callback execution, this
+        // seems unnecessary but is actually necessary to guarantee stability under Safari (!)
+        state.queueHandlers.push( clock );
+    }
 }
 
 /**
@@ -179,15 +166,6 @@ function collect( store ) {
                     if ( compareTime >= seq.startMeasureOffset &&
                          compareTime < ( seq.startMeasureOffset + seq.length )) {
                         enqueueEvent( store, event, i );
-
-                        // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-                        // we"d like to use noteOff(event, time) scheduled at the right note off time
-                        // without using a timer in dequeueEvent(), but we suffer from stability issues
-                        //} else {
-                        //    // event is outside of trigger range, unset its playback
-                        //    // state so it can be retriggered when in range
-                        //    seq.playing = false;
-                        // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
                     }
                 }
             }
@@ -334,7 +312,7 @@ export default {
         beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
         beatUnit              : 4,
         queueHandlers         : [],
-        channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
+        channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ), // holds all noteOn events
         activePattern         : 0,
         measureStartTime      : 0,
         firstMeasureStartTime : 0,

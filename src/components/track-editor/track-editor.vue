@@ -122,8 +122,6 @@ export default {
         },
         async navigateHistory( action = "undo" ) {
             await this.$store.dispatch( action );
-            // TODO this is wasteful, can we do this more elegantly?
-            EventUtil.linkEvents( this.activeSong.patterns, this.eventList );
         }
     }
 };
