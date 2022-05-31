@@ -240,6 +240,9 @@ export default {
                 case ModalWindows.TRANSPOSITION_EDITOR:
                     loadFn = () => import( "@/components/transposition-editor/transposition-editor" );
                     break;
+                case ModalWindows.OPTIMIZATION_WINDOW:
+                    loadFn = () => import( "@/components/optimization-window/optimization-window" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },

@@ -108,6 +108,14 @@
                                 @click="handleTransposeClick()"
                             ></button>
                         </li>
+                        <li>
+                            <button
+                                v-t="'optimizeResources'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="handleOptimizeClick()"
+                            ></button>
+                        </li>
                     </ul>
                 </li>
                 <li>
@@ -303,6 +311,9 @@ export default {
         },
         handleTransposeClick() {
             this.openModal( ModalWindows.TRANSPOSITION_EDITOR );
+        },
+        handleOptimizeClick() {
+            this.openModal( ModalWindows.OPTIMIZATION_WINDOW );
         },
         handleReset() {
             this.openDialog({
