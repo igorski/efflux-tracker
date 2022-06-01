@@ -36,7 +36,7 @@
             <button
                 v-t="'optimize'"
                 type="button"
-                class="button"
+                class="button confirm-button"
                 @click="optimize()"
             ></button>
         </div>
@@ -114,7 +114,7 @@ export default {
 @import "@/styles/transporter";
 
 $width: 450px;
-$height: 475px;
+$height: 270px;
 
 .optimization-window {
     @include editorComponent();
@@ -138,6 +138,11 @@ $height: 475px;
 
     @include componentFallback( $width, $height ) {
         @include verticalScrollOnMobile();
+    }
+
+    .confirm-button {
+        width: 100%;
+        padding: $spacing-medium $spacing-large;
     }
 }
 </style>

@@ -105,7 +105,7 @@ const SampleFactory = {
                 if ( sample.rangeEnd > sample.length ) {
                     sample.rangeEnd = sample.length;
                     // eslint-disable-next-line no-console
-                    console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
+                    //console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
                 }
 
                 resolve( sample );
