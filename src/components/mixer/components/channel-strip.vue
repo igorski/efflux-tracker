@@ -38,7 +38,7 @@
                 class="range"
             />
             <meter
-                v-if="supportsAnalyzer"
+                v-if="performAnalysis"
                 :value="output"
                 class="meter"
                 min="-100"
@@ -103,6 +103,7 @@ import { EQ_LOW, EQ_MID, EQ_HIGH, applyParamChange } from "@/definitions/param-i
 import ModalWindows from "@/definitions/modal-windows";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import AudioService, { applyModule } from "@/services/audio-service";
+import { supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
 import { supports } from "@/services/audio/webaudio-helper";
 import { clone } from "@/utils/object-util";
 import EqControl from "./eq-control";
@@ -293,15 +294,14 @@ export default {
                 this.updateParamChange( EQ_HIGH, value, this.eqHigh );
             }
         },
-        supportsAnalyzer() {
-            // not supported in older Safari's
-            return typeof this.analyser?.getFloatTimeDomainData === "function";
+        performAnalysis() {
+            return supportsAnalysis( this.analyser );
         },
     },
     created() {
         this.supportsPanning = supports( "panning" );
 
-        if ( !this.supportsAnalyzer ) {
+        if ( !this.performAnalysis ) {
             return;
         }
         // if an AnalyserNode is provided, start the render loop to update the meter
@@ -311,16 +311,7 @@ export default {
         const sampleBuffer    = new Float32Array( this.analyser.fftSize );
 
         const renderLoop = () => {
-            this.analyser.getFloatTimeDomainData( sampleBuffer );
-
-            // Compute average power over the interval.
-            let sumOfSquares = 0;
-            for ( let i = 0; i < sampleBuffer.length; i++ ) {
-                sumOfSquares += sampleBuffer[ i ] ** 2;
-            }
-            const avgPowerDecibels = 10 * Math.log10( sumOfSquares / sampleBuffer.length );
-
-            this.output      = isFinite( avgPowerDecibels ) ? avgPowerDecibels : -100;
+            this.output      = getAmplitude( this.analyser, sampleBuffer );
             this.renderCycle = requestAnimationFrame( renderLoop );
         };
         renderLoop();
@@ -432,21 +423,7 @@ $width: 80px;
     width: 109px;
     height: 22px;
 
-    // hot signals display as red, otherwise green
-
-    &:-moz-meter-sub-optimum::-moz-meter-bar {
-        background: #00BB00;
-    }
-    &::-webkit-meter-suboptimum-value {
-        background: #00BB00;
-    }
-
-    &:-moz-meter-optimum::-moz-meter-bar {
-        background: red;
-    }
-    &::-webkit-meter-optimum-value {
-        background: red;
-    }
+    @include meter();
 }
 
 .volume-title {

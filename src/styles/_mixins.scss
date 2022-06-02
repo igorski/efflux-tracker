@@ -177,6 +177,27 @@
     }
 }
 
+@mixin meter() {
+    transform: rotate(-90deg);
+    transform-origin: 0;
+    
+    // hot signals display as red, otherwise green
+
+    &:-moz-meter-sub-optimum::-moz-meter-bar {
+        background: #00BB00;
+    }
+    &::-webkit-meter-suboptimum-value {
+        background: #00BB00;
+    }
+
+    &:-moz-meter-optimum::-moz-meter-bar {
+        background: red;
+    }
+    &::-webkit-meter-optimum-value {
+        background: red;
+    }
+}
+
 @mixin overlay {
     // mobile first, override in custom inheriting classes
     // what the desktop / tablet views should look like

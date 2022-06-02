@@ -24,9 +24,10 @@
     <div class="sample-recorder">
         <div class="header">
             <h2 v-t="'recordInput'"></h2>
-            <button type="button"
-                    class="close-button"
-                    @click="$emit('close')"
+            <button
+                type="button"
+                class="close-button"
+                @click="close()"
             >x</button>
         </div>
         <hr class="divider" />
@@ -54,6 +55,16 @@
                 :options="availableInputs"
                 :disabled="!inputs.length"
             />
+            <meter
+                v-if="performAnalysis"
+                :value="output"
+                class="meter"
+                min="-100"
+                max="10"
+                low="-100"
+                high="-5"
+                optimum="0"
+            ></meter>
         </div>
     </div>
 </template>
@@ -64,6 +75,7 @@ import { MediaRecorder, register } from "extendable-media-recorder";
 import { connect } from "extendable-media-recorder-wav-encoder";
 import SampleFactory from "@/model/factories/sample-factory";
 import AudioService from "@/services/audio-service";
+import { createAnalyser, supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import SelectBox from "@/components/forms/select-box";
 import TimeUtil from "@/utils/time-util";
@@ -83,6 +95,8 @@ export default {
         selectedInput: "0",
         pct: C,
         isRecording: false,
+        output: -100,
+        performAnalysis: false,
     }),
     computed: {
         ...mapState([
@@ -117,9 +131,30 @@ export default {
                     await register( await connect());
                     this.setMediaConnected( true );
                 }
+
+                // 1. connect input device
+
                 const stream = await navigator.mediaDevices.getUserMedia({
                     audio: { deviceId : this.inputs[ parseFloat( this.selectedInput )].deviceId }
                 });
+
+                // 2. prepare analyser to monitor input
+
+                const audioContext = AudioService.getAudioContext();
+
+                this.analyser = createAnalyser( audioContext.createMediaStreamSource( stream ), audioContext );
+                this.performAnalysis = supportsAnalysis( this.analyser );
+                if ( this.performAnalysis ) {
+                    const sampleBuffer = new Float32Array( this.analyser.fftSize );
+                    const renderLoop = () => {
+                        this.output      = getAmplitude( this.analyser, sampleBuffer );
+                        this.renderCycle = requestAnimationFrame( renderLoop );
+                    };
+                    renderLoop();
+                }
+
+                // 3. prepare media recorder to capture input
+
                 const chunks = [];
                 const mediaRecorder = new MediaRecorder( stream, { mimeType: "audio/wav" });
                 mediaRecorder.addEventListener( "dataavailable", ({ data }) => {
@@ -130,13 +165,15 @@ export default {
 
                 mediaRecorder.addEventListener( "stop", async () => {
                     const blob = new Blob( chunks );
-                    const buffer = await loadSample( blob, AudioService.getAudioContext() );
+                    const buffer = await loadSample( blob, audioContext );
                     const sample = SampleFactory.create( blob, buffer, TimeUtil.timestampToDate() );
 
                     this.addSample( sample );
                     this.setCurrentSample( sample );
-                    this.$emit( "close" );
+                    this.close();
                 });
+
+                // 4. add recording progress listener
 
                 const start = window.performance.now();
                 const end   = start + MAX_DURATION;
@@ -152,6 +189,9 @@ export default {
                         window.requestAnimationFrame( handleProgress );
                     }
                 };
+
+                // 5. start recording input
+
                 this.isRecording = true;
                 mediaRecorder.start();
                 handleProgress();
@@ -161,9 +201,16 @@ export default {
         },
         stopRecording() {
             this.isRecording = false;
+            if ( this.performAnalysis ) {
+                cancelAnimationFrame( this.renderCycle );
+                this.analyser.disconnect();
+            }
         },
         handleError() {
             this.openDialog({ type: "error", message: this.$t( "errorNoDeviceAccess" ) });
+            this.close();
+        },
+        close() {
             this.$emit( "close" );
         },
     },
@@ -195,6 +242,15 @@ export default {
         width: 100%;
         height: 100%;
     }
+}
+
+.meter {
+    position: absolute;
+    transform: rotate(-90deg);
+    transform-origin: 0;
+    bottom: $spacing-medium;
+    right: -#{$spacing-medium + $spacing-large};
+    @include meter();
 }
 
 .header {

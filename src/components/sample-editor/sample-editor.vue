@@ -201,8 +201,9 @@ import SampleRecorder from "@/components/sample-recorder/sample-recorder";
 import SelectBox from "@/components/forms/select-box";
 import { ToggleButton } from "vue-js-toggle-button";
 import { getAudioContext } from "@/services/audio-service";
+import { createAnalyser, detectPitch } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
-import { createPitchAnalyser, detectPitch, getPitchByFrequency } from "@/services/audio/pitch"
+import { getPitchByFrequency } from "@/services/audio/pitch";
 import { sliceBuffer } from "@/utils/sample-util";
 
 import messages from "./messages.json";
@@ -417,7 +418,7 @@ export default {
             this.pitches = [];
             this.startPlayback( true );
 
-            this.pitchAnalyser  = createPitchAnalyser( this.playbackNode, getAudioContext() );
+            this.pitchAnalyser  = createAnalyser( this.playbackNode, getAudioContext() );
             this.pitchFn        = this.detectCurrentPitch.bind( this );
             this.detectCurrentPitch();
 
