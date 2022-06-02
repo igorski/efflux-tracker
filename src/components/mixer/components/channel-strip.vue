@@ -423,7 +423,21 @@ $width: 80px;
     width: 109px;
     height: 22px;
 
-    @include meter();
+    // hot signals display as red, otherwise green
+
+    &:-moz-meter-sub-optimum::-moz-meter-bar {
+        background: #00BB00;
+    }
+    &::-webkit-meter-suboptimum-value {
+        background: #00BB00;
+    }
+
+    &:-moz-meter-optimum::-moz-meter-bar {
+        background: red;
+    }
+    &::-webkit-meter-optimum-value {
+        background: red;
+    }
 }
 
 .volume-title {
