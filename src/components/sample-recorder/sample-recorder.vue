@@ -33,6 +33,13 @@
         <hr class="divider" />
         <div class="ui">
             <div class="animation">
+                <canvas
+                    ref="canvas"
+                    class="animation__canvas"
+                    :class="{ 'animation__canvas--visible': performAnalysis }"
+                    width="160"
+                    height="160"
+                ></canvas>
                 <svg class="progress" width="200" height="200" viewPort="0 0 100 100">
                     <circle
                         class="progress__outline"
@@ -55,16 +62,6 @@
                 :options="availableInputs"
                 :disabled="!inputs.length"
             />
-            <meter
-                v-if="performAnalysis"
-                :value="output"
-                class="meter"
-                min="-100"
-                max="10"
-                low="-100"
-                high="-5"
-                optimum="0"
-            ></meter>
         </div>
     </div>
 </template>
@@ -75,7 +72,7 @@ import { MediaRecorder, register } from "extendable-media-recorder";
 import { connect } from "extendable-media-recorder-wav-encoder";
 import SampleFactory from "@/model/factories/sample-factory";
 import AudioService from "@/services/audio-service";
-import { createAnalyser, supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
+import { createAnalyser, supportsAnalysis } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import SelectBox from "@/components/forms/select-box";
 import TimeUtil from "@/utils/time-util";
@@ -95,7 +92,6 @@ export default {
         selectedInput: "0",
         pct: C,
         isRecording: false,
-        output: -100,
         performAnalysis: false,
     }),
     computed: {
@@ -144,10 +140,40 @@ export default {
 
                 this.analyser = createAnalyser( audioContext.createMediaStreamSource( stream ), audioContext );
                 this.performAnalysis = supportsAnalysis( this.analyser );
+
                 if ( this.performAnalysis ) {
                     const sampleBuffer = new Float32Array( this.analyser.fftSize );
+                    const bufferSize = sampleBuffer.length;
+                    const cvs = this.$refs.canvas;
+                    const ctx = cvs.getContext( "2d" );
+                    const { width, height } = cvs;
+
+                    ctx.lineWidth = 2;
+                    ctx.strokeStyle = "rgb(0, 0, 0)";
+
                     const renderLoop = () => {
-                        this.output      = getAmplitude( this.analyser, sampleBuffer );
+                        this.analyser.getFloatTimeDomainData( sampleBuffer );
+
+                        ctx.clearRect( 0, 0, width, height );
+                        ctx.beginPath();
+
+                        const sliceWidth = width * 1.0 / bufferSize;
+                        let x = 0;
+
+                        for ( let i = 0; i < bufferSize; i++ ) {
+                            const v = sampleBuffer[ i ] * 200.0;
+                            const y = height / 2 + v;
+
+                            if ( i === 0 ) {
+                                ctx.moveTo( x, y );
+                            } else {
+                                ctx.lineTo( x, y );
+                            }
+                            x += sliceWidth;
+                        }
+                        ctx.lineTo( width, height / 2 );
+                        ctx.stroke();
+
                         this.renderCycle = requestAnimationFrame( renderLoop );
                     };
                     renderLoop();
@@ -195,7 +221,10 @@ export default {
                 this.isRecording = true;
                 mediaRecorder.start();
                 handleProgress();
-            } catch {
+            } catch ( e ) {
+                if ( process.env.NODE_ENV !== "production" ) {
+                    console.error( e );
+                }
                 this.handleError();
             }
         },
@@ -244,15 +273,6 @@ export default {
     }
 }
 
-.meter {
-    position: absolute;
-    transform: rotate(-90deg);
-    transform-origin: 0;
-    bottom: $spacing-medium;
-    right: -#{$spacing-medium + $spacing-large};
-    @include meter();
-}
-
 .header {
     padding: 0 $spacing-medium;
 }
@@ -263,12 +283,27 @@ export default {
 
 .animation {
     position: relative;
+    width: 200px;
+    height: 200px;
+    display: inline-block;
 
     button {
         position: absolute;
         top: 50%;
         left: 50%;
         transform: translate(-50%, -50%);
+    }
+
+    &__canvas {
+        position: absolute;
+        display: none;
+        top: 20px;
+        left: 20px;
+        border-radius: 50%;
+
+        &--visible {
+            display: block;
+        }
     }
 }
 
