@@ -243,6 +243,9 @@ export default {
                 case ModalWindows.OPTIMIZATION_WINDOW:
                     loadFn = () => import( "@/components/optimization-window/optimization-window" );
                     break;
+                case ModalWindows.CHORD_GENERATOR_WINDOW:
+                    loadFn = () => import( "@/components/chord-generator-window/chord-generator-window" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },

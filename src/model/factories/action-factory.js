@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue                 from "vue";
+import Config              from "@/config";
 import Actions             from "@/definitions/actions";
 import EventUtil           from "@/utils/event-util";
 import { clone }           from "@/utils/object-util";
@@ -47,6 +48,9 @@ export default function( type, data ) {
 
         case Actions.ADD_EVENT:
             return addSingleEventAction( data );
+
+        case Actions.ADD_EVENTS:
+            return addMultipleEventsAction( data );
 
         case Actions.DELETE_EVENT:
             return deleteSingleEventOrSelectionAction( data );
@@ -109,7 +113,6 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
 
     // currently active instrument and pattern (e.g. visible on screen)
 
-    const activePattern = state.sequencer.activePattern;
     let advanceStepOnAddition = true;
 
     // if options Object was given, use those values instead of current sequencer values
@@ -130,9 +133,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         const pattern = song.patterns[ patternIndex ],
               channel = pattern.channels[ channelIndex ];
 
-        EventUtil.setPosition(
-            event, pattern, patternIndex, step, song.meta.tempo
-        );
+        EventUtil.setPosition( event, pattern, patternIndex, step, song.meta.tempo );
 
         // remove previous event if one existed at the insertion point
         // (but take its module parameter automation when existing for non-off events)
@@ -184,7 +185,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
         undo() {
             EventUtil.clearEvent(
                 song,
-                activePattern,
+                patternIndex,
                 channelIndex,
                 step,
                 eventList[ channelIndex ]
@@ -196,6 +197,77 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
                 EventUtil.linkEvent( restoredEvent, channelIndex, song, eventList );
             }
             updateHandler();
+        },
+        redo: act
+    };
+}
+
+/**
+ * adds multiple AUDIO_EVENT into a pattern
+ */
+function addMultipleEventsAction({ store, events }) {
+
+    const { state }   = store;
+    const song        = state.song.activeSong,
+          eventList   = state.editor.eventList;
+
+    // active instrument and pattern for event (can be different to currently visible pattern
+    // e.g. undo/redo action performed when viewing another pattern)
+
+    let patternIndex = state.sequencer.activePattern,
+        channelIndex = state.editor.selectedInstrument,
+        step         = state.editor.selectedStep;
+
+    // if there are existing events, cache them for undo-purpose (see add())
+
+    const existingEvents = [];
+    function act() {
+        const pattern = song.patterns[ patternIndex ];
+
+        events.forEach(( event, index ) => {
+            const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
+            const channel = pattern.channels[ targetIndex ];
+
+            EventUtil.setPosition( event, pattern, patternIndex, step, song.meta.tempo );
+
+            // remove previous event if one existed at the insertion point
+            // (but take its module parameter automation when existing for non-off events)
+
+            if ( channel[ step ]) {
+                existingEvents[ index ] = serialize( channel[ step ]);
+
+                if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp ) {
+                    Vue.set( event, "mp", clone( channel[ step ].mp ));
+                }
+                EventUtil.clearEvent( song, patternIndex, targetIndex, step, eventList[ patternIndex ]);
+            }
+            Vue.set( channel, step, event );
+
+            // update linked list for AudioEvents
+            EventUtil.linkEvent( event, targetIndex, song, eventList );
+        });
+    }
+    act(); // perform action
+
+    return {
+        undo() {
+            events.forEach(( event, index ) => {
+                const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
+                EventUtil.clearEvent(
+                    song,
+                    patternIndex,
+                    targetIndex,
+                    step,
+                    eventList[ targetIndex ]
+                );
+                // restore existing event if it was present during addition
+                const existingEvent = existingEvents[ index ];
+                if ( existingEvent ) {
+                    const restoredEvent = deserialize( existingEvent );
+                    Vue.set( song.patterns[ patternIndex ].channels[ targetIndex ], step, restoredEvent );
+                    EventUtil.linkEvent( restoredEvent, targetIndex, song, eventList );
+                }
+            });
         },
         redo: act
     };

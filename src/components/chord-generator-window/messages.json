@@ -1,0 +1,9 @@
+{
+    "en-US": {
+        "title": "Chord generator",
+        "expl": "Generate note events to create a multi note chord at the currently active position, using the currently active instrument.",
+        "shortcutsExpl": "You can use the lower Z-M keyboard range and the numerical keys as shortcuts to select root note and root note pitch.",
+        "note": "Note",
+        "insert": "Insert"
+    }
+}

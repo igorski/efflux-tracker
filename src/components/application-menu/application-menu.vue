@@ -110,6 +110,17 @@
                         </li>
                         <li>
                             <button
+                                v-t="'insertChord'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="handleChordClick()"
+                            ></button>
+                        </li>
+                        <li>
+                            <hr class="divider" />
+                        </li>
+                        <li>
+                            <button
                                 v-t="'optimizeResources'"
                                 type="button"
                                 class="menu-list__button"
@@ -312,6 +323,9 @@ export default {
         handleTransposeClick() {
             this.openModal( ModalWindows.TRANSPOSITION_EDITOR );
         },
+        handleChordClick() {
+            this.openModal( ModalWindows.CHORD_GENERATOR_WINDOW );
+        },
         handleOptimizeClick() {
             this.openModal( ModalWindows.OPTIMIZATION_WINDOW );
         },
@@ -459,6 +473,10 @@ h1 {
             img:hover {
                 filter: brightness(0) invert(1);
             }
+        }
+
+        .divider {
+            @include divider();
         }
     }
 }

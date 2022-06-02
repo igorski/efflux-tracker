@@ -162,14 +162,18 @@
     @include boxSize();
 
     .divider {
-        width: calc(100% + #{$spacing-small * 2 });
-        margin: $spacing-medium 0 $spacing-xsmall -#{$spacing-small};
-        border: none;
-        border-top: 1px dashed #666;
+        @include divider();
+    }
+}
 
-        &--bottom {
-            margin-top: 0;
-        }
+@mixin divider() {
+    width: calc(100% + #{$spacing-small * 2 });
+    margin: $spacing-medium 0 $spacing-xsmall -#{$spacing-small};
+    border: none;
+    border-top: 1px dashed #666;
+
+    &--bottom {
+        margin-top: 0;
     }
 }
 
