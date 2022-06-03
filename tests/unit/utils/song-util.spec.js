@@ -23,7 +23,7 @@ describe( "SongUtil", () => {
         // add a note to the first available slot in the first
         // available channel of the first available pattern
 
-        const firstEvent  = EventFactory.createAudioEvent();
+        const firstEvent  = EventFactory.create();
         firstEvent.action = ACTION_NOTE_ON;
         song.patterns[ 0 ].channels[ 0 ][ 0 ] = firstEvent;
 
@@ -41,7 +41,7 @@ describe( "SongUtil", () => {
 
         // generate some events
 
-        const firstEvent  = EventFactory.createAudioEvent();
+        const firstEvent  = EventFactory.create();
         firstEvent.action = ACTION_NOTE_ON;
         firstEvent.seq.startOffset        = 0;
         firstEvent.seq.startMeasureOffset = 10;
@@ -51,7 +51,7 @@ describe( "SongUtil", () => {
         const expectedOffset1      = firstEvent.seq.startMeasureOffset * ratio;
         const expectedLength1      = firstEvent.seq.length * ratio;
 
-        const secondEvent  = EventFactory.createAudioEvent();
+        const secondEvent  = EventFactory.create();
         secondEvent.action = ACTION_NOTE_ON;
         secondEvent.seq.startOffset        = 2;
         secondEvent.seq.startMeasureOffset = 5;

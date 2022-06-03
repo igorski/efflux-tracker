@@ -104,7 +104,7 @@ export default {
             this.setShowNoteEntry( !this.showNoteEntry );
         },
         addNoteOnOff(){
-            const offEvent = EventFactory.createAudioEvent();
+            const offEvent = EventFactory.create();
             offEvent.action = ACTION_NOTE_OFF;
             this.addEventAtPosition({ event: offEvent, store: this.$store });
         },

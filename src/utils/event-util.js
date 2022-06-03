@@ -299,7 +299,7 @@ const EventUtil =
         const addOrUpdateEvent = ( evt, pattern, patternIndex, channel, eventIndex ) => {
             if ( typeof evt !== 'object' ) {
                 // event didn't exist... create it, insert into the channel and update LinkedList
-                evt = EventFactory.createAudioEvent( firstEvent.instrument );
+                evt = EventFactory.create( firstEvent.instrument );
                 Vue.set(channel, eventIndex, evt);
                 list.addAfter( prevEvent, evt );
                 EventUtil.setPosition( evt, pattern, patternIndex, eventIndex, song.meta.tempo );

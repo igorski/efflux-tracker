@@ -247,7 +247,7 @@ function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep ) {
         while ( i-- ) {
 
             if ( addEmptyPatternStep === true )
-                channel[ i ] = EventFactory.createAudioEvent();
+                channel[ i ] = EventFactory.create();
             else
                 channel[ i ] = 0; // stringifies nicely in JSON save (otherwise is recorded as "null")
         }

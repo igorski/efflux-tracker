@@ -48,8 +48,8 @@ describe( "PatternUtil", () => {
 
         const insertion = 1;
 
-        const event1 = EventFactory.createAudioEvent();
-        const event2 = EventFactory.createAudioEvent();
+        const event1 = EventFactory.create();
+        const event2 = EventFactory.create();
 
         event1.seq.startMeasure = 0;
         event1.seq.endMeasure = 0;
@@ -112,8 +112,8 @@ describe( "PatternUtil", () => {
 
         const deletion = 1;
 
-        const event1 = EventFactory.createAudioEvent();
-        const event2 = EventFactory.createAudioEvent();
+        const event1 = EventFactory.create();
+        const event2 = EventFactory.create();
 
         event1.seq.startMeasure = 0;
         event1.seq.endMeasure = 0;
@@ -139,7 +139,7 @@ describe( "PatternUtil", () => {
             const pattern = PatternFactory.create( patternSteps );
             pattern.channels.forEach(( channel, channelIndex ) => {
                 for ( let i = 0; i < 4; i += 2 ) {
-                    channel[ i ] = EventFactory.createAudioEvent( channelIndex );
+                    channel[ i ] = EventFactory.create( channelIndex );
                 }
             });
             patterns.push( pattern );

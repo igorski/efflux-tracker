@@ -137,7 +137,7 @@ function getEventForPosition( createIfNotExisting ) {
 
     if ( !event && createIfNotExisting === true ) {
 
-        event = EventFactory.createAudioEvent(state.editor.selectedInstrument);
+        event = EventFactory.create(state.editor.selectedInstrument);
         store.commit("addEventAtPosition", {
             store, event,
             optData: {

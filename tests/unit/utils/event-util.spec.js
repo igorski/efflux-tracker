@@ -21,7 +21,7 @@ describe( 'EventUtil', () => {
         const pattern     = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
 
@@ -50,7 +50,7 @@ describe( 'EventUtil', () => {
         const expectedEndMeasure         = 1;
         const expectedLength             = .5;
 
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
 
         EventUtil.setPosition( audioEvent, pattern, 1, pattern.steps / 2, song.meta.tempo, expectedLength );
 
@@ -71,7 +71,7 @@ describe( 'EventUtil', () => {
         const expectedLength             = 5;  // duration is 5 seconds (2.5 measures at 120 BPM)
         const expectedEndMeasure         = 2;  // events duration exceeds 2 measures (each at 2s at 120 BPM)
 
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
 
         EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo, expectedLength );
 
@@ -93,10 +93,10 @@ describe( 'EventUtil', () => {
 
         // create some AudioEvents
 
-        const expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, 'E', 2, 1 );
-        const expected2 = pchannel1[ 1 ] = EventFactory.createAudioEvent( 1, 'F', 3, 1 );
-        const expected3 = pchannel2[ 0 ] = EventFactory.createAudioEvent( 1, 'F#',4, 1 );
-        const expected4 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, 'G', 5, 1 );
+        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, 'E', 2, 1 );
+        const expected2 = pchannel1[ 1 ] = EventFactory.create( 1, 'F', 3, 1 );
+        const expected3 = pchannel2[ 0 ] = EventFactory.create( 1, 'F#',4, 1 );
+        const expected4 = pchannel2[ 1 ] = EventFactory.create( 1, 'G', 5, 1 );
 
         // start clearing individual events and asserting the results
 
@@ -127,8 +127,8 @@ describe( 'EventUtil', () => {
 
         // create some AudioEvents
 
-        const expected1 = pchannel1[ 0 ] = EventFactory.createAudioEvent( 1, 'E', 2, 1 );
-        const expected2 = pchannel2[ 1 ] = EventFactory.createAudioEvent( 1, 'F', 3, 1 );
+        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, 'E', 2, 1 );
+        const expected2 = pchannel2[ 1 ] = EventFactory.create( 1, 'F', 3, 1 );
 
         const list = new LinkedList();
 
@@ -147,9 +147,9 @@ describe( 'EventUtil', () => {
         it( 'should be able to retrieve the first event before the given step', () => {
             const channelEvents = [];
 
-            const event1 = EventFactory.createAudioEvent();
-            const event2 = EventFactory.createAudioEvent();
-            const event3 = EventFactory.createAudioEvent();
+            const event1 = EventFactory.create();
+            const event2 = EventFactory.create();
+            const event3 = EventFactory.create();
 
             channelEvents.push( event1 ); // step 0
             channelEvents.push( null );   // step 1
@@ -165,9 +165,9 @@ describe( 'EventUtil', () => {
         it( 'should be able to retrieve the first event before the given step that matches given compare function', () => {
             const channelEvents = [];
 
-            const event1 = EventFactory.createAudioEvent();
-            const event2 = EventFactory.createAudioEvent();
-            const event3 = EventFactory.createAudioEvent();
+            const event1 = EventFactory.create();
+            const event2 = EventFactory.create();
+            const event3 = EventFactory.create();
 
             event1.mp = { 'foo': 'bar' };
 
@@ -187,10 +187,10 @@ describe( 'EventUtil', () => {
                 { channels: [ new Array(2), new Array(2) ] }
             ];
 
-            const event1 = EventFactory.createAudioEvent();
-            const event2 = EventFactory.createAudioEvent();
-            const event3 = EventFactory.createAudioEvent();
-            const event4 = EventFactory.createAudioEvent();
+            const event1 = EventFactory.create();
+            const event2 = EventFactory.create();
+            const event3 = EventFactory.create();
+            const event4 = EventFactory.create();
 
             patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
             patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
@@ -217,9 +217,9 @@ describe( 'EventUtil', () => {
                 { channels: [ new Array(2) ] }
             ];
 
-            const event1 = EventFactory.createAudioEvent();
-            const event2 = EventFactory.createAudioEvent();
-            const event3 = EventFactory.createAudioEvent();
+            const event1 = EventFactory.create();
+            const event2 = EventFactory.create();
+            const event3 = EventFactory.create();
 
             patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
             patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
@@ -241,10 +241,10 @@ describe( 'EventUtil', () => {
                 { channels: [ new Array(2), new Array(2) ] }
             ];
 
-            const event1 = EventFactory.createAudioEvent();
-            const event2 = EventFactory.createAudioEvent();
-            const event3 = EventFactory.createAudioEvent();
-            const event4 = EventFactory.createAudioEvent();
+            const event1 = EventFactory.create();
+            const event2 = EventFactory.create();
+            const event3 = EventFactory.create();
+            const event4 = EventFactory.create();
 
             patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
             patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
@@ -271,9 +271,9 @@ describe( 'EventUtil', () => {
                 { channels: [ new Array(2) ] }
             ];
 
-            const event1 = EventFactory.createAudioEvent();
-            const event2 = EventFactory.createAudioEvent();
-            const event3 = EventFactory.createAudioEvent();
+            const event1 = EventFactory.create();
+            const event2 = EventFactory.create();
+            const event3 = EventFactory.create();
 
             patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
             patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
@@ -548,7 +548,7 @@ describe( 'EventUtil', () => {
 /* internal methods */
 
 function createNoteOnEvent( step, song, patternIndex, channelIndex, lists ) {
-    const event   = EventFactory.createAudioEvent( channelIndex, 'C', 3, ACTION_NOTE_ON );
+    const event   = EventFactory.create( channelIndex, 'C', 3, ACTION_NOTE_ON );
     const pattern = song.patterns[ patternIndex ];
 
     pattern.channels[ channelIndex ][ step ] = event;

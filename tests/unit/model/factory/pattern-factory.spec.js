@@ -48,10 +48,10 @@ describe( "PatternFactory", () => {
         let p1channel1 = pattern1.channels[0];
         let p2channel1 = pattern2.channels[0];
 
-        const expected1 = p1channel1[0] = EventFactory.createAudioEvent(1, "C#", 4, 1);
-        const expected2 = p1channel1[4] = EventFactory.createAudioEvent(1, "D", 5, 1);
-        const expected3 = p2channel1[2] = EventFactory.createAudioEvent(1, "E", 6, 1);
-        const expected4 = p2channel1[6] = EventFactory.createAudioEvent(1, "F", 7, 1);
+        const expected1 = p1channel1[0] = EventFactory.create(1, "C#", 4, 1);
+        const expected2 = p1channel1[4] = EventFactory.create(1, "D", 5, 1);
+        const expected3 = p2channel1[2] = EventFactory.create(1, "E", 6, 1);
+        const expected4 = p2channel1[6] = EventFactory.create(1, "F", 7, 1);
 
         // merge patterns
 
@@ -76,10 +76,10 @@ describe( "PatternFactory", () => {
         let p1channel1 = pattern1.channels[0];
         let p2channel1 = pattern2.channels[0];
 
-        const expected1 = p1channel1[0] = EventFactory.createAudioEvent(1, "C#", 4, 1);
-        const expected2 = p1channel1[4] = EventFactory.createAudioEvent(1, "D", 5, 1);
-        const expected3 = p2channel1[15] = EventFactory.createAudioEvent(1, "E", 6, 1);
-        const expected4 = p2channel1[29] = EventFactory.createAudioEvent(1, "F", 7, 1);
+        const expected1 = p1channel1[0] = EventFactory.create(1, "C#", 4, 1);
+        const expected2 = p1channel1[4] = EventFactory.create(1, "D", 5, 1);
+        const expected3 = p2channel1[15] = EventFactory.create(1, "E", 6, 1);
+        const expected4 = p2channel1[29] = EventFactory.create(1, "F", 7, 1);
 
         // merge patterns
 
@@ -105,10 +105,10 @@ describe( "PatternFactory", () => {
         let p1channel1 = pattern1.channels[0];
         let p2channel1 = pattern2.channels[0];
 
-        const expected1 = p1channel1[15] = EventFactory.createAudioEvent(1, "E", 6, 1);
-        const expected2 = p1channel1[29] = EventFactory.createAudioEvent(1, "F", 7, 1);
-        const expected3 = p2channel1[0] = EventFactory.createAudioEvent(1, "C#", 4, 1);
-        const expected4 = p2channel1[4] = EventFactory.createAudioEvent(1, "D", 5, 1);
+        const expected1 = p1channel1[15] = EventFactory.create(1, "E", 6, 1);
+        const expected2 = p1channel1[29] = EventFactory.create(1, "F", 7, 1);
+        const expected3 = p2channel1[0] = EventFactory.create(1, "C#", 4, 1);
+        const expected4 = p2channel1[4] = EventFactory.create(1, "D", 5, 1);
 
         // merge patterns
 
@@ -132,7 +132,7 @@ describe( "PatternFactory", () => {
         // generate some note content
 
         const p2channel1 = pattern2.channels[0];
-        p2channel1[15] = EventFactory.createAudioEvent(1, "E", 6, 1);
+        p2channel1[15] = EventFactory.create(1, "E", 6, 1);
 
         // merge patterns
 

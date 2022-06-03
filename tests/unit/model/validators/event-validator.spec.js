@@ -6,12 +6,12 @@ describe('EventValidator', () => {
     /* actual unit tests */
 
     it('should not validate empty AudioEvents', () => {
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
         expect(EventValidator.hasContent(audioEvent)).toBe(false);
     });
 
     it('should not validate AudioEvents with invalid data types', () => {
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
 
         audioEvent.instrument = 'foo';
 
@@ -29,7 +29,7 @@ describe('EventValidator', () => {
     });
 
     it('should not validate AudioEvents with out of range data types', () => {
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
 
         audioEvent.instrument = 0;
         audioEvent.note = 'C';
@@ -43,7 +43,7 @@ describe('EventValidator', () => {
     });
 
     it('should validate AudioEvents with correct note data', () => {
-        const audioEvent = EventFactory.createAudioEvent();
+        const audioEvent = EventFactory.create();
 
         audioEvent.instrument = 0;
         audioEvent.note = 'C';

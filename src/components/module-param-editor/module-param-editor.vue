@@ -319,7 +319,7 @@ export default {
             const isNewEvent = !event;
 
             if ( isNewEvent ) {
-                event = EventFactory.createAudioEvent();
+                event = EventFactory.create();
             }
 
             event.mp = {

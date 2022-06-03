@@ -196,7 +196,7 @@ export default {
             this.saveState( createAction( Actions.ADD_EVENTS, {
                 store  : this.$store,
                 events : notes.map( note => {
-                    return EventFactory.createAudioEvent( this.selectedInstrument, note, octave, ACTION_NOTE_ON )
+                    return EventFactory.create( this.selectedInstrument, note, octave, ACTION_NOTE_ON )
                 })
             }));
             this.handleClose();

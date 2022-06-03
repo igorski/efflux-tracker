@@ -382,7 +382,7 @@ function handleKeyDown( event ) {
 
         case 75: // K
             store.commit( "addEventAtPosition", {
-                event: EventFactory.createAudioEvent( 0, "", 0, ACTION_NOTE_OFF ), store
+                event: EventFactory.create( 0, "", 0, ACTION_NOTE_OFF ), store
             });
             break;
 
