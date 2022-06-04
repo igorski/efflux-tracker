@@ -20,13 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Bowser from 'bowser';
-
 export default
 {
-    LOCAL_STORAGE_SONGS         : 'effluxData',
-    LOCAL_STORAGE_INSTRUMENTS   : 'effluxInstruments',
-    LOCAL_STORAGE_SETTINGS      : 'effluxSettings',
+    LOCAL_STORAGE_SONGS         : "effluxData",
+    LOCAL_STORAGE_INSTRUMENTS   : "effluxInstruments",
+    LOCAL_STORAGE_SETTINGS      : "effluxSettings",
     INSTRUMENT_AMOUNT           : 8,
     OSCILLATOR_AMOUNT           : 3,
     WAVE_TABLE_SIZE             : 512,
@@ -45,34 +43,7 @@ export default
     MAX_FILTER_LFO_SPEED        : 25,
     MAX_FILTER_LFO_DEPTH        : 100,
 
-    DEFAULT_DELAY_DRY           : 1,
-    DEFAULT_DELAY_FEEDBACK      : 0.01,
-    DEFAULT_DELAY_TIME          : 0.33, // in seconds
-    DEFAULT_DELAY_CUT_OFF       : 1500,
     MAX_DELAY_CUTOFF            : 22050, // BiQuad filter max
     MIN_DELAY_OFFSET            : -0.5,
     MAX_DELAY_TIME              : 5, // in seconds (180 is max)
-
-    /**
-     * return the path that Efflux is running in, this can
-     * differ dependent on the production environment
-     *
-     * @public
-     * @return {string}
-     */
-    getBasePath(){
-        return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
-    },
-
-    /**
-     * queries whether hover states (for help topics) are
-     * supported in the current environment
-     *
-     * @return {boolean}
-     */
-    canHover() {
-        // no hover on iOS as it ensures we have weird behaviour where you have
-        // to click links and buttons twice (once for hover/focus, second for click)
-        return !Bowser.ios;
-    }
 };

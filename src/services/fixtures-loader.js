@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,8 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config from '../config';
-import axios  from 'axios';
+import axios from "axios";
 
 export default
 {
@@ -34,20 +33,30 @@ export default
      * @return {Promise}
      */
     load( filename ) {
-        return new Promise((resolve, reject) => {
-            axios.get( `${Config.getBasePath()}fixtures/${filename}` )
+        return new Promise(( resolve, reject ) => {
+            axios.get( `${getBasePath()}fixtures/${filename}` )
                 .then(({ data }) => {
-                    if (data) {
+                    if ( data ) {
                         // Fixtures are bundled in an map, convert to list
                         resolve(
-                            Object.keys(data).reduce((acc, key) => {
-                                acc.push(data[key]);
+                            Object.keys( data ).reduce(( acc, key ) => {
+                                acc.push( data[ key ]);
                                 return acc;
                             }, [])
                         );
                     }
                 })
-                .catch(e => reject(e));
+                .catch( e => reject( e ));
         });
     }
 };
+
+/* internal methods */
+
+/**
+ * return the path that Efflux is running in, this can
+ * differ dependent on the production environment
+ */
+function getBasePath() {
+    return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
+}
