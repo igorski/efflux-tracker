@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -47,10 +47,11 @@ export default
 
     DEFAULT_DELAY_DRY           : 1,
     DEFAULT_DELAY_FEEDBACK      : 0.01,
-    DEFAULT_DELAY_TIME          : 0.33,
+    DEFAULT_DELAY_TIME          : 0.33, // in seconds
     DEFAULT_DELAY_CUT_OFF       : 1500,
     MAX_DELAY_CUTOFF            : 22050, // BiQuad filter max
     MIN_DELAY_OFFSET            : -0.5,
+    MAX_DELAY_TIME              : 5, // in seconds (180 is max)
 
     /**
      * return the path that Efflux is running in, this can
@@ -60,7 +61,7 @@ export default
      * @return {string}
      */
     getBasePath(){
-        return ( typeof window.effluxPath === 'string' ) ? window.effluxPath : window.location.origin + window.location.pathname;
+        return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
     },
 
     /**

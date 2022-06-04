@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2021 - https://www.igorski.nl
+ * Igor Zinken 2017-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,7 +23,7 @@
 import { createGainNode, startOscillation } from "@/services/audio/webaudio-helper";
 import { applyRouting } from "@/services/audio/module-router";
 import Config           from "@/config";
-import Delay            from "@/services/audio/delay-module";
+import Delay            from "@/services/audio/modules/delay-module";
 import Overdrive        from "wa-overdrive";
 
 const ModuleFactory = {
