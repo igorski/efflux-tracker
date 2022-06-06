@@ -180,8 +180,8 @@ Delay.prototype = Object.create( null, {
                     this._rightFilter.connect( this._leftDelay );
                     break;
             }
-            this._leftGain.connect( this._merge, 0, 0 );
-            this._rightGain.connect( this._merge, 0, 1 );
+            this._leftFilter.connect( this._merge, 0, 0 );
+            this._rightFilter.connect( this._merge, 0, 1 );
         }
     },
 

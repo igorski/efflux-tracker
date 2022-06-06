@@ -60,8 +60,8 @@ Filter.prototype = Object.create( null, {
     /* AudioNode connect API */
 
     connect: {
-        value( dest ) {
-            this.output.connect( dest.input ?? dest );
+        value( dest, outputIndex = 0, inputIndex = 0 ) {
+            this.output.connect( dest.input ?? dest, outputIndex, inputIndex );
         }
     },
 
