@@ -1,0 +1,18 @@
+{
+    "baseUrl": "./",
+    "paths": {
+        "@": ["src"]
+    },
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs",
+        "allowJs": true,
+        "declaration": true,
+        "noUnusedParameters": true,
+        "noImplicitAny": true,
+        "removeComments": true
+    },
+    "exclude": [
+        "node_modules"
+    ]
+}

@@ -67,7 +67,7 @@ import Actions from "@/definitions/actions";
 import Chords from "@/definitions/chords";
 import createAction from "@/model/factories/action-factory";
 import EventFactory from "@/model/factories/event-factory";
-import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
+import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import KeyboardService from "@/services/keyboard-service";
 import Pitch from "@/services/audio/pitch";
 import SelectBox from "@/components/forms/select-box";

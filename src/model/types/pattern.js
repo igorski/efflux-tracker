@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,23 +21,12 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* eslint-disable no-unused-vars */
-
 /**
- * This structure describes all Web Audio nodes unused
- * to render an instruments audio into the AudioContext destination
- * 
- * @typedef {{
- *              panner: PAN_MODULE,
- *              overdrive: OVERDRIVE_MODULE,
- *              eq: EQ_MODULE,
- *              filter: FILTER_MODULE,
- *              delay: DELAY_MODULE,
- *              voices: Array<Array<{{
- *                  oscillatorNode: GainNode,
- *                  adsrNode: GainNode
- *              }}>>,
- *              output: AudioParam
- *          }}
+ * type definition for a pattern list
+ *
+ * @see PatternFactory, PatternValidator
  */
-let INSTRUMENT_MODULES;
+export type EffluxPattern = {
+    steps: number;
+    channels: EffluxAudioEvent[][];
+};

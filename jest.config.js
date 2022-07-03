@@ -3,6 +3,7 @@ module.exports = {
         "js",
         "jsx",
         "json",
+        "ts",
         "vue"
     ],
     transform: {
@@ -12,6 +13,7 @@ module.exports = {
         "\\.js$": ["babel-jest", {
             configFile: "./babel-jest.config.js"
         }],
+        '^.+\\.ts?$': "ts-jest",
     },
     moduleNameMapper: {
         "^@/(.*)$": "<rootDir>/src/$1"

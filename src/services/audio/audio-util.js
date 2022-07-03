@@ -25,9 +25,9 @@
  * utility method to process all the voices within an instruments
  * playing event list while performing null checks for safety
  *
- * @param {Array<EVENT_VOICE_LIST>} instrumentEvents events currently playing back for this instrument
+ * @param {Array<EventVoiceList>} instrumentEvents events currently playing back for this instrument
  * @param {!Function} fn function to execute on each individual voice, will receive
- *                    EVENT_VOICE and oscillator index as its arguments
+ *                    EventVoice and oscillator index as its arguments
  */
 export const processVoices = (instrumentEvents, fn) => {
     let i, j, eventVoices, voice;

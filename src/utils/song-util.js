@@ -20,13 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
+import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
 /**
  * validates whether the song has any pattern content
  *
- * @param {SONG} song
+ * @param {EffluxSong} song
  * @return {boolean}
  */
 export const hasContent = song => {
@@ -45,7 +45,7 @@ export const hasContent = song => {
  * update the existing offsets for all of the Songs
  * audioEvents within its patterns
  *
- * @param {Array<PATTERN>} patterns the Songs patterns
+ * @param {Array<EffluxPattern>} patterns the Songs patterns
  * @param {number} ratio by which to update the existing values
  */
 export const updateEventOffsets = ( patterns, ratio ) => {
@@ -78,7 +78,7 @@ export const updateEventOffsets = ( patterns, ratio ) => {
 /**
  * unset the play state of all of the songs events
  *
- * @param {Array<PATTERN>} patterns
+ * @param {Array<EffluxPattern>} patterns
  */
 export const resetPlayState = patterns => {
     patterns.forEach( pattern => {
@@ -96,7 +96,7 @@ export const resetPlayState = patterns => {
  * Export song contents for given pattern and instrument range as a MIDI file
  *
  * @param {MidiWriter} midiWriter module (midi-writer-js)
- * @param {SONG} song to export
+ * @param {EffluxSong} song to export
  * @param {number=} firstPattern optional index of first pattern to export, defaults to first
  * @param {number=} lastPattern optional index of last pattern to export, defaults to last
  * @param {number=} firstInstrument optional index of first instrument to export, defaults to first

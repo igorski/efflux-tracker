@@ -23,7 +23,7 @@
 import AudioService from "@/services/audio-service";
 import EventFactory from "@/model/factories/event-factory";
 import EventUtil    from "./event-util";
-import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
 import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 
@@ -36,7 +36,7 @@ let lastAddition = 0;
  * tune given frequency to given oscillators tuning
  *
  * @param {number} frequency in Hz
- * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @param {InstrumentOscillator} oscillator
  * @return {number} tuned frequency in Hz
  */
 export const tuneToOscillator = ( frequency, oscillator ) => {
@@ -66,7 +66,7 @@ export const tuneToOscillator = ( frequency, oscillator ) => {
  * for given oscillator tuning
  *
  * @param {AudioBufferSourceNode} node to apply shift to
- * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @param {InstrumentOscillator} oscillator
  * @returns {Number}
  */
 export const tuneBufferPlaybackRate = ( node, oscillator ) => {
@@ -85,7 +85,7 @@ export const tuneBufferPlaybackRate = ( node, oscillator ) => {
  * @param {AudioBufferSourceNode} node to apply shift to
  * @param {Number} frequency desired frequency to play sample at
  * @param {Object} sample property Object (@see sample-factory)
- * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @param {InstrumentOscillator} oscillator
  * @returns {Number}
  */
 export const tuneSamplePitch = ( node, frequency, sample, oscillator ) => {
@@ -104,9 +104,9 @@ export const tuneSamplePitch = ( node, frequency, sample, oscillator ) => {
  * alter the frequency of currently playing events to match changes
  * made to the tuning of given oscillator
  *
- * @param {Array<EVENT_VOICE_LIST>} events
+ * @param {Array<EventVoiceList>} events
  * @param {number} oscillatorIndex
- * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @param {InstrumentOscillator} oscillator
  */
 export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
     events.forEach( event => {
@@ -132,9 +132,9 @@ export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
  * alter the volume of currently playing events to match changes
  * made to the volume of given oscillator
  *
- * @param {Array<EVENT_VOICE_LIST>} events
+ * @param {Array<EventVoiceList>} events
  * @param {number} oscillatorIndex
- * @param {INSTRUMENT_OSCILLATOR} oscillator
+ * @param {InstrumentOscillator} oscillator
  */
 export const adjustEventVolume = ( events, oscillatorIndex, oscillator ) => {
     events.forEach(event => {
@@ -153,7 +153,7 @@ export const adjustEventVolume = ( events, oscillatorIndex, oscillator ) => {
  * alter the wavetable of currently playing events to match
  * changes made to the waveform of given oscillator
  *
- * @param {Array<EVENT_VOICE_LIST>} events
+ * @param {Array<EventVoiceList>} events
  * @param {number} oscillatorIndex
  * @param {PeriodicWave} table
  */
@@ -187,10 +187,10 @@ export default
     /**
      * handle the instruments "key down" event (will trigger noteOn)
      * @param {{ note: string, octave: number }} pitch
-     * @param {INSTRUMENT} instrument to play back the note on
+     * @param {Instrument} instrument to play back the note on
      * @param {boolean=} record whether to record the note into given instruments pattern list
      * @param {Object} store root Vuex store
-     * @return {AUDIO_EVENT|null}
+     * @return {EffluxAudioEvent|null}
      */
     onKeyDown( pitch, instrument, record, store ) {
         const id = pitchToUniqueId( pitch );
@@ -218,7 +218,7 @@ export default
      * handle the instruments "key up" event (will trigger noteOff)
      * @param {{ note: string, octave: number }} pitch
      * @param {Object} store root Vuex store
-     * @return {AUDIO_EVENT|null} the audio event that responded to the note off instruction
+     * @return {EffluxAudioEvent|null} the audio event that responded to the note off instruction
     */
     onKeyUp( pitch, store ) {
         const id     = pitchToUniqueId( pitch );

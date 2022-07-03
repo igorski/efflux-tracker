@@ -31,7 +31,7 @@ import {
     EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE, EVENT_LENGTH,
     EVENT_MODULE_AUTOMATION, EVENT_MODULE, EVENT_MODULE_VALUE, EVENT_MODULE_GLIDE
 } from "../serializers/pattern-serializer";
-import { ACTION_IDLE } from "../types/audio-event-def";
+import { ACTION_IDLE } from "../types/audio-event";
 
 const PatternFactory =
 {
@@ -39,10 +39,10 @@ const PatternFactory =
      * @public
      * @param {number=} amountOfSteps optional, the amount of
      *        subdivisions desired within the pattern, defaults to 16
-     * @param {Array<Array<AUDIO_EVENT>>=} optChannels optional channels to
+     * @param {Array<Array<EffluxAudioEvent>>=} optChannels optional channels to
      *        assign to the pattern, otherwise empty channels are generated accordingly
      *
-     * @return {PATTERN}
+     * @return {EffluxPattern}
      */
     create( amountOfSteps, optChannels = null ) {
         amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
@@ -59,7 +59,7 @@ const PatternFactory =
      * @param {Object} xtk
      * @param {Number} savedXtkVersion
      * @param {Number} tempo of song
-     * @return {Array<PATTERN>}
+     * @return {Array<EffluxPattern>}
      */
     deserialize( xtk, savedXtkVersion, tempo ) {
         const patterns = new Array( xtk[ PATTERNS ].length );
@@ -150,10 +150,10 @@ const PatternFactory =
      * defined in given sourcePattern
      *
      * @public
-     * @param {PATTERN} targetPattern
-     * @param {PATTERN} sourcePattern
+     * @param {EffluxPattern} targetPattern
+     * @param {EffluxPattern} sourcePattern
      * @param {number} targetPatternIndex
-     * @return {PATTERN} new pattern with merged contents
+     * @return {EffluxPattern} new pattern with merged contents
      */
     mergePatterns( targetPattern, sourcePattern, targetPatternIndex ) {
         let targetLength = targetPattern.steps;
@@ -232,7 +232,7 @@ export default PatternFactory;
  * @private
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
  * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
- * @returns {Array<Array<AUDIO_EVENT>>}
+ * @returns {Array<Array<EffluxAudioEvent>>}
  */
 function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep ) {
     let out = [], i;

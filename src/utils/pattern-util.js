@@ -29,11 +29,11 @@ export default {
     /**
      * insert a pattern at the given index for the given pattern list
      *
-     * @param {Array<PATTERN>} patterns list of patterns
+     * @param {Array<EffluxPattern>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
      * @param {number} amountOfSteps the amount of steps in the pattern to generate
      * @param {PATTERN=} pattern optional pattern to inject, otherwise empty pattern is created
-     * @return {Array<PATTERN>} updated list
+     * @return {Array<EffluxPattern>} updated list
      */
     addPatternAtIndex( patterns, index, amountOfSteps, pattern ) {
         const front = patterns.slice( 0, index );
@@ -58,9 +58,9 @@ export default {
     /**
      * removes the pattern at given index from given list of patterns
      *
-     * @param {Array<PATTERN>} patterns list of patterns
+     * @param {Array<EffluxPattern>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
-     * @return {Array<PATTERN>} updated list
+     * @return {Array<EffluxPattern>} updated list
      */
     removePatternAtIndex( patterns, index ) {
         patterns.splice( index, 1 );
@@ -87,7 +87,7 @@ export default {
 /**
  * Serializes a list of patterns ranges into an encoded PATTERN_FILE_EXTENSION file
  *
- * @param {Array<PATTERN>} patterns to serialize
+ * @param {Array<EffluxPattern>} patterns to serialize
  * @param {number} firstChannel first channel index to serialize pattern data from
  * @param {number} lastChannel last channel index to serialize pattern data from
  * @return {String} base64 encoded PATTERN_FILE_EXTENSION file content

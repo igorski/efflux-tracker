@@ -41,7 +41,7 @@ export const SAMPLES         = "smp"
 /**
 * serializes a song into an .XTK file
 *
-* @param {SONG} song
+* @param {EffluxSong} song
 * @return {Object}
 */
 export const serialize = async song => {

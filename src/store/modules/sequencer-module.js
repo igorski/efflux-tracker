@@ -26,7 +26,7 @@ import LinkedList      from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
 import { createTimer } from "@/services/audio/webaudio-helper";
 import Metronome       from "@/services/audio/metronome";
-import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
+import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
 
 /* internal methods */
 
@@ -34,7 +34,7 @@ import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event-def";
  * enqueue given event into the AudioService for playback
  *
  * @param {Object} store root Vuex store
- * @param {AUDIO_EVENT} event
+ * @param {EffluxAudioEvent} event
  * @param {number} eventChannel channel the event belongs to
  */
 function enqueueEvent( store, event, eventChannel ) {
@@ -102,7 +102,7 @@ function enqueueEvent( store, event, eventChannel ) {
  * dequeue event for stopping its playback by the AudioService
  *
  * @param {Object} state sequencer Vuex module state
- * @param {AUDIO_EVENT} event
+ * @param {EffluxAudioEvent} event
  * @param {number} time
  */
 function dequeueEvent( state, event, time ) {

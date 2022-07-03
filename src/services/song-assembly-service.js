@@ -80,7 +80,7 @@ export default
     /**
      * serializes a song into an .XTK file
      *
-     * @param {SONG} song
+     * @param {EffluxSong} song
      * @return {string}
      */
     async disassemble( song ) {

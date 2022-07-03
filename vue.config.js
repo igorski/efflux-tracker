@@ -11,6 +11,9 @@ module.exports = {
     filenameHashing: true,
     productionSourceMap: false,
     configureWebpack: {
+        module: {
+            rules: [{ test: /\.ts/, use: "babel-loader" }],
+        },
         plugins: [
 
             new CopyWebpackPlugin({
@@ -40,6 +43,7 @@ module.exports = {
             })
         ],
         resolve: {
+            extensions: [ ".ts", ".js", "..." ],
             fallback: {
                 "buffer" : require.resolve( "buffer" ),
                 "crypto" : require.resolve( "crypto-browserify" ),

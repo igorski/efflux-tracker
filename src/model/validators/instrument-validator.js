@@ -28,7 +28,7 @@ export default
      * @see InstrumentFactory
      *
      * @public
-     * @param {INSTRUMENT} instrument
+     * @param {Instrument} instrument
      * @return {boolean}
      */
     isValid( instrument ) {

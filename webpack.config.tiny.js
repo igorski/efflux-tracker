@@ -6,10 +6,12 @@ module.exports = {
         modules: [path.resolve(__dirname, "src/tiny-player/tiny_node_modules"), "node_modules"],
         alias: {
             "@": path.resolve(__dirname, "src")
-        }
+        },
+        extensions: [ ".ts", ".js", "..." ],
     },
     module: {
         rules: [
+            { test: /\.ts/, use: "babel-loader" },
             // comment to prevent transpilation to ES2015 (as it increases filesize)
             /*, {
                 test: /\.js$/,

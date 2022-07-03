@@ -31,7 +31,7 @@ const ModuleFactory = {
      * Factory method to apply changes to an existing module chain
      *
      * @param {string} moduleType type of the module (e.g. "filter", "delay", "eq", "od")
-     * @param {INSTRUMENT_MODULES} modules
+     * @param {InstrumentModules} modules
      * @param {Object} props
      * @param {AudioParam} output
      */
@@ -58,7 +58,7 @@ const ModuleFactory = {
      * low/mid/high GainNodes to alter the balance
      *
      * @param {AudioContext} audioContext
-     * @return {EQ_MODULE}
+     * @return {EqModule}
      */
     createEQ( audioContext ) {
         const hBand           = audioContext.createBiquadFilter();
@@ -114,7 +114,7 @@ const ModuleFactory = {
      * low frequency oscillator
      *
      * @param {AudioContext} audioContext
-     * @return {FILTER_MODULE}
+     * @return {FilterModule}
      */
     createFilter( audioContext ) {
         const filter = audioContext.createBiquadFilter();
@@ -140,7 +140,7 @@ const ModuleFactory = {
     },
     /**
      * @param {AudioContext} audioContext
-     * @return {DELAY_MODULE}
+     * @return {DelayModule}
      */
     createDelay( audioContext ) {
         return {
@@ -156,7 +156,7 @@ const ModuleFactory = {
     },
     /**
      * @param {Audiocontext} audioContext
-     * @return {OVERDRIVE_MODULE}
+     * @return {OverdriveModule}
      */
     createOverdrive( audioContext ) {
         return {
@@ -174,7 +174,7 @@ const ModuleFactory = {
      * onto a EQ module
      *
      * @public
-     * @param {INSTRUMENT_MODULES} modules
+     * @param {InstrumentModules} modules
      * @param {Object} props
      * @param {AudioParam} output
      */
@@ -191,7 +191,7 @@ const ModuleFactory = {
     /**
      * apply a Overdrive configuration onto an Overdrive module
      *
-     * @param {INSTRUMENT_MODULES} modules
+     * @param {InstrumentModules} modules
      * @param {Object} props
      * @param {AudioParam} output
      */
@@ -210,7 +210,7 @@ const ModuleFactory = {
      * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Filter module
      *
-     * @param {INSTRUMENT_MODULES} modules
+     * @param {InstrumentModules} modules
      * @param {Object} props
      * @param {AudioParam} output
      */
@@ -253,7 +253,7 @@ const ModuleFactory = {
      * apply a Delay configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Delay module
      *
-     * @param {INSTRUMENT_MODULES} instrumentModule
+     * @param {InstrumentModules} instrumentModule
      * @param {Object} props
      * @param {AudioParam} output
      */

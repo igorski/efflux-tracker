@@ -24,7 +24,7 @@ import Vue from "vue";
 import { writeToClipboard } from "@/utils/clipboard-util";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { ACTION_IDLE } from "@/model/types/audio-event-def";
+import { ACTION_IDLE } from "@/model/types/audio-event";
 
 /* internal methods */
 
@@ -236,7 +236,7 @@ const module = {
          */
         maxSelectedStep : 0,
         /**
-         * @type {Array<Array<AUDIO_EVENT>>}
+         * @type {Array<Array<EffluxAudioEvent>>}
          */
         copySelection : null,
         /**

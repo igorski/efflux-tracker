@@ -31,8 +31,8 @@ export default
      *                  create the AudioEvent for
      * @param {string=} note optional note
      * @param {number=} octave optional octave
-     * @param {number=} action optional action, @see audio-event-def.js
-     * @return {AUDIO_EVENT}
+     * @param {number=} action optional action, @see audio-event.js
+     * @return {EffluxAudioEvent}
      */
     create( instrument = 0, note = "", octave = 0, action = 0 )
     {
@@ -56,7 +56,7 @@ export default
 
     /**
      * generates a param change event for an instrument module
-     * can be nested inside an AUDIO_EVENT
+     * can be nested inside an EffluxAudioEvent
      *
      * @public
      *

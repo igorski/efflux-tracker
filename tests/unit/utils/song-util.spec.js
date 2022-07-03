@@ -4,7 +4,7 @@
 import EventFactory       from "@/model/factories/event-factory";
 import PatternFactory     from "@/model/factories/pattern-factory";
 import SongFactory        from "@/model/factories/song-factory";
-import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
+import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 
 import { hasContent, updateEventOffsets } from "@/utils/song-util";
 

@@ -55,7 +55,7 @@ const InstrumentFactory =
      * @param {number} index unique identifier for instrument, relates to the
      *                 index of the instrument inside a song instrument-list
      * @param {string=} name optional name to use
-     * @return {INSTRUMENT}
+     * @return {Instrument}
      */
     create( index, name ) {
         const instrument = {
@@ -100,7 +100,7 @@ const InstrumentFactory =
      *
      * @param {Object} xtk
      * @param {Number} savedXtkVersion
-     * @return {Array<INSTRUMENT>}
+     * @return {Array<Instrument>}
      */
     deserialize( xtk, savedXtkVersion ) {
         const xtkInstruments = xtk[ INSTRUMENTS ];
@@ -202,7 +202,7 @@ const InstrumentFactory =
      * create default overdrive properties
      * this was not present in legacy instruments
      *
-     * @param {INSTRUMENT} instrument
+     * @param {Instrument} instrument
      */
     createOverdrive( instrument ) {
         if ( typeof instrument.overdrive === "object" ) return;
@@ -219,7 +219,7 @@ const InstrumentFactory =
      * create default equalizer properties
      * this was not present in legacy instruments
      *
-     * @param {INSTRUMENT} instrument
+     * @param {Instrument} instrument
      */
     createEQ( instrument ) {
         if ( typeof instrument.eq === "object" ) {
@@ -235,7 +235,7 @@ const InstrumentFactory =
     /**
      * @param {boolean} enabled
      * @param {string} type
-     * @return {INSTRUMENT_OSCILLATOR}
+     * @return {InstrumentOscillator}
      */
     createOscillator( enabled, type = OscillatorTypes.SAW ) {
         const oscillator = {
@@ -262,7 +262,7 @@ const InstrumentFactory =
      * create default pitch envelope properties in oscillator
      * this was not present in legacy instruments
      *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {InstrumentOscillator} oscillator
      */
     createPitchEnvelope( oscillator ) {
         if ( typeof oscillator.pitch === "object" ) {
@@ -280,7 +280,7 @@ const InstrumentFactory =
      * lazily retrieve the custom WaveTable for given oscillator, if
      * it wasn't created yet, it is created here
      *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {InstrumentOscillator} oscillator
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array<number>}
      */
@@ -301,7 +301,7 @@ const InstrumentFactory =
      * @param {Object} instrumentPreset
      * @param {number} newInstrumentIndex
      * @param {string} newInstrumentName
-     * @return {INSTRUMENT}
+     * @return {Instrument}
      */
     loadPreset( instrumentPreset, newInstrumentIndex, newInstrumentName ) {
         const newInstrument = clone( instrumentPreset );

@@ -36,8 +36,7 @@ Please vote on feature requests by using the Thumbs Up/Down reaction on the firs
 
 ## Project outline
 
-All source code can be found in the _./src_-folder and is written in ES6 following the ES2017 spec. Efflux is written
-using [Vue](https://vuejs.org).
+All source code can be found in the _./src_-folder. Efflux is written using [Vue](https://vuejs.org) using vanilla JavaScript following the ES2017 spec. The audio engine is being migrated to TypeScript.
 
  * _./src/_ contains all JavaScript sourcecode with _main.js_ and _efflux-application.vue_ being the application entry points
  * _./src/assets_ contains all used fonts and images
@@ -76,20 +75,18 @@ The model of an Efflux song consists of the following actors (created via their 
  * Instruments
  * Modules
 
-A song contains a list of _PATTERNS_. A Pattern contains a list of _channels_ (one for each available track) and a
-descriptor for the amount of _steps_ the pattern contains (e.g. 16, 32, 64, etc.).
+A song contains a list of `EffluxPattern`s. A Pattern contains a list of _channels_ (one for each available track) and a descriptor for the amount of _steps_ the pattern contains (e.g. 16, 32, 64, etc.).
 
-Each channel inside a pattern contains _AUDIO_EVENTS_. These describe an action that should happen at a given step within a patterns
+Each channel inside a pattern contains `EffluxAudioEvent`s. These describe an action that should happen at a given step within a patterns
 channel. These can be note on/note off instructions or module parameter automations, or both. Each event references
-an _INSTRUMENT_ that it will operate on (as not all events within a single pattern channel necessarily reference the
+an `Instrument` that it will operate on (as not all events within a single pattern channel necessarily reference the
 same instrument to allow for more complex compositions).
 
-As hinted above, a song also has _INSTRUMENTS_. There are an equal amount of instruments available as there are tracks
+As hinted above, a song also has `Instrument`s. There are an equal amount of instruments available as there are tracks
 (the pattern channels). By default each channel references its own instruments. As the instruments in Efflux are
-synthesizers, each INSTRUMENT has a list of _INSTRUMENT_OSCILLATORS_ which can be individually tuned and configured for playback.
+synthesizers, each Instrument has a list of `InstrumentOscillator`s which can be individually tuned and configured for playback.
 
-INSTRUMENTS also reference _MODULES_. A MODULE is basically an effects processor. Each instrument can have its output
-routed through multiple processors before its output is mixed into the master channel (by the _AudioService_).
+Instruments also reference `InstrumentModules`. Each of these modules is basically an effects processor. Each instrument can have its output routed through multiple processors before its output is mixed into the master channel (by the _AudioService_).
 
 All model types are generated through their respected _FACTORIES_. The factory should be able to create a new
 instance of the model type, as well as be able to assemble an instance from a _serialized_ version. _SERIALIZERS_ are
@@ -97,9 +94,7 @@ separate files (to minimize file size of the Tiny player that should only be abl
 
 ### Efflux song model and Vuex
 
-In Vuex, the song is stored inside its own Vuex store module _"song-module.js"_. The editors bind directly to this reactive model, but for
-audio playback, an additional Object structure (e.g. _AudioEvent.seq_) is used. This separates the _data_ aspect (maintained
-by the Vuex store mutations) from the _audio rendering_.
+In Vuex, the song is stored inside its own Vuex store module _"song-module.js"_. The editors bind directly to this reactive model, but for audio playback, an additional Object structure (e.g. `EffluxAudioEvent.seq`) is used. This separates the _data_ aspect (maintained by the Vuex store mutations) from the _audio rendering_.
 
 The history module provides custom methods for saving and restoring individual actions for specific sections of a song. While Vuex makes it easy to simply save an entire song upon each mutation, this will consume a lot (!) of memory fast. Which brings us to:
 

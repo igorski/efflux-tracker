@@ -94,7 +94,7 @@ export const OSCILLATOR_TABLE        = "t";
  * serializes a list of instruments into an .XTK file
  *
  * @param {Object} xtk destination XTK file to serialize into
- * @param {Array<INSTRUMENT>} instruments
+ * @param {Array<Instrument>} instruments
  */
 export const serialize = ( xtk, instruments ) => {
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );

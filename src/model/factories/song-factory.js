@@ -36,7 +36,7 @@ const SongFactory =
 {
     /**
      * @param {number} amountOfInstruments
-     * @returns {SONG}
+     * @returns {EffluxSong}
      */
     create( amountOfInstruments = Config.INSTRUMENT_AMOUNT ) {
         const song = {
@@ -67,7 +67,7 @@ const SongFactory =
             // data lists
 
             /**
-             * @type {Array<PATTERN>}
+             * @type {Array<EffluxPattern>}
              */
             patterns : [
                 PatternFactory.create( 16 )

@@ -24,7 +24,7 @@ import Vue                        from "vue";
 import Config                     from "@/config";
 import OscillatorTypes            from "@/definitions/oscillator-types";
 import ModuleFactory              from "@/model/factories/module-factory";
-import { ACTION_NOTE_ON }         from "@/model/types/audio-event-def";
+import { ACTION_NOTE_ON }         from "@/model/types/audio-event";
 import { applyRouting }           from "./audio/module-router";
 import { applyModuleParamChange } from "./audio/module-automation";
 import { getFrequency }           from "./audio/pitch";
@@ -51,15 +51,15 @@ let store, state, audioContext, eventCallback, masterBus, eq, compressor, pool, 
  * list that will contain all modules
  * for each instantiated instrument
  *
- * @type {Array<INSTRUMENT_MODULES>}
+ * @type {Array<InstrumentModules>}
  */
 let instrumentModulesList;
 
 /**
  * list that contains all event voices that are currently playing
- * [instrumentIndex][eventId][EVENT_VOICE]
+ * [instrumentIndex][eventId][EventVoice]
  *
- * @type {Array<Object<number, EVENT_VOICE_LIST>>}
+ * @type {Array<Object<number, EventVoiceList>>}
  */
 let instrumentEventsList = [];
 
@@ -142,7 +142,7 @@ export const togglePlayback = isPlaying => {
 /**
  * cache the custom WaveTables that are available to the instruments
  *
- * @param {Array<INSTRUMENT>} instruments
+ * @param {Array<Instrument>} instruments
  */
 export const cacheCustomTables = instruments => {
     instruments.forEach(( instrument, instrumentIndex ) => {
@@ -161,7 +161,7 @@ export const cacheCustomTables = instruments => {
  * apply the module settings described in the currently active
  * songs model onto the audio processing chain.
  *
- * @param {SONG} song
+ * @param {EffluxSong} song
  * @param {boolean=} connectAnalysers whether to connect the analyser nodes to
  *                   each instrument channels output, allows for monitoring audio
  *                   levels at the expense of some computational overhead.
@@ -190,8 +190,8 @@ export const applyModules = ( song, connectAnalysers = false ) => {
 /**
  * synthesize the audio for given event at given startTime
  *
- * @param {AUDIO_EVENT} event
- * @param {INSTRUMENT} instrument to playback the event
+ * @param {EffluxAudioEvent} event
+ * @param {Instrument} instrument to playback the event
  * @param {Map} sampleCache used in the environment
  * @param {number=} startTimeInSeconds optional, defaults to current time
  */
@@ -221,7 +221,7 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
         // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
 
         const frequency = getFrequency( event.note, event.octave );
-        const voices    = /** @type {EVENT_VOICE_LIST} */ ([]);
+        const voices    = /** @type {EventVoiceList} */ ([]);
         const modules   = instrumentModulesList[ instrument.index ];
         let voice;
 
@@ -305,7 +305,7 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
 
             startOscillation( generatorNode, startTimeInSeconds );
 
-            voices[ oscillatorIndex ] = /** @type {EVENT_VOICE} */ ({
+            voices[ oscillatorIndex ] = /** @type {EventVoice} */ ({
                 generator: generatorNode,
                 vo: oscillatorVO,
                 frequency: frequency,
@@ -336,7 +336,7 @@ export const noteOn = ( event, instrument, sampleCache, startTimeInSeconds = aud
  * immediately stop playing audio for the given event (or after a small
  * delay in case a positive release envelope is set)
  *
- * @param {AUDIO_EVENT} event
+ * @param {EffluxAudioEvent} event
  * @param {number=} startTimeInSeconds optional time to start the noteOff,
  *                  this will default to the current time. This time should
  *                  equal the end of the note"s sustain period as release

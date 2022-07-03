@@ -88,7 +88,7 @@ import Pitch from "@/services/audio/pitch";
 import NoteInputHandler from "@/services/keyboard/note-input-handler";
 import InstrumentUtil from "@/utils/instrument-util";
 import messages from "./messages.json";
-import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 
 export default {
     i18n: { messages },

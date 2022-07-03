@@ -30,8 +30,8 @@ const EventUtil =
     /**
      * update the position properties of given AudioEvent
      *
-     * @param {AUDIO_EVENT} event
-     * @param {PATTERN} pattern
+     * @param {EffluxAudioEvent} event
+     * @param {EffluxPattern} pattern
      * @param {number} patternNum index of the pattern within the entire Song (e.g. "measure")
      * @param {number} patternStep index of the audioEvent within the pattern
      * @param {number} tempo in BPM of the song
@@ -56,9 +56,9 @@ const EventUtil =
      * add a (new) event at the correct position within the
      * LinkedList queried by the SequencerController
      *
-     * @param {AUDIO_EVENT} event
+     * @param {EffluxAudioEvent} event
      * @param {number} channelIndex index of the channel the event belongs to
-     * @param {SONG} song
+     * @param {EffluxSong} song
      * @param {Array<LinkedList>} lists
      */
     linkEvent( event, channelIndex, song, lists ) {
@@ -94,7 +94,7 @@ const EventUtil =
      * pattern lists. The sequencer will read
      * from the LinkedList for more performant results
      *
-     * @param {Array<PATTERN>} patterns
+     * @param {Array<EffluxPattern>} patterns
      * @param {Array<LinkedList>} lists
      */
     linkEvents( patterns, lists ) {
@@ -112,7 +112,7 @@ const EventUtil =
      * clears the AudioEvent at requested step position in
      * the given channel for the given pattern
      *
-     * @param {SONG} song
+     * @param {EffluxSong} song
      * @param {number} patternIndex
      * @param {number} channelNum
      * @param {number} step
@@ -139,8 +139,8 @@ const EventUtil =
     /**
      * Brute force way to remove an event from a song
      *
-     * @param {SONG} song
-     * @param {AUDIO_EVENT} event
+     * @param {EffluxSong} song
+     * @param {EffluxAudioEvent} event
      * @param {Array<LinkedList>} lists
      */
     clearEventByReference( song, event, lists ) {
@@ -163,11 +163,11 @@ const EventUtil =
     /**
      * retrieve the first AudioEvent before given step in given channel event list
      *
-     * @param {Array<AUDIO_EVENT>} channelEvents
+     * @param {Array<EffluxAudioEvent>} channelEvents
      * @param {number} step
      * @param {Function=} optCompareFn optional function to use
      *                    to filter events by
-     * @return {AUDIO_EVENT|null}
+     * @return {EffluxAudioEvent|null}
      */
     getFirstEventBeforeStep( channelEvents, step, optCompareFn ) {
         let previousEvent;
@@ -183,13 +183,13 @@ const EventUtil =
     /**
      * retrieve the first AudioEvent before given event in the same or previous patterns channel
      *
-     * @param {Array<PATTERN>} patterns
+     * @param {Array<EffluxPattern>} patterns
      * @param {number} patternIndex pattern the event belongs to (e.g. its startMeasure)
      * @param {number} channelIndex channel the event belongs to
-     * @param {AUDIO_EVENT} event
+     * @param {EffluxAudioEvent} event
      * @param {Function=} optCompareFn optional function to use
      *                    to filter events by
-     * @return {AUDIO_EVENT|null}
+     * @return {EffluxAudioEvent|null}
      */
     getFirstEventBeforeEvent( patterns, patternIndex, channelIndex, event, optCompareFn ) {
         let pattern, previousEvent;
@@ -210,13 +210,13 @@ const EventUtil =
     /**
      * retrieve the first AudioEvent after given event in the same or previous patterns channel
      *
-     * @param {Array<PATTERN>} patterns
+     * @param {Array<EffluxPattern>} patterns
      * @param {number} patternIndex pattern the event belongs to (e.g. its startMeasure)
      * @param {number} channelIndex channel the event belongs to
-     * @param {AUDIO_EVENT} event
+     * @param {EffluxAudioEvent} event
      * @param {Function=} optCompareFn optional function to use
      *                    to filter events by
-     * @return {AUDIO_EVENT|null}
+     * @return {EffluxAudioEvent|null}
      */
     getFirstEventAfterEvent( patterns, patternIndex, channelIndex, event, optCompareFn ) {
         let pattern, nextEvent;
@@ -238,12 +238,12 @@ const EventUtil =
      * create a smooth glide for the module parameter changes from
      * one slot to another
      *
-     * @param {SONG} song
+     * @param {EffluxSong} song
      * @param {number} patternIndex
      * @param {number} channelIndex
      * @param {number} eventIndex
      * @param {Array<LinkedList>} lists
-     * @return {Array<AUDIO_EVENT>|null} created audio events
+     * @return {Array<EffluxAudioEvent>|null} created audio events
      */
     glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists ) {
         const list               = lists[ channelIndex ];
@@ -360,13 +360,13 @@ const EventUtil =
      *
      * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
      *
-     * @param {SONG} song
+     * @param {EffluxSong} song
      * @param {number} step
      * @param {number} patternIndex
      * @param {number} channelIndex
      * @param {Array<LinkedList>} lists
      * @param {Object} store the root Vuex store
-     * @return {Array<AUDIO_EVENT>|null} created audio events
+     * @return {Array<EffluxAudioEvent>|null} created audio events
      */
     glideParameterAutomations(song, step, patternIndex, channelIndex, lists, store) {
         const channelEvents = song.patterns[ patternIndex ].channels[ channelIndex ];

@@ -20,7 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { connectAnalysers } from "@/services/audio-service";
+import { connectAnalysers } from "../audio-service";
+import type { InstrumentModules } from "../../model/types/instrument-modules";
+import type { WrappedAudioNode } from "../../model/types/audio-modules";
 
 let moduleOutput, panner, eq, overdrive, filter, delay, analyser;
 
@@ -28,12 +30,9 @@ let moduleOutput, panner, eq, overdrive, filter, delay, analyser;
  * apply the routing for the given instrument modules
  * (e.g. toggling devices on/off and connecting them
  * to the corresponding devices)
- *
- * @param {INSTRUMENT_MODULES} modules
- * @param {AudioParam} output
  */
-export const applyRouting = ( modules, output ) => {
-    const routes   = [];
+export const applyRouting = ( modules: InstrumentModules, output: AudioNode ): void => {
+    const routes: ( AudioNode | WrappedAudioNode )[] = [];
 
     moduleOutput = modules.output, // is voice channel output (pre-FX)
     panner       = modules.panner, // can be null when unsupported
@@ -52,7 +51,7 @@ export const applyRouting = ( modules, output ) => {
     filter.disconnect();
     delay.output.disconnect();
 
-    let lastOutput = moduleOutput;
+    let lastOutput: AudioNode = moduleOutput;
 
     if ( panner ) {
         panner.disconnect();
@@ -80,15 +79,16 @@ export const applyRouting = ( modules, output ) => {
     }
     routes.push( connectAnalyser ? analyser : output );
 
-    let input;
+    let input: AudioNode;
     routes.forEach( mod => {
 
         // some signatures are different here
         // Delay and Overdrive have "input" and "output" GainNodes
         // for any other type of connection (e.g. filter) mod is the node
-
+        // @ts-ignore:next-line
         input = ( mod.input instanceof GainNode ) ? mod.input : mod;
         lastOutput.connect( input );
+        // @ts-ignore:next-line
         lastOutput = ( mod.output instanceof GainNode ) ? mod.output : mod;
     });
 

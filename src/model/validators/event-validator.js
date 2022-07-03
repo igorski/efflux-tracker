@@ -28,7 +28,7 @@ export default
      * @see EventFactory
      *
      * @public
-     * @param {AUDIO_EVENT} event
+     * @param {EffluxAudioEvent} event
      * @return {boolean}
      */
     isValid( event ) {
@@ -65,7 +65,7 @@ export default
      * verify whether given AudioEvent has content
      *
      * @public
-     * @param {AUDIO_EVENT} audioEvent
+     * @param {EffluxAudioEvent} audioEvent
      * @return {boolean}
      */
     hasContent( audioEvent ){

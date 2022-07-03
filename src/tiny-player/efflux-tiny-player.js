@@ -35,7 +35,7 @@ import { assemble } from "@/services/song-assembly-service";
 import { getPitchByFrequency } from "@/services/audio/pitch";
 import { resetPlayState } from "@/utils/song-util";
 import SampleFactory from "@/model/factories/sample-factory";
-import { ACTION_NOTE_ON } from "@/model/types/audio-event-def";
+import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import {
     prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
 } from "@/services/audio-service";

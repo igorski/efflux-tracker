@@ -21,6 +21,7 @@
   "devDependencies": {
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
+    "@babel/preset-typescript": "^7.18.6",
     "@vue/cli-plugin-babel": "^5.0.1",
     "@vue/cli-plugin-eslint": "^5.0.1",
     "@vue/cli-plugin-unit-jest": "^5.0.1",
@@ -39,7 +40,7 @@
     "eslint-plugin-vue": "^8.0.3",
     "extendable-media-recorder": "^6.5.10",
     "extendable-media-recorder-wav-encoder": "^7.0.62",
-    "jest": "^27.1.0",
+    "jest": "^28.1.2",
     "lz-string": "^1.4.4",
     "merge-jsons-webpack-plugin": "^2.0.1",
     "midi-writer-js": "^2.0.1",
@@ -49,6 +50,8 @@
     "sass-loader": "^12.6.0",
     "script-loader": "^0.7.2",
     "stream-browserify": "^3.0.0",
+    "ts-jest": "^28.0.5",
+    "typescript": "^4.7.4",
     "undo-manager": "^1.0.5",
     "util": "^0.12.4",
     "vue-i18n": "^8.26.7",
@@ -59,7 +62,7 @@
     "vue-template-compiler": "^2.6.14",
     "wa-overdrive": "^0.0.3",
     "webpack-cli": "^4.9.2",
-    "zcanvas": "^5.1.1",
+    "zcanvas": "^5.1.4",
     "zmidi": "^1.1.1"
   },
   "license": "MIT"

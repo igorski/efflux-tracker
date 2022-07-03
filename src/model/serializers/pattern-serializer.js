@@ -50,7 +50,7 @@ export const EVENT_MODULE_GLIDE      = "g";
  * serializes a list of patterns into an .XTK file
  *
  * @param {Object} xtk destination XTK file to serialize into
- * @param {Array<PATTERN>} patterns to serialize
+ * @param {Array<EffluxPattern>} patterns to serialize
  */
 export const serialize = ( xtk, patterns ) => {
     const xtkPatterns       = xtk[ PATTERNS ] = new Array( patterns.length );

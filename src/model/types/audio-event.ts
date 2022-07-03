@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,8 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* eslint-disable no-unused-vars */
-
 /**
  * type definition for a single AudioEvent
  *
@@ -41,32 +39,30 @@
  * the "mp" Object is optional and defines an optional parameter
  * change action on one of the instruments modules
  *
- * @typedef {{
- *     id: number,
- *     instrument: number,
- *     note: string,
- *     octave: number,
- *     action: number,
- *     recording: boolean,
- *     seq: {
- *         playing: boolean,
- *         startOffset: number,        // start offset (in seconds) relative to song start
- *         startMeasure: number        // index of the measure in which the event starts playback
- *         startMeasureOffset: number, // offset (in seconds) within the start measure
- *         endMeasure: number,         // index of the measure in which the event stops playback
- *         length: number,             // total length (in seconds) of event
- *         mpLength: number            // total length (in seconds) of module parameter automation
- *     },
- *     mp: {
- *         module: string,
- *         value: number,
- *         glide: boolean
- *     }
- * }}
- *
  * @see EventFactory, EventValidator
  */
-let AUDIO_EVENT;
+export type EffluxAudioEvent = {
+    id: number;
+    instrument: number;
+    note: string;
+    octave: number;
+    action: number;
+    recording: boolean;
+    seq: {
+        playing: boolean;
+        startOffset: number;        // start offset (in seconds) relative to song start
+        startMeasure: number;       // index of the measure in which the event starts playback
+        startMeasureOffset: number; // offset (in seconds) within the start measure
+        endMeasure: number;         // index of the measure in which the event stops playback
+        length: number;             // total length (in seconds) of event
+        mpLength: number;           // total length (in seconds) of module parameter automation
+    },
+    mp: {
+        module: string;
+        value: number;
+        glide: boolean;
+    }
+};
 
 // valid actions for event.action
 

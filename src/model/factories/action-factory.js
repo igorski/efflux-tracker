@@ -26,7 +26,7 @@ import Actions             from "@/definitions/actions";
 import EventUtil           from "@/utils/event-util";
 import { clone }           from "@/utils/object-util";
 import PatternUtil         from "@/utils/pattern-util";
-import { ACTION_NOTE_OFF } from "@/model/types/audio-event-def";
+import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { enqueueState }    from "@/model/factories/history-state-factory";
 import AudioService        from "@/services/audio-service";
 import { Transpose }       from "@/services/audio/pitch";
@@ -96,7 +96,7 @@ export default function( type, data ) {
 /* internal methods */
 
 /**
- * adds a single AUDIO_EVENT into a pattern
+ * adds a single EffluxAudioEvent into a pattern
  */
 function addSingleEventAction({ store, event, optEventData, updateHandler }) {
 
@@ -203,7 +203,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler }) {
 }
 
 /**
- * adds multiple AUDIO_EVENT into a pattern
+ * adds multiple EffluxAudioEvent into a pattern
  */
 function addMultipleEventsAction({ store, events }) {
 
@@ -274,7 +274,7 @@ function addMultipleEventsAction({ store, events }) {
 }
 
 /**
- * removes a single AUDIO_EVENT or multiple AUDIO_EVENTS within a selection
+ * removes a single EffluxAudioEvent or multiple EffluxAudioEvents within a selection
  * from a pattern
  */
 function deleteSingleEventOrSelectionAction({ store }) {
@@ -727,7 +727,7 @@ function deserialize( serializedObject = null ) {
  * this also resets each events play state to ensure seamless playback when
  * performing und/redo actions during playback
  *
- * @param {SONG} song
+ * @param {EffluxSong} song
  * @param {number} activePattern
  * @returns {Object}
  */

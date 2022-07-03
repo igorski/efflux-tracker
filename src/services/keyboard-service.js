@@ -26,7 +26,7 @@ import ModalWindows               from "@/definitions/modal-windows";
 import EventFactory               from "@/model/factories/event-factory";
 import createAction               from "@/model/factories/action-factory";
 import EventUtil                  from "@/utils/event-util";
-import { ACTION_NOTE_OFF }        from "@/model/types/audio-event-def";
+import { ACTION_NOTE_OFF }        from "@/model/types/audio-event";
 import { PROPERTIES }             from "@/store/modules/settings-module";
 import NoteInputHandler           from "./keyboard/note-input-handler";
 import InstrumentSelectionHandler from "./keyboard/instrument-selection-handler";

@@ -32,7 +32,7 @@ export default
      *
      * @see SongFactory
      *
-     * @param {SONG} song
+     * @param {EffluxSong} song
      * @return {boolean}
      */
     isValid( song ) {
@@ -49,8 +49,8 @@ export default
      * transforms a legacy Song so its description contains
      * all properties available to newer factory versions
      *
-     * @param {SONG} song
-     * @return {SONG}
+     * @param {EffluxSong} song
+     * @return {EffluxSong}
      */
     transformLegacy( song ) {
         if ( !song || !song.instruments ) {

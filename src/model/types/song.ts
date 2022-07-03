@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,17 +20,24 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-/* eslint-disable no-unused-vars */
+import type { EffluxPattern } from "./pattern";
+import type { Instrument } from "./instrument";
 
 /**
- * type definition for a pattern list
+ * type definition for a Song
  *
- * @typedef {{
- *     steps: number,
- *     channels: Array<Array<AUDIO_EVENT>>
- * }}
- *
- * @see PatternFactory, PatternValidator
+ * @see SongFactory, SongValidator
  */
-let PATTERN;
+export type EffluxSong = {
+    version: number;
+    id: string;
+    meta: {
+        title: string;
+        author: string;
+        created: number;
+        modified: number;
+        tempo: number;
+    },
+    instruments: Instrument[];
+    patterns: EffluxPattern[];
+};

@@ -29,7 +29,7 @@ export default
     /**
      * apply attack, decay and sustain amplitude envelopes to given gain Node
      *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {InstrumentOscillator} oscillator
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
      */
@@ -61,7 +61,7 @@ export default
     /**
      * apply release amplitude envelope to given gain Node
      *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {InstrumentOscillator} oscillator
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
      */
@@ -90,7 +90,7 @@ export default
     /**
      * apply pitch envelope to the events oscillator Node
      *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {InstrumentOscillator} oscillator
      * @param {OscillatorNode|AudioBufferSourceNode} generator
      * @param {number} startTimeInSeconds
      */
@@ -126,7 +126,7 @@ export default
     /**
      * apply release pitch envelope to given oscillator Node
      *
-     * @param {INSTRUMENT_OSCILLATOR} oscillator
+     * @param {InstrumentOscillator} oscillator
      * @param {AudioGainNode} output
      * @param {number} startTimeInSeconds
      */

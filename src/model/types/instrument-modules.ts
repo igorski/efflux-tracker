@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,52 +21,24 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-/* eslint-disable no-unused-vars */
+import type { DelayModule, EqModule, FilterModule, OverdriveModule } from "./audio-modules";
+
+type VOICE = {
+    oscillatorNode: GainNode;
+    adsrNode: GainNode;
+};
 
 /**
- * @typedef {{
- *              filter: BiquadFilterNode,
- *              lfo: OscillatorNode,
- *              lfoAmp: GainNode,
- *              lfoEnabled: boolean,
- *              filterEnabled: boolean
- *          }}
+ * This structure describes all Web Audio nodes unused
+ * to render an instruments audio into the AudioContext destination
  */
-let FILTER_MODULE;
-
-/**
- * @typedef {{
- *              lowBand: BiquadFilterNode,
- *              midBand: BiquadFilterNode,
- *              highBand: BiquadFilterNode,
- *              lowGain: GainNode,
- *              midGain: GainNode,
- *              highGain: GainNode,
- *              output: GainNode,
- *              eqEnabled: boolean
- *          }}
- */
-let EQ_MODULE;
-
-/**
- * @typedef {{
- *              delay: Delay,
- *              delayEnabled: boolean
- *          }}
- */
-let DELAY_MODULE;
-
-/**
- * @typedef {{
- *              overdrive: Overdrive
- *              overdriveEnabled: boolean
- *          }}
- */
-let OVERDRIVE_MODULE;
-
-/**
- * @typedef {{
- *              panner: StereoPannerNode
- *          }}
- */
-let PAN_MODULE;
+export type InstrumentModules = {
+    analyser: AnalyserNode;
+    panner: StereoPannerNode;
+    overdrive: OverdriveModule;
+    eq: EqModule;
+    filter: FilterModule;
+    delay: DelayModule;
+    voices: VOICE[][];
+    output: AudioNode;
+};

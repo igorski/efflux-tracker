@@ -29,7 +29,7 @@ export default
      *
      * @see PatternFactory
      *
-     * @param {PATTERN} pattern
+     * @param {EffluxPattern} pattern
      * @return {boolean}
      */
     isValid( pattern ) {
