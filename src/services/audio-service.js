@@ -167,10 +167,11 @@ export const cacheCustomTables = instruments => {
  *                   levels at the expense of some computational overhead.
  */
 export const applyModules = ( song, connectAnalysers = false ) => {
+    useAnalysers = connectAnalysers;
     // first check if one of the channels is configured to operate solo
     const hasSoloChannel = song.instruments.find( instrument => !!instrument.solo );
     song.instruments.forEach(( instrument, instrumentIndex ) => {
-        const instrumentModules        = instrumentModulesList[ instrumentIndex ];
+        const instrumentModules = instrumentModulesList[ instrumentIndex ];
         const { muted, solo } = instrument;
 
         instrumentModules.output.gain.value = muted || ( hasSoloChannel && !solo ) ? 0 : instrument.volume;
@@ -179,19 +180,10 @@ export const applyModules = ( song, connectAnalysers = false ) => {
             const panning = instrument.panning ? parseFloat( instrument.panning ) : 0;
             instrumentModules.panner.pan.value = panning;
         }
-        const analyser = instrumentModules.analyser;
-        analyser.disconnect();
-
-        const output = connectAnalysers ? analyser : masterBus;
-
-        ModuleFactory.applyConfiguration( "filter",    instrumentModules, instrument.filter,    output );
-        ModuleFactory.applyConfiguration( "delay",     instrumentModules, instrument.delay,     output );
-        ModuleFactory.applyConfiguration( "eq",        instrumentModules, instrument.eq,        output );
-        ModuleFactory.applyConfiguration( "overdrive", instrumentModules, instrument.overdrive, output );
-
-        if ( connectAnalysers ) {
-            analyser.connect( masterBus );
-        }
+        ModuleFactory.applyConfiguration( "filter",    instrumentModules, instrument.filter,    masterBus );
+        ModuleFactory.applyConfiguration( "delay",     instrumentModules, instrument.delay,     masterBus );
+        ModuleFactory.applyConfiguration( "eq",        instrumentModules, instrument.eq,        masterBus );
+        ModuleFactory.applyConfiguration( "overdrive", instrumentModules, instrument.overdrive, masterBus );
     });
 };
 
@@ -379,6 +371,9 @@ export const noteOff = ( event, startTimeInSeconds = audioContext.currentTime ) 
 export const getAudioContext = () => audioContext;
 
 export const isRecording = () => recordOutput;
+
+let useAnalysers = false;
+export const connectAnalysers = () => useAnalysers;
 
 const AudioService =
 {

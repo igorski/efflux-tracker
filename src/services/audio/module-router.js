@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { connectAnalysers } from "@/services/audio-service";
+
+let moduleOutput, panner, eq, overdrive, filter, delay, analyser;
 
 /**
  * apply the routing for the given instrument modules
@@ -31,13 +34,18 @@
  */
 export const applyRouting = ( modules, output ) => {
     const routes   = [];
-    const moduleOutput = modules.output, // is voice channel output (pre-FX)
-          panner       = modules.panner, // can be null when unsupported
-          eq           = modules.eq,
-          overdrive    = modules.overdrive.overdrive,
-          filter       = modules.filter.filter,
-          delay        = modules.delay.delay;
 
+    moduleOutput = modules.output, // is voice channel output (pre-FX)
+    panner       = modules.panner, // can be null when unsupported
+    eq           = modules.eq,
+    overdrive    = modules.overdrive.overdrive,
+    filter       = modules.filter.filter,
+    delay        = modules.delay.delay;
+    analyser     = modules.analyser;
+
+    const connectAnalyser = connectAnalysers();
+
+    analyser.disconnect();
     moduleOutput.disconnect();
     overdrive.disconnect();
     eq.output.disconnect();
@@ -59,19 +67,21 @@ export const applyRouting = ( modules, output ) => {
         lastOutput = eq.output;
     }
 
-    if ( modules.overdrive.overdriveEnabled )
+    if ( modules.overdrive.overdriveEnabled ) {
         routes.push( overdrive );
+    }
 
-    if ( modules.filter.filterEnabled )
+    if ( modules.filter.filterEnabled ) {
         routes.push( filter );
+    }
 
-    if ( modules.delay.delayEnabled )
+    if ( modules.delay.delayEnabled ) {
         routes.push( delay );
-
-    routes.push( output );
+    }
+    routes.push( connectAnalyser ? analyser : output );
 
     let input;
-    routes.forEach(mod => {
+    routes.forEach( mod => {
 
         // some signatures are different here
         // Delay and Overdrive have "input" and "output" GainNodes
@@ -81,4 +91,8 @@ export const applyRouting = ( modules, output ) => {
         lastOutput.connect( input );
         lastOutput = ( mod.output instanceof GainNode ) ? mod.output : mod;
     });
+
+    if ( connectAnalyser ) {
+        analyser.connect( output );
+    }
 };

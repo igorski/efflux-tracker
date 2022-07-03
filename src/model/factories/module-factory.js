@@ -22,9 +22,9 @@
  */
 import { createGainNode, startOscillation } from "@/services/audio/webaudio-helper";
 import { applyRouting } from "@/services/audio/module-router";
-import Config           from "@/config";
-import Delay            from "@/services/audio/modules/delay-module";
-import Overdrive        from "wa-overdrive";
+import Config from "@/config";
+import Delay from "@/services/audio/modules/delay-module";
+import Overdrive from "wa-overdrive";
 
 const ModuleFactory = {
     /**
@@ -35,7 +35,7 @@ const ModuleFactory = {
      * @param {Object} props
      * @param {AudioParam} output
      */
-    applyConfiguration(moduleType, modules, props, output) {
+    applyConfiguration( moduleType, modules, props, output ) {
         switch ( moduleType ) {
             default:
                 if ( process.env.NODE_ENV === "development" ) {
@@ -43,13 +43,13 @@ const ModuleFactory = {
                 }
                 break;
             case "filter":
-                return ModuleFactory.applyFilterConfiguration(modules, props, output);
+                return ModuleFactory.applyFilterConfiguration( modules, props, output );
             case "delay":
-                return ModuleFactory.applyDelayConfiguration(modules, props, output);
+                return ModuleFactory.applyDelayConfiguration( modules, props, output );
             case "eq":
-                return ModuleFactory.applyEQConfiguration(modules, props, output);
+                return ModuleFactory.applyEQConfiguration( modules, props, output );
             case "overdrive":
-                return ModuleFactory.applyODConfiguration(modules, props, output);
+                return ModuleFactory.applyODConfiguration( modules, props, output );
         }
     },
     /**
