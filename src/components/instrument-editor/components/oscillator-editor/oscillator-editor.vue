@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2022 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -158,20 +158,22 @@
 </template>
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { canvas }        from "zcanvas";
-import { ToggleButton }  from "vue-js-toggle-button";
-import Config            from "@/config";
-import OscillatorTypes   from "@/definitions/oscillator-types";
-import ModalWindows      from "@/definitions/modal-windows";
-import AudioService      from "@/services/audio-service";
-import { enqueueState }  from "@/model/factories/history-state-factory";
+import { canvas } from "zcanvas";
+import { ToggleButton } from "vue-js-toggle-button";
+import Config from "@/config";
+import OscillatorTypes from "@/definitions/oscillator-types";
+import ModalWindows from "@/definitions/modal-windows";
+import AudioService, { applyModules, getAnalysers } from "@/services/audio-service";
+import { supportsAnalysis } from "@/services/audio/analyser";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
-import SampleFactory     from "@/model/factories/sample-factory";
-import SelectBox         from "@/components/forms/select-box";
-import SampleDisplay     from "@/components/sample-display/sample-display";
-import { clone }         from "@/utils/object-util";
-import WaveTableDraw     from "../wave-table-draw";
-import messages          from "./messages.json";
+import SampleFactory from "@/model/factories/sample-factory";
+import SelectBox from "@/components/forms/select-box";
+import SampleDisplay from "@/components/sample-display/sample-display";
+import { easeIn } from "@/utils/easing";
+import { clone } from "@/utils/object-util";
+import WaveTableDisplay from "../wavetable-display";
+import messages from "./messages.json";
 
 const TUNING_PROPERTIES = [ "detune", "octaveShift", "fineShift" ];
 
@@ -204,13 +206,14 @@ export default {
     data: () => ({
         activeEnvelopeTab: 0,
         canvas: null,
-        wtDraw: null,
+        wtDisplay: null,
     }),
     computed: {
         ...mapState([
             "windowSize",
         ]),
         ...mapGetters([
+            "activeSong",
             "samples",
         ]),
         oscillator() {
@@ -323,7 +326,10 @@ export default {
         },
         instrumentColor() {
             return INSTRUMENT_COLORS[ this.instrumentIndex ];
-        }
+        },
+        performAnalysis() {
+            return supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
+        },
     },
     watch: {
         windowSize: {
@@ -339,7 +345,7 @@ export default {
             handler( enabled ) {
                 if ( this.canvas ) {
                     this.canvas.setBackgroundColor( enabled ? "#000" : "#333" );
-                    this.wtDraw.setEnabled( enabled );
+                    this.wtDisplay.setEnabled( enabled );
                 }
             }
         },
@@ -347,27 +353,36 @@ export default {
         oscillatorIndex() { this.renderWaveform(); },
         instrumentRef() { this.renderWaveform(); },
         instrumentIndex() {
-            this.wtDraw.setColor( this.instrumentColor );
+            this.wtDisplay.setColor( this.instrumentColor );
             this.canvas.invalidate();
         }
     },
     mounted() {
-        this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200 });
+        this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200, fps: 60 });
         this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
         this.canvas.getElement().className = "waveform-canvas";
-        this.wtDraw = new WaveTableDraw(
+        this.wtDisplay = new WaveTableDisplay(
             this.canvas.getWidth(),
             this.canvas.getHeight(),
             this.handleWaveformUpdate,
             this.oscillatorEnabled,
             this.instrumentColor
         );
-        this.canvas.addChild( this.wtDraw );
+        this.canvas.addChild( this.wtDisplay );
         this.resizeWaveTableDraw();
         this.renderWaveform();
+
+        if ( this.performAnalysis ) {
+            // connect the AnalyserNodes to the all instrument channels
+            applyModules( this.activeSong, true );
+            this.renderOscilloscope();
+        }
     },
     beforeDestroy() {
+        if ( this.performAnalysis ) {
+            applyModules( this.activeSong, false );
+        }
         this.canvas.dispose();
     },
     methods: {
@@ -423,10 +438,10 @@ export default {
 
             if ( this.canvas.getWidth() !== targetWidth ) {
                 this.canvas.setDimensions( targetWidth, 200 );
-                this.wtDraw._bounds.width = targetWidth;
+                this.wtDisplay._bounds.width = targetWidth;
             }
         },
-        // invoked when drawing inside the wave-table-draw component
+        // invoked when drawing inside the WaveTableDisplay renderer
         handleWaveformUpdate( table ) {
             const orgTable    = clone( this.oscillator.table );
             const orgWaveform = this.oscillator.waveform;
@@ -469,16 +484,76 @@ export default {
                 }
             }, 5000 ); // longer timeout as a lot of events can fire while drawing the waveform
         },
-        // render the current oscillators waveform into the WaveTableDraw renderer
+        // render the current oscillators waveform into the WaveTableDisplay renderer
         // (is a zCanvas sprite and not part of the Vue component render cycle)
         renderWaveform() {
             if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
-                this.wtDraw.generateAndSetTable( this.oscillator.waveform );
+                this.wtDisplay.generateAndSetTable( this.oscillator.waveform );
             } else {
                 // note we use a clone as the table references can be updated
                 // by stepping through the state history
-                this.wtDraw.setTable( clone( InstrumentFactory.getTableForOscillator( this.oscillator )));
+                this.wtDisplay.setTable( clone( InstrumentFactory.getTableForOscillator( this.oscillator )));
             }
+        },
+        // on audio output, render the current instruments audio
+        // as an oscilloscope into the waveform display
+        renderOscilloscope() {
+            const width  = this.canvas.getWidth();
+            const height = this.canvas.getHeight();
+            this.canvas.setAnimatable( true );
+
+            const { frequencyBinCount } = getAnalysers()[ 0 ];
+            const sampleBuffer = new Uint8Array( frequencyBinCount );
+            const bufferSize = sampleBuffer.length;
+            const sampleSize = width * ( 1 / frequencyBinCount );
+
+            const HALF_HEIGHT   = height / 2;
+            const CEIL          = 128;
+            const FADE_IN_DELAY = 20;
+            const FADE_IN_TIME  = 60;
+            let fadeDelay       = FADE_IN_DELAY;
+            let fadeSamples     = FADE_IN_TIME;
+
+            this.wtDisplay.setExternalDraw( ctx => {
+                // when drawing inside the waveform editor, always render the shape
+                if ( this.wtDisplay.isDragging ) {
+                    ctx.globalAlpha = 1;
+                    fadeDelay   = FADE_IN_DELAY;
+                    fadeSamples = FADE_IN_TIME;
+                    return false;
+                }
+                getAnalysers()[ this.instrumentIndex ].getByteTimeDomainData( sampleBuffer );
+
+                const isPlaying = sampleBuffer.some( value => value !== CEIL );
+                ctx.fillRect( 0, 0, width, height );
+
+                if ( isPlaying ) {
+                    fadeSamples = 0;
+                    fadeDelay   = 0;
+                    ctx.globalAlpha = 1;
+                    ctx.beginPath();
+                    ctx.moveTo( 0, ( sampleBuffer[ 0 ] / CEIL ) * HALF_HEIGHT );
+
+                    for ( let x = 0, i = 1; i < bufferSize; ++i, x += sampleSize ) {
+                        const v = sampleBuffer[ i ] / CEIL;
+                        const y = v * HALF_HEIGHT;
+                        ctx.lineTo( x, y );
+                    }
+                    ctx.lineTo( width, HALF_HEIGHT );
+                    ctx.stroke();
+                    return true;
+                } else {
+                    if ( ++fadeDelay >= FADE_IN_DELAY ) {
+                        if ( fadeSamples < FADE_IN_TIME ) {
+                            ++fadeSamples;
+                            ctx.globalAlpha = easeIn( fadeSamples, FADE_IN_TIME );
+                        }
+                    } else {
+                        ctx.globalAlpha = 0;
+                    }
+                }
+                return false;
+            });
         },
         // propagate the changes to the AudioService
         cacheOscillator() {

@@ -20,17 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue                 from "vue";
-import Config              from "@/config";
-import Actions             from "@/definitions/actions";
-import EventUtil           from "@/utils/event-util";
-import { clone }           from "@/utils/object-util";
-import PatternUtil         from "@/utils/pattern-util";
+import Vue from "vue";
+import Config from "@/config";
+import Actions from "@/definitions/actions";
+import EventUtil from "@/utils/event-util";
+import { clone } from "@/utils/object-util";
+import PatternUtil from "@/utils/pattern-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import { enqueueState }    from "@/model/factories/history-state-factory";
-import AudioService        from "@/services/audio-service";
-import { Transpose }       from "@/services/audio/pitch";
-import PatternFactory      from "./pattern-factory";
+import { enqueueState } from "@/model/factories/history-state-factory";
+import AudioService, { connectAnalysers } from "@/services/audio-service";
+import { Transpose } from "@/services/audio/pitch";
+import PatternFactory from "./pattern-factory";
 
 /**
  * generates the appropriate undo/redo actions to
@@ -657,7 +657,7 @@ function replaceInstrumentAction({ store, instrument }) {
     const applyUpdate = instrument => {
         store.commit( "setSelectedOscillatorIndex", 0 );
         AudioService.cacheAllOscillators( instrumentIndex, instrument );
-        AudioService.applyModules( store.getters.activeSong );
+        AudioService.applyModules( store.getters.activeSong, connectAnalysers() );
     };
     const commit = () => {
         store.commit( "replaceInstrument", { instrumentIndex, instrument });

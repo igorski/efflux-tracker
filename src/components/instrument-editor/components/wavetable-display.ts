@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,11 +24,20 @@ import { sprite }      from "zcanvas";
 import Config          from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
 
-// create the WaveTableDraw prototype as an extension of zSprite
+// create the WaveTableDisplay prototype as an extension of a zSprite
 
-class WaveTableDraw extends sprite
+class WaveTableDisplay extends sprite
 {
-    constructor( width, height, updateHandler, enabled, color ) {
+    private table: number[];
+    private updateHandler: () => void;
+    private drawHandler: () => boolean;
+    private interactionCache: { x: number, y: number };
+    private updateRequested: boolean;
+    private enabled: boolean;
+    private color: string;
+    private strokeStyle: string;
+
+    constructor( width: number, height: number, updateHandler: () => void, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
 
         this.setDraggable( true );
@@ -48,12 +57,8 @@ class WaveTableDraw extends sprite
 
     /**
      * set a reference to the current WaveTable we're displaying/editing
-     *
-     * @public
-     * @param {Array<number>} table
      */
-    setTable( table )
-    {
+    setTable( table: number[] ): void {
         this.table = table;
         this.canvas?.invalidate(); // force re-render
     }
@@ -61,76 +66,91 @@ class WaveTableDraw extends sprite
     /**
      * generates the waveform for given function type and
      * sets it as the currently visible WaveTable
-     *
-     * @public
-     * @param {string} aType
      */
-    generateAndSetTable( aType )
-    {
-        const size  = Config.WAVE_TABLE_SIZE,
-              table = new Array( size ),
-              // all waveforms have their peak halfway through their cycle
-              // expect for PWM (Pulse Width Modulation)
-              m     = Math.round(( aType === OscillatorTypes.PWM ) ? size / 3 : size / 2 );
+    generateAndSetTable( type: string ): void {
+        const size = Config.WAVE_TABLE_SIZE;
+        this.table.length = size;
+
+        // all waveforms have their peak halfway through their cycle
+        // except for PWM (Pulse Width Modulation)
+        const m = Math.round(( type === OscillatorTypes.PWM ) ? size / 3 : size / 2 );
 
         let phase = 0;
         const phaseIncrement = ( 1 / size );
 
         // generate waveform for value range -1 to +1
-        switch ( aType )
+        switch ( type )
         {
             case OscillatorTypes.SINE:
-                for ( let i = 0; i < size; ++i )
-                    table[ i ] = (( 180.0 - Math.sin( i * Math.PI / 180 ) * 180 ) / 180 ) - 1;
+                for ( let i = 0; i < size; ++i ) {
+                    this.table[ i ] = (( 180.0 - Math.sin( i * Math.PI / 180 ) * 180 ) / 180 ) - 1;
+                }
                 break;
 
             case OscillatorTypes.TRIANGLE:
-                for ( let i = 0; i < size; ++i )
-                    table[ i ] = ( m - Math.abs( i % ( 2 * m ) - m )) * ( 1 / ( m / 2 ) ) - 1;
+                for ( let i = 0; i < size; ++i ) {
+                    this.table[ i ] = ( m - Math.abs( i % ( 2 * m ) - m )) * ( 1 / ( m / 2 ) ) - 1;
+                }
                 break;
 
             case OscillatorTypes.SAW:
                 for ( let i = 0; i < size; ++i ) {
-                    table[ i ]  = ( phase < 0 ) ? phase - Math.round( phase - 1 ) : phase - Math.round( phase );
-                    table[ i ] *= ( 1 / ( m / 2 )) - 2;
+                    this.table[ i ]  = ( phase < 0 ) ? phase - Math.round( phase - 1 ) : phase - Math.round( phase );
+                    this.table[ i ] *= ( 1 / ( m / 2 )) - 2;
                     phase      += phaseIncrement;
                 }
                 break;
 
             case OscillatorTypes.SQUARE:
             case OscillatorTypes.PWM:
-                for ( let i = 0; i < size; ++i )
-                    table[ i ] = ( i < m ) ? -1 : 1;
+                for ( let i = 0; i < size; ++i ) {
+                    this.table[ i ] = ( i < m ) ? -1 : 1;
+                }
                 break;
 
             case OscillatorTypes.NOISE:
                 for ( let i = 0; i < size; ++i ) {
-                    table[ i ] = Math.random() * 2 - 1;
+                    this.table[ i ] = Math.random() * 2 - 1;
                 }
                 break;
         }
-        this.setTable( table );
+        this.setTable( this.table );
     }
 
-    setColor( color ) {
+    setColor( color: string ): void {
         this.color = color;
         if ( this.enabled ) {
             this.strokeStyle = color;
         }
     }
 
-    setEnabled( enabled ) {
+    setEnabled( enabled: boolean ): void {
         this.enabled = enabled;
         this.strokeStyle = enabled ? this.color : "#444";
     }
 
+    getContext(): CanvasRenderingContext2D {
+        return this.canvas?.getElement().getContext( "2d" );
+    }
+
+    /**
+     * Optional external draw handler to hook into the render routine
+     * Returns boolean indicating whether it has handled all required
+     * rendering (when false, base draw behaviour will be executed afterwards)
+     */
+    setExternalDraw( handler: () => boolean ): void {
+        this.drawHandler = handler;
+    }
+
     /* zCanvas overrides */
 
-    draw( aCanvasContext )
-    {
-        aCanvasContext.strokeStyle = this.strokeStyle;
-        aCanvasContext.lineWidth   = 5;
-        aCanvasContext.beginPath();
+    draw( ctx: CanvasRenderingContext2D ): void {
+        if ( this.drawHandler?.( ctx )) {
+            return;
+        }
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth   = 5;
+        ctx.beginPath();
 
         let h = this._bounds.height,
             x = this._bounds.left,
@@ -142,13 +162,13 @@ class WaveTableDraw extends sprite
         while ( i-- )
         {
             point = ( this.table[ i ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
-            aCanvasContext.lineTo( x + ( i * size ), y - ( point * h ));
+            ctx.lineTo( x + ( i * size ), y - ( point * h ));
         }
-        aCanvasContext.stroke();
-        aCanvasContext.closePath();
+        ctx.stroke();
+        ctx.closePath();
     }
 
-    handleInteraction( aEventX, aEventY, aEvent )
+    handleInteraction( aEventX: number, aEventY: number, aEvent: Event ): boolean
     {
         if ( this.isDragging ) {
 
@@ -205,10 +225,9 @@ class WaveTableDraw extends sprite
 
             if ( !this.updateRequested ) {
                 this.updateRequested = true;
-                const self = this;
                 requestAnimationFrame(() => {
-                    self.updateHandler( self.table );
-                    self.updateRequested = false;
+                    this.updateHandler( this.table );
+                    this.updateRequested = false;
                 });
             }
         }
@@ -221,4 +240,4 @@ class WaveTableDraw extends sprite
         return false;
     }
 }
-export default WaveTableDraw;
+export default WaveTableDisplay;
