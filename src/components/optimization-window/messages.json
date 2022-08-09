@@ -1,9 +1,9 @@
 {
     "en-US": {
         "title": "Optimize resources",
-        "optimizeExpl": "You can reduce the file size of your project by running an optimization routine which will remove all unused samples and custom wave tables from your project. Note that this operation cannot be undone, though changes only become permanent after saving your project.",
+        "optimizeExpl": "You can reduce the file size of your project by running an optimization routine which will remove all unused samples, unused custom wave tables and duplicate / useless instructions from your project. Note that this operation cannot be undone, though the made changes will only become permanent after saving your project.",
         "optimize": "Optimize",
         "optimizationComplete": "Optimization complete",
-        "removedUnused": "Removed {waveTables} unused wave tables and {samples} unused samples."
+        "removedUnused": "Removed {waveTables} unused wave tables, {samples} unused samples and {instructions} duplicate / useless instructions."
     }
 }

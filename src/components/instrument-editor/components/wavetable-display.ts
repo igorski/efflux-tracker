@@ -129,10 +129,6 @@ class WaveTableDisplay extends sprite
         this.strokeStyle = enabled ? this.color : "#444";
     }
 
-    getContext(): CanvasRenderingContext2D {
-        return this.canvas?.getElement().getContext( "2d" );
-    }
-
     /**
      * Optional external draw handler to hook into the render routine
      * Returns boolean indicating whether it has handled all required

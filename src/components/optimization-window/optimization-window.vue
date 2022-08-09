@@ -48,6 +48,9 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import OscillatorTypes from "@/definitions/oscillator-types";
+import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import EventUtil from "@/utils/event-util";
+
 import messages from "./messages.json";
 
 export default {
@@ -60,6 +63,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "createLinkedList",
             "openDialog",
             "removeSample",
             "removeSampleFromCache",
@@ -67,6 +71,7 @@ export default {
         optimize() {
             let cleanedTables = 0;
             let cleanedSamples = 0;
+            let cleanedInstructions = 0;
 
             const seenSamples = [];
 
@@ -87,7 +92,6 @@ export default {
             });
 
             // clean up unused samples
-
             this.samples.forEach( sample => {
                 if ( !seenSamples.includes( sample.id )) {
                     this.removeSampleFromCache( sample );
@@ -96,9 +100,31 @@ export default {
                 }
             });
 
+            // remove useless instructions
+            const lastEvents = new Array( this.activeSong.patterns.length );
+            this.activeSong.patterns.forEach(( pattern, patternIndex ) => {
+                pattern.channels.forEach(( channel, channelIndex ) => {
+                    channel.forEach(( event, index ) => {
+                        if ( !event ) {
+                            return;
+                        }
+                        // remove double note offs
+                        if ( event.action === ACTION_NOTE_OFF && lastEvents[ channelIndex ]?.action === ACTION_NOTE_OFF ) {
+                            EventUtil.clearEvent( this.activeSong, patternIndex, channelIndex, index );
+                            ++cleanedInstructions;
+                        }
+                        lastEvents[ channelIndex ] = event;
+                    });
+                });
+            });
+
+            if ( cleanedInstructions > 0 ) {
+                this.createLinkedList( this.activeSong );
+            }
+
             this.openDialog({
                 title: this.$t( "optimizationComplete" ),
-                message : this.$t( "removedUnused", { waveTables: cleanedTables, samples: cleanedSamples })
+                message : this.$t( "removedUnused", { waveTables: cleanedTables, samples: cleanedSamples, instructions: cleanedInstructions })
             });
             this.close();
         },
@@ -114,7 +140,7 @@ export default {
 @import "@/styles/transporter";
 
 $width: 450px;
-$height: 270px;
+$height: 290px;
 
 .optimization-window {
     @include editorComponent();
