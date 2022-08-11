@@ -20,21 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+
 export default
 {
     /**
      * generates the (empty) content for a single Audio Event
      *
-     * @public
-     *
      * @param {number=} instrument optional index of the instrument to
      *                  create the AudioEvent for
      * @param {string=} note optional note
      * @param {number=} octave optional octave
-     * @param {number=} action optional action, @see audio-event.js
-     * @return {EffluxAudioEvent}
+     * @param {number=} action optional action, @see audio-event.ts
      */
-    create( instrument = 0, note = "", octave = 0, action = 0 )
+    create( instrument: number = 0, note: string = "", octave: number = 0, action: number = 0 ): EffluxAudioEvent
     {
         return {
             instrument,
@@ -58,8 +57,6 @@ export default
      * generates a param change event for an instrument module
      * can be nested inside an EffluxAudioEvent
      *
-     * @public
-     *
      * @param {string} module
      * @param {number} value
      * @param {boolean=} glide default to false
@@ -69,12 +66,13 @@ export default
      *             glide: boolean
      *         }}
      */
-    createModuleParam( module, value, glide )
-    {
-        return {
-            module : module,
-            value  : value,
-            glide  : glide || false
-        };
+    createModuleParam( module: string, value: number, glide: boolean = false ): ModuleParameterChange {
+        return { module, value, glide };
     }
+};
+
+export type ModuleParameterChange = {
+    module: string;
+    value: number;
+    glide: boolean
 };

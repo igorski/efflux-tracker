@@ -48,7 +48,7 @@
 <script>
 import { mapGetters, mapMutations } from "vuex";
 import OscillatorTypes from "@/definitions/oscillator-types";
-import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_NOTE_OFF, ACTION_IDLE } from "@/model/types/audio-event";
 import EventUtil from "@/utils/event-util";
 
 import messages from "./messages.json";
@@ -108,8 +108,23 @@ export default {
                         if ( !event ) {
                             return;
                         }
+                        let clear = false;
+                        const lastEvent = lastEvents[ channelIndex ];
+
                         // remove double note offs
-                        if ( event.action === ACTION_NOTE_OFF && lastEvents[ channelIndex ]?.action === ACTION_NOTE_OFF ) {
+                        if ( event.action === ACTION_NOTE_OFF && lastEvent?.action === ACTION_NOTE_OFF ) {
+                            clear = true;
+                        }
+
+                        // remove non-op duplicate automations
+                        if ( event.action === ACTION_IDLE && lastEvent?.action === ACTION_IDLE && !!event.mp && !!lastEvent.mp ) {
+                            if ( event.mp.module === lastEvent.mp.module &&
+                                 event.mp.value  === lastEvent.mp.value ) {
+                                clear = true;
+                            }
+                        }
+
+                        if ( clear ) {
                             EventUtil.clearEvent( this.activeSong, patternIndex, channelIndex, index );
                             ++cleanedInstructions;
                         }
