@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxSong } from "@/model/types/song";
 import { serialize as serializeInstruments } from "./instrument-serializer";
 import { serialize as serializePatterns } from "./pattern-serializer";
 import { serialize as serializeSamples } from "./sample-serializer";
@@ -40,11 +41,8 @@ export const SAMPLES         = "smp"
 
 /**
 * serializes a song into an .XTK file
-*
-* @param {EffluxSong} song
-* @return {Object}
 */
-export const serialize = async song => {
+export const serialize = async ( song: EffluxSong ): object => {
     const xtk = {};
 
     xtk[ SONG_ID ]         = song.id;
@@ -61,7 +59,7 @@ export const serialize = async song => {
 
 /* internal methods */
 
-function serializeMeta( meta ) {
+function serializeMeta( meta ): object {
     return {
         [ META_TITLE ]    : meta.title,
         [ META_AUTHOR ]   : meta.author,

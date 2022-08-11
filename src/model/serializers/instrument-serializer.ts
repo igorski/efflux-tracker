@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Instrument } from "@/model/types/instrument";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import WaveTables from "@/services/audio/wave-tables";
@@ -96,7 +97,7 @@ export const OSCILLATOR_TABLE        = "t";
  * @param {Object} xtk destination XTK file to serialize into
  * @param {Array<Instrument>} instruments
  */
-export const serialize = ( xtk, instruments ) => {
+export const serialize = ( xtk: object, instruments: Instrument[] ) => {
     const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
     const xtkWaveforms   = xtk[ WAVE_TABLES ] = {};
 

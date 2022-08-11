@@ -28,11 +28,11 @@ let store;
 
 export const initHistory = storeReference => store = storeReference;
 
-export const hasQueue = () => queueLength() > 0;
+export const hasQueue = (): boolean => queueLength() > 0;
 
-export const queueLength = () => stateQueue.size;
+export const queueLength = (): number => stateQueue.size;
 
-export const flushQueue = () => {
+export const flushQueue = (): void => {
     clearTimeout( timeout );
     stateQueue.clear();
 };
@@ -41,17 +41,23 @@ export const flushQueue = () => {
 // this ensures that an enqueued state that is reverted within the ENQUEUE_TIMEOUT is restored
 export const forceProcess = processQueue;
 
+interface IUndoRedoState {
+    undo: () => void;
+    redo: () => void;
+    resources: string[];
+};
+
 /**
  * Enqueue a state for addition in the history module. By enqueing, duplicate
  * calls for the same key with new state Objects are merged into a single state.
  *
  * @param {String} key unique identifier for this state
- * @param {{ undo: Function, redo: Function, resources: Array<String> }} Object with
+ * @param {IUndoRedoState} Object with
  *        undo and redo functions to apply new and restore original state. These can
  *        be generated through action-factory.js
  * @param {Number=} optTimeout optional timeout to use, defaults to default ENQUEUE_TIMEOUT
  */
-export const enqueueState = ( key, undoRedoState, optTimeout = ENQUEUE_TIMEOUT ) => {
+export const enqueueState = ( key: string, undoRedoState: IUndoRedoState, optTimeout: number = ENQUEUE_TIMEOUT ): void => {
     // new state is for the same property as the previously enqueued state
     // we can discard the previously enqueued states.redo in favour of this more actual one
     if ( stateQueue.has( key )) {
@@ -73,7 +79,7 @@ export const enqueueState = ( key, undoRedoState, optTimeout = ENQUEUE_TIMEOUT )
 
 /* internal methods */
 
-function processQueue() {
+function processQueue(): void {
     clearTimeout( timeout );
     stateQueue.forEach( undoRedoState => store.commit( "saveState", undoRedoState ));
     stateQueue.clear();

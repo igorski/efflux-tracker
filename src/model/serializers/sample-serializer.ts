@@ -20,29 +20,25 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Sample } from "@/model/types/sample";
 import { fileToBase64 } from "@/utils/file-util";
 
 /**
- * Serializes a sample Object
- *
- * @param {Object} sample
- * @return {Promise<Object>}
+ * Serializes a sample Object into JSON
  */
-export const serialize = async sample => {
+export const serialize = async ( sample: Sample ): Promise<object> => {
     let source;
-    const toJSON = () => {
-        return {
-            b  : source,
-            n  : sample.name,
-            s  : sample.rangeStart,
-            e  : sample.rangeEnd,
-            p  : sample.pitch,
-            r  : sample.repitch,
-            sr : sample.rate,
-            l  : sample.length,
-        };
-    };
-    return new Promise(( resolve, reject ) => {
+    const toJSON = (): object => ({
+        b  : source,
+        n  : sample.name,
+        s  : sample.rangeStart,
+        e  : sample.rangeEnd,
+        p  : sample.pitch,
+        r  : sample.repitch,
+        sr : sample.rate,
+        l  : sample.length,
+    });
+    return new Promise(( resolve, reject ): void => {
         // we serialize the source instead of the buffer
         // as the latter is uncompressed audio and thus significantly larger.
         // this serialization will only happen on first save as the

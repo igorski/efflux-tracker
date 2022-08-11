@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Sample } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createOfflineAudioContext } from "@/services/audio/webaudio-helper";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -29,18 +30,14 @@ import { base64ToBlob } from "@/utils/file-util";
 // only used internally during a session
 // samples are referenced (by instruments) through their name
 let uid = 0;
-const generateUid = () => ++uid;
+const generateUid = (): number => ++uid;
 
 const SampleFactory = {
     /**
      * Wraps a binary source and AudioBuffer into a sample Object
      * which can be serialized into a Song.
-     *
-     * @param {File|Blob|String} source
-     * @param {AudioBuffer} buffer
-     * @param {String=} name
      */
-    create( source, buffer, name = "New sample" ) {
+    create( source: File | Blob | string, buffer: AudioBuffer, name: string = "New sample" ): Sample {
         return {
             id: `s${generateUid()}`,
             name,
@@ -60,12 +57,8 @@ const SampleFactory = {
      * In case the sample has a custom playback range, a new AudioBuffer
      * will be sliced. For repeated playback this should be cached and
      * invalidated when appropriate.
-     *
-     * @param {Object} sample
-     * @param {AudioContext} audioContext
-     * @returns {AudioBuffer}
      */
-    getBuffer( sample, audioContext ) {
+    getBuffer( sample: Sample, audioContext: AudioContext ): AudioBuffer {
         if ( sample.rangeStart === 0 && sample.rangeEnd === sample.buffer.duration ) {
             return sample.buffer;
         }
@@ -74,11 +67,8 @@ const SampleFactory = {
 
     /**
      * deserializes a sample Object from a serialized XTK sample
-     *
-     * @param {Object} xtkSample
-     * @return {Promise<Object|null>}
      */
-    deserialize( xtkSample ) {
+    deserialize( xtkSample: object ): Promise<Sample | null> {
         return new Promise( async resolve => {
             try {
                 const source = await base64ToBlob( xtkSample.b );

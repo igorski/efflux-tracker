@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxPattern } from "@/model/types/pattern";
 
 /**
  * keys used when serializing Song factory
@@ -52,7 +53,7 @@ export const EVENT_MODULE_GLIDE      = "g";
  * @param {Object} xtk destination XTK file to serialize into
  * @param {Array<EffluxPattern>} patterns to serialize
  */
-export const serialize = ( xtk, patterns ) => {
+export const serialize = ( xtk: object, patterns: EffluxPattern[] ): void => {
     const xtkPatterns       = xtk[ PATTERNS ] = new Array( patterns.length );
     const xtkNotePool       = xtk[ NOTE_POOLS ]   = [];
     const xtkAutomationPool = xtk[ AUTOMATION_POOLS ] = [];
@@ -108,7 +109,7 @@ export const serialize = ( xtk, patterns ) => {
 
 /* internal methods */
 
-function poolObject( pool, object ) {
+function poolObject( pool, object ): string {
     const hash = JSON.stringify( object );
     let idx = pool.indexOf( hash );
     if ( idx === -1 ) {
