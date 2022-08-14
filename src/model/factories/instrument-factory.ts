@@ -22,6 +22,7 @@
  */
 import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
+import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import { clone } from "@/utils/object-util";
 
 import {
@@ -57,8 +58,8 @@ const InstrumentFactory =
      * @param {string=} name optional name to use
      * @return {Instrument}
      */
-    create( index, name ) {
-        const instrument = {
+    create( index: number, name?: string ): Instrument {
+        const instrument: Instrument = {
             index,
             name : ( typeof name === "string" ) ? name : `Instrument ${( index + 1 ).toString()}`,
             presetName: null,
@@ -97,28 +98,26 @@ const InstrumentFactory =
 
     /**
      * deserializes the instrument list from a .XTK file
-     *
-     * @param {Object} xtk
-     * @param {Number} savedXtkVersion
-     * @return {Array<Instrument>}
      */
-    deserialize( xtk, savedXtkVersion ) {
-        const xtkInstruments = xtk[ INSTRUMENTS ];
-        const instruments    = new Array( xtkInstruments.length );
-        let xtkEq, xtkOD, xtkDelay, xtkFilter;
+    deserialize( xtk: any, savedXtkVersion: number ): Instrument[] {
+        const xtkInstruments: any[]     = xtk[ INSTRUMENTS ];
+        const instruments: Instrument[] = new Array( xtkInstruments.length );
 
-        xtkInstruments.forEach(( xtkInstrument, index ) => {
+        let xtkEq: any, xtkOD: any, xtkDelay: any, xtkFilter: any;
+
+        xtkInstruments.forEach(( xtkInstrument: any, index: number ): void => {
 
             xtkEq     = xtkInstrument[ INSTRUMENT_EQ ];
             xtkOD     = xtkInstrument[ INSTRUMENT_OD ];
             xtkDelay  = xtkInstrument[ INSTRUMENT_DELAY ];
             xtkFilter = xtkInstrument[ INSTRUMENT_FILTER ];
 
-            const instrument = InstrumentFactory.create();
+            const xtkInstrumentIndex: number = xtkInstrument[ INSTRUMENT_INDEX ] ?? xtkInstrument.id; // was id in legacy versions, note index starts at 0
+            const instrument: Instrument = InstrumentFactory.create( index );
 
             instruments[ index ] = {
                 ...instrument,
-                index      : xtkInstrument[ INSTRUMENT_INDEX ] ?? xtkInstrument.id, // was id in legacy versions, note index starts at 0
+                index      : xtkInstrumentIndex,
                 name       : xtkInstrument[ INSTRUMENT_NAME ],
                 presetName : xtkInstrument[ INSTRUMENT_PRESET_NAME ],
                 volume     : xtkInstrument[ INSTRUMENT_VOLUME ],
@@ -164,9 +163,9 @@ const InstrumentFactory =
                 };
             }
 
-            xtkInstrument[ INSTRUMENT_OSCILLATORS ].forEach(( xtkOscillator, oIndex ) => {
+            xtkInstrument[ INSTRUMENT_OSCILLATORS ].forEach(( xtkOscillator: any, oIndex: number ): void => {
 
-                const osc = instruments[ index ].oscillators[ oIndex ] = {
+                const osc: InstrumentOscillator = instruments[ index ].oscillators[ oIndex ] = {
                     enabled: xtkOscillator[ OSCILLATOR_ENABLED ],
                     adsr : {
                         attack  : xtkOscillator[ OSCILLATOR_ADSR ][ OSCILLATOR_ADSR_ATTACK ],
@@ -201,12 +200,11 @@ const InstrumentFactory =
     /**
      * create default overdrive properties
      * this was not present in legacy instruments
-     *
-     * @param {Instrument} instrument
      */
-    createOverdrive( instrument ) {
-        if ( typeof instrument.overdrive === "object" ) return;
-
+    createOverdrive( instrument: Instrument ): void {
+        if ( typeof instrument.overdrive === "object" ) {
+            return;
+        }
         instrument.overdrive = {
             enabled: false,
             preBand: 1.0,
@@ -218,10 +216,8 @@ const InstrumentFactory =
     /**
      * create default equalizer properties
      * this was not present in legacy instruments
-     *
-     * @param {Instrument} instrument
      */
-    createEQ( instrument ) {
+    createEQ( instrument: Instrument ): void {
         if ( typeof instrument.eq === "object" ) {
             return;
         }
@@ -232,13 +228,8 @@ const InstrumentFactory =
             highGain : 1
         };
     },
-    /**
-     * @param {boolean} enabled
-     * @param {string} type
-     * @return {InstrumentOscillator}
-     */
-    createOscillator( enabled, type = OscillatorTypes.SAW ) {
-        const oscillator = {
+    createOscillator( enabled: boolean, type: string = OscillatorTypes.SAW ): InstrumentOscillator {
+        const oscillator: InstrumentOscillator = {
             enabled     : enabled,
             waveform    : type,
             table       : 0,  // created when CUSTOM type is used
@@ -261,10 +252,8 @@ const InstrumentFactory =
     /**
      * create default pitch envelope properties in oscillator
      * this was not present in legacy instruments
-     *
-     * @param {InstrumentOscillator} oscillator
      */
-    createPitchEnvelope( oscillator ) {
+    createPitchEnvelope( oscillator: InstrumentOscillator ): void {
         if ( typeof oscillator.pitch === "object" ) {
             return;
         }
@@ -284,7 +273,7 @@ const InstrumentFactory =
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array<number>}
      */
-    getTableForOscillator( oscillator, size ) {
+    getTableForOscillator( oscillator: InstrumentOscillator, size: number ): number[] {
         if ( !oscillator.table ) {
             if ( typeof size !== "number" ) {
                 size = Config.WAVE_TABLE_SIZE;
@@ -297,13 +286,7 @@ const InstrumentFactory =
         }
         return oscillator.table;
     },
-    /**
-     * @param {Object} instrumentPreset
-     * @param {number} newInstrumentIndex
-     * @param {string} newInstrumentName
-     * @return {Instrument}
-     */
-    loadPreset( instrumentPreset, newInstrumentIndex, newInstrumentName ) {
+    loadPreset( instrumentPreset: any, newInstrumentIndex: number, newInstrumentName: string ): Instrument {
         const newInstrument = clone( instrumentPreset );
         newInstrument.index = newInstrumentIndex;
         newInstrument.name  = newInstrumentName;
@@ -311,7 +294,7 @@ const InstrumentFactory =
         // legacy presets have no pitch envelopes, pan, EQ or overdrive, create now
 
         newInstrument.panning = newInstrument.panning || 0;
-        newInstrument.oscillators.forEach(( oscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
+        newInstrument.oscillators.forEach(( oscillator: InstrumentOscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
         InstrumentFactory.createOverdrive( newInstrument );
         InstrumentFactory.createEQ( newInstrument );
 
@@ -325,7 +308,7 @@ export default InstrumentFactory;
  * contain all features added in later versions
  * TODO saved instruments should be deserialized so they go through InstrumentFactory.create() !
  */
-export const createFromSaved = savedInstrument => {
+export const createFromSaved = ( savedInstrument: Instrument ): Instrument => {
     const instrument = savedInstrument;
     if ( typeof instrument.delay.dry === "undefined" ) {
         instrument.delay.dry = 1; // new addition
@@ -335,7 +318,7 @@ export const createFromSaved = savedInstrument => {
 
 /* internal definitions */
 
-function assertFloat( value, fallback = 0 ) {
-    const parsedValue = parseFloat( value );
+function assertFloat( value: string | number, fallback: number = 0 ): number {
+    const parsedValue: number = parseFloat( value as string );
     return isNaN( parsedValue ) ? fallback : parsedValue;
 }

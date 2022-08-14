@@ -34,14 +34,14 @@ import { blobToResource, disposeResource } from "@/utils/resource-manager";
  *                      can also be Blob
  * @param {String} fileName name of file
  */
-export const saveAsFile = ( data, fileName ) => {
+export const saveAsFile = ( data: Blob | string, fileName: string ): void => {
     const isBlob = data instanceof Blob;
     if ( isBlob ) {
         data = blobToResource( data );
     }
     const anchor = document.createElement( "a" );
     anchor.style.display = "none";
-    anchor.href = data;
+    anchor.href = data as string;
     anchor.setAttribute( "download", fileName );
 
     // Safari has no download attribute
@@ -59,15 +59,12 @@ export const saveAsFile = ( data, fileName ) => {
 
 /**
  * Reads the text content of given File
- *
- * @param {File|Blob} file
- * @returns {Promise<String>}
  */
-export const readTextFromFile = ( file, optEncoding = "UTF-8" ) => {
+export const readTextFromFile = ( file: File | Blob, optEncoding: string = "UTF-8" ): Promise<string> => {
     const reader = new FileReader();
     return new Promise(( resolve, reject ) => {
         reader.onload = event => {
-            resolve( event.target.result );
+            resolve( event.target.result as string );
         };
         reader.onerror = reject;
         reader.readAsText( file, optEncoding );
@@ -76,15 +73,12 @@ export const readTextFromFile = ( file, optEncoding = "UTF-8" ) => {
 
 /**
  * Reads the content of given File as a base64 String
- *
- * @param {File|Blob} file
- * @returns {Promise<String>}
  */
-export const fileToBase64 = file => {
+export const fileToBase64 = ( file: File | Blob ): Promise<string> => {
     const reader = new FileReader();
     return new Promise(( resolve, reject ) => {
         reader.onload = event => {
-            resolve( event.target.result );
+            resolve( event.target.result as string );
         };
         reader.onerror = reject;
         reader.readAsDataURL( file );
@@ -93,26 +87,23 @@ export const fileToBase64 = file => {
 
 /**
  * Converts a base64 String to its binary data
- *
- * @param {String} base64
- * @returns {Promise<Blob>}
  */
-export const base64ToBlob = base64 => {
+export const base64ToBlob = ( base64: string ): Promise<Blob> => {
     return new Promise(( resolve, reject ) => {
         fetch( base64 )
             .then( result => result.blob() )
-            .then( blob => {
+            .then(( blob: Blob ) => {
                 resolve( blob );
             }).
             catch( reject );
     });
 };
 
-export const openFileBrowser = ( handler, acceptedFileTypes ) => {
+export const openFileBrowser = ( handler: EventListenerOrEventListenerObject, acceptedFileTypes?: string[] ): void => {
     const fileBrowser = document.createElement( "input" );
     fileBrowser.setAttribute( "type", "file");
     if ( Array.isArray( acceptedFileTypes )) {
-        fileBrowser.setAttribute( "accept", acceptedFileTypes );
+        fileBrowser.setAttribute( "accept", acceptedFileTypes.join( "," ));
     }
     const simulatedEvent = document.createEvent( "MouseEvent" );
     simulatedEvent.initMouseEvent(
@@ -124,7 +115,7 @@ export const openFileBrowser = ( handler, acceptedFileTypes ) => {
     fileBrowser.addEventListener( "change", handler );
 };
 
-export const readClipboardFiles = clipboardData => {
+export const readClipboardFiles = ( clipboardData: DataTransfer ): ImportableFileList => {
     const items = [ ...( clipboardData?.items || []) ]
         .filter( item => item.kind === "file" )
         .map( item => item.getAsFile() );
@@ -132,37 +123,44 @@ export const readClipboardFiles = clipboardData => {
     return filterImportableFiles( items );
 };
 
-export const readDroppedFiles = dataTransfer => {
+export const readDroppedFiles = ( dataTransfer: DataTransfer ): ImportableFileList => {
     const items = [ ...( dataTransfer?.files || []) ];
     return filterImportableFiles( items );
 };
 
 /* internal methods */
 
-function filterImportableFiles( items ) {
+interface ImportableFileList {
+    instruments: File[];
+    patterns: File[];
+    projects: File[];
+    sounds: File[];
+};
+
+function filterImportableFiles( items: File[] ): ImportableFileList {
     return {
-        instruments : items.filter( isInstrument ),
-        patterns    : items.filter( isPattern ),
+        instruments : items.filter( isInstrumentFile ),
+        patterns    : items.filter( isPatternFile ),
         projects    : items.filter( isProjectFile ),
         sounds      : items.filter( isSoundFile ),
     };
 }
 
-function isSoundFile( item ) {
-    return ACCEPTED_FILE_TYPES.includes( item.type );
+function isSoundFile( file: File ): boolean {
+    return ACCEPTED_FILE_TYPES.includes( file.type );
 }
 
-function isProjectFile( file ) {
+function isProjectFile( file: File ): boolean {
     const [ , ext ] = file.name.split( "." );
     return `.${ext}` === PROJECT_FILE_EXTENSION;
 }
 
-function isInstrument( file ) {
+function isInstrumentFile( file: File ): boolean {
     const [ , ext ] = file.name.split( "." );
     return `.${ext}` === INSTRUMENT_FILE_EXTENSION;
 }
 
-function isPattern( file ) {
+function isPatternFile( file: File ): boolean {
     const [ , ext ] = file.name.split( "." );
     return `.${ext}` === PATTERN_FILE_EXTENSION;
 }

@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Instrument } from "@/model/types/instrument";
+import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import WaveTables from "@/services/audio/wave-tables";
@@ -97,14 +97,14 @@ export const OSCILLATOR_TABLE        = "t";
  * @param {Object} xtk destination XTK file to serialize into
  * @param {Array<Instrument>} instruments
  */
-export const serialize = ( xtk: object, instruments: Instrument[] ) => {
-    const xtkInstruments = xtk[ INSTRUMENTS ] = new Array( instruments.length );
-    const xtkWaveforms   = xtk[ WAVE_TABLES ] = {};
+export const serialize = ( xtk: any, instruments: Instrument[] ): void => {
+    const xtkInstruments: any[] = xtk[ INSTRUMENTS ] = new Array( instruments.length );
+    const xtkWaveforms: any = xtk[ WAVE_TABLES ] = {};
 
-    let xtkInstrument, delay, filter, eq, od,
-        xtkDelay, xtkFilter, xtkEq, xtkOD, xtkOscillator, xtkADSR, xtkPitchADSR;
+    let xtkInstrument: any, xtkDelay: any, xtkFilter: any, xtkEq: any, xtkOD: any,
+        xtkOscillator: any, xtkADSR: any, xtkPitchADSR: any;
 
-    instruments.forEach(( instrument, index ) => {
+    instruments.forEach(( instrument: Instrument, index: number ): void => {
 
         xtkInstrument = xtkInstruments[ index ] = {};
 
@@ -114,10 +114,10 @@ export const serialize = ( xtk: object, instruments: Instrument[] ) => {
         InstrumentFactory.createOverdrive( instrument );
         InstrumentFactory.createEQ( instrument );
 
-        delay  = instrument.delay;
-        filter = instrument.filter;
-        od     = instrument.overdrive;
-        eq     = instrument.eq;
+        const delay  = instrument.delay;
+        const filter = instrument.filter;
+        const od     = instrument.overdrive;
+        const eq     = instrument.eq;
 
         xtkInstrument[ INSTRUMENT_INDEX ]       = instrument.index;
         xtkInstrument[ INSTRUMENT_NAME ]        = instrument.name;
@@ -161,7 +161,7 @@ export const serialize = ( xtk: object, instruments: Instrument[] ) => {
 
         xtkInstrument[ INSTRUMENT_OSCILLATORS ] = new Array( instrument.oscillators.length );
 
-        instrument.oscillators.forEach(( oscillator, oIndex ) => {
+        instrument.oscillators.forEach(( oscillator: InstrumentOscillator, oIndex: number ): void => {
 
             xtkOscillator = xtkInstrument[ INSTRUMENT_OSCILLATORS ][ oIndex ] = {};
 

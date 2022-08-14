@@ -30,7 +30,7 @@
 export type Instrument = {
     index: number;
     name: string;
-    presetName: string;
+    presetName: string | null;
     oscillators: InstrumentOscillator[],
     volume: number;
     panning: number;

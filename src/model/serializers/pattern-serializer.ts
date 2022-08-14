@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxPattern } from "@/model/types/pattern";
 
 /**
@@ -53,25 +54,25 @@ export const EVENT_MODULE_GLIDE      = "g";
  * @param {Object} xtk destination XTK file to serialize into
  * @param {Array<EffluxPattern>} patterns to serialize
  */
-export const serialize = ( xtk: object, patterns: EffluxPattern[] ): void => {
-    const xtkPatterns       = xtk[ PATTERNS ] = new Array( patterns.length );
-    const xtkNotePool       = xtk[ NOTE_POOLS ]   = [];
-    const xtkAutomationPool = xtk[ AUTOMATION_POOLS ] = [];
+export const serialize = ( xtk: any, patterns: EffluxPattern[] ): void => {
+    const xtkPatterns: any[]       = xtk[ PATTERNS ] = new Array( patterns.length );
+    const xtkNotePool: any[]       = xtk[ NOTE_POOLS ] = [];
+    const xtkAutomationPool: any[] = xtk[ AUTOMATION_POOLS ] = [];
 
-    let xtkPattern, xtkChannel, xtkEvent, xtkAutomation, poolRef;
+    let xtkPattern: any, xtkChannel: any, xtkEvent: any, xtkAutomation: any, poolRef: string;
 
-    patterns.forEach(( pattern, pIndex ) => {
+    patterns.forEach(( pattern: EffluxPattern, pIndex: number ): void => {
 
         xtkPattern = xtkPatterns[ pIndex ] = {};
 
         xtkPattern[ PATTERN_STEPS ]    = pattern.steps;
         xtkPattern[ PATTERN_CHANNELS ] = new Array( pattern.channels.length );
 
-        pattern.channels.forEach(( channel, cIndex ) => {
+        pattern.channels.forEach(( channel: EffluxAudioEvent[], cIndex: number ): void => {
 
             xtkChannel = xtkPattern[ PATTERN_CHANNELS ][ cIndex ] = new Array( channel.length );
 
-            channel.forEach(( event, eIndex ) => {
+            channel.forEach(( event: EffluxAudioEvent, eIndex: number ): void => {
 
                 if ( event ) {
 
@@ -84,7 +85,7 @@ export const serialize = ( xtk: object, patterns: EffluxPattern[] ): void => {
                     xtkEvent[ EVENT_LENGTH ]     = event.seq.length;
 
                     // pool the event or reference the pool if its definition already existed
-                    poolRef = poolObject(xtkNotePool, xtkEvent);
+                    poolRef = poolObject( xtkNotePool, xtkEvent );
 
                     if ( event.mp ) {
                         xtkAutomation = {};
@@ -109,7 +110,7 @@ export const serialize = ( xtk: object, patterns: EffluxPattern[] ): void => {
 
 /* internal methods */
 
-function poolObject( pool, object ): string {
+function poolObject( pool: string[], object: any ): string {
     const hash = JSON.stringify( object );
     let idx = pool.indexOf( hash );
     if ( idx === -1 ) {

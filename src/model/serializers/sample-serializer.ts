@@ -26,10 +26,10 @@ import { fileToBase64 } from "@/utils/file-util";
 /**
  * Serializes a sample Object into JSON
  */
-export const serialize = async ( sample: Sample ): Promise<object> => {
-    let source;
-    const toJSON = (): object => ({
-        b  : source,
+export const serialize = async ( sample: Sample ): Promise<any> => {
+    let source: File | Blob | string;
+    const toJSON = (): any => ({
+        b  : source as string,
         n  : sample.name,
         s  : sample.rangeStart,
         e  : sample.rangeEnd,
@@ -46,7 +46,7 @@ export const serialize = async ( sample: Sample ): Promise<object> => {
         source = sample.source;
         if ( source instanceof Blob ) { // also true for Files
             fileToBase64( source )
-                .then( result => {
+                .then(( result: string ) => {
                     source = result;
                     resolve( toJSON() );
                 }).catch( reject );

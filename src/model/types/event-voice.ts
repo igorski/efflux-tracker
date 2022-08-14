@@ -40,4 +40,4 @@ export type EventVoice = {
 /**
  * all voices thay are playing back for a single instrument event
  */
-export type EventVoiceList: EventVoice[];
+export type EventVoiceList = EventVoice[];

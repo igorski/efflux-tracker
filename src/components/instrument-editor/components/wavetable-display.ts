@@ -29,15 +29,15 @@ import OscillatorTypes from "@/definitions/oscillator-types";
 class WaveTableDisplay extends sprite
 {
     private table: number[];
-    private updateHandler: () => void;
-    private drawHandler: () => boolean;
+    private updateHandler: ( table: number[] ) => void;
+    private drawHandler: ( ctx: CanvasRenderingContext2D ) => boolean;
     private interactionCache: { x: number, y: number };
     private updateRequested: boolean;
     private enabled: boolean;
     private color: string;
     private strokeStyle: string;
 
-    constructor( width: number, height: number, updateHandler: () => void, enabled: boolean, color: string ) {
+    constructor( width: number, height: number, updateHandler: ( table: number[] ) => void, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
 
         this.setDraggable( true );
@@ -134,7 +134,7 @@ class WaveTableDisplay extends sprite
      * Returns boolean indicating whether it has handled all required
      * rendering (when false, base draw behaviour will be executed afterwards)
      */
-    setExternalDraw( handler: () => boolean ): void {
+    setExternalDraw( handler: ( ctx: CanvasRenderingContext2D ) => boolean ): void {
         this.drawHandler = handler;
     }
 

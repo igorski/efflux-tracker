@@ -27,10 +27,10 @@
  * tables are quite large (also you should have very little
  * interest in reading their contents!)
  */
-import SINE from './tables/sine-table';
-import SAW from './tables/saw-table';
-import TRIANGLE from './tables/triangle-table';
-import SQUARE from './tables/square-table';
+import SINE from "./tables/sine-table";
+import SAW from "./tables/saw-table";
+import TRIANGLE from "./tables/triangle-table";
+import SQUARE from "./tables/square-table";
 
 export default
 {

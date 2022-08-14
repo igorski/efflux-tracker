@@ -1,7 +1,7 @@
 {
     "baseUrl": "./",
     "paths": {
-        "@": ["src"]
+        "@": [ "src" ]
     },
     "compilerOptions": {
         "target": "es6",
@@ -13,6 +13,6 @@
         "removeComments": true
     },
     "exclude": [
-        "node_modules"
+        "**/node_modules"
     ]
 }

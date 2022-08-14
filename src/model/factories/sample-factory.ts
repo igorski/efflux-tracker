@@ -68,7 +68,7 @@ const SampleFactory = {
     /**
      * deserializes a sample Object from a serialized XTK sample
      */
-    deserialize( xtkSample: object ): Promise<Sample | null> {
+    deserialize( xtkSample: any ): Promise<Sample | null> {
         return new Promise( async resolve => {
             try {
                 const source = await base64ToBlob( xtkSample.b );

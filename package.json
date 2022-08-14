@@ -9,7 +9,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test": "vue-cli-service test:unit",
-    "tiny": "webpack --config ./webpack.config.tiny.js"
+    "tiny": "webpack --config ./webpack.config.tiny.js",
+    "typecheck": "npx -p typescript tsc -p tsconfig.check.json --noEmit"
   },
   "dependencies": {
     "core-js": "^3.21.1",

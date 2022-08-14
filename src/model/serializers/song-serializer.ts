@@ -42,12 +42,12 @@ export const SAMPLES         = "smp"
 /**
 * serializes a song into an .XTK file
 */
-export const serialize = async ( song: EffluxSong ): object => {
-    const xtk = {};
+export const serialize = async ( song: EffluxSong ): Promise<any> => {
+    const xtk: any = {};
 
     xtk[ SONG_ID ]         = song.id;
     xtk[ SONG_VERSION_ID ] = song.version;
-    xtk[ META_OBJECT ]     = serializeMeta( song.meta );
+    xtk[ META_OBJECT ]     = serializeMeta( song );
 
     serializeInstruments( xtk, song.instruments );
     serializePatterns( xtk, song.patterns );
@@ -59,7 +59,8 @@ export const serialize = async ( song: EffluxSong ): object => {
 
 /* internal methods */
 
-function serializeMeta( meta ): object {
+function serializeMeta( song: EffluxSong ): object {
+    const { meta } = song;
     return {
         [ META_TITLE ]    : meta.title,
         [ META_AUTHOR ]   : meta.author,

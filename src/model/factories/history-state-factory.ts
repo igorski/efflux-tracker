@@ -24,9 +24,9 @@ const stateQueue      = new Map();
 const ENQUEUE_TIMEOUT = 1000;
 
 let timeout = 0;
-let store;
+let store: any;
 
-export const initHistory = storeReference => store = storeReference;
+export const initHistory = ( storeReference: any ) => store = storeReference;
 
 export const hasQueue = (): boolean => queueLength() > 0;
 

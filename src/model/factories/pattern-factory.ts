@@ -22,6 +22,8 @@
  */
 import Config from "@/config";
 import EventFactory from "./event-factory";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EffluxPattern } from "@/model/types/pattern";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import {
@@ -36,17 +38,13 @@ import { ACTION_IDLE } from "../types/audio-event";
 const PatternFactory =
 {
     /**
-     * @public
      * @param {number=} amountOfSteps optional, the amount of
      *        subdivisions desired within the pattern, defaults to 16
      * @param {Array<Array<EffluxAudioEvent>>=} optChannels optional channels to
      *        assign to the pattern, otherwise empty channels are generated accordingly
-     *
      * @return {EffluxPattern}
      */
-    create( amountOfSteps, optChannels = null ) {
-        amountOfSteps = ( typeof amountOfSteps === "number" ) ? amountOfSteps : 16;
-
+    create( amountOfSteps: number = 16, optChannels: EffluxAudioEvent[][] = null ): EffluxPattern {
         return {
             steps    : amountOfSteps,
             channels : optChannels || generateEmptyChannelPatterns( amountOfSteps )
@@ -55,35 +53,32 @@ const PatternFactory =
 
     /**
      * deserializes the pattern lists from a .XTK file
-     *
-     * @param {Object} xtk
-     * @param {Number} savedXtkVersion
-     * @param {Number} tempo of song
-     * @return {Array<EffluxPattern>}
      */
-    deserialize( xtk, savedXtkVersion, tempo ) {
-        const patterns = new Array( xtk[ PATTERNS ].length );
-        let pattern, channel, event;
+    deserialize( xtk: any, savedXtkVersion: number, tempo: number ): EffluxPattern[] {
+        const patterns: EffluxPattern[] = new Array( xtk[ PATTERNS ].length );
+        let pattern: EffluxPattern;
+        let channel: EffluxAudioEvent[][];
+        let event: EffluxAudioEvent;
 
-        let /* eventIdAcc = 0, */notePoolId, automationPoolId, eventData;
-        let notePool = [], automationPool = [];
+        let /* eventIdAcc = 0, */notePoolId: string, automationPoolId: string, eventData: any;
+        let notePool: any[] = [], automationPool: any[] = [];
         if ( savedXtkVersion >= 4 ) {
             notePool = xtk[ NOTE_POOLS ].map( JSON.parse );
             automationPool = xtk[ AUTOMATION_POOLS ].map( JSON.parse );
         }
 
-        xtk[ PATTERNS ].forEach(( xtkPattern, pIndex ) => {
+        xtk[ PATTERNS ].forEach(( xtkPattern: any, pIndex: number ): void => {
 
             pattern = patterns[ pIndex ] = PatternFactory.create(
                 xtkPattern[ PATTERN_STEPS ],
                 xtkPattern[ PATTERN_CHANNELS ]
             );
 
-            xtkPattern[ PATTERN_CHANNELS ].forEach(( xtkChannel, cIndex ) => {
+            xtkPattern[ PATTERN_CHANNELS ].forEach(( xtkChannel: any, cIndex: number ): void => {
 
                 channel = pattern.channels[ cIndex ] = new Array( xtkChannel.length );
 
-                xtkChannel.forEach(( xtkEvent, eIndex ) => {
+                xtkChannel.forEach(( xtkEvent: any, eIndex: number ) => {
 
                     if ( xtkEvent ) {
 
@@ -149,20 +144,19 @@ const PatternFactory =
      * occupies the same step slot) it will be replaced by the ones
      * defined in given sourcePattern
      *
-     * @public
      * @param {EffluxPattern} targetPattern
      * @param {EffluxPattern} sourcePattern
      * @param {number} targetPatternIndex
      * @return {EffluxPattern} new pattern with merged contents
      */
-    mergePatterns( targetPattern, sourcePattern, targetPatternIndex ) {
+    mergePatterns( targetPattern: EffluxPattern, sourcePattern: EffluxPattern, targetPatternIndex: number ): EffluxPattern {
         let targetLength = targetPattern.steps;
         let sourceLength = sourcePattern.steps;
-        let sourceChannel, i, j;
 
         // equalize the pattern lengths
 
-        let replacement, increment;
+        let replacement: EffluxAudioEvent[][];
+        let increment: number;
 
         if ( sourceLength > targetLength ) {
             // source is bigger than target pattern, increase target pattern size
@@ -171,10 +165,10 @@ const PatternFactory =
             replacement = generateEmptyChannelPatterns( sourceLength );
             increment   = Math.round( sourceLength / targetLength );
 
-            replacement.forEach(( channel, index ) =>
-            {
-                for ( i = 0, j = 0; i < targetLength; ++i, j += increment )
+            replacement.forEach(( channel: EffluxAudioEvent[][], index: number ): void => {
+                for ( let i = 0, j = 0; i < targetLength; ++i, j += increment ) {
                     channel[ j ] = targetPattern.channels[ index ][ i ];
+                }
             });
 
             targetPattern.channels = replacement;
@@ -188,18 +182,19 @@ const PatternFactory =
             increment   = Math.round( targetLength / sourceLength );
 
             replacement.forEach(( channel, index ) => {
-                for ( i = 0, j = 0; i < sourceLength; ++i, j += increment )
+                for ( let i = 0, j = 0; i < sourceLength; ++i, j += increment ) {
                     channel[ j ] = sourcePattern.channels[ index ][ i ];
+                }
             });
 
             sourcePattern.channels = replacement;
             sourceLength = sourcePattern.steps = targetLength;
         }
-        const merged = clone(targetPattern);
+        const merged = clone( targetPattern );
 
-        merged.channels.forEach(( targetChannel, index ) => {
-            sourceChannel = sourcePattern.channels[ index ];
-            i = targetLength;
+        merged.channels.forEach(( targetChannel: EffluxAudioEvent[], index: number ): void => {
+            const sourceChannel = sourcePattern.channels[ index ];
+            let i = targetLength;
 
             while ( i-- ) {
                 const sourceEvent = sourceChannel[ i ];
@@ -229,27 +224,24 @@ export default PatternFactory;
 /* internal methods */
 
 /**
- * @private
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
  * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
  * @returns {Array<Array<EffluxAudioEvent>>}
  */
-function generateEmptyChannelPatterns( amountOfSteps, addEmptyPatternStep ) {
+function generateEmptyChannelPatterns( amountOfSteps: number, addEmptyPatternStep: boolean = false ): EffluxAudioEvent[][] {
     let out = [], i;
 
-    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i )
+    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
         out.push( new Array( amountOfSteps ));
-
-    out.forEach(( channel ) =>
-    {
+    }
+    out.forEach(( channel: any[] ): void => {
         i = amountOfSteps;
-
         while ( i-- ) {
-
-            if ( addEmptyPatternStep === true )
+            if ( addEmptyPatternStep === true ) {
                 channel[ i ] = EventFactory.create();
-            else
+            } else {
                 channel[ i ] = 0; // stringifies nicely in JSON save (otherwise is recorded as "null")
+            }
         }
     });
     return out;
