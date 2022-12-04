@@ -60,7 +60,7 @@
     "vue-js-toggle-button": "^1.3.3",
     "vue-knob-control": "^1.6.0",
     "vue-select": "^3.11.2",
-    "vue-template-compiler": "^2.6.14",
+    "vue-template-compiler": "^2.7.14",
     "wa-overdrive": "^0.0.3",
     "webpack-cli": "^4.9.2",
     "zcanvas": "^5.1.4",
