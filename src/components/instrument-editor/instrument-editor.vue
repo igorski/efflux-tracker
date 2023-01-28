@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2022 - https://www.igorski.nl
+* Igor Zinken 2019-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the 'Software'), to deal in
@@ -22,70 +22,80 @@
 */
 <template>
     <div class="instrument-editor">
-        <div class="header">
-            <button
-                class="help-button"
-                @click="openHelp"
-            >?</button>
-            <button
-                class="close-button"
-                @click="$emit('close')"
-            >x</button>
-            <div class="actions">
-                <button
-                    v-if="hasMidiSupport"
-                    v-t="midiConnected ? 'assignMidiControl' : 'connectMidi'"
-                    type="button"
-                    @click="midiConnected ? setMidiAssignMode( !midiAssignMode ) : openSettingsPanel()"
-                />
-                <!-- selector that switches between available instruments -->
+        <div class="instrument-header">
+            <!-- instrument preset list -->
+            <section class="instrument-presets">
+                <h2 v-t="'presets'" class="preset-title"></h2>
                 <select-box
-                    v-model="instrument"
-                    :options="instrumentOptions"
-                    class="instrument-selector"
+                    v-model="currentPreset"
+                    :options="presetOptions"
+                    class="preset-selector"
                 />
-            </div>
-        </div>
-        <!-- instrument preset list -->
-        <section class="instrument-presets">
-            <h2 v-t="'presets'" class="preset-title"></h2>
-            <select-box
-                v-model="currentPreset"
-                :options="presetOptions"
-                class="preset-selector"
-            />
-        </section>
-        <hr class="divider" />
-        <!-- oscillator editor -->
-        <div class="instrument-editor-wrapper">
-            <ul class="oscillator-tabs tab-list">
-                <li v-for="(oscillator, idx) in oscillatorAmount"
-                    :key="`oscillator_${idx}`"
-                    :class="{ active: selectedOscillatorIndex === idx }"
-                    @click="setSelectedOscillatorIndex(idx)"
-                >
-                    {{ $t('oscillator', { index: idx + 1 }) }}
-                </li>
-            </ul>
-            <div>
-                <oscillator-editor
-                    :instrument-ref="instrumentRef"
-                    :instrument-index="selectedInstrument"
-                    :oscillator-index="selectedOscillatorIndex"
-                    @invalidate="invalidatePreset"
-                />
-                <!-- modules -->
-                <module-editor
-                    :instrument-ref="instrumentRef"
-                    :instrument-index="selectedInstrument"
-                    @invalidate="invalidatePreset"
-                    class="module-editor"
-                />
-            </div>
+            </section>
+            <!-- header UI -->
+            <section class="header">
+                <button
+                    class="help-button"
+                    @click="openHelp"
+                >?</button>
+                <button
+                    class="close-button"
+                    @click="$emit('close')"
+                >x</button>
+                <div class="actions">
+                    <button
+                        v-if="hasMidiSupport"
+                        v-t="midiConnected ? 'assignMidiControl' : 'connectMidi'"
+                        type="button"
+                        @click="midiConnected ? setMidiAssignMode( !midiAssignMode ) : openSettingsPanel()"
+                    />
+                    <!-- selector that switches between available instruments -->
+                    <select-box
+                        v-model="instrument"
+                        :options="instrumentOptions"
+                        class="instrument-selector"
+                    />
+                </div>
+            </section>
         </div>
         <hr class="divider" />
-        <!-- current preset -->
-        <div class="current-preset">
+        <div class="instrument-modules">
+            <!-- oscillator editor -->
+            <div class="instrument-editor-wrapper">
+                <ul class="oscillator-tabs tab-list">
+                    <li v-for="(oscillator, idx) in oscillatorAmount"
+                        :key="`oscillator_${idx}`"
+                        :class="{ active: selectedOscillatorIndex === idx }"
+                        @click="setSelectedOscillatorIndex(idx)"
+                    >
+                        {{ $t('oscillator', { index: idx + 1 }) }}
+                    </li>
+                </ul>
+                <div>
+                    <oscillator-editor
+                        :instrument-ref="instrumentRef"
+                        :instrument-index="selectedInstrument"
+                        :oscillator-index="selectedOscillatorIndex"
+                        @invalidate="invalidatePreset"
+                    />
+                    <div class="module-wrapper">
+                        <!-- modules -->
+                        <module-editor
+                            :instrument-ref="instrumentRef"
+                            :instrument-index="selectedInstrument"
+                            :tabbed="!maximize"
+                            @invalidate="invalidatePreset"
+                            class="module-editor"
+                        />
+                        <!-- optional slot content goes here (see jam.vue) -->
+                        <slot></slot>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr class="divider" />
+        <div class="instrument-footer">
+            <!-- current preset -->
             <input
                 v-model="presetName"
                 class="preset-name-input"
@@ -95,9 +105,10 @@
                 @blur="handleFocusOut"
                 @keyup.enter="savePreset"
             />
-            <button v-t="'savePreset'"
-                    type="button"
-                    @click="savePreset"
+            <button
+                v-t="'savePreset'"
+                type="button"
+                @click="savePreset"
             ></button>
         </div>
     </div>
@@ -126,6 +137,12 @@ export default {
         OscillatorEditor,
         ModuleEditor,
         SelectBox,
+    },
+    props: {
+        maximize: {
+            type: Boolean,
+            default: false,
+        },
     },
     data: () => ({
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
@@ -291,7 +308,9 @@ export default {
     position: absolute;
     top: 0;
     margin-top: 0;
-    @include verticalScrollOnMobile();
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 
     /* ideal size and above (tablet/desktop) */
 
@@ -306,6 +325,21 @@ export default {
         margin-top: -$ideal-instrument-editor-height / 2;
         height: $ideal-instrument-editor-height;
     }
+}
+
+.instrument-header {
+    position: relative;
+
+    .header {
+        .help-button, .close-button, .actions {
+            top: 0 !important;
+        }
+    }
+}
+
+.instrument-modules {
+    position: relative;
+    @include verticalScrollOnMobile();
 }
 
 .preset-title {
@@ -333,7 +367,20 @@ export default {
     }
 }
 
+.module-wrapper {
+    display: inline-flex;
+    flex-direction: column;
+    vertical-align: top;
+    width: calc(100% - 550px);
+    height: 100%;
+}
+
 .module-editor {
+    position: relative;
+    overflow: hidden;
+    @include verticalScrollOnMobile();
+    height: calc(100% - 180px);
+    
     @media screen and ( min-width: $ideal-instrument-editor-width ) {
         margin-top: -$spacing-small;
         padding: 0 $spacing-medium;
@@ -344,7 +391,7 @@ export default {
     padding: 0 $spacing-medium;
 }
 
-.current-preset {
+.instrument-footer {
     margin: $spacing-small 0 0 $spacing-medium;
 
     input {

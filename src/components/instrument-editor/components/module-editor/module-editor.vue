@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2021 - https://www.igorski.nl
+* Igor Zinken 2019-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -21,9 +21,15 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section class="module-editor">
+    <section
+        class="module-editor"
+        :class="{ 'module-editor--maximized': !tabbed }"
+    >
         <div class="module-list">
-            <ul class="modules-tabs tab-list">
+            <ul
+                v-if="tabbed"
+                class="modules-tabs tab-list"
+            >
                 <li v-t="'filterTitle'"
                     :class="{ active: activeModuleTab === 0 }"
                     @click="activeModuleTab = 0">
@@ -34,9 +40,10 @@
                 </li>
             </ul>
 
-            <div class="tabbed-content"
-                 :class="{ active: activeModuleTab === 0 }"
-             >
+            <div
+                class="tabbed-content"
+                :class="{ active: !tabbed || activeModuleTab === 0 }"
+            >
                 <fieldset id="eqEditor" class="instrument-parameters">
                     <legend v-t="'eqLegend'"></legend>
                     <toggle-button
@@ -100,8 +107,9 @@
                     />
                 </fieldset>
             </div>
-            <div class="tabbed-content"
-                 :class="{ active: activeModuleTab === 1 }"
+            <div
+                class="tabbed-content"
+                :class="{ active: !tabbed || activeModuleTab === 1 }"
             >
                 <fieldset id="odEditor" class="instrument-parameters">
                     <legend v-t="'odLegend'"></legend>
@@ -203,6 +211,10 @@ export default {
         instrumentRef: {
             type: Object,
             required: true,
+        },
+        tabbed: {
+            type: Boolean,
+            default: true,
         },
     },
     data: () => ({
@@ -535,6 +547,17 @@ export default {
 
         .module-list {
             max-width: 260px;
+        }
+
+        &--maximized {
+            .module-list {
+                display: inline-flex;
+                max-width: initial;
+            }
+
+            .tabbed-content {
+                border: 0;
+            }
         }
     }
 }

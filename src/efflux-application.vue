@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -246,6 +246,9 @@ export default {
                 case ModalWindows.CHORD_GENERATOR_WINDOW:
                     loadFn = () => import( "@/components/chord-generator-window/chord-generator-window" );
                     break;
+                case ModalWindows.JAM:
+                    loadFn = () => import( "@/components/jam/jam" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },
@@ -398,6 +401,11 @@ export default {
         }
         await this.$nextTick();
         this.handleReady();
+
+        const urlParams = new URLSearchParams( window.location.search );
+        if ( urlParams.has( "jam" )) {
+            this.openModal( ModalWindows.JAM );
+        }
     },
     methods: {
         ...mapMutations([
