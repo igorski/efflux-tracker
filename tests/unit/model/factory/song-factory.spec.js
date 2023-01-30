@@ -1,3 +1,6 @@
+/**
+ * @jest-environment jsdom
+ */
 import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
 import SongValidator from "@/model/validators/song-validator";
@@ -5,7 +8,9 @@ import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 let mockFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
+    default: {
+        deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
+    }
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => mockFn( "serialize", ...args ))

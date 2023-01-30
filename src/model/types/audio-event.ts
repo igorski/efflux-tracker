@@ -36,8 +36,7 @@
  * the "seq" Object defines the properties for playback within the
  * Sequencer (the offset and length values are defined in seconds)
  *
- * the "mp" Object is optional and defines an optional parameter
- * change action on one of the instruments modules
+ * the "mp" Object is optional
  *
  * @see EventFactory, EventValidator
  */
@@ -57,11 +56,17 @@ export type EffluxAudioEvent = {
         length: number;             // total length (in seconds) of event
         mpLength: number;           // total length (in seconds) of module parameter automation
     },
-    mp: {
-        module: string;
-        value: number;
-        glide: boolean;
-    }
+    mp: EffluxAudioEventModuleParams;
+};
+
+/**
+ * defines an optional parameter change action on
+ * one of the instruments modules
+ */
+export type EffluxAudioEventModuleParams = {
+    module: string;
+    value: number;
+    glide: boolean;
 };
 
 // valid actions for event.action
