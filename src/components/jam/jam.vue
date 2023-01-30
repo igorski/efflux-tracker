@@ -69,6 +69,10 @@ export default {
     left: 0;
     transform: none;
     border: none;
-    width: auto;//calc(100% - 550px);
+    width: auto;
+
+    @include mobile() {
+        height: 90px;
+    }
 }
 </style>

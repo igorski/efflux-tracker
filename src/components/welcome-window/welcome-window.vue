@@ -79,10 +79,9 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import FileLoader from "@/components/file-loader/file-loader";
-import { IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH } from "@/definitions/layout";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import { PROPERTIES } from "@/store/modules/settings-module";
@@ -96,9 +95,6 @@ export default {
         ToggleButton,
     },
     computed: {
-        ...mapState([
-            "windowSize",
-        ]),
         ...mapGetters([
             "displayWelcome",
         ]),
@@ -111,9 +107,6 @@ export default {
                     { name: PROPERTIES.DISPLAY_WELCOME, value }
                 );
             }
-        },
-        hasJamMode() {
-            return this.windowSize.width >= IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH;
         },
     },
     methods: {

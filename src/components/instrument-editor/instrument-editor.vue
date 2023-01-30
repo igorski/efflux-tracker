@@ -412,7 +412,7 @@ export default {
 }
 
 .instrument-footer {
-    margin: $spacing-small 0 0 $spacing-medium;
+    margin: $spacing-small $spacing-medium 0;
 
     input {
         width: 100%;
