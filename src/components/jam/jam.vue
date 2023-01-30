@@ -22,8 +22,12 @@
 */
 <template>
     <div class="jam-container">
-        <instrument-editor class="jam-instrument-editor" maximize>
-            <hr class="divider" />
+        <instrument-editor
+            class="jam-instrument-editor"
+            maximized
+            @close="$emit('close')"
+        >
+            <hr class="divider jam-divider" />
             <note-entry-editor class="jam-note-editor" />
         </instrument-editor>
     </div>
@@ -52,12 +56,12 @@ export default {
 
 .jam-instrument-editor {
     padding: $spacing-small 0;
-    width: 100%;
     border: none;
-    top: 0;
-    left: 0;
-    margin: 0;
     border-radius: 0;
+}
+
+.jam-divider {
+    margin-top: 0;
 }
 
 .jam-note-editor {

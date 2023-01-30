@@ -19,8 +19,11 @@ $footer-height: 45px;
 $ideal-pattern-editor-width: 1150px;
 $ideal-instrument-editor-width: 900px;
 $ideal-instrument-editor-height: 703px;
+$ideal-maximized-instrument-editor-width: 1180px;
+$ideal-maximized-instrument-editor-height: 820px;
 $action-button-top: #{$spacing-medium - $spacing-xsmall};
 $note-entry-editor-height: 150px;
+$note-entry-editor-height-expanded: 220px;
 $sampleWaveformHeight: 200px;
 
 @import "colors";

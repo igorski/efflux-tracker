@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -49,6 +49,11 @@
                 v-t="'openHelp'"
                 @click="openHelp()"
             ></button>
+            <button
+                type="button"
+                v-t="'jamMode'"
+                @click="openJamMode()"
+            ></button>
         </div>
         <div class="pane logo">
             <img
@@ -74,9 +79,10 @@
 </template>
 
 <script>
-import { mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import FileLoader from "@/components/file-loader/file-loader";
+import { IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH } from "@/definitions/layout";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import { PROPERTIES } from "@/store/modules/settings-module";
@@ -90,6 +96,9 @@ export default {
         ToggleButton,
     },
     computed: {
+        ...mapState([
+            "windowSize",
+        ]),
         ...mapGetters([
             "displayWelcome",
         ]),
@@ -102,6 +111,9 @@ export default {
                     { name: PROPERTIES.DISPLAY_WELCOME, value }
                 );
             }
+        },
+        hasJamMode() {
+            return this.windowSize.width >= IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH;
         },
     },
     methods: {
@@ -117,6 +129,9 @@ export default {
         },
         openInstrumentEditor() {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+        },
+        openJamMode() {
+            this.openModal( ModalWindows.JAM_MODE );
         },
     }
 };

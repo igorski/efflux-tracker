@@ -21,7 +21,10 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="instrument-editor">
+    <div
+        class="instrument-editor"
+        :class="{ 'instrument-editor--maximized': maximized }"
+    >
         <div class="instrument-header">
             <!-- instrument preset list -->
             <section class="instrument-presets">
@@ -66,7 +69,7 @@
                     <li v-for="(oscillator, idx) in oscillatorAmount"
                         :key="`oscillator_${idx}`"
                         :class="{ active: selectedOscillatorIndex === idx }"
-                        @click="setSelectedOscillatorIndex(idx)"
+                        @click="setSelectedOscillatorIndex( idx )"
                     >
                         {{ $t('oscillator', { index: idx + 1 }) }}
                     </li>
@@ -76,23 +79,24 @@
                         :instrument-ref="instrumentRef"
                         :instrument-index="selectedInstrument"
                         :oscillator-index="selectedOscillatorIndex"
-                        @invalidate="invalidatePreset"
+                        @invalidate="invalidatePreset()"
                     />
                     <div class="module-wrapper">
                         <!-- modules -->
                         <module-editor
                             :instrument-ref="instrumentRef"
                             :instrument-index="selectedInstrument"
-                            :tabbed="!maximize"
-                            @invalidate="invalidatePreset"
-                            class="module-editor"
+                            :tabbed="!maximized"
+                            @invalidate="invalidatePreset()"
+                            class="module-editor-container"
+                            :class="{ 'module-editor-container--maximized': maximized }"
                         />
-                        <!-- optional slot content goes here (see jam.vue) -->
-                        <slot></slot>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- optional slot content goes here (see jam.vue) -->
+        <slot></slot>
         <hr class="divider" />
         <div class="instrument-footer">
             <!-- current preset -->
@@ -139,7 +143,7 @@ export default {
         SelectBox,
     },
     props: {
-        maximize: {
+        maximized: {
             type: Boolean,
             default: false,
         },
@@ -325,6 +329,20 @@ export default {
         margin-top: -$ideal-instrument-editor-height / 2;
         height: $ideal-instrument-editor-height;
     }
+
+    &--maximized {
+        @media screen and ( min-width: $ideal-maximized-instrument-editor-width )  {
+            left: 50%;
+            width: $ideal-maximized-instrument-editor-width !important;
+            margin-left: -( $ideal-maximized-instrument-editor-width / 2 ) !important;
+        }
+
+        @media screen and ( min-height: $ideal-maximized-instrument-editor-height )  {
+            top: 50%;
+            height: $ideal-maximized-instrument-editor-height;
+            margin-top: -( $ideal-maximized-instrument-editor-height / 2 ) !important;
+        }
+    }
 }
 
 .instrument-header {
@@ -368,22 +386,24 @@ export default {
 }
 
 .module-wrapper {
-    display: inline-flex;
-    flex-direction: column;
-    vertical-align: top;
-    width: calc(100% - 550px);
-    height: 100%;
+    @include large() {
+        display: inline-flex;
+        flex-direction: column;
+        vertical-align: top;
+        width: calc(100% - 550px);
+    }
 }
 
-.module-editor {
+.module-editor-container {
     position: relative;
-    overflow: hidden;
-    @include verticalScrollOnMobile();
-    height: calc(100% - 180px);
-    
+
     @media screen and ( min-width: $ideal-instrument-editor-width ) {
         margin-top: -$spacing-small;
         padding: 0 $spacing-medium;
+    }
+
+    &--maximized {
+        padding-top: $spacing-medium;
     }
 }
 

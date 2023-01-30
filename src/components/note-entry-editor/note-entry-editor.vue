@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -328,6 +328,11 @@ $largeWidth: 700px;
     padding: $spacing-small $spacing-large;
     border-top: 2px solid $color-background;
 
+    @include large() {
+        display: flex;
+        flex-direction: row;
+    }
+
     .divider {
         width: calc(100% + #{$spacing-large * 2});
         margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
@@ -339,7 +344,7 @@ $largeWidth: 700px;
     }
 
     &.large {
-        height: $note-entry-editor-height * 2;
+        height: $note-entry-editor-height-expanded;
 
         .keyboard {
             width: $largeWidth;
@@ -358,10 +363,6 @@ $largeWidth: 700px;
 
 .section {
     vertical-align: top;
-
-    @include large() {
-        display: inline-block;
-    }
 }
 
 .title {

@@ -114,6 +114,7 @@ import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
 import Loader from "@/components/loader";
 import ModalWindows from "@/definitions/modal-windows";
+import { JAM_MODE } from "@/definitions/url-params";
 import ApplicationMenu from "@/components/application-menu/application-menu";
 import Notifications from "@/components/notifications";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -246,7 +247,7 @@ export default {
                 case ModalWindows.CHORD_GENERATOR_WINDOW:
                     loadFn = () => import( "@/components/chord-generator-window/chord-generator-window" );
                     break;
-                case ModalWindows.JAM:
+                case ModalWindows.JAM_MODE:
                     loadFn = () => import( "@/components/jam/jam" );
                     break;
             }
@@ -403,8 +404,8 @@ export default {
         this.handleReady();
 
         const urlParams = new URLSearchParams( window.location.search );
-        if ( urlParams.has( "jam" )) {
-            this.openModal( ModalWindows.JAM );
+        if ( urlParams.has( JAM_MODE )) {
+            this.openModal( ModalWindows.JAM_MODE );
         }
     },
     methods: {

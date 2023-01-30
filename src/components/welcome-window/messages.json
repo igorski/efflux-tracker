@@ -6,6 +6,7 @@
         "openDemo": "Open a demo song",
         "tweakInstrument": "Tweak an instrument",
         "openHelp": "Read the online help",
+        "jamMode": "Jam mode",
         "showOnStartup": "Always display this window on startup"
     }
 }
