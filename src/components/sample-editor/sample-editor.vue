@@ -212,6 +212,10 @@ const MP3_PAD_START = 1057; // samples added at the beginning of an MP3 encoded 
 const rangeToPosition = ( rangeValue, length ) => length * ( rangeValue / 100 );
 const secToPctRatio   = ({ duration }) => 100 / duration;
 
+function sanitizeRangeValue( value ) {
+    return Math.max( 0, Math.min( 100, value ));
+}
+
 export default {
     i18n: { messages },
     components: {
@@ -301,8 +305,8 @@ export default {
                     }
                     // convert ranges to percentile (for range controls)
                     const ratio = secToPctRatio( value.buffer );
-                    this.sampleStart = value.rangeStart * ratio;
-                    this.sampleEnd   = value.rangeEnd * ratio;
+                    this.sampleStart = sanitizeRangeValue( value.rangeStart * ratio );
+                    this.sampleEnd   = sanitizeRangeValue( value.rangeEnd * ratio );
 
                     this.isInUse = this.activeSong.instruments.some(({ oscillators }) =>
                         oscillators.some(({ sample }) => sample === value.name )
@@ -487,8 +491,8 @@ export default {
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             const delta = offsetX - this.startOffsetX;
 
-            this.sampleStart = Math.max( 0, Math.min( 100, this.dragSS + ( delta / this.dragRatio ) ));
-            this.sampleEnd   = Math.max( 0, Math.min( 100, this.dragSE + ( delta / this.dragRatio ) ));
+            this.sampleStart = sanitizeRangeValue( this.dragSS + ( delta / this.dragRatio ) );
+            this.sampleEnd   = sanitizeRangeValue( this.dragSE + ( delta / this.dragRatio ) );
         },
         /* other */
         sliceBufferForRange() {
