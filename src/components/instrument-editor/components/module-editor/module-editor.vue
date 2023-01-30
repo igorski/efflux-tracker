@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2021 - https://www.igorski.nl
+* Igor Zinken 2019-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -21,9 +21,15 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <section class="module-editor">
+    <section
+        class="module-editor"
+        :class="{ 'module-editor--maximized': !showTabs }"
+    >
         <div class="module-list">
-            <ul class="modules-tabs tab-list">
+            <ul
+                v-if="showTabs"
+                class="modules-tabs tab-list"
+            >
                 <li v-t="'filterTitle'"
                     :class="{ active: activeModuleTab === 0 }"
                     @click="activeModuleTab = 0">
@@ -34,9 +40,10 @@
                 </li>
             </ul>
 
-            <div class="tabbed-content"
-                 :class="{ active: activeModuleTab === 0 }"
-             >
+            <div
+                class="tabbed-content"
+                :class="{ active: !showTabs || activeModuleTab === 0 }"
+            >
                 <fieldset id="eqEditor" class="instrument-parameters">
                     <legend v-t="'eqLegend'"></legend>
                     <toggle-button
@@ -100,8 +107,9 @@
                     />
                 </fieldset>
             </div>
-            <div class="tabbed-content"
-                 :class="{ active: activeModuleTab === 1 }"
+            <div
+                class="tabbed-content"
+                :class="{ active: !showTabs || activeModuleTab === 1 }"
             >
                 <fieldset id="odEditor" class="instrument-parameters">
                     <legend v-t="'odLegend'"></legend>
@@ -177,8 +185,10 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
+import { IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH } from "@/definitions/layout";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import SelectBox from "@/components/forms/select-box";
 import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
@@ -204,11 +214,21 @@ export default {
             type: Object,
             required: true,
         },
+        tabbed: {
+            type: Boolean,
+            default: true,
+        },
     },
     data: () => ({
         activeModuleTab: 0,
     }),
     computed: {
+        ...mapState([
+            "windowSize",
+        ]),
+        showTabs() {
+            return this.tabbed || this.windowSize.width < IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH;
+        },
         /* EQ */
         eqEnabled: {
             get() {
@@ -535,6 +555,22 @@ export default {
 
         .module-list {
             max-width: 260px;
+        }
+
+        &--maximized {
+            .module-list {
+                display: inline-flex;
+                flex-direction: column;
+                max-width: initial;
+            }
+
+            .tabbed-content {
+                border: 0;
+            }
+
+            .instrument-parameters {
+                max-width: 250px;
+            }
         }
     }
 }

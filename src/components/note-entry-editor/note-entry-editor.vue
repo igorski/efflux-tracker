@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -26,7 +26,7 @@
         :class="{ large: largeView }"
         @mouseover="setHelpTopic('note-entry')"
      >
-        <div class="section">
+        <div class="note-entry-editor__keyboard">
             <h3 v-t="'noteInput'" class="title"></h3>
             <ul
                 class="keyboard"
@@ -53,7 +53,7 @@
                 </li>
             </ul>
         </div>
-        <div class="section">
+        <div class="note-entry-editor__octaves">
             <h3 v-t="'octave'" class="title"></h3>
             <ul class="octaves">
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="1">1</form-list-item>
@@ -328,6 +328,11 @@ $largeWidth: 700px;
     padding: $spacing-small $spacing-large;
     border-top: 2px solid $color-background;
 
+    @include large() {
+        display: flex;
+        flex-direction: row;
+    }
+
     .divider {
         width: calc(100% + #{$spacing-large * 2});
         margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
@@ -339,7 +344,7 @@ $largeWidth: 700px;
     }
 
     &.large {
-        height: $note-entry-editor-height * 2;
+        height: $note-entry-editor-height-expanded;
 
         .keyboard {
             width: $largeWidth;
@@ -356,11 +361,15 @@ $largeWidth: 700px;
     }
 }
 
-.section {
+.note-entry-editor__keyboard {
+    vertical-align: top;
+}
+
+.note-entry-editor__octaves {
     vertical-align: top;
 
-    @include large() {
-        display: inline-block;
+    @include mobile() {
+        display: none;
     }
 }
 

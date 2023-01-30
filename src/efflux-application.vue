@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -114,6 +114,7 @@ import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
 import Loader from "@/components/loader";
 import ModalWindows from "@/definitions/modal-windows";
+import { JAM_MODE } from "@/definitions/url-params";
 import ApplicationMenu from "@/components/application-menu/application-menu";
 import Notifications from "@/components/notifications";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -245,6 +246,9 @@ export default {
                     break;
                 case ModalWindows.CHORD_GENERATOR_WINDOW:
                     loadFn = () => import( "@/components/chord-generator-window/chord-generator-window" );
+                    break;
+                case ModalWindows.JAM_MODE:
+                    loadFn = () => import( "@/components/jam/jam" );
                     break;
             }
             return () => asyncComponent( "mw", loadFn );
@@ -398,6 +402,11 @@ export default {
         }
         await this.$nextTick();
         this.handleReady();
+
+        const urlParams = new URLSearchParams( window.location.search );
+        if ( urlParams.has( JAM_MODE )) {
+            this.openModal( ModalWindows.JAM_MODE );
+        }
     },
     methods: {
         ...mapMutations([
