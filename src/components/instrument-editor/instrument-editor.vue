@@ -64,34 +64,32 @@
         <hr class="divider" />
         <div class="instrument-modules">
             <!-- oscillator editor -->
-            <div class="instrument-editor-wrapper">
-                <ul class="oscillator-tabs tab-list">
-                    <li v-for="(oscillator, idx) in oscillatorAmount"
-                        :key="`oscillator_${idx}`"
-                        :class="{ active: selectedOscillatorIndex === idx }"
-                        @click="setSelectedOscillatorIndex( idx )"
-                    >
-                        {{ $t('oscillator', { index: idx + 1 }) }}
-                    </li>
-                </ul>
-                <div>
-                    <oscillator-editor
+            <ul class="oscillator-tabs tab-list">
+                <li v-for="(oscillator, idx) in oscillatorAmount"
+                    :key="`oscillator_${idx}`"
+                    :class="{ active: selectedOscillatorIndex === idx }"
+                    @click="setSelectedOscillatorIndex( idx )"
+                >
+                    {{ $t('oscillator', { index: idx + 1 }) }}
+                </li>
+            </ul>
+            <div>
+                <oscillator-editor
+                    :instrument-ref="instrumentRef"
+                    :instrument-index="selectedInstrument"
+                    :oscillator-index="selectedOscillatorIndex"
+                    @invalidate="invalidatePreset()"
+                />
+                <div class="module-wrapper">
+                    <!-- modules -->
+                    <module-editor
                         :instrument-ref="instrumentRef"
                         :instrument-index="selectedInstrument"
-                        :oscillator-index="selectedOscillatorIndex"
+                        :tabbed="!maximized"
                         @invalidate="invalidatePreset()"
+                        class="module-editor-container"
+                        :class="{ 'module-editor-container--maximized': maximized }"
                     />
-                    <div class="module-wrapper">
-                        <!-- modules -->
-                        <module-editor
-                            :instrument-ref="instrumentRef"
-                            :instrument-index="selectedInstrument"
-                            :tabbed="!maximized"
-                            @invalidate="invalidatePreset()"
-                            class="module-editor-container"
-                            :class="{ 'module-editor-container--maximized': maximized }"
-                        />
-                    </div>
                 </div>
             </div>
         </div>
@@ -405,10 +403,6 @@ export default {
     &--maximized {
         padding-top: $spacing-medium;
     }
-}
-
-.instrument-editor-wrapper {
-    padding: 0 $spacing-medium;
 }
 
 .instrument-footer {
