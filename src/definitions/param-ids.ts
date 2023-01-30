@@ -70,7 +70,7 @@ export const MIDI_ASSIGNABLE = {
     OD_POST_CUT
 };
 
-export const getParamRange = paramId => {
+export const getParamRange = ( paramId: string ): { min: number, max: number, step: number } => {
     let min  = 0;
     let max  = 1;
     let step = 0.01;
@@ -111,7 +111,8 @@ export const getParamRange = paramId => {
 
 /* applies a UI-initiated parameter change onto the model */
 
-export const applyParamChange = ( paramId, paramValue, instrumentIndex, storeReference ) => {
+export const applyParamChange = ( paramId: string, paramValue: number,
+    instrumentIndex: number, storeReference: Vuex.Store ): void => {
     const instrumentRef      = storeReference.getters.activeSong.instruments[ instrumentIndex ];
     const [ prop, paramKey ] = getInstrumentPropKeysByParamId( paramId );
     const value = { ...instrumentRef[ prop ], [ paramKey ]: paramValue };
@@ -126,7 +127,7 @@ const FILTER = "filter";
 const OD     = "overdrive";
 const DELAY  = "delay";
 
-function getInstrumentPropKeysByParamId( paramId ) {
+function getInstrumentPropKeysByParamId( paramId: string ): string[] {
     switch ( paramId ) {
         default:
             if ( process.env.NODE_ENV === "development" ) {

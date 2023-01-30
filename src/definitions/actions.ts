@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,16 +22,30 @@
  */
 
 /**
- * The String values of these type are literals
- * used when serializing a Song. Be mindful of making changes.
+ * These define the editor actions that can be invoked from multiple origins
+ * (e.g. keyboard-service when dealing with a shortcut, visual editors, mouse
+ * actions inside the pattern editor, etc.). These actions can also be added to
+ * state history, allowing to undo/redo them at will.
+ *
+ * @see action-factory, history-state-factory and history-module
  */
-export default {
-    SAW      : "SAW",
-    SINE     : "SINE",
-    TRIANGLE : "TRIANGLE",
-    SQUARE   : "SQUARE",
-    PWM      : "PWM",
-    NOISE    : "NOISE",
-    CUSTOM   : "CUSTOM",
-    SAMPLE   : "SAMPLE"
+enum Actions
+{
+    ADD_EVENT = 0,
+    ADD_EVENTS,
+    DELETE_EVENT,
+    DELETE_SELECTION,
+    ADD_MODULE_AUTOMATION,
+    DELETE_MODULE_AUTOMATION,
+    CLEAR_PATTERN,
+    PASTE_PATTERN,
+    PASTE_PATTERN_MULTIPLE,
+    ADD_PATTERN,
+    DELETE_PATTERN,
+    CUT_SELECTION,
+    PASTE_SELECTION,
+    TEMPO_CHANGE,
+    REPLACE_INSTRUMENT,
+    TRANSPOSE,
 };
+export default Actions;

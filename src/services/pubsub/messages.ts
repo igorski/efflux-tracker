@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2019-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,31 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-/**
- * These define the editor actions that can be invoked from multiple origins
- * (e.g. keyboard-service when dealing with a shortcut, visual editors, mouse
- * actions inside the pattern editor, etc.). These actions can also be added to
- * state history, allowing to undo/redo them at will.
- *
- * @see action-factory, history-state-factory and history-module
- */
 export default
 {
-    ADD_EVENT                : "S:0",
-    ADD_EVENTS               : "S:1",
-    DELETE_EVENT             : "S:2",
-    DELETE_SELECTION         : "S:3",
-    ADD_MODULE_AUTOMATION    : "S:4",
-    DELETE_MODULE_AUTOMATION : "S:5",
-    CLEAR_PATTERN            : "S:6",
-    PASTE_PATTERN            : "S:7",
-    PASTE_PATTERN_MULTIPLE   : "S:8",
-    ADD_PATTERN              : "S:9",
-    DELETE_PATTERN           : "S:10",
-    CUT_SELECTION            : "S:11",
-    PASTE_SELECTION          : "S:12",
-    TEMPO_CHANGE             : "S:13",
-    REPLACE_INSTRUMENT       : "S:14",
-    TRANSPOSE                : "S:15",
+    // NOTE : these string values should remain unchanged
+    // as they are used to expose an API for external implementations
+
+    // 1. subscriptions
+
+    LOAD_SONG             : "S:SL", // expects song Object as payload
+    VALIDATE_AND_GET_SONG : "S:VG", // expect Function handler as payload, function will be invoked with song Object
+    SHOW_ERROR            : "S:SE", // expect String message
+    SET_LOADING_STATE     : "S:LS", // expects String key to identify the operation which started loading
+    UNSET_LOADING_STATE   : "U:LS", // expects String key to identify the operation which finished loading
+    SET_BLIND_STATE       : "S:SB", // expects boolean indicating whether obscuring blind should be displayed
+    CLOSE_OVERLAY         : "S:CO",
+
+    // 2. broadcasts
+
+    EFFLUX_READY             : "B:ER",
+    SONG_LOADED              : "B:SL",
+    SONG_SAVED               : "B:SS",
+    SONG_IMPORTED            : "B:SI",
+    SONG_EXPORTED            : "B:SE",
+    INSTRUMENT_EDITOR_OPENED : "B:IE",
+    MIDI_CONNECTED           : "B:MC"
 };
