@@ -7,6 +7,9 @@ import selection from "./modules/selection-module";
 import settings from "./modules/settings-module";
 import sequencer from "./modules/sequencer-module";
 import song from "./modules/song-module";
+import APPLICATION_MODE from "@/definitions/application-modes";
+import ModalWindows from "@/definitions/modal-windows";
+import { initHistory } from "@/model/factories/history-state-factory";
 import AudioService from "@/services/audio-service";
 import OutputRecorder from "@/services/audio/output-recorder";
 import WaveTables from "@/services/audio/wave-tables";
@@ -14,7 +17,6 @@ import KeyboardService from "@/services/keyboard-service";
 import MIDIService from "@/services/midi-service";
 import PubSubService from "@/services/pubsub-service";
 import Messages from "@/services/pubsub/messages";
-import { initHistory } from "@/model/factories/history-state-factory";
 
 // cheat a little by exposing the vue-i18n translations directly to the
 // store so we can commit translated error/success messages from actions
@@ -47,6 +49,7 @@ export default
         mobileMode: null, /* string name of mobile view state */
         dropboxConnected: false,
         mediaConnected: false,
+        applicationMode: APPLICATION_MODE.TRACKER,
     },
     getters: {
         // eslint-disable-next-line no-unused-vars
@@ -54,20 +57,23 @@ export default
         isLoading: state => state.loadingStates.length > 0,
     },
     mutations: {
-        publishMessage(state, message) {
-            PubSubService.publish(message);
+        publishMessage( state, message ) {
+            PubSubService.publish( message );
         },
-        setMenuOpened(state, value) {
+        setMenuOpened( state, value ) {
             state.menuOpened = !!value;
         },
-        setBlindActive(state, active) {
+        setBlindActive( state, active ) {
             state.blindActive = !!active;
         },
-        openModal(state, modalName) {
+        openModal( state, modalName ) {
             state.blindActive = !!modalName;
             state.modal = modalName;
         },
-        closeModal(state) {
+        closeModal( state ) {
+            if ( state.applicationMode === APPLICATION_MODE.JAM_MODE ) {
+                return state.modal = ModalWindows.JAM_MODE;
+            }
             state.blindActive = false;
             state.modal = null;
         },
@@ -143,6 +149,9 @@ export default
         },
         setMediaConnected( state, value ) {
             state.mediaConnected = value;
+        },
+        setApplicationMode( state, value ) {
+            state.applicationMode = value;
         },
     },
     actions: {

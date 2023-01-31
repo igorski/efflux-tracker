@@ -25,7 +25,7 @@
         <instrument-editor
             class="jam-instrument-editor"
             maximized
-            @close="$emit('close')"
+            @close="handleClose()"
         >
             <hr class="divider jam-divider" />
             <note-entry-editor class="jam-note-editor" />
@@ -34,6 +34,8 @@
 </template>
 
 <script lang="ts">
+import { mapMutations } from "vuex";
+import APPLICATION_MODE from "@/definitions/application-modes";
 import InstrumentEditor from "@/components/instrument-editor/instrument-editor";
 import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor";
 
@@ -42,6 +44,18 @@ export default {
         InstrumentEditor,
         NoteEntryEditor,
     },
+    created() {
+        this.setApplicationMode( APPLICATION_MODE.JAM_MODE );
+    },
+    methods: {
+        ...mapMutations([
+            "setApplicationMode",
+        ]),
+        handleClose() {
+            this.setApplicationMode( APPLICATION_MODE.TRACKER );
+            this.$emit( "close" );
+        },
+    }
 };
 </script>
 

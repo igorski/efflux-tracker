@@ -1,6 +1,8 @@
 /**
  * @jest-environment jsdom
  */
+import APPLICATION_MODE from "@/definitions/application-modes";
+import ModalWindows from "@/definitions/modal-windows";
 import store from "@/store";
 const { getters, mutations }  = store;
 
@@ -50,6 +52,16 @@ describe("Application Vuex store root", () => {
                 const state = { blindActive: true, modal: "foo" };
                 mutations.closeModal(state);
                 expect(state).toEqual({ blindActive: false, modal: null });
+            });
+
+            it("should force reopen the jam modal, when closing any modal with jam mode still active", () => {
+                const state = { blindActive: true, applicationMode: APPLICATION_MODE.JAM_MODE, modal: "foo" };
+                mutations.closeModal( state );
+                expect( state ).toEqual({
+                    blindActive: true,
+                    applicationMode: APPLICATION_MODE.JAM_MODE,
+                    modal: ModalWindows.JAM_MODE
+                });
             });
         });
 
@@ -170,14 +182,14 @@ describe("Application Vuex store root", () => {
             const state = { windowSize: { width: 0, height: 0 }};
             const width = 500;
             const height = 400;
-            mutations.setWindowSize(state, { width, height });
-            expect(state.windowSize).toEqual({ width, height });
+            mutations.setWindowSize( state, { width, height });
+            expect( state.windowSize ).toEqual({ width, height });
         });
 
         it("should be able to set the mobile view mode", () => {
             const state = { mobileMode: null };
-            mutations.setMobileMode(state, "foo");
-            expect(state.mobileMode).toEqual("foo");
+            mutations.setMobileMode( state, "foo" );
+            expect( state.mobileMode ).toEqual("foo");
         });
 
         it( "should be able to set the Dropbox connected state", () => {
@@ -190,6 +202,12 @@ describe("Application Vuex store root", () => {
             const state = { mediaConnected: false };
             mutations.setMediaConnected( state, true );
             expect( state.mediaConnected ).toBe( true );
+        });
+
+        it( "should be able to set the application mode", () => {
+            const state = { applicationMode: APPLICATION_MODE.TRACKER };
+            mutations.setApplicationMode( state, APPLICATION_MODE.JAM_MODE );
+            expect( state.applicationMode ).toEqual( APPLICATION_MODE.JAM_MODE );
         });
     });
 });
