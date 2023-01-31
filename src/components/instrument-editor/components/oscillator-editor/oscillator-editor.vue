@@ -370,6 +370,7 @@ export default {
         this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
         this.canvas.getElement().className = "waveform-canvas";
+
         this.wtDisplay = new WaveTableDisplay(
             this.canvas.getWidth(),
             this.canvas.getHeight(),
@@ -526,9 +527,11 @@ export default {
             let fadeDelay       = FADE_IN_DELAY;
             let fadeSamples     = FADE_IN_TIME;
 
-            this.wtDisplay.setExternalDraw( ctx => {
+            const { wtDisplay } = this;
+
+            wtDisplay.setExternalDraw( ctx => {
                 // when drawing inside the waveform editor, always render the shape
-                if ( this.wtDisplay.isDragging ) {
+                if ( wtDisplay.isDragging ) {
                     ctx.globalAlpha = 1;
                     fadeDelay   = FADE_IN_DELAY;
                     fadeSamples = FADE_IN_TIME;
@@ -538,6 +541,8 @@ export default {
 
                 const isPlaying = sampleBuffer.some( value => value !== CEIL );
                 ctx.fillRect( 0, 0, width, height );
+
+                wtDisplay.syncStyles( ctx );
 
                 if ( isPlaying ) {
                     fadeSamples = 0;
@@ -553,6 +558,7 @@ export default {
                     }
                     ctx.lineTo( width, HALF_HEIGHT );
                     ctx.stroke();
+
                     return true;
                 } else {
                     if ( ++fadeDelay >= FADE_IN_DELAY ) {

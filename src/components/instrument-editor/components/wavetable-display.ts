@@ -24,7 +24,7 @@ import { sprite }      from "zcanvas";
 import Config          from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
 
-// create the WaveTableDisplay prototype as an extension of a zSprite
+type IUpdateHandler = ( table: number[] ) => void;
 
 class WaveTableDisplay extends sprite
 {
@@ -37,10 +37,11 @@ class WaveTableDisplay extends sprite
     private color: string;
     private strokeStyle: string;
 
-    constructor( width: number, height: number, updateHandler: ( table: number[] ) => void, enabled: boolean, color: string ) {
+    constructor( width: number, height: number, updateHandler: IUpdateHandler, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
 
         this.setDraggable( true );
+        this.setColor( color );
         this.setEnabled( enabled );
 
         /* instance properties */
@@ -49,8 +50,6 @@ class WaveTableDisplay extends sprite
         this.updateHandler    = updateHandler;
         this.interactionCache = { x: -1, y: -1 };
         this.updateRequested  = false;
-
-        this.setColor( color );
     }
 
     /* public methods */
@@ -138,14 +137,18 @@ class WaveTableDisplay extends sprite
         this.drawHandler = handler;
     }
 
+    syncStyles( ctx: CanvasRenderingContext2D ): void {
+        ctx.strokeStyle = this.strokeStyle;
+        ctx.lineWidth   = 5;
+    }
+
     /* zCanvas overrides */
 
     draw( ctx: CanvasRenderingContext2D ): void {
         if ( this.drawHandler?.( ctx )) {
             return;
         }
-        ctx.strokeStyle = this.strokeStyle;
-        ctx.lineWidth   = 5;
+        this.syncStyles( ctx );
         ctx.beginPath();
 
         let h = this._bounds.height,
