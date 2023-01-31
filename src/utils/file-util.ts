@@ -37,7 +37,7 @@ import { blobToResource, disposeResource } from "@/utils/resource-manager";
 export const saveAsFile = ( data: Blob | string, fileName: string ): void => {
     const isBlob = data instanceof Blob;
     if ( isBlob ) {
-        data = blobToResource( data );
+        data = blobToResource( data as Blob );
     }
     const anchor = document.createElement( "a" );
     anchor.style.display = "none";
@@ -53,7 +53,7 @@ export const saveAsFile = ( data: Blob | string, fileName: string ): void => {
     document.body.removeChild( anchor );
 
     if ( isBlob ) {
-        disposeResource( data );
+        disposeResource( data as string );
     }
 };
 

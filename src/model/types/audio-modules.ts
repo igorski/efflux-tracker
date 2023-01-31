@@ -47,11 +47,23 @@ export type WrappedAudioNode = {
 };
 
 export type DelayModule = {
-    delay: WrappedAudioNode,
+    delay: WrappedAudioNode & {
+        type: number;
+        feedback: number;
+        cutoff: number;
+        delay: number;
+        offset: number;
+        dry?: number;
+    },
     delayEnabled: boolean;
 };
 
 export type OverdriveModule = {
-    overdrive: AudioNode;
+    overdrive: AudioNode & {
+        drive: number;
+        color: number;
+        preBand: number;
+        postCut: number;
+    };
     overdriveEnabled: boolean;
 };

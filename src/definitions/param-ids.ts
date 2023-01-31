@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Store } from "vuex";
 import Config from "@/config";
 import { applyModule } from "@/services/audio-service";
 
@@ -112,7 +113,7 @@ export const getParamRange = ( paramId: string ): { min: number, max: number, st
 /* applies a UI-initiated parameter change onto the model */
 
 export const applyParamChange = ( paramId: string, paramValue: number,
-    instrumentIndex: number, storeReference: Vuex.Store ): void => {
+    instrumentIndex: number, storeReference: Store<any> ): void => {
     const instrumentRef      = storeReference.getters.activeSong.instruments[ instrumentIndex ];
     const [ prop, paramKey ] = getInstrumentPropKeysByParamId( paramId );
     const value = { ...instrumentRef[ prop ], [ paramKey ]: paramValue };

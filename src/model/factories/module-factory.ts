@@ -223,7 +223,7 @@ const ModuleFactory = {
      * apply a Delay configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Delay module
      */
-    applyDelayConfiguration( modules: InstrumentModules, props: any, output: AudioParam ): void {
+    applyDelayConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
         const { delay } = modules.delay;
 
         delay.type     = props.type;

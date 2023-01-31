@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import OscillatorTypes from "@/definitions/oscillator-types";
+import type { Sample } from "@/model/types/sample";
 
 /**
  * type definition for an instrument
@@ -34,6 +36,8 @@ export type Instrument = {
     oscillators: InstrumentOscillator[],
     volume: number;
     panning: number;
+    muted: false;
+    solo: false;
     overdrive: {
         enabled: boolean;
         preBand: number;
@@ -63,6 +67,7 @@ export type Instrument = {
         feedback : number;
         cutoff   : number;
         offset   : number;
+        dry      : number;
     }
 };
 
@@ -88,6 +93,7 @@ export type InstrumentOscillator = {
     detune      : number;
     octaveShift : number;
     fineShift   : number;
+    sample      : Sample | string;
     adsr: {
         attack: number;
         decay: number;

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -23,6 +23,7 @@
 import Config from "@/config";
 import EventFactory from "./event-factory";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
@@ -44,7 +45,7 @@ const PatternFactory =
      *        assign to the pattern, otherwise empty channels are generated accordingly
      * @return {EffluxPattern}
      */
-    create( amountOfSteps: number = 16, optChannels: EffluxAudioEvent[][] = null ): EffluxPattern {
+    create( amountOfSteps: number = 16, optChannels: EffluxChannel[] = null ): EffluxPattern {
         return {
             steps    : amountOfSteps,
             channels : optChannels || generateEmptyChannelPatterns( amountOfSteps )
@@ -57,7 +58,7 @@ const PatternFactory =
     deserialize( xtk: any, savedXtkVersion: number, tempo: number ): EffluxPattern[] {
         const patterns: EffluxPattern[] = new Array( xtk[ PATTERNS ].length );
         let pattern: EffluxPattern;
-        let channel: EffluxAudioEvent[][];
+        let channel: EffluxChannel;
         let event: EffluxAudioEvent;
 
         let /* eventIdAcc = 0, */notePoolId: string, automationPoolId: string, eventData: any;
@@ -90,7 +91,7 @@ const PatternFactory =
                             [ notePoolId, automationPoolId ] = xtkEvent.split('|');
 
                             let mp = undefined;
-                            if (automationPoolId) {
+                            if ( automationPoolId ) {
                                 mp = { ...( automationPool[ parseFloat( automationPoolId ) ]) }
                             }
                             eventData = {
@@ -111,6 +112,7 @@ const PatternFactory =
                             note:       eventData[ EVENT_NOTE ],
                             octave:     eventData[ EVENT_OCTAVE ],
                             recording:  false,
+                            // @ts-expect-error omitting values that will be generated at runtime
                             seq: {
                                 playing: false,
                                 mpLength: 0
@@ -129,6 +131,7 @@ const PatternFactory =
                         }
                     }
                     else {
+                        // @ts-expect-error we are cheating a bit using JS falsy values
                         event = 0;
                     }
                     channel[ eIndex ] = event;
@@ -155,7 +158,7 @@ const PatternFactory =
 
         // equalize the pattern lengths
 
-        let replacement: EffluxAudioEvent[][];
+        let replacement: EffluxChannel[];
         let increment: number;
 
         if ( sourceLength > targetLength ) {
@@ -165,7 +168,7 @@ const PatternFactory =
             replacement = generateEmptyChannelPatterns( sourceLength );
             increment   = Math.round( sourceLength / targetLength );
 
-            replacement.forEach(( channel: EffluxAudioEvent[][], index: number ): void => {
+            replacement.forEach(( channel: EffluxChannel, index: number ): void => {
                 for ( let i = 0, j = 0; i < targetLength; ++i, j += increment ) {
                     channel[ j ] = targetPattern.channels[ index ][ i ];
                 }
@@ -226,20 +229,21 @@ export default PatternFactory;
 /**
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
  * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
- * @returns {Array<Array<EffluxAudioEvent>>}
+ * @returns {Array<EffluxChannel>}
  */
-function generateEmptyChannelPatterns( amountOfSteps: number, addEmptyPatternStep: boolean = false ): EffluxAudioEvent[][] {
+function generateEmptyChannelPatterns( amountOfSteps: number, addEmptyPatternStep: boolean = false ): EffluxChannel[] {
     let out = [], i;
 
     for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
         out.push( new Array( amountOfSteps ));
     }
-    out.forEach(( channel: any[] ): void => {
+    out.forEach(( channel: EffluxChannel ): void => {
         i = amountOfSteps;
         while ( i-- ) {
             if ( addEmptyPatternStep === true ) {
                 channel[ i ] = EventFactory.create();
             } else {
+                // @ts-expect-error we are cheating a bit using JS falsy values
                 channel[ i ] = 0; // stringifies nicely in JSON save (otherwise is recorded as "null")
             }
         }

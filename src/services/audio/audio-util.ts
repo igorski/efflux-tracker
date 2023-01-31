@@ -22,7 +22,7 @@
  */
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
 
-type voiceProcessHandler = ( EventVoice, number ) => void;
+type voiceProcessHandler = ( voice: EventVoice, oscillatorIndex: number ) => void;
 
 /**
  * utility method to process all the voices within an instruments

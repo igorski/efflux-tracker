@@ -20,27 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-
-/**
- * Here we expose parts of Efflux as an API to
- * integrate with third party applications
- */
+import type { Store } from "vuex";
+import type { XTK } from "@/model/serializers/song-serializer";
 import Messages from "./pubsub/messages";
 
-type PubSubBroadcastHandler = ( string, payload?: any ) => void;
+type PubSubBroadcastHandler = ( message: string, payload?: any ) => void;
 
-type PubsubJS = {
+type PubSubJS = {
     subscribe: ( message: string, handler: PubSubBroadcastHandler ) => string;
     unsubscribe: ( token: string ) => void;
     publish: ( message: string, payload?: any ) => void;
 };
 
-let store: Vuex.Store;
+let store: Store<any>;
 let pubsub: PubSubJS | undefined;
 
+/**
+ * Here we expose parts of Efflux as an API to
+ * integrate with third party applications
+ */
 export default
 {
-    init( storeReference: Vuex.Store, pubsubReference: PubsubJS ): void {
+    init( storeReference: Store<any>, pubsubReference: PubSubJS ): void {
         if ( !pubsubReference ) {
             return;
         }
@@ -72,17 +73,18 @@ export default
         }
         return pubsub.subscribe( message, handler );
     },
-    unsubscribe( token ): boolean {
+    unsubscribe( token: string ): boolean {
         if ( !pubsub ) {
             return false;
         }
-        return pubsub.unsubscribe( token );
+        pubsub.unsubscribe( token );
+        return true;
     },
 };
 
 /* internal methods */
 
-function handleBroadcast( message, payload?: any ): void {
+function handleBroadcast( message: string, payload?: any ): void {
     switch ( message ) {
         default:
             return;
@@ -96,7 +98,7 @@ function handleBroadcast( message, payload?: any ): void {
                 return;
             }
             store.dispatch( "exportSongForShare", store.state.song.activeSong )
-                .then( xtk => {
+                .then(( xtk: XTK ) => {
                     payload( xtk, store.state.song.activeSong.meta );
                 }).catch(() => {
                     // ...nowt, validation messages will have been triggered by store validate

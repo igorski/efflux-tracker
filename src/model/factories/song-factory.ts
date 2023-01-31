@@ -29,6 +29,9 @@ import {
     META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED, META_TEMPO
 } from "../serializers/song-serializer";
 import type { EffluxSong } from "@/model/types/song";
+import type { Instrument } from "@/model/types/instrument";
+import type { Sample } from "@/model/types/sample";
+import type { XTK } from "@/model/serializers/song-serializer";
 
 export const FACTORY_VERSION = 3;
 export const LEGACY_VERSION  = 1;
@@ -55,11 +58,11 @@ const SongFactory =
 
             // instruments
 
-            instruments : [],
+            instruments : [] as Instrument[],
 
             // samples
 
-            samples : [],
+            samples : [] as Sample[],
 
             // data lists
 
@@ -80,7 +83,7 @@ const SongFactory =
     /**
      * deserializes a song Object from an .XTK file
      */
-     async deserialize( xtk: any, xtkVersion: number ): EffluxSong {
+     async deserialize( xtk: XTK, xtkVersion: number ): Promise<EffluxSong> {
          const song = SongFactory.create( 0 );
 
          song.id      = xtk[ SONG_ID ];

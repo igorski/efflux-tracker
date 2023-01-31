@@ -22,10 +22,11 @@
  */
 import { DFT } from "./dft";
 
- // we assume that the audioContext works according to the newest standards
- // if its is available as window.AudioContext
- // UPDATE: newer Safaris still use webkitAudioContext but have updated the API
- // method names according to spec
+// we assume that the audioContext works according to the newest standards
+// if its is available as window.AudioContext
+// UPDATE: newer Safaris still use webkitAudioContext but have updated the API
+// method names according to spec
+// @ts-expect-error deprecated methods queried on window
 const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && typeof (new window.webkitAudioContext()).createGain === "function"));
 const d = window.document;
 
@@ -49,10 +50,11 @@ constantOneCurve[ 1 ] = 1;
  * y-coordinate points drawn in the UI) and apply it onto the given
  * OscillatorNode oscillator
  */
-export const createWaveTableFromGraph = ( audioContext: AudioContext, graphPoints: number[] ): PeriodiceWave => {
-    const dft = new DFT( graphPoints.length );
+export const createWaveTableFromGraph = ( audioContext: AudioContext, graphPoints: number[] ): PeriodicWave => {
+    const dft = new DFT( graphPoints.length, audioContext.sampleRate );
     dft.forward( graphPoints );
 
+    // @ts-expect-error DFT needs typing
     return audioContext.createPeriodicWave( dft.real, dft.imag );
 };
 
@@ -128,6 +130,7 @@ export const startOscillation = ( oscillator: OscillatorNode, startTime: number 
     if ( isStandards ) {
         oscillator.start( startTime );
     } else {
+        // @ts-expect-error deprecated method
         oscillator.noteOn( startTime );
     }
 };
@@ -141,6 +144,7 @@ export const stopOscillation = ( oscillator: OscillatorNode, stopTime: number ):
         if ( isStandards ) {
             oscillator.stop( stopTime );
         } else {
+            // @ts-expect-error deprecated method
             oscillator.noteOff( stopTime );
         }
     } catch ( e ) {
@@ -152,6 +156,7 @@ export const createGainNode = ( aContext: AudioContext ): GainNode => {
     if ( isStandards ) {
         return aContext.createGain();
     }
+    // @ts-expect-error deprecated method
     return aContext.createGainNode();
 };
 
@@ -175,6 +180,8 @@ export const setValue = ( param: AudioParam, value: number, audioContext: AudioC
     param.setValueAtTime( value, audioContext.currentTime );
 };
 
+type PWMNode = OscillatorNode & { width: AudioParam };
+
 /**
  * Create a Pulse Width Modulator
  * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
@@ -188,7 +195,8 @@ export const setValue = ( param: AudioParam, value: number, audioContext: AudioC
 export const createPWM = ( audioContext: AudioContext, startTime: number, endTime: number,
     destination = audioContext.destination ): OscillatorNode => {
 
-    const pulseOsc = audioContext.createOscillator();
+    // note we are extending the OscillatorNode prototype with a "width" property
+    const pulseOsc: PWMNode = audioContext.createOscillator() as never as PWMNode;
     pulseOsc.type  = "sawtooth";
 
     // Shape the output into a pulse wave.
@@ -199,7 +207,7 @@ export const createPWM = ( audioContext: AudioContext, startTime: number, endTim
     // Use a GainNode as our new "width" audio parameter.
     const widthGain = createGainNode( audioContext );
     widthGain.gain.value = 0; //Default width.
-    pulseOsc.width = widthGain.gain; //Add parameter to oscillator node.
+    pulseOsc.width = widthGain.gain; // Add parameter to oscillator node.
     widthGain.connect( pulseShaper );
 
     // Pass a constant value of 1 into the widthGain – so the "width" setting
@@ -218,7 +226,8 @@ export const createPWM = ( audioContext: AudioContext, startTime: number, endTim
     lfo.frequency.value = 10;
 
     // Override the oscillator"s "connect" and "disconnect" method so that the
-    // new node"s output actually comes from the pulseShaper.
+    // new node's output actually comes from the pulseShaper.
+    // @ts-expect-error proxied override
     pulseOsc.connect = function() {
         pulseShaper.connect.apply( pulseShaper, arguments );
     };
@@ -238,10 +247,10 @@ export const createPWM = ( audioContext: AudioContext, startTime: number, endTim
     lfoDepth.gain.value = 0.1;
     lfoDepth.gain.exponentialRampToValueAtTime( 0.05, startTime + 0.5 );
     lfoDepth.gain.exponentialRampToValueAtTime( 0.15, endTime );
-    lfo.connect(lfoDepth);
-    lfoDepth.connect(pulseOsc.width);
-    lfo.start(startTime);
-    lfo.stop(endTime);
+    lfo.connect( lfoDepth );
+    lfoDepth.connect( pulseOsc.width );
+    lfo.start( startTime );
+    lfo.stop( endTime );
 
     filter.type = "lowpass";
     filter.frequency.value = 16000;
@@ -272,7 +281,9 @@ export const init = ( optCallback?: () => void ): Promise<AudioContext> => {
             if ( typeof window.AudioContext !== "undefined" ) {
                 audioContext = new window.AudioContext();
             }
+            // @ts-expect-error webkitAudioContext not in official spec
             else if ( typeof window.webkitAudioContext !== "undefined" ) {
+                // @ts-expect-error deprecated constructor
                 audioContext = new window.webkitAudioContext();
             }
             else {
@@ -306,7 +317,8 @@ export const createOfflineAudioContext = ( durationInSeconds: number, sampleRate
  * verify whether given feature is supported by the
  * audioContext in the current environment
  */
-export const supports: boolean = ( feature: string ) => !!features[ feature ];
+// @ts-expect-error need to make enum for Features
+export const supports = ( feature: string ) => !!features[ feature ];
 
 /**
  * The below solve an issue where Safari creates "WebKitOscillatorNode" and
@@ -314,5 +326,9 @@ export const supports: boolean = ( feature: string ) => !!features[ feature ];
  * instanceof AudioBufferSourceNode fail !! We check for their unique properties instead
  * as we cannot do instanceof checks on the "WebKit"...-prefixed alternatives.
  */
-export const isOscillatorNode        = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.frequency // node instanceof OscillatorNode
-export const isAudioBufferSourceNode = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.buffer;   // node instanceof AudioBufferSourceNode
+
+// @ts-expect-error 'frequency' should not exist on AudioBufferSourceNode
+export const isOscillatorNode        = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.frequency;
+
+// @ts-expect-error 'buffer' should not exist on OscilatorNode
+export const isAudioBufferSourceNode = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.buffer;

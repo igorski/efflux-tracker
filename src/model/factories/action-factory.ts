@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue from "vue";
+import type { Store } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
@@ -107,7 +108,7 @@ export default function( type: Actions, data: any ): UndoRedo | null {
  * adds a single EffluxAudioEvent into a pattern
  */
 function addSingleEventAction({ store, event, optEventData, updateHandler } :
-    { store: Vuex.Store, event: EffluxAudioEvent, optEventData: any, updateHandler: () => void }
+    { store: Store<any>, event: EffluxAudioEvent, optEventData: any, updateHandler: () => void }
 ): UndoRedo {
     const { state }   = store;
     const song        = state.song.activeSong,
@@ -214,7 +215,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
 /**
  * adds multiple EffluxAudioEvent into a pattern
  */
-function addMultipleEventsAction({ store, events } : { store: Vuex.Store, events: EffluxAudioEvent[] }): UndoRedo {
+function addMultipleEventsAction({ store, events } : { store: Store<any>, events: EffluxAudioEvent[] }): UndoRedo {
 
     const { state }   = store;
     const song        = state.song.activeSong,
@@ -233,7 +234,7 @@ function addMultipleEventsAction({ store, events } : { store: Vuex.Store, events
     function act() {
         const pattern = song.patterns[ patternIndex ];
 
-        events.forEach(( event, index ) => {
+        events.forEach(( event: EffluxAudioEvent, index: number ) => {
             const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
             const channel = pattern.channels[ targetIndex ];
 
@@ -260,7 +261,7 @@ function addMultipleEventsAction({ store, events } : { store: Vuex.Store, events
 
     return {
         undo() {
-            events.forEach(( event, index ) => {
+            events.forEach(( event: EffluxAudioEvent, index: number ) => {
                 const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
                 EventUtil.clearEvent(
                     song,
@@ -286,7 +287,7 @@ function addMultipleEventsAction({ store, events } : { store: Vuex.Store, events
  * removes a single EffluxAudioEvent or multiple EffluxAudioEvents within a selection
  * from a pattern
  */
-function deleteSingleEventOrSelectionAction({ store } : { store: Vuex.Store }): UndoRedo {
+function deleteSingleEventOrSelectionAction({ store } : { store: Store<any> }): UndoRedo {
     const song               = store.state.song.activeSong,
           eventList          = store.state.editor.eventList,
           activePattern      = store.state.sequencer.activePattern,
@@ -387,7 +388,7 @@ function deleteModuleAutomationAction({ event }: { EffluxAudioEvent }): UndoRedo
     };
 }
 
-function clearPattern({ store }: { store: Vuex.Store }): UndoRedo {
+function clearPattern({ store }: { store: Store<any> }): UndoRedo {
     const song          = store.state.song.activeSong,
           patternIndex  = store.state.sequencer.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
@@ -408,7 +409,7 @@ function clearPattern({ store }: { store: Vuex.Store }): UndoRedo {
     };
 }
 
-function pastePattern({ store, patternCopy }: { store: Vuex.Store, patternCopy: EffluxPattern }): UndoRedo {
+function pastePattern({ store, patternCopy }: { store: Store<any>, patternCopy: EffluxPattern }): UndoRedo {
     const song         = store.state.song.activeSong,
           patternIndex = store.state.sequencer.activePattern;
 
@@ -433,7 +434,7 @@ function pastePattern({ store, patternCopy }: { store: Vuex.Store, patternCopy: 
 }
 
 function pastePatternMultiple({ store, patterns, insertIndex } :
-    { store: Vuex.Store, patterns: EffluxPattern[], insertIndex: number }): UndoRedo {
+    { store: Store<any>, patterns: EffluxPattern[], insertIndex: number }): UndoRedo {
     const { getters, commit, rootState } = store;
     const songPatterns = getters.activeSong.patterns;
 
@@ -452,8 +453,8 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
         // update event offsets to match insert position
         const activeSongPatterns = getters.activeSong.patterns;
         for ( let patternIndex = insertIndex, l = activeSongPatterns.length; patternIndex < l; ++patternIndex ) {
-            activeSongPatterns[ patternIndex ].channels.forEach( channel => {
-                channel.forEach( event => {
+            activeSongPatterns[ patternIndex ].channels.forEach(( channel: EffluxChannel ) => {
+                channel.forEach(( event: EffluxAudioEvent ) => {
                     if ( event?.seq ) {
                         const eventStart  = event.seq.startMeasure;
                         const eventEnd    = event.seq.endMeasure;
@@ -486,7 +487,7 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
     };
 }
 
-function addPattern({ store }: { store: Vuex.Store }): UndoRedo {
+function addPattern({ store }: { store: Store<any> }): UndoRedo {
     const song          = store.state.song.activeSong,
           patternIndex  = store.state.sequencer.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
@@ -511,7 +512,7 @@ function addPattern({ store }: { store: Vuex.Store }): UndoRedo {
     };
 }
 
-function deletePattern({ store }: { store: Vuex.Store }): UndoRedo {
+function deletePattern({ store }: { store: Store<any> }): UndoRedo {
     const song            = store.state.song.activeSong,
           patterns        = song.patterns,
           patternIndex    = store.state.sequencer.activePattern,
@@ -536,7 +537,7 @@ function deletePattern({ store }: { store: Vuex.Store }): UndoRedo {
     };
 }
 
-function cutSelectionAction({ store }: { store: Vuex.Store }): UndoRedo {
+function cutSelectionAction({ store }: { store: Store<any> }): UndoRedo {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
     const { commit } = store;
@@ -579,7 +580,7 @@ function cutSelectionAction({ store }: { store: Vuex.Store }): UndoRedo {
     };
 }
 
-function deleteSelectionAction({ store }: { store: Vuex.Store }): UndoRedo {
+function deleteSelectionAction({ store }: { store: Store<any> }): UndoRedo {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
     const { commit }    = store;
@@ -617,7 +618,7 @@ function deleteSelectionAction({ store }: { store: Vuex.Store }): UndoRedo {
     };
 }
 
-function pasteSelectionAction({ store }: { store: Vuex.Store }): UndoRedo {
+function pasteSelectionAction({ store }: { store: Store<any> }): UndoRedo {
     const song = store.state.song.activeSong;
     const { eventList, selectedInstrument, selectedStep } = store.state.editor;
     const { activePattern } = store.state.sequencer;
@@ -659,7 +660,7 @@ function pasteSelectionAction({ store }: { store: Vuex.Store }): UndoRedo {
     };
 }
 
-function replaceInstrumentAction({ store, instrument }: { store: Vuex.Store, instrument: Instrument }): UndoRedo {
+function replaceInstrumentAction({ store, instrument }: { store: Store<any>, instrument: Instrument }): UndoRedo {
     const instrumentIndex    = ( store.rootState || store.state ).editor.selectedInstrument;
     const existingInstrument = clone( store.getters.activeSong.instruments[ instrumentIndex ]);
     instrument.index = instrumentIndex;
@@ -684,7 +685,7 @@ function replaceInstrumentAction({ store, instrument }: { store: Vuex.Store, ins
 }
 
 function transpositionAction({ store, semitones, firstPattern, lastPattern, firstChannel, lastChannel } :
-{ store: Vuex.Store, semitones: number, firstPattern: number, lastPattern: number, firstChannel: number, lastChannel: number }): UndoRedo {
+{ store: Store<any>, semitones: number, firstPattern: number, lastPattern: number, firstChannel: number, lastChannel: number }): UndoRedo {
     const { getters, commit } = store;
     const songPatterns = getters.activeSong.patterns;
 
@@ -695,7 +696,7 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
         const channels = transposedPatterns[ p ].channels;
         let c = firstChannel;
         do {
-            channels[ c ].forEach( event => {
+            channels[ c ].forEach(( event: EffluxAudioEvent ) => {
                 if ( !event ) {
                     return;
                 }
@@ -740,8 +741,8 @@ function deserialize( serializedObject: any = null ): any {
  */
 function clonePattern( song: EffluxSong, activePattern: number ): EffluxPattern {
     const clonedPattern = clone( song.patterns[ activePattern ]);
-    clonedPattern.channels.forEach( channel => {
-        channel.forEach( event => {
+    clonedPattern.channels.forEach(( channel: EffluxChannel ) => {
+        channel.forEach(( event: EffluxAudioEvent ) => {
             if ( event?.seq?.playing ) {
                 event.seq.playing = false;
             }

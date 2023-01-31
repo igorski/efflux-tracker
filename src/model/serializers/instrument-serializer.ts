@@ -204,6 +204,7 @@ export const serialize = ( xtk: any, instruments: Instrument[] ): void => {
 
             if ( ![ OscillatorTypes.CUSTOM, OscillatorTypes.NOISE ].includes( waveform ) &&
                  !Object.prototype.hasOwnProperty.call( xtkWaveforms, waveform )) {
+                // @ts-expect-error implicit any due to indexing
                 xtkWaveforms[ waveform ] = WaveTables[ waveform ] || {};
             }
         });
