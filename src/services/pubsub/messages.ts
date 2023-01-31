@@ -27,6 +27,7 @@ export default
 
     // 1. subscriptions
 
+    AUDIO_CONTEXT_READY   : "S:AC",
     LOAD_SONG             : "S:SL", // expects song Object as payload
     VALIDATE_AND_GET_SONG : "S:VG", // expect Function handler as payload, function will be invoked with song Object
     SHOW_ERROR            : "S:SE", // expect String message

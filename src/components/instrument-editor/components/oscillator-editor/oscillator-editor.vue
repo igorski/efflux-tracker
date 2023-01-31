@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -164,6 +164,8 @@ import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import ModalWindows from "@/definitions/modal-windows";
 import AudioService, { applyModules, getAnalysers } from "@/services/audio-service";
+import PubSubService from "@/services/pubsub-service";
+import Messages from "@/services/pubsub/messages";
 import { supportsAnalysis } from "@/services/audio/analyser";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
@@ -207,6 +209,7 @@ export default {
         activeEnvelopeTab: 0,
         canvas: null,
         wtDisplay: null,
+        performAnalysis: false,
     }),
     computed: {
         ...mapState([
@@ -327,9 +330,6 @@ export default {
         instrumentColor() {
             return INSTRUMENT_COLORS[ this.instrumentIndex ];
         },
-        performAnalysis() {
-            return supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
-        },
     },
     watch: {
         windowSize: {
@@ -355,7 +355,15 @@ export default {
         instrumentIndex() {
             this.wtDisplay.setColor( this.instrumentColor );
             this.canvas.invalidate();
-        }
+            this.handleAnalysis();
+        },
+        performAnalysis( value ) {
+            if ( value ) {
+                // connect the AnalyserNodes to the all instrument channels
+                applyModules( this.activeSong, true );
+                this.renderOscilloscope();
+            }
+        },
     },
     mounted() {
         this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200, fps: 60 });
@@ -373,15 +381,19 @@ export default {
         this.resizeWaveTableDraw();
         this.renderWaveform();
 
-        if ( this.performAnalysis ) {
-            // connect the AnalyserNodes to the all instrument channels
-            applyModules( this.activeSong, true );
-            this.renderOscilloscope();
+        // we can only perform analysis once the audioContext is unlocked
+        if ( AudioService.initialized ) {
+            this.handleAnalysis();
+        } else {
+            this.token = PubSubService.subscribe( Messages.AUDIO_CONTEXT_READY, this.handleAnalysis.bind( this ));
         }
     },
     beforeDestroy() {
         if ( this.performAnalysis ) {
             applyModules( this.activeSong, false );
+        }
+        if ( this.token ) {
+            PubSubService.unsubscribe( this.token );
         }
         this.canvas.dispose();
     },
@@ -565,6 +577,9 @@ export default {
                 this.setCurrentSample( this.samples.find( sample => sample.name === name ));
             }
             this.openModal( ModalWindows.SAMPLE_EDITOR );
+        },
+        handleAnalysis() {
+            this.performAnalysis = supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
         },
         invalidate() {
             this.$emit( "invalidate" );

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,35 +28,32 @@ import { DFT } from "./dft";
  // method names according to spec
 const isStandards = ( !!( "AudioContext" in window ) || ( "webkitAudioContext" in window && typeof (new window.webkitAudioContext()).createGain === "function"));
 const d = window.document;
+
 const features = {
     panning: false
 };
-let timerNode;
+let timerNode: GainNode | undefined;
 
 // Pre-calculate the WaveShaper curves.
-const pulseCurve = new Float32Array(256);
-for (let i = 0; i < 128; ++i) {
-    pulseCurve[i]       = -1;
-    pulseCurve[i + 128] = 1;
+const pulseCurve: Float32Array = new Float32Array( 256 );
+for ( let i = 0; i < 128; ++i ) {
+    pulseCurve[ i ] = -1;
+    pulseCurve[ i + 128 ] = 1;
 }
-const constantOneCurve = new Float32Array(2);
-constantOneCurve[0] = 1;
-constantOneCurve[1] = 1;
+const constantOneCurve: Float32Array = new Float32Array(2);
+constantOneCurve[ 0 ] = 1;
+constantOneCurve[ 1 ] = 1;
 
 /**
  * create a WaveTable from given graphPoints Array (a list of
  * y-coordinate points drawn in the UI) and apply it onto the given
  * OscillatorNode oscillator
- *
- * @param {AudioContext} audioContext
- * @param {Array<number>} graphPoints
- * @return {PeriodicWave}
  */
-export const createWaveTableFromGraph = ( audioContext, graphPoints ) => {
-    const dft = new DFT(graphPoints.length);
-    dft.forward(graphPoints);
+export const createWaveTableFromGraph = ( audioContext: AudioContext, graphPoints: number[] ): PeriodiceWave => {
+    const dft = new DFT( graphPoints.length );
+    dft.forward( graphPoints );
 
-    return audioContext.createPeriodicWave(dft.real, dft.imag);
+    return audioContext.createPeriodicWave( dft.real, dft.imag );
 };
 
 /**
@@ -68,22 +65,22 @@ export const createWaveTableFromGraph = ( audioContext, graphPoints ) => {
  * @param {!Function} callback function to execute
  * @return {OscillatorNode}
  */
-export const createTimer = ( audioContext, time, callback ) => {
+export const createTimer = ( audioContext: AudioContext, time: number, callback: () => void ): OscillatorNode => {
     // this magic works by using a silent oscillator to play for given time
     const timer   = audioContext.createOscillator();
     timer.onended = callback;
 
-    if (!timerNode) {
-        timerNode = createGainNode(audioContext);
+    if ( timerNode === undefined ) {
+        timerNode = createGainNode( audioContext );
         timerNode.gain.value = 0;
-        timerNode.connect(audioContext.destination);
+        timerNode.connect( audioContext.destination );
     }
     // timer will automatically disconnect() once stopped
     // and garbage collected
-    timer.connect(timerNode);
+    timer.connect( timerNode );
 
-    startOscillation(timer, audioContext.currentTime);
-    stopOscillation (timer, time);
+    startOscillation( timer, audioContext.currentTime );
+    stopOscillation( timer, time );
 
     return timer;
 };
@@ -95,20 +92,23 @@ export const createTimer = ( audioContext, time, callback ) => {
  * @param {number} frequencyInHertz
  * @param {number=} startTimeInSeconds optional, defaults to current time
  * @param {number=} durationInSeconds optional, defaults to 1 second
- *
  * @return {OscillatorNode} created Oscillator
  */
-export const beep = ( audioContext, frequencyInHertz, startTimeInSeconds, durationInSeconds ) => {
+export const beep = ( audioContext: AudioContext, frequencyInHertz: number,
+    startTimeInSeconds?: number, durationInSeconds?: number ): OscillatorNode => {
+
     const oscillator = audioContext.createOscillator();
     oscillator.connect( audioContext.destination );
 
     oscillator.frequency.value = frequencyInHertz;
 
-    if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 )
+    if ( typeof startTimeInSeconds !== "number" || startTimeInSeconds === 0 ) {
         startTimeInSeconds = audioContext.currentTime;
+    }
 
-    if ( typeof durationInSeconds !== "number" )
+    if ( typeof durationInSeconds !== "number" ) {
         durationInSeconds = 1;
+    }
 
     // oscillator will start, stop and can be garbage collected after going out of scope
 
@@ -124,47 +124,42 @@ export const beep = ( audioContext, frequencyInHertz, startTimeInSeconds, durati
  * @param {OscillatorNode} oscillator
  * @param {number} startTime AudioContext time at which to start
  */
-export const startOscillation = (oscillator, startTime) => {
-    if (isStandards)
-        oscillator.start(startTime);
-    else
-        oscillator.noteOn(startTime);
+export const startOscillation = ( oscillator: OscillatorNode, startTime: number ): void => {
+    if ( isStandards ) {
+        oscillator.start( startTime );
+    } else {
+        oscillator.noteOn( startTime );
+    }
 };
 
 /**
  * @param {OscillatorNode} oscillator
  * @param {number} stopTime AudioContext time at which to stop
  */
-export const stopOscillation = (oscillator, stopTime) => {
+export const stopOscillation = ( oscillator: OscillatorNode, stopTime: number ): void => {
     try {
-        if (isStandards)
-            oscillator.stop(stopTime);
-        else
-            oscillator.noteOff(stopTime);
+        if ( isStandards ) {
+            oscillator.stop( stopTime );
+        } else {
+            oscillator.noteOff( stopTime );
+        }
     } catch ( e ) {
         // likely Safari DOM Exception 11 if oscillator was previously stopped
     }
 };
 
-/**
- * @param {webkitAudioContext|AudioContext} aContext
- * @return {AudioGainNode}
- */
-export const createGainNode = aContext => {
-    if ( isStandards )
+export const createGainNode = ( aContext: AudioContext ): GainNode => {
+    if ( isStandards ) {
         return aContext.createGain();
-
+    }
     return aContext.createGainNode();
 };
 
 /**
  * At the moment of writing, StereoPannerNode is not supported
  * in Safari, so this can return null!
- *
- * @param {webkitAudioContext|AudioContext} audioContext
- * @return {StereoPannerNode|null}
  */
-export const createStereoPanner = audioContext => {
+export const createStereoPanner = ( audioContext: AudioContext ): StereoPannerNode | null  => {
     // last minute checks on feature support
     if ( typeof audioContext.createStereoPanner !== "function" ) {
         return null;
@@ -174,13 +169,10 @@ export const createStereoPanner = audioContext => {
 
 /**
  * Force given value onto given param, cancelling all scheduled values (e.g. hard "reset")
- * @param {AudioParam} param
- * @param {number} value
- * @param {webkitAudioContext|AudioContext} audioContext
  */
-export const setValue = (param, value, audioContext) => {
-    param.cancelScheduledValues(audioContext.currentTime);
-    param.setValueAtTime(value, audioContext.currentTime);
+export const setValue = ( param: AudioParam, value: number, audioContext: AudioContext ): void => {
+    param.cancelScheduledValues( audioContext.currentTime );
+    param.setValueAtTime( value, audioContext.currentTime );
 };
 
 /**
@@ -193,7 +185,9 @@ export const setValue = (param, value, audioContext) => {
  * @param {AudioDestinationNode=} destination
  * @return {OscillatorNode}
  */
-export const createPWM = ( audioContext, startTime, endTime, destination = audioContext.destination ) => {
+export const createPWM = ( audioContext: AudioContext, startTime: number, endTime: number,
+    destination = audioContext.destination ): OscillatorNode => {
+
     const pulseOsc = audioContext.createOscillator();
     pulseOsc.type  = "sawtooth";
 
@@ -267,10 +261,10 @@ export const createPWM = ( audioContext, startTime, endTime, destination = audio
  * @param {Function=} optCallback optional callback to execute on initialization
  * @return {Promise<AudioContext>} with generated AudioContext
  */
-export const init = optCallback => {
+export const init = ( optCallback?: () => void ): Promise<AudioContext> => {
     return new Promise(( resolve, reject ) => {
-        let audioContext;
-        const handler = () => {
+        let audioContext: AudioContext;
+        const handler = (): void => {
             d.removeEventListener( "click",   handler, false );
             d.removeEventListener( "keydown", handler, false );
             window.removeEventListener( "drop", handler, false );
@@ -304,7 +298,7 @@ export const init = optCallback => {
  * Create an OfflineAudioContext of given duration in seconds in length for
  * given sample rate and channel amount.
  */
-export const createOfflineAudioContext = ( durationInSeconds, sampleRateInHz = 44100, channels = 2 ) => {
+export const createOfflineAudioContext = ( durationInSeconds: number, sampleRateInHz = 44100, channels = 2 ): OfflineAudioContext => {
     return new OfflineAudioContext( channels, Math.ceil( sampleRateInHz * durationInSeconds ), sampleRateInHz );
 };
 
@@ -312,7 +306,7 @@ export const createOfflineAudioContext = ( durationInSeconds, sampleRateInHz = 4
  * verify whether given feature is supported by the
  * audioContext in the current environment
  */
-export const supports = feature => !!features[feature];
+export const supports: boolean = ( feature: string ) => !!features[ feature ];
 
 /**
  * The below solve an issue where Safari creates "WebKitOscillatorNode" and
@@ -320,5 +314,5 @@ export const supports = feature => !!features[feature];
  * instanceof AudioBufferSourceNode fail !! We check for their unique properties instead
  * as we cannot do instanceof checks on the "WebKit"...-prefixed alternatives.
  */
-export const isOscillatorNode        = node => !!node.frequency // node instanceof OscillatorNode
-export const isAudioBufferSourceNode = node => !!node.buffer;   // node instanceof AudioBufferSourceNode
+export const isOscillatorNode        = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.frequency // node instanceof OscillatorNode
+export const isAudioBufferSourceNode = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.buffer;   // node instanceof AudioBufferSourceNode

@@ -20,6 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
+
+type voiceProcessHandler = ( EventVoice, number ) => void;
 
 /**
  * utility method to process all the voices within an instruments
@@ -29,7 +32,7 @@
  * @param {!Function} fn function to execute on each individual voice, will receive
  *                    EventVoice and oscillator index as its arguments
  */
-export const processVoices = (instrumentEvents, fn) => {
+export const processVoices = ( instrumentEvents: EventVoiceList[], fn: voiceProcessHandler ): void => {
     let i, j, eventVoices, voice;
     i = instrumentEvents.length;
 

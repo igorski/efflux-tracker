@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -154,6 +154,14 @@
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleSampleEditorClick()"
+                            ></button>
+                        </li>
+                        <li>
+                            <button
+                                v-t="'jamMode'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="openJamMode()"
                             ></button>
                         </li>
                     </ul>
@@ -368,6 +376,9 @@ export default {
         },
         handleInstrumentBrowserClick() {
             this.openModal( ModalWindows.INSTRUMENT_MANAGER );
+        },
+        openJamMode() {
+            this.openModal( ModalWindows.JAM_MODE );
         },
     }
 };

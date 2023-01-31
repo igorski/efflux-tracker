@@ -13,6 +13,7 @@ import WaveTables from "@/services/audio/wave-tables";
 import KeyboardService from "@/services/keyboard-service";
 import MIDIService from "@/services/midi-service";
 import PubSubService from "@/services/pubsub-service";
+import Messages from "@/services/pubsub/messages";
 import { initHistory } from "@/model/factories/history-state-factory";
 
 // cheat a little by exposing the vue-i18n translations directly to the
@@ -161,7 +162,12 @@ export default
             i18n = i18nReference;
 
             return new Promise( resolve => {
-                AudioService.init( storeReference, OutputRecorder, WaveTables );
+                // audioContext initialization is async, on user interaction
+                AudioService
+                    .init( storeReference, OutputRecorder, WaveTables )
+                    .then(() => {
+                        store.commit( "publishMessage", Messages.AUDIO_CONTEXT_READY );
+                    });
                 KeyboardService.init( storeReference );
                 MIDIService.init( storeReference );
                 initHistory( storeReference );

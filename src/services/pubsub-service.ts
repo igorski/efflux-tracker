@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2021 - https://www.igorski.nl
+ * Igor Zinken 2019-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,11 +27,20 @@
  */
 import Messages from "./pubsub/messages";
 
-let store, pubsub;
+type PubSubBroadcastHandler = ( string, payload?: any ) => void;
+
+type PubsubJS = {
+    subscribe: ( message: string, handler: PubSubBroadcastHandler ) => string;
+    unsubscribe: ( token: string ) => void;
+    publish: ( message: string, payload?: any ) => void;
+};
+
+let store: Vuex.Store;
+let pubsub: PubSubJS | undefined;
 
 export default
 {
-    init( storeReference, pubsubReference ) {
+    init( storeReference: Vuex.Store, pubsubReference: PubsubJS ): void {
         if ( !pubsubReference ) {
             return;
         }
@@ -51,18 +60,30 @@ export default
 
         ].forEach( m => pubsub.subscribe( m, handleBroadcast ));
     },
-    publish( message, payload ) {
+    publish( message: string, payload?: any ): void {
         if ( !pubsub ) {
             return;
         }
         pubsub.publish( message, payload );
-    }
+    },
+    subscribe( message: string, handler: PubSubBroadcastHandler ): string {
+        if ( !pubsub ) {
+            return;
+        }
+        return pubsub.subscribe( message, handler );
+    },
+    unsubscribe( token ): boolean {
+        if ( !pubsub ) {
+            return false;
+        }
+        return pubsub.unsubscribe( token );
+    },
 };
 
 /* internal methods */
 
-function handleBroadcast(message, payload) {
-    switch(message) {
+function handleBroadcast( message, payload?: any ): void {
+    switch ( message ) {
         default:
             return;
         case Messages.LOAD_SONG:

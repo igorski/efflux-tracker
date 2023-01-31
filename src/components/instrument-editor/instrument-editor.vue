@@ -236,7 +236,7 @@ export default {
     created() {
         EMPTY_PRESET_VALUE = this.$t('defaultPresetName');
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
-        this.publishMessage(PubSubMessages.INSTRUMENT_EDITOR_OPENED);
+        this.publishMessage( PubSubMessages.INSTRUMENT_EDITOR_OPENED );
     },
     destroyed() {
         this.setMidiAssignMode( false );
