@@ -23,6 +23,7 @@
     "@babel/core": "^7.12.16",
     "@babel/eslint-parser": "^7.12.16",
     "@babel/preset-typescript": "^7.18.6",
+    "@types/webmidi": "^2.0.6",
     "@vue/cli-plugin-babel": "^5.0.1",
     "@vue/cli-plugin-eslint": "^5.0.1",
     "@vue/cli-plugin-unit-jest": "^5.0.1",
@@ -64,7 +65,7 @@
     "wa-overdrive": "^0.0.3",
     "webpack-cli": "^4.9.2",
     "zcanvas": "^5.1.5",
-    "zmidi": "^1.1.1"
+    "zmidi": "^1.2.0"
   },
   "license": "MIT"
 }

@@ -38,14 +38,14 @@ export type Instrument = {
     panning: number;
     muted: false;
     solo: false;
-    overdrive: {
+    overdrive?: {
         enabled: boolean;
         preBand: number;
         postCut: number;
         color:   number;
         drive:   number;
     },
-    eq: {
+    eq?: {
         enabled  : boolean;
         lowGain  : number;
         midGain  : number;
@@ -88,7 +88,7 @@ export type Instrument = {
 export type InstrumentOscillator = {
     enabled     : boolean;
     waveform    : OscillatorTypes;
-    table       : number[],
+    table       : number[] | number,
     volume      : number;
     detune      : number;
     octaveShift : number;
@@ -100,7 +100,7 @@ export type InstrumentOscillator = {
         sustain: number;
         release: number;
     },
-    pitch: {
+    pitch?: {
         range: number;
         attack: number;
         decay: number;

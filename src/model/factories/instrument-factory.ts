@@ -228,7 +228,7 @@ const InstrumentFactory =
             highGain : 1
         };
     },
-    createOscillator( enabled: boolean, type: string = OscillatorTypes.SAW ): InstrumentOscillator {
+    createOscillator( enabled: boolean, type: OscillatorTypes = OscillatorTypes.SAW ): InstrumentOscillator {
         const oscillator: InstrumentOscillator = {
             enabled     : enabled,
             waveform    : type,
@@ -273,7 +273,7 @@ const InstrumentFactory =
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array<number>}
      */
-    getTableForOscillator( oscillator: InstrumentOscillator, size: number ): number[] {
+    getTableForOscillator( oscillator: InstrumentOscillator, size: number ): number[] | number {
         if ( !oscillator.table ) {
             if ( typeof size !== "number" ) {
                 size = Config.WAVE_TABLE_SIZE;

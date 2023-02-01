@@ -41,7 +41,7 @@
  * @see EventFactory, EventValidator
  */
 export type EffluxAudioEvent = {
-    id: number;
+    id?: number;
     instrument: number;
     note: string;
     octave: number;
@@ -56,7 +56,7 @@ export type EffluxAudioEvent = {
         length: number;             // total length (in seconds) of event
         mpLength: number;           // total length (in seconds) of module parameter automation
     },
-    mp: EffluxAudioEventModuleParams;
+    mp?: EffluxAudioEventModuleParams;
 };
 
 /**

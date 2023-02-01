@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,14 +21,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { MIDINotes, zMIDIEvent } from "zmidi";
+import type { Store, Commit, Module } from "vuex";
 import InstrumentUtil from "../utils/instrument-util";
+import type { MIDIState } from "@/store/modules/midi-module";
 
 const MIDI_TO_PERCENTILE = 1 / 127; // scale MIDI 0-127 range to percentile
 
-let store, state, getters, commit, midi;
+let store: Store<any>;
+let state: any;
+let getters: any;
+let commit: Commit;
+let midi: MIDIState;
 
 export default {
-    init( storeReference ) {
+    init( storeReference: Store<any> ): void {
         store = storeReference;
         ({ state, getters, commit } = store );
         ({ midi } = state ); // midi-module
@@ -40,7 +46,7 @@ export default {
      *
      * @param {zMIDIEvent} event
      */
-    handleMIDIMessage({ type, value, number, channel }) {
+    handleMIDIMessage({ type, value, number, channel }: { type: number, value: number, number: number, channel: number }): void {
         const pitch = MIDINotes.getPitchByNoteNumber( value );
         switch ( type ) {
             default:

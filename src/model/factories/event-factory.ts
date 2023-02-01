@@ -43,6 +43,7 @@ export default
             recording: false,
             seq : {
                 playing            : false,
+                startOffset        : 0,
                 startMeasure       : 0,
                 startMeasureOffset : 0,
                 endMeasure         : 0,

@@ -41,10 +41,10 @@ export const flushQueue = (): void => {
 // this ensures that an enqueued state that is reverted within the ENQUEUE_TIMEOUT is restored
 export const forceProcess = processQueue;
 
-interface IUndoRedoState {
+export interface IUndoRedoState {
     undo: () => void;
     redo: () => void;
-    resources: string[];
+    resources?: string[];
 };
 
 /**

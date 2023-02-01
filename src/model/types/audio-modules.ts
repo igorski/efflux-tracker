@@ -30,7 +30,7 @@ export type FilterModule = {
 
 export type EqModule = {
     lowBand: BiquadFilterNode;
-    midBand: BiquadFilterNode;
+    midBand: GainNode;
     highBand: BiquadFilterNode;
     lowGain: GainNode;
     midGain: GainNode;
@@ -49,10 +49,10 @@ export type WrappedAudioNode = {
 export type DelayModule = {
     delay: WrappedAudioNode & {
         type: number;
-        feedback: number;
-        cutoff: number;
         delay: number;
+        feedback: number;
         offset: number;
+        cutoff: number;
         dry?: number;
     },
     delayEnabled: boolean;

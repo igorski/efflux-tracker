@@ -26,13 +26,14 @@ import type { InstrumentModules } from "@/model/types/instrument-modules";
 import type { EqModule, FilterModule, DelayModule, OverdriveModule } from "@/model/types/audio-modules";
 import Config from "@/config";
 import Delay from "@/services/audio/modules/delay-module";
+// @ts-expect-error has no module definitions
 import Overdrive from "wa-overdrive";
 
 const ModuleFactory = {
     /**
      * Factory method to apply changes to an existing module chain
      */
-    applyConfiguration( moduleType: string, modules: InstrumentModules, props: any, output: AudioParam ): void {
+    applyConfiguration( moduleType: string, modules: InstrumentModules, props: any, output: AudioNode ): void {
         switch ( moduleType ) {
             default:
                 if ( process.env.NODE_ENV === "development" ) {
@@ -136,7 +137,8 @@ const ModuleFactory = {
                 delay: 0.5,
                 feedback: 0.42,
                 offset: -0.027,
-                cutoff: 1200
+                cutoff: 1200,
+                dry: 1,
             }),
             delayEnabled: false
         };
@@ -156,7 +158,7 @@ const ModuleFactory = {
      * apply a EQ configuration (see INSTRUMENT in InstrumentFactory)
      * onto a EQ module
      */
-    applyEQConfiguration( modules: InstrumentModules, props: any, output: AudioParam ): void {
+    applyEQConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
         const { eq } = modules;
 
         eq.eqEnabled           = props.enabled;
@@ -169,7 +171,7 @@ const ModuleFactory = {
     /**
      * apply a Overdrive configuration onto an Overdrive module
      */
-    applyODConfiguration( modules: InstrumentModules, props: any, output: AudioParam ): void {
+    applyODConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
         const { overdrive } = modules;
 
         overdrive.overdriveEnabled  = props.enabled;
@@ -184,7 +186,7 @@ const ModuleFactory = {
      * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Filter module
      */
-    applyFilterConfiguration( modules: InstrumentModules, props: any, output: AudioParam ): void {
+    applyFilterConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
         const { filter }    = modules;
         const filterEnabled = ( props.lfoType !== "off" );
 
