@@ -286,15 +286,17 @@ const InstrumentFactory =
         }
         return oscillator.table;
     },
-    loadPreset( instrumentPreset: any, newInstrumentIndex: number, newInstrumentName: string ): Instrument {
-        const newInstrument = clone( instrumentPreset );
+    loadPreset( instrumentPreset: Instrument, newInstrumentIndex: number, newInstrumentName: string ): Instrument {
+        const newInstrument = clone( instrumentPreset ) as Instrument;
         newInstrument.index = newInstrumentIndex;
         newInstrument.name  = newInstrumentName;
 
         // legacy presets have no pitch envelopes, pan, EQ or overdrive, create now
 
         newInstrument.panning = newInstrument.panning || 0;
-        newInstrument.oscillators.forEach(( oscillator: InstrumentOscillator ) => InstrumentFactory.createPitchEnvelope( oscillator ));
+        newInstrument.oscillators.forEach(( oscillator: InstrumentOscillator ) => {
+            InstrumentFactory.createPitchEnvelope( oscillator );
+        });
         InstrumentFactory.createOverdrive( newInstrument );
         InstrumentFactory.createEQ( newInstrument );
 

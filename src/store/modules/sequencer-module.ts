@@ -20,24 +20,46 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import Vue             from "vue";
-import Config          from "@/config";
-import LinkedList      from "@/utils/linked-list";
+import type { Module, Store } from "vuex";
+import Vue from "vue";
+import Config from "@/config";
+import LinkedList from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
 import { createTimer } from "@/services/audio/webaudio-helper";
-import Metronome       from "@/services/audio/metronome";
+import Metronome from "@/services/audio/metronome";
+import type { EffluxState } from "@/store";
 import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EffluxChannel } from "@/model/types/channel";
+import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxSong } from "@/model/types/song";
+import { LoadSequencerWorker } from "@/workers/worker-factory";
+
+export interface SequencerState {
+    playing: boolean;
+    looping: boolean;
+    recording: boolean; // whether we should record non-sequenced noteOn/noteOff events into the patterns
+    scheduleAheadTime: number; // scheduler lookahead in seconds
+    stepPrecision: number;
+    beatAmount: number; // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
+    beatUnit: number;
+    queueHandlers: OscillatorNode[],
+    channelQueue: LinkedList[],
+    activePattern: number;
+    measureStartTime: number;
+    firstMeasureStartTime: number;
+    currentStep: number;
+    nextNoteTime: number;
+    channels: EffluxChannel[];
+    worker: Worker | null
+};
 
 /* internal methods */
 
 /**
  * enqueue given event into the AudioService for playback
- *
- * @param {Object} store root Vuex store
- * @param {EffluxAudioEvent} event
- * @param {number} eventChannel channel the event belongs to
  */
-function enqueueEvent( store, event, eventChannel ) {
+function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, eventChannel: number ): void {
     const { sequencer } = store.state;
     const { beatAmount, nextNoteTime, activePattern, channelQueue } = sequencer;
     const activeSong = store.state.song.activeSong;
@@ -100,12 +122,8 @@ function enqueueEvent( store, event, eventChannel ) {
 
 /**
  * dequeue event for stopping its playback by the AudioService
- *
- * @param {Object} state sequencer Vuex module state
- * @param {EffluxAudioEvent} event
- * @param {number} time
  */
-function dequeueEvent( state, event, time ) {
+function dequeueEvent( state: SequencerState, event: EffluxAudioEvent, time: number ): void {
     // unset the playing state of the event at the moment it is killed (though
     // it's release cycle is started, we can consider the event eligible for
     // a playback retrigger...
@@ -129,11 +147,8 @@ function dequeueEvent( state, event, time ) {
 
 /**
  * free reference to given "clock" (makes it eligible for garbage collection)
- *
- * @param {Object} state sequencer Vuex module state
- * @param {OscillatorNode} node
  */
-function freeHandler( state, node ) {
+function freeHandler( state: SequencerState, node: OscillatorNode ): void {
     node.disconnect();
     node.onended = null;
 
@@ -143,13 +158,13 @@ function freeHandler( state, node ) {
     }
 }
 
-function collect( store ) {
-    const state = store.state.sequencer, audioContext = getAudioContext();
-    const { metronome } = state;
+function collect( store: Store<EffluxState> ): void {
+    const state: SequencerState = store.state.sequencer;
+    const audioContext: AudioContext = getAudioContext();
 
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
     // and extended to work for multi timbral sequencing
-    const sequenceEvents = !( state.recording && metronome.countIn && !metronome.countInComplete );
+    const sequenceEvents = !( state.recording && Metronome.countIn && !Metronome.countInComplete );
     let i, channel, channelStep, event, seq, compareTime;
 
     while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime )) {
@@ -192,9 +207,8 @@ function collect( store ) {
                 }
             }
         }
-        if ( metronome.enabled ) {
-            // sound the metronome
-            metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, audioContext );
+        if ( Metronome.enabled ) {
+            Metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, audioContext );
         }
         // advance to next step position
         step( store );
@@ -206,7 +220,7 @@ function collect( store ) {
  * onto the next, when the end of pattern has been reached, the
  * pattern will either loop or we the Sequencer will progress onto the next pattern
  */
-function step( store ) {
+function step( store: Store<EffluxState> ): void {
     const activeSong = store.state.song.activeSong;
     const maxMeasure = activeSong.patterns.length - 1;
     const state      = store.state.sequencer;
@@ -249,12 +263,10 @@ function step( store ) {
 
             // one bar metronome count in ?
 
-            const { metronome } = state;
+            if ( Metronome.countIn && !Metronome.countInComplete ) {
 
-            if ( metronome.countIn && !metronome.countInComplete ) {
-
-                metronome.enabled           = metronome.restore;
-                metronome.countInComplete   = true;
+                Metronome.enabled           = Metronome.restore;
+                Metronome.countInComplete   = true;
                 state.firstMeasureStartTime = getAudioContext().currentTime;
 
                 commit( "setActivePattern", 0 );
@@ -267,7 +279,7 @@ function step( store ) {
     }
 }
 
-function syncPositionToSequencerUpdate( state, activeSong ) {
+function syncPositionToSequencerUpdate( state: SequencerState, activeSong: EffluxSong ): void {
     const { activePattern : pattern, nextNoteTime : currentTime } = state;
     setPosition( state, { activeSong, pattern, currentTime });
 }
@@ -281,7 +293,9 @@ function syncPositionToSequencerUpdate( state, activeSong ) {
  * @param {number=} currentTime optional time to sync given pattern to
  *        this will default to the currentTime of the AudioContext for instant enqueuing
  */
-function setPosition( state, { activeSong, pattern, currentTime }) {
+function setPosition( state: SequencerState, { activeSong, pattern, currentTime }:
+    { activeSong: EffluxSong, pattern: number, currentTime?: number }) {
+
     const { patterns } = activeSong;
 
     if ( pattern >= patterns.length ) {
@@ -307,7 +321,7 @@ function setPosition( state, { activeSong, pattern, currentTime }) {
     // are looping the first measure or the song is only one measure in length)
 
     if ( pattern === 0 ) {
-        state.channelQueue.forEach( list => {
+        state.channelQueue.forEach(( list: LinkedList ): void => {
             let playingNote = list.tail;
             while ( playingNote ) {
                 const nextNote = playingNote.previous;
@@ -324,7 +338,7 @@ function setPosition( state, { activeSong, pattern, currentTime }) {
 
 /* store */
 
-export default {
+const SequencerModule: Module<SequencerState, any> = {
     state: {
         playing               : false,
         looping               : false,
@@ -340,39 +354,39 @@ export default {
         firstMeasureStartTime : 0,
         currentStep           : 0,
         nextNoteTime          : 0,
-        channels              : 0,
-        worker                : null,
-        metronome             : Metronome
+        channels              : [],
+        worker                : null
     },
     getters: {
-        isPlaying( state ) {
+        isPlaying( state: SequencerState ): boolean {
             return state.playing;
         },
-        isLooping( state ) {
+        isLooping( state: SequencerState ): boolean {
             return state.looping;
         },
-        isRecording( state ) {
+        isRecording( state: SequencerState ): boolean {
             return state.recording;
         },
-        isMetronomeEnabled( state ) {
-            return state.metronome.enabled;
+        // @ts-expect-error 'state' is declared but its value is never read.
+        isMetronomeEnabled( state: SequencerState ): boolean {
+            return Metronome.enabled;
         },
-        amountOfSteps( state, rootState ) {
-            return rootState.activeSong.patterns[ state.activePattern ].steps;
+        amountOfSteps( state: SequencerState, rootGetters: any ): number {
+            return rootGetters.activeSong.patterns[ state.activePattern ].steps;
         },
-        position: state => ({ pattern: state.activePattern, step: state.currentStep })
+        position: ( state: SequencerState ) => ({ pattern: state.activePattern, step: state.currentStep })
     },
     mutations: {
-        setPlaying( state, isPlaying ) {
+        setPlaying( state: SequencerState, isPlaying: boolean ): void {
             const currentState = state.playing;
             state.playing = !!isPlaying;
             if ( state.playing === currentState ) {
                 return;
             }
             if ( state.playing ) {
-                if ( state.recording && state.metronome.countIn ) {
-                    state.metronome.countInComplete = false;
-                    state.metronome.enabled         = true;
+                if ( state.recording && Metronome.countIn ) {
+                    Metronome.countInComplete = false;
+                    Metronome.enabled         = true;
                 }
                 state.currentStep = 0;  // always start from beginning
                 state.worker.postMessage({
@@ -388,16 +402,16 @@ export default {
             }
             togglePlayback( state.playing );
         },
-        setLooping( state, isLooping ) {
+        setLooping( state: SequencerState, isLooping: boolean ): void {
             state.looping = !!isLooping;
         },
-        setRecording( state, isRecording ) {
+        setRecording( state: SequencerState, isRecording: boolean ): void {
             state.recording = !!isRecording;
         },
-        setActivePattern( state, value ) {
+        setActivePattern( state: SequencerState, value: number ): void {
             state.activePattern = value;
         },
-        gotoPreviousPattern( state, activeSong ) {
+        gotoPreviousPattern( state: SequencerState, activeSong: EffluxSong ): void {
             if ( state.activePattern > 0 ) {
                 state.activePattern = state.activePattern - 1;
             }
@@ -407,7 +421,7 @@ export default {
                 state.currentStep = 0;
             }
         },
-        gotoNextPattern( state, activeSong ) {
+        gotoNextPattern( state: SequencerState, activeSong: EffluxSong ): void {
             const max = activeSong.patterns.length - 1;
             if ( state.activePattern < max ) {
                 state.activePattern = state.activePattern + 1;
@@ -418,44 +432,47 @@ export default {
                 state.currentStep = 0;
             }
         },
-        setCurrentStep( state, step ) {
+        setCurrentStep( state: SequencerState, step: number ): void {
             state.currentStep = step;
         },
-        setPatternSteps( state, { pattern, steps }) {
+        // @ts-expect-error 'state' is declared but its value is never read.
+        setPatternSteps( state: SequencerState, { pattern, steps }: { pattern: EffluxPattern, steps: number }): void {
             const oldAmount = pattern.steps;
-            pattern.channels.forEach(( channel, index ) => {
-                const transformed = new Array( steps );
+            pattern.channels.forEach(( channel: EffluxChannel, index: number ): void => {
+                const transformed: EffluxChannel = new Array( steps );
                 let i, j, increment;
 
                 // ensure that the Array contains non-empty values
                 for ( i = 0; i < steps; ++i ) {
+                    // @ts-expect-error using 0 as falsy value to specify this channel slot is empty
                     transformed[ i ] = 0;
                 }
 
                 if ( steps < oldAmount ) {
                     // reducing resolution, e.g. changing from 32 to 16 steps
                     increment = oldAmount / steps;
-
-                    for ( i = 0, j = 0; i < steps; ++i, j += increment )
+                    for ( i = 0, j = 0; i < steps; ++i, j += increment ) {
                        transformed[ i ] = channel[ j ];
+                    }
                 } else {
                     // increasing resolution, e.g. changing from 16 to 32 steps
                     increment = steps / oldAmount;
-
-                    for ( i = 0, j = 0; i < oldAmount; ++i, j += increment )
+                    for ( i = 0, j = 0; i < oldAmount; ++i, j += increment ) {
                        transformed[ j ] = channel[ i ];
+                    }
                 }
                 Vue.set( pattern.channels, index, transformed );
                 Vue.set( pattern, "steps", steps );
             });
         },
-        setMetronomeEnabled( state, enabled ) {
-            state.metronome.enabled = !!enabled;
+        // @ts-expect-error 'state' is declared but its value is never read.
+        setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
+            Metronome.enabled = !!enabled;
         },
         setPosition,
     },
     actions: {
-        prepareSequencer({ state }, rootStore ) {
+        prepareSequencer({ state }: { state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
             return new Promise( resolve => {
                 // create LinkedLists to store all currently playing events for all channels
 
@@ -464,7 +481,7 @@ export default {
                 }
 
                 // spawn Worker to handle the intervallic polling
-                state.worker = new Worker( new URL( "@/workers/sequencer.worker.js", import.meta.url ));
+                state.worker = LoadSequencerWorker();
                 state.worker.onmessage = ({ data }) => {
                     if ( data.cmd === "collect" && state.playing ) {
                         collect( rootStore );
@@ -475,3 +492,4 @@ export default {
         }
     }
 };
+export default SequencerModule;

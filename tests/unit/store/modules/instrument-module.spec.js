@@ -11,13 +11,17 @@ const { getters, mutations, actions } = InstrumentModule;
 
 let mockStorageFn = jest.fn();
 jest.mock( "@/utils/storage-util", () => ({
-    getItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
-    setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
-    removeItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "removeItem", ...args )))
+    default: {
+        getItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
+        setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
+        removeItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "removeItem", ...args )))
+    }
 }));
 let mockSampleFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args )))
+    default: {
+        deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args )))
+    }
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))

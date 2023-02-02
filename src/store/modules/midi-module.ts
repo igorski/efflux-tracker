@@ -28,7 +28,7 @@ type MIDIDevice = {
     value: number;
 };
 
-type PaiarableParam = {
+type PairableParam = {
     paramId: string;
     instrumentIndex: number;
 };
@@ -39,8 +39,8 @@ export interface MIDIState {
     midiPortNumber: number;
     midiDeviceList: MIDIDevice[],
     midiAssignMode: boolean;
-    pairableParamId: PaiarableParam | null;
-    pairings: Map<string, PaiarableParam>;
+    pairableParamId: PairableParam | null;
+    pairings: Map<string, PairableParam>;
 };
 
 const MIDIModule: Module<MIDIState, any> = {
@@ -73,7 +73,7 @@ const MIDIModule: Module<MIDIState, any> = {
         setMidiAssignMode( state: MIDIState, value: boolean ): void {
             state.midiAssignMode = value;
         },
-        setPairableParamId( state: MIDIState, pairableParamId: PaiarableParam ): void {
+        setPairableParamId( state: MIDIState, pairableParamId: PairableParam ): void {
             state.pairableParamId = pairableParamId;
             state.midiAssignMode  = false;
         },

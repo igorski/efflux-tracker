@@ -1,3 +1,5 @@
+import { LoadRecorderWorker } from "@/workers/worker-factory";
+
 /**
  * Adapted from Matt Diamonds recorderjs.
  * Separated from node_modules to allow inlining of worker through Webpack
@@ -11,7 +13,7 @@ export default class OutputRecorder {
         this.context     = source.context;
         this.node        = ( this.context.createScriptProcessor || this.context.createJavaScriptNode ).call( this.context, bufferSize, 2, 2 );
 
-        this.worker = new Worker( new URL( "@/workers/recorder.worker.js", import.meta.url ));
+        this.worker = LoadRecorderWorker();
         this.worker.onmessage = e => {
             this.callback?.( e.data );
         };

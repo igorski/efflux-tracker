@@ -35,14 +35,10 @@ export default
 
     /**
      * sound the metronome at given time for given currentStep
-     *
-     * @param {number} resolution of the metronome, e.g.: 0 == 16th (semi-quaver), 1 == 8th (quaver), 2 == 4th (quarter) note
-     * @param {number} currentStep
-     * @param {number} maxStep
-     * @param {number} time
-     * @param {AudioContext} audioContext
+     * give resolution of the metronome is specified as:
+     * 0 == 16th (semi-quaver), 1 == 8th (quaver), 2 == 4th (quarter) note
      */
-    play( resolution, currentStep, maxStep, time, audioContext )
+    play( resolution: number, currentStep: number, maxStep: number, time: number, audioContext: AudioContext ): void
     {
         if (( resolution === 1 ) && ( currentStep % ( maxStep / 8 )))
             return; // we're not playing non-8th 16th notes

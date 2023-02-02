@@ -2,6 +2,11 @@ import UndoManager from "undo-manager";
 import store from "@/store/modules/history-module";
 const { getters, mutations, actions }  = store;
 
+jest.mock( "undo-manager", () => ({
+    __esModule: true,
+    default: jest.requireActual( "undo-manager" ),
+}));
+
 describe( "Vuex history state module", () => {
     const noop = () => {}, AMOUNT_OF_STATES = 5;
     let commit = jest.fn();

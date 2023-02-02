@@ -23,6 +23,7 @@
 import type { Store } from "vuex";
 import type { XTK } from "@/model/serializers/song-serializer";
 import Messages from "./pubsub/messages";
+import type { EffluxState } from "@/store";
 
 type PubSubBroadcastHandler = ( message: string, payload?: any ) => void;
 
@@ -32,7 +33,7 @@ type PubSubJS = {
     publish: ( message: string, payload?: any ) => void;
 };
 
-let store: Store<any>;
+let store: Store<EffluxState>;
 let pubsub: PubSubJS | undefined;
 
 /**
@@ -41,7 +42,7 @@ let pubsub: PubSubJS | undefined;
  */
 export default
 {
-    init( storeReference: Store<any>, pubsubReference: PubSubJS ): void {
+    init( storeReference: Store<EffluxState>, pubsubReference: PubSubJS ): void {
         if ( !pubsubReference ) {
             return;
         }

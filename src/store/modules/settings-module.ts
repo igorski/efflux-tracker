@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2022 - https://www.igorski.nl
+ * Igor Zinken 2017-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue         from "vue";
-import Config      from "@/config";
+import type { Commit, Module } from "vuex";
+import Vue from "vue";
+import Config from "@/config";
 import StorageUtil from "@/utils/storage-util";
 
-export const PROPERTIES = {
-    INPUT_FORMAT    : "if",
-    FOLLOW_PLAYBACK : "fp",
-    DISPLAY_HELP    : "dh",
-    DISPLAY_WELCOME : "dw",
-    TIMELINE_MODE   : "tl",
+export interface SettingsState {
+    _settings: Record<string, any>;
+};
+
+export enum PROPERTIES {
+    INPUT_FORMAT    = "if",
+    FOLLOW_PLAYBACK = "fp",
+    DISPLAY_HELP    = "dh",
+    DISPLAY_WELCOME = "dw",
+    TIMELINE_MODE   = "tl"
 };
 
 /* internal methods */
@@ -37,35 +42,35 @@ export const PROPERTIES = {
 /**
  * save the state of the model in local storage
  */
-const persistState = state => {
+const persistState = ( state: SettingsState ): void => {
     StorageUtil.setItem( Config.LOCAL_STORAGE_SETTINGS, JSON.stringify( state._settings ));
 };
 
 // a module that can store user defined settings
 // and retrieve them in future sessions
 
-export default {
-    state: {
+const SettingsModule: Module<SettingsState, any> = {
+    state: (): SettingsState => ({
         _settings: {},
-    },
+    }),
     getters: {
-        displayHelp    : state => state._settings[ PROPERTIES.DISPLAY_HELP ] !== false,
-        displayWelcome : state => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,
-        followPlayback : state => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
-        timelineMode   : state => state._settings[ PROPERTIES.TIMELINE_MODE ] === true,
-        paramFormat    : state => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex"
+        displayHelp    : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_HELP ] !== false,
+        displayWelcome : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,
+        followPlayback : ( state: SettingsState ) => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
+        timelineMode   : ( state: SettingsState ) => state._settings[ PROPERTIES.TIMELINE_MODE ] === true,
+        paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex"
     },
     mutations: {
-        saveSetting( state, { name, value }) {
+        saveSetting( state: SettingsState, { name, value }: { name: string, value: any }): void {
             Vue.set( state._settings, name, value );
             persistState( state );
         },
-        setStoredSettings( state, settings ) {
+        setStoredSettings( state: SettingsState, settings: any ): void {
             state._settings = settings;
         }
     },
     actions: {
-        async loadStoredSettings({ commit }) {
+        async loadStoredSettings({ commit }: { commit: Commit }): Promise<void> {
             StorageUtil.init();
             try {
                 const result = await StorageUtil.getItem( Config.LOCAL_STORAGE_SETTINGS );
@@ -82,3 +87,4 @@ export default {
         },
     }
 };
+export default SettingsModule;

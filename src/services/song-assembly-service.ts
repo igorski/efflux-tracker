@@ -23,6 +23,7 @@
 import SongValidator from "@/model/validators/song-validator";
 import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
+import type { EffluxSong } from "@/model/types/song";
 
 export const ASSEMBLER_VERSION = 7;
 
@@ -30,11 +31,8 @@ const ASSEMBLER_VERSION_CODE = "av";
 
 /**
  * assembles a song Object from an .XTK file
- *
- * @param {Object|string} xtk
- * @return {Object}
  */
-export const assemble = async xtk => {
+export const assemble = async ( xtk: string | any ): Promise<any> => {
     try {
         xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 
@@ -79,11 +77,8 @@ export default
     assemble,
     /**
      * serializes a song into an .XTK file
-     *
-     * @param {EffluxSong} song
-     * @return {string}
      */
-    async disassemble( song ) {
+    async disassemble( song: EffluxSong ): Promise<string> {
         const xtk = await serialize( song );
 
         xtk[ ASSEMBLER_VERSION_CODE ] = ASSEMBLER_VERSION;

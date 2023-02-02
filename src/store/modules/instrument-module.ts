@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { ActionContext, Commit, Dispatch, Module } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
 import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
@@ -30,45 +31,53 @@ import createAction        from "@/model/factories/action-factory";
 import { createFromSaved } from "@/model/factories/instrument-factory";
 import SampleFactory       from "@/model/factories/sample-factory";
 import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
+import type { Instrument } from "@/model/types/instrument";
+import type { Sample } from "@/model/types/sample";
 import InstrumentValidator from "@/model/validators/instrument-validator";
 import { clone }           from "@/utils/object-util";
 import { openFileBrowser, readTextFromFile, saveAsFile } from "@/utils/file-util";
 
 export const INSTRUMENT_STORAGE_KEY = "Efflux_Ins_";
-export const getStorageKeyForInstrument = ({ presetName }) => `${INSTRUMENT_STORAGE_KEY}${presetName.replace( /\s/g, "" )}`;
+export const getStorageKeyForInstrument = ({ presetName }: { presetName: string }) => `${INSTRUMENT_STORAGE_KEY}${presetName.replace( /\s/g, "" )}`;
 
 // module that can store and retrieve saved instrument presets
 
-export default {
-    state: {
-        /**
-         * @type {Array<Object>}
-         */
+export interface InstrumentState {
+    instruments: ( Instrument | InstrumentMeta )[];
+};
+
+type InstrumentMeta = {
+    presetName: string;
+};
+
+const InstrumentModule: Module<InstrumentState, any> = {
+    state: (): InstrumentState => ({
         instruments : []
-    },
+    }),
     getters: {
-        getInstruments(state) {
+        getInstruments( state: InstrumentState ): ( Instrument | InstrumentMeta )[] {
             return state.instruments;
         },
-        getInstrumentByPresetName: state => presetName => {
-            return state.instruments.find(instrument => instrument.presetName === presetName);
+        getInstrumentByPresetName: ( state: InstrumentState ) => ( presetName: string ): Instrument | InstrumentMeta => {
+            return state.instruments.find(( instrument: Instrument ) => instrument.presetName === presetName );
         }
     },
     mutations: {
-        setInstruments(state, instruments ) {
+        setInstruments( state: InstrumentState, instruments: Instrument[] ): void {
             state.instruments = instruments;
         },
-        setPresetName(state, { instrument, presetName }) {
+        // @ts-expect-error 'state' is declared but its value is never read.
+        setPresetName( state: InstrumentState, { instrument, presetName }: { instrument: Instrument, presetName: string }): void {
             instrument.presetName = presetName;
         }
     },
     actions: {
-        loadStoredInstruments({ commit, dispatch }) {
+        loadStoredInstruments({ commit, dispatch } : { commit: Commit, dispatch: Dispatch }): void {
             StorageUtil.init();
-            StorageUtil.getItem( Config.LOCAL_STORAGE_INSTRUMENTS ).then(async result => {
-                   if ( typeof result === 'string' ) {
+            StorageUtil.getItem( Config.LOCAL_STORAGE_INSTRUMENTS ).then( async ( result: string ): Promise<void> => {
+                   if ( typeof result === "string" ) {
                        try {
-                           const instruments = JSON.parse(result);
+                           const instruments = JSON.parse( result );
                            let wasLegacyStorageFormat = false;
 
                            // if instrument contained oscillators, we know that the storage was using
@@ -81,8 +90,8 @@ export default {
                                    wasLegacyStorageFormat = true;
                                }
                            }
-                           if (!wasLegacyStorageFormat) {
-                               commit('setInstruments', instruments);
+                           if ( !wasLegacyStorageFormat ) {
+                               commit( "setInstruments", instruments );
                            }
                        }
                        catch ( e ) {
@@ -90,7 +99,7 @@ export default {
                        }
                    }
                },
-               async () => {
+               async (): Promise<void> => {
                    // no instruments available ? load fixtures with "factory content"
                    commit( "setLoading", "INS" );
                    const instruments = await FixturesLoader.load( "Instruments.json" );
@@ -103,7 +112,7 @@ export default {
                }
             );
         },
-        async loadInstrumentFromFile( storeRef, file ) {
+        async loadInstrumentFromFile( storeRef: ActionContext<InstrumentState, any>, file: File | Blob ): Promise<void> {
             try {
                 const fileData = await readTextFromFile( file );
                 const instrumentData = JSON.parse( window.atob( fileData ))[ 0 ]; // always exported in Array
@@ -119,9 +128,10 @@ export default {
                 storeRef.commit( "showError", storeRef.getters.t( "errors.fileLoad" ));
             }
         },
-        loadInstrumentFromLS({ getters, commit }, instrumentMeta ) {
-            return new Promise( async ( resolve, reject ) => {
-                const storedInstrument = await StorageUtil.getItem( getStorageKeyForInstrument( instrumentMeta ));
+        loadInstrumentFromLS({ getters, commit }: { getters: any, commit: Commit },
+            instrumentDef: Instrument | InstrumentMeta ): Promise<Instrument> {
+            return new Promise( async ( resolve, reject ): Promise<void> => {
+                const storedInstrument = await StorageUtil.getItem( getStorageKeyForInstrument( instrumentDef ));
                 if ( !storedInstrument ) {
                     reject();
                 }
@@ -129,8 +139,9 @@ export default {
                 resolve( instrument );
             });
         },
-        saveInstrumentIntoLS({ state, getters, dispatch }, instrument ) {
-            return new Promise( async ( resolve, reject ) => {
+        saveInstrumentIntoLS({ state, getters, dispatch }: { state: InstrumentState, getters: any, dispatch: Dispatch },
+            instrument: Instrument ): Promise<void> {
+            return new Promise( async ( resolve, reject ): Promise<void> => {
                 if ( InstrumentValidator.isValid( instrument ) &&
                    ( typeof instrument.presetName === "string" && instrument.presetName.length > 0 )) {
                     try {
@@ -157,20 +168,15 @@ export default {
         },
         /**
          * delete given instrument from the model
-         *
-         * @public
-         * @param {Object} state
-         * @param {Object} instrument
-         * @param {boolean=} persist optional, whether to persist changes (defaults to true)
-         *                   can be false if subsequent model operations will occur (prevents
-         *                   unnecessary duplicate processing)
+         * note: persist is optional and defines whether to persist changes (defaults to true)
+         * can be false if subsequent model operations will occur (prevents
+         * unnecessary duplicate processing)
          */
-        deleteInstrument({ state }, { instrument, persist }) {
-            return new Promise((resolve, reject) => {
+        deleteInstrument({ state }: { state: InstrumentState },
+            { instrument, persist = true }: { instrument: Instrument, persist?: boolean }): Promise<void> {
+            return new Promise(( resolve, reject ): void => {
                 let deleted = false;
                 let i = state.instruments.length;
-
-                persist = ( typeof persist === 'boolean' ) ? persist : true;
 
                 // remove duplicate instrument if existed
 
@@ -181,7 +187,7 @@ export default {
                         state.instruments.splice( i, 1 );
 
                         // remove instrument storage entry
-                        StorageUtil.removeItem(getStorageKeyForInstrument(instrument));
+                        StorageUtil.removeItem( getStorageKeyForInstrument( instrument ));
                         deleted = true;
                         break;
                     }
@@ -197,15 +203,17 @@ export default {
                 }
             });
         },
-        importInstruments({ getters, dispatch }) {
+        importInstruments({ getters, dispatch }: { getters: any, dispatch: Dispatch }): Promise<string | number> {
             // directly invoke file browser to overcome blocking of the file select popup by the browser
-            let fileHandlerFn;
-            openFileBrowser( fileBrowserEvent => {
-                fileHandlerFn( fileBrowserEvent );
-            }, INSTRUMENT_FILE_EXTENSION );
+            type EventDef = Event & { target: HTMLInputElement };
+            let fileHandlerFn: ( fileBrowserEvent: EventDef ) => Promise<void>;
 
-            return new Promise(( resolve, reject ) => {
-                fileHandlerFn = async fileBrowserEvent => {
+            openFileBrowser(( fileBrowserEvent: EventDef ) => {
+                fileHandlerFn( fileBrowserEvent );
+            }, [ INSTRUMENT_FILE_EXTENSION ]);
+
+            return new Promise(( resolve, reject ): void => {
+                fileHandlerFn = async ( fileBrowserEvent: EventDef ): Promise<void> => {
                     try {
                         const fileData = await readTextFromFile( fileBrowserEvent.target.files[ 0 ] );
                         const instruments = JSON.parse( window.atob( fileData ));
@@ -230,7 +238,8 @@ export default {
                 };
             });
         },
-        exportInstrument({ getters, dispatch }, instrumentMeta ) {
+        exportInstrument({ getters, dispatch }: { getters: any, dispatch: Dispatch },
+            instrumentMeta: Partial<InstrumentMeta> ): Promise<void> {
             return new Promise( async( resolve, reject ) => {
                 try {
                     const instrument = await dispatch( "loadInstrumentFromLS", getters.getInstrumentByPresetName( instrumentMeta.presetName ));
@@ -242,8 +251,8 @@ export default {
                 }
             });
         },
-        exportInstruments({ state, getters, dispatch }) {
-            return new Promise( async ( resolve, reject ) => {
+        exportInstruments({ state, getters, dispatch }: { state: InstrumentState, getters: any, dispatch: Dispatch }): Promise<void> {
+            return new Promise( async ( resolve, reject ): Promise<void> => {
                 if ( Array.isArray( state.instruments ) && state.instruments.length > 0 ) {
                     // retrieve all instrument data
                     const instruments = [];
@@ -263,11 +272,11 @@ export default {
 
 /* internal methods */
 
-const getMetaForInstrument = instrument => ({
+const getMetaForInstrument = ( instrument: Instrument ): InstrumentMeta => ({
     presetName: instrument.presetName,
 });
 
-const downloadInstrumentFile = ( instrumentList, fileName ) => {
+const downloadInstrumentFile = ( instrumentList: Instrument[], fileName: string ): void => {
     // encode instrument data
     const data = window.btoa( JSON.stringify( instrumentList ));
 
@@ -277,10 +286,10 @@ const downloadInstrumentFile = ( instrumentList, fileName ) => {
     );
 };
 
-const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
+const persistState = ( state: InstrumentState ): Promise<void> => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
 
-const serializeInstrument = async ( instrumentToSave, songSampleList ) => {
-    const instrument = clone( instrumentToSave );
+const serializeInstrument = async ( instrumentToSave: Instrument, songSampleList: Sample[] ): Promise<Instrument> => {
+    const instrument = clone( instrumentToSave ) as Instrument;
 
     // serialize used samples (these are managed by the song, but on import/export
     // of individual instruments these are serialized as part of the instrument "bundle")
@@ -288,7 +297,7 @@ const serializeInstrument = async ( instrumentToSave, songSampleList ) => {
         if ( oscillator.waveform !== OscillatorTypes.SAMPLE ) {
             continue;
         }
-        const sampleEntity = songSampleList.find(({ name }) => name === oscillator.sample );
+        const sampleEntity = songSampleList.find(( s: Sample ) => s.name === oscillator.sample );
         if ( sampleEntity ) {
             oscillator.sample = await serializeSample( sampleEntity );
         }
@@ -296,14 +305,15 @@ const serializeInstrument = async ( instrumentToSave, songSampleList ) => {
     return instrument;
 };
 
-const assembleInstrumentFromJSON = async({ getters, commit }, json ) => {
+const assembleInstrumentFromJSON = async({ getters, commit }: { getters: any, commit: Commit },
+    json: Instrument ): Promise<Instrument> => {
     const instrument = createFromSaved( json );
     for ( const oscillator of instrument.oscillators ) {
         if ( oscillator.sample && typeof oscillator.sample === "object" ) {
             const sample = await SampleFactory.deserialize( oscillator.sample );
             if ( sample ) {
                 // if sample didn't exist in song sample list yet, add it now
-                if ( !getters.samples.find(({ name }) => name === sample.name )) {
+                if ( !getters.samples.find(( s: Sample ) => s.name === sample.name )) {
                     commit( "addSample", sample );
                     commit( "cacheSample", sample );
                 }
@@ -316,3 +326,4 @@ const assembleInstrumentFromJSON = async({ getters, commit }, json ) => {
     }
     return instrument;
 };
+export default InstrumentModule;

@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue from "vue";
-import type { Store } from "vuex";
+import type { Store, ActionContext } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
@@ -37,6 +37,7 @@ import { enqueueState } from "@/model/factories/history-state-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import AudioService, { connectAnalysers } from "@/services/audio-service";
 import { Transpose } from "@/services/audio/pitch";
+import type { EffluxState } from "@/store";
 import PatternFactory from "./pattern-factory";
 
 export default function( type: Actions, data: any ): IUndoRedoState | null {
@@ -98,7 +99,7 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
  * adds a single EffluxAudioEvent into a pattern
  */
 function addSingleEventAction({ store, event, optEventData, updateHandler } :
-    { store: Store<any>, event: EffluxAudioEvent, optEventData: any, updateHandler: ( advanceStep?: boolean ) => void }
+    { store: Store<EffluxState>, event: EffluxAudioEvent, optEventData: any, updateHandler: ( advanceStep?: boolean ) => void }
 ): IUndoRedoState {
     const { state }   = store;
     const song        = state.song.activeSong,
@@ -170,8 +171,8 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
             // only do this for events within the same measure though
 
             if ( prevNode && prevNode.data.seq.startMeasure === event.seq.startMeasure &&
-                 prevNode.instrument !== channelIndex &&
-                 event.instrument    === channelIndex ) {
+                 prevNode.data.instrument !== channelIndex &&
+                 event.instrument === channelIndex ) {
 
                 event.instrument = prevNode.data.instrument;
             }
@@ -205,7 +206,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
 /**
  * adds multiple EffluxAudioEvent into a pattern
  */
-function addMultipleEventsAction({ store, events } : { store: Store<any>, events: EffluxAudioEvent[] }): IUndoRedoState {
+function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>, events: EffluxAudioEvent[] }): IUndoRedoState {
 
     const { state }   = store;
     const song        = state.song.activeSong,
@@ -278,7 +279,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<any>, events
  * removes a single EffluxAudioEvent or multiple EffluxAudioEvents within a selection
  * from a pattern
  */
-function deleteSingleEventOrSelectionAction({ store } : { store: Store<any> }): IUndoRedoState {
+function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxState> }): IUndoRedoState {
     const song               = store.state.song.activeSong,
           eventList          = store.state.editor.eventList,
           activePattern      = store.state.sequencer.activePattern,
@@ -379,7 +380,7 @@ function deleteModuleAutomationAction({ event }: { event: EffluxAudioEvent }): I
     };
 }
 
-function clearPattern({ store }: { store: Store<any> }): IUndoRedoState {
+function clearPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song          = store.state.song.activeSong,
           patternIndex  = store.state.sequencer.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
@@ -400,7 +401,7 @@ function clearPattern({ store }: { store: Store<any> }): IUndoRedoState {
     };
 }
 
-function pastePattern({ store, patternCopy }: { store: Store<any>, patternCopy: EffluxPattern }): IUndoRedoState {
+function pastePattern({ store, patternCopy }: { store: Store<EffluxState>, patternCopy: EffluxPattern }): IUndoRedoState {
     const song         = store.state.song.activeSong,
           patternIndex = store.state.sequencer.activePattern;
 
@@ -425,7 +426,7 @@ function pastePattern({ store, patternCopy }: { store: Store<any>, patternCopy: 
 }
 
 function pastePatternMultiple({ store, patterns, insertIndex } :
-    { store: Store<any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
+    { store: ActionContext<EffluxState, any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
     const { getters, commit, rootState } = store;
     const songPatterns = getters.activeSong.patterns;
 
@@ -478,7 +479,7 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
     };
 }
 
-function addPattern({ store }: { store: Store<any> }): IUndoRedoState {
+function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song          = store.state.song.activeSong,
           patternIndex  = store.state.sequencer.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
@@ -503,7 +504,7 @@ function addPattern({ store }: { store: Store<any> }): IUndoRedoState {
     };
 }
 
-function deletePattern({ store }: { store: Store<any> }): IUndoRedoState {
+function deletePattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song            = store.state.song.activeSong,
           patterns        = song.patterns,
           patternIndex    = store.state.sequencer.activePattern,
@@ -528,7 +529,7 @@ function deletePattern({ store }: { store: Store<any> }): IUndoRedoState {
     };
 }
 
-function cutSelectionAction({ store }: { store: Store<any> }): IUndoRedoState {
+function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
     const { commit } = store;
@@ -571,7 +572,7 @@ function cutSelectionAction({ store }: { store: Store<any> }): IUndoRedoState {
     };
 }
 
-function deleteSelectionAction({ store }: { store: Store<any> }): IUndoRedoState {
+function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
     const { commit }    = store;
@@ -609,7 +610,7 @@ function deleteSelectionAction({ store }: { store: Store<any> }): IUndoRedoState
     };
 }
 
-function pasteSelectionAction({ store }: { store: Store<any> }): IUndoRedoState {
+function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { eventList, selectedInstrument, selectedStep } = store.state.editor;
     const { activePattern } = store.state.sequencer;
@@ -651,7 +652,7 @@ function pasteSelectionAction({ store }: { store: Store<any> }): IUndoRedoState 
     };
 }
 
-function replaceInstrumentAction({ store, instrument }: { store: Store<any>, instrument: Instrument }): void {
+function replaceInstrumentAction({ store, instrument }: { store: ActionContext<EffluxState, any>, instrument: Instrument }): void {
     const instrumentIndex    = ( store.rootState || store.state ).editor.selectedInstrument;
     const existingInstrument = clone( store.getters.activeSong.instruments[ instrumentIndex ]) as Instrument;
     instrument.index = instrumentIndex;
@@ -676,7 +677,7 @@ function replaceInstrumentAction({ store, instrument }: { store: Store<any>, ins
 }
 
 function transpositionAction({ store, semitones, firstPattern, lastPattern, firstChannel, lastChannel } :
-{ store: Store<any>, semitones: number, firstPattern: number, lastPattern: number, firstChannel: number, lastChannel: number }): IUndoRedoState {
+{ store: Store<EffluxState>, semitones: number, firstPattern: number, lastPattern: number, firstChannel: number, lastChannel: number }): IUndoRedoState {
     const { getters, commit } = store;
     const songPatterns = getters.activeSong.patterns;
 

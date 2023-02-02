@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Commit, Module } from "vuex";
+// @ts-expect-error has no types
 import UndoManager from "undo-manager";
 import { forceProcess, flushQueue } from "@/model/factories/history-state-factory";
 
 const STATES_TO_SAVE = 99;
+
+export interface HistoryState {
+    undoManager: UndoManager;
+    historyIndex: number;
+    totalSaved: number;
+};
 
 // a module to store states so the application can undo/redo changes
 // made to the song. We do this by applying save and restore functions for
@@ -32,27 +40,23 @@ const STATES_TO_SAVE = 99;
 // by using Vue.set() and Vue.delete() in the undo/redo functions reactivity
 // will be retained.
 
-const module = {
+const HistoryModule: Module<HistoryState, any> = {
     state: {
         undoManager  : new UndoManager(),
         historyIndex : -1, // used for reactivity (as undo manager isn't bound to Vue, goes to STATES_TO_SAVE - 1 )
         totalSaved   : 0,  // total amount of states saved, this can exceed STATES_TO_SAVE
     },
     getters: {
-        canUndo        : state => state.historyIndex >= 0 && state.undoManager.hasUndo(),
-        canRedo        : state => state.historyIndex < STATES_TO_SAVE && state.undoManager.hasRedo(),
-        amountOfStates : state => state.historyIndex + 1,
-        totalSaved     : state => state.totalSaved,
+        canUndo        : ( state: HistoryState ) => state.historyIndex >= 0 && state.undoManager.hasUndo(),
+        canRedo        : ( state: HistoryState ) => state.historyIndex < STATES_TO_SAVE && state.undoManager.hasRedo(),
+        amountOfStates : ( state: HistoryState ) => state.historyIndex + 1,
+        totalSaved     : ( state: HistoryState ) => state.totalSaved,
     },
     mutations: {
         /**
          * store a state change inside the history
-         *
-         * @param {Object} state
-         * @param {Function} undo
-         * @param {Function} redo
          */
-        saveState( state, { undo, redo }) {
+        saveState( state: HistoryState, { undo, redo }: { undo: () => void, redo: () => void }): void {
             if ( process.env.NODE_ENV === "development" ) {
                 if ( typeof undo !== "function" || typeof redo !== "function" ) {
                     throw new Error( "cannot store a state without specifying valid undo and redo actions" );
@@ -62,13 +66,13 @@ const module = {
             state.historyIndex = state.undoManager.getIndex();
             ++state.totalSaved;
         },
-        setHistoryIndex( state, value ) {
+        setHistoryIndex( state: HistoryState, value: number ): void {
             state.historyIndex = value;
         },
         /**
          * clears entire history
          */
-        resetHistory(state) {
+        resetHistory( state: HistoryState ): void {
             flushQueue();
             state.undoManager.clear();
             state.historyIndex = state.undoManager.getIndex();
@@ -79,7 +83,7 @@ const module = {
         /**
          * apply the previously stored state
          */
-        async undo({ state, getters, commit }) {
+        async undo({ state, getters, commit }: { state: HistoryState, getters: any, commit: Commit }): Promise<void> {
             forceProcess();
             return new Promise( resolve => {
                 if ( getters.canUndo ) {
@@ -92,7 +96,7 @@ const module = {
         /**
          * apply the next stored state
          */
-        redo({ state, getters, commit }) {
+        redo({ state, getters, commit }: { state: HistoryState, getters: any, commit: Commit }): Promise<void> {
             return new Promise( resolve => {
                 if ( getters.canRedo ) {
                     state.undoManager.redo();
@@ -103,9 +107,9 @@ const module = {
         }
     }
 };
-
-export default module;
+export default HistoryModule;
 
 /* initialization */
 
-module.state.undoManager.setLimit( STATES_TO_SAVE );
+// @ts-expect-error undoManager has no types
+HistoryModule.state.undoManager.setLimit( STATES_TO_SAVE );

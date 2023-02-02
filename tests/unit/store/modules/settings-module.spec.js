@@ -3,11 +3,17 @@ import settingsModule, { PROPERTIES } from "@/store/modules/settings-module";
 
 const { getters, mutations, actions } = settingsModule;
 
+jest.mock( "vue", () => ({
+    __esModule: true,
+    default: jest.requireActual( "vue" )
+}));
 let mockStorageFn = jest.fn();
 jest.mock( "@/utils/storage-util", () => ({
-    init: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "init", ...args ))),
-    getItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
-    setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
+    default: {
+        init: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "init", ...args ))),
+        getItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
+        setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
+    }
 }));
 
 describe( "Vuex settings module", () => {

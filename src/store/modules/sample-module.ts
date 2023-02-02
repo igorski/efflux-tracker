@@ -20,48 +20,59 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Commit, Module } from "vuex";
 import SampleFactory from "@/model/factories/sample-factory";
+import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
+import type { Sample } from "@/model/types/sample";
 import AudioService from "@/services/audio-service";
 
-export default {
-    state: () => ({
+export interface SampleState {
+    currentSampleId: string | null;
+    sampleCache: Map<string, Sample>;
+};
+
+const SampleModule: Module<SampleState, any> = {
+    state: (): SampleState => ({
         currentSampleId: null,  // id of sample currently being edited
         sampleCache: new Map(), // contains all sample buffers available for playback
     }),
     getters: {
-        currentSample: ( state, getters ) => getters.samples.find(({ id }) => id === state.currentSampleId ),
-        sampleCache: state => state.sampleCache,
-        sampleFromCache: state => name => state.sampleCache.get( name ),
+        currentSample: ( state: SampleState, getters: any ): Sample => {
+            return getters.samples.find(( s: Sample ) => s.id === state.currentSampleId );
+        },
+        sampleCache: ( state: SampleState ): Map<string, Sample> => state.sampleCache,
+        sampleFromCache: ( state: SampleState ) => ( name: string ): Sample => state.sampleCache.get( name ),
     },
     mutations: {
-        setCurrentSample( state, { id = null } = {}) {
-            state.currentSampleId = id;
+        setCurrentSample( state: SampleState, sample: Sample ): void {
+            state.currentSampleId = sample.id ?? null;
         },
-        flushSampleCache( state ) {
+        flushSampleCache( state: SampleState ): void {
             state.sampleCache.clear();
         },
         /* caching works on name basis (names are used across sessions - contrary to ids - and referenced by instruments) */
-        cacheSample( state, sample ) {
+        cacheSample( state: SampleState, sample: Sample ): void {
             state.sampleCache.set( sample.name, {
                 ...sample,
                 buffer: SampleFactory.getBuffer( sample, AudioService.getAudioContext() )
             });
         },
-        removeSampleFromCache( state, { name }) {
+        removeSampleFromCache( state: SampleState, { name } : { name: string }): void {
             state.sampleCache.delete( name );
         },
     },
     actions: {
-        cacheSongSamples({ commit }, samples = [] ) {
+        cacheSongSamples({ commit } : { commit: Commit }, samples: Sample[] = [] ): void {
             commit( "flushSampleCache" );
             samples.forEach( sample => {
                 commit( "cacheSample", sample );
             });
         },
-        updateSampleName({ getters, commit }, { id, name }) {
-            const sample = getters.samples.find( s => s.id === id );
+        updateSampleName({ getters, commit }: { getters: any, commit: Commit },
+            { id, name }: { id: string, name: string }): string {
+            const sample = getters.samples.find(( s: Sample ) => s.id === id );
             // first check if name exists under different id as we don't take kindly to duplicates
-            const hasDuplicate = getters.samples.find( s => s.name === name && s.id !== id );
+            const hasDuplicate = getters.samples.find(( s: Sample ) => s.name === name && s.id !== id );
             if ( hasDuplicate ) {
                 name += " #2";
             }
@@ -73,8 +84,8 @@ export default {
             commit( "cacheSample", updatedSample );
 
             // update all instruments as the sample name is the key
-            getters.activeSong.instruments.forEach(( instrument, instrumentIndex ) => {
-                instrument.oscillators.forEach(( oscillator, oscillatorIndex ) => {
+            getters.activeSong.instruments.forEach(( instrument: Instrument, instrumentIndex: number ) => {
+                instrument.oscillators.forEach(( oscillator: InstrumentOscillator, oscillatorIndex: number ) => {
                     if ( oscillator.sample === currentName ) {
                         commit( "updateOscillator", {
                             instrumentIndex, oscillatorIndex, prop: "sample", value: name
@@ -86,3 +97,4 @@ export default {
         }
     },
 };
+export default SampleModule;

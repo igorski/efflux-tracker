@@ -23,18 +23,19 @@
 import { MIDINotes, zMIDIEvent } from "zmidi";
 import type { Store, Commit, Module } from "vuex";
 import InstrumentUtil from "../utils/instrument-util";
+import type { EffluxState } from "@/store";
 import type { MIDIState } from "@/store/modules/midi-module";
 
 const MIDI_TO_PERCENTILE = 1 / 127; // scale MIDI 0-127 range to percentile
 
-let store: Store<any>;
+let store: Store<EffluxState>;
 let state: any;
 let getters: any;
 let commit: Commit;
 let midi: MIDIState;
 
 export default {
-    init( storeReference: Store<any> ): void {
+    init( storeReference: Store<EffluxState> ): void {
         store = storeReference;
         ({ state, getters, commit } = store );
         ({ midi } = state ); // midi-module

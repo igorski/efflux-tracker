@@ -20,63 +20,79 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { ActionContext, Commit, Dispatch, Module } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
-import ModalWindows        from "@/definitions/modal-windows";
-import SongFactory         from "@/model/factories/song-factory";
-import createAction        from "@/model/factories/action-factory";
-import Actions             from "@/definitions/actions";
+import ModalWindows from "@/definitions/modal-windows";
+import SongFactory from "@/model/factories/song-factory";
+import createAction from "@/model/factories/action-factory";
+import Actions from "@/definitions/actions";
 import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
-import FixturesLoader      from "@/services/fixtures-loader";
+import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
-import PubSubMessages      from "@/services/pubsub/messages";
-import SongValidator       from "@/model/validators/song-validator";
-import { clone }           from "@/utils/object-util";
-import StorageUtil         from "@/utils/storage-util";
-import { saveAsFile }      from "@/utils/file-util";
-import { toFileName }      from "@/utils/string-util";
+import PubSubMessages from "@/services/pubsub/messages";
+import SongValidator from "@/model/validators/song-validator";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { Instrument } from "@/model/types/instrument";
+import type { EffluxPattern } from "@/model/types/pattern";
+import type { Sample } from "@/model/types/sample";
+import type { EffluxSong, StoredEffluxSongDescriptor } from "@/model/types/song";
+import { clone } from "@/utils/object-util";
+import StorageUtil from "@/utils/storage-util";
+import { saveAsFile } from "@/utils/file-util";
+import { toFileName } from "@/utils/string-util";
 import { parseXTK, toXTK } from "@/utils/xtk-util";
 import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
+import type { EffluxState } from "@/store";
 
 export const SONG_STORAGE_KEY = "Efflux_Song_";
-export const getStorageKeyForSong = ({ id }) => `${SONG_STORAGE_KEY}${id}`;
+export const getStorageKeyForSong = ({ id }: { id: string }) => `${SONG_STORAGE_KEY}${id}`;
 
-export default {
-    state: () => ({
+export interface SongState {
+    songs: StoredEffluxSongDescriptor[];
+    activeSong: EffluxSong | null;
+    showSaveMessage: boolean;
+    statesOnSave: number;
+}
+
+const SongModule: Module<SongState, any> = {
+    state: (): SongState => ({
         songs           : [], /** @type {Array<Object>} */
         activeSong      : null,
         showSaveMessage : true,
         statesOnSave    : 0, // the last amount of available history states on song save (used to detect changes)
     }),
     getters: {
-        songs       : state => state.songs,
-        activeSong  : state => state.activeSong,
-        samples     : state => state.activeSong.samples,
-        getSongById : state => id => state.songs.find( song => song.id === id ) || null,
-        hasChanges  : ( state, getters ) => state.statesOnSave < getters.totalSaved,
+        songs       : ( state: SongState ): StoredEffluxSongDescriptor[] => state.songs,
+        activeSong  : ( state: SongState ): EffluxSong => state.activeSong,
+        samples     : ( state: SongState ): Sample[] => state.activeSong.samples,
+        getSongById : ( state: SongState ) => ( id: string ): StoredEffluxSongDescriptor | null => {
+            return state.songs.find(( song: StoredEffluxSongDescriptor ) => song.id === id ) || null;
+        },
+        hasChanges  : ( state: SongState, getters: any ): boolean => state.statesOnSave < getters.totalSaved,
     },
     mutations: {
-        setSongs( state, songs ) {
+        setSongs( state: SongState, songs: EffluxSong[] ): void {
             state.songs = songs;
         },
-        setActiveSong( state, song ) {
+        setActiveSong( state: SongState, song: EffluxSong ): void {
             if ( song && song.meta && song.patterns ) {
                 // close song as we do not want to modify the original song stored in list
                 state.activeSong = clone( song );
                 resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
             }
         },
-        setActiveSongAuthor( state, author ) {
+        setActiveSongAuthor( state: SongState, author: string ): void {
             state.activeSong.meta.author = author;
         },
-        setActiveSongTitle( state, title ) {
+        setActiveSongTitle( state: SongState, title: string ): void {
             state.activeSong.meta.title = title;
         },
-        setTempo( state, value ) {
+        setTempo( state: SongState, value: number | string ): void {
             const meta     = state.activeSong.meta;
             const oldTempo = meta.tempo;
-            const newTempo = parseFloat( value );
+            const newTempo = parseFloat( value as string );
 
             meta.tempo = newTempo;
 
@@ -84,20 +100,20 @@ export default {
 
             updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
         },
-        setSamples( state, samples ) {
+        setSamples( state: SongState, samples: Sample[] ): void {
             state.activeSong.samples = samples;
         },
-        addSample( state, sample ) {
+        addSample( state: SongState, sample: Sample ): void {
             state.activeSong.samples.push( sample );
         },
-        removeSample( state, sample ) {
+        removeSample( state: SongState, sample: Sample ): void {
             const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
             state.activeSong.samples.splice( index, 1 );
         },
-        flushSamples( state ) {
+        flushSamples( state: SongState ): void {
             state.activeSong.samples.length = 0;
         },
-        updateSample( state, sample ) {
+        updateSample( state: SongState, sample: Sample ): void {
             const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
             Vue.set( state.activeSong.samples, index, sample );
         },
@@ -107,51 +123,55 @@ export default {
          *
          * TODO: can we refactor this to not require us to pass the root store?? (to-Vue-migration leftover)
          */
-        addEventAtPosition(state, { event, store, optData, optStoreInUndoRedo = true }) {
+        // @ts-expect-error 'state' is declared but its value is never read.
+        addEventAtPosition( state: SongState, { event, store, optData, optStoreInUndoRedo = true } :
+            { event: EffluxAudioEvent, store: ActionContext<EffluxState, any>, optData?: any, optStoreInUndoRedo?: boolean }): void {
             const undoRedoAction = createAction( Actions.ADD_EVENT, {
                 store,
                 event,
                 optEventData:  optData,
-                updateHandler: optHighlightActiveStep => {
+                updateHandler: ( optHighlightActiveStep?: boolean ) => {
 
                     if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
                         // move to the next step in the pattern (unless executed from undo/redo)
-                        const maxStep = store.state.song.activeSong.patterns[store.state.sequencer.activePattern].steps - 1;
+                        const maxStep = store.state.song.activeSong.patterns[ store.state.sequencer.activePattern ].steps - 1;
                         const targetStep = store.state.editor.selectedStep + 1;
 
-                        if (targetStep <= maxStep)
-                            store.commit('setSelectedStep', targetStep);
-
-                        store.commit('clearSelection');
+                        if ( targetStep <= maxStep ) {
+                            store.commit( "setSelectedStep", targetStep );
+                        }
+                        store.commit( "clearSelection" );
                     }
                 }
             });
-            if ( optStoreInUndoRedo ) store.commit('saveState', undoRedoAction );
+            if ( optStoreInUndoRedo ) {
+                store.commit( "saveState", undoRedoAction );
+            }
         },
-        updateOscillator(state, { instrumentIndex, oscillatorIndex, prop, value }) {
-            Vue.set(state.activeSong.instruments[instrumentIndex].oscillators[oscillatorIndex], prop, value);
+        updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
+            Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value);
         },
-        updateInstrument(state, { instrumentIndex, prop, value }) {
-            Vue.set(state.activeSong.instruments[instrumentIndex], prop, value);
+        updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
+            Vue.set( state.activeSong.instruments[ instrumentIndex ], prop, value );
         },
-        replaceInstrument(state, { instrumentIndex, instrument }) {
-            Vue.set(state.activeSong.instruments, instrumentIndex, instrument);
+        replaceInstrument( state: SongState, { instrumentIndex, instrument }: { instrumentIndex: number, instrument: Instrument }): void {
+            Vue.set( state.activeSong.instruments, instrumentIndex, instrument );
         },
-        replacePattern(state, { patternIndex, pattern }) {
-            Vue.set(state.activeSong.patterns, patternIndex, pattern);
+        replacePattern( state: SongState, { patternIndex, pattern }: { patternIndex: number, pattern: EffluxPattern }): void {
+            Vue.set( state.activeSong.patterns, patternIndex, pattern );
         },
-        replacePatterns(state, patterns) {
-            Vue.set(state.activeSong, 'patterns', patterns);
+        replacePatterns( state: SongState, patterns: EffluxPattern[] ): void {
+            Vue.set( state.activeSong, "patterns", patterns );
         },
-        setShowSaveMessage(state, value) {
+        setShowSaveMessage( state: SongState, value: boolean ): void {
             state.showSaveMessage = !!value;
         },
-        setStatesOnSave( state, value ) {
+        setStatesOnSave( state: SongState, value: number ): void {
             state.statesOnSave = value;
         }
     },
     actions: {
-        loadStoredSongs({ commit, dispatch }) {
+        loadStoredSongs({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }): void {
             StorageUtil.getItem( Config.LOCAL_STORAGE_SONGS ).then( async result => {
                 if ( typeof result === "string" ) {
                     try {
@@ -197,20 +217,22 @@ export default {
                 }
             });
         },
-        createSong() {
+        createSong(): Promise<EffluxSong> {
             return new Promise( resolve => {
                 resolve( SongFactory.create( Config.INSTRUMENT_AMOUNT ));
             });
         },
-        openSong({ commit, dispatch }, song ) {
+        openSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): void {
             commit( "setActiveSong", song );
             commit( "flushSamples" );
             commit( "setSamples", song.samples );
             commit( "setStatesOnSave", 0 );
             dispatch( "cacheSongSamples", song.samples );
         },
-        saveSongInLS({ state, getters, commit, dispatch }, song ) {
-            return new Promise( async ( resolve, reject ) => {
+        saveSongInLS({ state, getters, commit, dispatch } :
+            { state: SongState, getters: any, commit: Commit, dispatch: Dispatch }, song: EffluxSong ): Promise<void> {
+            // @ts-expect-error Type 'Promise<unknown>' is not assignable to type 'Promise<void>'
+            return new Promise( async ( resolve, reject ): Promise<void> => {
                 try {
                     await dispatch( "validateSong", song );
                 } catch ( e ) {
@@ -234,7 +256,7 @@ export default {
                         await SongAssemblyService.disassemble( song )
                     );
                     // push song into song list
-                    state.songs.push( getMetaForSong( song ));
+                    state.songs.push( getDescriptorForSong( song ));
                     persistState( state );
                 } catch ( error ) {
                     const msgKey = error?.message === "QUOTA" ? "errors.quotaExceeded" : "errors.unknownLSerror";
@@ -246,14 +268,15 @@ export default {
                 if ( state.showSaveMessage ) {
                     commit( "showNotification", { message: getters.t( "messages.songSaved", { name: song.meta.title }) });
                 }
+                // @ts-expect-error Promise<unknown> not assignable to Promise<void>
                 resolve();
             })
             .catch(() => {
                 // handled above
             });
         },
-        validateSong({ getters, commit }, song ) {
-            return new Promise( async ( resolve, reject ) => {
+        validateSong({ getters, commit }: { getters: any, commit: Commit }, song: EffluxSong ): Promise<void> {
+            return new Promise( async ( resolve, reject ): Promise<void> => {
                 try {
                     let songHasContent = hasContent( song );
                     if ( !songHasContent ) {
@@ -272,8 +295,9 @@ export default {
                 }
             });
         },
-        loadSongFromLS( store, song ) {
-            return new Promise( async ( resolve, reject ) => {
+        // @ts-expect-error 'context' is declared but its value is never read.
+        loadSongFromLS( context: ActionContext<SongState, any>, song: EffluxSong ): Promise<EffluxSong> {
+            return new Promise( async ( resolve, reject ): Promise<void> => {
                 const storedSong = await StorageUtil.getItem( getStorageKeyForSong( song ));
                 if ( !storedSong ) {
                     reject();
@@ -281,12 +305,12 @@ export default {
                 resolve( await SongAssemblyService.assemble( storedSong ));
             });
         },
-        deleteSongFromLS({ state }, { song, persist = true }) {
-            return new Promise(( resolve, reject ) => {
+        deleteSongFromLS({ state }: { state: SongState }, { song, persist = true }: { song: EffluxSong, persist?: boolean }): Promise<void> {
+            return new Promise(( resolve, reject ): void => {
                 let deleted = false;
                 let i = state.songs.length;
 
-                persist = ( typeof persist === 'boolean' ) ? persist : true;
+                persist = ( typeof persist === "boolean" ) ? persist : true;
 
                 // remove duplicate song if existed
 
@@ -299,7 +323,7 @@ export default {
                             state.songs.splice( i, 1 );
 
                             // remove song storage entry
-                            StorageUtil.removeItem(getStorageKeyForSong(song));
+                            StorageUtil.removeItem( getStorageKeyForSong( song ));
                             deleted = true;
                         }
                         else {
@@ -320,7 +344,7 @@ export default {
                 }
             });
         },
-        async importSong({ commit, dispatch }, file ) {
+        async importSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, file: File | Blob ): Promise<void> {
             try {
                 const song = await dispatch( "loadSong", { file });
                 commit( "setShowSaveMessage", false );
@@ -332,15 +356,15 @@ export default {
                 // loadSong validator error will have communicated error
             }
         },
-        async exportSong({ commit }, song ) {
+        async exportSong({ commit }: { commit: Commit }, song: EffluxSong ): Promise<void> {
             saveAsFile( await toXTK( song ), toFileName( song.meta.title ));
             commit( "publishMessage", PubSubMessages.SONG_EXPORTED );
         },
-        async exportSongForShare({ dispatch }, song ) {
+        async exportSongForShare({ dispatch }: { dispatch: Dispatch }, song: EffluxSong ): Promise<string> {
             await dispatch( "validateSong", song );
             return await SongAssemblyService.disassemble( song );
         },
-        async openSharedSong({ commit, dispatch }, serializedSong ) {
+        async openSharedSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, serializedSong: string | any ): Promise<void> {
             let song;
             if ( serializedSong.version ) { // legacy non-serialized shares
                 song = SongValidator.transformLegacy( serializedSong );
@@ -352,7 +376,8 @@ export default {
                 commit( "openModal", ModalWindows.WELCOME_SHARED_SONG );
             }
         },
-        async exportSongToDropbox({ commit, getters }, { song, folder }) {
+        async exportSongToDropbox({ commit, getters }: { commit: Commit, getters: any },
+            { song, folder } : { song: EffluxSong, folder: string }): Promise<void> {
             const blob = await toXTK( song );
             const name = toFileName( song.meta.title );
             await uploadBlob( blob, folder, name );
@@ -360,8 +385,9 @@ export default {
             commit( "setStatesOnSave", getters.totalSaved );
             commit( "showNotification", { message: getters.t( "messages.fileSavedInDropbox", { file: name }) });
         },
-        loadSong({ getters, commit, dispatch }, { file, origin = "local" }) {
-            return new Promise( async ( resolve, reject ) => {
+        loadSong({ getters, commit, dispatch }: { getters: any, commit: Commit, dispatch: Dispatch },
+            { file, origin = "local" }: { file: string, origin?: string }): Promise<EffluxSong> {
+            return new Promise( async ( resolve, reject ): Promise<void> => {
                 const song = SongValidator.transformLegacy( await parseXTK( file ));
                 if ( SongValidator.isValid( song )) {
                     song.origin = origin;
@@ -374,7 +400,7 @@ export default {
                 }
             });
         },
-        async saveSong({ commit, dispatch }, song ) {
+        async saveSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): Promise<void> {
             await dispatch( "validateSong", song );
             if ( song.origin === "dropbox" ) {
                 commit( "setLoading", "dbxS" );
@@ -386,12 +412,13 @@ export default {
         },
     }
 };
+export default SongModule;
 
 /* internal methods */
 
-const getMetaForSong = song => ({
+const getDescriptorForSong = ( song: EffluxSong ): StoredEffluxSongDescriptor => ({
     id: song.id,
     meta: { ...song.meta }
 });
 
-const persistState = state => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( state.songs ));
+const persistState = ( state: SongState ): Promise<void> => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( state.songs ));

@@ -23,6 +23,7 @@
 import type { Store } from "vuex";
 import Config from "@/config";
 import { applyModule } from "@/services/audio-service";
+import type { EffluxState } from "@/store";
 
 // NOTE the String names here are in camelCase and must be meaningful
 // as they are reflected in the interface (and keyboard entry)
@@ -113,7 +114,7 @@ export const getParamRange = ( paramId: string ): { min: number, max: number, st
 /* applies a UI-initiated parameter change onto the model */
 
 export const applyParamChange = ( paramId: string, paramValue: number,
-    instrumentIndex: number, storeReference: Store<any> ): void => {
+    instrumentIndex: number, storeReference: Store<EffluxState> ): void => {
     const instrumentRef      = storeReference.getters.activeSong.instruments[ instrumentIndex ];
     const [ prop, paramKey ] = getInstrumentPropKeysByParamId( paramId );
     const value = { ...instrumentRef[ prop ], [ paramKey ]: paramValue };

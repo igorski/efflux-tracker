@@ -24,6 +24,14 @@ import type { EffluxPattern } from "./pattern";
 import type { Instrument } from "./instrument";
 import type { Sample } from "@/model/types/sample";
 
+export type EffluxSongMeta = {
+    title: string;
+    author: string;
+    created: number;
+    modified: number;
+    tempo: number;
+};
+
 /**
  * type definition for a Song
  *
@@ -32,14 +40,14 @@ import type { Sample } from "@/model/types/sample";
 export type EffluxSong = {
     version: number;
     id: string;
-    meta: {
-        title: string;
-        author: string;
-        created: number;
-        modified: number;
-        tempo: number;
-    },
+    meta: EffluxSongMeta,
     instruments: Instrument[];
     patterns: EffluxPattern[];
     samples: Sample[];
+    origin?: 'local' | 'dropbox' | undefined
+};
+
+export type StoredEffluxSongDescriptor = {
+    id: string;
+    meta: EffluxSongMeta;
 };

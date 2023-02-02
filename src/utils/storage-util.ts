@@ -22,36 +22,27 @@
  */
 import { compressUTF16, decompressUTF16 } from "@/services/compression-service";
 
-let storage;
+let storage: Storage;
 
 const StorageUtil =
 {
     /**
      * initializes the storage mechanism
-     *
-     * @public
      */
-    init() {
+    init(): void {
         // use LocalStorage
         storage = window.localStorage;
     },
     /**
      * verifies whether storage is available
-     *
-     * @public
-     * @return {boolean}
      */
-    isAvailable() {
+    isAvailable(): boolean {
         return typeof storage !== "undefined";
     },
     /**
-     * get an item from storage, returns a Promise
-     *
-     * @public
-     * @param {string} key
-     * @return {Promise}
+     * get an item from storage
      */
-    getItem( key ) {
+    getItem( key: string ): Promise<string> {
         return new Promise( async ( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
@@ -65,13 +56,9 @@ const StorageUtil =
         });
     },
     /**
-     * set an item in storage, returns a Promise
-     *
-     * @param {string} key
-     * @param {*} data
-     * @return {Promise}
+     * set an item in storage
      */
-    setItem( key, data ) {
+    setItem( key: string, data: any ): Promise<void> {
         return new Promise( async ( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
@@ -87,12 +74,9 @@ const StorageUtil =
         });
     },
     /**
-     * removes an item from storage, returns a Promise
-     *
-     * @param {string} key
-     * @returns {Promise}
+     * removes an item from storage
      */
-    removeItem( key ) {
+    removeItem( key: string ): Promise<void> {
         return new Promise(( resolve, reject ) => {
             if ( !StorageUtil.isAvailable() ) {
                 reject( Error( "Storage not available" ));
@@ -102,12 +86,9 @@ const StorageUtil =
     },
     /**
      * returns the local storage keys matching optional prefix and their size in kilobytes
-     *
-     * @param {String=} optPrefix
-     * @returns {Object}
      */
-    getItemSizes( optPrefix = "" ) {
-        const out = {};
+    getItemSizes( optPrefix: string = "" ): Record<string, string> {
+        const out = {} as Record<string, string>;
         for ( const name in localStorage ) {
             if ( !name.startsWith( optPrefix ) || !Object.prototype.hasOwnProperty.call( localStorage, name )) {
                 continue;
@@ -125,7 +106,7 @@ export default StorageUtil;
 // by compressing the stringified Objects we can maximize
 // the amount data we can save in the applications quota in LocalStorage
 
-async function compress( string ) {
+async function compress( string: string ): Promise<string> {
     let compressedString;
     try {
         compressedString = await compressUTF16( string );
@@ -143,7 +124,7 @@ async function compress( string ) {
     return compressedString;
 }
 
-async function decompress( string ) {
+async function decompress( string: string ): Promise<string> {
     let decompressedString;
 
     try {
