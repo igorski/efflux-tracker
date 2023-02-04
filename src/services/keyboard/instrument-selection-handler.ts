@@ -20,17 +20,20 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue    from "vue";
+import Vue from "vue";
+import type { Store } from "vuex";
 import Config from "@/config";
+import type { EffluxState } from "@/store";
 
-let store, state;
+let store: Store<EffluxState>;
+let state: EffluxState;
 
 // keyCode for the 1 key
 const ONE = 49;
-let MAX_ACCEPTED_KEYCODE;
+let MAX_ACCEPTED_KEYCODE: number;
 
 export default {
-    init( storeReference ) {
+    init( storeReference: Store<EffluxState> ): void {
         store = storeReference;
         ({ state } = store );
 
@@ -38,7 +41,7 @@ export default {
         MAX_ACCEPTED_KEYCODE = ONE + ( Config.INSTRUMENT_AMOUNT - 1 );
     },
 
-    setInstrument( keyCode ) {
+    setInstrument( keyCode: number ): void {
         if ( keyCode >= ONE && keyCode <= MAX_ACCEPTED_KEYCODE ) {
             const event = state.song.activeSong
                             .patterns[ state.sequencer.activePattern ]

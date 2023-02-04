@@ -48,6 +48,9 @@ import {
 
 export * from "./param-ids";
 
+export type ModuleParamDef = string; // any entry of the automatable-parameters lists defined above (e.g. a param-id)
+export type ModuleDef = ModuleParamDef[];
+
 // though we also allow automation of parameters beyond the instrument modeules:
 
 export const PAN_LEFT   = "panLeft";

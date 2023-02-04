@@ -20,23 +20,27 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue            from "vue";
-import Actions  from "@/definitions/actions";
-import EventFactory   from "@/model/factories/event-factory";
-import createAction   from "@/model/factories/action-factory";
-import EventUtil      from "@/utils/event-util";
+import Vue from "vue";
+import type { Store } from "vuex";
+import Actions from "@/definitions/actions";
+import EventFactory from "@/model/factories/event-factory";
+import createAction from "@/model/factories/action-factory";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EffluxState } from "@/store";
+import EventUtil from "@/utils/event-util";
 import { fromHex, isHex } from "@/utils/number-util";
 
-let store, state;
-let lastCharacter = "", lastTypeAction = 0;
+let store: Store<EffluxState>;
+let state: EffluxState;
+let lastCharacter = "";
+let lastTypeAction = 0;
 
 export default {
-    init( storeReference ) {
+    init( storeReference: Store<EffluxState> ): void {
         store = storeReference;
         ({ state } = store );
     },
-
-    handleParam( keyCode ) {
+    handleParam( keyCode: number ): void {
         const now = Date.now();
         const previousTypeAction = lastTypeAction;
 
@@ -50,7 +54,7 @@ export default {
         // if this character was typed shortly after the previous one,
         // combine their values for more precise control
 
-        let value = ( now - previousTypeAction < 500 ) ? lastCharacter + character : "0" + character;
+        let value: string | number = ( now - previousTypeAction < 500 ) ? lastCharacter + character : "0" + character;
         lastCharacter = character;
 
         let toggleGlide = false;
@@ -63,37 +67,40 @@ export default {
             switch ( store.getters.paramFormat ) {
                 default:
                 case "hex":
-                    if ( !isHex( value ))
+                    if ( !isHex( value as string )) {
                         return;
-                    else
-                        value = fromHex( value );
-                        break;
+                    }
+                    value = fromHex( value );
+                    break;
 
                 case "pct":
-                    value = parseFloat( value );
-                    if ( isNaN( value ) || value < 0 || value > 100 )
+                    const numericalValue = parseFloat( value );
+                    if ( isNaN( numericalValue ) || numericalValue < 0 || numericalValue > 100 ) {
                         return;
+                    }
+                    break;
             }
         }
 
-        let event = getEventForPosition();
+        let event = getEventForPosition( false );
         const createEvent = !event;
 
         // create event if it didn"t exist yet
-        if ( createEvent )
+        if ( createEvent ) {
             event = getEventForPosition( true );
+        }
 
         // no module param defined yet ? create as duplicate of previously defined property
         let { mp  } = event;
         if ( !mp ) {
-            const prevEvent = getPreviousEventWithModuleAutomation(state.editor.selectedStep);
-            mp = EventFactory.createModuleParam(
-                ( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", value, false
-            );
+            const prevEvent = getPreviousEventWithModuleAutomation( state.editor.selectedStep );
+            // @ts-expect-error value as number
+            mp = EventFactory.createModuleParam(( prevEvent && prevEvent.mp ) ? prevEvent.mp.module : "volume", value, false );
         } else if ( toggleGlide ) {
             mp.glide = !mp.glide;
         }
-        if ( isNaN( value )) {
+
+        if ( isNaN( value as number )) {
             return;
         }
 
@@ -111,13 +118,12 @@ export default {
 
 /* internal methods */
 
-function getPreviousEventWithModuleAutomation( step ) {
+function getPreviousEventWithModuleAutomation( step: number ): EffluxAudioEvent {
     let prevEvent;
     while ( !prevEvent || !prevEvent.mp ) {
-
-        if ( step <= 0 )
+        if ( step <= 0 ) {
             return null;
-
+        }
         prevEvent = EventUtil.getFirstEventBeforeStep(
             state.song.activeSong
                 .patterns[ state.sequencer.activePattern ]
@@ -130,15 +136,14 @@ function getPreviousEventWithModuleAutomation( step ) {
 
 // TODO: duplicated from ModuleParamHandler...
 
-function getEventForPosition( createIfNotExisting ) {
+function getEventForPosition( createIfNotExisting: boolean ): EffluxAudioEvent {
     let event = state.song.activeSong
                     .patterns[ state.sequencer.activePattern ]
                     .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
     if ( !event && createIfNotExisting === true ) {
-
-        event = EventFactory.create(state.editor.selectedInstrument);
-        store.commit("addEventAtPosition", {
+        event = EventFactory.create( state.editor.selectedInstrument );
+        store.commit( "addEventAtPosition", {
             store, event,
             optData: {
                 patternIndex      : state.sequencer.activePattern,

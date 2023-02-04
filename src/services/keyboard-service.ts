@@ -20,37 +20,42 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config                     from "@/config";
-import Actions                    from "@/definitions/actions";
-import ModalWindows               from "@/definitions/modal-windows";
-import EventFactory               from "@/model/factories/event-factory";
-import createAction               from "@/model/factories/action-factory";
-import EventUtil                  from "@/utils/event-util";
-import { ACTION_NOTE_OFF }        from "@/model/types/audio-event";
-import { PROPERTIES }             from "@/store/modules/settings-module";
-import NoteInputHandler           from "./keyboard/note-input-handler";
+import type { Store } from "vuex";
+import Config from "@/config";
+import Actions from "@/definitions/actions";
+import ModalWindows from "@/definitions/modal-windows";
+import EventFactory from "@/model/factories/event-factory";
+import createAction from "@/model/factories/action-factory";
+import EventUtil from "@/utils/event-util";
+import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import type { EffluxState } from "@/store";
+import { PROPERTIES } from "@/store/modules/settings-module";
+import NoteInputHandler from "./keyboard/note-input-handler";
 import InstrumentSelectionHandler from "./keyboard/instrument-selection-handler";
-import ModuleParamHandler         from "./keyboard/module-param-handler";
-import ModuleValueHandler         from "./keyboard/module-value-handler";
+import ModuleParamHandler from "./keyboard/module-param-handler";
+import ModuleValueHandler from "./keyboard/module-value-handler";
 
-let store, state, listener,
-    suspended = false, blockDefaults = true, optionDown = false, shiftDown = false;
+type ListenerRef = ( type: string, keyCode: number, event: KeyboardEvent ) => void;
+
+let store: Store<EffluxState>;
+let state: EffluxState;
+let listener: ListenerRef;
+let suspended = false, blockDefaults = true, optionDown = false, shiftDown = false;
 let maxStep, targetStep, currentInstrument;
 
-const DEFAULT_BLOCKED = [ 8, 9, 32, 37, 38, 39, 40 ],
-      MAX_CHANNEL     = Config.INSTRUMENT_AMOUNT - 1,
-      MAX_SLOT        = 3,
-      noop            = () => {};
+const DEFAULT_BLOCKED = [ 8, 9, 32, 37, 38, 39, 40 ];
+const MAX_CHANNEL = Config.INSTRUMENT_AMOUNT - 1;
+const MAX_SLOT = 3;
+const noop = (): void => {};
 
 // the different operating modes inside the PatternTrackList
 
-const MODES = {
-    NOTE_INPUT        : 0,
-    INSTRUMENT_SELECT : 1,
-    PARAM_SELECT      : 2,
-    PARAM_VALUE       : 3
+enum MODES {
+    NOTE_INPUT = 0,
+    INSTRUMENT_SELECT,
+    PARAM_SELECT,
+    PARAM_VALUE
 };
-
 let mode = MODES.NOTE_INPUT;
 
 /**
@@ -60,7 +65,7 @@ let mode = MODES.NOTE_INPUT;
  */
 const KeyboardService =
 {
-    init( storeReference ) {
+    init( storeReference: Store<EffluxState> ): void {
         store = storeReference;
         state = store.state;
 
@@ -81,61 +86,46 @@ const KeyboardService =
     /**
      * whether the Apple option or a control key is
      * currently held down for the given event
-     *
-     * @param {Event} aEvent
-     * @returns {boolean}
      */
-    hasOption( aEvent ) {
-        return ( optionDown === true ) || aEvent.ctrlKey;
+    hasOption( event: KeyboardEvent ): boolean {
+        return optionDown === true || event.ctrlKey;
     },
     /**
      * whether the shift key is currently held down
-     *
-     * @returns {boolean}
      */
-    hasShift() {
-        return ( shiftDown === true );
+    hasShift(): boolean {
+        return shiftDown === true;
     },
     /**
      * attach a listener to receive updates whenever a key
      * has been released. listenerRef is a function
      * which receives three arguments:
      *
-     * {string} type, either "up" or "down"
-     * {number} keyCode, the keys keyCode
-     * {Event} event, the keyboard event
-     *
      * the listener is usually a Vue component
-     *
-     * @param {Object|Function} listenerRef
      */
-    setListener( listenerRef ) {
+    setListener( listenerRef: ListenerRef ): void {
         listener = listenerRef;
     },
     /**
      * the KeyboardService can be suspended so it
      * will not fire its callback to the listeners
-     *
-     * @param {boolean} value
      */
-    setSuspended( value ) {
+    setSuspended( value: boolean ): void {
         suspended = value;
     },
     /**
      * whether to block default behaviour on certain keys
-     *
-     * @param {boolean} value
      */
-    setBlockDefaults( value ) {
+    setBlockDefaults( value: boolean ): void {
         blockDefaults = value;
     },
-    reset() {
+    reset(): void {
         KeyboardService.setListener( null );
         KeyboardService.setSuspended( false );
         KeyboardService.setBlockDefaults( true );
     },
-    syncEditorSlot() {
-        switch (state.editor.selectedSlot) {
+    syncEditorSlot(): void {
+        switch ( state.editor.selectedSlot ) {
             default:
                 mode = MODES.NOTE_INPUT;
                 break;
@@ -155,7 +145,7 @@ export default KeyboardService;
 
 /* internal methods */
 
-function handleKeyDown( event ) {
+function handleKeyDown( event: KeyboardEvent ): void {
     if ( suspended ) {
         return;
     }
@@ -186,10 +176,11 @@ function handleKeyDown( event ) {
         case 27: // escape
 
             // close dialog (if existing), else close overlay (if existing)
-            if (state.dialog)
+            if ( state.dialog ) {
                 store.commit( "closeDialog" );
-            else if (state.modal)
+            } else if ( state.modal ) {
                 store.commit( "closeModal" );
+            }
             break;
 
         case 32: // spacebar
@@ -309,7 +300,7 @@ function handleKeyDown( event ) {
 
         case 8:  // backspace
             handleDeleteActionForCurrentMode();
-            handleKeyUp({ keyCode: 38, preventDefault: noop }); // move up to previous slot
+            handleKeyUp({ keyCode: 38, preventDefault: noop } as never as KeyboardEvent ); // move up to previous slot
             break;
 
         case 9: // tab
@@ -330,7 +321,7 @@ function handleKeyDown( event ) {
 
         case 46: // delete
             handleDeleteActionForCurrentMode();
-            handleKeyUp({ keyCode: 40, preventDefault: noop }); // move down to next slot
+            handleKeyUp({ keyCode: 40, preventDefault: noop } as never as KeyboardEvent ); // move down to next slot
             break;
 
         case 65: // A
@@ -467,7 +458,7 @@ function handleKeyDown( event ) {
     }
 }
 
-function handleKeyUp( aEvent ) {
+function handleKeyUp( aEvent: KeyboardEvent ): void {
     shiftDown = false;
 
     if ( optionDown ) {
@@ -497,12 +488,12 @@ function handleKeyUp( aEvent ) {
     }
 }
 
-function handleFocus() {
+function handleFocus(): void {
     // when switching browser tabs it is possible these values were left active
     shiftDown = optionDown = false;
 }
 
-function handleInputForMode( keyCode ) {
+function handleInputForMode( keyCode: number ): void {
     switch ( mode ) {
         case MODES.NOTE_INPUT:
             NoteInputHandler.createNoteOnEvent( keyCode );
@@ -519,7 +510,7 @@ function handleInputForMode( keyCode ) {
     }
 }
 
-function setSelectedSlot( targetValue ) {
+function setSelectedSlot( targetValue: number ): boolean {
     let value = targetValue;
     // moved into first slot of next instrument ? jump to next instrument
     if ( targetValue > MAX_SLOT ) {
@@ -534,14 +525,14 @@ function setSelectedSlot( targetValue ) {
     return value !== targetValue;
 }
 
-function preventDefault( event ) {
+function preventDefault( event: KeyboardEvent ): void {
     event.preventDefault();
     event.stopPropagation();
 }
 
-function handleDeleteActionForCurrentMode() {
+function handleDeleteActionForCurrentMode(): void {
     let event;
-    switch (mode) {
+    switch ( mode ) {
         default:
             store.commit( "saveState", createAction(
                 store.getters.hasSelection ? Actions.DELETE_SELECTION : Actions.DELETE_EVENT, { store })
@@ -562,9 +553,9 @@ function handleDeleteActionForCurrentMode() {
 
 // when holding down shift make a selection, otherwise clear selection
 
-function handleSelectionOnVerticalMovement( event ) {
+function handleSelectionOnVerticalMovement( event: KeyboardEvent ): void {
     if ( event && shiftDown ) {
-        setSelectedSlot(); // will unset selected slot
+        setSelectedSlot( 0 ); // will unset selected slot
         store.commit( "handleVerticalKeySelectAction", {
             keyCode: event.keyCode,
             selectedChannel: state.editor.selectedInstrument,

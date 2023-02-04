@@ -22,6 +22,7 @@
  */
 import type { Module } from "vuex";
 import { zMIDI } from "zmidi";
+import type { ModuleParamDef } from "@/definitions/automatable-parameters";
 
 type MIDIDevice = {
     title: string;
@@ -29,7 +30,7 @@ type MIDIDevice = {
 };
 
 type PairableParam = {
-    paramId: string;
+    paramId: ModuleParamDef;
     instrumentIndex: number;
 };
 
@@ -50,7 +51,6 @@ const MIDIModule: Module<MIDIState, any> = {
         midiPortNumber  : -1,       // midi port that we have subscribed to receive events from
         midiDeviceList  : [],       // list of connected MIDI devices
         midiAssignMode  : false,    // when true, assignable-range-control activate pairing mode
-        // { paramId: String, instrumentIndex: Number }
         pairableParamId : null,     // when set, the next incoming CC change will map to this param-instrument pair
         pairings        : new Map() // list of existing CC changes mapped to param-instrument pairs
     }),

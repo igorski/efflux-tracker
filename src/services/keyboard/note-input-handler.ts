@@ -20,9 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Store } from "vuex";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { PartialPitch } from "@/services/audio/pitch";
+import type { EffluxState } from "@/store";
 import InstrumentUtil from "@/utils/instrument-util";
 
-let store, state, extHandler;
+type ExternalHandler = ( type: string, event: EffluxAudioEvent ) => void;
+
+let store: Store<EffluxState>;
+let state: EffluxState;
+let extHandler: ExternalHandler;
 
 // High notes:  2 3   5 6 7   9 0
 //             Q W E R T Y U I O P
@@ -36,17 +44,17 @@ const LOWER_KEYS = [ 90, 83, 88, 68, 67, 86, 71, 66, 72, 78, 74, 77, 188, 76, 19
 const KEY_NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B", "C", "C#", "D", "D#", "E" ];
 
 export default {
-    init( storeReference ) {
+    init( storeReference: Store<EffluxState> ): void {
         store = storeReference;
         state = store.state;
     },
-    registerHandler( handlerFn ) {
+    registerHandler( handlerFn: ExternalHandler ): void {
         extHandler = handlerFn;
     },
-    unregisterHandler() {
+    unregisterHandler(): void {
         extHandler = null;
     },
-    createNoteOnEvent( keyCode ) {
+    createNoteOnEvent( keyCode: number ): void {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
             const audioEvent = InstrumentUtil.onKeyDown(
@@ -58,16 +66,16 @@ export default {
             audioEvent && extHandler?.( "on", audioEvent );
         }
     },
-    createNoteOffEvent( keyCode ) {
+    createNoteOffEvent( keyCode: number ): void {
         const note = getNoteForKey( keyCode );
         if ( note !== null ) {
             const audioEvent = InstrumentUtil.onKeyUp( note, store );
             audioEvent && extHandler?.( "off", audioEvent );
         }
     },
-    keyForNote( note, higher = true ) {
+    keyForNote( note: string, higher = true ): string {
         return HIGHER_KEY_NAMES[ KEY_NOTE_LIST[ higher ? "lastIndexOf" : "indexOf" ]( note ) ];
-    }
+    },
 };
 
 /* internal methods */
@@ -75,11 +83,8 @@ export default {
 /**
  * translates a key code to a note
  * if the key code didn't belong to the keys associated with notes, null is returned
- *
- * @param keyCode
- * @return {{ note: string, octave: number }|null}
  */
-function getNoteForKey( keyCode )
+function getNoteForKey( keyCode: number ): PartialPitch | null
 {
     const higherIndex = HIGHER_KEYS.indexOf( keyCode );
     const lowerIndex  = LOWER_KEYS.indexOf( keyCode );

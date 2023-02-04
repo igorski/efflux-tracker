@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { ModuleParamDef } from "@/definitions/automatable-parameters";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 
 export default
@@ -57,23 +58,14 @@ export default
     /**
      * generates a param change event for an instrument module
      * can be nested inside an EffluxAudioEvent
-     *
-     * @param {string} module
-     * @param {number} value
-     * @param {boolean=} glide default to false
-     * @return {{
-     *             module: string,
-     *             value: number,
-     *             glide: boolean
-     *         }}
      */
-    createModuleParam( module: string, value: number, glide: boolean = false ): ModuleParameterChange {
+    createModuleParam( module: ModuleParamDef, value: number, glide: boolean = false ): ModuleParameterChange {
         return { module, value, glide };
     }
 };
 
 export type ModuleParameterChange = {
-    module: string;
+    module: ModuleParamDef;
     value: number;
     glide: boolean
 };

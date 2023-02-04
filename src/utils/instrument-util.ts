@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { Store } from "vuex";
+import type { ModuleParamDef } from "@/definitions/automatable-parameters";
 import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 import AudioService from "@/services/audio-service";
 import type { PartialPitch } from "@/services/audio/pitch";
@@ -227,7 +228,7 @@ export default
      * handle a module parameter change for an instrument module
      * note: record defines whether to record the param change into given instruments pattern list
      */
-    onParamControlChange( paramId: string, value: number, instrumentIndex: number, store: Store<EffluxState>, record = false ): void {
+    onParamControlChange( paramId: ModuleParamDef, value: number, instrumentIndex: number, store: Store<EffluxState>, record = false ): void {
         const { min, max } = getParamRange( paramId );
         applyParamChange(
             paramId,
