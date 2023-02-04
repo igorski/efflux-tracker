@@ -36,9 +36,9 @@ Please vote on feature requests by using the Thumbs Up/Down reaction on the firs
 
 ## Project outline
 
-All source code can be found in the _./src_-folder. Efflux is written using [Vue](https://vuejs.org) using vanilla JavaScript following the ES2017 spec. The audio engine is being migrated to TypeScript.
+All source code can be found in the _./src_-folder. Efflux is written using [Vue](https://vuejs.org), with the audio engine fully written in TypeScript.
 
- * _./src/_ contains all JavaScript sourcecode with _main.js_ and _efflux-application.vue_ being the application entry points
+ * _./src/_ contains all source code with _main.js_ and _efflux-application.vue_ being the application entry points
  * _./src/assets_ contains all used fonts and images
  * _./src/model_ contains factories and utilities to create and serialize an Efflux song (see _"Efflux song model"_ below)
  * _./src/services_ contains a variety of services used to integrate hardware interaction within the application
@@ -117,23 +117,23 @@ as it is used by the undo/redo methods to update a specific instrument. _selecte
 the application lifetime before the undo/redo handler fires which would otherwise lead to the _wrong instrument_
 being updated.
 
-```javascript
-update( propertyName, newValue ) {
+```typescript
+update( propertyName: string, newValue: any ): void {
     // cache the existing values of the property value we are about to mutate...
     const existingValue = this.getterForExistingValue;
     // ...and the instrument index that is used to identify the instrument containing the property
     const instrumentIndex = this.selectedInstrument;
-    const store = this.$store;
+    const store: Store<EffluxState> = this.$store;
     // define the method that will mutate the existing value to given newValue
-    const commit = () => store.commit( "updateInstrument", { instrumentIndex, prop: propertyName, value: newValue });
+    const commit = (): void => store.commit( "updateInstrument", { instrumentIndex, prop: propertyName, value: newValue });
     // and perform the mutation directly
     commit();
     // now define and enqueue undo/redo handlers to reverse and redo the commit mutation for given propertyName
     enqueueState( propertyName, {
-        undo() {
+        undo(): void {
             store.commit( "updateInstrument", { instrumentIndex, prop: propertyName, value: existingValue });
         },
-        redo() {
+        redo(): void {
             commit();
         },
     });
@@ -190,3 +190,10 @@ npm run test
 
 Unit tests go in the _./tests_-folder. The file name for a unit test should equal the file it is testing, but contain
 the _.spec_-suffix, e.g. _functions.js_ will have a test file _functions.spec.js_.
+
+## Roadmap
+
+Efflux is considered complete, though every now and then new features are added.
+
+Future considerations for the code are migrating the Vue 2 code to Vue 3. To facilitate this, first the Vuex
+modules must be migrated to Pinia. There is no rush as Vue 2 is more than performant enough.
