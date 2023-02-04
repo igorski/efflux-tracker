@@ -20,13 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Dropbox, files } from "dropbox"; // note: Dropbox types are known not to reflect the actual API correctly!
 import { blobToResource } from "@/utils/resource-manager";
 
 const UPLOAD_FILE_SIZE_LIMIT = 150 * 1024 * 1024;
 
-let Dropbox;
-let accessToken;
-let dbx;
+let dropboxRef: typeof Dropbox;
+let accessToken: string;
+let dbx: Dropbox;
 let currentFolder = "";
 
 /**
@@ -34,15 +35,15 @@ let currentFolder = "";
  * async isAuthenticated() method which should be the first
  * method called when interacting with the Dropbox service.
  */
-function getDropboxConstructor() {
+function getDropboxConstructor(): Promise<typeof Dropbox> {
     return new Promise(( resolve ) => {
-        if ( !Dropbox ) {
+        if ( !dropboxRef ) {
             import( "dropbox" ).then( module => {
-                Dropbox = module.Dropbox;
-                resolve( Dropbox );
+                dropboxRef = module.Dropbox;
+                resolve( dropboxRef );
             });
         } else {
-            resolve( Dropbox );
+            resolve( dropboxRef );
         }
     });
 }
@@ -51,8 +52,9 @@ function getDropboxConstructor() {
  * Authentication step 1: for interacting with Dropbox : request access token
  * by opening an authentication page
  */
-export const requestLogin = async ( clientId, loginUrl ) => {
-    dbx = new Dropbox({ clientId });
+export const requestLogin = async ( clientId: string, loginUrl: string ): Promise<string> => {
+    dbx = new dropboxRef({ clientId });
+    // @ts-expect-error 'auth' is not recognized on Dropbox class, but it's definitely an instance of DropboxAuth!
     return dbx.auth.getAuthenticationUrl( loginUrl );
 };
 
@@ -60,15 +62,15 @@ export const requestLogin = async ( clientId, loginUrl ) => {
  * Authentication step 2: user has received access token, register it in the
  * service and in Session storage so we can instantly authenticate on reload
  */
-export const registerAccessToken = token => {
+export const registerAccessToken = ( token: string ): void => {
     accessToken = token;
     sessionStorage?.setItem( "dropboxToken", token );
-    dbx = new Dropbox({ accessToken });
+    dbx = new dropboxRef({ accessToken });
 };
 
-export const isAuthenticated = async () => {
+export const isAuthenticated = async (): Promise<boolean> => {
     await getDropboxConstructor();
-    dbx = new Dropbox({ accessToken: accessToken ?? sessionStorage?.getItem( "dropboxToken" ) });
+    dbx = new dropboxRef({ accessToken: accessToken ?? sessionStorage?.getItem( "dropboxToken" ) });
     try {
         const { result } = await dbx.checkUser({ query: "echo" });
         return result?.result === "echo";
@@ -77,7 +79,7 @@ export const isAuthenticated = async () => {
     }
 };
 
-export const listFolder = async ( path = "" ) => {
+export const listFolder = async ( path = "" ): Promise<files.ListFolderResult> => {
     let entries = [];
     let result;
     ({ result } = await dbx.filesListFolder({
@@ -92,10 +94,11 @@ export const listFolder = async ( path = "" ) => {
         entries.push( ...result.entries );
     }
     currentFolder = path;
-    return entries;
+
+    return entries as unknown as files.ListFolderResult;
 };
 
-export const createFolder = async ( path = "/", folder = "folder" ) => {
+export const createFolder = async ( path = "/", folder = "folder" ): Promise<boolean> => {
     try {
         await dbx.filesCreateFolderV2({
             path: `${sanitizePath( path )}/${folder}`
@@ -106,11 +109,13 @@ export const createFolder = async ( path = "/", folder = "folder" ) => {
     }
 };
 
-export const getCurrentFolder = () => currentFolder;
+export const getCurrentFolder = (): string => currentFolder;
 
-export const setCurrentFolder = folder => currentFolder = folder;
+export const setCurrentFolder = ( folder: string ): void => {
+    currentFolder = folder;
+};
 
-export const deleteEntry = async path => {
+export const deleteEntry = async ( path: string ): Promise<boolean> => {
     try {
         const { result } = await dbx.filesDelete({ path });
         return !!result;
@@ -119,24 +124,26 @@ export const deleteEntry = async path => {
     }
 };
 
-export const downloadFileAsBlob = async ( path, returnAsURL = false ) => {
+export const downloadFileAsBlob = async ( path: string, returnAsURL = false ): Promise<Blob | string | null> => {
     try {
         const { result } = await dbx.filesDownload({ path });
+        // @ts-expect-error Property 'fileBlob' does not exist on type 'FileMetadata'. (but is added by Dropbox JS SDK)
+        const { fileBlob }: { fileBlob: Blob } = result;
         if ( returnAsURL ) {
-            return blobToResource( result.fileBlob );
+            return blobToResource( fileBlob );
         }
-        return result.fileBlob;
+        return fileBlob;
     } catch {
         return null;
     }
 };
 
-export const uploadBlob = async ( fileOrBlob, folder, fileName ) => {
+export const uploadBlob = async ( fileOrBlob: File | Blob, folder: string, fileName: string ): Promise<boolean> => {
     const path = `${sanitizePath( folder )}/${fileName.split( " " ).join ( "_" )}`;
     if ( fileOrBlob.size < UPLOAD_FILE_SIZE_LIMIT ) {
         // File is smaller than 150 Mb - use filesUpload API
         try {
-            const { result } = await dbx.filesUpload({ path, contents: fileOrBlob, mode: "overwrite" });
+            const { result } = await dbx.filesUpload({ path, contents: fileOrBlob, mode: "overwrite" as unknown as files.WriteMode });
             return !!result.name;
         } catch ( error ) {
             // eslint-disable-next-line no-console
@@ -160,12 +167,15 @@ export const uploadBlob = async ( fileOrBlob, folder, fileName ) => {
                 return acc.then(() => {
                     return dbx.filesUploadSessionStart({
                         close: false, contents: blob
-                    }).then( response => response.session_id )
+                    }).then( response => {
+                        // @ts-expect-error  Property 'session_id' does not exist on type 'DropboxResponse<UploadSessionStartResult>'.
+                        return response.session_id;
+                    });
                 });
             } else if ( idx < items.length - 1 ) {
                 // Append part to the upload session
                 return acc.then( sessionId => {
-                    const cursor = { session_id: sessionId, offset: idx * maxBlob };
+                    const cursor = { session_id: sessionId, offset: idx * maxBlob } as unknown as files.UploadSessionCursor;
                     return dbx.filesUploadSessionAppendV2({
                         cursor: cursor, close: false, contents: blob
                     }).then(() => sessionId );
@@ -174,7 +184,8 @@ export const uploadBlob = async ( fileOrBlob, folder, fileName ) => {
                 // Last chunk of data, close session
                 return acc.then( sessionId => {
                     const cursor = { session_id: sessionId, offset: fileOrBlob.size - blob.size };
-                    const commit = { path: "/" + fileOrBlob.name, mode: "add", autorename: true, mute: false };
+                    const commit = { path: "/" + fileName, mode: "add", autorename: true, mute: false };
+                    // @ts-expect-error not assignable to type 'UploadSessionCursor'.
                     return dbx.filesUploadSessionFinish({ cursor: cursor, commit: commit, contents: blob });
                 });
             }
@@ -184,7 +195,7 @@ export const uploadBlob = async ( fileOrBlob, folder, fileName ) => {
 
 /* internal methods */
 
-function sanitizePath( path = "" ) {
+function sanitizePath( path = "" ): string {
     path = path.charAt( path.length - 1 ) === "/" ? path.substr( 0, path.length - 1 ) : path;
     return ( path.charAt( 0 ) !== "/" && path.length > 1 ) ? `/${path}` : path;
 }
