@@ -1,3 +1,5 @@
+import type { WaveTable } from "@/services/audio/wave-tables";
+
 /**
  * taken from: https://github.com/ehsan/chromium-audio-samples/tree/mozilla/wave-tables
  */
@@ -4102,4 +4104,4 @@ export default {
         -0.000000,
         0.008818
     ]
-};
+} as WaveTable;

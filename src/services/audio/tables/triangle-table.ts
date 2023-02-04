@@ -1,8 +1,10 @@
+import type { WaveTable } from "@/services/audio/wave-tables";
+
 /**
  * taken from: https://github.com/ehsan/chromium-audio-samples/tree/mozilla/wave-tables
  */
 export default {
-    'real': [
+    real: [
         0.000000,
         0.810569,
         -0.000000,
@@ -2052,7 +2054,7 @@ export default {
         -0.000000,
         0.000000
     ],
-    'imag': [
+    imag: [
         0.000000,
         -0.000000,
         0.000000,
@@ -4102,4 +4104,4 @@ export default {
         0.000000,
         -0.000000
     ]
-};
+} as WaveTable;

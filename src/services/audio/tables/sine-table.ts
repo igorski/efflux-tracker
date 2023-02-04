@@ -1,9 +1,11 @@
+import type { WaveTable } from "@/services/audio/wave-tables";
+
 /**
  * taken from: https://github.com/ehsan/chromium-audio-samples/tree/mozilla/wave-tables
  * Sine is based on the Celeste table
  */
 export default {
-    'real': [
+    real: [
         0.000000,
         -0.000000,
         -0.500000,
@@ -2053,7 +2055,7 @@ export default {
         -0.000000,
         0.000000
     ],
-    'imag': [
+    imag: [
         0.000000,
         0.002302,
         -0.000003,
@@ -4103,4 +4105,4 @@ export default {
         0.000000,
         -0.000000
     ]
-};
+} as WaveTable;

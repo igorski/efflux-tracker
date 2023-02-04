@@ -27,15 +27,21 @@
  * tables are quite large (also you should have very little
  * interest in reading their contents!)
  */
-import SINE from "./tables/sine-table";
-import SAW from "./tables/saw-table";
-import TRIANGLE from "./tables/triangle-table";
-import SQUARE from "./tables/square-table";
+import OscillatorTypes from "@/definitions/oscillator-types";
+import SineTable from "./tables/sine-table";
+import SawTable from "./tables/saw-table";
+import TriangleTable from "./tables/triangle-table";
+import SquareTable from "./tables/square-table";
+
+export type WaveTable = {
+    real: number[];
+    imag: number[];
+};
 
 export default
 {
-    SINE,
-    SAW,
-    TRIANGLE,
-    SQUARE
+    [ OscillatorTypes.SINE ]     : SineTable,
+    [ OscillatorTypes.SAW ]      : SawTable,
+    [ OscillatorTypes.TRIANGLE ] : TriangleTable,
+    [ OscillatorTypes.SQUARE ]   : SquareTable
 };

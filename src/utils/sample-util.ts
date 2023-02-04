@@ -59,7 +59,7 @@ export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 40
  * Slices given Buffer for given range into a new Buffer.
  * Returns null when an invalid range was requested.
  */
-export const sliceBuffer = ( audioContext: AudioContext, buffer: AudioBuffer, begin: number, end: number ): AudioBuffer | null => {
+export const sliceBuffer = ( audioContext: BaseAudioContext, buffer: AudioBuffer, begin: number, end: number ): AudioBuffer | null => {
     const { duration, numberOfChannels, sampleRate } = buffer;
 
     if ( begin < 0 || end > duration ) {

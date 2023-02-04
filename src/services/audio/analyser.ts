@@ -20,12 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export const supportsAnalysis = analyser => {
+export const supportsAnalysis = ( analyser: AnalyserNode ): boolean => {
     // not supported in older Safari's
     return typeof analyser?.getFloatTimeDomainData === "function";
 };
 
-export const createAnalyser = ( inputNode, audioContext ) => {
+export const createAnalyser = ( inputNode: AudioNode, audioContext: AudioContext ): AnalyserNode => {
     const analyser = audioContext.createAnalyser();
     analyser.fftSize = 2048;
     inputNode.connect( analyser );
@@ -33,7 +33,7 @@ export const createAnalyser = ( inputNode, audioContext ) => {
     return analyser;
 };
 
-export const getAmplitude = ( analyser, buffer ) => {
+export const getAmplitude = ( analyser: AnalyserNode, buffer: Float32Array ): number => {
     analyser.getFloatTimeDomainData( buffer );
     const { length } = buffer;
 
@@ -53,7 +53,7 @@ export const getAmplitude = ( analyser, buffer ) => {
  * of a time fragment, so this needs to be called continuously
  * when playing back a large buffer.
  */
-export const detectPitch = ( analyserNode, audioContext ) => {
+export const detectPitch = ( analyserNode: AnalyserNode, audioContext: AudioContext ): number => {
     let buffer = new Float32Array( analyserNode.fftSize );
     analyserNode.getFloatTimeDomainData( buffer );
 

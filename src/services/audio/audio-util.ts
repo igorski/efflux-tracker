@@ -22,22 +22,24 @@
  */
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
 
-type voiceProcessHandler = ( voice: EventVoice, oscillatorIndex: number ) => void;
+type voiceProcessHandler = ( voice: EventVoice, oscillatorIndex?: number ) => void;
 
 /**
  * utility method to process all the voices within an instruments
  * playing event list while performing null checks for safety
  *
- * @param {Array<EventVoiceList>} instrumentEvents events currently playing back for this instrument
+ * @param {Array<EventVoiceList>} voiceLists events currently playing back for this instrument
  * @param {!Function} fn function to execute on each individual voice, will receive
  *                    EventVoice and oscillator index as its arguments
  */
-export const processVoices = ( instrumentEvents: EventVoiceList[], fn: voiceProcessHandler ): void => {
-    let i, j, eventVoices, voice;
-    i = instrumentEvents.length;
+export const processVoiceLists = ( voiceLists: EventVoiceList[], fn: voiceProcessHandler ): void => {
+    let eventVoices: EventVoiceList;
+    let voice: EventVoice;
+    let i = voiceLists.length;
+    let j: number;
 
     while ( i-- ) {
-        eventVoices = instrumentEvents[ i ];
+        eventVoices = voiceLists[ i ];
 
         if ( !eventVoices ) {
             continue;

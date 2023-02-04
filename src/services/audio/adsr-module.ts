@@ -20,21 +20,21 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-let ADSR, envelope, attack, release, attackEnd, decayEnd, step;
-const MAX_PITCH_ENVELOPE_VALUE = 24; // max value we expect for the pitch envelope's range
+import type { InstrumentOscillator, InstrumentAmplitudeEnvelopes, InstrumentPitchEnvelopes } from "@/model/types/instrument";
 import { isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+
+let ADSR: InstrumentAmplitudeEnvelopes;
+let PITCH: InstrumentPitchEnvelopes & { org?: number };
+let envelope, attack, release, attackEnd, decayEnd, step;
+const MAX_PITCH_ENVELOPE_VALUE = 24; // max value we expect for the pitch envelope's range
 
 export default
 {
     /**
      * apply attack, decay and sustain amplitude envelopes to given gain Node
-     *
-     * @param {InstrumentOscillator} oscillator
-     * @param {AudioGainNode} output
-     * @param {number} startTimeInSeconds
      */
-    applyAmpEnvelope( oscillator, output, startTimeInSeconds ) {
-        ADSR = /** @type {Object} */ ( oscillator.adsr );
+    applyAmpEnvelope( oscillator: InstrumentOscillator, output: GainNode, startTimeInSeconds: number ): void {
+        ADSR = oscillator.adsr;
 
         switch ( oscillator.waveform ) {
             default:
@@ -44,8 +44,8 @@ export default
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case 'SINE':
-            case 'TRIANGLE':
+            case "SINE":
+            case "TRIANGLE":
                 attack = ( ADSR.attack === 0 ) ? 0.002 : ADSR.attack;
                 break;
         }
@@ -60,13 +60,9 @@ export default
     },
     /**
      * apply release amplitude envelope to given gain Node
-     *
-     * @param {InstrumentOscillator} oscillator
-     * @param {AudioGainNode} output
-     * @param {number} startTimeInSeconds
      */
-    applyAmpRelease( oscillator, output, startTimeInSeconds ) {
-        ADSR = /** @type {Object} */ ( oscillator.adsr );
+    applyAmpRelease( oscillator: InstrumentOscillator, output: GainNode, startTimeInSeconds: number ): void {
+        ADSR = oscillator.adsr;
 
         switch ( oscillator.waveform ) {
             default:
@@ -76,8 +72,8 @@ export default
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case 'SINE':
-            case 'TRIANGLE':
+            case "SINE":
+            case "TRIANGLE":
                 release = ( ADSR.release === 0 ) ? 0.002 : ADSR.release;
                 break;
         }
@@ -89,57 +85,53 @@ export default
     },
     /**
      * apply pitch envelope to the events oscillator Node
-     *
-     * @param {InstrumentOscillator} oscillator
-     * @param {OscillatorNode|AudioBufferSourceNode} generator
-     * @param {number} startTimeInSeconds
      */
-    applyPitchEnvelope( oscillator, generator, startTimeInSeconds ) {
-        ADSR = /** @type {Object} */ ( oscillator.pitch );
+    applyPitchEnvelope( oscillator: InstrumentOscillator, generator: OscillatorNode | AudioBufferSourceNode, startTimeInSeconds: number ): void {
+        PITCH = oscillator.pitch;
 
-        if ( ADSR.range === 0 )
+        if ( PITCH.range === 0 ) {
             return; // do not apply pitch envelopes if no deviating pitch range was defined
-
+        }
         const isSample  = isAudioBufferSourceNode( generator );
 
+        // @ts-expect-error referencing non-interchangeable properties of OscillatorNode and AudioBufferSourceNode
         envelope  = ( isSample ) ? generator.playbackRate : generator.frequency;
-        attackEnd = startTimeInSeconds + ADSR.attack;
-        decayEnd  = attackEnd + ADSR.decay;
 
-        const orgValue  = ADSR.org = envelope.value;
+        attackEnd = startTimeInSeconds + PITCH.attack;
+        decayEnd  = attackEnd + PITCH.decay;
 
-        if ( isSample )
-            step = ( ADSR.range / MAX_PITCH_ENVELOPE_VALUE );
-        else
+        const orgValue = PITCH.org = envelope.value;
+
+        if ( isSample ) {
+            step = ( PITCH.range / MAX_PITCH_ENVELOPE_VALUE );
+        } else {
             step = orgValue + ( orgValue / 1200 ); // 1200 cents == octave
+        }
 
-        if ( isSample && ADSR.range < 0 )
+        if ( isSample && PITCH.range < 0 ) {
             step = -step; // inverse direction
-
-        const shifted = step * ( ADSR.range / MAX_PITCH_ENVELOPE_VALUE );
+        }
+        const shifted = step * ( PITCH.range / MAX_PITCH_ENVELOPE_VALUE );
 
         envelope.cancelScheduledValues( startTimeInSeconds );
         envelope.setValueAtTime( orgValue, startTimeInSeconds ); // envelope start value
         envelope.linearRampToValueAtTime( orgValue + shifted, attackEnd ); // attack envelope
-        envelope.linearRampToValueAtTime( orgValue + ( shifted * ADSR.sustain ), decayEnd ); // decay envelope
+        envelope.linearRampToValueAtTime( orgValue + ( shifted * PITCH.sustain ), decayEnd ); // decay envelope
     },
     /**
      * apply release pitch envelope to given oscillator Node
-     *
-     * @param {InstrumentOscillator} oscillator
-     * @param {AudioGainNode} output
-     * @param {number} startTimeInSeconds
      */
-    applyPitchRelease( oscillator, generator, startTimeInSeconds ) {
-        ADSR = /** @type {Object} */ ( oscillator.pitch );
+    applyPitchRelease( oscillator: InstrumentOscillator, generator: OscillatorNode | AudioBufferSourceNode, startTimeInSeconds: number ): void {
+        PITCH = oscillator.pitch;
 
-        if ( ADSR.range === 0 || typeof ADSR.org !== 'number' )
+        if ( PITCH.range === 0 || typeof PITCH.org !== "number" ) {
             return; // do not apply pitch envelopes if no deviating pitch range was defined
-
+        }
+        // @ts-expect-error referencing non-interchangeable properties of OscillatorNode and AudioBufferSourceNode
         envelope = isAudioBufferSourceNode( generator ) ? generator.playbackRate : generator.frequency;
 
         envelope.cancelScheduledValues  ( startTimeInSeconds );
         envelope.setValueAtTime         ( envelope.value, startTimeInSeconds );
-        envelope.linearRampToValueAtTime( ADSR.org, startTimeInSeconds + ADSR.release );
+        envelope.linearRampToValueAtTime( PITCH.org, startTimeInSeconds + PITCH.release );
     }
 };

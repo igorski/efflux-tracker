@@ -22,20 +22,19 @@
  */
 import axios from "axios";
 
+type Fixtures = Record<string, any>;
+
 export default
 {
     /**
      * convenience method to retrieve demo songs via
      * Ajax, this overcomes the need to package them along
      * with the main application script
-     *
-     * @param {string} filename to load
-     * @return {Promise}
      */
-    load( filename ) {
-        return new Promise(( resolve, reject ) => {
+    load( filename: string ): Promise<any[]> {
+        return new Promise(( resolve, reject ): void => {
             axios.get( `${getBasePath()}fixtures/${filename}` )
-                .then(({ data }) => {
+                .then(({ data }: { data: Fixtures }) => {
                     if ( data ) {
                         // Fixtures are bundled in an map, convert to list
                         resolve(
@@ -46,7 +45,7 @@ export default
                         );
                     }
                 })
-                .catch( e => reject( e ));
+                .catch(( e: any ) => reject( e ));
         });
     }
 };
@@ -57,6 +56,7 @@ export default
  * return the path that Efflux is running in, this can
  * differ dependent on the production environment
  */
-function getBasePath() {
+function getBasePath(): string {
+    // @ts-expect-error Property 'effluxPath' does not exist on type 'Window & typeof globalThis'.
     return ( typeof window.effluxPath === "string" ) ? window.effluxPath : window.location.origin + window.location.pathname;
 }

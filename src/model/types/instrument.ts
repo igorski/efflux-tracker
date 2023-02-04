@@ -93,18 +93,22 @@ export type InstrumentOscillator = {
     detune      : number;
     octaveShift : number;
     fineShift   : number;
-    sample      : Sample | string;
-    adsr: {
-        attack: number;
-        decay: number;
-        sustain: number;
-        release: number;
-    },
-    pitch?: {
-        range: number;
-        attack: number;
-        decay: number;
-        sustain: number;
-        release: number;
-    }
+    sample      : string;
+    adsr        : InstrumentAmplitudeEnvelopes,
+    pitch?      : InstrumentPitchEnvelopes;
+};
+
+export type InstrumentAmplitudeEnvelopes = {
+    attack : number;
+    decay  : number;
+    sustain: number;
+    release: number;
+};
+
+export type InstrumentPitchEnvelopes = {
+    range  : number;
+    attack : number;
+    decay  : number;
+    sustain: number;
+    release: number;
 };

@@ -141,7 +141,7 @@ export default {
             "timelineMode",
         ]),
         supportsTimelineMode() {
-            if ( process.env.NODE_ENV !== "production" ) {
+            if ( process.env.NODE_ENV === "development" ) {
                 return true; // still very much under development
             }
             return false;

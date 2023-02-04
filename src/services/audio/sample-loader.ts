@@ -23,17 +23,14 @@
 
 /**
  * Loads a sample file for use within the AudioContext
- *
- * @param {File|Blob} sample
- * @returns {Promise<AudioBuffer|null>}
  */
-export const loadSample = async ( sample, audioContext ) => {
-    return new Promise( resolve => {
+export const loadSample = async ( sampleFile: File | Blob, audioContext: BaseAudioContext ): Promise<AudioBuffer | null> => {
+    return new Promise(( resolve ): void => {
         const reader = new FileReader();
-        reader.readAsArrayBuffer( sample );
-        reader.onload = async ({ target }) => {
+        reader.readAsArrayBuffer( sampleFile );
+        reader.onload = async ({ target }): Promise<void> => {
             try {
-                const buffer = await audioContext?.decodeAudioData( target.result );
+                const buffer = await audioContext?.decodeAudioData( target.result as ArrayBuffer );
                 resolve( buffer );
             } catch ( error ) {
                 // eslint-disable-next-line no-console
@@ -47,7 +44,7 @@ export const loadSample = async ( sample, audioContext ) => {
                 try {
                     decoder = new MPEGDecoderWebWorker();
                     await decoder.ready;
-                    const { channelData, samplesDecoded, sampleRate } = await decoder.decode( new Uint8Array( target.result ));
+                    const { channelData, samplesDecoded, sampleRate } = await decoder.decode( new Uint8Array( target.result as ArrayBuffer ));
                     const buffer = new AudioBuffer({
                         length: samplesDecoded,
                         numberOfChannels: channelData.length,

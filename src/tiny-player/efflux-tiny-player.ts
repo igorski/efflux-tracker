@@ -35,6 +35,8 @@ import type { SequencerState } from "@/store/modules/sequencer-module";
 import type { SongState } from "@/store/modules/song-module";
 import { assemble } from "@/services/song-assembly-service";
 import { getPitchByFrequency } from "@/services/audio/pitch";
+import type { ExternalEventCallback } from "@/services/audio/module-automation";
+import type WaveTables from "@/services/audio/wave-tables";
 import { resetPlayState } from "@/utils/song-util";
 import SampleFactory from "@/model/factories/sample-factory";
 import { WAVE_TABLES } from "@/model/serializers/instrument-serializer";
@@ -104,9 +106,9 @@ export default {
      * @param {AudioContext=} optAudioContext optional AudioContext (when provided, should not be
      *        in suspended state. when null, audioContext will be initialized inline, though be sure
      *        to call this method after a user interaction to prevent muted playback)
-     * @return {boolean} whether player is ready for playback
+     * @return {Promise<boolean>} whether player is ready for playback
      */
-    l: async ( xtkObject: string | any, optExternalEventCallback?: () => void, optAudioContext?: AudioContext ): Promise<boolean> => {
+    l: async ( xtkObject: string | any, optExternalEventCallback?: ExternalEventCallback, optAudioContext?: AudioContext ): Promise<boolean> => {
         try {
             if ( optAudioContext ) {
                 audioContext = optAudioContext;
@@ -125,7 +127,7 @@ export default {
 
             // 2. assemble waveTables from stored song
 
-            const waveTables: Record<string, any> = xtkObject[ WAVE_TABLES ] || {};
+            const waveTables: typeof WaveTables = xtkObject[ WAVE_TABLES ] || {};
 
             // 3. all is well, set up environment
 
@@ -197,7 +199,7 @@ export default {
      * @param {TinyEvent} e event Object of the note returned by the on() method
      */
     off: ( e: TinyEvent ): void => {
-        noteOff( e );
+        noteOff( e as unknown as EffluxAudioEvent );
     },
     /**
      * Retrieve the generated AudioContext. This can be used

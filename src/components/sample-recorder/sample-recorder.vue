@@ -222,7 +222,7 @@ export default {
                 mediaRecorder.start();
                 handleProgress();
             } catch ( e ) {
-                if ( process.env.NODE_ENV !== "production" ) {
+                if ( process.env.NODE_ENV === "development" ) {
                     // eslint-disable-next-line no-console
                     console.error( e );
                 }

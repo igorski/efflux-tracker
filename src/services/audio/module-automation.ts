@@ -20,14 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Config            from "@/config";
-import { rangeToIndex }  from "@/utils/array-util";
-import { toHex }         from "@/utils/number-util";
-import { processVoices } from "./audio-util";
-import { applyRouting }  from "./module-router";
+import Config from "@/config";
+import { rangeToIndex } from "@/utils/array-util";
+import { toHex } from "@/utils/number-util";
+import { processVoiceLists } from "./audio-util";
+import { applyRouting } from "./module-router";
 import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from "./webaudio-helper";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
+import type { Instrument } from "@/model/types/instrument";
+import type { InstrumentModules, InstrumentVoice } from "@/model/types/instrument-modules";
 
-const filterTypes = ["off", "sine", "square", "sawtooth", "triangle"];
+const filterTypes = [ "off", "sine", "square", "sawtooth", "triangle" ];
 
 import {
     DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
@@ -39,25 +43,21 @@ import {
     VOLUME
 } from "@/definitions/automatable-parameters";
 
+type ExternalEventCallbackProps = { c: number, t: number };
+export type ExternalEventCallback = ( props: ExternalEventCallbackProps ) => void;
+
 /**
  * apply a module parameter change defined inside an audioEvent during playback
- *
- * @param {AudioContext} audioContext
- * @param {EffluxAudioEvent} audioEvent
- * @param {InstrumentModules} modules
- * @param {Instrument} instrument
- * @param {Array<EventVoiceList>} instrumentEvents events currently playing back for this instrument
- * @param {number} startTimeInSeconds
- * @param {AudioGainNode} output
- * @param {Function=} optEventCallback
  */
-export const applyModuleParamChange = ( audioContext, audioEvent, modules, instrument,
-  instrumentEvents, startTimeInSeconds, output, optEventCallback ) => {
+export const applyModuleParamChange = ( audioContext: BaseAudioContext, audioEvent: EffluxAudioEvent,
+    modules: InstrumentModules, instrument: Instrument, voiceLists: EventVoiceList[],
+    startTimeInSeconds: number, output: AudioNode, optEventCallback?: ExternalEventCallback ) => {
     const { value, module } = audioEvent.mp;
+
     switch ( module ) {
         // gain effects
         case VOLUME:
-            applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds );
+            applyVolumeEnvelope( audioEvent, voiceLists, startTimeInSeconds );
             break;
 
         // equalizer effects
@@ -82,7 +82,7 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
         case OD_PRE_BAND:
         case OD_COLOR:
         case OD_POST_CUT:
-            applyOverdrive( audioEvent, modules, startTimeInSeconds );
+            applyOverdrive( audioEvent, modules/*, startTimeInSeconds*/ );
             break;
 
         // panning effects
@@ -94,7 +94,7 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
         // pitch effects
         case PITCH_UP:
         case PITCH_DOWN:
-            applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds );
+            applyPitchShift( audioEvent, voiceLists, startTimeInSeconds );
             break;
 
         // filter effects
@@ -126,7 +126,7 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
         case DELAY_DRY:
         case DELAY_CUTOFF:
         case DELAY_OFFSET:
-            applyDelay( audioEvent, modules, startTimeInSeconds );
+            applyDelay( audioEvent, modules/*, startTimeInSeconds*/ );
             break;
 
         // external events
@@ -138,42 +138,46 @@ export const applyModuleParamChange = ( audioContext, audioEvent, modules, instr
 
 /* internal methods */
 
-function applyVolumeEnvelope( audioEvent, instrumentEvents, startTimeInSeconds ) {
-    const mp = audioEvent.mp, doGlide = mp.glide,
-          durationInSeconds = audioEvent.seq.mpLength,
-          target = ( mp.value / 100 );
+function applyVolumeEnvelope( audioEvent: EffluxAudioEvent, voiceLists: EventVoiceList[], startTimeInSeconds: number ): void {
+    const mp = audioEvent.mp;
+    const doGlide = mp.glide;
+    const durationInSeconds = audioEvent.seq.mpLength;
+    const target = ( mp.value / 100 );
 
-    processVoices(instrumentEvents, voice => {
+    processVoiceLists( voiceLists, ( voice: EventVoice ): void => {
         scheduleParameterChange(
             voice.gain.gain, target, startTimeInSeconds, durationInSeconds, doGlide, voice
         );
     });
 }
 
-function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
-    const mp = audioEvent.mp, doGlide = mp.glide,
-        durationInSeconds = audioEvent.seq.mpLength,
-        goingUp = ( mp.module === PITCH_UP );
+function applyPitchShift( audioEvent: EffluxAudioEvent, voiceLists: EventVoiceList[], startTimeInSeconds: number ): void {
+    const mp = audioEvent.mp;
+    const doGlide = mp.glide;
+    const durationInSeconds = audioEvent.seq.mpLength;
+    const goingUp = ( mp.module === PITCH_UP );
 
-    let generator, tmp, target;
+    let tmp: number;
+    let target: number;
 
-    processVoices(instrumentEvents, voice => {
-        generator = voice.generator;
-        if ( isOscillatorNode( generator )) {
+    processVoiceLists( voiceLists, ( voice: EventVoice ): void => {
+        if ( isOscillatorNode( voice.generator )) {
+            const generator = voice.generator as OscillatorNode;
             tmp    = voice.frequency + ( voice.frequency / 1200 ); // 1200 cents == octave
             target = ( tmp * ( mp.value / 100 ));
 
-            if ( goingUp )
+            if ( goingUp ) {
                 target += voice.frequency;
-            else
+            } else {
                 target = voice.frequency - ( target / 2 );
-
+            }
             scheduleParameterChange(
                 generator.frequency, target, startTimeInSeconds, durationInSeconds, doGlide, voice
             );
         }
-        else if ( isAudioBufferSourceNode( generator )) {
-            tmp    = ( mp.value / 100 );
+        else if ( isAudioBufferSourceNode( voice.generator )) {
+            const generator = voice.generator as AudioBufferSourceNode;
+            tmp = ( mp.value / 100 );
             target = ( goingUp ) ? generator.playbackRate.value + tmp : generator.playbackRate.value - tmp;
             scheduleParameterChange(
                 generator.playbackRate, target, startTimeInSeconds, durationInSeconds, doGlide, voice
@@ -182,10 +186,11 @@ function applyPitchShift( audioEvent, instrumentEvents, startTimeInSeconds ) {
     });
 }
 
-function applyPanning( audioEvent, modules, startTimeInSeconds ) {
-    const mp = audioEvent.mp, doGlide = mp.glide,
-          durationInSeconds = audioEvent.seq.mpLength,
-          target = ( mp.value / 100 );
+function applyPanning( audioEvent: EffluxAudioEvent, modules: InstrumentModules, startTimeInSeconds: number ): void {
+    const mp = audioEvent.mp;
+    const doGlide = mp.glide;
+    const durationInSeconds = audioEvent.seq.mpLength;
+    const target = ( mp.value / 100 );
 
     scheduleParameterChange(
         modules.panner.pan,
@@ -194,10 +199,12 @@ function applyPanning( audioEvent, modules, startTimeInSeconds ) {
     );
 }
 
-function applyEQ( audioEvent, modules, startTimeInSeconds ) {
-    const mp = audioEvent.mp, doGlide = mp.glide,
-          durationInSeconds = audioEvent.seq.mpLength,
-          module = modules.eq, target = ( mp.value / 100 );
+function applyEQ( audioEvent: EffluxAudioEvent, modules: InstrumentModules, startTimeInSeconds: number ): void {
+    const mp = audioEvent.mp;
+    const doGlide = mp.glide;
+    const durationInSeconds = audioEvent.seq.mpLength;
+    const module = modules.eq;
+    const target = ( mp.value / 100 );
 
     switch ( mp.module ) {
         case EQ_LOW:
@@ -212,7 +219,7 @@ function applyEQ( audioEvent, modules, startTimeInSeconds ) {
     }
 }
 
-function applyOverdrive( audioEvent, modules ) {
+function applyOverdrive( audioEvent: EffluxAudioEvent, modules: InstrumentModules ): void {
     const { value, module } = audioEvent.mp;
     const target = value / 100;
 
@@ -234,10 +241,12 @@ function applyOverdrive( audioEvent, modules ) {
     }
 }
 
-function applyFilter( audioEvent, modules, startTimeInSeconds ) {
-    const mp = audioEvent.mp, doGlide = mp.glide,
-          durationInSeconds = audioEvent.seq.mpLength,
-          module = modules.filter, target = ( mp.value / 100 );
+function applyFilter( audioEvent: EffluxAudioEvent, modules: InstrumentModules, startTimeInSeconds: number ): void {
+    const mp = audioEvent.mp;
+    const doGlide = mp.glide;
+    const durationInSeconds = audioEvent.seq.mpLength;
+    const module = modules.filter;
+    const target = ( mp.value / 100 );
 
     switch ( mp.module ) {
         case FILTER_FREQ:
@@ -258,8 +267,11 @@ function applyFilter( audioEvent, modules, startTimeInSeconds ) {
     }
 }
 
-function applyDelay( audioEvent, modules ) {
-    const mp = audioEvent.mp, module = modules.delay.delay, target = ( mp.value / 100 );
+function applyDelay( audioEvent: EffluxAudioEvent, modules: InstrumentModules ): void {
+    const mp = audioEvent.mp
+    const module = modules.delay.delay;
+    const target = ( mp.value / 100 );
+
     switch ( mp.module ) {
         case DELAY_TIME:
             module.delay = target; // 0 - 1 range
@@ -279,11 +291,12 @@ function applyDelay( audioEvent, modules ) {
     }
 }
 
-function applyExternalEvent( audioContext, event, startTimeInSeconds, eventCallback ) {
+function applyExternalEvent( audioContext: BaseAudioContext, event: EffluxAudioEvent,
+    startTimeInSeconds: number, eventCallback?: ExternalEventCallback ): void {
     if ( !eventCallback ) {
         return;
     }
-    createTimer( audioContext, startTimeInSeconds, () => {
+    createTimer( audioContext, startTimeInSeconds, (): void => {
         const { seq, mp } = event;
         const t = seq.startOffset + seq.startMeasureOffset;
 
@@ -303,14 +316,17 @@ function applyExternalEvent( audioContext, event, startTimeInSeconds, eventCallb
  * @param {Object=} data optional data Object to track the status of the scheduled parameter changes (can for instance
  *                  be EventVoiceList which shouldn't cancel previously scheduled changes upon repeated invocation)
  */
-function scheduleParameterChange( param, value, startTimeInSeconds, durationInSeconds, doGlide, data ) {
+function scheduleParameterChange( param: AudioParam, value: number, startTimeInSeconds: number,
+    durationInSeconds?: number, doGlide?: boolean, data?: any ): void {
+
     if ( !doGlide || ( data && !data.gliding )) {
         param.cancelScheduledValues( startTimeInSeconds );
         param.setValueAtTime(( doGlide ) ? param.value : value, startTimeInSeconds );
     }
     if ( doGlide ) {
         param.linearRampToValueAtTime( value, startTimeInSeconds + durationInSeconds );
-        if ( data )
+        if ( data ) {
             data.gliding = true;
+        }
     }
 }

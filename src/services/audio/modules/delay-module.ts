@@ -91,7 +91,7 @@ export default class Delay
     private _delayTime: number;
     private _offset: number;
 
-    constructor( context: AudioContext, opts: IDelayProps = {} ) {
+    constructor( context: BaseAudioContext, opts: IDelayProps = {} ) {
         this.input  = context.createGain();
         this.output = context.createGain();
 

@@ -113,14 +113,12 @@ async function compress( string: string ): Promise<string> {
     } catch ( e ) {
         return string;
     }
-    /*
-    if ( process.env.NODE_ENV !== "production" ) {
+    if ( process.env.NODE_ENV === "development" ) {
         console.log(
             "Compressed " + string.length + " to " + compressedString.length + " (" +
             (( compressedString.length / string.length ) * 100 ).toFixed( 2 ) + "% of original size)"
         );
     }
-    */
     return compressedString;
 }
 

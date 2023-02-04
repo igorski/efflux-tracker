@@ -50,11 +50,10 @@ constantOneCurve[ 1 ] = 1;
  * y-coordinate points drawn in the UI) and apply it onto the given
  * OscillatorNode oscillator
  */
-export const createWaveTableFromGraph = ( audioContext: AudioContext, graphPoints: number[] ): PeriodicWave => {
+export const createWaveTableFromGraph = ( audioContext: BaseAudioContext, graphPoints: number[] ): PeriodicWave => {
     const dft = new DFT( graphPoints.length, audioContext.sampleRate );
     dft.forward( graphPoints );
 
-    // @ts-expect-error DFT needs typing
     return audioContext.createPeriodicWave( dft.real, dft.imag );
 };
 
@@ -62,12 +61,12 @@ export const createWaveTableFromGraph = ( audioContext: AudioContext, graphPoint
  * use the accuracy of the WebAudio clock to execute a callback
  * with strict timing.
  *
- * @param {AudioContext} audioContext
+ * @param {BaseAudioContext} audioContext
  * @param {number} time when the callback should be fired (relative to AudioContext currentTime)
  * @param {!Function} callback function to execute
  * @return {OscillatorNode}
  */
-export const createTimer = ( audioContext: AudioContext, time: number, callback: () => void ): OscillatorNode => {
+export const createTimer = ( audioContext: BaseAudioContext, time: number, callback: () => void ): OscillatorNode => {
     // this magic works by using a silent oscillator to play for given time
     const timer   = audioContext.createOscillator();
     timer.onended = callback;
@@ -90,13 +89,13 @@ export const createTimer = ( audioContext: AudioContext, time: number, callback:
 /**
  * sound a sine wave at given frequency (can be used for testing)
  *
- * @param {AudioContext} audioContext
+ * @param {BaseAudioContext} audioContext
  * @param {number} frequencyInHertz
  * @param {number=} startTimeInSeconds optional, defaults to current time
  * @param {number=} durationInSeconds optional, defaults to 1 second
  * @return {OscillatorNode} created Oscillator
  */
-export const beep = ( audioContext: AudioContext, frequencyInHertz: number,
+export const beep = ( audioContext: BaseAudioContext, frequencyInHertz: number,
     startTimeInSeconds?: number, durationInSeconds?: number ): OscillatorNode => {
 
     const oscillator = audioContext.createOscillator();
@@ -122,60 +121,52 @@ export const beep = ( audioContext: AudioContext, frequencyInHertz: number,
     return oscillator;
 };
 
-/**
- * @param {OscillatorNode} oscillator
- * @param {number} startTime AudioContext time at which to start
- */
-export const startOscillation = ( oscillator: OscillatorNode, startTime: number ): void => {
+export const startOscillation = ( node: AudioScheduledSourceNode, startTime: number ): void => {
     if ( isStandards ) {
-        oscillator.start( startTime );
+        node.start( startTime );
     } else {
         // @ts-expect-error deprecated method
-        oscillator.noteOn( startTime );
+        node.noteOn( startTime );
     }
 };
 
-/**
- * @param {OscillatorNode} oscillator
- * @param {number} stopTime AudioContext time at which to stop
- */
-export const stopOscillation = ( oscillator: OscillatorNode, stopTime: number ): void => {
+export const stopOscillation = ( node: AudioScheduledSourceNode, stopTime: number ): void => {
     try {
         if ( isStandards ) {
-            oscillator.stop( stopTime );
+            node.stop( stopTime );
         } else {
             // @ts-expect-error deprecated method
-            oscillator.noteOff( stopTime );
+            node.noteOff( stopTime );
         }
     } catch ( e ) {
         // likely Safari DOM Exception 11 if oscillator was previously stopped
     }
 };
 
-export const createGainNode = ( aContext: AudioContext ): GainNode => {
+export const createGainNode = ( context: BaseAudioContext ): GainNode => {
     if ( isStandards ) {
-        return aContext.createGain();
+        return context.createGain();
     }
     // @ts-expect-error deprecated method
-    return aContext.createGainNode();
+    return context.createGainNode();
 };
 
 /**
  * At the moment of writing, StereoPannerNode is not supported
  * in Safari, so this can return null!
  */
-export const createStereoPanner = ( audioContext: AudioContext ): StereoPannerNode | null  => {
+export const createStereoPanner = ( context: BaseAudioContext ): StereoPannerNode | null  => {
     // last minute checks on feature support
-    if ( typeof audioContext.createStereoPanner !== "function" ) {
+    if ( typeof context.createStereoPanner !== "function" ) {
         return null;
     }
-    return audioContext.createStereoPanner();
+    return context.createStereoPanner();
 };
 
 /**
  * Force given value onto given param, cancelling all scheduled values (e.g. hard "reset")
  */
-export const setValue = ( param: AudioParam, value: number, audioContext: AudioContext ): void => {
+export const setValue = ( param: AudioParam, value: number, audioContext: BaseAudioContext ): void => {
     param.cancelScheduledValues( audioContext.currentTime );
     param.setValueAtTime( value, audioContext.currentTime );
 };
@@ -185,15 +176,13 @@ type PWMNode = OscillatorNode & { width: AudioParam };
 /**
  * Create a Pulse Width Modulator
  * based on https://github.com/pendragon-andyh/WebAudio-PulseOscillator
- *
- * @param {AudioContext} audioContext
- * @param {number} startTime
- * @param {number} endTime
- * @param {AudioDestinationNode=} destination
- * @return {OscillatorNode}
  */
-export const createPWM = ( audioContext: AudioContext, startTime: number, endTime: number,
-    destination = audioContext.destination ): OscillatorNode => {
+export const createPWM = ( audioContext: BaseAudioContext, startTime: number, endTime: number,
+    destination?: AudioNode ): OscillatorNode => {
+
+    if ( !destination ) {
+        destination = audioContext.destination;
+    }
 
     // note we are extending the OscillatorNode prototype with a "width" property
     const pulseOsc: PWMNode = audioContext.createOscillator() as never as PWMNode;
@@ -328,7 +317,7 @@ export const supports = ( feature: string ) => !!features[ feature ];
  */
 
 // @ts-expect-error 'frequency' should not exist on AudioBufferSourceNode
-export const isOscillatorNode        = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.frequency;
+export const isOscillatorNode = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.frequency;
 
 // @ts-expect-error 'buffer' should not exist on OscilatorNode
 export const isAudioBufferSourceNode = ( node: OscillatorNode | AudioBufferSourceNode ) => !!node.buffer;

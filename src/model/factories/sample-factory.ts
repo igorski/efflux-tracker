@@ -58,7 +58,7 @@ const SampleFactory = {
      * will be sliced. For repeated playback this should be cached and
      * invalidated when appropriate.
      */
-    getBuffer( sample: Sample, audioContext: AudioContext ): AudioBuffer {
+    getBuffer( sample: Sample, audioContext: BaseAudioContext ): AudioBuffer {
         if ( sample.rangeStart === 0 && sample.rangeEnd === sample.buffer.duration ) {
             return sample.buffer;
         }

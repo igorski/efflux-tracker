@@ -219,7 +219,7 @@ export default
             return new Promise( resolve => {
                 // audioContext initialization is async, on user interaction
                 AudioService
-                    .init( storeReference, OutputRecorder, WaveTables )
+                    .init( storeReference, WaveTables, OutputRecorder )
                     .then(() => {
                         store.commit( "publishMessage", Messages.AUDIO_CONTEXT_READY );
                     });

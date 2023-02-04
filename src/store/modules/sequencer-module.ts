@@ -160,7 +160,7 @@ function freeHandler( state: SequencerState, node: OscillatorNode ): void {
 
 function collect( store: Store<EffluxState> ): void {
     const state: SequencerState = store.state.sequencer;
-    const audioContext: AudioContext = getAudioContext();
+    const audioContext: BaseAudioContext = getAudioContext();
 
     // adapted from http://www.html5rocks.com/en/tutorials/audio/scheduling/
     // and extended to work for multi timbral sequencing

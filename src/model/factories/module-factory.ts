@@ -55,7 +55,7 @@ const ModuleFactory = {
      * of the equalizers frequency range, alter the gain values of the
      * low/mid/high GainNodes to alter the balance
      */
-    createEQ( audioContext: AudioContext ): EqModule {
+    createEQ( audioContext: BaseAudioContext ): EqModule {
         const hBand           = audioContext.createBiquadFilter();
         hBand.type            = "lowshelf";
         hBand.frequency.value = 360; // TODO make band range configurable?
@@ -108,7 +108,7 @@ const ModuleFactory = {
      * create a filter that can be modulated by a
      * low frequency oscillator
      */
-    createFilter( audioContext: AudioContext ): FilterModule {
+    createFilter( audioContext: BaseAudioContext ): FilterModule {
         const filter = audioContext.createBiquadFilter();
         const lfo    = audioContext.createOscillator();
         const lfoAmp = createGainNode( audioContext );
@@ -130,7 +130,7 @@ const ModuleFactory = {
             filterEnabled : false
         };
     },
-    createDelay( audioContext: AudioContext ): DelayModule {
+    createDelay( audioContext: BaseAudioContext ): DelayModule {
         return {
             delay: new Delay( audioContext, {
                 type: 0,
@@ -143,7 +143,7 @@ const ModuleFactory = {
             delayEnabled: false
         };
     },
-    createOverdrive( audioContext: AudioContext ): OverdriveModule {
+    createOverdrive( audioContext: BaseAudioContext ): OverdriveModule {
         return {
             overdrive: new Overdrive( audioContext, {
                 preBand: 1.0,

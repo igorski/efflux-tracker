@@ -22,10 +22,12 @@
  */
 import type { DelayModule, EqModule, FilterModule, OverdriveModule } from "./audio-modules";
 
-type VOICE = {
+export type InstrumentVoice = {
     oscillatorNode: GainNode;
     adsrNode: GainNode;
 };
+
+export type InstrumentVoiceList = InstrumentVoice[];
 
 /**
  * This structure describes all Web Audio nodes unused
@@ -38,6 +40,6 @@ export type InstrumentModules = {
     eq: EqModule;
     filter: FilterModule;
     delay: DelayModule;
-    voices: VOICE[][];
-    output: AudioNode;
+    voices: InstrumentVoiceList[];
+    output: GainNode;
 };

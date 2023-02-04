@@ -81,7 +81,7 @@ export default class Filter
     private _wet: GainNode;
     private _type: BiquadFilterType;
 
-    constructor( context: AudioContext, opts: IFilterProps = {} )
+    constructor( context: BaseAudioContext, opts: IFilterProps = {} )
     {
         this.input  = context.createGain();
         this.output = context.createGain();

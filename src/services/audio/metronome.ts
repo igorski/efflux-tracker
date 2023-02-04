@@ -38,7 +38,7 @@ export default
      * give resolution of the metronome is specified as:
      * 0 == 16th (semi-quaver), 1 == 8th (quaver), 2 == 4th (quarter) note
      */
-    play( resolution: number, currentStep: number, maxStep: number, time: number, audioContext: AudioContext ): void
+    play( resolution: number, currentStep: number, maxStep: number, time: number, audioContext: BaseAudioContext ): void
     {
         if (( resolution === 1 ) && ( currentStep % ( maxStep / 8 )))
             return; // we're not playing non-8th 16th notes
