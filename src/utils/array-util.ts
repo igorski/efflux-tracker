@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2019 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,24 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { InstrumentOscillator } from "./instrument";
 
 /**
- * describes a single voice for an event (an event is
- * a note being triggered for an instrument, however the
- * instrument can have multiple voices / oscillators)
- * which are bundled for a single event in an EventVoiceList
+ * translates a given value in the 0 - 100 range, scales it to the
+ * length of given Array and returns the associated Array item with
+ * the index closest to the resulting scaled value
+ *
+ * @param {Array<*>} array of items
+ * @param {number} value in the 0 - 100 range
+ * @return {*} associated array item to scaled value
  */
-export type EventVoice = {
-    generator: OscillatorNode | AudioBufferSourceNode;
-    gain: GainNode;
-    outputNode: GainNode;
-    frequency: number;
-    vo: InstrumentOscillator,
-    gliding: false
-};
-
-/**
- * all voices thay are playing back for a single instrument event
- */
-export type EventVoiceList = EventVoice[];
+export function rangeToIndex<T>( array: T[], value: number ): T {
+    return array[ Math.round( value / ( 100 / ( array.length - 1 ))) ];
+}

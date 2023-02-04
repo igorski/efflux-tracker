@@ -8,10 +8,6 @@ const { getters, mutations, actions } = songModule;
 
 // mocks
 
-jest.mock( "vue", () => ({
-    __esModule: true,
-    default: jest.requireActual( "vue" )
-}));
 let mockFn;
 jest.mock( "@/services/dropbox-service", () => ({
     uploadBlob: jest.fn(( ...args ) => mockFn( "uploadBlob", ...args )),
@@ -21,11 +17,9 @@ jest.mock( "@/utils/file-util", () => ({
     saveAsFile: jest.fn(( ...args ) => mockFn( "saveAsFile", ...args )),
 }));
 jest.mock( "@/utils/storage-util", () => ({
-    default: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        removeItem: jest.fn()
-    }
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn()
 }));
 jest.mock( "@/utils/xtk-util", () => ({
     toXTK: jest.fn(( ...args ) => mockFn( "toXTK" , ...args )),

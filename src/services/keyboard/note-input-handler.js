@@ -52,8 +52,8 @@ export default {
             const audioEvent = InstrumentUtil.onKeyDown(
                 note,
                 state.song.activeSong.instruments[ state.editor.selectedInstrument ],
+                store,
                 state.sequencer.recording,
-                store
             );
             audioEvent && extHandler?.( "on", audioEvent );
         }

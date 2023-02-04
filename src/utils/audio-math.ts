@@ -25,12 +25,10 @@
   * get the duration of a measure (at given time signature and
   * tempo in BPM) in seconds
   *
-  * @param {number} bpm the current BPM
-  * @param {number} beatsPerMeasure amount of beats per measure, when in
-  *                 doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
-  * @return {number} duration in milliseconds
+  * note: beatsPerMeasure amount of beats per measure, when in
+  *       doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
   */
- export const getMeasureDurationInSeconds = ( bpm, beatsPerMeasure = 4 ) => {
+ export const getMeasureDurationInSeconds = ( bpm: number, beatsPerMeasure = 4 ): number => {
      return beatsPerMeasure / ( bpm / 60 );
  };
 
@@ -38,21 +36,16 @@
  * get the duration of a measure (at given time signature and
  * tempo in BPM) in milliseconds
  *
- * @param {number} bpm the current BPM
- * @param {number} beatsPerMeasure amount of beats per measure, when in
- *                 doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
- * @return {number} duration in milliseconds
+ * note: beatsPerMeasure amount of beats per measure, when in
+ *       doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
  */
-export const getMeasureDurationInMs = ( bpm, beatsPerMeasure = 4 ) => {
+export const getMeasureDurationInMs = ( bpm: number, beatsPerMeasure = 4 ): number => {
     return getMeasureDurationInSeconds( bpm, beatsPerMeasure ) * 1000;
 };
 
 /**
  * get the frequency in Hz for given duration in milliseconds
- *
- * @param {number} milliSeconds
- * @return {number} frequency in Hz
  */
-export const msToFrequency = ( milliSeconds ) => {
+export const msToFrequency = ( milliSeconds: number ): number => {
     return 1000 / milliSeconds;
 };

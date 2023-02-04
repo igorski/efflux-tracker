@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,27 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+const months = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
 
-export const truncate = ( string = "", maxLength = 100 ) =>
-    string.length > maxLength ? `${string.substr( 0, maxLength )}...` : string;
+export default {
+    /**
+     * convert a given timestamp into a formatted date string
+     */
+    timestampToDate( aTimestamp = Date.now() ): string {
+        const a      = new Date( aTimestamp );
+        const year   = a.getFullYear();
+        const month  = months[a.getMonth()];
+        const date   = a.getDate();
+        const hour   = a.getHours();
+        const min    = a.getMinutes();
+        const sec    = a.getSeconds();
 
-export const toFileName = ( string, extension = PROJECT_FILE_EXTENSION ) => {
-    return `${string.replace( /([^a-z0-9 ]+)/gi, "-" ).split( " " ).join( "_" )}${extension}`;
+        return `${date} ${month} ${year} ${prependZero( hour )}:${prependZero( min )}:${prependZero( sec )}`;
+    }
 };
+
+/* internal methods */
+
+function prependZero( value: number ): string {
+    return ( value < 10 ) ? `0${value}` : value.toString();
+}

@@ -26,25 +26,21 @@ export default {
     /**
      * attach an event listener to given DOM Object
      * using this method allows use of passive listeners when supported
-     *
-     * @param {Element} object
-     * @param {string} eventType
-     * @param {!Function} handler
      */
-    listen( object, eventType, handler ) {
+    listen( object: Element, eventType: string, handler: ( event: Event ) => void ): void {
         object.addEventListener( eventType, handler, ( supportsPassive ) ? { passive: true } : false );
     }
 };
 
 // Test via a getter in the options object to see if the passive property is accessed
 try {
-    const opts = Object.defineProperty({}, 'passive', {
+    const opts = Object.defineProperty({}, "passive", {
         get: function() {
             return supportsPassive = true;
         }
     });
     window.addEventListener( "test", null, opts );
 
-} catch (e) {
+} catch ( e ) {
     // nowt...
 }

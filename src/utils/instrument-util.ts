@@ -20,26 +20,35 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import AudioService from "@/services/audio-service";
-import EventFactory from "@/model/factories/event-factory";
-import EventUtil    from "./event-util";
-import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+import type { Store } from "vuex";
 import { getParamRange, applyParamChange } from "@/definitions/param-ids";
+import AudioService from "@/services/audio-service";
+import type { PartialPitch } from "@/services/audio/pitch";
+import EventFactory from "@/model/factories/event-factory";
+import EventUtil from "./event-util";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import type { EventVoiceList } from "@/model/types/event-voice";
+import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
+import type { Sample } from "@/model/types/sample";
+import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+import type { EffluxState } from "@/store";
 
 const RECORD_THRESHOLD = 50;
 
-let playingNotes = {};
+type NoteDef = {
+    audioEvent: EffluxAudioEvent;
+    instrument: Instrument;
+    recording: boolean;
+};
+
+let playingNotes: Record<string, NoteDef> = {};
 let lastAddition = 0;
 
 /**
- * tune given frequency to given oscillators tuning
- *
- * @param {number} frequency in Hz
- * @param {InstrumentOscillator} oscillator
- * @return {number} tuned frequency in Hz
+ * tune given frequency to given oscillators tuning (in Hz)
  */
-export const tuneToOscillator = ( frequency, oscillator ) => {
+export const tuneToOscillator = ( frequency: number, oscillator: InstrumentOscillator ): number => {
     // tune event frequency to oscillator tuning
     const tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
     let outFreq = tmpFreq;
@@ -62,33 +71,22 @@ export const tuneToOscillator = ( frequency, oscillator ) => {
 };
 
 /**
- * get a buffer playback speed in the -1 to +1 range
+ * shift a buffers playback speed in the -1 to +1 range
  * for given oscillator tuning
- *
- * @param {AudioBufferSourceNode} node to apply shift to
- * @param {InstrumentOscillator} oscillator
- * @returns {Number}
  */
-export const tuneBufferPlaybackRate = ( node, oscillator ) => {
+export const tuneBufferPlaybackRate = ( node: AudioBufferSourceNode, oscillator: InstrumentOscillator ): void => {
     node.playbackRate.value = 1 + ( oscillator.detune / 50 );
 };
 
 /**
- * get a buffer playback speed in the -1 to +1 range, allowing
- * given sample to play back at a rate leading its pitch to
- * match given frequency @see sample-editor. Ideally you can use AudioBufferSourceNode.detune
- * but this is not supported in Safari and buggy in Firefox at the moment of writing (Nov '21')
+ * shift a buffer playback speed in the -1 to +1 range, allowing given sample to play back at a rate leading
+ * its pitch to match given frequency (@see sample-editor). Ideally you can use AudioBufferSourceNode.detune
+ * but this is not supported in Safari and buggy in Firefox at the moment of writing (Nov '21)
  *
  * Alternatively you can use BiQuadFilterNode.detune but this requires an
  * additional node in the signal path.
- *
- * @param {AudioBufferSourceNode} node to apply shift to
- * @param {Number} frequency desired frequency to play sample at
- * @param {Object} sample property Object (@see sample-factory)
- * @param {InstrumentOscillator} oscillator
- * @returns {Number}
  */
-export const tuneSamplePitch = ( node, frequency, sample, oscillator ) => {
+export const tuneSamplePitch = ( node: AudioBufferSourceNode, frequency: number, sample: Sample, oscillator: InstrumentOscillator ): void => {
     if ( !sample.pitch ) {
         return; // sample is not pitched, nothing to do here
     }
@@ -103,26 +101,23 @@ export const tuneSamplePitch = ( node, frequency, sample, oscillator ) => {
 /**
  * alter the frequency of currently playing events to match changes
  * made to the tuning of given oscillator
- *
- * @param {Array<EventVoiceList>} events
- * @param {number} oscillatorIndex
- * @param {InstrumentOscillator} oscillator
  */
-export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
-    events.forEach( event => {
-        if ( !event ) {
+export const adjustEventTunings = ( voiceLists: EventVoiceList[], oscillatorIndex: number, oscillator: InstrumentOscillator ): void => {
+    voiceLists.forEach(( voiceList: EventVoiceList ): void => {
+        if ( !voiceList ) {
             return;
         }
-        if ( event.length > oscillatorIndex ) {
-            const voice = event[ oscillatorIndex ];
-            if (!voice) return;
-
+        if ( voiceList.length > oscillatorIndex ) {
+            const voice = voiceList[ oscillatorIndex ];
+            if ( !voice ) {
+                return;
+            }
             const generator = voice.generator;
 
             if ( isOscillatorNode( generator )) {
-                generator.frequency.value = tuneToOscillator( voice.frequency, oscillator );
+                ( generator as OscillatorNode ).frequency.value = tuneToOscillator( voice.frequency, oscillator );
             } else if ( isAudioBufferSourceNode( generator )) {
-                tuneBufferPlaybackRate( generator, oscillator );
+                tuneBufferPlaybackRate( generator as AudioBufferSourceNode, oscillator );
             }
         }
     });
@@ -131,19 +126,17 @@ export const adjustEventTunings = ( events, oscillatorIndex, oscillator ) => {
 /**
  * alter the volume of currently playing events to match changes
  * made to the volume of given oscillator
- *
- * @param {Array<EventVoiceList>} events
- * @param {number} oscillatorIndex
- * @param {InstrumentOscillator} oscillator
  */
-export const adjustEventVolume = ( events, oscillatorIndex, oscillator ) => {
-    events.forEach(event => {
-        if (!event)
+export const adjustEventVolume = ( voiceLists: EventVoiceList[], oscillatorIndex: number, oscillator: InstrumentOscillator ): void => {
+    voiceLists.forEach(( voiceList: EventVoiceList ): void => {
+        if ( !voiceList ) {
             return;
-
-        if ( event.length > oscillatorIndex ) {
-            const voice = event[ oscillatorIndex ];
-            if (!voice) return;
+        }
+        if ( voiceList.length > oscillatorIndex ) {
+            const voice = voiceList[ oscillatorIndex ];
+            if ( !voice ) {
+                return;
+            }
             voice.gain.gain.value = oscillator.volume;
         }
     });
@@ -152,25 +145,23 @@ export const adjustEventVolume = ( events, oscillatorIndex, oscillator ) => {
 /**
  * alter the wavetable of currently playing events to match
  * changes made to the waveform of given oscillator
- *
- * @param {Array<EventVoiceList>} events
- * @param {number} oscillatorIndex
- * @param {PeriodicWave} table
  */
-export const adjustEventWaveForms = ( events, oscillatorIndex, table ) => {
-    if ( !( table instanceof PeriodicWave ))
+export const adjustEventWaveForms = ( voiceLists: EventVoiceList[], oscillatorIndex: number, table: PeriodicWave ): void => {
+    if ( !( table instanceof PeriodicWave )) {
         return;
-
-    events.forEach(event => {
-        if (!event) return;
-
-        if ( event.length > oscillatorIndex ) {
-            const voice = event[ oscillatorIndex ];
-            if (!voice) return;
-
-            const generator = event[oscillatorIndex].generator;
+    }
+    voiceLists.forEach(( voiceList: EventVoiceList ): void => {
+        if ( !voiceList ) {
+            return;
+        }
+        if ( voiceList.length > oscillatorIndex ) {
+            const voice = voiceList[ oscillatorIndex ];
+            if ( !voice ) {
+                return;
+            }
+            const generator = voiceList[ oscillatorIndex ].generator;
             if ( isOscillatorNode( generator )) {
-                generator.setPeriodicWave(table);
+                ( generator as OscillatorNode ).setPeriodicWave( table );
             }
         }
     });
@@ -186,18 +177,14 @@ export default
 
     /**
      * handle the instruments "key down" event (will trigger noteOn)
-     * @param {{ note: string, octave: number }} pitch
-     * @param {Instrument} instrument to play back the note on
-     * @param {boolean=} record whether to record the note into given instruments pattern list
-     * @param {Object} store root Vuex store
-     * @return {EffluxAudioEvent|null}
+     * note: record defines whether to record the note into given instruments pattern list
      */
-    onKeyDown( pitch, instrument, record, store ) {
+    onKeyDown( pitch: PartialPitch, instrument: Instrument, store: Store<EffluxState>, record = false ): EffluxAudioEvent | null {
         const id = pitchToUniqueId( pitch );
 
-        if ( playingNotes[ id ])
+        if ( playingNotes[ id ]) {
             return null; // note already playing
-
+        }
         const audioEvent  = EventFactory.create( instrument.index );
         audioEvent.note   = pitch.note;
         audioEvent.octave = pitch.octave;
@@ -215,12 +202,10 @@ export default
         return audioEvent;
     },
     /**
-     * handle the instruments "key up" event (will trigger noteOff)
-     * @param {{ note: string, octave: number }} pitch
-     * @param {Object} store root Vuex store
-     * @return {EffluxAudioEvent|null} the audio event that responded to the note off instruction
-    */
-    onKeyUp( pitch, store ) {
+     * handle the instruments "key up" event (will trigger noteOff) and return
+     * the audio event that responded to the note off instruction
+     */
+    onKeyUp( pitch: PartialPitch, store: Store<EffluxState> ): EffluxAudioEvent | null {
         const id     = pitchToUniqueId( pitch );
         const noteVO = playingNotes[ id ];
 
@@ -240,14 +225,9 @@ export default
 
     /**
      * handle a module parameter change for an instrument module
-     *
-     * @param {String} paramId the module parameter identifier
-     * @param {Number} value the module value in 0 - 1 range
-     * @param {Number} instrumentIndex the index of the instrument the paramId's module is attached to
-     * @param {boolean=} record whether to record the param change into given instruments pattern list
-     * @param {Object} store root Vuex store
+     * note: record defines whether to record the param change into given instruments pattern list
      */
-    onParamControlChange( paramId, value, instrumentIndex, record, store ) {
+    onParamControlChange( paramId: string, value: number, instrumentIndex: number, store: Store<EffluxState>, record = false ): void {
         const { min, max } = getParamRange( paramId );
         applyParamChange(
             paramId,
@@ -257,7 +237,7 @@ export default
         if ( record ) {
             const audioEvent = EventFactory.create( instrumentIndex );
             audioEvent.action = ACTION_IDLE;
-            audioEvent.mp     = { module: paramId, value: value * 100 };
+            audioEvent.mp     = { module: paramId, value: value * 100, glide: false };
             recordEventIntoSong( audioEvent, store, false );
         }
     }
@@ -265,13 +245,13 @@ export default
 
 /* private methods */
 
-function pitchToUniqueId( pitch ) {
+function pitchToUniqueId( pitch: PartialPitch ): string {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent, store, markAsRecording = true ) {
+function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxState>, markAsRecording = true ): void {
     const { state, getters, commit } = store;
-    const optData   = { newEvent: true };
+    const optData: any = { newEvent: true };
     const isNoteOff = audioEvent.action === ACTION_NOTE_OFF;
     const isParamChange = audioEvent.action === ACTION_IDLE;
 

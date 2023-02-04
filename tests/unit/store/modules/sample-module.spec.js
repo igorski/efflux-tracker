@@ -7,7 +7,7 @@ const { getters, mutations, actions } = storeModule;
 
 let mockResult;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    default: { getBuffer: jest.fn(() => mockResult ) }
+    getBuffer: jest.fn(() => mockResult )
 }));
 
 describe( "Vuex sample module", () => {

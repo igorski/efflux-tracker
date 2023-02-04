@@ -8,9 +8,7 @@ import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 let mockFn;
 jest.mock( "@/model/factories/sample-factory", () => ({
-    default: {
-        deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
-    }
+    deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
 }));
 jest.mock( "@/model/serializers/sample-serializer", () => ({
     serialize: jest.fn(( ...args ) => mockFn( "serialize", ...args ))

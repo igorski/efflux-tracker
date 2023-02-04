@@ -24,14 +24,9 @@ import { WAV } from "@/definitions/file-types";
 
 /**
  * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
- *
- * @param {AudioBuffer} buffer
- * @param {String} color
- * @param {number=} width of the resulting PNG image
- * @param {number=} height of the resulting PNG image
- * @returns {HTMLCanvasElement}
+ * of provided width and height
  */
-export const bufferToWaveForm = ( buffer, color, width = 400, height = 150 ) => {
+export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150 ): HTMLCanvasElement => {
     const canvas  = document.createElement( "canvas" );
     const ctx     = canvas.getContext( "2d" );
     canvas.width  = width;
@@ -63,14 +58,8 @@ export const bufferToWaveForm = ( buffer, color, width = 400, height = 150 ) => 
 /**
  * Slices given Buffer for given range into a new Buffer.
  * Returns null when an invalid range was requested.
- *
- * @param {AudioContext} audioContext
- * @param {AudioBuffer} buffer
- * @param {Number} begin
- * @param {Number} end
- * @returns {AudioBuffer|null}
  */
-export const sliceBuffer = ( audioContext, buffer, begin, end ) => {
+export const sliceBuffer = ( audioContext: AudioContext, buffer: AudioBuffer, begin: number, end: number ): AudioBuffer | null => {
     const { duration, numberOfChannels, sampleRate } = buffer;
 
     if ( begin < 0 || end > duration ) {
@@ -99,11 +88,8 @@ export const sliceBuffer = ( audioContext, buffer, begin, end ) => {
 
 /**
  * Exports given buffer to a WAV file
- *
- * @param {AudioBuffer} buffer
- * @returns {Blob}
  */
-export const bufferToWAV = buffer => {
+export const bufferToWAV = ( buffer: AudioBuffer ): Blob => {
     const channelAmount = buffer.numberOfChannels;
     const length        = ( buffer.length * channelAmount * 2 ) + 44;
     const outputBuffer  = new ArrayBuffer( length );
@@ -113,12 +99,12 @@ export const bufferToWAV = buffer => {
     let offset = 0;
     let pos    = 0;
 
-    function setUint16( data ) {
+    function setUint16( data: number ): void {
         view.setUint16( pos, data, true );
         pos += 2;
     }
 
-    function setUint32( data ) {
+    function setUint32( data: number ): void {
         view.setUint32( pos, data, true );
         pos += 4;
     }

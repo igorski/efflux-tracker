@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2019-2020 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,16 +20,35 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-let UID = 0;
+// we use an 8-bit range for the hexadecimal values (256 steps)
+// internally we use a 0 - 100 range floating point precision
+const RESOLUTION = 255 / 100;
 
 /**
- * generate a unique identifer (unique as long as all id's
- * are generated through this function ;)
+ * convert given integer value (in 0 - 100 range) to a hexadecimal string
  */
-export const uid = () => `uid_${++UID}`;
+export const toHex = ( value: number ): string => {
+    const hex = Math.round( value * RESOLUTION ).toString( 16 );
+    return ( hex.length === 1 ) ? `0${hex}` : hex;
+};
 
 /**
- * clones given Object into a new Object instance
- * with the same properties
+ * convert given hexadecimal value to a number in the 0 - 100 range
  */
-export const clone = object => JSON.parse( JSON.stringify( object ));
+export const fromHex = ( value: string ): number => parseInt( value, 16 ) / RESOLUTION;
+
+/**
+ * validate whether given value is a valid hexadecimal
+ */
+export const isHex = ( value: string ): boolean => {
+    if ( typeof value !== "string" ) {
+        return false;
+    }
+    const converted = parseInt( value, 16 ).toString( 16 ).toUpperCase();
+
+    // preceding 0 can be stripped (e.g. "00" will convert as "0", which is fine)
+    if ( converted.length !== value.length ) {
+        return ( `0${converted}` ) === value.toUpperCase();
+    }
+    return converted === value.toUpperCase();
+};

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2019 - https://www.igorski.nl
+ * Igor Zinken 2016-2021 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,14 +20,18 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+let UID = 0;
 
 /**
- * translates a given value in the 0 - 100 range, scales it to the
- * length of given Array and returns the associated Array item with
- * the index closest to the resulting scaled value
- *
- * @param {Array<*>} array of items
- * @param {number} value in the 0 - 100 range
- * @return {*} associated array item to scaled value
+ * generate a unique identifer (unique as long as all id's
+ * are generated through this function ;)
  */
-export const rangeToIndex = (array, value) => array[ Math.round( value / ( 100 / ( array.length - 1 ))) ];
+export const uid = (): string => `uid_${++UID}`;
+
+/**
+ * clones given Object into a new Object instance
+ * with the same properties
+ */
+export function clone<T>( object: T ): T {
+    return JSON.parse( JSON.stringify( object ));
+}

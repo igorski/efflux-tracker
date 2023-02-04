@@ -23,11 +23,12 @@
 import Bowser from "bowser";
 
 const d = window.document;
-let fsToggle, fsCallback;
+let fsToggle: Element;
+let fsCallback: () => void;
 
-export const isSupported = () => !Bowser.ios;
+export const isSupported = (): boolean => Bowser.getParser( window.navigator.userAgent ).getOSName( true ) !== "ios";
 
-export const setToggleButton = ( element, callback ) => {
+export const setToggleButton = ( element: Element, callback: () => void ): void => {
     fsToggle = element;
     fsToggle.addEventListener( "click", toggleFullscreen );
 
@@ -41,12 +42,15 @@ export const setToggleButton = ( element, callback ) => {
 
 /* internal methods */
 
-function toggleFullscreen() {
+function toggleFullscreen(): void {
     let requestMethod, element;
+    // @ts-expect-error vendor prefixed fallbacks not declared in spec
     if ( d.fullscreenElement || d.webkitFullscreenElement ) {
+        // @ts-expect-error vendor prefixed fallbacks not declared in spec
         requestMethod = d.exitFullscreen || d.webkitExitFullscreen || d.mozCancelFullScreen || d.msExitFullscreen;
         element = d;
     } else {
+        // @ts-expect-error vendor prefixed fallbacks not declared in spec
         requestMethod = d.body.requestFullScreen || d.body.webkitRequestFullScreen || d.body.mozRequestFullScreen || d.body.msRequestFullscreen;
         element = d.body;
     }
@@ -55,6 +59,7 @@ function toggleFullscreen() {
     }
 }
 
-function handleFullscreenChange() {
+function handleFullscreenChange(): void {
+    // @ts-expect-error vendor prefixed fallbacks not declared in spec
     fsCallback( document.webkitIsFullScreen || document.mozFullScreen || document.msFullscreenElement === true );
 }

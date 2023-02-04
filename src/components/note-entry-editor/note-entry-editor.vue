@@ -259,7 +259,7 @@ export default {
             const noteEvent = { note: name, octave: higher ? this.octave + 1 : this.octave };
             InstrumentUtil.onKeyDown(
                 noteEvent, this.activeSong.instruments[ this.instrument ],
-                this.isRecording, this.$store
+                this.$store, this.isRecording
             );
             this.playingNotes.push( noteEvent );
             this.isKeyDown = true;

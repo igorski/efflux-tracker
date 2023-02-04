@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxSong } from "@/model/types/song";
 import { compress, decompress } from "@/services/compression-service";
 import SongAssemblyService from "@/services/song-assembly-service";
 import { readTextFromFile } from "@/utils/file-util";
@@ -27,24 +28,21 @@ import { readTextFromFile } from "@/utils/file-util";
 /**
  * XTK parser in several stages. Assumes latest binary format but
  * can retry to parse several legacy formats.
- *
- * @param {File|Blob|String} xtkFileOrString
- * @return {Object} parsed Song
  */
-export const parseXTK = async xtkFileOrString => {
+export const parseXTK = async ( xtkFileOrString: File | Blob | string ): Promise<EffluxSong> => {
     const isFile = xtkFileOrString instanceof Blob; // also true for Files
     let songData;
     try {
         // .xtk files are preferably compressed binary files
-        songData = await decompress( xtkFileOrString );
+        songData = await decompress( xtkFileOrString as Blob );
         if ( !songData && isFile ) {
             // however, previous versions were compressed JSON strings
-            songData = await readTextFromFile( xtkFileOrString );
+            songData = await readTextFromFile( xtkFileOrString as Blob );
         }
     } catch {
         // legacy songs were base64 encoded Strings
         // attempt decode for backwards compatibility
-        let xtkString = isFile ? await readTextFromFile( xtkFileOrString ) : xtkFileOrString;
+        let xtkString = isFile ? await readTextFromFile( xtkFileOrString ) : xtkFileOrString as string;
         try {
             songData = window.atob( xtkString );
         } catch {
@@ -59,4 +57,4 @@ export const parseXTK = async xtkFileOrString => {
  * All newly stored .XTK files are serialized
  * as compressed binary files
  */
-export const toXTK = async songJSON => compress( await SongAssemblyService.disassemble( songJSON ));
+export const toXTK = async ( song: EffluxSong ): Promise<Blob> => compress( await SongAssemblyService.disassemble( song ));

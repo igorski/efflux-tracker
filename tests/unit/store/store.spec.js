@@ -6,20 +6,14 @@ import ModalWindows from "@/definitions/modal-windows";
 import store from "@/store";
 const { getters, mutations }  = store;
 
-jest.mock( "undo-manager", () => ({
-    __esModule: true,
-    default: jest.requireActual( "undo-manager" ),
-}));
 jest.mock( "@/workers/worker-factory", () => ({
     LoadSequencerWorker: () => { onmessage: jest.fn() }
 }));
 
 let mockFn;
 jest.mock("@/services/keyboard-service", () => ({
-    default: {
-        syncEditorSlot: jest.fn(( ...args ) => mockFn( "syncEditorSlot", ...args )),
-        setSuspended: jest.fn(( ...args ) => mockFn( "setSuspended", ...args )),
-    }
+    syncEditorSlot: jest.fn(( ...args ) => mockFn( "syncEditorSlot", ...args )),
+    setSuspended: jest.fn(( ...args ) => mockFn( "setSuspended", ...args )),
 }));
 
 describe("Application Vuex store root", () => {

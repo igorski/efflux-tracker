@@ -56,7 +56,7 @@ export default {
             case zMIDIEvent.NOTE_ON:
                 const instrumentIndex = state.editor.selectedInstrument;
                 const instrument = state.song.activeSong.instruments[ instrumentIndex ];
-                InstrumentUtil.onKeyDown( pitch, instrument, state.sequencer.recording, store );
+                InstrumentUtil.onKeyDown( pitch, instrument, store, state.sequencer.recording );
                 break;
 
             case zMIDIEvent.NOTE_OFF:
@@ -75,7 +75,7 @@ export default {
                             if ( pairing ) {
                                 InstrumentUtil.onParamControlChange(
                                     pairing.paramId, value * MIDI_TO_PERCENTILE,
-                                    pairing.instrumentIndex, state.sequencer.recording, store
+                                    pairing.instrumentIndex, store, state.sequencer.recording
                                 );
                             }
                         }

@@ -22,8 +22,13 @@
  */
 import Config from "@/config";
 import PatternFactory from "@/model/factories/pattern-factory";
+import type { EffluxPattern } from "@/model/types/pattern";
 import PatternValidator from "@/model/validators/pattern-validator";
 import { clone } from "@/utils/object-util";
+
+type SerializedPatternList = {
+    patterns: EffluxPattern[]
+};
 
 export default {
     /**
@@ -32,10 +37,10 @@ export default {
      * @param {Array<EffluxPattern>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
      * @param {number} amountOfSteps the amount of steps in the pattern to generate
-     * @param {PATTERN=} pattern optional pattern to inject, otherwise empty pattern is created
+     * @param {EffluxPattern=} pattern optional pattern to inject, otherwise empty pattern is created
      * @return {Array<EffluxPattern>} updated list
      */
-    addPatternAtIndex( patterns, index, amountOfSteps, pattern ) {
+    addPatternAtIndex( patterns: EffluxPattern[], index: number, amountOfSteps: number, pattern?: EffluxPattern ): EffluxPattern[] {
         const front = patterns.slice( 0, index );
         const back  = patterns.slice( index );
 
@@ -43,7 +48,7 @@ export default {
 
         // update event offset for back patterns (as their start/end offsets should now shift)
 
-        back.forEach(pattern => {
+        back.forEach( pattern => {
             pattern.channels.forEach( channel => {
                 channel.forEach( event => {
                     if ( event ) {
@@ -62,7 +67,7 @@ export default {
      * @param {number} index where the generated pattern will be added
      * @return {Array<EffluxPattern>} updated list
      */
-    removePatternAtIndex( patterns, index ) {
+    removePatternAtIndex( patterns: EffluxPattern[], index: number ): EffluxPattern[] {
         patterns.splice( index, 1 );
 
         const front = patterns.slice( 0, index );
@@ -70,7 +75,7 @@ export default {
 
         // update event offset for back patterns (as their start/end offsets should now shift)
 
-        back.forEach(pattern => {
+        back.forEach( pattern => {
             pattern.channels.forEach( channel => {
                 channel.forEach( event => {
                     if ( event ) {
@@ -90,11 +95,11 @@ export default {
  * @param {Array<EffluxPattern>} patterns to serialize
  * @param {number} firstChannel first channel index to serialize pattern data from
  * @param {number} lastChannel last channel index to serialize pattern data from
- * @return {String} base64 encoded PATTERN_FILE_EXTENSION file content
+ * @return {string} base64 encoded PATTERN_FILE_EXTENSION file content
  */
-export const serializePatternFile = ( patterns, firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ) => {
+export const serializePatternFile = ( patterns: EffluxPattern[], firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ): string => {
     // clone the pattern contents
-    const cloned = [];
+    const cloned: EffluxPattern[] = [];
     patterns.forEach( p => {
         const clonedPattern = PatternFactory.create( p.steps );
         for ( let i = firstChannel; i <= lastChannel; ++i ) {
@@ -106,9 +111,9 @@ export const serializePatternFile = ( patterns, firstChannel = 0, lastChannel = 
     return window.btoa( JSON.stringify({ patterns: cloned }));
 };
 
-export const deserializePatternFile = encodedPatternData => {
+export const deserializePatternFile = ( encodedPatternData: string ): EffluxPattern[] => {
     try {
-        const parsed = JSON.parse( window.atob( encodedPatternData ));
+        const parsed = JSON.parse( window.atob( encodedPatternData )) as SerializedPatternList;
         // validate contents
         if ( !Array.isArray( parsed.patterns ) || !parsed.patterns.every( PatternValidator.isValid )) {
             return null;

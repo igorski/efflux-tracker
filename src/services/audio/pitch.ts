@@ -22,6 +22,13 @@
  */
 import Config from "@/config";
 
+export type PartialPitch = {
+    note: string;
+    octave: number;
+};
+
+export type Pitch = PartialPitch & { cents: number };
+
 /**
  * @param {string} aNote - musical note to return ( A, B, C, D, E, F, G with
  *               possible enharmonic notes ( 'b' meaning 'flat', '#' meaning 'sharp' )
@@ -29,7 +36,7 @@ import Config from "@/config";
  * @param {number} aOctave - the octave to return ( accepted range 0 - 9 )
  * @return {number} containing exact frequency in Hz for requested note
  */
-export const getFrequency = ( aNote, aOctave ) => {
+export const getFrequency = ( aNote: string, aOctave: number ): number => {
     let freq;
     let enharmonic = 0;
 
@@ -71,15 +78,8 @@ export const getFrequency = ( aNote, aOctave ) => {
 
 /**
  * takes a frequency in Hz and returns the pitch, octave and cents off the perfect center
- *
- * @param {number} frequency
- * @return {{
- *             note: string,
- *             octave: number,
- *             cents: number
- *         }}
 */
-export const getPitchByFrequency = frequency => {
+export const getPitchByFrequency = ( frequency: number ): Pitch => {
     let note;
 
     const lnote = ( Math.log ( frequency ) - Math.log( 261.626 )) / Math.log( 2 ) + 4.0;
@@ -114,20 +114,14 @@ export const getPitchByFrequency = frequency => {
 
 /**
  * Converts the interval between two frequencies (in Hz) as cents
- * @param {Number} f1 frequency in Hz
- * @param {Number} f2 frequency in Hz
- * @returns {Number} delta in cents
  */
-export const intervalToCents = ( f1, f2 ) => 1200 * Math.log( f2 / f1 ) / Math.log( 2 );
+export const intervalToCents = ( f1: number, f2: number ): number => 1200 * Math.log( f2 / f1 ) / Math.log( 2 );
 
 /**
- * Transpose given note and octave by given amount of semitones
- *
- * @param {string} note
- * @param {number} octave
- * @param {number} semitones to shift by, can be negative for downwards transposition
+ * Transpose given note and octave by given amount of semitones (can be negative
+ * value for downwards transposition)
  */
-export const Transpose = ( note, octave, semitones ) => {
+export const Transpose = ( note: string, octave: number, semitones: number ): PartialPitch => {
     const isPitchDown   = semitones < 0;
     const notesInOctave = Pitch.OCTAVE_SCALE.length;
     const octaves = Math.abs( semitones ) >= notesInOctave ? Math.floor( semitones / notesInOctave ) : 0;
@@ -139,7 +133,7 @@ export const Transpose = ( note, octave, semitones ) => {
 
     return {
         note   : Pitch.OCTAVE_SCALE[( startIndex + semitones ) % notesInOctave ],
-        octave : Math.max( 1, Math.min( Config.MAX_OCTAVE, octave + octaves ))
+        octave : Math.max( 1, Math.min( Config.MAX_OCTAVE, octave + octaves )),
     };
 };
 
@@ -147,16 +141,12 @@ const Pitch =
 {
     /**
      * order of note names within a single octave
-     *
-     * @type {Array<string>}
      */
     OCTAVE_SCALE : [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ],
 
     /**
      * pitch table for all notes from C to B at octave 4
      * is used for calculating all pitches at other octaves
-     *
-     * @type {Array<number>}
      */
     OCTAVE : [ 261.626, 277.183, 293.665, 311.127, 329.628, 349.228, 369.994, 391.995, 415.305, 440, 466.164, 493.883 ],
 
@@ -174,24 +164,23 @@ export default Pitch;
  *
  * @param {string} aNote ( A, B, C, D, E, F, G )
  * @param {number=} aEnharmonic optional, defaults to 0 ( 0, -1 for flat, 1 for sharp )
- * @return {number}
  */
-function getOctaveIndex( aNote, aEnharmonic ) {
-    if ( typeof aEnharmonic !== 'number' )
+function getOctaveIndex( aNote: string, aEnharmonic = 0 ): number {
+    if ( typeof aEnharmonic !== "number" ) {
         aEnharmonic = 0;
-
+    }
     const octave = Pitch.OCTAVE;
     const scale  = Pitch.OCTAVE_SCALE;
 
     for ( let i = 0, j = octave.length; i < j; ++i ) {
         if ( scale[ i ] === aNote ) {
             let k = i + aEnharmonic;
-
-            if ( k > j )
+            if ( k > j ) {
                 return octave[ 0 ];
-            if ( k < 0 )
+            }
+            if ( k < 0 ) {
                 return octave[ octave.length - 1 ];
-
+            }
             return octave[ k ];
         }
     }

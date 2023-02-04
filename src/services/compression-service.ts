@@ -22,28 +22,40 @@
  */
 import { LoadCompressionWorker } from "@/workers/worker-factory";
 
-const jobQueue = [];
+interface WorkerResponse {
+    id: number;
+    cmd: "complete" | "loadError";
+    data: Blob | string | any;
+    error?: any;
+};
+
+interface CompressionJob {
+    id: number;
+    success: ( response: any ) => void;
+    error: ( error: any ) => void;
+};
+
+const jobQueue: CompressionJob[] = [];
 let UID = 0;
 
 /**
  * Compress given data Object (JSON) into an compressed binary Blob.
- * @returns {Promise}
  */
-export const compress = data => createJob( "compress", data );
+export const compress = ( data: any ): Promise<Blob> => createJob( "compress", data );
 
 /**
  * Decompress given data Blob into a JSON structure.
- * @returns {Promise}
  */
-export const decompress = data => createJob( "decompress", data );
+export const decompress = ( data: Blob ): Promise<any> => createJob( "decompress", data );
 
 // same as above but for UTF16 Strings
-export const compressUTF16 = data => createJob( "compressUTF16", data );
-export const decompressUTF16 = data => createJob( "decompressUTF16", data );
+export const compressUTF16 = ( data: any ): Promise<string> => createJob( "compressUTF16", data );
+export const decompressUTF16 = ( data: any ): Promise<string> => createJob( "decompressUTF16", data );
 
 /* internal methods */
 
-function handleWorkerMessage({ data }) {
+function handleWorkerMessage( message: MessageEvent ): void {
+    const { data }: { data: WorkerResponse } = message;
     const jobQueueObj = getJobFromQueue( data?.id );
     if ( data?.cmd === "complete" ) {
         jobQueueObj?.success( data.data );
@@ -53,7 +65,7 @@ function handleWorkerMessage({ data }) {
     }
 }
 
-function createJob( cmd, data ) {
+function createJob( cmd: string, data: any ): Promise<any> {
     return new Promise(( resolve, reject ) => {
         const id = ( ++UID );
         // Worker is lazily created per process so we can parallelize
@@ -62,11 +74,11 @@ function createJob( cmd, data ) {
         const disposeWorker = () => worker.terminate();
         jobQueue.push({
             id,
-            success: response => {
+            success: ( response: any ): void => {
                 disposeWorker();
                 resolve( response );
             },
-            error: error  => {
+            error: ( error: any ): void => {
                 disposeWorker();
                 reject( error );
             }
@@ -75,8 +87,8 @@ function createJob( cmd, data ) {
     })
 }
 
-function getJobFromQueue( jobId ) {
-    const jobQueueObj = jobQueue.find(({ id }) => id === jobId );
+function getJobFromQueue( jobId: number ): CompressionJob {
+    const jobQueueObj = jobQueue.find(( job: CompressionJob ) => job.id === jobId );
     if ( !jobQueueObj ) {
         return null;
     }

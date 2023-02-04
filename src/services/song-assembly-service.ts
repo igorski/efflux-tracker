@@ -30,9 +30,9 @@ export const ASSEMBLER_VERSION = 7;
 const ASSEMBLER_VERSION_CODE = "av";
 
 /**
- * assembles a song Object from an .XTK file
+ * assembles a song from an .XTK file
  */
-export const assemble = async ( xtk: string | any ): Promise<any> => {
+export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> => {
     try {
         xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 

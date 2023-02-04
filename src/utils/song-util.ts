@@ -20,16 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Track } from "midi-writer-js";
 import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxSong } from "@/model/types/song";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
 /**
  * validates whether the song has any pattern content
- *
- * @param {EffluxSong} song
- * @return {boolean}
  */
-export const hasContent = song => {
+export const hasContent = ( song: EffluxSong ): boolean => {
     let hasContent = false;
     song.patterns.forEach( pattern => {
         pattern.channels.forEach( channel => {
@@ -48,7 +48,7 @@ export const hasContent = song => {
  * @param {Array<EffluxPattern>} patterns the Songs patterns
  * @param {number} ratio by which to update the existing values
  */
-export const updateEventOffsets = ( patterns, ratio ) => {
+export const updateEventOffsets = ( patterns: EffluxPattern[], ratio: number ): void => {
     // reverse looping for speed
     let i, j, k, songPattern, channel, pattern;
 
@@ -77,10 +77,8 @@ export const updateEventOffsets = ( patterns, ratio ) => {
 
 /**
  * unset the play state of all of the songs events
- *
- * @param {Array<EffluxPattern>} patterns
  */
-export const resetPlayState = patterns => {
+export const resetPlayState = ( patterns: EffluxPattern[] ): void => {
     patterns.forEach( pattern => {
         pattern.channels.forEach( channel => {
             channel.forEach( event => {
@@ -102,10 +100,10 @@ export const resetPlayState = patterns => {
  * @param {number=} firstInstrument optional index of first instrument to export, defaults to first
  * @param {number=} lastInstrument optional index of last instrument to export, defaults to last
  */
-export const exportAsMIDI = ( midiWriter, song,
-    firstPattern = 0, lastPattern = Infinity, firstInstrument = 0, lastInstrument = Infinity ) => {
+export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
+    firstPattern = 0, lastPattern = Infinity, firstInstrument = 0, lastInstrument = Infinity ): void => {
     // create tracks for each instrument
-    const midiTracks = [];
+    const midiTracks: Track[] = [];
     song.instruments.forEach( instrument => {
         const track = new midiWriter.Track();
         track.setTempo( song.meta.tempo );

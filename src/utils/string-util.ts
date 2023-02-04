@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2020-2022 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,30 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-const months = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ];
+import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 
-export default {
-    /**
-     * convert a given timestamp into a formatted date string
-     *
-     * @param {number} aTimestamp
-     * @return {string}
-     */
-    timestampToDate( aTimestamp = Date.now() ) {
-        const a      = new Date( aTimestamp );
-        const year   = a.getFullYear();
-        const month  = months[a.getMonth()];
-        const date   = a.getDate();
-        const hour   = a.getHours();
-        const min    = a.getMinutes();
-        const sec    = a.getSeconds();
+export const truncate = ( str = "", maxLength = 100 ): string =>
+    str.length > maxLength ? `${str.substr( 0, maxLength )}...` : str;
 
-        return `${date} ${month} ${year} ${prependZero( hour )}:${prependZero( min )}:${prependZero( sec )}`;
-    }
+export const toFileName = ( str: string, extension = PROJECT_FILE_EXTENSION ): string => {
+    return `${str.replace( /([^a-z0-9 ]+)/gi, "-" ).split( " " ).join( "_" )}${extension}`;
 };
-
-/* internal methods */
-
-function prependZero( value ) {
-    return ( value < 10 ) ? `0${value}` : value;
-}
