@@ -37,7 +37,7 @@ import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { Sample } from "@/model/types/sample";
-import type { EffluxSong, StoredEffluxSongDescriptor } from "@/model/types/song";
+import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@/model/types/song";
 import { clone } from "@/utils/object-util";
 import StorageUtil from "@/utils/storage-util";
 import { saveAsFile } from "@/utils/file-util";
@@ -386,7 +386,7 @@ const SongModule: Module<SongState, any> = {
             commit( "showNotification", { message: getters.t( "messages.fileSavedInDropbox", { file: name }) });
         },
         loadSong({ getters, commit, dispatch }: { getters: any, commit: Commit, dispatch: Dispatch },
-            { file, origin = "local" }: { file: string, origin?: string }): Promise<EffluxSong> {
+            { file, origin = "local" }: { file: string, origin?: EffluxSongOrigin }): Promise<EffluxSong> {
             return new Promise( async ( resolve, reject ): Promise<void> => {
                 const song = SongValidator.transformLegacy( await parseXTK( file ));
                 if ( SongValidator.isValid( song )) {

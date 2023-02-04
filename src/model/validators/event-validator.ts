@@ -20,20 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+
 export default
 {
     /**
      * queries whether given Object is a valid event.
      *
      * @see EventFactory
-     *
-     * @public
-     * @param {EffluxAudioEvent} event
-     * @return {boolean}
      */
-    isValid( event ) {
-        if ( !event )
+    isValid( event?: EffluxAudioEvent ): boolean {
+        if ( !event ) {
             return false;
+        }
 
         if ( event.mp ) {
             if ( typeof event.mp.module !== 'string' ||
@@ -63,12 +62,8 @@ export default
 
     /**
      * verify whether given AudioEvent has content
-     *
-     * @public
-     * @param {EffluxAudioEvent} audioEvent
-     * @return {boolean}
      */
-    hasContent( audioEvent ){
+    hasContent( audioEvent: EffluxAudioEvent ): boolean {
         return (
             typeof audioEvent.instrument === 'number' && audioEvent.instrument  >= 0 &&
             typeof audioEvent.note       === 'string' && audioEvent.note.length > 0 &&

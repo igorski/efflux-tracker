@@ -22,6 +22,8 @@
  */
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import { FACTORY_VERSION, LEGACY_VERSION } from "@/model/factories/song-factory";
+import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
+import type { EffluxSong } from "@/model/types/song";
 
 export default
 {
@@ -31,11 +33,8 @@ export default
      * songs outline
      *
      * @see SongFactory
-     *
-     * @param {EffluxSong} song
-     * @return {boolean}
      */
-    isValid( song ) {
+    isValid( song?: EffluxSong ): boolean {
         if ( !song ) {
             return false;
         }
@@ -48,11 +47,8 @@ export default
     /**
      * transforms a legacy Song so its description contains
      * all properties available to newer factory versions
-     *
-     * @param {EffluxSong} song
-     * @return {EffluxSong}
      */
-    transformLegacy( song ) {
+    transformLegacy( song?: EffluxSong ): EffluxSong {
         if ( !song || !song.instruments ) {
             return null;
         }
@@ -61,16 +57,16 @@ export default
             return song; // latest version of factory, nothing to transform
         }
         song.version = LEGACY_VERSION;
-        song.instruments.forEach(( instrument ) => {
+        song.instruments.forEach(( instrument: Instrument ): void => {
             // panning and mute/solo controls added at a later stage
-            
+
             instrument.muted   = false;
             instrument.solo    = false;
             instrument.panning = instrument.panning || 0;
 
             // pitch envelope was added in version 2 of SongAssemblyService
 
-            instrument.oscillators.forEach(( oscillator ) => {
+            instrument.oscillators.forEach(( oscillator: InstrumentOscillator ): void => {
                 if ( typeof oscillator.pitch !== "object" ) {
                     InstrumentFactory.createPitchEnvelope( oscillator );
                 }
@@ -82,7 +78,7 @@ export default
                 InstrumentFactory.createEQ( instrument );
             }
 
-            if ( typeof instrument.od !== "object" ) {
+            if ( typeof instrument.overdrive !== "object" ) {
                 InstrumentFactory.createOverdrive( instrument );
             }
 
@@ -90,7 +86,9 @@ export default
                 instrument.delay.dry = 1.0; // delay dry control added in version 7 of SongAssemblyService
             }
 
+            // @ts-expect-error Property 'id' does not exist on type 'Instrument'.
             if ( typeof instrument.index === "undefined" && typeof instrument.id === "number" ) {
+                // @ts-expect-error Property 'id' does not exist on type 'Instrument'.
                 instrument.index = instrument.id; // legacy songs used id for index
             }
         });

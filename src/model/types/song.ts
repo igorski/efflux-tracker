@@ -32,6 +32,8 @@ export type EffluxSongMeta = {
     tempo: number;
 };
 
+export type EffluxSongOrigin = "local" | "dropbox" | undefined;
+
 /**
  * type definition for a Song
  *
@@ -44,7 +46,7 @@ export type EffluxSong = {
     instruments: Instrument[];
     patterns: EffluxPattern[];
     samples: Sample[];
-    origin?: 'local' | 'dropbox' | undefined
+    origin?: EffluxSongOrigin;
 };
 
 export type StoredEffluxSongDescriptor = {

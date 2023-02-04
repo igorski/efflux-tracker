@@ -20,6 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxPattern } from "@/model/types/pattern";
+
 export default
 {
     /**
@@ -28,11 +30,8 @@ export default
      * patterns outline
      *
      * @see PatternFactory
-     *
-     * @param {EffluxPattern} pattern
-     * @return {boolean}
      */
-    isValid( pattern ) {
+    isValid( pattern?: EffluxPattern ): boolean {
         if ( !pattern ) {
             return false;
         }
