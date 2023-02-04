@@ -26,7 +26,7 @@ module.exports = {
         ]
     },
     entry: {
-        tiny: "./src/tiny-player/efflux-tiny-player.js"
+        tiny: "./src/tiny-player/efflux-tiny-player.ts"
     },
     output: {
         library: "eTiny",

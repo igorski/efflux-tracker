@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2022 - https://www.igorski.nl
+ * Igor Zinken 2019-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -25,48 +25,73 @@
  * main application to maximize compatibility and keeping up-to-date with
  * changes. The TinyPlayer however does not use Vue nor its reactivity.
  *
- * TinyPlayer plays back songs that were saved using SongAssemblyService version 4
+ * TinyPlayer plays back songs that were saved using SongAssemblyService version 4 and up
  */
 
-// destructure imports from Efflux source to only include what we need
-
+// note we destructure imports from Efflux source to only include what we need
+import type { Store, ActionTree, MutationTree } from "vuex";
 import sequencerModule from "@/store/modules/sequencer-module";
+import type { SequencerState } from "@/store/modules/sequencer-module";
+import type { SongState } from "@/store/modules/song-module";
 import { assemble } from "@/services/song-assembly-service";
 import { getPitchByFrequency } from "@/services/audio/pitch";
 import { resetPlayState } from "@/utils/song-util";
 import SampleFactory from "@/model/factories/sample-factory";
+import { WAVE_TABLES } from "@/model/serializers/instrument-serializer";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
+import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
+import type { Instrument } from "@/model/types/instrument";
+import type { EffluxPattern } from "@/model/types/pattern";
+import type { Sample } from "@/model/types/sample";
+import type { EffluxSong } from "@/model/types/song";
 import {
     prepareEnvironment, reset, cacheCustomTables, applyModules, noteOn, noteOff
 } from "@/services/audio-service";
+import type { Pitch } from "@/services/audio/pitch";
+import type { EffluxState } from "@/store";
+
+type TinyEvent = Pitch & { instrument: number, action: number, mp: EffluxAudioEventModuleParams };
 
 // short hands, note these variable names can be as long/descriptive as
 // you want, inline variables will compress to single digits on build
-const WINDOW = window, TRUE = !!1, FALSE = !!0;
+const WINDOW = window;
+const TRUE = !!1;
+const FALSE = !!0;
 
 // environment variables
-let audioContext, activeSong, event;
-const { state, mutations, actions } = sequencerModule; // take all we need from Vuex sequencer module
+let audioContext: AudioContext;
+let activeSong: EffluxSong;
+let event: TinyEvent;
 
-const sampleCache = new Map();
+// take all we need from Vuex sequencer module
+const state: SequencerState = sequencerModule.state as SequencerState;
+const mutations: MutationTree<SequencerState> = sequencerModule.mutations!;
+const actions: ActionTree<SequencerState, any> = sequencerModule.actions!;
+
+const sampleCache: Map<string, Sample> = new Map();
 
 // mock Vuex root store
-const rootStore = {
-    state: { sequencer: state, song: {} },
+const rootStore: Store<EffluxState> = {
+    // @ts-expect-error state not complete
+    state: {
+        sequencer: state,
+        song: {} as unknown as SongState,
+    },
     getters: { sampleCache },
-    commit( mutationType, value ) {
+    commit( mutationType: string, value?: any ): void {
         mutations[ mutationType ]( state, value );
     }
 };
 
 // helpers
 
-const jp = i => mutations.setPosition( state, { activeSong, pattern: i });
+const jp = ( i: number ): void => mutations.setPosition( state, { activeSong, pattern: i });
 
 // logging
-const { console } = WINDOW;
-const log = ( type = "log", message, optData ) => {
-    console && console[ type ]( message, optData );
+const log = ( type = "log", message: string, optData?: any ): void => {
+    const c = WINDOW.console;
+    // @ts-expect-error No index signature with a parameter of type 'string' was found on type 'Console'
+    c && c[ type ]( message, optData );
 };
 
 export default {
@@ -81,11 +106,12 @@ export default {
      *        to call this method after a user interaction to prevent muted playback)
      * @return {boolean} whether player is ready for playback
      */
-    l: async ( xtkObject, optExternalEventCallback, optAudioContext ) => {
+    l: async ( xtkObject: string | any, optExternalEventCallback?: () => void, optAudioContext?: AudioContext ): Promise<boolean> => {
         try {
             if ( optAudioContext ) {
                 audioContext = optAudioContext;
             } else if ( !audioContext ) {
+                // @ts-expect-error vendor prefix not a valid typedef
                 audioContext = new ( WINDOW.AudioContext || WINDOW.webkitAudioContext )();
             }
             xtkObject = typeof xtkObject === "string" ? JSON.parse( xtkObject ) : xtkObject;
@@ -99,18 +125,19 @@ export default {
 
             // 2. assemble waveTables from stored song
 
-            const waveTables = xtkObject.wt || {};
+            const waveTables: Record<string, any> = xtkObject[ WAVE_TABLES ] || {};
 
             // 3. all is well, set up environment
 
             prepareEnvironment( audioContext, waveTables, optExternalEventCallback );
+            // @ts-expect-error Type 'ActionObject<SequencerState, any>' has no call signatures.
             actions.prepareSequencer({ state }, rootStore );
 
             rootStore.state.song.activeSong = activeSong;
 
             reset();
             cacheCustomTables( activeSong.instruments );
-            activeSong.samples?.forEach( sample => {
+            activeSong.samples?.forEach(( sample: Sample ): void => {
                 sampleCache.set( sample.name, {
                     ...sample,
                     buffer: SampleFactory.getBuffer( sample, audioContext )
@@ -130,20 +157,20 @@ export default {
     /**
      * Play loaded song
      */
-    p: () => {
+    p: (): void => {
         mutations.setPlaying( state, TRUE );
     },
     /**
      * Stop playing song
      */
-    s: () => {
+    s: (): void => {
         mutations.setPlaying( state, FALSE );
         resetPlayState( activeSong.patterns ); // unset playing state of existing events
     },
     /**
      * Jump to pattern at given index
      */
-    j: i => {
+    j: ( i: number ): void => {
         jp( i );
     },
     /**
@@ -151,9 +178,9 @@ export default {
      * instruments and effects defined in the loaded song
      *
      * @param {Object}
-     * @return {Object} generated event object, to be used when invoking off()
+     * @return {TinyEvent} generated event object, to be used when invoking off()
      */
-    on: ({ f, i, a, mp, t }) => {
+    on: ({ f, i, a, mp, t } : { f: number, i: number, a?: number, mp?: EffluxAudioEventModuleParams, t: number }): TinyEvent => {
         event = {
             instrument: i,
             action: a || ACTION_NOTE_ON,
@@ -161,15 +188,15 @@ export default {
             ...getPitchByFrequency( f ) // TODO: we can also supply note and octave directly?
         };
         // TODO: no sample playback in tiny player
-        noteOn( event, activeSong.instruments[ i ], new Map(), t );
+        noteOn( event as unknown as EffluxAudioEvent, activeSong.instruments[ i ], new Map(), t );
         return event;
     },
     /**
      * Halt playing of a note triggered with on()
      *
-     * @param {Object} e event Object of the note returned by the on() method
+     * @param {TinyEvent} e event Object of the note returned by the on() method
      */
-    off: e => {
+    off: ( e: TinyEvent ): void => {
         noteOff( e );
     },
     /**
@@ -177,5 +204,5 @@ export default {
      * in case you which to create an external hook (for instance
      * to create an audio visualizer)
      */
-    a: () => audioContext
+    a: (): AudioContext => audioContext
 };
