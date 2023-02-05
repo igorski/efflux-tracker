@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2019 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -20,30 +20,40 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+interface SequencerRequest {
+    cmd: "start" | "stop";
+    interval?: number;
+};
+
 const DEFAULT_POLLING_INTERVAL = 25;
-let timer, data;
+
+let seqTimer: any;
+let seqData: SequencerRequest;
 
 // SequencerWorker leverages the intervallic polling
 // of the Sequencer events off the main execution thread
 
-self.addEventListener('message', event => {
-    data = event.data;
+self.addEventListener( "message", ( event: MessageEvent ): void => {
+    seqData = event.data;
 
-    if ( data !== undefined ) {
-        switch ( data.cmd ) {
-            case 'start':
+    if ( seqData === undefined ) {
+        return;
+    }
 
-                clearInterval( timer );
-                timer = setInterval(() => {
-                    self.postMessage({ cmd: 'collect' });
-                }, typeof data.interval === 'number' ? data.interval : DEFAULT_POLLING_INTERVAL );
-                break;
+    switch ( seqData.cmd ) {
+        default:
+            break;
 
-            case 'stop':
+        case "start":
+            clearInterval( seqTimer );
+            seqTimer = setInterval(() => {
+                self.postMessage({ cmd: "collect" });
+            }, typeof seqData.interval === "number" ? seqData.interval : DEFAULT_POLLING_INTERVAL );
+            break;
 
-                clearInterval( timer );
-                timer = null;
-                break;
-        }
+        case "stop":
+            clearInterval( seqTimer );
+            seqTimer = null;
+            break;
     }
 }, false );

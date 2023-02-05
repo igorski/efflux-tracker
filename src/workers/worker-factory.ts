@@ -22,15 +22,15 @@
 */
 export const LoadSequencerWorker = (): Worker => {
     // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es20...
-    return new Worker( new URL( "@/workers/sequencer.worker.js", import.meta.url ));
+    return new Worker( new URL( "@/workers/sequencer.worker.ts", import.meta.url ));
 };
 
 export const LoadRecorderWorker = (): Worker => {
     // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es20...
-    return new Worker( new URL( "@/workers/recorder.worker.js", import.meta.url ));
+    return new Worker( new URL( "@/workers/recorder.worker.ts", import.meta.url ));
 };
 
 export const LoadCompressionWorker = (): Worker => {
     // @ts-expect-error The 'import.meta' meta-property is only allowed when the '--module' option is 'es20...
-    return new Worker( new URL( "@/workers/compression.worker.js", import.meta.url ));
+    return new Worker( new URL( "@/workers/compression.worker.ts", import.meta.url ));
 };

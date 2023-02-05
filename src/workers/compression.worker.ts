@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,22 +20,30 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+// @ts-expect-error no types for lz-string
 import LZString from "lz-string";
 
-self.addEventListener( "message", event => {
-    const { cmd, data, id } = event.data;
-    switch ( cmd )
-    {
+interface CompressionRequest {
+    id: number;
+    cmd: "compress" | "decompress" | "compressUTF16" | "decompressUTF16";
+    data: Blob | string | any;
+};
+
+self.addEventListener( "message", ( event: MessageEvent ): void => {
+    const { cmd, data, id } = ( event.data as CompressionRequest );
+    switch ( cmd ) {
         default:
             break;
 
-        // to be used with .XTK format
+        // 1. to be used with .XTK format
         // this works with binary File data
+
         case "compress":
             try {
                 const blob = new Blob([
                     LZString.compressToBase64( JSON.stringify( data ))
                 ], { type: "text/plain;charset=utf-8" });
+
                 self.postMessage({ cmd: "complete", id, data: blob });
             } catch ( error ) {
                 self.postMessage({ cmd: "loadError", id, error });
@@ -43,7 +51,7 @@ self.addEventListener( "message", event => {
             break;
 
         case "decompress":
-            readTextFromFile( data )
+            readTextFromFile( data as Blob )
                 .then( fileData => {
                     const decompressed = LZString.decompressFromBase64( fileData );
                     self.postMessage({ cmd: "complete", id, data: JSON.parse( decompressed ) });
@@ -53,8 +61,9 @@ self.addEventListener( "message", event => {
                 });
             break;
 
-        // to be used with local storage format
+        // 2. to be used with local storage format
         // this works with UTF-16 encoded Strings
+
         case "compressUTF16":
             const compressedString = LZString.compressToUTF16( data );
             self.postMessage({ cmd: "complete", id, data: compressedString });
@@ -70,11 +79,11 @@ self.addEventListener( "message", event => {
 
 /* internal methods */
 
-function readTextFromFile( file, optEncoding = "UTF-8" ) {
+function readTextFromFile( file: Blob, optEncoding = "UTF-8" ): Promise<string> {
     const reader = new FileReader();
-    return new Promise(( resolve, reject ) => {
+    return new Promise(( resolve, reject ): void => {
         reader.onload = event => {
-            resolve( event.target.result );
+            resolve( event.target.result as string );
         };
         reader.onerror = reject;
         reader.readAsText( file, optEncoding );
