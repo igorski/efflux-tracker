@@ -53,16 +53,19 @@ export interface SongState {
     songs: StoredEffluxSongDescriptor[];
     activeSong: EffluxSong | null;
     showSaveMessage: boolean;
-    statesOnSave: number;
+    statesOnSave: number; // the last amount of available history states on song save (used to detect changes)
 }
 
+export const createSongState = ( props?: Partial<SongState> ): SongState => ({
+    songs: [],
+    activeSong: null,
+    showSaveMessage: true,
+    statesOnSave: 0,
+    ...props
+});
+
 const SongModule: Module<SongState, any> = {
-    state: (): SongState => ({
-        songs           : [], /** @type {Array<Object>} */
-        activeSong      : null,
-        showSaveMessage : true,
-        statesOnSave    : 0, // the last amount of available history states on song save (used to detect changes)
-    }),
+    state: (): SongState => createSongState(),
     getters: {
         songs       : ( state: SongState ): StoredEffluxSongDescriptor[] => state.songs,
         activeSong  : ( state: SongState ): EffluxSong => state.activeSong,

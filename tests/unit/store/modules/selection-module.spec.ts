@@ -1,22 +1,23 @@
-import SelectionModule from "@/store/modules/selection-module";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import SelectionModule, { createSelectionState } from "@/store/modules/selection-module";
+import type { SelectionState } from "@/store/modules/selection-module";
+import type { EffluxState } from "@/store";
 
 const { getters, mutations } = SelectionModule;
 
-describe("Vuex selection module", () => {
-    let state;
+describe( "Vuex selection module", () => {
+    let state: SelectionState;
+
     beforeEach(() => {
-        state = {
-            firstSelectedChannel: 0,
-            lastSelectedChannel: 0,
-            selectedChannels: [],
-            actionCache: {
-                channelOnSelection: 0,
-            }
-        };
+        state = createSelectionState();
     });
 
-    describe("getters", () => {
-        it("should know the full length of its selection", () => {
+    const mockGetters: any = {};
+    const mockRootState: EffluxState = {} as EffluxState;
+    const mockRootGetters: any = {};
+
+    describe( "getters", () => {
+        it( "should know the full length of its selection", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 1 });
             const min = 0;
             const max = 16;
@@ -25,33 +26,33 @@ describe("Vuex selection module", () => {
 
             const expected = ( max - min ) + 1; // 1 as a single step is already a selection
 
-            expect(expected).toEqual(getters.getSelectionLength(state));
+            expect( getters.getSelectionLength( state, mockGetters, mockRootState, mockRootGetters )).toEqual( expected );
         });
 
-        it("should know whether it has a selection", () => {
-            expect(getters.hasSelection(state)).toBe(false);
+        it( "should know whether it has a selection", () => {
+            expect( getters.hasSelection( state, mockGetters, mockRootState, mockRootGetters )).toBe(false);
 
-            mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 4 });
-            mutations.setSelection(state, { selectionStart: 0, selectionEnd: 16 });
+            mutations.setSelectionChannelRange( state, { firstChannel: 0, lastChannel: 4 });
+            mutations.setSelection( state, { selectionStart: 0, selectionEnd: 16 });
 
-            expect(getters.hasSelection(state)).toBe(true);
+            expect( getters.hasSelection( state, mockGetters, mockRootState, mockRootGetters )).toBe( true );
         });
 
-        it("should know whether there is a range of copied events in the selection state", () => {
-            const state = { copySelection: null };
-            expect( getters.hasCopiedEvents( state )).toBe( false );
+        it( "should know whether there is a range of copied events in the selection state", () => {
+            const state = createSelectionState();
+            expect( getters.hasCopiedEvents( state, mockGetters, mockRootState, mockRootGetters )).toBe( false );
 
             state.copySelection = [];
-            expect( getters.hasCopiedEvents( state )).toBe( false );
+            expect( getters.hasCopiedEvents( state, mockGetters, mockRootState, mockRootGetters )).toBe( false );
 
-            state.copySelection = [{ foo: "bar" }];
-            expect( getters.hasCopiedEvents( state )).toBe( true );
+            state.copySelection = [[{ id: 12 } as EffluxAudioEvent ]];
+            expect( getters.hasCopiedEvents( state, mockGetters, mockRootState, mockRootGetters )).toBe( true );
         });
     });
 
-    describe("mutations", () => {
-        it("should be able to select multiple channels for its selection", () => {
-             mutations.setSelectionChannelRange(state, { firstChannel: 0 });
+    describe( "mutations", () => {
+        it( "should be able to select multiple channels for its selection", () => {
+             mutations.setSelectionChannelRange( state, { firstChannel: 0 });
 
              expect(1).toEqual(state.selectedChannels.length);
 
@@ -62,7 +63,7 @@ describe("Vuex selection module", () => {
              expect(3).toEqual(state.lastSelectedChannel);
         });
 
-        it("should add indices to its current selection", () => {
+        it( "should add indices to its current selection", () => {
             let min = 0, i;
             const max = 16;
 
@@ -74,7 +75,7 @@ describe("Vuex selection module", () => {
             }
         });
 
-        it("should know the minimum and maximum indices of its selection", () => {
+        it( "should know the minimum and maximum indices of its selection", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0 }); // select a single channel
 
             let min = 0;
@@ -87,7 +88,7 @@ describe("Vuex selection module", () => {
             expect(max).toEqual(state.maxSelectedStep);
         });
 
-        it("should add not add the same index twice to its current selection", () => {
+        it( "should add not add the same index twice to its current selection", () => {
             const activeChannel = 0, max = 1;
 
             mutations.setSelectionChannelRange(state, { firstChannel: activeChannel, lastChannel: max });
@@ -100,19 +101,19 @@ describe("Vuex selection module", () => {
             expect(2).toEqual(state.selectedChannels[activeChannel].length);
         });
 
-        it("should be able to clear its selection", () => {
-            mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 1 });
+        it( "should be able to clear its selection", () => {
+            mutations.setSelectionChannelRange( state, { firstChannel: 0, lastChannel: 1 });
 
-            mutations.setSelection(state, { selectionStart: 0, selectionEnd: 1 });
-            mutations.setSelection(state, { selectionStart: 0, selectionEnd: 2 });
+            mutations.setSelection( state, { selectionStart: 0, selectionEnd: 1 });
+            mutations.setSelection( state, { selectionStart: 0, selectionEnd: 2 });
 
-            mutations.clearSelection(state);
+            mutations.clearSelection( state );
 
-            expect(0).toEqual(state.selectedChannels.length);
-            expect(getters.hasSelection(state)).toBe(false);
+            expect( state.selectedChannels ).toHaveLength( 0 );
+            expect(getters.hasSelection( state, mockGetters, mockRootState, mockRootGetters )).toBe(false);
         });
 
-        it("should be able to equalize the selection for all channels", () => {
+        it( "should be able to equalize the selection for all channels", () => {
             mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 3 });
 
             const activeChannel = 0;
@@ -122,17 +123,19 @@ describe("Vuex selection module", () => {
             mutations.setSelection(state, { selectionStart: 0, selectionEnd: max });
             mutations.equalizeSelection(state);
 
-            expect(JSON.stringify(state.selectedChannels[activeChannel])).toEqual(JSON.stringify(state.selectedChannels[otherChannel]));
+            expect(
+                JSON.stringify( state.selectedChannels[ activeChannel ])
+            ).toEqual( JSON.stringify(state.selectedChannels[ otherChannel ]));
         });
 
-        it("should treat a single step as 1 unit range", () => {
-            mutations.setSelectionChannelRange(state, { firstChannel: 0, lastChannel: 1 });
-            mutations.setSelection(state, { selectionStart: 0 });
+        it( "should treat a single step as 1 unit range", () => {
+            mutations.setSelectionChannelRange( state, { firstChannel: 0, lastChannel: 1 });
+            mutations.setSelection( state, { selectionStart: 0 });
 
-            expect(1).toEqual(getters.getSelectionLength(state));
+            expect( getters.getSelectionLength( state, mockGetters, mockRootState, mockRootGetters)).toEqual( 1 );
         });
 
-        it("should be able to expand and shrink its selection when starting key selection to the right", () => {
+        it( "should be able to expand and shrink its selection when starting key selection to the right", () => {
             let keyCode = 39; // right
             let selectedChannel = 2;
             const selectedStep  = 1;
@@ -174,7 +177,7 @@ describe("Vuex selection module", () => {
             expect( state.lastSelectedChannel ).toEqual( 2 );
         });
 
-        it("should be able to expand and shrink its selection when starting key selection to the left", () => {
+        it( "should be able to expand and shrink its selection when starting key selection to the left", () => {
             let keyCode = 37; // left
             let selectedChannel = 2;
             const selectedStep  = 1;

@@ -5,6 +5,7 @@ import Config from "@/config";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import { serialize } from "@/model/serializers/pattern-serializer";
+import type { EffluxChannel } from "@/model/types/channel";
 import PatternValidator from "@/model/validators/pattern-validator";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
@@ -34,7 +35,8 @@ describe( "PatternFactory", () => {
     });
 
     it( "should be able to generate a pattern with optionally passed channel list", () => {
-        const channels = [[ 0, 1, 2 ], [ 1, 1, 0 ]];
+        // @ts-expect-error number is not assignable to EffluxAudioEvent
+        const channels: EffluxChannel[] = [[ 0, 1, 2 ], [ 1, 1, 0 ]];
         const pattern = PatternFactory.create( 4, channels );
         expect( pattern.channels ).toEqual( channels );
     });

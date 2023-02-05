@@ -3,10 +3,12 @@
  */
 import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
+import type { Sample } from "@/model/types/sample";
 import SongValidator from "@/model/validators/song-validator";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
+import { createSample } from "../../mocks";
 
-let mockFn;
+let mockFn: ( fnName: string, ...args: any ) => Promise<any>;
 jest.mock( "@/model/factories/sample-factory", () => ({
     deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
 }));
@@ -24,7 +26,7 @@ describe( "Song factory", () => {
     describe( "when assembling and disassembling a Song structure", () => {
         it( "should serialize all samples asynchronously", async () => {
             const song = SongFactory.create( 1 );
-            song.samples = [{ name: "foo" }, { name: "bar" }];
+            song.samples = [ createSample( "foo" ), createSample( "bar" )];
 
             mockFn = jest.fn();
             await serialize( song );
@@ -35,9 +37,10 @@ describe( "Song factory", () => {
 
         it( "should deserialize all samples asynchronously", async () => {
             const song = SongFactory.create( 1 );
-            song.samples = [{ name: "foo" }, { name: "bar" }];
+            song.samples = [ createSample( "foo" ), createSample( "bar" )];
 
-            mockFn = ( fn, item ) => Promise.resolve( item );
+            // @ts-expect-error fn is declared but never used
+            mockFn = ( fn: string, item: any ): Promise<any> => Promise.resolve( item );
             const xtk = await serialize( song );
 
             mockFn = jest.fn();

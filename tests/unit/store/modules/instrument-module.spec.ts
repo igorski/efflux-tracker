@@ -2,8 +2,12 @@
  * @jest-environment jsdom
  */
 import OscillatorTypes from "@/definitions/oscillator-types";
-import InstrumentModule, { INSTRUMENT_STORAGE_KEY } from "@/store/modules/instrument-module";
+import type { EffluxState } from "@/store";
+import InstrumentModule, { createInstrumentState, INSTRUMENT_STORAGE_KEY } from "@/store/modules/instrument-module";
 import InstrumentFactory from "@/model/factories/instrument-factory";
+import type { XTKSample } from "@/model/serializers/sample-serializer";
+import type { InstrumentSerialized } from "@/model/types/instrument";
+import { createSample } from "../../mocks";
 
 const { getters, mutations, actions } = InstrumentModule;
 
@@ -15,7 +19,7 @@ jest.mock( "@/utils/storage-util", () => ({
     setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
     removeItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "removeItem", ...args )))
 }));
-let mockSampleFn;
+let mockSampleFn: ( fnName: string, ...args: any ) => Promise<any>;
 jest.mock( "@/model/factories/sample-factory", () => ({
     deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args )))
 }));
@@ -29,34 +33,40 @@ describe( "Vuex instrument module", () => {
     const instrument = InstrumentFactory.create( 0 );
     instrument.presetName = "foo";
 
-    let state;
-
     describe( "getters", () => {
+        const mockedGetters: any = {};
+        const mockRootState: EffluxState = {} as EffluxState;
+        const mockRootGetters: any = {};
+
         it( "should be able to retrieve all registered instruments", () => {
-            state = {
-                instruments: [{ foo: "bar" }, { baz: "qux" }]
-            };
-            expect(getters.getInstruments(state)).toEqual(state.instruments);
+            const state = createInstrumentState({
+                instruments: [{ presetName: "bar" }, { presetName: "baz" }]
+            });
+            expect(
+                getters.getInstruments( state, mockedGetters, mockRootState, mockRootGetters )
+            ).toEqual( state.instruments );
         });
 
         it( "should be able to retrieve individual instruments by their preset name", () => {
-            state = { instruments: [instrument] };
-            expect(getters.getInstrumentByPresetName(state)(instrument.presetName)).toEqual(instrument);
+            const state = createInstrumentState({ instruments: [ instrument ] });
+            expect(
+                getters.getInstrumentByPresetName( state, mockedGetters, mockRootState, mockRootGetters )( instrument.presetName )
+            ).toEqual( instrument );
         });
     });
 
     describe( "mutations", () => {
         it( "should be able to set the instruments", () => {
-            const state = { instruments: [] };
-            const instruments = [{ foo: "bar" }];
+            const state = createInstrumentState();
+            const instruments = [{ presetName: "bar" }];
             mutations.setInstruments(state, instruments);
             expect(state.instruments).toEqual(instruments);
         });
 
         it( "should be able to set the given instruments preset name", () => {
-            const ins = InstrumentFactory.create(0);
-            mutations.setPresetName(state, { instrument: ins, presetName: "quux" });
-            expect(ins.presetName).toEqual("quux");
+            const ins = InstrumentFactory.create( 0 );
+            mutations.setPresetName( createInstrumentState(), { instrument: ins, presetName: "quux" });
+            expect( ins.presetName ).toEqual( "quux" );
         });
     });
 
@@ -67,7 +77,8 @@ describe( "Vuex instrument module", () => {
                 let thrown = false;
 
                 try {
-                    await actions.saveInstrumentIntoLS({ state, getters: {}, dispatch }, invalidInstrument);
+                    // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+                    await actions.saveInstrumentIntoLS({ state: createInstrumentState(), getters: {}, dispatch }, invalidInstrument);
                 } catch ( e ) {
                     thrown = true;
                 }
@@ -76,8 +87,9 @@ describe( "Vuex instrument module", () => {
             });
 
             it( "should be able to save instruments in storage", async () => {
-                state = { instruments: [] };
+                const state = createInstrumentState();
 
+                // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
                 await actions.saveInstrumentIntoLS({ state, getters: {}, dispatch }, instrument );
 
                 // expected instruments meta to have been saved into the instruments list
@@ -91,8 +103,8 @@ describe( "Vuex instrument module", () => {
                 sampledInstrument.presetName = "thisIsNowValid";
 
                 // mock song sample contents
-                const sample1 = { name: "foo" };
-                const sample2 = { name: "bar" };
+                const sample1 = createSample( "foo" );
+                const sample2 = createSample( "bar" );
                 const mockedGetters = { samples: [ sample1, sample2 ] };
 
                 // make instrument oscillator reference samples
@@ -109,7 +121,8 @@ describe( "Vuex instrument module", () => {
 
                 mockSampleFn = jest.fn();
 
-                await actions.saveInstrumentIntoLS({ state, getters: mockedGetters, dispatch }, sampledInstrument );
+                // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+                await actions.saveInstrumentIntoLS({ state: createInstrumentState(), getters: mockedGetters, dispatch }, sampledInstrument );
 
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
                 expect( mockSampleFn ).toHaveBeenNthCalledWith( 1, "serialize", sample1 );
@@ -119,20 +132,22 @@ describe( "Vuex instrument module", () => {
 
         describe( "when loading instruments", () => {
             it( "should be able to load the serialized samples into the songs sample storage", async () => {
-                const mockStoredInstrument = InstrumentFactory.create( 0 );
+                const mockStoredInstrument = InstrumentFactory.create( 0 ) as unknown as InstrumentSerialized;
                 mockStoredInstrument.presetName = "foo";
-                mockStoredInstrument.oscillators[ 0 ].sample = { serializedSample: "foo" };
-                mockStoredInstrument.oscillators[ 1 ].sample = { serializedSample: "bar" };
+                mockStoredInstrument.oscillators[ 0 ].sample = { n: "foo" } as XTKSample;
+                mockStoredInstrument.oscillators[ 1 ].sample = { n: "bar" } as XTKSample;
 
                 mockStorageFn = jest.fn(() => JSON.stringify( mockStoredInstrument ));
-                mockSampleFn  = jest.fn((( fn, oscSample ) => ({ name: oscSample.serializedSample }) ));
+                // @ts-expect-error fn is declared but its value is never read.
+                mockSampleFn  = jest.fn((( fn, oscSample ) => ({ name: oscSample.n }) ));
                 const commit  = jest.fn();
 
                 // mock song sample contents NOTE the sample serialized in the first oscillator
                 // is already available. We can use this to verify only undefined samples are deserialized and set
-                const sample1 = { name: "foo" };
+                const sample1 = createSample( "foo" );
                 const mockedGetters = { samples: [ sample1 ] };
 
+                // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
                 await actions.loadInstrumentFromLS({ getters: mockedGetters, commit }, { presetName: mockStoredInstrument.presetName });
 
                 // assert serialized instrument has been retrieved from storage
@@ -152,8 +167,9 @@ describe( "Vuex instrument module", () => {
         });
 
         it( "should be able to delete instruments from storage", async () => {
-            state = { instruments: [ instrument ] };
+            const state = createInstrumentState({ instruments: [ instrument ] });
 
+            // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
             await actions.deleteInstrument({ state }, { instrument });
 
             expect( state.instruments ).toHaveLength( 0 );

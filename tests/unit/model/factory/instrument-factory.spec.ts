@@ -14,45 +14,51 @@ describe( "InstrumentFactory", () => {
     });
 
     it( "should be able to retrieve an existing WaveTable for an oscillator", () => {
-        const oscillator = InstrumentFactory.createOscillator();
-        const table = oscillator.table = [];
+        const oscillator = InstrumentFactory.createOscillator( true );
+        const table = oscillator.table = [] as number[];
 
         // expected InstrumentFactory to have returned set WaveTable unchanged
-        expect(table).toEqual(InstrumentFactory.getTableForOscillator(oscillator));
+        expect(table).toEqual(InstrumentFactory.getTableForOscillator( oscillator ));
     });
 
     it( "should be able to lazily create a WaveTable for an oscillator", () => {
-        const oscillator = InstrumentFactory.createOscillator();
-        const table = InstrumentFactory.getTableForOscillator(oscillator);
+        const oscillator = InstrumentFactory.createOscillator( true );
+        const table = InstrumentFactory.getTableForOscillator( oscillator );
 
-        expect(table instanceof Array).toBe(true); // expected InstrumentFactory to have generated a WaveTable unchanged
+        // expected InstrumentFactory to have generated a WaveTable unchanged
+        expect( table instanceof Array ).toBe( true );
 
-        let i = table.length;
-        while (i--)
-            expect(0).toEqual(table[i]); // expected generated WaveTable to contain silence
+        const tableArr = table as number[];
+
+        let i = tableArr.length;
+        while ( i-- ) {
+            // expected generated WaveTable to contain silence
+            expect( tableArr[ i ]).toEqual( 0 );
+        }
     });
 
     it( "should be able to generate a WaveTable for an oscillator at any given size", () => {
-        const oscillator = InstrumentFactory.createOscillator();
+        const oscillator = InstrumentFactory.createOscillator( true );
         const size = Math.round(Math.random() * 500) + 1;
-        const table = InstrumentFactory.getTableForOscillator(oscillator, size);
+        const table = InstrumentFactory.getTableForOscillator( oscillator, size );
 
-        expect(size).toEqual(table.length); // expected InstrumentFactory to have generated a WaveTable of requested size
+        // expected InstrumentFactory to have generated a WaveTable of requested size
+        expect( table as number[] ).toHaveLength( size );
     });
 
     it( "should add the pitch envelope section to legacy instruments", () => {
-        const instrument = InstrumentFactory.create(0, "foo");
+        const instrument = InstrumentFactory.create( 0, "foo" );
 
         // ensure no pitch envelopes exist
 
-        instrument.oscillators.forEach((oscillator) => {
+        instrument.oscillators.forEach( oscillator => {
             delete oscillator.pitch;
         });
 
-        const clonedInstrument = InstrumentFactory.loadPreset(instrument, 1, "bar");
+        const clonedInstrument = InstrumentFactory.loadPreset( instrument, 1, "bar" );
 
-        clonedInstrument.oscillators.forEach((oscillator) => {
-            expect(typeof oscillator.pitch).toBe("object");
+        clonedInstrument.oscillators.forEach( oscillator => {
+            expect( typeof oscillator.pitch ).toBe( "object" );
         });
     });
 

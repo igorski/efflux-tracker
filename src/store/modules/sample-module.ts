@@ -27,15 +27,18 @@ import type { Sample } from "@/model/types/sample";
 import AudioService from "@/services/audio-service";
 
 export interface SampleState {
-    currentSampleId: string | null;
-    sampleCache: Map<string, Sample>;
+    currentSampleId: string | null; // id of sample currently being edited
+    sampleCache: Map<string, Sample>; // contains all sample buffers available for playback
 };
 
+export const createSampleState = ( props?: Partial<SampleState> ): SampleState => ({
+    currentSampleId: null,
+    sampleCache: new Map(),
+    ...props
+});
+
 const SampleModule: Module<SampleState, any> = {
-    state: (): SampleState => ({
-        currentSampleId: null,  // id of sample currently being edited
-        sampleCache: new Map(), // contains all sample buffers available for playback
-    }),
+    state: (): SampleState => createSampleState(),
     getters: {
         currentSample: ( state: SampleState, getters: any ): Sample => {
             return getters.samples.find(( s: Sample ) => s.id === state.currentSampleId );

@@ -21,6 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import OscillatorTypes from "@/definitions/oscillator-types";
+import type { XTKSample } from "@/model/serializers/sample-serializer";
 import type { Sample } from "@/model/types/sample";
 
 /**
@@ -71,6 +72,21 @@ export type Instrument = {
     }
 };
 
+export type InstrumentAmplitudeEnvelopes = {
+    attack : number;
+    decay  : number;
+    sustain: number;
+    release: number;
+};
+
+export type InstrumentPitchEnvelopes = {
+    range  : number;
+    attack : number;
+    decay  : number;
+    sustain: number;
+    release: number;
+};
+
 /**
  * type definition for an instruments oscillator
  * waveform is an enumeration which can be any of @/definitions/oscillator-types
@@ -93,22 +109,10 @@ export type InstrumentOscillator = {
     detune      : number;
     octaveShift : number;
     fineShift   : number;
-    sample      : string;
+    sample      : string; // name ref at runtime, XTKSample when serialized
     adsr        : InstrumentAmplitudeEnvelopes,
     pitch?      : InstrumentPitchEnvelopes;
 };
 
-export type InstrumentAmplitudeEnvelopes = {
-    attack : number;
-    decay  : number;
-    sustain: number;
-    release: number;
-};
-
-export type InstrumentPitchEnvelopes = {
-    range  : number;
-    attack : number;
-    decay  : number;
-    sustain: number;
-    release: number;
-};
+export type InstrumentOscillatorSerialized = Omit<InstrumentOscillator, "sample"> & { sample: XTKSample };
+export type InstrumentSerialized = Omit<Instrument, "oscillators"> & { oscillators: InstrumentOscillatorSerialized[] };

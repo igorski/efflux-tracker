@@ -1,15 +1,18 @@
 /**
  * @jest-environment jsdom
  */
+import type { Store } from "vuex";
 import { initHistory, hasQueue, queueLength, flushQueue, enqueueState } from "@/model/factories/history-state-factory";
+import type { EffluxState } from "@/store";
 
 describe( "History state factory", () => {
-    let store;
+    let store: Store<EffluxState>;
 
     beforeEach(() => {
         store = {
+            state: {} as EffluxState,
             commit: jest.fn(),
-        };
+        } as unknown as Store<EffluxState>;
         flushQueue();
         initHistory( store );
         jest.useFakeTimers( "legacy" );
@@ -86,7 +89,7 @@ describe( "History state factory", () => {
     });
 
     it( "should be able to flush the queue and cancel pending timeouts", () => {
-        enqueueState({ undo: jest.fn(), redo: jest.fn() });
+        enqueueState( "foo", { undo: jest.fn(), redo: jest.fn() });
         flushQueue();
         expect( clearTimeout ).toHaveBeenCalledTimes( 1 );
         expect( hasQueue() ).toBe( false );

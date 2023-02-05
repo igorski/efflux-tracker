@@ -24,17 +24,17 @@ import type { ActionContext, Commit, Dispatch, Module } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
 import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
-import OscillatorTypes     from "@/definitions/oscillator-types";
-import FixturesLoader      from "@/services/fixtures-loader";
-import StorageUtil         from "@/utils/storage-util";
-import createAction        from "@/model/factories/action-factory";
+import OscillatorTypes from "@/definitions/oscillator-types";
+import FixturesLoader from "@/services/fixtures-loader";
+import StorageUtil from "@/utils/storage-util";
+import createAction from "@/model/factories/action-factory";
 import { createFromSaved } from "@/model/factories/instrument-factory";
-import SampleFactory       from "@/model/factories/sample-factory";
+import SampleFactory from "@/model/factories/sample-factory";
 import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
-import type { Instrument } from "@/model/types/instrument";
+import type { Instrument, InstrumentSerialized } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import InstrumentValidator from "@/model/validators/instrument-validator";
-import { clone }           from "@/utils/object-util";
+import { clone } from "@/utils/object-util";
 import { openFileBrowser, readTextFromFile, saveAsFile } from "@/utils/file-util";
 
 export const INSTRUMENT_STORAGE_KEY = "Efflux_Ins_";
@@ -46,14 +46,17 @@ export interface InstrumentState {
     instruments: ( Instrument | InstrumentMeta )[];
 };
 
+export const createInstrumentState = ( props?: Partial<InstrumentState> ): InstrumentState => ({
+    instruments: [],
+    ...props
+});
+
 type InstrumentMeta = {
     presetName: string;
 };
 
 const InstrumentModule: Module<InstrumentState, any> = {
-    state: (): InstrumentState => ({
-        instruments : []
-    }),
+    state: (): InstrumentState => createInstrumentState(),
     getters: {
         getInstruments( state: InstrumentState ): ( Instrument | InstrumentMeta )[] {
             return state.instruments;
@@ -255,7 +258,7 @@ const InstrumentModule: Module<InstrumentState, any> = {
             return new Promise( async ( resolve, reject ): Promise<void> => {
                 if ( Array.isArray( state.instruments ) && state.instruments.length > 0 ) {
                     // retrieve all instrument data
-                    const instruments = [];
+                    const instruments: InstrumentSerialized[] = [];
                     for ( const ins of state.instruments ) {
                         const instrument = await dispatch( "loadInstrumentFromLS", getters.getInstrumentByPresetName( ins.presetName ));
                         instruments.push( await serializeInstrument( instrument, getters.samples ));
@@ -276,7 +279,7 @@ const getMetaForInstrument = ( instrument: Instrument ): InstrumentMeta => ({
     presetName: instrument.presetName,
 });
 
-const downloadInstrumentFile = ( instrumentList: Instrument[], fileName: string ): void => {
+const downloadInstrumentFile = ( instrumentList: InstrumentSerialized[], fileName: string ): void => {
     // encode instrument data
     const data = window.btoa( JSON.stringify( instrumentList ));
 
@@ -288,16 +291,18 @@ const downloadInstrumentFile = ( instrumentList: Instrument[], fileName: string 
 
 const persistState = ( state: InstrumentState ): Promise<void> => StorageUtil.setItem( Config.LOCAL_STORAGE_INSTRUMENTS, JSON.stringify( state.instruments ));
 
-const serializeInstrument = async ( instrumentToSave: Instrument, songSampleList: Sample[] ): Promise<Instrument> => {
-    const instrument = clone( instrumentToSave ) as Instrument;
+const serializeInstrument = async ( instrumentToSave: Instrument, songSampleList: Sample[] ): Promise<InstrumentSerialized> => {
+    const instrument = clone( instrumentToSave ) as unknown as InstrumentSerialized; // note type cast
 
     // serialize used samples (these are managed by the song, but on import/export
     // of individual instruments these are serialized as part of the instrument "bundle")
+
     for ( const oscillator of instrument.oscillators ) {
         if ( oscillator.waveform !== OscillatorTypes.SAMPLE ) {
             continue;
         }
-        const sampleEntity = songSampleList.find(( s: Sample ) => s.name === oscillator.sample );
+        const sampleName = oscillator.sample as unknown as string; // original instrument has string, serialized will have XTKSample
+        const sampleEntity = songSampleList.find(( s: Sample ) => s.name === sampleName );
         if ( sampleEntity ) {
             oscillator.sample = await serializeSample( sampleEntity );
         }

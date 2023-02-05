@@ -1,24 +1,29 @@
 /**
  * @jest-environment jsdom
  */
-import EventUtil          from '@/utils/event-util';
-import LinkedList         from '@/utils/linked-list';
-import EventFactory       from '@/model/factories/event-factory';
-import PatternFactory     from '@/model/factories/pattern-factory';
-import SongFactory        from '@/model/factories/song-factory';
-import { ACTION_NOTE_ON } from '@/model/types/audio-event';
+import { D_MODULES } from "@/definitions/automatable-parameters";
+import EventFactory from "@/model/factories/event-factory";
+import PatternFactory from "@/model/factories/pattern-factory";
+import SongFactory from "@/model/factories/song-factory";
+import { ACTION_NOTE_ON } from "@/model/types/audio-event";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EffluxChannel } from "@/model/types/channel";
+import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxSong } from "@/model/types/song";
+import EventUtil from "@/utils/event-util";
+import LinkedList from "@/utils/linked-list";
 
-describe( 'EventUtil', () => {
-    let song;
+describe( "EventUtil", () => {
+    let song: EffluxSong;
 
     beforeEach(() => {
-        song = SongFactory.create(8);
+        song = SongFactory.create( 8 );
     });
 
     /* actual unit tests */
 
-    it( 'should, when no length is given, calculate the duration as the minimum unit relative to the patterns length', () => {
-        const pattern     = song.patterns[ 0 ];
+    it( "should, when no length is given, calculate the duration as the minimum unit relative to the patterns length", () => {
+        const pattern = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
         const audioEvent = EventFactory.create();
@@ -40,8 +45,8 @@ describe( 'EventUtil', () => {
         expect(audioEvent.seq.length).toEqual(expectedLength);
     });
 
-    it( 'should be able to update the position of a AudioEvent', () => {
-        const pattern   = song.patterns[ 0 ];
+    it( "should be able to update the position of a AudioEvent", () => {
+        const pattern = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
         const expectedStartOffset        = 2;
@@ -61,8 +66,8 @@ describe( 'EventUtil', () => {
         expect(audioEvent.seq.length).toEqual(expectedLength);
     });
 
-    it( 'should be able to update the position of an AudioEvent that spans several measures in duration', () => {
-        const pattern     = song.patterns[ 0 ];
+    it( "should be able to update the position of an AudioEvent that spans several measures in duration", () => {
+        const pattern = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
         const expectedStartOffset        = 0;
@@ -82,9 +87,9 @@ describe( 'EventUtil', () => {
         expect(expectedLength).toEqual(audioEvent.seq.length);
     });
 
-    it( 'should be able to clear the AudioEvent content for any requested step position', () => {
+    it( "should be able to clear the AudioEvent content for any requested step position", () => {
         const patternIndex = 0;
-        const pattern      = song.patterns[ patternIndex ];
+        const pattern = song.patterns[ patternIndex ];
 
         // generate some note content
 
@@ -93,10 +98,10 @@ describe( 'EventUtil', () => {
 
         // create some AudioEvents
 
-        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, 'E', 2, 1 );
-        const expected2 = pchannel1[ 1 ] = EventFactory.create( 1, 'F', 3, 1 );
-        const expected3 = pchannel2[ 0 ] = EventFactory.create( 1, 'F#',4, 1 );
-        const expected4 = pchannel2[ 1 ] = EventFactory.create( 1, 'G', 5, 1 );
+        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, "E", 2, 1 );
+        const expected2 = pchannel1[ 1 ] = EventFactory.create( 1, "F", 3, 1 );
+        const expected3 = pchannel2[ 0 ] = EventFactory.create( 1, "F#",4, 1 );
+        const expected4 = pchannel2[ 1 ] = EventFactory.create( 1, "G", 5, 1 );
 
         // start clearing individual events and asserting the results
 
@@ -116,9 +121,9 @@ describe( 'EventUtil', () => {
         expect(expected4).toEqual(pchannel2[ 1 ]);
     });
 
-    it( 'should be able to remove the AudioEvent from the cached LinkedList when clearing the event', () => {
+    it( "should be able to remove the AudioEvent from the cached LinkedList when clearing the event", () => {
         const patternIndex = 0;
-        const pattern      = song.patterns[ patternIndex ];
+        const pattern = song.patterns[ patternIndex ];
 
         // generate some note content
 
@@ -127,8 +132,8 @@ describe( 'EventUtil', () => {
 
         // create some AudioEvents
 
-        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, 'E', 2, 1 );
-        const expected2 = pchannel2[ 1 ] = EventFactory.create( 1, 'F', 3, 1 );
+        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, "E", 2, 1 );
+        const expected2 = pchannel2[ 1 ] = EventFactory.create( 1, "F", 3, 1 );
 
         const list = new LinkedList();
 
@@ -143,9 +148,9 @@ describe( 'EventUtil', () => {
         expect(null).toEqual(list.getNodeByData( expected2 ));
     });
 
-    describe('calculating previous and next events for any given event', () => {
-        it( 'should be able to retrieve the first event before the given step', () => {
-            const channelEvents = [];
+    describe("calculating previous and next events for any given event", () => {
+        it( "should be able to retrieve the first event before the given step", () => {
+            const channelEvents: EffluxChannel = [];
 
             const event1 = EventFactory.create();
             const event2 = EventFactory.create();
@@ -162,30 +167,30 @@ describe( 'EventUtil', () => {
             expect(null).toEqual(EventUtil.getFirstEventBeforeStep( channelEvents, 0 ));
         });
 
-        it( 'should be able to retrieve the first event before the given step that matches given compare function', () => {
-            const channelEvents = [];
+        it( "should be able to retrieve the first event before the given step that matches given compare function", () => {
+            const channelEvents: EffluxChannel = [];
 
             const event1 = EventFactory.create();
             const event2 = EventFactory.create();
             const event3 = EventFactory.create();
 
-            event1.mp = { 'foo': 'bar' };
+            event1.mp = { value: 0.5, glide: false, module: D_MODULES[ 0 ] };
 
             channelEvents.push( event1 ); // step 0
             channelEvents.push( event2 ); // step 1
             channelEvents.push( event3 ); // step 2
 
-            expect(event1).toEqual(EventUtil.getFirstEventBeforeStep( channelEvents, 2, ( compareEvent ) => {
-                return compareEvent.mp && compareEvent.mp.foo === 'bar';
+            expect(event1).toEqual( EventUtil.getFirstEventBeforeStep( channelEvents, 2, ( compareEvent ) => {
+                return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 0 ];
             }));
         });
 
-        it( 'should be able to retrieve the first event before the given event', () => {
+        it( "should be able to retrieve the first event before the given event", () => {
             const patterns = [
                 { channels: [ new Array(2), new Array(2) ] },
                 { channels: [ new Array(2), new Array(2) ] },
                 { channels: [ new Array(2), new Array(2) ] }
-            ];
+            ] as EffluxPattern[];
 
             const event1 = EventFactory.create();
             const event2 = EventFactory.create();
@@ -210,12 +215,12 @@ describe( 'EventUtil', () => {
             expect(event2).toEqual(EventUtil.getFirstEventBeforeEvent(patterns, 1, 0, event3));
         });
 
-        it( 'should be able to retrieve the first event before the given event that matches given compare function', () => {
+        it( "should be able to retrieve the first event before the given event that matches given compare function", () => {
             const patterns = [
                 { channels: [ new Array(2) ] },
                 { channels: [ new Array(2) ] },
                 { channels: [ new Array(2) ] }
-            ];
+            ] as EffluxPattern[];
 
             const event1 = EventFactory.create();
             const event2 = EventFactory.create();
@@ -227,19 +232,19 @@ describe( 'EventUtil', () => {
             patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
             patterns[0].channels[0].push( event3 ); // pattern 1, channel 1, step 4
 
-            event1.mp = { 'foo': 'bar' };
+            event1.mp = { value: 0.5, glide: false, module: D_MODULES[ 1 ] };
 
             expect(event1).toEqual(EventUtil.getFirstEventBeforeEvent( patterns, 0, 0, event3, ( compareEvent ) => {
-                return compareEvent.mp && compareEvent.mp.foo === 'bar';
+                return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 1 ];
             }));
         });
 
-        it( 'should be able to retrieve the first event after the given event', () => {
+        it( "should be able to retrieve the first event after the given event", () => {
             const patterns = [
                 { channels: [ new Array(2), new Array(2) ] },
                 { channels: [ new Array(2), new Array(2) ] },
                 { channels: [ new Array(2), new Array(2) ] }
-            ];
+            ] as EffluxPattern[];
 
             const event1 = EventFactory.create();
             const event2 = EventFactory.create();
@@ -264,12 +269,12 @@ describe( 'EventUtil', () => {
             expect(event3).toEqual(EventUtil.getFirstEventAfterEvent(patterns, 0, 0, event2));
         });
 
-        it( 'should be able to retrieve the first event after the given event that matches given compare function', () => {
+        it( "should be able to retrieve the first event after the given event that matches given compare function", () => {
             const patterns = [
                 { channels: [ new Array(2) ] },
                 { channels: [ new Array(2) ] },
                 { channels: [ new Array(2) ] }
-            ];
+            ] as EffluxPattern[];
 
             const event1 = EventFactory.create();
             const event2 = EventFactory.create();
@@ -281,19 +286,19 @@ describe( 'EventUtil', () => {
             patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
             patterns[0].channels[0].push( event3 ); // pattern 1, channel 1, step 4
 
-            event3.mp = { 'foo': 'bar' };
+            event3.mp = { value: 0.5, glide: false, module: D_MODULES[ 2 ] };
 
             expect(event3).toEqual(EventUtil.getFirstEventAfterEvent( patterns, 0, 0, event1, ( compareEvent ) => {
-                return compareEvent.mp && compareEvent.mp.foo === 'bar';
+                return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 2 ];
             }));
         });
     });
 
-    describe('event length calculations', () => {
-        it( 'should update the sequence length of the previous event when linking a new event in the linked event list', () => {
+    describe("event length calculations", () => {
+        it( "should update the sequence length of the previous event when linking a new event in the linked event list", () => {
             const patternIndex  = 0;
             const channelIndex  = 0;
-            const lists         = [ new LinkedList() ]; // just a single list (we'll test on channel 0)
+            const lists         = [ new LinkedList() ]; // just a single list (we"ll test on channel 0)
             song.meta.tempo     = 120; // 120 BPM means each measure lasts for 2 seconds
 
             const event1step = 0; // step 0 is at start offset of 0 seconds
@@ -312,18 +317,18 @@ describe( 'EventUtil', () => {
             expect(event1.seq.length).toEqual(.5); // expected event 1 sequence length to have been updated to match insertion before previous next Node
         });
 
-        it( 'should update the sequence length of the previous event when linking a new event in another measure ' +
-            'in the linked event list', () => {
+        it( "should update the sequence length of the previous event when linking a new event in another measure " +
+            "in the linked event list", () => {
             const pattern1Index = 0;
             const pattern2Index = 2;
             const patternAmount = pattern2Index + 1;
             const channelIndex  = 0;
-            const lists         = [ new LinkedList() ]; // we'll operate on a single channel (0)
+            const lists: LinkedList[] = [ new LinkedList() ]; // we"ll operate on a single channel (0)
 
-            for ( let i = 0; i < patternAmount; ++i )
+            for ( let i = 0; i < patternAmount; ++i ) {
                 song.patterns[ i ] = PatternFactory.create( 16 );
-
-            song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
+            }
+            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
 
             const event1step = 0; // step 0 is at start offset of 0 seconds
             const event2step = 4; // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM)
@@ -344,11 +349,11 @@ describe( 'EventUtil', () => {
             expect(event1.seq.length).toEqual(.5); // expected event 1 sequence length to have been updated to match insertion before previous next Node
         });
 
-        it( 'should update the sequence length of the previous event when clearing a event in the linked event list', () => {
+        it( "should update the sequence length of the previous event when clearing a event in the linked event list", () => {
             const patternIndex = 0;
             const channelIndex = 0;
-            const lists        = [ new LinkedList() ]; // just a single list (we'll test on channel 0)
-            song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
+            const lists: LinkedList[] = [ new LinkedList() ]; // just a single list (we"ll test on channel 0)
+            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
 
             const event1step = 0;  // step 0 is at start offset of 0 seconds
             const event2step = 4;  // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM))
@@ -368,11 +373,11 @@ describe( 'EventUtil', () => {
             expect(event1.seq.length).toEqual(1.5); // expected event 1 sequence length to have updated after removal of its next event
         });
 
-        it( 'should update the sequence length of the given event when prepending a new event in the linked event list', () => {
-            const patternIndex  = 0;
-            const channelIndex  = 0;
-            const lists         = [ new LinkedList() ]; // just a single list (we'll test on channel 0)
-            song.meta.tempo     = 120; // 120 BPM means each measure lasts for 2 seconds
+        it( "should update the sequence length of the given event when prepending a new event in the linked event list", () => {
+            const patternIndex = 0;
+            const channelIndex = 0;
+            const lists: LinkedList[] = [ new LinkedList() ]; // just a single list (we"ll test on channel 0)
+            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
 
             const event1step = 0; // step 0 is at start offset of 0 seconds
             const event2step = 8; // step 8 is at start offset of 1 second (half a 16 step measure at 120 BPM)
@@ -381,23 +386,23 @@ describe( 'EventUtil', () => {
             createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
 
             const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
-            const event3     = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
+            const event3 = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
 
             expect(event3.seq.length).toEqual(.5);
         });
 
-        it( 'should update the sequence length of the given event when prepending a new event in another measure ' +
-            'in the linked event list', () => {
+        it( "should update the sequence length of the given event when prepending a new event in another measure " +
+            "in the linked event list", () => {
             const pattern1Index = 0;
             const pattern2Index = 2;
             const patternAmount = pattern2Index + 1;
             const channelIndex  = 0;
-            const lists         = [ new LinkedList() ]; // we'll operate on a single channel (0)
+            const lists: LinkedList[] = [ new LinkedList() ]; // we"ll operate on a single channel (0)
 
-            for ( let i = 0; i < patternAmount; ++i )
+            for ( let i = 0; i < patternAmount; ++i ) {
                 song.patterns[ i ] = PatternFactory.create( 16 );
-
-            song.meta.tempo    = 120; // 120 BPM means each measure lasts for 2 seconds
+            }
+            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
 
             const event1step = 0; // step 0 is at start offset of 0 seconds
             const event2step = 4; // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM)
@@ -415,12 +420,12 @@ describe( 'EventUtil', () => {
         });
     });
 
-    describe('module parameter gliding', () => {
-        it( 'should not be able to glide when there are no 2 events defined', () => {
+    describe("module parameter gliding", () => {
+        it( "should not be able to glide when there are no 2 events defined", () => {
             const patternIndex = 0;
             const channelIndex = 0;
-            const eventIndex   = 0;
-            const lists        = [ new LinkedList() ];
+            const eventIndex = 0;
+            const lists: LinkedList[] = [ new LinkedList() ];
 
             const event = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
             const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists );
@@ -429,11 +434,11 @@ describe( 'EventUtil', () => {
             expect(event.mp).toEqual(undefined); // expected no module parameter change to be set
         });
 
-        it( 'should not be able to glide when there are no 2 events with module parameter changes defined', () => {
+        it( "should not be able to glide when there are no 2 events with module parameter changes defined", () => {
             const patternIndex = 0;
             const channelIndex = 0;
-            const eventIndex   = 0;
-            const lists        = [ new LinkedList() ];
+            const eventIndex = 0;
+            const lists: LinkedList[] = [ new LinkedList() ];
 
             const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
             const event2 = createNoteOnEvent( eventIndex + 5, song, patternIndex, channelIndex, lists );
@@ -444,24 +449,24 @@ describe( 'EventUtil', () => {
             expect(event2.mp).toEqual(undefined); // expected no module parameter change to be set
         });
 
-        it( 'should not be able to glide when there are no 2 events with the same module parameter changes defined', () => {
+        it( "should not be able to glide when there are no 2 events with the same module parameter changes defined", () => {
             const patternIndex = 0;
             const channelIndex = 0;
-            const eventIndex   = 0;
-            const event2Index  = eventIndex + 5;
-            const lists        = [ new LinkedList() ];
+            const eventIndex = 0;
+            const event2Index = eventIndex + 5;
+            const lists: LinkedList[] = [ new LinkedList() ];
 
             const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
             const event2 = createNoteOnEvent( event2Index, song, patternIndex, channelIndex, lists );
 
             event1.mp = {
-                module: 'foo',
+                module: "foo",
                 value: 0,
                 glide: false
             };
 
             event2.mp = {
-                module: 'bar',
+                module: "bar",
                 value: 1,
                 glide: false
             };
@@ -471,24 +476,24 @@ describe( 'EventUtil', () => {
             expect(success).toBe(null); // expected glide to have failed as no same module parameter changes were available
         });
 
-        it( 'should be able to glide up when there are 2 events with the same module parameter changes defined', () => {
+        it( "should be able to glide up when there are 2 events with the same module parameter changes defined", () => {
             const patternIndex = 0;
             const channelIndex = 0;
-            const eventIndex   = 0;
-            const event2Index  = eventIndex + 4;
-            const lists        = [ new LinkedList() ];
+            const eventIndex = 0;
+            const event2Index = eventIndex + 4;
+            const lists: LinkedList[] = [ new LinkedList() ];
 
             const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
             const event2 = createNoteOnEvent( event2Index, song, patternIndex, channelIndex, lists );
 
             event1.mp = {
-                module: 'foo',
+                module: "foo",
                 value: 0,
                 glide: false
             };
 
             event2.mp = {
-                module: 'foo',
+                module: "foo",
                 value: 1,
                 glide: false
             };
@@ -501,30 +506,30 @@ describe( 'EventUtil', () => {
             const expectedValues = [ 0, .25, .5, .75, 1 ];
             for ( let i = eventIndex, e = 0; i < event2Index; ++i, ++e ) {
                 const event = events[ i ];
-                expect(typeof event).toBe('object');
+                expect(typeof event).toBe("object");
                 expect(event.mp.glide).toBe(true); // expected event module parameter change to be set to glide
                 expect(expectedValues[ e ].toFixed(2)).toEqual(event.mp.value.toFixed(2));
             }
         });
 
-        it( 'should be able to glide down when there are 2 events with the same module parameter changes defined', () => {
+        it( "should be able to glide down when there are 2 events with the same module parameter changes defined", () => {
             const patternIndex = 0;
             const channelIndex = 0;
-            const eventIndex   = 0;
-            const event2Index  = eventIndex + 4;
-            const lists        = [ new LinkedList() ];
+            const eventIndex = 0;
+            const event2Index = eventIndex + 4;
+            const lists: LinkedList[] = [ new LinkedList() ];
 
             const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
             const event2 = createNoteOnEvent( event2Index, song, patternIndex, channelIndex, lists );
 
             event1.mp = {
-                module: 'foo',
+                module: "foo",
                 value: 0.75,
                 glide: false
             };
 
             event2.mp = {
-                module: 'foo',
+                module: "foo",
                 value: 0.25,
                 glide: false
             };
@@ -537,7 +542,7 @@ describe( 'EventUtil', () => {
             const expectedValues = [ 0.75, 0.625, 0.5, 0.375, 0.25 ];
             for ( let i = eventIndex, e = 0; i < event2Index; ++i, ++e ) {
                 const event = events[ i ];
-                expect(typeof event).toBe('object');
+                expect(typeof event).toBe("object");
                 expect(event.mp.glide).toBe(true); // expected event module parameter change to be set to glide
                 expect(event.mp.value.toFixed(2)).toEqual(expectedValues[ e ].toFixed(2));
             }
@@ -547,8 +552,8 @@ describe( 'EventUtil', () => {
 
 /* internal methods */
 
-function createNoteOnEvent( step, song, patternIndex, channelIndex, lists ) {
-    const event   = EventFactory.create( channelIndex, 'C', 3, ACTION_NOTE_ON );
+function createNoteOnEvent( step: number, song: EffluxSong, patternIndex: number, channelIndex: number, lists: LinkedList[] ): EffluxAudioEvent {
+    const event = EventFactory.create( channelIndex, "C", 3, ACTION_NOTE_ON );
     const pattern = song.patterns[ patternIndex ];
 
     pattern.channels[ channelIndex ][ step ] = event;

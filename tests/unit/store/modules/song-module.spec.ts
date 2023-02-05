@@ -1,16 +1,24 @@
 /**
  * @jest-environment jsdom
  */
-import songModule    from "@/store/modules/song-module";
+import type { MutationTree, ActionTree } from "vuex";
+import songModule, { createSongState } from "@/store/modules/song-module";
+import type { SongState } from "@/store/modules/song-module";
+import SongFactory from "@/model/factories/song-factory";
+import type { Sample } from "@/model/types/sample";
+import type { EffluxSong, EffluxSongMeta } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
+import { createSample } from "../../mocks";
 
-const { getters, mutations, actions } = songModule;
+const getters: any = songModule.getters;
+const mutations: MutationTree<SongState> = songModule.mutations;
+const actions: ActionTree<SongState, any> = songModule.actions;
 
 // mocks
 
-let mockFn;
+let mockFn: ( fnName: string, ...args: any ) => void;
 jest.mock( "@/services/dropbox-service", () => ({
-    uploadBlob: jest.fn(( ...args ) => mockFn( "uploadBlob", ...args )),
+    uploadBlob: jest.fn(( ...args ): void => mockFn( "uploadBlob", ...args )),
     getCurrentFolder: jest.fn(() => "folder")
 }));
 jest.mock( "@/utils/file-util", () => ({
@@ -27,33 +35,43 @@ jest.mock( "@/utils/xtk-util", () => ({
 }));
 
 describe( "Vuex song module", () => {
+    const createSong = ( props?: Partial<EffluxSong> ): EffluxSong => {
+        const song = SongFactory.create( 8 );
+        return {
+            ...song,
+            ...props
+        };
+    };
+
     describe( "getters", () => {
         it( "should be able to retrieve all the songs", () => {
-            const state = { songs: [] };
+            const state = createSongState({ songs: [] });
             expect( getters.songs( state )).toEqual( state.songs );
         });
 
         it( "should be able to retrieve the active song", () => {
-            const state = { activeSong: {} };
+            const state = createSongState({ activeSong: createSong() });
             expect( getters.activeSong( state )).toEqual( state.activeSong );
         });
 
         it( "should be able to retrieve all registered samples within the active song", () => {
-            const state = {
-                activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ] }
-            };
+            const state = createSongState({
+                activeSong: createSong({
+                    samples: [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" ) ]
+                })
+            });
             expect( getters.samples( state )).toEqual( state.activeSong.samples );
         });
 
         it( "should be able to retrieve individual songs by their id", async () => {
-            const song = await actions.createSong();
-            const state = { songs: [ song ] };
+            const song = SongFactory.create( 8 );
+            const state = createSongState({ songs: [ song ] } as unknown);
             const retrieved = getters.getSongById( state )( song.id );
             expect( song ).toEqual( retrieved );
         });
 
         it( "should be able to detect changes to the currently loaded song", () => {
-            const state = { statesOnSave: 10 };
+            const state = createSongState({ statesOnSave: 10 });
             const mockedGetters = { totalSaved: 10 };
 
             expect( getters.hasChanges( state, mockedGetters )).toBe( false );
@@ -66,60 +84,70 @@ describe( "Vuex song module", () => {
 
     describe( "mutations", () => {
         it( "should be able to toggle the song save message state", () => {
-            const state = { showSaveMessage: false };
+            const state = createSongState({ showSaveMessage: false });
             mutations.setShowSaveMessage( state, true );
             expect( state.showSaveMessage ).toBe( true );
         });
 
         it( "should be able to set the samples", () => {
-            const state = { activeSong: { samples: [] } };
-            const samples = [{ name: "foo" }, { name: "bar" }, { name: "baz" } ];
+            const state = createSongState({ activeSong: createSong({ samples: [] }) });
+            const samples = [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" ) ];
             mutations.setSamples( state, samples );
             expect( state.activeSong.samples ).toEqual( samples );
         });
 
         it( "should be able to add a sample to the existing list", () => {
-            const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ] } };
-            const sample = { name: "qux" };
+            const state = createSongState({
+                activeSong: createSong({
+                    samples: [ createSample( "foo", "s1" ), createSample( "bar", "s2" ), createSample( "baz", "s3" ) ]
+                })
+            });
+            const sample = createSample( "qux", "s4" );
             mutations.addSample( state, sample );
             expect( state.activeSong.samples ).toEqual(
-                [{ name: "foo" }, { name: "bar" }, { name: "baz" }, { name: "qux" } ]
+                [ createSample( "foo", "s1" ), createSample( "bar", "s2" ), createSample( "baz", "s3" ), createSample( "qux", "s4" ) ]
             );
         });
 
         it( "should be able to remove a sample from the existing list", () => {
-            const state = { activeSong: { samples: [{ id: "foo" }, { id: "bar" }, { id: "baz" } ] } };
-            const sample = { id: "bar" };
-            mutations.removeSample( state, sample );
-            expect( state.activeSong.samples ).toEqual(
-                [{ id: "foo" }, { id: "baz" }]
-            );
+            const samples = [ createSample( "foo", "s1" ), createSample( "bar", "s2" ), createSample( "baz", "s3" ) ];
+            const state = createSongState({
+                activeSong: createSong({ samples: [ ...samples ] })
+            });
+
+            mutations.removeSample( state, samples[ 1 ]);
+
+            expect( state.activeSong.samples ).toEqual([ samples[ 0 ], samples[ 2 ] ]);
         });
 
         it( "should be able to flush all currently registered samples", () => {
-            const state = { activeSong: { samples: [{ name: "foo" }, { name: "bar" }, { name: "baz" } ]} };
+            const state = createSongState({
+                activeSong: createSong({
+                    samples: [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" ) ]
+                })
+            });
             mutations.flushSamples( state );
-            expect( state.activeSong.samples ).toEqual( [] );
+            expect( state.activeSong.samples ).toHaveLength( 0 );
         });
 
         it( "should be able to update a registered sample of the same name as the given sample", () => {
-            const state = {
-                activeSong: {
-                    samples: [
-                        { id: "foo",   bar: "baz" },
-                        { id: "qux",   quux: "quuz" },
-                        { id: "corge", grault: "garply" }
-                    ]
-                }
-            };
-            mutations.updateSample(state, { id: "qux", quux: "waldo" });
-            expect( state.activeSong.samples ).toEqual([
-                { id: "foo", bar: "baz" }, { id: "qux", quux: "waldo" }, { id: "corge", grault: "garply" }
-            ]);
+            const state = createSongState({
+                activeSong: createSong({
+                    samples: [ createSample( "foo", "s1" ), createSample( "bar", "s2" ), createSample( "baz", "s3" )]
+                })
+            });
+            mutations.updateSample( state, { id: "s2", name: "qux" });
+
+            expect( state.activeSong.samples ).toHaveLength( 3 );
+            const [ first, second, third ] = state.activeSong.samples;
+
+            expect( first.name ).toEqual( "foo" );
+            expect( second.name ).toEqual( "qux" );
+            expect( third.name ).toEqual( "baz" );
         });
 
-        it( "should be able to the amount of stored states upon song save", () => {
-            const state = { statesOnSave: 0 };
+        it( "should be able to set the amount of stored states upon song save", () => {
+            const state = createSongState({ statesOnSave: 0 });
             mutations.setStatesOnSave( state, 5 );
             expect( state.statesOnSave ).toEqual( 5 );
         });
@@ -127,10 +155,11 @@ describe( "Vuex song module", () => {
 
     describe( "actions", () => {
         it( "should be able to open a song", () => {
-            const song = { name: "awesomeTune", samples: [{ foo: "bar" }] };
+            const song = { name: "awesomeTune", samples: [ createSample( "foo" )] };
             const commit = jest.fn();
             const dispatch = jest.fn();
 
+            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
             actions.openSong({ commit, dispatch }, song );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "setActiveSong", song );
@@ -141,27 +170,38 @@ describe( "Vuex song module", () => {
         });
 
         it( "should be able to create songs", async () => {
+            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
             const song = await actions.createSong();
-            expect(SongValidator.isValid(song)).toBe(true);
 
-            for (let i = 0; i < 16; ++i) {
+            expect( SongValidator.isValid( song )).toBe( true );
+
+            for ( let i = 0; i < 16; ++i ) {
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 const compare = await actions.createSong();
-
                 // songs should have unique identifiers
-                expect(song.id).not.toEqual(compare.id);
+                expect( song.id ).not.toEqual( compare.id );
             }
         });
 
         describe( "when saving songs into local storage", () => {
-            const mockedGetters = { t: jest.fn() };
+            const mockedGetters = {
+                t: jest.fn(),
+                totalSaved: 10 // history-module
+            };
             const dispatch = jest.fn();
-            let commit;
+            let commit: ( mutationName: string, ...args: any ) => void;
 
             it( "should be able to save songs in storage and show a save message", async () => {
                 commit = jest.fn();
-                const song = await actions.createSong();
-                const state = { songs: [], showSaveMessage: true, totalSaved: 10 };
 
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                const song = await actions.createSong();
+                const state = createSongState({
+                    songs: [],
+                    showSaveMessage: true
+                });
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 // expected songs meta to have been saved into the song list
@@ -175,38 +215,49 @@ describe( "Vuex song module", () => {
 
             it( "should be able to save songs in storage and suppress the save message when requested", async () => {
                 commit = jest.fn();
-                const song = await actions.createSong();
-                const state = { songs: [], showSaveMessage: false };
 
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                const song = await actions.createSong();
+                const state = createSongState({ songs: [], showSaveMessage: false });
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
-                expect(commit).not.toHaveBeenNthCalledWith(2, "showNotification");
+                expect( commit ).not.toHaveBeenNthCalledWith( 2, "showNotification" );
             });
 
             it( "should update the modified timestamp when saving a song", async () => {
                 commit = jest.fn();
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 const song = await actions.createSong();
-                const state = { songs: [song] };
+
+                const state = createSongState({ songs: [ song ] });
                 const org = song.meta.modified;
 
-                expect(song.meta.created).toEqual(song.meta.modified);
+                expect( song.meta.created ).toEqual( song.meta.modified );
 
-                return new Promise(resolve => {
-                    setTimeout(async () => {
+                return new Promise(( resolve ): void => {
+                    setTimeout( async (): Promise<void> => {
+                        // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                         await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
-                        expect(song.meta.created).toEqual(org); // expected creation timestamp to have remained unchanged after saving
-                        expect(song.meta.modified).not.toEqual(org); // expected modified timestamp to have updated after saving
+                        expect( song.meta.created ).toEqual( org ); // expected creation timestamp to have remained unchanged after saving
+                        expect( song.meta.modified ).not.toEqual( org ); // expected modified timestamp to have updated after saving
 
+                        // @ts-expect-error expected 1 arguments
                         resolve();
-                    }, 1);
+                    }, 1 );
                 });
             });
         });
 
         it( "should be able to delete songs from local storage", async () => {
+            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
             const song = await actions.createSong();
-            const state = { songs: [ song ]};
+            const state = createSongState({ songs: [ song ]});
+
+            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
             await actions.deleteSongFromLS({ state }, { song });
 
             expect(state.songs).toEqual([]);
@@ -219,9 +270,10 @@ describe( "Vuex song module", () => {
         describe( "when exporting songs", () => {
             it( "should serialize the Song as an .XTK file and save it as a file when exporting to disk", async () => {
                 mockFn = jest.fn(() => Promise.resolve({}));
-                const song = { meta: { title: "foo" } };
+                const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
                 const commit = jest.fn();
 
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.exportSong({ commit }, song );
 
                 expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
@@ -230,12 +282,13 @@ describe( "Vuex song module", () => {
             });
 
             it( "should serialize the Song as an .XTK file and store it remotely when exporting to Dropbox", async () => {
-                const song = { meta: { title: "foo" } };
+                const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
 
                 mockFn = jest.fn(() => Promise.resolve({}));
                 const commit = jest.fn();
                 const mockedGetters = { t: jest.fn(), totalSaved: 7 };
 
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.exportSongToDropbox({ commit, getters: mockedGetters }, { song, folder: "foo" });
 
                 expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
@@ -250,21 +303,24 @@ describe( "Vuex song module", () => {
         describe( "when calling the SaveSong action", () => {
             it( "should validate the given Song", async () => {
                 const dispatch = jest.fn();
-                const song = { foo: "bar" };
+                const song = createSong({ id: "foo" });
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSong({ dispatch }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, "validateSong", song );
             });
 
             it( "should save the song in Local Storage when no origin is specified", async () => {
                 const dispatch = jest.fn();
-                const song = { foo: "bar" };
+                const song = createSong({ id: "bar" });
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSong({ dispatch, commit: jest.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "saveSongInLS", song );
             });
 
             it( "should save the song in Dropbox when the Dropbox origin is specified", async () => {
                 const dispatch = jest.fn();
-                const song = { foo: "bar", origin: "dropbox" };
+                const song = createSong({ id: "baz", origin: "dropbox" });
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSong({ dispatch, commit: jest.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", { song, folder: "folder" });
             });

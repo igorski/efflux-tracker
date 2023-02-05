@@ -54,6 +54,26 @@ export interface SequencerState {
     worker: Worker | null
 };
 
+export const createSequencerState = ( props?: Partial<SequencerState> ): SequencerState => ({
+    playing               : false,
+    looping               : false,
+    recording             : false,
+    scheduleAheadTime     : 0.2,
+    stepPrecision         : 64,
+    beatAmount            : 4,
+    beatUnit              : 4,
+    queueHandlers         : [],
+    channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
+    activePattern         : 0,
+    measureStartTime      : 0,
+    firstMeasureStartTime : 0,
+    currentStep           : 0,
+    nextNoteTime          : 0,
+    channels              : [],
+    worker                : null,
+    ...props
+});
+
 /* internal methods */
 
 /**
@@ -339,24 +359,7 @@ function setPosition( state: SequencerState, { activeSong, pattern, currentTime 
 /* store */
 
 const SequencerModule: Module<SequencerState, any> = {
-    state: {
-        playing               : false,
-        looping               : false,
-        recording             : false, // whether we should record non-sequenced noteOn/noteOff events into the patterns
-        scheduleAheadTime     : 0.2, // scheduler lookahead in seconds
-        stepPrecision         : 64,
-        beatAmount            : 4, // beat amount (the "3" in 3/4) and beat unit (the "4" in 3/4) describe the time signature
-        beatUnit              : 4,
-        queueHandlers         : [],
-        channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
-        activePattern         : 0,
-        measureStartTime      : 0,
-        firstMeasureStartTime : 0,
-        currentStep           : 0,
-        nextNoteTime          : 0,
-        channels              : [],
-        worker                : null
-    },
+    state: createSequencerState(),
     getters: {
         isPlaying( state: SequencerState ): boolean {
             return state.playing;

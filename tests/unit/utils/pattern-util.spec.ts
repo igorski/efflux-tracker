@@ -4,15 +4,16 @@
 import PatternUtil, { serializePatternFile, deserializePatternFile } from "@/utils/pattern-util";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
+import type { EffluxPattern } from "@/model/types/pattern";
 
 describe( "PatternUtil", () => {
     it( "should be able to add a new pattern at the given insertion index", () => {
         const amount = 10, steps = 16, temp = new Array(amount);
-        let patterns = new Array(amount);
+        let patterns: EffluxPattern[] = new Array(amount);
 
-        for (let i = 0; i < amount; ++i)
+        for ( let i = 0; i < amount; ++i ) {
             patterns[i] = temp[i] = PatternFactory.create(steps);
-
+        }
         const insertion = 5;
         patterns = PatternUtil.addPatternAtIndex(patterns, insertion, steps);
 
@@ -25,7 +26,7 @@ describe( "PatternUtil", () => {
 
     it( "should be able to add the given pattern at the given insertion index", () => {
         const amount = 10, steps = 16, temp = new Array(amount);
-        let patterns = new Array(amount);
+        let patterns: EffluxPattern[] = new Array(amount);
 
         for (let i = 0; i < amount; ++i)
             patterns[i] = temp[i] = PatternFactory.create(steps);
@@ -38,12 +39,13 @@ describe( "PatternUtil", () => {
     });
 
     it( "should update the start indices of all events present in the patterns after the insertion point", () => {
-        const amount = 3, steps = 16, patterns = new Array(amount);
-        let i;
+        const amount = 3;
+        const steps = 16;
+        const patterns: EffluxPattern[] = new Array(amount);
 
-        for (i = 0; i < amount; ++i)
+        for ( let i = 0; i < amount; ++i ) {
             patterns[i] = PatternFactory.create(steps);
-
+        }
         // generate some events
 
         const insertion = 1;
@@ -69,14 +71,14 @@ describe( "PatternUtil", () => {
 
     it( "should be able to add a new pattern with a unique amount of steps different to the existing pattern step amounts", () => {
         const amount = 10, steps = 16, newSteps = 32, insertion = 5;
-        let patterns = new Array(amount), i;
+        let patterns: EffluxPattern[] = new Array( amount );
 
-        for (i = 0; i < amount; ++i)
+        for ( let i = 0; i < amount; ++i ) {
             patterns[i] = PatternFactory.create(steps);
-
+        }
         patterns = PatternUtil.addPatternAtIndex(patterns, insertion, newSteps);
 
-        for (i = 0; i < ( amount + 1 ); ++i) {
+        for ( let i = 0; i < ( amount + 1 ); ++i ) {
             if (i !== insertion) {
                 expect(steps).toEqual(patterns[i].steps); // expected original pattern step amount not to have changed after insertion
             }
@@ -88,11 +90,11 @@ describe( "PatternUtil", () => {
 
     it( "should be able to remove a pattern from the given deletion index", () => {
         const amount = 10, temp = new Array(amount);
-        let patterns = new Array(amount);
+        let patterns: EffluxPattern[] = new Array(amount);
 
-        for (let i = 0; i < amount; ++i)
+        for ( let i = 0; i < amount; ++i ) {
             patterns[i] = temp[i] = PatternFactory.create(16);
-
+        }
         const deletion = 5;
         patterns = PatternUtil.removePatternAtIndex(patterns, deletion);
 
@@ -102,12 +104,12 @@ describe( "PatternUtil", () => {
     });
 
     it( "should update the start indices of all events present in the patterns after the deletion index", () => {
-        const amount = 3, patterns = new Array(amount);
-        let i;
+        const amount = 3;
+        const patterns: EffluxPattern[] = new Array(amount);
 
-        for (i = 0; i < amount; ++i)
+        for ( let i = 0; i < amount; ++i ) {
             patterns[i] = PatternFactory.create(16);
-
+        }
         // generate some events
 
         const deletion = 1;
@@ -133,7 +135,7 @@ describe( "PatternUtil", () => {
 
     describe( "when serializing and deserializing a pattern into a encoded file", () => {
         const patternSteps = 4;
-        const patterns     = [];
+        const patterns: EffluxPattern[] = [];
 
         beforeAll(() => {
             const pattern = PatternFactory.create( patternSteps );

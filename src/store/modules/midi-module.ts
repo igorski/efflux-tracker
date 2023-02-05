@@ -35,25 +35,28 @@ type PairableParam = {
 };
 
 export interface MIDIState {
-    midiSupported: boolean;
-    midiConnected: boolean;
-    midiPortNumber: number;
-    midiDeviceList: MIDIDevice[],
-    midiAssignMode: boolean;
-    pairableParamId: PairableParam | null;
-    pairings: Map<string, PairableParam>;
+    midiSupported: boolean; // whether we can use MIDI
+    midiConnected: boolean; // whether zMIDI has established a MIDI API connection
+    midiPortNumber: number; // MIDI port that we have subscribed to receive events from
+    midiDeviceList: MIDIDevice[], // list of connected MIDI devices
+    midiAssignMode: boolean; // when true, assignable-range-control activate pairing mode
+    pairableParamId: PairableParam | null; // when set, the next incoming CC change will map to this param-instrument pair
+    pairings: Map<string, PairableParam>; // list of existing CC changes mapped to param-instrument pairs
 };
 
+export const createMidiState = ( props?: Partial<MIDIState> ): MIDIState => ({
+    midiSupported: zMIDI.isSupported(),
+    midiConnected: false,
+    midiPortNumber: -1,
+    midiDeviceList: [],
+    midiAssignMode: false,
+    pairableParamId: null,
+    pairings: new Map(),
+    ...props
+});
+
 const MIDIModule: Module<MIDIState, any> = {
-    state: (): MIDIState => ({
-        midiSupported   : zMIDI.isSupported(), // can we use MIDI ?
-        midiConnected   : false,    // whether zMIDI has established a MIDI API connection
-        midiPortNumber  : -1,       // midi port that we have subscribed to receive events from
-        midiDeviceList  : [],       // list of connected MIDI devices
-        midiAssignMode  : false,    // when true, assignable-range-control activate pairing mode
-        pairableParamId : null,     // when set, the next incoming CC change will map to this param-instrument pair
-        pairings        : new Map() // list of existing CC changes mapped to param-instrument pairs
-    }),
+    state: (): MIDIState => createMidiState(),
     getters: {
         hasMidiSupport( state: MIDIState ): boolean {
             return state.midiSupported;

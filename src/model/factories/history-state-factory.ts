@@ -20,7 +20,13 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-const stateQueue      = new Map();
+export interface IUndoRedoState {
+    undo: () => void;
+    redo: () => void;
+    resources?: string[];
+};
+
+const stateQueue: Map<string, IUndoRedoState> = new Map();
 const ENQUEUE_TIMEOUT = 1000;
 
 let timeout = 0;
@@ -41,21 +47,15 @@ export const flushQueue = (): void => {
 // this ensures that an enqueued state that is reverted within the ENQUEUE_TIMEOUT is restored
 export const forceProcess = processQueue;
 
-export interface IUndoRedoState {
-    undo: () => void;
-    redo: () => void;
-    resources?: string[];
-};
-
 /**
  * Enqueue a state for addition in the history module. By enqueing, duplicate
  * calls for the same key with new state Objects are merged into a single state.
  *
- * @param {String} key unique identifier for this state
- * @param {IUndoRedoState} Object with
+ * @param {string} key unique identifier for this state
+ * @param {IUndoRedoState} undoRedoState object with
  *        undo and redo functions to apply new and restore original state. These can
  *        be generated through action-factory.js
- * @param {Number=} optTimeout optional timeout to use, defaults to default ENQUEUE_TIMEOUT
+ * @param {number=} optTimeout optional timeout to use, defaults to default ENQUEUE_TIMEOUT
  */
 export const enqueueState = ( key: string, undoRedoState: IUndoRedoState, optTimeout: number = ENQUEUE_TIMEOUT ): void => {
     // new state is for the same property as the previously enqueued state

@@ -31,77 +31,63 @@ import EventUtil from "@/utils/event-util";
 import LinkedList from "@/utils/linked-list";
 
 export interface EditorState {
+    /**
+     * which instrument is currently selected
+     * this is represented in the track list as a column
+     * or as the instrument being edited inside the instrument editor
+     *
+     * as each instrument has its dedicated output channel, this
+     * value is also analogous to the currently selected channel
+     */
     selectedInstrument: number;
+    /**
+     * which pattern step is currently selected
+     * this is represented in the track list as a row
+     */
     selectedStep: number;
+    /**
+     * which parameter slot within an instruments step
+     * is currently selected (e.g. note 0, instrument 1, module parameter 2 or module parameter value 3)
+     * -1 indicates no deliberate slot was selected
+     * this is represented in the track list as a column within the selected row
+     */
     selectedSlot: number;
-    higherKeyboardOctave: number;
-    lowerKeyboardOctave: number;
+    higherKeyboardOctave: number; // the root octave of the higher keyboard note range
+    lowerKeyboardOctave: number; // the root octave of the lower keyboard note range
+    /**
+     * the oscillator that is currently being edited
+     * in the instrument-editor
+     */
     selectedOscillatorIndex: number;
+    /**
+     * linked list that is used to chain all song pattern
+     * events sequentially, used for fast lookup and editing
+     *
+     * NOTE: the linked list is NOT reactive, do not use
+     * Vue.set/delete on its properties.
+     */
     eventList: LinkedList[];
-    showNoteEntry: boolean;
+    showNoteEntry: boolean; // whether the note entry panel is docked on screen
 };
+
+export const createEditorState = ( props?: Partial<EditorState> ): EditorState => ({
+    selectedInstrument: 0,
+    selectedStep: 0,
+    selectedSlot: -1,
+    higherKeyboardOctave: 4,
+    lowerKeyboardOctave: 2,
+    selectedOscillatorIndex: 0,
+    eventList: null,
+    showNoteEntry: false,
+    ...props
+});
 
 // editor module stores all states of the editor such as
 // the instrument which is currently be edited, the active track
 // in the currently active pattern, etc.
 
 const EditorModule: Module<EditorState, any> = {
-    state: (): EditorState => ({
-        /**
-         * which instrument is currently selected
-         * this is represented in the track list as a column
-         * or as the instrument being edited inside the instrument editor
-         *
-         * as each instrument has its dedicated output channel, this
-         * value is also analogous to the currently selected channel
-         */
-        selectedInstrument: 0,
-
-        /**
-         * which pattern step is currently selected
-         * this is represented in the track list as a row
-         */
-        selectedStep: 0,
-
-        /**
-         * which parameter slot within an instruments step
-         * is currently selected (e.g. note 0, instrument 1, module parameter 2 or module parameter value 3)
-         * -1 indicates no deliberate slot was selected
-         * this is represented in the track list as a column within the selected row
-         */
-        selectedSlot: -1,
-
-        /**
-         * the root octave of the lower keyboard note range
-         */
-        higherKeyboardOctave: 4,
-
-        /**
-         * the root octave of the lower keyboard note range
-         */
-        lowerKeyboardOctave: 2,
-
-
-        /**
-         * the oscillator that is currently being edited
-         * in the instrument-editor
-         */
-        selectedOscillatorIndex : 0,
-
-        /**
-         * linked list that is used to chain all song pattern
-         * events sequentially, used for fast lookup and editing
-         *
-         * NOTE: the linked list is NOT reactive, do not use
-         * Vue.set/delete on its properties.
-         */
-        eventList: null,
-
-        /**
-         * Whether the note entry panel is docked on screen
-         */
-        showNoteEntry: false,
-    }),
+    state: (): EditorState => createEditorState(),
     mutations: {
         setSelectedInstrument( state: EditorState, value: number ): void {
             state.selectedInstrument = Math.max( 0, Math.min( Config.INSTRUMENT_AMOUNT - 1, value ));

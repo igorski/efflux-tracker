@@ -1,49 +1,56 @@
 /**
  * @jest-environment jsdom
  */
-import store from "@/store/modules/midi-module";
+import store, { createMidiState } from "@/store/modules/midi-module";
+import type { EffluxState } from "@/store";
+
 const { getters, mutations }  = store;
 
 describe( "Vuex MIDI module", () => {
     describe( "getters", () => {
+        const mockGetters: any = {};
+        const mockRootState: EffluxState = {} as EffluxState;
+        const mockRootGetters: any = {};
+
         it( "should know whether MIDI is supported", () => {
-            const state = { midiSupported: false };
-            expect( getters.hasMidiSupport( state )).toBe( false );
+            const state = createMidiState({ midiSupported: false });
+            expect( getters.hasMidiSupport( state, mockGetters, mockRootState, mockRootGetters )).toBe( false );
+
             state.midiSupported = true;
-            expect( getters.hasMidiSupport( state )).toBe( true );
+            expect( getters.hasMidiSupport( state, mockGetters, mockRootState, mockRootGetters )).toBe( true );
         });
     });
 
     describe( "mutations", () => {
         it( "should be able to set the MIDI port number", () => {
-            const state = { midiPortNumber: 0 };
+            const state = createMidiState({ midiPortNumber: 0 });
             mutations.setMidiPortNumber( state, 1);
             expect( state.midiPortNumber ).toEqual(1);
         });
 
         it( "should be able to format a MIDI connection list", () => {
-            const state = { midiDeviceList: [] };
+            const state = createMidiState({ midiDeviceList: [] });
             mutations.createMidiDeviceList( state, [
                 { manufacturer: "Acme", name : "foo" },
                 { manufacturer: "Acme", name : "bar" }
             ]);
-            expect(state.midiDeviceList).toEqual([
+            expect( state.midiDeviceList ).toEqual([
                 { title: "Acme foo", value: 0 },
                 { title: "Acme bar", value: 1 }
             ]);
         });
 
         it( "should be able to set the controller assignment mode", () => {
-            const state = { midiAssignMode: false };
+            const state = createMidiState({ midiAssignMode: false });
             mutations.setMidiAssignMode( state, true );
             expect( state.midiAssignMode ).toBe( true );
         });
 
         it( "should be able to enqueue a param/instrument mapping to be paired with a CC change", () => {
-            const state = {
+            const state = createMidiState({
                 pairableParamId : null,
                 midiAssignMode  : true
-            };
+            });
             const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
             mutations.setPairableParamId( state, pairableParamId );
             expect( state.pairableParamId ).toEqual( pairableParamId );
@@ -52,10 +59,9 @@ describe( "Vuex MIDI module", () => {
 
         it( "should be able to pair a CC change to an enqueued param/instrument mapping", () => {
             const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
-            const state = {
-                pairings : new Map(),
+            const state = createMidiState({
                 pairableParamId,
-            };
+            });
             mutations.pairControlChangeToController( state, "foo" );
             expect( state.pairings.has( "foo" )).toBe( true );
             expect( state.pairings.get( "foo" )).toEqual( pairableParamId );
@@ -63,22 +69,23 @@ describe( "Vuex MIDI module", () => {
         });
 
         it( "should be able to unpair an existing control change", () => {
-            const state = {
-                pairings: new Map()
-            };
-            state.pairings.set( "foo", jest.fn() );
-            state.pairings.set( "bar", jest.fn() );
+            const state = createMidiState();
+
+            state.pairings.set( "foo", { paramId: "foo", instrumentIndex: 0 } );
+            state.pairings.set( "bar", { paramId: "bar", instrumentIndex: 1 } );
+
             mutations.unpairControlChange( state, "foo" );
+
             expect( state.pairings.has( "foo" )).toBe( false );
             expect( state.pairings.has( "bar" )).toBe( true );
         });
 
         it( "should be able to clear all mapped controller pairings", () => {
-            const state = {
-                pairings: { clear: jest.fn() }
-            };
+            const state = createMidiState();
+            const clearSpy = jest.spyOn( state.pairings, "clear" );
+
             mutations.clearPairings( state );
-            expect( state.pairings.clear ).toHaveBeenCalled();
+            expect( clearSpy ).toHaveBeenCalled();
         });
     });
 });

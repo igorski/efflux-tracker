@@ -20,15 +20,26 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Sample } from "@/model/types/sample";
+import type { Sample, SamplePitch } from "@/model/types/sample";
 import { fileToBase64 } from "@/utils/file-util";
+
+export type XTKSample = {
+    b : string; // base64 encoded source buffer
+    n : string;
+    s : number;
+    e : number;
+    p : SamplePitch | null;
+    r : boolean;
+    sr: number;
+    l : number;
+};
 
 /**
  * Serializes a sample Object into JSON
  */
-export const serialize = async ( sample: Sample ): Promise<any> => {
+export const serialize = async ( sample: Sample ): Promise<XTKSample> => {
     let source: File | Blob | string;
-    const toJSON = (): any => ({
+    const toJSON = (): XTKSample => ({
         b  : source as string,
         n  : sample.name,
         s  : sample.rangeStart,

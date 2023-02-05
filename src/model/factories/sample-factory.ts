@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { XTKSample } from "@/model/serializers/sample-serializer";
 import type { Sample } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createOfflineAudioContext } from "@/services/audio/webaudio-helper";
@@ -68,7 +69,7 @@ const SampleFactory = {
     /**
      * deserializes a sample Object from a serialized XTK sample
      */
-    deserialize( xtkSample: any ): Promise<Sample | null> {
+    deserialize( xtkSample: XTKSample ): Promise<Sample | null> {
         return new Promise( async resolve => {
             try {
                 const source = await base64ToBlob( xtkSample.b );

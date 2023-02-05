@@ -1,15 +1,16 @@
 /**
  * @jest-environment jsdom
  */
-import EventFactory       from "@/model/factories/event-factory";
-import PatternFactory     from "@/model/factories/pattern-factory";
-import SongFactory        from "@/model/factories/song-factory";
+import EventFactory from "@/model/factories/event-factory";
+import PatternFactory from "@/model/factories/pattern-factory";
+import SongFactory from "@/model/factories/song-factory";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
+import type { EffluxSong } from "@/model/types/song";
 
 import { hasContent, updateEventOffsets } from "@/utils/song-util";
 
 describe( "SongUtil", () => {
-    let song;
+    let song: EffluxSong;
 
     beforeEach(() => {
         song = SongFactory.create( 8 );

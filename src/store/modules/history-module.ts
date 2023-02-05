@@ -29,9 +29,16 @@ const STATES_TO_SAVE = 99;
 
 export interface HistoryState {
     undoManager: UndoManager;
-    historyIndex: number;
-    totalSaved: number;
+    historyIndex: number; // used for reactivity (as undo manager isn't bound to Vue, goes to STATES_TO_SAVE - 1 )
+    totalSaved: number; // total amount of states saved, this can exceed STATES_TO_SAVE
 };
+
+export const createHistoryState = ( props?: Partial<HistoryState> ): HistoryState => ({
+    undoManager  : null, // pass explicitly in props
+    historyIndex : -1,
+    totalSaved   : 0,
+    ...props
+} as HistoryState );
 
 // a module to store states so the application can undo/redo changes
 // made to the song. We do this by applying save and restore functions for
@@ -41,11 +48,7 @@ export interface HistoryState {
 // will be retained.
 
 const HistoryModule: Module<HistoryState, any> = {
-    state: {
-        undoManager  : new UndoManager(),
-        historyIndex : -1, // used for reactivity (as undo manager isn't bound to Vue, goes to STATES_TO_SAVE - 1 )
-        totalSaved   : 0,  // total amount of states saved, this can exceed STATES_TO_SAVE
-    },
+    state: createHistoryState({ undoManager: new UndoManager() }),
     getters: {
         canUndo        : ( state: HistoryState ) => state.historyIndex >= 0 && state.undoManager.hasUndo(),
         canRedo        : ( state: HistoryState ) => state.historyIndex < STATES_TO_SAVE && state.undoManager.hasRedo(),

@@ -29,6 +29,11 @@ export interface SettingsState {
     _settings: Record<string, any>;
 };
 
+export const createSettingsState = ( props?: Partial<SettingsState> ): SettingsState => ({
+    _settings: {},
+    ...props
+});
+
 export enum PROPERTIES {
     INPUT_FORMAT    = "if",
     FOLLOW_PLAYBACK = "fp",
@@ -50,9 +55,7 @@ const persistState = ( state: SettingsState ): void => {
 // and retrieve them in future sessions
 
 const SettingsModule: Module<SettingsState, any> = {
-    state: (): SettingsState => ({
-        _settings: {},
-    }),
+    state: (): SettingsState => createSettingsState(),
     getters: {
         displayHelp    : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_HELP ] !== false,
         displayWelcome : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,

@@ -51,6 +51,23 @@ export interface SelectionState {
     },
 };
 
+export const createSelectionState = ( props?: SelectionState ): SelectionState => ({
+    selectedChannels     : [],
+    firstSelectedChannel : 0,
+    lastSelectedChannel  : 0,
+    minSelectedStep      : 0,
+    maxSelectedStep      : 0,
+    copySelection        : null,
+    actionCache: {
+        stepOnSelection    : -1,
+        channelOnSelection : -1,
+        shrinkSelection    : false,
+        minOnSelection     : -1,
+        maxOnSelection     : -1,
+    },
+    ...props
+});
+
 /* internal methods */
 
 const sort = ( state: SelectionState ): void => {
@@ -248,21 +265,7 @@ const setSelection = ( state: SelectionState, selectionStart: number, selectionE
 // tracks and patterns within a song
 
 const SelectionModule: Module<SelectionState, any> = {
-    state: {
-        selectedChannels : [],
-        firstSelectedChannel : 0,
-        lastSelectedChannel : 0,
-        minSelectedStep : 0,
-        maxSelectedStep : 0,
-        copySelection : null,
-        actionCache : {
-            stepOnSelection: -1,
-            channelOnSelection: -1,
-            shrinkSelection: false,
-            minOnSelection: -1,
-            maxOnSelection: -1
-        }
-    },
+    state: createSelectionState(),
     getters: {
         hasSelection,
         getSelectionLength,

@@ -1,51 +1,60 @@
 /**
  * @jest-environment jsdom
  */
-import storeModule from "@/store/modules/sample-module";
+import type { Sample } from "@/model/types/sample";
+import type { EffluxState } from "@/store";
+import storeModule, { createSampleState } from "@/store/modules/sample-module";
+import { createSample } from "../../mocks";
 
 const { getters, mutations, actions } = storeModule;
 
-let mockResult;
+let mockResult: AudioBuffer;
 jest.mock( "@/model/factories/sample-factory", () => ({
     getBuffer: jest.fn(() => mockResult )
 }));
 
 describe( "Vuex sample module", () => {
     describe( "getters", () => {
+        const mockRootState: EffluxState = {} as EffluxState;
+        const mockRootGetters: any = {};
+
         it( "should be able to get the current sample by the registered id", () => {
-            const state = { currentSampleId: "s2" };
+            const state = createSampleState({ currentSampleId: "s2" });
             const mockedGetters = { samples: [{ id: "s1" }, { id: "s2" }, { id: "s3" } ]};
-            expect( getters.currentSample( state, mockedGetters )).toEqual( mockedGetters.samples[ 1 ]);
+            expect( getters.currentSample( state, mockedGetters, mockRootState, mockRootGetters )).toEqual( mockedGetters.samples[ 1 ]);
         });
 
         it( "should be able to get a specific sample from the cache through the curried getter", () => {
-            const state = {
-                sampleCache: new Map([[ "foo", { sample: "bar" }],[ "baz", { sample: "qux" }]])
-            };
-            expect( getters.sampleFromCache( state )( "foo" )).toEqual({ sample: "bar" });
+            const sample1 = createSample( "bar" );
+            const sample2 = createSample( "qux" );
+            const state = createSampleState({
+                sampleCache: new Map([[ "foo", sample1 ], [ "baz", sample2 ]])
+            });
+            expect( getters.sampleFromCache( state, {}, mockRootState, mockRootGetters )( "foo" )).toEqual( sample1 );
         });
     });
 
     describe( "mutations", () => {
         it( "should be able to set the current sample", () => {
-            const state = { currentSampleId: null };
+            const state = createSampleState({ currentSampleId: null });
             mutations.setCurrentSample( state, { id: "s1" });
             expect( state.currentSampleId ).toEqual( "s1" );
         });
 
         it( "should be able to flush the existing sample cache", () => {
-            const state = {
-                sampleCache: new Map([[ "foo", { sample: "bar" }],[ "baz", { sample: "qux" }]])
-            };
+            const state = createSampleState({
+                sampleCache: new Map([[ "foo", createSample( "bar" )],[ "baz", createSample( "qux" )]])
+            });
             mutations.flushSampleCache( state );
             expect( state.sampleCache.size ).toEqual( 0 );
         });
 
         it( "should be able to cache the buffer for individual samples and add it to the cache Map", () => {
-            const state = {
-                sampleCache: new Map([[ "foo", { sample: "bar" }]])
-            };
-            mockResult = { buffer: {} };
+            const state = createSampleState({
+                sampleCache: new Map([[ "foo", createSample( "bar" )]])
+            });
+
+            mockResult = { duration: 5000 } as AudioBuffer;
             const sample = { name: "baz" };
 
             mutations.cacheSample( state, sample );
@@ -56,9 +65,10 @@ describe( "Vuex sample module", () => {
         });
 
         it( "should be able to remove individual samples from the cache", () => {
-            const state = {
-                sampleCache: new Map([[ "foo", { sample: "bar" }],[ "baz", { sample: "qux" }]])
-            };
+            const state = createSampleState({
+                sampleCache: new Map([[ "foo", createSample( "bar" )],[ "baz", createSample( "qux" )]])
+            } as unknown);
+
             mutations.removeSampleFromCache( state, { name: "baz" });
             expect( state.sampleCache.size ).toEqual( 1 );
             expect( state.sampleCache.has( "baz" )).toBe( false );
@@ -68,8 +78,9 @@ describe( "Vuex sample module", () => {
     describe( "actions", () => {
         it( "should be able to cache the active samples for a Song", () => {
             const commit = jest.fn();
-            const samples = [{ name: "foo" }, { name: "bar" }, { name: "baz" } ];
+            const samples = [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" )];
 
+            // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
             actions.cacheSongSamples({ commit }, samples );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "flushSampleCache" );
@@ -79,11 +90,11 @@ describe( "Vuex sample module", () => {
         });
 
         describe( "when updating an existing sample name", () => {
-            let mockedGetters;
+            let mockedGetters: any;
 
             beforeEach(() => {
                 mockedGetters = {
-                    samples: [{ id: "s1", name: "foo" }, { id: "s2", name: "bar" }, { id: "s3", name: "baz" }],
+                    samples: [ createSample( "foo", "s1" ), createSample( "bar", "s2" ), createSample( "baz", "s3" )],
                     activeSong: {
                         instruments: [ { oscillators: [ { sample: "foo" }, { sample: "bar" }, { sample: "baz" } ] } ]
                     }
@@ -91,8 +102,10 @@ describe( "Vuex sample module", () => {
             });
 
             it( "should update the sample cache identifiers and return the new name", () => {
-                const commit  = jest.fn();
-                const name    = "qux";
+                const commit = jest.fn();
+                const name = "qux";
+
+                // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                 const newName = actions.updateSampleName({ getters: mockedGetters, commit }, { id: "s1", name });
 
                 const originalSample = mockedGetters.samples[ 0 ];
@@ -107,7 +120,12 @@ describe( "Vuex sample module", () => {
 
             it( "should update all references to the old names for all instruments", () => {
                 const commit = jest.fn();
-                const newName = actions.updateSampleName({ getters: mockedGetters, commit }, { id: "s2", name: "qux" });
+
+                // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                const newName = actions.updateSampleName(
+                    { getters: mockedGetters, commit },
+                    { id: "s2", name: "qux" }
+                );
 
                 expect( commit ).toHaveBeenNthCalledWith( 4, "updateOscillator", {
                     instrumentIndex: 0,
@@ -119,6 +137,8 @@ describe( "Vuex sample module", () => {
 
             it( "should be able to deduplicate existing names", () => {
                 const commit = jest.fn();
+
+                // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                 const newName = actions.updateSampleName({ getters: mockedGetters, commit }, { id: "s1", name: "bar" });
                 expect( newName ).toEqual( "bar #2" );
             });
