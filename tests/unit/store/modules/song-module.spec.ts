@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, vi } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import songModule, { createSongState } from "@/store/modules/song-module";
 import type { SongState } from "@/store/modules/song-module";
@@ -17,21 +15,23 @@ const actions: ActionTree<SongState, any> = songModule.actions;
 // mocks
 
 let mockFn: ( fnName: string, ...args: any ) => void;
-jest.mock( "@/services/dropbox-service", () => ({
-    uploadBlob: jest.fn(( ...args ): void => mockFn( "uploadBlob", ...args )),
-    getCurrentFolder: jest.fn(() => "folder")
+vi.mock( "@/services/dropbox-service", () => ({
+    uploadBlob: vi.fn(( ...args ): void => mockFn( "uploadBlob", ...args )),
+    getCurrentFolder: vi.fn(() => "folder")
 }));
-jest.mock( "@/utils/file-util", () => ({
-    saveAsFile: jest.fn(( ...args ) => mockFn( "saveAsFile", ...args )),
+vi.mock( "@/utils/file-util", () => ({
+    saveAsFile: vi.fn(( ...args ) => mockFn( "saveAsFile", ...args )),
 }));
-jest.mock( "@/utils/storage-util", () => ({
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn()
+vi.mock( "@/utils/storage-util", () => ({
+    default: {
+        getItem: vi.fn(),
+        setItem: vi.fn(),
+        removeItem: vi.fn(),
+    }
 }));
-jest.mock( "@/utils/xtk-util", () => ({
-    toXTK: jest.fn(( ...args ) => mockFn( "toXTK" , ...args )),
-    parseXTK: jest.fn(( ...args ) => mockFn( "parseXTK", ...args ))
+vi.mock( "@/utils/xtk-util", () => ({
+    toXTK: vi.fn(( ...args ) => mockFn( "toXTK" , ...args )),
+    parseXTK: vi.fn(( ...args ) => mockFn( "parseXTK", ...args ))
 }));
 
 describe( "Vuex song module", () => {
@@ -156,8 +156,8 @@ describe( "Vuex song module", () => {
     describe( "actions", () => {
         it( "should be able to open a song", () => {
             const song = { name: "awesomeTune", samples: [ createSample( "foo" )] };
-            const commit = jest.fn();
-            const dispatch = jest.fn();
+            const commit = vi.fn();
+            const dispatch = vi.fn();
 
             // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
             actions.openSong({ commit, dispatch }, song );
@@ -185,14 +185,14 @@ describe( "Vuex song module", () => {
 
         describe( "when saving songs into local storage", () => {
             const mockedGetters = {
-                t: jest.fn(),
+                t: vi.fn(),
                 totalSaved: 10 // history-module
             };
-            const dispatch = jest.fn();
+            const dispatch = vi.fn();
             let commit: ( mutationName: string, ...args: any ) => void;
 
             it( "should be able to save songs in storage and show a save message", async () => {
-                commit = jest.fn();
+                commit = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 const song = await actions.createSong();
@@ -214,7 +214,7 @@ describe( "Vuex song module", () => {
             });
 
             it( "should be able to save songs in storage and suppress the save message when requested", async () => {
-                commit = jest.fn();
+                commit = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 const song = await actions.createSong();
@@ -227,7 +227,7 @@ describe( "Vuex song module", () => {
             });
 
             it( "should update the modified timestamp when saving a song", async () => {
-                commit = jest.fn();
+                commit = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 const song = await actions.createSong();
@@ -263,15 +263,11 @@ describe( "Vuex song module", () => {
             expect(state.songs).toEqual([]);
         });
 
-        describe( "when importing songs from disk", () => {
-
-        });
-
         describe( "when exporting songs", () => {
             it( "should serialize the Song as an .XTK file and save it as a file when exporting to disk", async () => {
-                mockFn = jest.fn(() => Promise.resolve({}));
+                mockFn = vi.fn(() => Promise.resolve({}));
                 const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
-                const commit = jest.fn();
+                const commit = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.exportSong({ commit }, song );
@@ -284,9 +280,9 @@ describe( "Vuex song module", () => {
             it( "should serialize the Song as an .XTK file and store it remotely when exporting to Dropbox", async () => {
                 const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
 
-                mockFn = jest.fn(() => Promise.resolve({}));
-                const commit = jest.fn();
-                const mockedGetters = { t: jest.fn(), totalSaved: 7 };
+                mockFn = vi.fn(() => Promise.resolve({}));
+                const commit = vi.fn();
+                const mockedGetters = { t: vi.fn(), totalSaved: 7 };
 
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.exportSongToDropbox({ commit, getters: mockedGetters }, { song, folder: "foo" });
@@ -302,7 +298,7 @@ describe( "Vuex song module", () => {
 
         describe( "when calling the SaveSong action", () => {
             it( "should validate the given Song", async () => {
-                const dispatch = jest.fn();
+                const dispatch = vi.fn();
                 const song = createSong({ id: "foo" });
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSong({ dispatch }, song );
@@ -310,18 +306,18 @@ describe( "Vuex song module", () => {
             });
 
             it( "should save the song in Local Storage when no origin is specified", async () => {
-                const dispatch = jest.fn();
+                const dispatch = vi.fn();
                 const song = createSong({ id: "bar" });
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
-                await actions.saveSong({ dispatch, commit: jest.fn() }, song );
+                await actions.saveSong({ dispatch, commit: vi.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "saveSongInLS", song );
             });
 
             it( "should save the song in Dropbox when the Dropbox origin is specified", async () => {
-                const dispatch = jest.fn();
+                const dispatch = vi.fn();
                 const song = createSong({ id: "baz", origin: "dropbox" });
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
-                await actions.saveSong({ dispatch, commit: jest.fn() }, song );
+                await actions.saveSong({ dispatch, commit: vi.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", { song, folder: "folder" });
             });
         });

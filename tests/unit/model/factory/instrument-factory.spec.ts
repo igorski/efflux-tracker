@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect } from "vitest";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import { serialize } from "@/model/serializers/instrument-serializer";
 import InstrumentValidator from "@/model/validators/instrument-validator";

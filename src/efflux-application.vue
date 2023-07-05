@@ -112,11 +112,11 @@ import VueI18n from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
-import Loader from "@/components/loader";
+import Loader from "@/components/loader.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import { JAM_MODE } from "@/definitions/url-params";
-import ApplicationMenu from "@/components/application-menu/application-menu";
-import Notifications from "@/components/notifications";
+import ApplicationMenu from "@/components/application-menu/application-menu.vue";
+import Notifications from "@/components/notifications.vue";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
@@ -155,18 +155,18 @@ export default {
     store: new Vuex.Store( store ),
     i18n,
     components: {
-        DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window" )),
+        DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window.vue" )),
         ApplicationMenu, // sync as it should be ready when EFFLUX_READY is broadcast over pubsub
-        HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section" )),
+        HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section.vue" )),
         Loader,
         Notifications,
-        NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor" )),
-        PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor" )),
-        PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list" )),
-        SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor" )),
-        TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor" )),
-        TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor" )),
-        Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport" )),
+        NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
+        PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
+        PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
+        SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor.vue" )),
+        TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor.vue" )),
+        TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
+        Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
     data: () => ({
         prepared: false,
@@ -200,55 +200,55 @@ export default {
                 default:
                     return null;
                 case ModalWindows.ADVANCED_PATTERN_EDITOR:
-                    loadFn = () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor" );
+                    loadFn = () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor.vue" );
                     break;
                 case ModalWindows.MODULE_PARAM_EDITOR:
-                    loadFn = () => import( "@/components/module-param-editor/module-param-editor" );
+                    loadFn = () => import( "@/components/module-param-editor/module-param-editor.vue" );
                     break;
                 case ModalWindows.INSTRUMENT_EDITOR:
-                    loadFn = () => import( "@/components/instrument-editor/instrument-editor" );
+                    loadFn = () => import( "@/components/instrument-editor/instrument-editor.vue" );
                     break;
                 case ModalWindows.SAMPLE_EDITOR:
-                    loadFn = () => import( "@/components/sample-editor/sample-editor" );
+                    loadFn = () => import( "@/components/sample-editor/sample-editor.vue" );
                     break;
                 case ModalWindows.INSTRUMENT_MANAGER:
-                    loadFn = () => import( "@/components/instrument-manager/instrument-manager" );
+                    loadFn = () => import( "@/components/instrument-manager/instrument-manager.vue" );
                     break;
                 case ModalWindows.MIXER:
-                    loadFn = () => import( "@/components/mixer/mixer" );
+                    loadFn = () => import( "@/components/mixer/mixer.vue" );
                     break;
                 case ModalWindows.SONG_BROWSER:
-                    loadFn = () => import( "@/components/song-browser/song-browser" );
+                    loadFn = () => import( "@/components/song-browser/song-browser.vue" );
                     break;
                 case ModalWindows.SONG_SAVE_WINDOW:
-                    loadFn = () => import( "@/components/song-save-window/song-save-window" );
+                    loadFn = () => import( "@/components/song-save-window/song-save-window.vue" );
                     break;
                 case ModalWindows.SETTINGS_WINDOW:
-                    loadFn = () => import( "@/components/settings-window/settings-window" );
+                    loadFn = () => import( "@/components/settings-window/settings-window.vue" );
                     break;
                 case ModalWindows.WELCOME_WINDOW:
-                    loadFn = () => import( "@/components/welcome-window/welcome-window" );
+                    loadFn = () => import( "@/components/welcome-window/welcome-window.vue" );
                     break;
                 case ModalWindows.DROPBOX_FILE_SELECTOR:
-                    loadFn = () => import( "@/components/dropbox-file-selector/dropbox-file-selector" );
+                    loadFn = () => import( "@/components/dropbox-file-selector/dropbox-file-selector.vue" );
                     break;
                 case ModalWindows.WELCOME_SHARED_SONG:
-                    loadFn = () => import( "@/components/shared-song-window/shared-song-window" );
+                    loadFn = () => import( "@/components/shared-song-window/shared-song-window.vue" );
                     break;
                 case ModalWindows.MIDI_EXPORT_WINDOW:
-                    loadFn = () => import( "@/components/midi-export-window/midi-export-window" );
+                    loadFn = () => import( "@/components/midi-export-window/midi-export-window.vue" );
                     break;
                 case ModalWindows.TRANSPOSITION_EDITOR:
-                    loadFn = () => import( "@/components/transposition-editor/transposition-editor" );
+                    loadFn = () => import( "@/components/transposition-editor/transposition-editor.vue" );
                     break;
                 case ModalWindows.OPTIMIZATION_WINDOW:
-                    loadFn = () => import( "@/components/optimization-window/optimization-window" );
+                    loadFn = () => import( "@/components/optimization-window/optimization-window.vue" );
                     break;
                 case ModalWindows.CHORD_GENERATOR_WINDOW:
-                    loadFn = () => import( "@/components/chord-generator-window/chord-generator-window" );
+                    loadFn = () => import( "@/components/chord-generator-window/chord-generator-window.vue" );
                     break;
                 case ModalWindows.JAM_MODE:
-                    loadFn = () => import( "@/components/jam/jam" );
+                    loadFn = () => import( "@/components/jam/jam.vue" );
                     break;
             }
             return () => asyncComponent( "mw", loadFn );
@@ -384,7 +384,7 @@ export default {
 
         // show confirmation message on page reload
 
-        if ( process.env.NODE_ENV !== "development" ) {
+        if ( import.meta.env.MODE !== "development" ) {
             const handleUnload = () => this.$t( "warnings.unload" );
             if ( Bowser.ios ) {
                 window.addEventListener( "popstate", handleUnload );

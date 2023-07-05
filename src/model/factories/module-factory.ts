@@ -36,7 +36,7 @@ const ModuleFactory = {
     applyConfiguration( moduleType: string, modules: InstrumentModules, props: any, output: AudioNode ): void {
         switch ( moduleType ) {
             default:
-                if ( process.env.NODE_ENV === "development" ) {
+                if ( import.meta.env.MODE === "development" ) {
                     throw new Error( `unknown module "${moduleType}" in ModuleFactory` );
                 }
                 break;

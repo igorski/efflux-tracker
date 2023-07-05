@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect } from "vitest";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import type { InstrumentOscillator } from "@/model/types/instrument";

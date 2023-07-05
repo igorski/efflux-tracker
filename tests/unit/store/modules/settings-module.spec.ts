@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import Config from "@/config";
 import settingsModule, { createSettingsState, PROPERTIES } from "@/store/modules/settings-module";
@@ -7,11 +8,13 @@ const getters: any = settingsModule.getters;
 const mutations: MutationTree<SettingsState> = settingsModule.mutations;
 const actions: ActionTree<SettingsState, any> = settingsModule.actions;
 
-let mockStorageFn = jest.fn();
-jest.mock( "@/utils/storage-util", () => ({
-    init: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "init", ...args ))),
-    getItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
-    setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
+let mockStorageFn = vi.fn();
+vi.mock( "@/utils/storage-util", () => ({
+    default: {
+        init: vi.fn(( ...args ) => Promise.resolve( mockStorageFn( "init", ...args ))),
+        getItem: vi.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
+        setItem: vi.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
+    }
 }));
 
 describe( "Vuex settings module", () => {
@@ -70,7 +73,7 @@ describe( "Vuex settings module", () => {
     describe( "mutations", () => {
         it( "should be able to save individual settings into storage", () => {
             const state = createSettingsState({ _settings: { foo: "bar" } });
-            mockStorageFn = jest.fn();
+            mockStorageFn = vi.fn();
 
             mutations.saveSetting( state, { name: "baz", value: "qux" });
             expect( mockStorageFn ).toHaveBeenCalledWith( "setItem", Config.LOCAL_STORAGE_SETTINGS, JSON.stringify({
@@ -87,8 +90,8 @@ describe( "Vuex settings module", () => {
 
     describe( "actions", () => {
         it( "should be able to retrieve the store settings from local storage and set them into the module state", async () => {
-            mockStorageFn = jest.fn(() => JSON.stringify({ foo: "bar", baz: "qux" }));
-            const commit = jest.fn();
+            mockStorageFn = vi.fn(() => JSON.stringify({ foo: "bar", baz: "qux" }));
+            const commit = vi.fn();
 
             // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
             await actions.loadStoredSettings({ commit });

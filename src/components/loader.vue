@@ -60,6 +60,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 $loaderSize: 200px;
 
 .loader {
@@ -69,8 +71,8 @@ $loaderSize: 200px;
     left: 50%;
     width: $loaderSize;
     height: $loaderSize;
-    margin-left: -( $loaderSize / 2 );
-    margin-top: -( $loaderSize / 2 );
+    margin-left: math.div( -$loaderSize, 2 );
+    margin-top: math.div( -$loaderSize, 2 );
     border-radius: 24px;
     transform: scale(0.33);
     z-index: 500;

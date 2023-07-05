@@ -74,7 +74,7 @@ import SampleFactory from "@/model/factories/sample-factory";
 import AudioService from "@/services/audio-service";
 import { createAnalyser, supportsAnalysis } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
-import SelectBox from "@/components/forms/select-box";
+import SelectBox from "@/components/forms/select-box.vue";
 import TimeUtil from "@/utils/time-util";
 
 import messages from "./messages.json";
@@ -222,7 +222,7 @@ export default {
                 mediaRecorder.start();
                 handleProgress();
             } catch ( e ) {
-                if ( process.env.NODE_ENV === "development" ) {
+                if ( import.meta.env.MODE === "development" ) {
                     // eslint-disable-next-line no-console
                     console.error( e );
                 }

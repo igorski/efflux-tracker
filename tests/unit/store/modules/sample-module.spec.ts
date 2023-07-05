@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import storeModule, { createSampleState } from "@/store/modules/sample-module";
@@ -9,8 +7,10 @@ import { createSample } from "../../mocks";
 const { getters, mutations, actions } = storeModule;
 
 let mockResult: AudioBuffer;
-jest.mock( "@/model/factories/sample-factory", () => ({
-    getBuffer: jest.fn(() => mockResult )
+vi.mock( "@/model/factories/sample-factory", () => ({
+    default: {
+        getBuffer: vi.fn(() => mockResult )
+    }
 }));
 
 describe( "Vuex sample module", () => {
@@ -77,7 +77,7 @@ describe( "Vuex sample module", () => {
 
     describe( "actions", () => {
         it( "should be able to cache the active samples for a Song", () => {
-            const commit = jest.fn();
+            const commit = vi.fn();
             const samples = [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" )];
 
             // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
@@ -102,7 +102,7 @@ describe( "Vuex sample module", () => {
             });
 
             it( "should update the sample cache identifiers and return the new name", () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
                 const name = "qux";
 
                 // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
@@ -119,7 +119,7 @@ describe( "Vuex sample module", () => {
             });
 
             it( "should update all references to the old names for all instruments", () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                 const newName = actions.updateSampleName(
@@ -136,7 +136,7 @@ describe( "Vuex sample module", () => {
             });
 
             it( "should be able to deduplicate existing names", () => {
-                const commit = jest.fn();
+                const commit = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                 const newName = actions.updateSampleName({ getters: mockedGetters, commit }, { id: "s1", name: "bar" });

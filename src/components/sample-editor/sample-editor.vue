@@ -194,11 +194,11 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import AudioEncoder from "audio-encoder";
-import FileLoader from "@/components/file-loader/file-loader";
+import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
-import SampleDisplay from "@/components/sample-display/sample-display";
-import SampleRecorder from "@/components/sample-recorder/sample-recorder";
-import SelectBox from "@/components/forms/select-box";
+import SampleDisplay from "@/components/sample-display/sample-display.vue";
+import SampleRecorder from "@/components/sample-recorder/sample-recorder.vue";
+import SelectBox from "@/components/forms/select-box.vue";
 import { ToggleButton } from "vue-js-toggle-button";
 import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";

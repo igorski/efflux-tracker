@@ -1,5 +1,7 @@
 /* main application layout (scoped styling in root component) */
 
+@use "sass:math";
+
 @import "_mixins";
 @import "_scrollbars";
 
@@ -84,7 +86,7 @@
 
 /* standard width: large TABLET/LAPTOP */
 
-@media screen and (min-width: $app-width) {
+@media screen and ( min-width: $app-width ) {
     .container {
         width: inherit;
         max-width: $ideal-width;
@@ -93,7 +95,7 @@
 
     .application-editor {
         left: 50%;
-        margin-left: -($ideal-width / 2);
+        margin-left: math.div( -$ideal-width, 2 );
     }
 }
 
@@ -200,6 +202,6 @@
 
 @include ideal() {
     .application-editor {
-        margin-left: -( $ideal-width - $spacing-xlarge ) / 2;
+        margin-left: math.div( -( $ideal-width - $spacing-xlarge ), 2 );
     }
 }

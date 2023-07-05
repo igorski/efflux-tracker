@@ -33,7 +33,7 @@ import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
-import { LoadSequencerWorker } from "@/workers/worker-factory";
+import SequencerWorker from "@/workers/sequencer.worker?worker";
 
 export interface SequencerState {
     playing: boolean;
@@ -484,7 +484,7 @@ const SequencerModule: Module<SequencerState, any> = {
                 }
 
                 // spawn Worker to handle the intervallic polling
-                state.worker = LoadSequencerWorker();
+                state.worker = new SequencerWorker();
                 state.worker.onmessage = ({ data }) => {
                     if ( data.cmd === "collect" && state.playing ) {
                         collect( rootStore );

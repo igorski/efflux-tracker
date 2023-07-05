@@ -57,7 +57,7 @@ export default {
                 default:
                     return null;
                 case true:
-                    return () => import( "@/components/dropbox-connector/dropbox-connector" );
+                    return () => import( "@/components/dropbox-connector/dropbox-connector.vue" );
             }
         },
         acceptedFiles() {

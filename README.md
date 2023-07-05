@@ -166,10 +166,10 @@ npm install
 ```
 
 After which a development mode can be started (which conveniently opens your browser and points it to the correct
-location at _http://localhost:8080_) using the following Node command:
+location at _http://localhost:5173_) using the following NPM command:
 
 ```
-npm run serve
+npm run dev
 ```
 
 A minified and transpiled production build can be created using the following command:

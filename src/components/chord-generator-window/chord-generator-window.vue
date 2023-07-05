@@ -70,7 +70,7 @@ import EventFactory from "@/model/factories/event-factory";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import KeyboardService from "@/services/keyboard-service";
 import Pitch from "@/services/audio/pitch";
-import SelectBox from "@/components/forms/select-box";
+import SelectBox from "@/components/forms/select-box.vue";
 import messages from "./messages.json";
 
 export default {
@@ -206,6 +206,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/forms";
 
@@ -231,8 +233,8 @@ $height: 300px;
         left: 50%;
         width: $width;
         height: $height;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2);
+        margin-left: math.div( -$width, 2 );
+        margin-top: math.div( -$height, 2);
     }
 
     @include componentFallback( $width, $height ) {

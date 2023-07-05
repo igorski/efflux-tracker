@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
 // @ts-expect-error no type definitions for undo-manager
 import UndoManager from "undo-manager";
 import type { EffluxState } from "@/store";
@@ -6,14 +7,9 @@ import type { HistoryState } from "@/store/modules/history-module";
 
 const { getters, mutations, actions }  = store;
 
-jest.mock( "undo-manager", () => ({
-    __esModule: true,
-    default: jest.requireActual( "undo-manager" ),
-}));
-
 describe( "Vuex history state module", () => {
     const noop = () => {}, AMOUNT_OF_STATES = 5;
-    let commit = jest.fn();
+    let commit = vi.fn();
     let state: HistoryState;
 
     const createState = ( props?: Partial<HistoryState> ): HistoryState => {
@@ -158,8 +154,8 @@ describe( "Vuex history state module", () => {
 
     describe( "actions", () => {
         it( "should be able to redo an action", async () => {
-            commit = jest.fn();
-            const redo = jest.fn();
+            commit = vi.fn();
+            const redo = vi.fn();
             mutations.saveState( state, { undo: noop, redo: redo });
 
             // @ts-expect-error Type 'ActionObject<HistoryState, any>' has no call signatures.
@@ -174,7 +170,7 @@ describe( "Vuex history state module", () => {
         });
 
         it( "should be able to undo an action when an action was stored in its state history", async () => {
-            const undo = jest.fn();
+            const undo = vi.fn();
             mutations.saveState( state, { undo: undo, redo: noop });
 
             // @ts-expect-error Type 'ActionObject<HistoryState, any>' has no call signatures.

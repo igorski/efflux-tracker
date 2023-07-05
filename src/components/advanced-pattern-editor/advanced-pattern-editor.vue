@@ -192,6 +192,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/forms";
 
@@ -217,8 +219,8 @@ $height: 410px;
         left: 50%;
         width: $width;
         height: $height;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2);
+        margin-left: math.div( -$width, 2 );
+        margin-top: math.div( -$height, 2 );
     }
 
     @include componentFallback( $width, $height ) {

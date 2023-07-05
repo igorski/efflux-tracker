@@ -1,28 +1,27 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, vi } from "vitest";
+
 import SampleFactory from "@/model/factories/sample-factory";
 import { serialize } from "@/model/serializers/sample-serializer";
 import type { XTKSample } from "@/model/serializers/sample-serializer";
 import { mockAudioContext, mockAudioBuffer } from "../../mocks";
 
 let mockFn: ( fnName: string, ...args: any ) => void;
-jest.mock( "@/utils/sample-util", () => ({
-    sliceBuffer: jest.fn(( ...args ) => mockFn( "sliceBuffer", ...args )),
+vi.mock( "@/utils/sample-util", () => ({
+    sliceBuffer: vi.fn(( ...args ) => mockFn( "sliceBuffer", ...args )),
 }));
-jest.mock( "@/services/audio/webaudio-helper", () => ({
-    createOfflineAudioContext: jest.fn(() => mockAudioContext )
+vi.mock( "@/services/audio/webaudio-helper", () => ({
+    createOfflineAudioContext: vi.fn(() => mockAudioContext )
 }));
-jest.mock( "@/services/audio-service", () => ({
-    getAudioContext: jest.fn(() => mockAudioContext )
+vi.mock( "@/services/audio-service", () => ({
+    getAudioContext: vi.fn(() => mockAudioContext )
 }));
-jest.mock( "@/services/audio/sample-loader", () => ({
-    loadSample: jest.fn(( ...args ) => Promise.resolve( mockFn( "loadSample", ...args )))
+vi.mock( "@/services/audio/sample-loader", () => ({
+    loadSample: vi.fn(( ...args ) => Promise.resolve( mockFn( "loadSample", ...args )))
 }));
 let mockFnFileUtil: ( fnName: string, ...args: any ) => void;
-jest.mock( "@/utils/file-util", () => ({
-    fileToBase64: jest.fn(( ...args ) => Promise.resolve( mockFnFileUtil( "fileToBase64", ...args ))),
-    base64ToBlob: jest.fn(( ...args ) => Promise.resolve( mockFnFileUtil( "base64ToBlob", ...args )))
+vi.mock( "@/utils/file-util", () => ({
+    fileToBase64: vi.fn(( ...args ) => Promise.resolve( mockFnFileUtil( "fileToBase64", ...args ))),
+    base64ToBlob: vi.fn(( ...args ) => Promise.resolve( mockFnFileUtil( "base64ToBlob", ...args )))
 }));
 
 describe( "SampleFactory", () => {
@@ -56,7 +55,7 @@ describe( "SampleFactory", () => {
             sample.rangeEnd   = 500;
 
             const mockSlicedBuffer = { duration: 490 };
-            mockFn = jest.fn(() => mockSlicedBuffer );
+            mockFn = vi.fn(() => mockSlicedBuffer );
 
             expect( SampleFactory.getBuffer( sample, mockAudioContext )).toEqual( mockSlicedBuffer );
             expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioContext, mockAudioBuffer, sample.rangeStart, sample.rangeEnd );
@@ -67,7 +66,7 @@ describe( "SampleFactory", () => {
         it( "should convert sample sources of the binary type into base64", async () => {
             const source = new Blob();
             const sample = SampleFactory.create( source, mockAudioBuffer, "foo" );
-            mockFnFileUtil = jest.fn(() => "serializedSource" );
+            mockFnFileUtil = vi.fn(() => "serializedSource" );
 
             const serialized = await serialize( sample );
             expect( mockFnFileUtil ).toHaveBeenCalledWith( "fileToBase64", source );
@@ -87,7 +86,7 @@ describe( "SampleFactory", () => {
         it( "should leave sample sources of the String type unchanged", async () => {
             const source = "base64";
             const sample = SampleFactory.create( source, mockAudioBuffer, "foo" );
-            mockFnFileUtil = jest.fn(() => "serializedSource" );
+            mockFnFileUtil = vi.fn(() => "serializedSource" );
 
             const serialized = await serialize( sample );
             expect( mockFnFileUtil ).not.toHaveBeenCalled();
@@ -148,8 +147,8 @@ describe( "SampleFactory", () => {
             l: 3.5
         };
         const source = new Blob();
-        mockFnFileUtil = jest.fn(() => source );
-        mockFn = jest.fn(() => mockAudioBuffer );
+        mockFnFileUtil = vi.fn(() => source );
+        mockFn = vi.fn(() => mockAudioBuffer );
 
         const assembled = await SampleFactory.deserialize( serialized );
 
@@ -186,8 +185,8 @@ describe( "SampleFactory", () => {
             l: mockAudioBuffer.duration
         };
         const source = new Blob();
-        mockFnFileUtil = jest.fn(() => source );
-        mockFn = jest.fn(() => mockAudioBuffer );
+        mockFnFileUtil = vi.fn(() => source );
+        mockFn = vi.fn(() => mockAudioBuffer );
 
         const assembled = await SampleFactory.deserialize( serialized );
 

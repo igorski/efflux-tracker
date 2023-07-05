@@ -151,6 +151,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/transporter";
 
@@ -173,8 +175,8 @@ $height: 290px;
         height: $height;
         top: 50%;
         left: 50%;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2 );
+        margin-left: math.div( -$width, 2 );
+        margin-top: math.div( -$height, 2 );
     }
 
     @include componentFallback( $width, $height ) {

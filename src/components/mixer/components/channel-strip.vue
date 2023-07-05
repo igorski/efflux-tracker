@@ -106,7 +106,7 @@ import AudioService, { applyModule } from "@/services/audio-service";
 import { supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
 import { supports } from "@/services/audio/webaudio-helper";
 import { clone } from "@/utils/object-util";
-import EqControl from "./eq-control";
+import EqControl from "./eq-control.vue";
 
 export default {
     components: {

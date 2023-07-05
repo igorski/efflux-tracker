@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import EventFactory from "@/model/factories/event-factory";
 import EventValidator from "@/model/validators/event-validator";
 

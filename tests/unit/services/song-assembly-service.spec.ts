@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect } from "vitest";
 import SongFactory from "@/model/factories/song-factory";
 import SongValidator from "@/model/validators/song-validator";
 import SongAssemblyService from "@/services/song-assembly-service";

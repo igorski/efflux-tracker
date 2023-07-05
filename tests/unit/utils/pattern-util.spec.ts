@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, beforeAll } from "vitest";
 import PatternUtil, { serializePatternFile, deserializePatternFile } from "@/utils/pattern-util";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";

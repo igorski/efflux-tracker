@@ -1,5 +1,5 @@
 import Vue from "vue";
-import Efflux from "./efflux-application";
+import Efflux from "./efflux-application.vue";
 
 Vue.config.productionTip = false;
 

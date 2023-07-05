@@ -42,10 +42,10 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { applyModules, getAnalysers } from '@/services/audio-service';
-import ChannelStrip from './components/channel-strip';
-import messages from './messages.json';
+import { mapState } from "vuex";
+import { applyModules, getAnalysers } from "@/services/audio-service";
+import ChannelStrip from "./components/channel-strip.vue";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -77,6 +77,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 
 $ideal-mixer-width: 785px;
@@ -100,8 +102,8 @@ $ideal-mixer-height: 460px;
         left: 50%;
         width: $ideal-mixer-width;
         height: $ideal-mixer-height;
-        margin-left: -$ideal-mixer-width / 2;
-        margin-top: -$ideal-mixer-height / 2;
+        margin-left: math.div( -$ideal-mixer-width, 2 );
+        margin-top: math.div( -$ideal-mixer-height, 2 );
     }
 
     @include componentFallback( $ideal-mixer-width, $ideal-mixer-height ) {

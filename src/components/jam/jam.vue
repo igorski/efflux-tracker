@@ -36,8 +36,8 @@
 <script lang="ts">
 import { mapMutations } from "vuex";
 import APPLICATION_MODE from "@/definitions/application-modes";
-import InstrumentEditor from "@/components/instrument-editor/instrument-editor";
-import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor";
+import InstrumentEditor from "@/components/instrument-editor/instrument-editor.vue";
+import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor.vue";
 
 export default {
     components: {

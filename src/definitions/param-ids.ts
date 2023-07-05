@@ -132,7 +132,7 @@ const DELAY  = "delay";
 function getInstrumentPropKeysByParamId( paramId: string ): string[] {
     switch ( paramId ) {
         default:
-            if ( process.env.NODE_ENV === "development" ) {
+            if ( import.meta.env.MODE === "development" ) {
                 throw new Error( `cannot map unknown param "${paramId}" to an instrument property` );
             }
             break;

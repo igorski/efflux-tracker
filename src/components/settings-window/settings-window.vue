@@ -112,7 +112,7 @@
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { zMIDI } from "zmidi";
 import { ToggleButton } from "vue-js-toggle-button";
-import SelectBox from "@/components/forms/select-box";
+import SelectBox from "@/components/forms/select-box.vue";
 import MIDIService from "@/services/midi-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import { PROPERTIES } from "@/store/modules/settings-module";
@@ -141,7 +141,7 @@ export default {
             "timelineMode",
         ]),
         supportsTimelineMode() {
-            if ( process.env.NODE_ENV === "development" ) {
+            if ( import.meta.env.MODE === "development" ) {
                 return true; // still very much under development
             }
             return false;
@@ -272,6 +272,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/forms";
 
@@ -299,8 +301,8 @@ $height: 550px;
         height: $height;
         top: 50%;
         left: 50%;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2 );
+        margin-left: math.div( -$width, 2 );
+        margin-top: math.div( -$height, 2 );
 
         .pane {
             display: inline-block;
