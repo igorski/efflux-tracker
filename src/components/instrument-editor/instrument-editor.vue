@@ -321,7 +321,7 @@ export default {
     @media screen and ( min-width: $ideal-instrument-editor-width )  {
         left: 50%;
         width: $ideal-instrument-editor-width;
-        margin-left: math.div( $ideal-instrument-editor-width, 2 );
+        margin-left: math.div( -$ideal-instrument-editor-width, 2 );
     }
 
     @media screen and ( min-height: $ideal-instrument-editor-height ) {

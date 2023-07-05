@@ -45,7 +45,7 @@ export default
                         );
                     }
                 })
-                .catch(( e: any ) => reject( e ));
+                .catch(( e: Error ) => reject( `could not load fixture due to "${e.message}" ` ));
         });
     }
 };
