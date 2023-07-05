@@ -22,7 +22,7 @@
  */
 <template>
     <div v-if="prepared" id="efflux">
-        <!-- message of disappointment in case environment does not support appropriate web API"s -->
+        <!-- message of disappointment in case environment does not support appropriate web API's -->
         <div v-if="!canLaunch"
              class="container"
         >
