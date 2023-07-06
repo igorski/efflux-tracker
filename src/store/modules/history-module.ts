@@ -60,7 +60,8 @@ const HistoryModule: Module<HistoryState, any> = {
          * store a state change inside the history
          */
         saveState( state: HistoryState, { undo, redo }: { undo: () => void, redo: () => void }): void {
-            if ( process.env.NODE_ENV === "development" ) {
+            // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+            if ( import.meta.env.MODE !== "production" ) {
                 if ( typeof undo !== "function" || typeof redo !== "function" ) {
                     throw new Error( "cannot store a state without specifying valid undo and redo actions" );
                 }

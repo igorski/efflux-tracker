@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, vi } from "vitest";
 import store, { createMidiState } from "@/store/modules/midi-module";
 import type { EffluxState } from "@/store";
 
@@ -82,7 +80,7 @@ describe( "Vuex MIDI module", () => {
 
         it( "should be able to clear all mapped controller pairings", () => {
             const state = createMidiState();
-            const clearSpy = jest.spyOn( state.pairings, "clear" );
+            const clearSpy = vi.spyOn( state.pairings, "clear" );
 
             mutations.clearPairings( state );
             expect( clearSpy ).toHaveBeenCalled();

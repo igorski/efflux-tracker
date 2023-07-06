@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, vi } from "vitest";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import type { EffluxState } from "@/store";
 import InstrumentModule, { createInstrumentState, INSTRUMENT_STORAGE_KEY } from "@/store/modules/instrument-module";
@@ -13,22 +11,26 @@ const { getters, mutations, actions } = InstrumentModule;
 
 // mock storage
 
-let mockStorageFn = jest.fn();
-jest.mock( "@/utils/storage-util", () => ({
-    getItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
-    setItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
-    removeItem: jest.fn(( ...args ) => Promise.resolve( mockStorageFn( "removeItem", ...args )))
+let mockStorageFn = vi.fn();
+vi.mock( "@/utils/storage-util", () => ({
+    default: {
+        getItem: vi.fn(( ...args ) => Promise.resolve( mockStorageFn( "getItem", ...args ))),
+        setItem: vi.fn(( ...args ) => Promise.resolve( mockStorageFn( "setItem", ...args ))),
+        removeItem: vi.fn(( ...args ) => Promise.resolve( mockStorageFn( "removeItem", ...args ))),
+    }
 }));
 let mockSampleFn: ( fnName: string, ...args: any ) => Promise<any>;
-jest.mock( "@/model/factories/sample-factory", () => ({
-    deserialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args )))
+vi.mock( "@/model/factories/sample-factory", () => ({
+    default: {
+        deserialize: vi.fn(( ...args ) => Promise.resolve( mockSampleFn( "deserialize", ...args ))),
+    }
 }));
-jest.mock( "@/model/serializers/sample-serializer", () => ({
-    serialize: jest.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))
+vi.mock( "@/model/serializers/sample-serializer", () => ({
+    serialize: vi.fn(( ...args ) => Promise.resolve( mockSampleFn( "serialize", ...args )))
 }));
 
 describe( "Vuex instrument module", () => {
-    const dispatch = jest.fn();
+    const dispatch = vi.fn();
 
     const instrument = InstrumentFactory.create( 0 );
     instrument.presetName = "foo";
@@ -119,7 +121,7 @@ describe( "Vuex instrument module", () => {
                     waveform : OscillatorTypes.SAMPLE
                 };
 
-                mockSampleFn = jest.fn();
+                mockSampleFn = vi.fn();
 
                 // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
                 await actions.saveInstrumentIntoLS({ state: createInstrumentState(), getters: mockedGetters, dispatch }, sampledInstrument );
@@ -137,10 +139,10 @@ describe( "Vuex instrument module", () => {
                 mockStoredInstrument.oscillators[ 0 ].sample = { n: "foo" } as XTKSample;
                 mockStoredInstrument.oscillators[ 1 ].sample = { n: "bar" } as XTKSample;
 
-                mockStorageFn = jest.fn(() => JSON.stringify( mockStoredInstrument ));
+                mockStorageFn = vi.fn(() => JSON.stringify( mockStoredInstrument ));
                 // @ts-expect-error fn is declared but its value is never read.
-                mockSampleFn  = jest.fn((( fn, oscSample ) => ({ name: oscSample.n }) ));
-                const commit  = jest.fn();
+                mockSampleFn  = vi.fn((( fn, oscSample ) => ({ name: oscSample.n }) ));
+                const commit  = vi.fn();
 
                 // mock song sample contents NOTE the sample serialized in the first oscillator
                 // is already available. We can use this to verify only undefined samples are deserialized and set

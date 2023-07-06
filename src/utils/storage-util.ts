@@ -113,7 +113,8 @@ async function compress( string: string ): Promise<string> {
     } catch ( e ) {
         return string;
     }
-    if ( process.env.NODE_ENV === "development" ) {
+    // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+    if ( import.meta.env.MODE !== "production" ) {
         console.log(
             "Compressed " + string.length + " to " + compressedString.length + " (" +
             (( compressedString.length / string.length ) * 100 ).toFixed( 2 ) + "% of original size)"

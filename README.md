@@ -48,7 +48,7 @@ All source code can be found in the _./src_-folder. Efflux is written using [Vue
 Additional folders:
 
  * _./design_ contains SVG icons that are combined into a webfont (currently done manually through Fontello)
- * _./src/fixtures_ can be filled with separate JSON files containing Song data, these will be concatenated into
+ * _./fixtures_ can be filled with separate JSON files containing Song and Instrument data, these will be concatenated into
    a single file that can be requested via Ajax on the first application start to provide demo content
    (see _fixtures-loader.js_)
 
@@ -165,11 +165,18 @@ To build Efflux, first resolve all dependencies using NPM:
 npm install
 ```
 
-After which a development mode can be started (which conveniently opens your browser and points it to the correct
-location at _http://localhost:8080_) using the following Node command:
+Generate the combined fixtures JSON files by running the following command (note: this
+only needs to be executed once or when new files are added / modified in the fixtures folder)
 
 ```
-npm run serve
+npm run fixtures
+```
+
+After which a development mode can be started (which conveniently opens your browser and points it to the correct
+location at _http://localhost:5173_) using the following NPM command:
+
+```
+npm run dev
 ```
 
 A minified and transpiled production build can be created using the following command:

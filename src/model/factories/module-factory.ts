@@ -36,7 +36,8 @@ const ModuleFactory = {
     applyConfiguration( moduleType: string, modules: InstrumentModules, props: any, output: AudioNode ): void {
         switch ( moduleType ) {
             default:
-                if ( process.env.NODE_ENV === "development" ) {
+                // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+                if ( import.meta.env.MODE !== "production" ) {
                     throw new Error( `unknown module "${moduleType}" in ModuleFactory` );
                 }
                 break;

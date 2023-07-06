@@ -1,7 +1,7 @@
 {
-  "extends": "./tsconfig.json",
-  "includes": [ "src/**/*.ts" ],
-  "compilerOptions": {
-    "skipLibCheck": true
-  }
+    "extends": "./tsconfig.app.json",
+    "includes": [ "src/**/*.ts", "src/**/*.vue", "tests/**/*.ts" ],
+    "compilerOptions": {
+        "skipLibCheck": true
+    }
 }

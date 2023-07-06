@@ -132,7 +132,8 @@ const DELAY  = "delay";
 function getInstrumentPropKeysByParamId( paramId: string ): string[] {
     switch ( paramId ) {
         default:
-            if ( process.env.NODE_ENV === "development" ) {
+            // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+            if ( import.meta.env.MODE !== "production" ) {
                 throw new Error( `cannot map unknown param "${paramId}" to an instrument property` );
             }
             break;

@@ -88,7 +88,7 @@ import Config from "@/config";
 import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import { clone } from "@/utils/object-util";
-import SelectBox from "@/components/forms/select-box";
+import SelectBox from "@/components/forms/select-box.vue";
 import messages from "./messages.json";
 
 export default {

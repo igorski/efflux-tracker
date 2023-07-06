@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, vi } from "vitest";
 import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
 import type { Sample } from "@/model/types/sample";
@@ -9,12 +7,14 @@ import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 import { createSample } from "../../mocks";
 
 let mockFn: ( fnName: string, ...args: any ) => Promise<any>;
-jest.mock( "@/model/factories/sample-factory", () => ({
-    deserialize: jest.fn(( ...args ) => mockFn( "deserialize", ...args )),
+vi.mock( "@/model/factories/sample-factory", () => ({
+    default: {
+        deserialize: vi.fn(( ...args ) => Promise.resolve( mockFn( "deserialize", ...args ))),
+    }
 }));
-jest.mock( "@/model/serializers/sample-serializer", () => ({
-    serialize: jest.fn(( ...args ) => mockFn( "serialize", ...args ))
-}))
+vi.mock( "@/model/serializers/sample-serializer", () => ({
+    serialize: vi.fn(( ...args ) => Promise.resolve( mockFn( "serialize", ...args ))),
+}));
 
 describe( "Song factory", () => {
     it( "should be able to create a Song", () => {
@@ -28,7 +28,7 @@ describe( "Song factory", () => {
             const song = SongFactory.create( 1 );
             song.samples = [ createSample( "foo" ), createSample( "bar" )];
 
-            mockFn = jest.fn();
+            mockFn = vi.fn();
             await serialize( song );
 
             expect( mockFn ).toHaveBeenNthCalledWith( 1, "serialize", song.samples[ 0 ], 0, song.samples );
@@ -43,7 +43,7 @@ describe( "Song factory", () => {
             mockFn = ( fn: string, item: any ): Promise<any> => Promise.resolve( item );
             const xtk = await serialize( song );
 
-            mockFn = jest.fn();
+            mockFn = vi.fn();
             const songAssembled = await SongFactory.deserialize( xtk, ASSEMBLER_VERSION );
 
             expect( mockFn ).toHaveBeenNthCalledWith( 1, "deserialize", song.samples[ 0 ], 0, song.samples );

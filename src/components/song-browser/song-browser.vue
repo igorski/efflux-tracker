@@ -76,7 +76,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import FileLoader from "@/components/file-loader/file-loader";
+import FileLoader from "@/components/file-loader/file-loader.vue";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import { SONG_STORAGE_KEY, getStorageKeyForSong } from "@/store/modules/song-module";
 import { openFileBrowser } from "@/utils/file-util";
@@ -186,6 +186,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/typography";
 
@@ -234,8 +236,8 @@ $headerFooterHeightNoExpl: 102px;
         height: $songBrowserHeight;
         top: 50%;
         left: 50%;
-        margin-left: -( $songBrowserWidth / 2 );
-        margin-top: -( $songBrowserHeight / 2 );
+        margin-left: math.div( -$songBrowserWidth, 2 );
+        margin-top: math.div( -$songBrowserHeight, 2 );
 
         .song-list {
             height: calc(#{$songBrowserHeight - $headerFooterHeight});

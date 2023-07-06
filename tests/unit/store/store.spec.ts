@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, vi } from "vitest";
 import APPLICATION_MODE from "@/definitions/application-modes";
 import ModalWindows from "@/definitions/modal-windows";
 import store from "@/store";
@@ -17,14 +15,12 @@ import { createSongState } from "@/store/modules/song-module";
 
 const { getters, mutations } = store;
 
-jest.mock( "@/workers/worker-factory", () => ({
-    LoadSequencerWorker: () => { onmessage: jest.fn() }
-}));
-
 let mockFn: ( fnName: string, ...args: any ) => void;
-jest.mock("@/services/keyboard-service", () => ({
-    syncEditorSlot: jest.fn(( ...args ): void => mockFn( "syncEditorSlot", ...args )),
-    setSuspended: jest.fn(( ...args ): void => mockFn( "setSuspended", ...args )),
+vi.mock("@/services/keyboard-service", () => ({
+    default: {
+        syncEditorSlot: vi.fn(( ...args ): void => mockFn( "syncEditorSlot", ...args )),
+        setSuspended: vi.fn(( ...args ): void => mockFn( "setSuspended", ...args )),
+    }
 }));
 
 describe( "Application Vuex store root", () => {
@@ -141,8 +137,8 @@ describe( "Application Vuex store root", () => {
                     type: "foo",
                     title: "title",
                     message: "message",
-                    confirm: jest.fn(),
-                    cancel: jest.fn(),
+                    confirm: vi.fn(),
+                    cancel: vi.fn(),
                     hideActions: true
                 };
                 mutations.openDialog( state, params );
@@ -213,19 +209,19 @@ describe( "Application Vuex store root", () => {
         });
 
         it( "should be able to sync the keyboard in the KeyboardService", () => {
-            mockFn = jest.fn();
+            mockFn = vi.fn();
             mutations.syncKeyboard();
             expect( mockFn ).toHaveBeenCalledWith( "syncEditorSlot" );
         });
 
         it( "should be able to suspend the keyboard in the KeyboardService", () => {
             const state = createState();
-            mockFn = jest.fn();
+            mockFn = vi.fn();
 
             mutations.suspendKeyboardService( state, true );
             expect( mockFn ).toHaveBeenCalledWith( "setSuspended", true );
 
-            mockFn = jest.fn();
+            mockFn = vi.fn();
 
             mutations.suspendKeyboardService( state, false );
             expect( mockFn ).toHaveBeenCalledWith( "setSuspended", false );

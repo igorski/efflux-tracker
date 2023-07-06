@@ -209,14 +209,19 @@ const SongModule: Module<SongState, any> = {
                 // no songs available ? load fixtures with 'factory content'
 
                 commit( "setLoading", "SNG" );
-                const songs = await FixturesLoader.load( "Songs.json" );
-                commit( "unsetLoading", "SNG" );
-                if ( Array.isArray( songs )) {
-                    commit( "setShowSaveMessage", false );
-                    for ( let i = 0; i < songs.length; ++i ) {
-                        await dispatch( "saveSongInLS", await SongAssemblyService.assemble( songs[ i ]));
+                try {
+                    const songs = await FixturesLoader.load( "fixtures-songs.json" );
+                    if ( Array.isArray( songs )) {
+                        commit( "setShowSaveMessage", false );
+                        for ( let i = 0; i < songs.length; ++i ) {
+                            await dispatch( "saveSongInLS", await SongAssemblyService.assemble( songs[ i ]));
+                        }
+                        commit( "setShowSaveMessage", true );
                     }
-                    commit( "setShowSaveMessage", true );
+                } catch {
+                    // non-blocking
+                } finally {
+                    commit( "unsetLoading", "SNG" );
                 }
             });
         },

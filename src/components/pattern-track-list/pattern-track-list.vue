@@ -107,7 +107,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import PatternEvent from "./pattern-event";
+import PatternEvent from "./pattern-event.vue";
 import KeyboardService from "@/services/keyboard-service";
 
 const STEP_WIDTH  = 150;

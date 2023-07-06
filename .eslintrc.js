@@ -1,21 +1,30 @@
 module.exports = {
     root: true,
     env: {
-        node: true
+        es2021: true
     },
-    "extends": [
+    extends: [
         "plugin:vue/essential",
         "eslint:recommended"
     ],
-    rules: {
-        "no-console": process.env.NODE_ENV === "production" ? "error" : "off",
-        "no-debugger": process.env.NODE_ENV === "production" ? "error" : "off",
-        "no-unused-vars": process.env.NODE_ENV === "production" ? "error" : "warn",
-        "no-case-declarations": "off",
-        "no-async-promise-executor": "off",
-        "vue/multi-word-component-names": "off"
-    },
     parserOptions: {
-        parser: '@babel/eslint-parser'
-    }
-};
+        // parser: "@babel/eslint-parser"
+    },
+    rules: {
+        "no-case-declarations": "off",
+        "no-console": "off",
+        "no-irregular-whitespace": "off",
+        "vue/multi-word-component-names": "off",
+        "no-async-promise-executor": "off",
+    },
+    overrides: [{
+        files: [
+            "**/__tests__/*.{j,t}s?(x)",
+            "**/tests/unit/**/*.spec.{j,t}s?(x)"
+        ],
+        env: {
+            jest: true
+        }
+    }],
+    ignorePatterns: []
+}

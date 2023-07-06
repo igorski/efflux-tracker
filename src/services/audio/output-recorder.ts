@@ -1,4 +1,4 @@
-import { LoadRecorderWorker } from "@/workers/worker-factory";
+import RecorderWorker from "@/workers/recorder.worker?worker";
 
 type RecordCallback = ( recordedAudio: Blob ) => void;
 
@@ -27,7 +27,7 @@ export default class OutputRecorder
         // @ts-expect-error Property 'createJavaScriptNode' does not exist on type 'AudioContext'
         this.node = ( context.createScriptProcessor || context.createJavaScriptNode ).call( context, bufferSize, 2, 2 );
 
-        this.worker = LoadRecorderWorker();
+        this.worker = new RecorderWorker();
         this.worker.onmessage = ( e: MessageEvent ): void => {
             this.callback?.( e.data );
         };

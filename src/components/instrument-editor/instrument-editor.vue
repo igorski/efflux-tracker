@@ -126,9 +126,9 @@ import PubSubMessages    from "@/services/pubsub/messages";
 import createAction      from "@/model/factories/action-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import { clone }         from "@/utils/object-util";
-import SelectBox         from "@/components/forms/select-box";
-import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor";
-import ModuleEditor      from "./components/module-editor/module-editor";
+import SelectBox         from "@/components/forms/select-box.vue";
+import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor.vue";
+import ModuleEditor      from "./components/module-editor/module-editor.vue";
 import messages          from "./messages.json";
 
 let EMPTY_PRESET_VALUE;
@@ -300,6 +300,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/tabs";
 @import "@/styles/forms";
@@ -319,12 +321,12 @@ export default {
     @media screen and ( min-width: $ideal-instrument-editor-width )  {
         left: 50%;
         width: $ideal-instrument-editor-width;
-        margin-left: -$ideal-instrument-editor-width / 2;
+        margin-left: math.div( -$ideal-instrument-editor-width, 2 );
     }
 
     @media screen and ( min-height: $ideal-instrument-editor-height ) {
         top: 50%;
-        margin-top: -$ideal-instrument-editor-height / 2;
+        margin-top: math.div( -$ideal-instrument-editor-height, 2 );
         height: $ideal-instrument-editor-height;
     }
 
@@ -332,13 +334,13 @@ export default {
         @media screen and ( min-width: $ideal-maximized-instrument-editor-width )  {
             left: 50%;
             width: $ideal-maximized-instrument-editor-width !important;
-            margin-left: -( $ideal-maximized-instrument-editor-width / 2 ) !important;
+            margin-left: math.div( -$ideal-maximized-instrument-editor-width, 2 ) !important;
         }
 
         @media screen and ( min-height: $ideal-maximized-instrument-editor-height )  {
             top: 50%;
             height: $ideal-maximized-instrument-editor-height;
-            margin-top: -( $ideal-maximized-instrument-editor-height / 2 ) !important;
+            margin-top: math.div( -$ideal-maximized-instrument-editor-height, 2 ) !important;
         }
     }
 }

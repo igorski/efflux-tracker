@@ -71,10 +71,10 @@ import { mapState, mapMutations } from "vuex";
 import { MediaRecorder, register } from "extendable-media-recorder";
 import { connect } from "extendable-media-recorder-wav-encoder";
 import SampleFactory from "@/model/factories/sample-factory";
-import AudioService from "@/services/audio-service";
+import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, supportsAnalysis } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
-import SelectBox from "@/components/forms/select-box";
+import SelectBox from "@/components/forms/select-box.vue";
 import TimeUtil from "@/utils/time-util";
 
 import messages from "./messages.json";
@@ -136,7 +136,7 @@ export default {
 
                 // 2. prepare analyser to monitor input
 
-                const audioContext = AudioService.getAudioContext();
+                const audioContext = getAudioContext();
 
                 this.analyser = createAnalyser( audioContext.createMediaStreamSource( stream ), audioContext );
                 this.performAnalysis = supportsAnalysis( this.analyser );
@@ -222,7 +222,8 @@ export default {
                 mediaRecorder.start();
                 handleProgress();
             } catch ( e ) {
-                if ( process.env.NODE_ENV === "development" ) {
+                // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+                if ( import.meta.env.MODE !== "production" ) {
                     // eslint-disable-next-line no-console
                     console.error( e );
                 }

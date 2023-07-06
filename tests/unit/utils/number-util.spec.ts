@@ -1,3 +1,4 @@
+import { describe, it, expect } from "vitest";
 import { fromHex, toHex, isHex } from "@/utils/number-util";
 
 describe( "NumberUtil", () => {

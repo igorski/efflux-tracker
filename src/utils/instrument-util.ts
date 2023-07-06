@@ -23,7 +23,7 @@
 import type { Store } from "vuex";
 import type { ModuleParamDef } from "@/definitions/automatable-parameters";
 import { getParamRange, applyParamChange } from "@/definitions/param-ids";
-import AudioService from "@/services/audio-service";
+import { noteOn, noteOff } from "@/services/audio-service";
 import type { PartialPitch } from "@/services/audio/pitch";
 import EventFactory from "@/model/factories/event-factory";
 import EventUtil from "./event-util";
@@ -198,7 +198,7 @@ export default
             instrument = store.getters.activeSong.instruments[ audioEvent.instrument ];
         }
         playingNotes[ id ] = { audioEvent, instrument, recording: record === true };
-        AudioService.noteOn( audioEvent, instrument, store.getters.sampleCache );
+        noteOn( audioEvent, instrument, store.getters.sampleCache );
 
         return audioEvent;
     },
@@ -211,7 +211,7 @@ export default
         const noteVO = playingNotes[ id ];
 
         if ( noteVO ) {
-            AudioService.noteOff( noteVO.audioEvent );
+            noteOff( noteVO.audioEvent );
 
             if ( noteVO.recording ) {
                 const offEvent  = EventFactory.create( noteVO.instrument.index );

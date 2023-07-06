@@ -1,3 +1,4 @@
+import { vi } from "vitest";
 import type { Sample } from "@/model/types/sample";
 
 export const mockAudioContext: BaseAudioContext = {
@@ -7,9 +8,9 @@ export const mockAudioContext: BaseAudioContext = {
 
 export const mockGainNode: GainNode = {
     gain: {
-        cancelScheduledValues: jest.fn(),
-        linearRampToValueAtTime: jest.fn(),
-        setValueAtTime: jest.fn()
+        cancelScheduledValues: vi.fn(),
+        linearRampToValueAtTime: vi.fn(),
+        setValueAtTime: vi.fn()
     }
 } as unknown as GainNode;
 

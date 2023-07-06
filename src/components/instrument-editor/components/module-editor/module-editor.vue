@@ -190,7 +190,7 @@ import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import { IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH } from "@/definitions/layout";
 import { enqueueState } from "@/model/factories/history-state-factory";
-import SelectBox from "@/components/forms/select-box";
+import SelectBox from "@/components/forms/select-box.vue";
 import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
 import { applyModule } from "@/services/audio-service";
 import { clone } from "@/utils/object-util";

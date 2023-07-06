@@ -153,14 +153,14 @@
 
 <script>
 import { mapState, mapMutations } from "vuex";
-import { ToggleButton }   from "vue-js-toggle-button";
-import EventFactory       from "@/model/factories/event-factory";
-import KeyboardService    from "@/services/keyboard-service";
+import { ToggleButton } from "vue-js-toggle-button";
+import EventFactory from "@/model/factories/event-factory";
+import KeyboardService from "@/services/keyboard-service";
 import ModuleParamHandler from "@/services/keyboard/module-param-handler";
-import ManualURLs         from "@/definitions/manual-urls";
-import { supports }       from "@/services/audio/webaudio-helper";
-import FormListItem       from "../forms/form-list-item";
-import messages           from "./messages.json";
+import ManualURLs from "@/definitions/manual-urls";
+import { supports } from "@/services/audio/webaudio-helper";
+import FormListItem from "../forms/form-list-item.vue";
+import messages from "./messages.json";
 
 import {
     DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
@@ -349,6 +349,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@use "sass:math";
+
 @import "@/styles/_mixins";
 @import "@/styles/forms";
 
@@ -379,8 +381,8 @@ $height: 485px;
         left: 50%;
         width: $width;
         height: $height;
-        margin-left: -( $width / 2 );
-        margin-top: -( $height / 2);
+        margin-left: math.div( -$width, 2 );
+        margin-top: math.div( -$height, 2 );
 
         .wrapper.range input {
             width: 55%;

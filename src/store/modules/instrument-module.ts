@@ -105,12 +105,17 @@ const InstrumentModule: Module<InstrumentState, any> = {
                async (): Promise<void> => {
                    // no instruments available ? load fixtures with "factory content"
                    commit( "setLoading", "INS" );
-                   const instruments = await FixturesLoader.load( "Instruments.json" );
-                   commit( "unsetLoading", "INS" );
-                   if ( Array.isArray( instruments )) {
-                       for ( let i = 0; i < instruments.length; ++i ) {
-                           await dispatch( "saveInstrumentIntoLS", instruments[ i ]);
+                   try {
+                       const instruments = await FixturesLoader.load( "fixtures-instruments.json" );
+                       if ( Array.isArray( instruments )) {
+                           for ( let i = 0; i < instruments.length; ++i ) {
+                               await dispatch( "saveInstrumentIntoLS", instruments[ i ]);
+                           }
                        }
+                   } catch {
+                       // non blocking
+                   } finally {
+                       commit( "unsetLoading", "INS" );
                    }
                }
             );

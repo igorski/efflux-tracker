@@ -1,6 +1,4 @@
-/**
- * @jest-environment jsdom
- */
+import { describe, it, expect, beforeEach } from "vitest";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
@@ -15,7 +13,6 @@ describe( "SongUtil", () => {
     beforeEach(() => {
         song = SongFactory.create( 8 );
     });
-
 
     it( "should know whether or not a song has content", () => {
         // expected song not to have content as no events with an action were defined in any pattern

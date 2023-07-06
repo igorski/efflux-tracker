@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { LoadCompressionWorker } from "@/workers/worker-factory";
+import CompressionWorker from "@/workers/compression.worker?worker";
 
 interface WorkerResponse {
     id: number;
@@ -69,7 +69,7 @@ function createJob( cmd: string, data: any ): Promise<any> {
     return new Promise(( resolve, reject ) => {
         const id = ( ++UID );
         // Worker is lazily created per process so we can parallelize
-        const worker = LoadCompressionWorker();
+        const worker = new CompressionWorker();
         worker.onmessage = handleWorkerMessage;
         const disposeWorker = () => worker.terminate();
         jobQueue.push({

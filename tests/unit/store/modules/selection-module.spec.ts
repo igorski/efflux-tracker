@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach } from "vitest";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import SelectionModule, { createSelectionState } from "@/store/modules/selection-module";
 import type { SelectionState } from "@/store/modules/selection-module";
