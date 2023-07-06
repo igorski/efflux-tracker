@@ -141,7 +141,8 @@ export default {
             "timelineMode",
         ]),
         supportsTimelineMode() {
-            if ( import.meta.env.MODE === "development" ) {
+            // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+            if ( import.meta.env.MODE !== "production" ) {
                 return true; // still very much under development
             }
             return false;

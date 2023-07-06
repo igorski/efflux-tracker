@@ -61,7 +61,7 @@ const TRUE = !!1;
 const FALSE = !!0;
 
 // environment variables
-let audioContext: AudioContext;
+let audioContext: BaseAudioContext;
 let activeSong: EffluxSong;
 let event: TinyEvent;
 
@@ -103,12 +103,12 @@ export default {
      *
      * @param {Object|string} xtkObject
      * @param {Function=} optExternalEventCallback
-     * @param {AudioContext=} optAudioContext optional AudioContext (when provided, should not be
+     * @param {BaseAudioContext=} optAudioContext optional AudioContext (when provided, should not be
      *        in suspended state. when null, audioContext will be initialized inline, though be sure
      *        to call this method after a user interaction to prevent muted playback)
      * @return {Promise<boolean>} whether player is ready for playback
      */
-    l: async ( xtkObject: string | any, optExternalEventCallback?: ExternalEventCallback, optAudioContext?: AudioContext ): Promise<boolean> => {
+    l: async ( xtkObject: string | any, optExternalEventCallback?: ExternalEventCallback, optAudioContext?: BaseAudioContext ): Promise<boolean> => {
         try {
             if ( optAudioContext ) {
                 audioContext = optAudioContext;
@@ -206,5 +206,5 @@ export default {
      * in case you which to create an external hook (for instance
      * to create an audio visualizer)
      */
-    a: (): AudioContext => audioContext
+    a: (): BaseAudioContext => audioContext
 };

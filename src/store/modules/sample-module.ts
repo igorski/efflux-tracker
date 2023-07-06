@@ -24,7 +24,7 @@ import type { Commit, Module } from "vuex";
 import SampleFactory from "@/model/factories/sample-factory";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
-import AudioService from "@/services/audio-service";
+import { getAudioContext } from "@/services/audio-service";
 
 export interface SampleState {
     currentSampleId: string | null; // id of sample currently being edited
@@ -57,7 +57,7 @@ const SampleModule: Module<SampleState, any> = {
         cacheSample( state: SampleState, sample: Sample ): void {
             state.sampleCache.set( sample.name, {
                 ...sample,
-                buffer: SampleFactory.getBuffer( sample, AudioService.getAudioContext() )
+                buffer: SampleFactory.getBuffer( sample, getAudioContext() )
             });
         },
         removeSampleFromCache( state: SampleState, { name } : { name: string }): void {

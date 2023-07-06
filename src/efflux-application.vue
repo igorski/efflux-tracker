@@ -384,7 +384,8 @@ export default {
 
         // show confirmation message on page reload
 
-        if ( import.meta.env.MODE !== "development" ) {
+        // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+        if ( import.meta.env.MODE === "production" ) {
             const handleUnload = () => this.$t( "warnings.unload" );
             if ( Bowser.ios ) {
                 window.addEventListener( "popstate", handleUnload );

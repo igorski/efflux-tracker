@@ -33,7 +33,7 @@ import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
-import SequencerWorker from "@/workers/sequencer.worker?worker";
+import SequencerWorker from "@/workers/sequencer.worker?worker&inline";
 
 export interface SequencerState {
     playing: boolean;

@@ -3,6 +3,7 @@ node_modules
 public/fixtures/*
 /dist
 package-lock.json
+*.tsbuildinfo
 
 # local env files
 .env.local

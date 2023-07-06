@@ -110,7 +110,8 @@ export const prepareEnvironment = ( audioContextInstance: BaseAudioContext,
         }
         // @ts-expect-error not all OscillatorTypes have tables available
         const table = waveTables[ waveIdentifier ];
-        if ( import.meta.env.MODE === "development" ) {
+        // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+        if ( import.meta.env.MODE !== "production" ) {
             if ( !table ) {
                 throw new Error( `cannot create periodic wave for non-existing table of "${waveIdentifier}"` );
             }
@@ -445,7 +446,8 @@ const AudioService =
         });
     },
     updateOscillator( property: string, instrumentIndex: number, oscillatorIndex: number, oscillator: InstrumentOscillator ): void {
-        if ( import.meta.env.MODE === "development" ) {
+        // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+        if ( import.meta.env.MODE !== "production" ) {
             if ( !/waveform|tuning|volume/.test( property )) {
                 throw new Error(`cannot update unsupported oscillator property ${property}`);
             }
