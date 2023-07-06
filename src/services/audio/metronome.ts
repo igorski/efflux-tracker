@@ -20,7 +20,8 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { beep } from './webaudio-helper';
+import Vue from "vue";
+import { beep } from "./webaudio-helper";
 
 /**
  * Metronome is a component of the transporter
@@ -28,7 +29,9 @@ import { beep } from './webaudio-helper';
  */
 export default
 {
-    enabled         : false,
+    enabled : Vue.observable({
+        value: false
+    }),
     restore         : false,
     countIn         : false,
     countInComplete : false,

@@ -227,7 +227,7 @@ function collect( store: Store<EffluxState> ): void {
                 }
             }
         }
-        if ( Metronome.enabled ) {
+        if ( Metronome.enabled.value ) {
             Metronome.play( 2, state.currentStep, state.stepPrecision, state.nextNoteTime, audioContext );
         }
         // advance to next step position
@@ -285,7 +285,7 @@ function step( store: Store<EffluxState> ): void {
 
             if ( Metronome.countIn && !Metronome.countInComplete ) {
 
-                Metronome.enabled           = Metronome.restore;
+                Metronome.enabled.value     = Metronome.restore;
                 Metronome.countInComplete   = true;
                 state.firstMeasureStartTime = getAudioContext().currentTime;
 
@@ -372,7 +372,7 @@ const SequencerModule: Module<SequencerState, any> = {
         },
         // @ts-expect-error 'state' is declared but its value is never read.
         isMetronomeEnabled( state: SequencerState ): boolean {
-            return Metronome.enabled;
+            return Metronome.enabled.value;
         },
         amountOfSteps( state: SequencerState, rootGetters: any ): number {
             return rootGetters.activeSong.patterns[ state.activePattern ].steps;
@@ -389,7 +389,7 @@ const SequencerModule: Module<SequencerState, any> = {
             if ( state.playing ) {
                 if ( state.recording && Metronome.countIn ) {
                     Metronome.countInComplete = false;
-                    Metronome.enabled         = true;
+                    Metronome.enabled.value   = true;
                 }
                 state.currentStep = 0;  // always start from beginning
                 state.worker.postMessage({
@@ -470,7 +470,7 @@ const SequencerModule: Module<SequencerState, any> = {
         },
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
-            Metronome.enabled = !!enabled;
+            Metronome.enabled.value = !!enabled;
         },
         setPosition,
     },
