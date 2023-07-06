@@ -142,7 +142,11 @@ function asyncComponent( key, importFn ) {
             try {
                 const component = await importFn();
                 resolve( component );
-            } catch {
+            } catch ( e ) {
+                // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+                if ( import.meta.env.MODE !== "production" ) {
+                    console.error( e );
+                }
                 reject();
             }
             Pubsub.publish( PubSubMessages.UNSET_LOADING_STATE, key );

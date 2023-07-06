@@ -18,12 +18,13 @@
     "dropbox": "^10.26.0",
     "register-service-worker": "^1.7.1",
     "vue": "v2-latest",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "lamejs": "github:zhuker/lamejs"
   },
   "devDependencies": {
     "@types/webmidi": "^2.0.6",
     "@vitejs/plugin-vue2": "^2.2.0",
-    "audio-encoder": "1.0.2",
+    "audio-encoder": "1.0.4",
     "axios": "^0.24.0",
     "bowser": "^2.11.0",
     "eslint": "^8.36.0",
