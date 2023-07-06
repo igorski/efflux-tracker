@@ -1,5 +1,4 @@
 import { defineConfig } from "vite";
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import path from "path";
 
 const dirSrc = `${__dirname}/src`;
@@ -26,21 +25,5 @@ export default defineConfig({
             "vue": path.resolve( __dirname, "src/tiny-player/tiny_node_modules/vue" )
         },
         extensions: [ ".ts", ".js", "..." ],
-    },
-    optimizeDeps: {
-        esbuildOptions: {
-            // Node.js global to browser globalThis
-            define: {
-                global: "globalThis"
-            },
-            plugins: [
-               NodeGlobalsPolyfillPlugin({
-                   buffer: true,
-                   crypto: true,
-                   util: true,
-                   stream: true
-               })
-           ]
-        }
     },
 });

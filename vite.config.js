@@ -1,7 +1,6 @@
 import { defineConfig } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import vue from "@vitejs/plugin-vue2";
-import { NodeGlobalsPolyfillPlugin } from "@esbuild-plugins/node-globals-polyfill";
 import path from "path";
 
 const dirSrc      = `./src`;
@@ -29,21 +28,5 @@ export default defineConfig({
         alias: {
             "@": path.resolve( __dirname, "./src" ),
         },
-    },
-    optimizeDeps: {
-        esbuildOptions: {
-            // Node.js global to browser globalThis
-            define: {
-                global: "globalThis"
-            },
-            plugins: [
-               NodeGlobalsPolyfillPlugin({
-                   buffer: true,
-                   crypto: true,
-                   util: true,
-                   stream: true
-               })
-           ]
-        }
     },
 });
