@@ -262,7 +262,10 @@ export const createPWM = ( audioContext: BaseAudioContext, startTime: number, en
 export const init = ( optCallback?: () => void ): Promise<AudioContext> => {
     return new Promise(( resolve, reject ) => {
         let audioContext: AudioContext;
-        const handler = (): void => {
+        const handler = ( e: Event ): void => {
+            if ( e.type === "keydown" && ( e as KeyboardEvent ).keyCode === 27 ) {
+                return; // hitting escape will not actually unlock the AudioContext
+            }
             d.removeEventListener( "click",   handler, false );
             d.removeEventListener( "keydown", handler, false );
             window.removeEventListener( "drop", handler, false );

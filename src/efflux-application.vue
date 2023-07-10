@@ -74,7 +74,7 @@
 
         <div class="application-footer">
             <span>
-                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2022
+                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2023
             </span>
         </div>
 
