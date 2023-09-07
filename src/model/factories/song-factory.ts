@@ -22,18 +22,20 @@
  */
 import Config from "@/config";
 import InstrumentFactory from "./instrument-factory";
+import PatternOrderFactory from "./pattern-order-factory";
 import PatternFactory from "./pattern-factory";
 import SampleFactory from "./sample-factory";
 import {
     SONG_ID, SONG_VERSION_ID, SAMPLES,
     META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED, META_TEMPO
 } from "../serializers/song-serializer";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxSong } from "@/model/types/song";
 import type { Instrument } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import type { XTK } from "@/model/serializers/song-serializer";
 
-export const FACTORY_VERSION = 3;
+export const FACTORY_VERSION = 4;
 export const LEGACY_VERSION  = 1;
 
 const SongFactory =
@@ -66,12 +68,13 @@ const SongFactory =
 
             // data lists
 
-            /**
-             * @type {EffluxPattern[]}
-             */
             patterns : [
                 PatternFactory.create( 16 )
-            ]
+            ],
+
+            // pattern playback order
+
+            order: [] as EffluxPatternOrder,
         };
 
         for ( let i = 0; i < amountOfInstruments; ++i ) {
@@ -92,6 +95,7 @@ const SongFactory =
 
          song.instruments = InstrumentFactory.deserialize( xtk, xtkVersion );
          song.patterns    = PatternFactory.deserialize( xtk, xtkVersion, song.meta.tempo );
+         song.order       = PatternOrderFactory.deserialize( xtk, xtkVersion );
 
          const deserializedSamples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.deserialize ));
          song.samples = deserializedSamples.filter( Boolean );

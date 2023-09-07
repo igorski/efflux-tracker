@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { EffluxPatternOrder } from "./pattern-order";
 import type { EffluxPattern } from "./pattern";
 import type { Instrument } from "./instrument";
 import type { Sample } from "@/model/types/sample";
@@ -45,6 +46,7 @@ export type EffluxSong = {
     meta: EffluxSongMeta,
     instruments: Instrument[];
     patterns: EffluxPattern[];
+    order: EffluxPatternOrder;
     samples: Sample[];
     origin?: EffluxSongOrigin;
 };
