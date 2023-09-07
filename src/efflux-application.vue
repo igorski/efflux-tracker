@@ -47,6 +47,7 @@
                     class="application-properties"
                 >
                     <pattern-editor />
+                    <pattern-order-editor />
                     <song-editor />
                 </div>
             </div>
@@ -166,6 +167,7 @@ export default {
         Notifications,
         NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
+        PatternOrderEditor: () => asyncComponent( "po", () => import( "@/components/pattern-order-editor/pattern-order-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
         SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor.vue" )),
         TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor.vue" )),

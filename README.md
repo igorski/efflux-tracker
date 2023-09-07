@@ -71,11 +71,13 @@ The model of an Efflux song consists of the following actors (created via their 
 
  * Song
  * Patterns
+ * Pattern order list
  * Events
  * Instruments
  * Modules
 
-A song contains a list of `EffluxPattern`s. A Pattern contains a list of _channels_ (one for each available track) and a descriptor for the amount of _steps_ the pattern contains (e.g. 16, 32, 64, etc.).
+A song contains a list of `EffluxPattern`s, played back through a `EffluxPatternOrder`-list. A Pattern contains a list of _channels_ (one for each available track) and a descriptor for the amount of _steps_ the pattern contains (e.g. 16, 32, 64, etc.). The Pattern order list contains a list of Patterns to be played back in the song (this way you can
+reuse the same pattern multiple times without having to manage duplicates).
 
 Each channel inside a pattern contains `EffluxAudioEvent`s. These describe an action that should happen at a given step within a patterns
 channel. These can be note on/note off instructions or module parameter automations, or both. Each event references

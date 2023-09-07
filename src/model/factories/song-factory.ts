@@ -74,7 +74,7 @@ const SongFactory =
 
             // pattern playback order
 
-            order: [] as EffluxPatternOrder,
+            order: [ 0 ] as EffluxPatternOrder,
         };
 
         for ( let i = 0; i < amountOfInstruments; ++i ) {

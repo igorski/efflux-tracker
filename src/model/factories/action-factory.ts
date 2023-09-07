@@ -27,6 +27,7 @@ import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import PatternUtil from "@/utils/pattern-util";
+import PatternOrderUtil from "@/utils/pattern-order-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
@@ -513,10 +514,12 @@ function deletePattern({ store }: { store: Store<EffluxState> }): IUndoRedoState
 
     const { commit } = store;
     const existingPattern = clonePattern( song, patternIndex );
+    const existingOrder = [ ...song.order ];
 
     function act(): void {
         commit( "setActivePattern", targetIndex );
         commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex ));
+        commit( "replacePatternOrder", PatternOrderUtil.removeAllPatternInstances( existingOrder, patternIndex ));
     }
     act(); // perform action
 
@@ -524,6 +527,7 @@ function deletePattern({ store }: { store: Store<EffluxState> }): IUndoRedoState
         undo(): void {
             commit( "setActivePattern", targetIndex );
             commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex, amountOfSteps, existingPattern ));
+            commit( "replacePatternOrder", existingOrder );
         },
         redo: act
     };

@@ -36,6 +36,7 @@ import SongValidator from "@/model/validators/song-validator";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@/model/types/song";
 import { clone } from "@/utils/object-util";
@@ -165,6 +166,9 @@ const SongModule: Module<SongState, any> = {
         },
         replacePatterns( state: SongState, patterns: EffluxPattern[] ): void {
             Vue.set( state.activeSong, "patterns", patterns );
+        },
+        replacePatternOrder( state: SongState, order: EffluxPatternOrder ): void {
+            Vue.set( state.activeSong, "order", order );
         },
         setShowSaveMessage( state: SongState, value: boolean ): void {
             state.showSaveMessage = !!value;

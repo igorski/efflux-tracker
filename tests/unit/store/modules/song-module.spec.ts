@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import songModule, { createSongState } from "@/store/modules/song-module";
 import type { SongState } from "@/store/modules/song-module";
+import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong, EffluxSongMeta } from "@/model/types/song";
@@ -150,6 +151,22 @@ describe( "Vuex song module", () => {
             const state = createSongState({ statesOnSave: 0 });
             mutations.setStatesOnSave( state, 5 );
             expect( state.statesOnSave ).toEqual( 5 );
+        });
+
+        it( "should be able to replace the existing patterns", () => {
+            const state = createSongState({ activeSong: createSong() });
+            const patterns = [ PatternFactory.create(), PatternFactory.create() ];
+            mutations.replacePatterns( state, patterns );
+
+            expect( state.activeSong.patterns ).toEqual( patterns );
+        });
+
+        it( "should be able to replace the existing pattern order", () => {
+            const state = createSongState({ activeSong: createSong() });
+            const order = [ 0, 1, 1, 2 ];
+            mutations.replacePatternOrder( state, order );
+
+            expect( state.activeSong.order ).toEqual( order );
         });
     });
 

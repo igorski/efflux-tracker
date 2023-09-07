@@ -24,7 +24,7 @@ describe( "PatternOrderFactory", () => {
             const xtk = {};
 
             serializePatterns( xtk, patterns );
-            expect( PatternOrderFactory.deserialize( xtk, 3 )).toEqual([ 0, 1 ]);
+            expect( PatternOrderFactory.deserialize( xtk, 7 )).toEqual([ 0, 1 ]);
         });
     });
 });
