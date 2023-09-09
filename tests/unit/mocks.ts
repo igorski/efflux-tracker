@@ -14,6 +14,10 @@ export const mockGainNode: GainNode = {
     }
 } as unknown as GainNode;
 
+export const createMockOscillatorNode = (): OscillatorNode => ({
+    disconnect: vi.fn(),
+} as unknown as OscillatorNode );
+
 export const mockAudioBuffer: AudioBuffer = {
     sampleRate: 44100,
     length: 132300,

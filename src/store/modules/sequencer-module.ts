@@ -486,7 +486,7 @@ const SequencerModule: Module<SequencerState, any> = {
                 // create LinkedLists to store all currently playing events for all channels
 
                 for ( let i = 0; i < state.channelQueue.length; ++i ) {
-                    state.channelQueue[ i ] = new LinkedList();
+                    state.channelQueue[ i ] = state.channelQueue[ i ] ?? new LinkedList();
                 }
 
                 // spawn Worker to handle the intervallic polling
