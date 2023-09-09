@@ -126,7 +126,7 @@ function getPreviousEventWithModuleAutomation( step: number ): EffluxAudioEvent 
         }
         prevEvent = EventUtil.getFirstEventBeforeStep(
             state.song.activeSong
-                .patterns[ state.sequencer.activePattern ]
+                .patterns[ store.getters.activePattern ]
                 .channels[ state.editor.selectedInstrument ], step
         );
         step = ( prevEvent ) ? step - 1 : 0;
@@ -138,7 +138,7 @@ function getPreviousEventWithModuleAutomation( step: number ): EffluxAudioEvent 
 
 function getEventForPosition( createIfNotExisting: boolean ): EffluxAudioEvent {
     let event = state.song.activeSong
-                    .patterns[ state.sequencer.activePattern ]
+                    .patterns[ store.getters.activePattern ]
                     .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
     if ( !event && createIfNotExisting === true ) {
@@ -146,7 +146,7 @@ function getEventForPosition( createIfNotExisting: boolean ): EffluxAudioEvent {
         store.commit( "addEventAtPosition", {
             store, event,
             optData: {
-                patternIndex      : state.sequencer.activePattern,
+                patternIndex      : store.getters.activePattern,
                 channelIndex      : state.editor.selectedInstrument,
                 step              : state.editor.selectedStep,
                 newEvent          : true,

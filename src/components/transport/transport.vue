@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -84,7 +84,7 @@
                     <input
                         class="current"
                         ref="currentPatternInput"
-                        v-model.number="currentPatternValue"
+                        v-model.number="currentOrderIndex"
                         maxlength="3"
                         @focus="focusPatternInput( true )"
                         @blur="focusPatternInput( false )"
@@ -139,7 +139,7 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from "vue";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
@@ -151,7 +151,7 @@ import messages from "./messages.json";
 export default {
     i18n: { messages },
     data: () => ({
-        tempPatternValue: 0,
+        tempOrderIndex: 0,
         patternFocused: false,
         originalTempo: 0,
         showTempoInput: false,
@@ -159,28 +159,29 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
+            activeOrderIndex: state => state.sequencer.activeOrderIndex,
             midiConnected: state => state.midi.midiConnected,
             mobileMode: state => state.mobileMode,
         }),
         ...mapGetters([
+            "activePattern",
             "isPlaying",
             "isLooping",
             "isRecording",
             "isMetronomeEnabled",
             "amountOfSteps"
         ]),
-        canRecord() {
+        canRecord(): boolean {
             // for desktop/laptop devices we enable record mode (for keyboard input)
             // if a MIDI device is connected on a mobile device, it is enabled as well
             const hasKeyboard = !Bowser.ios && !Bowser.android;
             return hasKeyboard || this.midiConnected;
         },
         tempo: {
-            get() {
+            get(): number {
                 return this.activeSong.meta.tempo;
             },
-            set( value ) {
+            set( value: number ): void {
                 if ( isNaN( value )) {
                     return;
                 }
@@ -199,23 +200,23 @@ export default {
                 this.originalTempo = value;
             }
         },
-        currentPatternValue: {
-            get() {
-                return ( this.patternFocused ? this.tempPatternValue : this.activePattern ) + 1;
+        currentOrderIndex: {
+            get(): number {
+                return ( this.patternFocused ? this.tempOrderIndex : this.activeOrderIndex ) + 1;
             },
-            set( patternValue ) {
+            set( index: number ): void {
                 // normalize to Array indices (0 == first, not 1)
-                const value = Math.min( parseFloat( patternValue ), this.activeSong.patterns.length ) - 1;
-                if ( value >= 0 && value !== this.activePattern ) {
-                    this.tempPatternValue = value;
+                const value = Math.min( parseFloat( index.toString() ), this.activeSong.order.length ) - 1;
+                if ( value >= 0 && value !== this.activeOrderIndex ) {
+                    this.tempOrderIndex = value;
                 }
             }
         },
     },
     watch: {
-        isPlaying( playing ) {
+        isPlaying( playing: boolean ): void {
             if ( playing ) {
-                this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
+                this.setPosition({ activeSong: this.activeSong, orderIndex: this.activeOrderIndex });
             } else {
                 if ( this.isRecording ) {
                     this.setRecording( false );
@@ -223,7 +224,7 @@ export default {
                 resetPlayState( this.activeSong.patterns ); // unset playing state of existing events
             }
         },
-        isRecording( recording, wasRecording ) {
+        isRecording( recording: boolean, wasRecording?: boolean ): void {
             if ( wasRecording ) {
                 // unflag the recorded state of all the events
                 const patterns = this.activeSong.patterns;
@@ -244,7 +245,7 @@ export default {
         },
         activePattern: {
             immediate: true,
-            handler( value ) {
+            handler( value: number ): void {
                 const newSteps = this.activeSong.patterns[ value ].steps;
                 if ( this.amountOfSteps !== newSteps ) {
                     this.setPatternSteps({
@@ -256,12 +257,12 @@ export default {
         },
         activeSong: {
             immediate: true,
-            handler() {
+            handler(): void {
                 this.originalTempo = this.tempo;
             }
         },
     },
-    created() {
+    created(): void {
         this.minTempo = 40;
         this.maxTempo = 300;
     },
@@ -274,28 +275,28 @@ export default {
             "setCurrentStep",
             "setMetronomeEnabled",
             "setTempo",
-            "setActivePattern",
+            "setActiveOrderIndex",
             "setPatternSteps",
             "gotoPreviousPattern",
             "gotoNextPattern",
             "setMobileMode",
         ]),
-        handleSettingsToggle() {
+        handleSettingsToggle(): void {
             this.setMobileMode( this.mobileMode ? null : "settings" );
         },
-        focusPatternInput( value ) {
+        focusPatternInput( value: number ): void {
             KeyboardService.setListener( value ? this.handlePatternInput.bind( this ) : null );
             if ( value ) {
-                this.tempPatternValue = this.activePattern;
+                this.tempOrderIndex = this.activeOrderIndex;
             } else {
-                this.setActivePattern( this.tempPatternValue );
+                this.setActiveOrderIndex( this.tempOrderIndex );
             }
             this.patternFocused = value;
         },
-        blurPatternInput() {
+        blurPatternInput(): void {
             this.$refs.currentPatternInput?.blur();
         },
-        handlePatternInput( type, keyCode ) {
+        handlePatternInput( type: string, keyCode: number, event: KeyboardEvent ): void {
             if ( type !== "up" ) {
                 return;
             }
@@ -306,7 +307,7 @@ export default {
                     this.blurPatternInput();
                     break;
                 case 27: // esc
-                    this.tempPatternValue = this.activePattern; // cancel changes
+                    this.tempOrderIndex = this.activeOrderIndex; // cancel changes
                     this.blurPatternInput();
                     break;
                 case 32: // spacebar
@@ -316,13 +317,13 @@ export default {
             }
             event.preventDefault();
         },
-        async handleTempoInputShow() {
+        async handleTempoInputShow(): Promise<void> {
             this.showTempoInput = true;
             this.suspendKeyboardService( true );
             await this.$nextTick();
             this.$refs.tempoInput.focus();
         },
-        handleTempoInputBlur() {
+        handleTempoInputBlur(): void {
             this.tempo = parseFloat( this.$refs.tempoInput.value );
             this.showTempoInput = false;
             this.suspendKeyboardService( false );

@@ -325,7 +325,7 @@ const SelectionModule: Module<SelectionState, any> = {
                 optSelectionContent = state.copySelection as EffluxChannel[];
             }
             if ( Array.isArray( optSelectionContent ) && optSelectionContent.length > 0 ) {
-                const targetPattern   = song.patterns[activePattern];
+                const targetPattern   = song.patterns[ activePattern ];
                 const selectionLength = optSelectionContent.length;
 
                 for ( let cIndex = selectedInstrument, max = targetPattern.channels.length, j = 0;

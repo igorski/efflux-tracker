@@ -109,7 +109,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
 
-    let patternIndex = state.sequencer.activePattern,
+    let patternIndex = store.getters.activePattern,
         channelIndex = state.editor.selectedInstrument,
         step         = state.editor.selectedStep;
 
@@ -216,7 +216,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
 
-    let patternIndex = state.sequencer.activePattern,
+    let patternIndex = store.getters.activePattern,
         channelIndex = state.editor.selectedInstrument,
         step         = state.editor.selectedStep;
 
@@ -283,10 +283,10 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
 function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxState> }): IUndoRedoState {
     const song               = store.state.song.activeSong,
           eventList          = store.state.editor.eventList,
-          activePattern      = store.state.sequencer.activePattern,
+          activePattern      = store.getters.activePattern,
           selectedInstrument = store.state.editor.selectedInstrument,
           selectedStep       = store.state.editor.selectedStep,
-          event              = song.patterns[activePattern].channels[selectedInstrument][selectedStep];
+          event              = song.patterns[ activePattern ].channels[ selectedInstrument ][ selectedStep ];
 
     // if a selection is set, store its state for redo purposes
 
@@ -383,7 +383,7 @@ function deleteModuleAutomationAction({ event }: { event: EffluxAudioEvent }): I
 
 function clearPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song          = store.state.song.activeSong,
-          patternIndex  = store.state.sequencer.activePattern,
+          patternIndex  = store.getters.activePattern,
           amountOfSteps = store.getters.amountOfSteps;
 
     const { commit } = store;
@@ -404,7 +404,7 @@ function clearPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState 
 
 function pastePattern({ store, patternCopy }: { store: Store<EffluxState>, patternCopy: EffluxPattern }): IUndoRedoState {
     const song         = store.state.song.activeSong,
-          patternIndex = store.state.sequencer.activePattern;
+          patternIndex = store.getters.activePattern;
 
     const { getters, commit } = store;
 
@@ -433,7 +433,7 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
 
     if ( insertIndex === -1 ) {
          // if no index was specified, insert after current position
-        insertIndex = rootState.sequencer.activePattern;
+        insertIndex = store.getters.activePattern;
     }
 
     // splice the pattern list at the insertion point, head will contain
@@ -471,8 +471,8 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
     return {
         undo(): void {
             commit( "replacePatterns", patternsHead.concat( patternsTail ));
-            if ( getters.activeSong.patterns.length <= rootState.sequencer.activePattern ) {
-                commit( "setActivePattern", getters.activeSong.patterns.length - 1 );
+            if ( getters.activeSong.order.length <= store.state.sequencer.activeOrderIndex ) {
+                commit( "setActiveOrderIndex", getters.activeSong.order.length - 1 );
             }
             linkLists();
         },
@@ -482,7 +482,8 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
 
 function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song          = store.state.song.activeSong,
-          patternIndex  = store.state.sequencer.activePattern,
+          patternIndex  = store.getters.activePattern,
+          orderIndex    = store.state.sequencer.activeOrderIndex,
           amountOfSteps = store.getters.amountOfSteps;
 
     const { commit } = store;
@@ -499,7 +500,7 @@ function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     return {
         undo(): void {
             commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex + 1 ));
-            commit( "setActivePattern", patternIndex );
+            commit( "setActiveOrderIndex", orderIndex );
         },
         redo: act
     };
@@ -508,24 +509,25 @@ function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
 function deletePattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song            = store.state.song.activeSong,
           patterns        = song.patterns,
-          patternIndex    = store.state.sequencer.activePattern,
+          patternIndex    = store.getters.activePattern,
+          orderIndex      = store.state.sequencer.activeOrderIndex,
           amountOfSteps   = store.getters.amountOfSteps,
-          targetIndex     = patternIndex === ( patterns.length - 1 ) ? patternIndex - 1 : patternIndex;
+          targetIndex     = orderIndex === ( song.order.length - 1 ) ? orderIndex - 1 : orderIndex;
 
     const { commit } = store;
     const existingPattern = clonePattern( song, patternIndex );
     const existingOrder = [ ...song.order ];
 
     function act(): void {
-        commit( "setActivePattern", targetIndex );
         commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex ));
         commit( "replacePatternOrder", PatternOrderUtil.removeAllPatternInstances( existingOrder, patternIndex ));
+        commit( "setActiveOrderIndex", targetIndex );
     }
     act(); // perform action
 
     return {
         undo(): void {
-            commit( "setActivePattern", targetIndex );
+            commit( "setActiveOrderIndex", orderIndex );
             commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex, amountOfSteps, existingPattern ));
             commit( "replacePatternOrder", existingOrder );
         },
@@ -542,7 +544,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
         commit( "setSelectionChannelRange", { firstChannel: editor.selectedInstrument });
         commit( "setSelection", { selectionStart: editor.selectedStep });
     }
-    const activePattern   = store.state.sequencer.activePattern;
+    const activePattern   = store.getters.activePattern;
     const firstChannel    = selection.firstSelectedChannel;
     const lastChannel     = selection.lastSelectedChannel;
     const selectedMinStep = selection.minSelectedStep;
@@ -581,7 +583,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
     const { selection, editor } = store.state;
     const { commit }    = store;
 
-    const activePattern   = store.state.sequencer.activePattern;
+    const activePattern   = store.getters.activePattern;
     const firstChannel    = selection.firstSelectedChannel;
     const lastChannel     = selection.lastSelectedChannel;
     const selectedMinStep = selection.minSelectedStep;
@@ -617,7 +619,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
 function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { eventList, selectedInstrument, selectedStep } = store.state.editor;
-    const { activePattern } = store.state.sequencer;
+    const { activePattern } = store.getters;
     const { selection } = store.state;
     const { commit } = store;
 

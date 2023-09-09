@@ -138,7 +138,7 @@ const SongModule: Module<SongState, any> = {
 
                     if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
                         // move to the next step in the pattern (unless executed from undo/redo)
-                        const maxStep = store.state.song.activeSong.patterns[ store.state.sequencer.activePattern ].steps - 1;
+                        const maxStep = store.state.song.activeSong.patterns[ store.getters.activePattern ].steps - 1;
                         const targetStep = store.state.editor.selectedStep + 1;
 
                         if ( targetStep <= maxStep ) {

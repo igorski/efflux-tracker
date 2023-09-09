@@ -82,25 +82,25 @@ export default {
     }),
     computed: {
         ...mapState({
-            activeSong    : state => state.song.activeSong,
-            activePattern : state => state.sequencer.activePattern,
+            activeSong : state => state.song.activeSong,
+            activeOrderIndex: state => state.sequencer.activeOrderIndex,
         }),
         entries(): WrappedPatternOrderEntry[] {
-            return this.activeSong.order.map(( num: number, index: number ) => ({
-                pattern: num,
-                active: this.activePattern === num,
-                editing: this.editableEntry === index,
+            return this.activeSong.order.map(( pattern: number, index: number ) => ({
+                pattern,
                 index,
+                active: this.activeOrderIndex === index,
+                editing: this.editableEntry === index,
             }));
         },
     },
     methods: {
         ...mapMutations([
-            "setActivePattern",
+            "setActiveOrderIndex",
             "replacePatternOrder",
         ]),
         selectPattern( entry: WrappedPatternOrderEntry ): void {
-            this.setActivePattern( entry.pattern );
+            this.setActiveOrderIndex( entry.index );
             this.stopEditing();
         },
         repeatPattern( entry: WrappedPatternOrderEntry ): void {

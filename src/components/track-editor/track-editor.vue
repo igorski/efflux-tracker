@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2019-2022 - https://www.igorski.nl
+* Igor Zinken 2019-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -78,13 +78,13 @@ export default {
             showNoteEntry: state => state.editor.showNoteEntry,
         }),
         ...mapGetters([
+            "activePattern",
             "canUndo",
             "canRedo"
         ]),
         ...mapState({
             activeSong: state => state.song.activeSong,
             selectedStep: state => state.editor.selectedStep,
-            activePattern: state => state.sequencer.activePattern,
             selectedInstrument: state => state.editor.selectedInstrument,
             eventList: state => state.editor.eventList,
         })

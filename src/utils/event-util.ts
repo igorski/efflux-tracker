@@ -58,8 +58,8 @@ const EventUtil =
         }
         Vue.set( seq, "length", length);
         Vue.set( seq, "startOffset", patternNum * getMeasureDurationInSeconds( tempo ));
-        Vue.set( seq, "startMeasure", patternNum);
-        Vue.set( seq, "startMeasureOffset", eventOffset);
+        Vue.set( seq, "startMeasure", patternNum );
+        Vue.set( seq, "startMeasureOffset", eventOffset );
         Vue.set( seq, "endMeasure", patternNum + Math.abs( Math.ceil((( eventOffset + length ) - measureLength ) / measureLength )));
     },
     /**

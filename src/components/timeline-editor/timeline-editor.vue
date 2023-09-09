@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2021 - https://www.igorski.nl
+* Igor Zinken 2021-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapGetters } from "vuex";
 import { canvas } from "zcanvas";
 import PatternRenderer from "./renderers/pattern-renderer";
 import messages from "./messages.json";
@@ -40,11 +40,13 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
             currentStep: state => state.sequencer.currentStep,
             selectedInstrument: state => state.editor.selectedInstrument,
             windowSize: state => state.windowSize,
         }),
+        ...mapGetters([
+            "activePattern",
+        ]),
         patterns() {
             return this.activeSong.patterns;
         },

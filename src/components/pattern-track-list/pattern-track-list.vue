@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -105,8 +105,10 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
+import type { EffluxAudioEventModuleParams } from "@/model/types/audio-event";
+import type { EffluxPattern } from "@/model/types/pattern";
 import PatternEvent from "./pattern-event.vue";
 import KeyboardService from "@/services/keyboard-service";
 
@@ -133,7 +135,6 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
             currentStep: state => state.sequencer.currentStep,
             selectedInstrument: state => state.editor.selectedInstrument,
             selectedStep: state => state.editor.selectedStep,
@@ -145,33 +146,38 @@ export default {
             windowSize: state => state.windowSize,
         }),
         ...mapGetters([
+            "activePattern",
             "amountOfSteps",
             "hasSelection",
             "followPlayback",
             "paramFormat",
             "isPlaying"
         ]),
-        activeSongPattern() {
+        activeSongPattern(): EffluxPattern {
             return this.activeSong.patterns[ this.activePattern ];
         },
-        previousPatternChannels() {
+        prevPatternIndex(): number {
+            return this.activeSong.order[ this.activePattern - 1 ] ?? - 1;
+        },
+        nextPatternIndex(): number {
+            return this.activeSong.order[ this.activePattern + 1 ] ?? -0;
+        },
+        previousPatternChannels(): EffluxChannel[] | null {
             if ( !this.mustFollow ) {
                 return null;
             }
-            const prevPattern = this.activePattern - 1;
-            const prevIndex = prevPattern < 0 ? this.activeSong.patterns.length - 1 : prevPattern;
+            const prevIndex = this.prevPattern < 0 ? this.activeSong.patterns.length - 1 : this.prevPattern;
             return this.activeSong.patterns[ prevIndex ].channels.map( channel => {
                 return channel.slice(( channel.length - 1 ) - this.prevEvents );
             });
         },
-        nextPatternChannels() {
+        nextPatternChannels(): EffluxChannel[] | null {
             if ( !this.mustFollow ) {
                 return null;
             }
-            const amountOfPatterns = this.activeSong.patterns.length;
-            const nextPattern = this.activePattern + 1;
+            const amountOfPatterns = this.activeSong.order.length;
             // also provide lookahead for the pattern(s) coming after the next one for a seamless scrolling list
-            const nextIndex = nextPattern >= amountOfPatterns ? 0 : nextPattern;
+            const nextIndex = this.nextPattern >= amountOfPatterns ? 0 : this.nextPattern;
             let nextNextIndex = nextIndex;
 
             // the amount of events we require to visualize the next pattern(s) for the current resolution
@@ -191,32 +197,33 @@ export default {
                 return out.slice( 0, sliceAmount );
             });
         },
-        lastIndices() {
+        lastIndices(): number[] {
             const out = [];
+            // TODO get from order
             const lastPatternAmount = this.activeSong.patterns[ this.activePattern - 1 ]?.steps || this.activeSongPattern.steps;
             for ( let i = lastPatternAmount - this.prevEvents; i <= lastPatternAmount; ++i ) {
                 out.push( i );
             }
             return out;
         },
-        nextIndices() {
+        nextIndices(): number[] {
             const out = new Array( this.nextEvents );
             for ( let i = 0; i < this.nextEvents; ++i ) {
                 out[ i ] = i;
             }
             return out;
         },
-        mustFollow() {
+        mustFollow(): boolean {
             return this.followPlayback && this.isPlaying;
         },
     },
     watch: {
-        activePattern() {
+        activePattern(): void {
             this.clearSelection();
             this.setSelectedSlot( -1 );
             this.pContainerSteps = [];
         },
-        currentStep( step ) {
+        currentStep( step: number ): void {
             const stepsInPattern = this.activeSongPattern.steps;
             const diff = this.stepPrecision / stepsInPattern;
 
@@ -236,10 +243,10 @@ export default {
             // following activated, ensure the list auto scrolls
             this.$refs.container.scrollTop = ( this.playingStep * STEP_HEIGHT ) + DOUBLE_STEP_HEIGHT;
         },
-        windowSize() {
+        windowSize(): void {
             this.cacheDimensions();
         },
-        isPlaying( value ) {
+        isPlaying( value: boolean ): void {
             if ( !this.followPlayback ) {
                 return;
             }
@@ -248,10 +255,10 @@ export default {
             }
             this.$refs.container.scrollTop = 0;
         },
-        selectedStep() { this.focusActiveStep() },
-        selectedSlot() { this.focusActiveStep() },
+        selectedStep(): void { this.focusActiveStep() },
+        selectedSlot(): void { this.focusActiveStep() },
     },
-    mounted() {
+    mounted(): void {
         this.$nextTick(() => {
             this.container = this.$refs.container;
             this.wrapper = this.$refs.wrapper;
@@ -270,7 +277,7 @@ export default {
             "addEventAtPosition",
             "setShowNoteEntry",
         ]),
-        cacheDimensions() {
+        cacheDimensions(): void {
             this.containerWidth = this.container.offsetWidth;
             this.containerHeight = this.container.offsetHeight;
 
@@ -285,14 +292,14 @@ export default {
                 NEXT_EVENTS = new Array( this.nextEvents ).fill( 0 );
             }
         },
-        isStepSelected( channelIndex, stepIndex ) {
+        isStepSelected( channelIndex: number, stepIndex: number ): boolean {
             return this.selectedChannels[ channelIndex ]?.includes( stepIndex );
         },
         /**
          * ensure the currently active step (after a keyboard navigation)
          * is visible on screen
          */
-        focusActiveStep() {
+        focusActiveStep(): void {
             const top        = this.container.scrollTop;
             const left       = this.container.scrollLeft;
             const bottom     = top + this.containerHeight;
@@ -315,7 +322,7 @@ export default {
                 this.container.scrollLeft = slotLeft;
             }
         },
-        formatModuleParam( eventMpData ) {
+        formatModuleParam( eventMpData?: EffluxAudioEventModuleParams ): { param: string, value: number } | null {
             if ( !eventMpData ) {
                 return null;
             }
@@ -336,7 +343,7 @@ export default {
             value = value.length === 1 ? ` 0${value}` : ` ${value}`;
             return { param, value };
         },
-        handleInteraction( event ) {
+        handleInteraction( event: PointerEvent ): void {
             // for touch interactions, we record some data as soon as touch starts so we can evaluate it on end
             if ( event.type === "touchstart" ) {
                 this.interactionData.offset = window.scrollY;
@@ -344,7 +351,7 @@ export default {
                 return;
             }
             // check if we interacted with a <pattern-event />
-            if ( event.target.nodeName === "LI" ) {
+            if (( event.target as HTMLElement ).nodeName === "LI" ) {
                 this.handleSlotClick( event );
             }
             this.setHelpTopic( "tracker" );
@@ -355,7 +362,7 @@ export default {
          * add the listener directly on the slots themselves, but consider the excessive
          * amount of event listeners that would be attached to a large amount of DOM elements...
          */
-        handleSlotClick( event ) {
+        handleSlotClick( event: PointerEvent ): void {
             const pContainers = this.$refs.pattern;
             const shiftDown   = KeyboardService.hasShift();
             let selectionChannelStart = this.selectedInstrument,
@@ -407,7 +414,7 @@ export default {
                 }
             }
         },
-        selectSlotWithinClickedStep( event ) {
+        selectSlotWithinClickedStep( event: PointerEvent ) {
             const { clientX, clientY } = event;
             let el = document.caretRangeFromPoint?.( clientX, clientY )?.startContainer;
             let slot = 0;
@@ -418,7 +425,7 @@ export default {
             } else {
                 // likely no caretRangeFromPoint support (available in Safari, but broken...)
                 // let's do some manual work...
-                for ( const node of event.target.childNodes ) {
+                for ( const node of ( event.target as HTMLElement )?.childNodes ) {
                     const rect = node.getBoundingClientRect();
                     if ( clientX >= rect.left && clientX <= rect.right ) {
                         el = node;
@@ -439,7 +446,7 @@ export default {
          * maintain a cache for step slots within a single pattern container
          * this is a little more work for us, but prevents repeated DOM thrashing during heavy editing
          */
-        grabPatternContainerStepFromTemplate( container, step ) {
+        grabPatternContainerStepFromTemplate( container: HTMLElement, step: number ): HTMLElement {
             const stepElement = this.pContainerSteps[ step ] || container.querySelectorAll( "li" );
             this.pContainerSteps[ step ] = stepElement;
             return stepElement;

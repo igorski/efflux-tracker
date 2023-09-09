@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -262,8 +262,8 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     const now = Date.now();
     if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
 
-    const { playing, activePattern } = state.sequencer;
-    const { amountOfSteps } = getters;
+    const { playing } = state.sequencer;
+    const { activePattern, amountOfSteps } = getters;
 
     // if the sequencer isn't playing, noteOff events must be added explicitly
     // (this noteOff event is the result of a key release)
@@ -275,7 +275,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     const pattern      = song.patterns[ activePattern ];
     const channelIndex = state.editor.selectedInstrument;
     const channel      = pattern.channels[ channelIndex ];
-    const step         = playing ? Math.round( getters.position.step / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
+    const step         = playing ? Math.round( state.sequencer.currentStep / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
 
     // check if the intended target position of the recording already contains an event
 

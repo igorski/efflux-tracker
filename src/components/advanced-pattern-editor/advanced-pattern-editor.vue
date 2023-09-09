@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -70,13 +70,21 @@
     </div>
 </template>
 
-<script>
-import { mapState, mapMutations, mapActions } from "vuex";
-
+<script lang="ts">
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { PATTERN_FILE_EXTENSION } from "@/definitions/file-types";
+import type { EffluxPattern } from "@/model/types/pattern";
 import { saveAsFile } from "@/utils/file-util";
 import { serializePatternFile } from "@/utils/pattern-util";
 import messages from "./messages.json";
+
+type ClonedPatternDef = {
+    firstPatternValue: number;
+    lastPatternValue: number;
+    firstChannelValue: number;
+    lastChannelValue: number;
+    patternsToClone: EffluxPattern[];
+};
 
 export default {
     i18n: { messages },
@@ -90,13 +98,15 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
         }),
-        maxPattern() {
+        ...mapGetters([
+            "activePattern",
+        ]),
+        maxPattern(): number {
             return this.activeSong.patterns.length;
         },
     },
-    created() {
+    created(): void {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
         this.firstPattern = this.activePattern + 1;
         this.lastPattern  = this.activeSong.patterns.length;
@@ -110,7 +120,7 @@ export default {
             this.$refs.firstPatternInput.focus();
         });
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.suspendKeyboardService( false );
     },
     methods: {
@@ -124,7 +134,7 @@ export default {
         ...mapActions([
             "pastePatternsIntoSong",
         ]),
-        async handleExportClick() {
+        async handleExportClick(): Promise<void> {
             this.setLoading( "pexp" );
             try {
                 const {
@@ -147,10 +157,10 @@ export default {
             }
             this.unsetLoading( "pexp" );
         },
-        handleClose() {
+        handleClose(): void {
             this.$emit( "close" );
         },
-        async handleDuplicateClick() {
+        async handleDuplicateClick(): Promise<void> {
             const patterns = this.activeSong.patterns;
             const pastePatternValue = Math.min( patterns.length, this.pastePattern );
 
@@ -167,7 +177,7 @@ export default {
             });
             this.handleClose();
         },
-        clonePatternRange() {
+        clonePatternRange(): ClonedPatternDef {
             const patterns        = this.activeSong.patterns;
             const maxChannelValue = this.activeSong.instruments.length - 1;
 

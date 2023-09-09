@@ -277,7 +277,7 @@ export default {
             this.resetEditor();
             this.resetHistory();
             this.createLinkedList( song );
-            this.setActivePattern( 0 );
+            this.setActiveOrderIndex( 0 );
             this.setPlaying( false );
             this.setLooping( false );
             this.clearSelection();
@@ -420,7 +420,7 @@ export default {
             "addSample",
             "prepareLinkedList",
             "createLinkedList",
-            "setActivePattern",
+            "setActiveOrderIndex",
             "setAmountOfSteps",
             "setBlindActive",
             "setCurrentSample",

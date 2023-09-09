@@ -212,14 +212,14 @@ function getModuleParamByFirstTwoLetters( letters: string, selectedParam: Module
 
 function getEventForPosition( createIfNotExisting: boolean ): EffluxAudioEvent {
     let event = state.song.activeSong
-                    .patterns[ state.sequencer.activePattern ]
+                    .patterns[ store.getters.activePattern ]
                     .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
     if ( !event && createIfNotExisting === true ) {
         event = EventFactory.create( state.editor.selectedInstrument );
         store.commit( "addEventAtPosition", {
             event, store, optData: {
-                patternIndex      : state.sequencer.activePattern,
+                patternIndex      : store.getters.activePattern,
                 channelIndex      : state.editor.selectedInstrument,
                 step              : state.editor.selectedStep,
                 newEvent          : true,

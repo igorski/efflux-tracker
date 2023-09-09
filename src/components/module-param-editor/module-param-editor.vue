@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -152,7 +152,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import EventFactory from "@/model/factories/event-factory";
 import KeyboardService from "@/services/keyboard-service";
@@ -192,10 +192,12 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
             selectedInstrument: state => state.editor.selectedInstrument,
             selectedStep: state => state.editor.selectedStep,
         }),
+        ...mapGetters([
+            "activePattern",
+        ]),
         valueText() {
             const value = this.value.toFixed(2);
             return ( this.value < 10 ) ? `0${value}` : value;

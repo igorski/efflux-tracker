@@ -67,10 +67,10 @@ export default {
     },
     methods: {
         ...mapMutations([
-            "setActivePattern",
+            "setActiveOrderIndex",
         ]),
         selectPattern(): void {
-            this.setActivePattern( this.pattern );
+            this.setActiveOrderIndex( this.index );
             this.setEditing( false );
         },
         setEditing( isEditing: boolean ): void {

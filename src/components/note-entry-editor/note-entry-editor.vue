@@ -107,7 +107,6 @@ export default {
     computed: {
         ...mapState({
             activeSong           : state => state.song.activeSong,
-            activePattern        : state => state.sequencer.activePattern,
             currentStep          : state => state.sequencer.currentStep,
             higherKeyboardOctave : state => state.editor.higherKeyboardOctave,
             playing              : state => state.sequencer.playing,
@@ -115,6 +114,7 @@ export default {
             selectedStep         : state => state.editor.selectedStep,
         }),
         ...mapGetters([
+            "activePattern",
             "isRecording",
         ]),
         octave: {

@@ -1,8 +1,8 @@
 {
   "name": "efflux-tracker",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
-  "description": "web based tracker interface enabling music creation within the web browser",
+  "description": "Application providing tracker based music creation within the web browser",
   "author": "Igor Zinken",
   "scripts": {
     "dev": "vite --force",
