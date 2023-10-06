@@ -39,5 +39,6 @@ enum ModalWindows
     OPTIMIZATION_WINDOW,
     CHORD_GENERATOR_WINDOW,
     JAM_MODE,
+    PATTERN_ORDER_WINDOW,
 };
 export default ModalWindows;

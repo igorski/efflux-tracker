@@ -1,0 +1,11 @@
+{
+    "en-US": {
+        "patternOrder": "Order",
+        "edit": "Edit",
+        "previous": "Previous",
+        "next": "Next",
+        "select": "Select",
+        "repeat": "Repeat",
+        "delete": "Delete"
+    }
+}

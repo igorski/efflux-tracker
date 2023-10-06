@@ -160,13 +160,13 @@ export default {
             return this.activeSong.order[ this.activePattern - 1 ] ?? - 1;
         },
         nextPatternIndex(): number {
-            return this.activeSong.order[ this.activePattern + 1 ] ?? -0;
+            return this.activeSong.order[ this.activePattern + 1 ] ?? 0;
         },
         previousPatternChannels(): EffluxChannel[] | null {
             if ( !this.mustFollow ) {
                 return null;
             }
-            const prevIndex = this.prevPattern < 0 ? this.activeSong.patterns.length - 1 : this.prevPattern;
+            const prevIndex = this.prevPatternIndex < 0 ? this.activeSong.patterns.length - 1 : this.prevPatternIndex;
             return this.activeSong.patterns[ prevIndex ].channels.map( channel => {
                 return channel.slice(( channel.length - 1 ) - this.prevEvents );
             });
@@ -177,7 +177,7 @@ export default {
             }
             const amountOfPatterns = this.activeSong.order.length;
             // also provide lookahead for the pattern(s) coming after the next one for a seamless scrolling list
-            const nextIndex = this.nextPattern >= amountOfPatterns ? 0 : this.nextPattern;
+            const nextIndex = this.nextPatternIndex >= amountOfPatterns ? 0 : this.nextPatternIndex;
             let nextNextIndex = nextIndex;
 
             // the amount of events we require to visualize the next pattern(s) for the current resolution

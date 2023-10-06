@@ -1,0 +1,10 @@
+{
+    "en-US": {
+        "patternOrder": "Pattern order",
+        "patternExpl": "You can drag individual patterns up or down in the list",
+        "play": "Play",
+        "duplicate": "Duplicate",
+        "delete": "Delete",
+        "createNew": "Create new pattern"
+    }
+}

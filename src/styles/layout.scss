@@ -39,7 +39,7 @@
 .application-editor {
     @include flex();
     position: absolute;
-    top: 164px; /* menu + song meta + pattern order editor */
+    top: 134px; /* menu + song meta */
     bottom: $footer-height;
     overflow: hidden;
 

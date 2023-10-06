@@ -100,9 +100,9 @@
                         @click="gotoNextPattern( activeSong )"
                     >&gt;&gt;</button>
                 </li>
+                <li class="section-divider"><!-- x --></li>
             </ul>
             <ul class="transport-controls__tempo wrapper input range">
-                <li class="section-divider"><!-- x --></li>
                 <li>
                     <label
                         v-t="'tempoLabel'"
@@ -134,7 +134,9 @@
                         @click="handleTempoInputShow()"
                     >{{ $t('tempo', { tempo }) }}</span>
                 </li>
+                <li class="transport-controls__tempo-divider section-divider"><!-- x --></li>
             </ul>
+            <pattern-order-list />
         </div>
     </section>
 </template>
@@ -143,6 +145,7 @@
 import Vue from "vue";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
+import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import KeyboardService from "@/services/keyboard-service";
 import { resetPlayState } from "@/utils/song-util";
@@ -150,6 +153,9 @@ import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        PatternOrderList,
+    },
     data: () => ({
         tempOrderIndex: 0,
         patternFocused: false,
@@ -351,7 +357,7 @@ export default {
 }
 
 .transport-section {
-    background-color: $color-editor-background;;
+    background-color: $color-editor-background;
 }
 
 .transport-controls {
@@ -361,6 +367,11 @@ export default {
     margin: 0 auto;
     min-width: 100%;
     max-width: $ideal-width;
+
+    @include large() {
+        display: flex;
+        align-items: center;
+    }
 
     &__buttons,
     &__tempo {
@@ -483,9 +494,8 @@ export default {
     /* tempo control */
 
     &__tempo {
-        padding: $spacing-medium 0 0 $spacing-small;
-        display: inline;
-
+        padding: 0 0 0 $spacing-small;
+    
         label {
             margin-right: $spacing-medium;
             display: inline-block;
@@ -502,6 +512,12 @@ export default {
             display: inline-block;
             @include toolFont();
             cursor: pointer;
+        }
+
+        &-divider {
+            // yes we're hacking here
+            position: relative;
+            top: -10px;
         }
     }
 

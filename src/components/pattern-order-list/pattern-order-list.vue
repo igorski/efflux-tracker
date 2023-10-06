@@ -21,9 +21,20 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="pattern-order-editor">
+    <div class="pattern-order-list">
+        <label
+            class="pattern-order-list__label"
+            v-t="'patternOrder'"
+        ></label>
+        <button
+            :title="$t('previous')"
+            :disabled="!canNavBack"
+            type="button"
+            class="pattern-order-list__navigate-button"
+            @click="handleBackClick()"
+        ><</button>
         <pattern-order-entry
-            v-for="(entry) in entries"
+            v-for="(entry) in visibleEntries"
             :key="`e_${entry.index}`"
             :pattern="entry.pattern"
             :index="entry.index"
@@ -48,16 +59,32 @@
                 <button
                     type="button"
                     v-t="'delete'"
+                    :disabled="!canDelete"
                     class="pattern-order-entry__context-menu-button"
                     @click="deletePattern( entry )"
                 ></button>
             </template>
         </pattern-order-entry>
+        <button
+            :title="$t('next')"
+            :disabled="!canNavNext"
+            type="button"
+            class="pattern-order-list__navigate-button"
+            @click="handleNextClick()"
+        >></button>
+        <button
+            v-t="'edit'"
+            :title="$t('edit')"
+            type="button"
+            class="pattern-order-list__edit-button"
+            @click="handleEditClick()"
+        ></button>
     </div>
 </template>
 
 <script lang="ts">
 import { mapState, mapMutations, type Store } from "vuex";
+import ModalWindows from "@/definitions/modal-windows";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxState } from "@/store";
@@ -72,6 +99,8 @@ type WrappedPatternOrderEntry = {
     editing: boolean;
 };
 
+const TOTAL_PER_PAGE = 5;
+
 export default {
     i18n: { messages },
     components: {
@@ -79,6 +108,7 @@ export default {
     },
     data: () => ({
         editableEntry: -1,
+        offset: 0,
     }),
     computed: {
         ...mapState({
@@ -86,16 +116,41 @@ export default {
             activeOrderIndex: state => state.sequencer.activeOrderIndex,
         }),
         entries(): WrappedPatternOrderEntry[] {
-            return this.activeSong.order.map(( pattern: number, index: number ) => ({
-                pattern,
-                index,
-                active: this.activeOrderIndex === index,
-                editing: this.editableEntry === index,
-            }));
+            return this.activeSong.order
+                .map(( pattern: number, index: number ) => ({
+                    pattern,
+                    index,
+                    active: this.activeOrderIndex === index,
+                    editing: this.editableEntry === index,
+                }));
+        },
+        visibleEntries(): WrappedPatternOrderEntry[] {
+            const sliceOffset = this.visibleRangeStart;
+            return this.entries.slice( sliceOffset, sliceOffset + TOTAL_PER_PAGE );
+        },
+        canDelete(): boolean {
+            return this.entries.length > 1;
+        },
+        canNavBack(): boolean {
+            return this.offset > 0;
+        },
+        canNavNext(): boolean {
+            return ( this.visibleRangeStart + TOTAL_PER_PAGE ) < this.entries.length;
+        },
+        visibleRangeStart(): number {
+            return this.offset * TOTAL_PER_PAGE;
+        },
+    },
+    watch: {
+        activeOrderIndex( value: number ) {
+            if ( value < this.visibleRangeStart || value >= this.visibleRangeStart + TOTAL_PER_PAGE ) {
+                this.offset = Math.floor( value / TOTAL_PER_PAGE );
+            }
         },
     },
     methods: {
         ...mapMutations([
+            "openModal",
             "setActiveOrderIndex",
             "replacePatternOrder",
         ]),
@@ -138,12 +193,35 @@ export default {
                 },
             });
         },
+        handleEditClick(): void {
+            this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );
+        },
+        handleBackClick(): void {
+            this.offset = Math.max( 0, this.offset - 1 );
+        },
+        handleNextClick(): void {
+            this.offset += 1;
+        },
     }
 };
 </script>
 
 <style lang="scss" scoped>
-.pattern-order-editor {
+@import "@/styles/mixins";
+
+.pattern-order-list {
     display: flex;
+    align-items: center;
+
+    &__label {
+        margin-right: $spacing-small;
+        @include toolFont();
+    }
+
+    &__edit-button {
+        @include button();
+        background-color: $color-5;
+        margin: $spacing-small;
+    }
 }
 </style>
