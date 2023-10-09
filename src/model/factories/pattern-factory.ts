@@ -28,7 +28,7 @@ import type { EffluxPattern } from "@/model/types/pattern";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import {
-    PATTERNS, PATTERN_STEPS, PATTERN_CHANNELS,
+    PATTERNS, PATTERN_STEPS, PATTERN_CHANNELS, PATTERN_DESCRIPTION,
     NOTE_POOLS, AUTOMATION_POOLS,
     EVENT_ACTION, // EVENT_ID,
     EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE, EVENT_LENGTH,
@@ -41,14 +41,15 @@ const PatternFactory =
     /**
      * @param {number=} amountOfSteps optional, the amount of
      *        subdivisions desired within the pattern, defaults to 16
-     * @param {Array<Array<EffluxAudioEvent>>=} optChannels optional channels to
+     * @param {EffluxAudioEvent[][]=} optChannels optional channels to
      *        assign to the pattern, otherwise empty channels are generated accordingly
      * @return {EffluxPattern}
      */
-    create( amountOfSteps: number = 16, optChannels: EffluxChannel[] = null ): EffluxPattern {
+    create( amountOfSteps: number = 16, optChannels?: EffluxChannel[], description?: string ): EffluxPattern {
         return {
             steps    : amountOfSteps,
-            channels : optChannels || generateEmptyChannelPatterns( amountOfSteps )
+            channels : optChannels || generateEmptyChannelPatterns( amountOfSteps ),
+            description,
         };
     },
 
@@ -72,7 +73,8 @@ const PatternFactory =
 
             pattern = patterns[ pIndex ] = PatternFactory.create(
                 xtkPattern[ PATTERN_STEPS ],
-                xtkPattern[ PATTERN_CHANNELS ]
+                xtkPattern[ PATTERN_CHANNELS ],
+                xtkPattern[ PATTERN_DESCRIPTION ],
             );
 
             xtkPattern[ PATTERN_CHANNELS ].forEach(( xtkChannel: any, cIndex: number ): void => {

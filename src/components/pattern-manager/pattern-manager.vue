@@ -21,9 +21,9 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <div class="pattern-order-window">
+    <div class="pattern-manager">
         <div class="header">
-            <h2 v-t="'patternOrder'"></h2>
+            <h2 v-t="'patternManager'"></h2>
             <button
                 type="button"
                 class="close-button"
@@ -31,45 +31,53 @@
             >x</button>
         </div>
         <hr class="divider" />
-        <ul class="order-list">
-            <draggable v-model="entries">
-                <li
-                    v-for="entry in entries"
-                    :key="`entry_${entry.name}_${entry.index}`"
-                    class="order-list__entry"
-                >
-                    <span
-                        class="order-list__entry-title"
-                        role="button"
-                        @click.stop="handleSelect( entry )"
-                    >{{ entry.name }} {{ entry.description }}</span>
-                    <button
-                        type="button"
-                        class="order-list__entry-action-button icon-play"
-                        :title="$t('play')"
-                        @click.stop="handlePlayClick( entry )"
-                    ></button>
-                    <button
-                        type="button"
-                        class="order-list__entry-action-button"
-                        :title="$t('duplicate')"
-                        @click.stop="handleDuplicateClick( entry )"
-                    ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
-                    <button
-                        v-if="canDelete"
-                        type="button"
-                        class="order-list__entry-action-button"
-                        :title="$t('delete')"
-                        @click.stop="handleDeleteClick( entry )"
-                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
-                </li>
-            </draggable>
+        <ul class="pattern-list">
+            <li
+                v-for="entry in entries"
+                :key="`entry_${entry.name}_${entry.index}`"
+                class="pattern-list__entry"
+            >
+                <span
+                    class="pattern-list__entry-title"
+                    role="button"
+                    @click.stop="handleSelect( entry )"
+                >{{ entry.name }}</span>
+                <input
+                    v-if="showDescriptionInput === entry.index"
+                    ref="descrInput"
+                    :value="entry.description"
+                    @blur="handleDescriptionInputBlur( entry )"
+                    @keyup.enter="handleDescriptionInputBlur( entry )"
+                    class="pattern-list__entry-description"
+                />
+                <span
+                    v-else
+                    class="pattern-list__entry-description"
+                    @click="handleDescriptionInputShow( entry )"
+                >{{ entry.description }}</span>
+                <button
+                    type="button"
+                    class="pattern-list__entry-action-button"
+                    :title="$t('duplicate')"
+                    @click.stop="handleDuplicateClick( entry )"
+                ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                <button
+                    v-if="canDelete"
+                    type="button"
+                    class="pattern-list__entry-action-button"
+                    :title="$t('delete')"
+                    @click.stop="handleDeleteClick( entry )"
+                ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+            </li>
         </ul>
         <hr class="divider divider--bottom" />
         <div class="footer">
-            <span
-                v-t="'patternExpl'"
-            ></span>
+            <button
+                v-t="'createNew'"
+                type="button"
+                class="button"
+                @click="handleCreateNew()"
+            ></button>
         </div>
     </div>
 </template>
@@ -79,17 +87,16 @@ import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
 import Actions from "@/definitions/actions";
 import createAction from "@/model/factories/action-factory";
-import type { EffluxPatternOrder } from "@/model/types/pattern-order";
+import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxState } from "@/store";
-import PatternOrderUtil from "@/utils/pattern-order-util";
 import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
-type WrappedPatternOrderEntry = {
-    pattern: number; // index of pattern in pattern list
-    description?: string;
+type WrappedPatternEntry = {
+    pattern: EffluxPattern;
+    description: string;
+    index: number;
     name: string;    // name of pattern (derived from its pattern list index)
-    index: number;   // index of pattern within order list
 };
 
 export default {
@@ -97,6 +104,9 @@ export default {
     components: {
         Draggable,
     },
+    data: () => ({
+        showDescriptionInput: -1,
+    }),
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,
@@ -105,21 +115,14 @@ export default {
             "activeOrderIndex",
             "isPlaying",
         ]),
-        entries: {
-            get(): WrappedPatternOrderEntry[] {
-                const { patterns } = this.activeSong;
-                return this.activeSong.order
-                    .map(( pattern: number, index: number ) => ({
-                        pattern,
-                        index,
-                        name: indexToName( pattern ),
-                        description: patterns[ pattern ].description,
-                    }));
-            },
-            set( value: WrappedPatternOrderEntry[] ): void {
-                const order = value.map( entry => entry.pattern );
-                createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
-            }
+        entries(): WrappedPatternEntry[] {
+            return this.activeSong.patterns
+                .map(( pattern: EffluxPattern, index: number ) => ({
+                    pattern,
+                    description: pattern.description ?? this.$t( "untitled" ),
+                    index,
+                    name: indexToName( index ),
+                }));
         },
         canDelete(): boolean {
             return this.entries.length > 1;
@@ -127,31 +130,35 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "replacePattern",
+            "saveState",
             "setActiveOrderIndex",
-            "setPlaying",
-            "setLooping",
+            "suspendKeyboardService",
         ]),
-        handleSelect( entry: WrappedPatternOrderEntry ): void {
+        handleCreateNew(): void {
+            this.saveState( createAction( Actions.ADD_PATTERN, { store: this.$store, patternIndex: this.entries.length }));
+        },
+        handleSelect( entry: WrappedPatternEntry ): void {
             this.setActiveOrderIndex( entry.index );
         },
-        handlePlayClick( entry: WrappedPatternOrderEntry ): void {
-            this.handleSelect( entry );
-            this.setLooping( true );
-            if ( !this.isPlaying ) {
-                this.setPlaying( true );
-            }
+        handleDuplicateClick( entry: WrappedPatternEntry ): void {
+            console.info("TODO duplicate");
         },
-        handleDuplicateClick( entry: WrappedPatternOrderEntry ): void {
-            const newOrder = [ ...this.activeSong.order ];
-            const tail = newOrder.splice( entry.index + 1 );
-            createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order: [ ...newOrder, entry.pattern, ...tail ] });
+        handleDeleteClick( entry: WrappedPatternEntry ): void {
+            this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store, patternIndex: entry.index }));
         },
-        handleDeleteClick( entry: WrappedPatternOrderEntry ): void {
-            createAction( Actions.UPDATE_PATTERN_ORDER, {
-                store: this.$store,
-                order: PatternOrderUtil.removePatternAtIndex( this.activeSong.order, entry.index )
-            });
+        async handleDescriptionInputShow( entry: WrappedPatternEntry ): Promise<void> {
+            this.showDescriptionInput = entry.index;
+            this.suspendKeyboardService( true );
+            await this.$nextTick();
+            this.$refs.descrInput[ 0 ]?.focus();
         },
+        handleDescriptionInputBlur( entry: WrappedPatternEntry ): void {
+            const description = this.$refs.descrInput[ 0 ].value;
+            this.showDescriptionInput = -1;
+            this.suspendKeyboardService( false );
+            this.replacePattern({ patternIndex: entry.index, pattern: { ...entry.pattern, description } });
+        }
     },
 };
 </script>
@@ -163,15 +170,16 @@ export default {
 @import "@/styles/typography";
 @import "@/styles/transporter";
 
-$width: 450px;
+$width: 750px;
 $height: 500px;
 $headerFooterHeight: 104px;
 
-.pattern-order-window {
+.pattern-manager {
     @include editorComponent();
     @include overlay();
     @include noSelect();
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
     padding: 0;
 
     .header,
@@ -193,7 +201,7 @@ $headerFooterHeight: 104px;
         margin-left: math.div( -$width, 2 );
         margin-top: math.div( -$height, 2 );
 
-        .order-list {
+        .pattern-list {
             height: calc(#{$height - $headerFooterHeight});
         }
     }
@@ -207,14 +215,14 @@ $headerFooterHeight: 104px;
         border-radius: 0;
         z-index: 2000;
 
-        .order-list {
+        .pattern-list {
             height: calc(100% - #{$headerFooterHeight});
         }
     }
 }
 
 
-.order-list {
+.pattern-list {
     @include list();
     width: 100%;
     overflow-y: auto;
@@ -230,10 +238,14 @@ $headerFooterHeight: 104px;
         background-color: $color-pattern-even;
 
         &-title {
-            flex: 1;
+            flex: 0.1;
             cursor: pointer;
             @include truncate();
             vertical-align: middle;
+        }
+
+        &-description {
+            flex: 0.9;
         }
 
         &-action-button {
@@ -258,7 +270,7 @@ $headerFooterHeight: 104px;
             background-color: $color-5;
             color: #000;
 
-            .order-list__entry-action-button {
+            .pattern-list__entry-action-button {
                 filter: brightness(0);
             }
         }

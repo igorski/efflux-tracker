@@ -39,6 +39,13 @@ describe( "PatternFactory", () => {
         expect( pattern.channels ).toEqual( channels );
     });
 
+    it( "should be able to generate a pattern with optionally passed description", () => {
+        // @ts-expect-error number is not assignable to EffluxAudioEvent
+        const channels: EffluxChannel[] = [[ 0, 1, 2 ], [ 1, 1, 0 ]];
+        const pattern = PatternFactory.create( 4, channels, "fooBar" );
+        expect( pattern.description ).toEqual( "fooBar" );
+    });
+
     it( "should be able to merge equal length patterns", () => {
         const pattern1 = PatternFactory.create();
         const pattern2 = PatternFactory.create();
@@ -147,7 +154,7 @@ describe( "PatternFactory", () => {
     });
 
     it( "should be able to serialize a pattern list without loss of data", () => {
-        const pattern1 = PatternFactory.create( 16 );
+        const pattern1 = PatternFactory.create( 16, [], "foo" );
         const pattern2 = PatternFactory.create( 32 );
 
         const patterns = [ pattern1, pattern2 ];

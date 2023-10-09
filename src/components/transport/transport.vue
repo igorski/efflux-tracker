@@ -90,7 +90,7 @@
                         @blur="focusPatternInput( false )"
                     />
                     <span class="divider">/</span>
-                    <span class="total">{{ activeSong.patterns.length.toString() }}</span>
+                    <span class="total">{{ activeSong.order.length.toString() }}</span>
                 </li>
                 <li>
                     <button
@@ -283,6 +283,7 @@ export default {
             "setTempo",
             "setActiveOrderIndex",
             "setPatternSteps",
+            "suspendKeyboardService",
             "gotoPreviousPattern",
             "gotoNextPattern",
             "setMobileMode",
@@ -290,7 +291,7 @@ export default {
         handleSettingsToggle(): void {
             this.setMobileMode( this.mobileMode ? null : "settings" );
         },
-        focusPatternInput( value: number ): void {
+        focusPatternInput( value: boolean ): void {
             KeyboardService.setListener( value ? this.handlePatternInput.bind( this ) : null );
             if ( value ) {
                 this.tempOrderIndex = this.activeOrderIndex;
@@ -497,14 +498,14 @@ export default {
         padding: 0 0 0 $spacing-small;
     
         label {
-            margin-right: $spacing-medium;
+            margin-right: $spacing-small;
             display: inline-block;
             @include toolFont();
         }
 
         input {
             display: inline-block;
-            margin: 0 $spacing-medium 0 0;
+            margin: 0 $spacing-small 0 0;
             vertical-align: middle;
         }
 

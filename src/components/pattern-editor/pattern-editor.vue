@@ -26,7 +26,13 @@
         :class="{ 'settings-mode': mobileMode === 'settings' }"
         @mouseover="setHelpTopic('pattern')"
     >
-        <h2 v-t="'title'"></h2>
+        <h2
+            v-t="'title'"
+            class="pattern-editor__title"
+        ></h2>
+        <span class="pattern-editor__pattern-name">
+            {{ patternName }}
+        </span>
         <ul class="inline-list">
             <li class="list-item">
                 <button
@@ -77,11 +83,19 @@
                     class="pattern-step-select"
                 />
             </li>
+            <li class="list-item">
+                <button
+                    :title="$t('patternManager')"
+                    type="button"
+                    class="pattern-manager-button"
+                    @click="handlePatternManagerClick()"
+                ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('patternManager')" /></button>
+            </li>
         </ul>
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import createAction from "@/model/factories/action-factory";
 import Config from "@/config";
@@ -89,6 +103,7 @@ import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import { clone } from "@/utils/object-util";
 import SelectBox from "@/components/forms/select-box.vue";
+import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
 export default {
@@ -109,18 +124,21 @@ export default {
             "amountOfSteps",
         ]),
         patternStep: {
-            get() {
+            get(): string {
                 return this.activeSong.patterns[ this.activePattern ].steps.toString();
             },
-            set( value ) {
+            set( value: string ): void {
                 const pattern = this.activeSong.patterns[ this.activePattern ];
                 this.setPatternSteps({ pattern, steps: parseFloat( value ) });
             }
         },
-        patternStepOptions() {
+        patternStepOptions(): { label: string, value: string }[] {
             return [ 16, 32, 64, 128 ].map( amount => ({
                 label: this.$t( "steps", { amount }), value: amount.toString()
             }));
+        },
+        patternName(): string {
+            return indexToName( this.activePattern );
         },
     },
     methods: {
@@ -133,14 +151,14 @@ export default {
             "openModal",
             "showError",
         ]),
-        handlePatternClear() {
+        handlePatternClear(): void {
             this.clearSelection();
             this.saveState( createAction( Actions.CLEAR_PATTERN, { store: this.$store }));
         },
-        handlePatternCopy() {
+        handlePatternCopy(): void {
             this.patternCopy = clone( this.activeSong.patterns[ this.activePattern ]);
         },
-        handlePatternPaste() {
+        handlePatternPaste(): void {
             if ( this.patternCopy ) {
                 this.clearSelection();
                 this.saveState(
@@ -151,7 +169,7 @@ export default {
                 );
             }
         },
-        handlePatternAdd() {
+        handlePatternAdd(): void {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
                 this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
@@ -160,7 +178,7 @@ export default {
             this.saveState( createAction( Actions.ADD_PATTERN, { store: this.$store }));
             this.gotoNextPattern( this.activeSong );
         },
-        handlePatternDelete() {
+        handlePatternDelete(): void {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === 1 ) {
                 this.handlePatternClear();
@@ -169,9 +187,12 @@ export default {
                 this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store }));
             }
         },
-        handlePatternAdvanced() {
+        handlePatternAdvanced(): void {
             this.openModal( ModalWindows.ADVANCED_PATTERN_EDITOR );
-        }
+        },
+        handlePatternManagerClick(): void {
+            this.openModal( ModalWindows.PATTERN_MANAGER );
+        },
     }
 };
 </script>
@@ -185,8 +206,15 @@ export default {
     margin: 0;
     padding-left: $spacing-small;
 
-    h2 {
+    &__title {
         padding: 0 $spacing-small;
+        @include toolFont();
+    }
+
+    &__pattern-name {
+        @include toolFont();
+        margin-right: $spacing-small;
+        color: #fff;
     }
 
     h4 {
@@ -224,6 +252,12 @@ export default {
 .pattern-step-select {
     width: 85px;
     margin: 0 $spacing-xxsmall 0 $spacing-small;
+}
+
+.pattern-manager-button {
+    @include button();
+    padding: $spacing-xsmall $spacing-small;
+    margin: $spacing-small;
 }
 
 /* large views and above */

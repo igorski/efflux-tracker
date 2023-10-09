@@ -32,7 +32,7 @@
         @touchstart.self.prevent.stop="setEditing( true )"
         @click.self="selectPattern()"
     >
-        {{ pattern }}
+        {{ name }}
         <div
             v-if="editing"
             class="pattern-order-entry__context-menu"
@@ -48,8 +48,8 @@ import { mapMutations } from "vuex";
 
 export default {
     props: {
-        pattern: {
-            type: Number,
+        name: {
+            type: String,
             required: true,
         },
         index: {

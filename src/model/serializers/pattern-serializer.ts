@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,8 +28,9 @@ import type { EffluxPattern } from "@/model/types/pattern";
  * Objects into their JSON representation
  */
 export const PATTERNS = "p";
-export const PATTERN_STEPS    = "s";
+export const PATTERN_STEPS = "s";
 export const PATTERN_CHANNELS = "c";
+export const PATTERN_DESCRIPTION = "d";
 
 // as notes and automation instruction might be repeated
 // throughout a song we create pools to prevent redefining them
@@ -65,8 +66,9 @@ export const serialize = ( xtk: any, patterns: EffluxPattern[] ): void => {
 
         xtkPattern = xtkPatterns[ pIndex ] = {};
 
-        xtkPattern[ PATTERN_STEPS ]    = pattern.steps;
+        xtkPattern[ PATTERN_STEPS ]  = pattern.steps;
         xtkPattern[ PATTERN_CHANNELS ] = new Array( pattern.channels.length );
+        xtkPattern[ PATTERN_DESCRIPTION ] = pattern.description;
 
         pattern.channels.forEach(( channel: EffluxAudioEvent[], cIndex: number ): void => {
 

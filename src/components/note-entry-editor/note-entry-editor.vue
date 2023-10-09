@@ -456,7 +456,6 @@ $largeWidth: 700px;
     @include list();
     @include toolFont();
     text-transform: uppercase;
-    text-indent: $spacing-small;
     display: inline-block;
 
     li {
@@ -464,6 +463,7 @@ $largeWidth: 700px;
         border: 2px solid #666;
         padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
         margin: $spacing-xsmall $spacing-small 0 0;
+        text-indent: $spacing-small;
         cursor: pointer;
 
         &.selected {

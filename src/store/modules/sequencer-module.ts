@@ -376,6 +376,9 @@ const SequencerModule: Module<SequencerState, any> = {
         isMetronomeEnabled( state: SequencerState ): boolean {
             return Metronome.enabled.value;
         },
+        activeOrderIndex( state: SequencerState ): number {
+            return state.activeOrderIndex;
+        },
         // TODO: rename to activePatternIndex ?
         activePattern( state: SequencerState, rootGetters: any ): number {
             return rootGetters.activeSong.order[ state.activeOrderIndex ];

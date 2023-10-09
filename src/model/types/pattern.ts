@@ -31,4 +31,5 @@ import type { EffluxChannel } from "./channel";
 export type EffluxPattern = {
     steps: number;
     channels: EffluxChannel[];
+    description?: string;
 };

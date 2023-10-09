@@ -50,6 +50,11 @@ describe( "Vuex sequencer module", () => {
             expect( getters.isRecording( state )).toEqual( true );
         });
 
+        it( "should be able to retrieve the active order index", () => {
+            state = createSequencerState({ activeOrderIndex: 6 });
+            expect( getters.activeOrderIndex( state )).toEqual( 6 );
+        })
+
         describe( "when deriving the active pattern from the active order index", () => {
             beforeAll(() => {
                 activeSong = SongFactory.create();

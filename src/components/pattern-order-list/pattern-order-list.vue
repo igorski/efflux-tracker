@@ -35,8 +35,8 @@
         ><</button>
         <pattern-order-entry
             v-for="(entry) in visibleEntries"
-            :key="`e_${entry.index}`"
-            :pattern="entry.pattern"
+            :key="`e_${entry.name}_${entry.index}`"
+            :name="entry.name"
             :index="entry.index"
             :active="entry.active"
             :editing="entry.editing"
@@ -73,28 +73,30 @@
             @click="handleNextClick()"
         >></button>
         <button
-            v-t="'edit'"
             :title="$t('edit')"
             type="button"
             class="pattern-order-list__edit-button"
             @click="handleEditClick()"
-        ></button>
+        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('edit')" /></button>
     </div>
 </template>
 
 <script lang="ts">
-import { mapState, mapMutations, type Store } from "vuex";
+import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
-import { enqueueState } from "@/model/factories/history-state-factory";
+import createAction from "@/model/factories/action-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxState } from "@/store";
 import PatternOrderUtil from "@/utils/pattern-order-util";
 import PatternOrderEntry from "./components/pattern-order-entry.vue";
+import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
 type WrappedPatternOrderEntry = {
-    pattern: number; // index of pattern
-    index: number;   // index of entry within order list
+    pattern: number; // index of pattern in pattern list
+    name: string;    // name of pattern (derived from its pattern list index)
+    index: number;   // index of pattern within order list
     active: boolean;
     editing: boolean;
 };
@@ -113,13 +115,16 @@ export default {
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,
-            activeOrderIndex: state => state.sequencer.activeOrderIndex,
         }),
+        ...mapGetters([
+            "activeOrderIndex",
+        ]),
         entries(): WrappedPatternOrderEntry[] {
             return this.activeSong.order
                 .map(( pattern: number, index: number ) => ({
                     pattern,
                     index,
+                    name: indexToName( pattern ),
                     active: this.activeOrderIndex === index,
                     editing: this.editableEntry === index,
                 }));
@@ -177,21 +182,8 @@ export default {
         stopEditing(): void {
             this.editableEntry = -1;
         },
-        updateOrder( newOrder: EffluxPatternOrder ): void {
-            const store: Store<EffluxState> = this.$store;
-            const existingValue = [ ...this.activeSong.order ];
-
-            const commit = (): void => store.commit( "replacePatternOrder", newOrder );
-            commit();
-
-            enqueueState( "songOrder", {
-                undo(): void {
-                    store.commit( "replacePatternOrder", existingValue );
-                },
-                redo(): void {
-                    commit();
-                },
-            });
+        updateOrder( order: EffluxPatternOrder ): void {
+            createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
         },
         handleEditClick(): void {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );
@@ -220,7 +212,7 @@ export default {
 
     &__edit-button {
         @include button();
-        background-color: $color-5;
+        padding: $spacing-xsmall $spacing-small;
         margin: $spacing-small;
     }
 }

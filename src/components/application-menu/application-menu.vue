@@ -134,18 +134,18 @@
                     <ul class="menu-list__submenu">
                         <li>
                             <button
-                                v-t="'manageInstruments'"
-                                type="button"
-                                class="menu-list__button"
-                                @click="handleInstrumentBrowserClick()"
-                            ></button>
-                        </li>
-                        <li>
-                            <button
                                 v-t="'instrumentEditor'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleInstrumentEditorClick()"
+                            ></button>
+                        </li>
+                        <li>
+                            <button
+                                v-t="'managePresets'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="handleInstrumentBrowserClick()"
                             ></button>
                         </li>
                         <li>
@@ -155,6 +155,17 @@
                                 class="menu-list__button"
                                 @click="handleSampleEditorClick()"
                             ></button>
+                        </li>
+                        <li>
+                            <button
+                                v-t="'mixer'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="handleMixerClick()"
+                            ></button>
+                        </li>
+                        <li>
+                            <hr class="divider" />
                         </li>
                         <li>
                             <button
@@ -218,7 +229,7 @@
     </nav>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
@@ -250,16 +261,16 @@ export default {
         },
     },
     watch: {
-        blindActive(isOpen, wasOpen) {
+        blindActive( isOpen: boolean, wasOpen?: boolean ): void {
             if ( !isOpen && wasOpen === true ) {
                 this.setMenuOpened( false );
             }
         }
     },
-    created() {
+    created(): void {
         this.hasFullscreen = isSupported();
     },
-    mounted() {
+    mounted(): void {
         if ( this.$refs.fullscreenBtn ) {
             setToggleButton( this.$refs.fullscreenBtn, isFullscreen => {
                 this.isFullscreen = isFullscreen;
@@ -286,13 +297,13 @@ export default {
             "saveSong",
             "openSong",
         ]),
-        handleMouseOver() {
+        handleMouseOver(): void {
             this.setHelpTopic("menu");
         },
-        handleLoad() {
+        handleLoad(): void {
             this.openModal( ModalWindows.SONG_BROWSER );
         },
-        async handleSave( allowInstantSaveWhenSongIsValid = false ) {
+        async handleSave( allowInstantSaveWhenSongIsValid = false ): Promise<void> {
             if ( hasContent( this.activeSong )) {
                 const { meta } = this.activeSong;
                 if ( allowInstantSaveWhenSongIsValid && meta.title && meta.author ) {
@@ -304,7 +315,7 @@ export default {
                 this.showError( this.$t( "emptySong" ));
             }
         },
-        async handleExport() {
+        async handleExport(): Promise<void> {
             try {
                 await this.exportSong( this.activeSong );
                 // we do not make setStatesOnSave part of the Vuex action as it can also be called
@@ -315,7 +326,7 @@ export default {
                 this.showError( this.$t( "errorSongExport" ));
             }
         },
-        async handleJSONExport() {
+        async handleJSONExport(): Promise<void> {
             try {
                 const { title } = this.activeSong.meta;
                 const data = await this.exportSongForShare( this.activeSong );
@@ -325,19 +336,19 @@ export default {
                 this.showError( this.$t( "errorSongExport" ));
             }
         },
-        handleMidiExport() {
+        handleMidiExport(): void {
             this.openModal( ModalWindows.MIDI_EXPORT_WINDOW );
         },
-        handleTransposeClick() {
+        handleTransposeClick(): void {
             this.openModal( ModalWindows.TRANSPOSITION_EDITOR );
         },
-        handleChordClick() {
+        handleChordClick(): void {
             this.openModal( ModalWindows.CHORD_GENERATOR_WINDOW );
         },
-        handleOptimizeClick() {
+        handleOptimizeClick(): void {
             this.openModal( ModalWindows.OPTIMIZATION_WINDOW );
         },
-        handleReset() {
+        handleReset(): void {
             this.openDialog({
                 type: "confirm",
                 message: this.$t("warningSongReset"),
@@ -346,13 +357,13 @@ export default {
                 },
             });
         },
-        handleSettings() {
+        handleSettings(): void {
             this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
-        handleHelp() {
+        handleHelp(): void {
             window.open( ManualURLs.ONLINE_MANUAL );
         },
-        handleRecord() {
+        handleRecord(): void {
             if ( AudioService.isRecording() ) {
                 return AudioService.toggleRecordingState();
             }
@@ -368,16 +379,19 @@ export default {
                 },
             });
         },
-        handleInstrumentEditorClick() {
+        handleInstrumentEditorClick(): void {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
-        handleSampleEditorClick() {
+        handleSampleEditorClick(): void {
             this.openModal( ModalWindows.SAMPLE_EDITOR );
         },
-        handleInstrumentBrowserClick() {
+        handleInstrumentBrowserClick(): void {
             this.openModal( ModalWindows.INSTRUMENT_MANAGER );
         },
-        openJamMode() {
+        handleMixerClick(): void {
+            this.openModal( ModalWindows.MIXER );
+        },
+        openJamMode(): void {
             this.openModal( ModalWindows.JAM_MODE );
         },
     }

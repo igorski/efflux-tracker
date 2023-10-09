@@ -47,7 +47,6 @@
                     class="application-properties"
                 >
                     <pattern-editor />
-                    <song-editor />
                 </div>
             </div>
             <div class="container">
@@ -167,7 +166,6 @@ export default {
         NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor.vue" )),
         TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor.vue" )),
         TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
@@ -253,6 +251,9 @@ export default {
                     break;
                 case ModalWindows.JAM_MODE:
                     loadFn = () => import( "@/components/jam/jam.vue" );
+                    break;
+                case ModalWindows.PATTERN_MANAGER:
+                    loadFn = () => import( "@/components/pattern-manager/pattern-manager.vue" );
                     break;
                 case ModalWindows.PATTERN_ORDER_WINDOW:
                     loadFn = () => import( "@/components/pattern-order-window/pattern-order-window.vue" );

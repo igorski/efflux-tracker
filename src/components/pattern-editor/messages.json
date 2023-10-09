@@ -8,6 +8,7 @@
     "delete": "delete",
     "steps": "{amount} steps",
     "advanced": "advanced",
-    "errorMaxExceeded": "Cannot exceed the allowed maximum of {amount} patterns"
+    "errorMaxExceeded": "Cannot exceed the allowed maximum of {amount} patterns",
+    "patternManager": "Pattern manager"
   }
 }

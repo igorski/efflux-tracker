@@ -33,6 +33,7 @@ import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/typ
 import type { EffluxChannel } from "@/model/types/channel";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxSong } from "@/model/types/song";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
@@ -91,6 +92,10 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.TRANSPOSE:
             return transpositionAction( data );
+
+        case Actions.UPDATE_PATTERN_ORDER:
+            updatePatternOrder( data );
+            return null;
     }
 }
 
@@ -480,11 +485,14 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
     };
 }
 
-function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
+function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
     const song          = store.state.song.activeSong,
-          patternIndex  = store.getters.activePattern,
           orderIndex    = store.state.sequencer.activeOrderIndex,
           amountOfSteps = store.getters.amountOfSteps;
+
+    if ( typeof patternIndex !== "number" ) {
+        patternIndex = store.getters.activePattern + 1;
+    }
 
     const { commit } = store;
 
@@ -493,29 +501,32 @@ function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
 
     function act(): void {
         const pattern = PatternFactory.create( amountOfSteps );
-        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex + 1, amountOfSteps, pattern ));
+        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex!, amountOfSteps, pattern ));
     }
     act(); // perform action
 
     return {
         undo(): void {
-            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex + 1 ));
+            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex! ));
             commit( "setActiveOrderIndex", orderIndex );
         },
         redo: act
     };
 }
 
-function deletePattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
+function deletePattern({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
     const song            = store.state.song.activeSong,
           patterns        = song.patterns,
-          patternIndex    = store.getters.activePattern,
           orderIndex      = store.state.sequencer.activeOrderIndex,
           amountOfSteps   = store.getters.amountOfSteps,
           targetIndex     = orderIndex === ( song.order.length - 1 ) ? orderIndex - 1 : orderIndex;
 
+    if ( typeof patternIndex !== "number" ) {
+        patternIndex = store.getters.activePattern;
+    }
+
     const { commit } = store;
-    const existingPattern = clonePattern( song, patternIndex );
+    const existingPattern = clonePattern( song, patternIndex! );
     const existingOrder = [ ...song.order ];
 
     function act(): void {
@@ -718,6 +729,22 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
         },
         redo: act
     };
+}
+
+function updatePatternOrder({ store, order }: { store: ActionContext<EffluxState, any>, order: EffluxPatternOrder }): void {
+    const existingValue = [ ...store.getters.activeSong.order ];
+
+    const act = (): void => store.commit( "replacePatternOrder", order );
+    act();
+
+    enqueueState( "songOrder", {
+        undo(): void {
+            store.commit( "replacePatternOrder", existingValue );
+        },
+        redo(): void {
+            act();
+        },
+    });
 }
 
 // when changing states of observables, we need to take heed to always restore
