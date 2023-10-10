@@ -166,9 +166,16 @@ export default {
 .vs__open-indicator {
     fill: #222;
 }
+.vs--unsearchable .vs__search {
+    // fixes weird vertical jump after selectbox open
+    // by keeping it in the DOM, focus/blur/esc still work
+    position: absolute;
+    top: -9999px;
+}
 .vs__selected {
     margin: #{$spacing-xsmall + 1} $spacing-xsmall 0;
     font-size: 95%;
+    @include truncate();
 }
 
 .vs__selected-options {

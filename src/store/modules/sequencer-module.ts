@@ -295,7 +295,6 @@ function step( store: Store<EffluxState> ): void {
                 return;
             }
         }
-        commit( "setActiveOrderIndex", nextOrderIndex );
     } else {
         commit( "setCurrentStep", currentStep );
     }

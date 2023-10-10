@@ -35,6 +35,21 @@
         </span>
         <ul class="inline-list">
             <li class="list-item">
+                <select-box
+                    v-model.number="patternStep"
+                    :options="patternStepOptions"
+                    class="pattern-step-select"
+                />
+            </li>
+            <li class="list-item">
+                <button
+                    v-t="'patternManager'"
+                    type="button"
+                    class="pattern-manager-button"
+                    @click="handlePatternManagerClick()"
+                ></button>
+            </li>
+            <li class="list-item">
                 <button
                     v-t="'clear'"
                     type="button"
@@ -75,21 +90,6 @@
                     type="button"
                     @click="handlePatternAdvanced()"
                 ></button>
-            </li>
-            <li class="list-item">
-                <select-box
-                    v-model.number="patternStep"
-                    :options="patternStepOptions"
-                    class="pattern-step-select"
-                />
-            </li>
-            <li class="list-item">
-                <button
-                    :title="$t('patternManager')"
-                    type="button"
-                    class="pattern-manager-button"
-                    @click="handlePatternManagerClick()"
-                ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('patternManager')" /></button>
             </li>
         </ul>
     </section>
@@ -255,9 +255,12 @@ export default {
 }
 
 .pattern-manager-button {
-    @include button();
-    padding: $spacing-xsmall $spacing-small;
-    margin: $spacing-small;
+    margin-left: $spacing-medium !important;
+    color: #FFF !important;
+
+    &:hover {
+        color: $color-1 !important;
+    }
 }
 
 /* large views and above */

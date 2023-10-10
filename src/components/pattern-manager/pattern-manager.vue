@@ -55,19 +55,24 @@
                     class="pattern-list__entry-description"
                     @click="handleDescriptionInputShow( entry )"
                 >{{ entry.description }}</span>
-                <button
-                    type="button"
-                    class="pattern-list__entry-action-button"
-                    :title="$t('duplicate')"
-                    @click.stop="handleDuplicateClick( entry )"
-                ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
-                <button
-                    v-if="canDelete"
-                    type="button"
-                    class="pattern-list__entry-action-button"
-                    :title="$t('delete')"
-                    @click.stop="handleDeleteClick( entry )"
-                ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                <span
+                    class="pattern-list__entry-steps"
+                >{{ $t( "stepAmount", { amount: entry.pattern.steps }) }}</span>
+                <div class="pattern-list__entry-action-buttons">
+                    <button
+                        type="button"
+                        class="pattern-list__entry-action-button"
+                        :title="$t('duplicate')"
+                        @click.stop="handleDuplicateClick( entry )"
+                    ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                    <button
+                        v-if="canDelete"
+                        type="button"
+                        class="pattern-list__entry-action-button"
+                        :title="$t('delete')"
+                        @click.stop="handleDeleteClick( entry )"
+                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                </div>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
@@ -155,7 +160,8 @@ export default {
         handleDuplicateClick( entry: WrappedPatternEntry ): void {
             this.saveState( createAction(
                 Actions.PASTE_PATTERN_MULTIPLE,
-                { store: this.$store, patterns: [ entry.pattern ], insertIndex: entry.index }
+                // note we insert at the end (to not upset order indices)
+                { store: this.$store, patterns: [ entry.pattern ], insertIndex: this.entries.length }
             ));
         },
         handleDeleteClick( entry: WrappedPatternEntry ): void {
@@ -252,14 +258,23 @@ $headerFooterHeight: 104px;
         background-color: $color-pattern-even;
 
         &-title {
-            flex: 0.1;
+            width: 40px;
             cursor: pointer;
             @include truncate();
             vertical-align: middle;
         }
 
         &-description {
-            flex: 0.9;
+            width: calc(100% - 190px);
+            @include truncate();
+        }
+
+        &-steps {
+            width: 80px;
+        }
+
+        &-action-buttons {
+            width: 70px;
         }
 
         &-action-button {

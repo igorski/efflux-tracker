@@ -5,6 +5,7 @@
         "duplicate": "Duplicate",
         "delete": "Delete",
         "createNew": "Create new pattern",
-        "orderPatterns": "Order patterns"
+        "orderPatterns": "Order patterns",
+        "stepAmount": "{amount} steps"
     }
 }
