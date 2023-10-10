@@ -1,9 +1,10 @@
 {
     "en-US": {
-        "patternManager": "Pattern manager",
+        "patternManager": "Song pattern manager",
         "untitled": "Untitled",
         "duplicate": "Duplicate",
         "delete": "Delete",
-        "createNew": "Create new pattern"
+        "createNew": "Create new pattern",
+        "orderPatterns": "Order patterns"
     }
 }

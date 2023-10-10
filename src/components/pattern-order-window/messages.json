@@ -1,7 +1,8 @@
 {
     "en-US": {
-        "patternOrder": "Pattern order",
-        "patternExpl": "You can drag individual patterns up or down in the list",
+        "patternOrder": "Song pattern order",
+        "patternExpl": "You can drag patterns up & down in the list",
+        "addPattern": "Add pattern",
         "play": "Play",
         "duplicate": "Duplicate",
         "delete": "Delete"

@@ -45,13 +45,6 @@
             <template v-if="entry.editing">
                 <button
                     type="button"
-                    v-t="'select'"
-                    class="pattern-order-entry__context-menu-button"
-                    :disabled="entry.active"
-                    @click="selectPattern( entry )"
-                ></button>
-                <button
-                    type="button"
                     v-t="'repeat'"
                     class="pattern-order-entry__context-menu-button"
                     @click="repeatPattern( entry )"
@@ -156,13 +149,8 @@ export default {
     methods: {
         ...mapMutations([
             "openModal",
-            "setActiveOrderIndex",
             "replacePatternOrder",
         ]),
-        selectPattern( entry: WrappedPatternOrderEntry ): void {
-            this.setActiveOrderIndex( entry.index );
-            this.stopEditing();
-        },
         repeatPattern( entry: WrappedPatternOrderEntry ): void {
             const newOrder = [ ...this.activeSong.order ];
             const tail = newOrder.splice( entry.index + 1 );

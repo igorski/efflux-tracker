@@ -29,6 +29,10 @@
                 class="close-button"
                 @click="$emit('close')"
             >x</button>
+            <span
+                v-t="'patternExpl'"
+                class="header__explanation"
+            ></span>
         </div>
         <hr class="divider" />
         <ul class="order-list">
@@ -67,9 +71,21 @@
         </ul>
         <hr class="divider divider--bottom" />
         <div class="footer">
-            <span
-                v-t="'patternExpl'"
-            ></span>
+            <div class="footer__ui">
+               <select-box
+                    v-model="newPatternIndex"
+                    :options="patterns"
+                    auto-position
+                    class="footer__ui-select-box"
+                />
+                <button
+                    v-t="'addPattern'"
+                    :title="$t('addPattern')"
+                    type="button"
+                    class="button"
+                    @click.stop="handleAddClick()"
+                ></button>
+            </div>
         </div>
     </div>
 </template>
@@ -77,6 +93,7 @@
 <script lang="ts">
 import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import SelectBox from "@/components/forms/select-box.vue";
 import Actions from "@/definitions/actions";
 import createAction from "@/model/factories/action-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
@@ -96,7 +113,11 @@ export default {
     i18n: { messages },
     components: {
         Draggable,
+        SelectBox,
     },
+    data: () => ({
+        newPatternIndex: 0,
+    }),
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,
@@ -120,6 +141,13 @@ export default {
                 const order = value.map( entry => entry.pattern );
                 createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
             }
+        },
+        patterns(): { label: string, value: number }[] {
+            return this.activeSong.patterns
+                .map(( pattern: EffluxPatternOrder, index: number ) => ({
+                    label: `${indexToName( index )} ${pattern.description ?? ""}`,
+                    value: index,
+                }));
         },
         canDelete(): boolean {
             return this.entries.length > 1;
@@ -152,6 +180,10 @@ export default {
                 order: PatternOrderUtil.removePatternAtIndex( this.activeSong.order, entry.index )
             });
         },
+        handleAddClick(): void {
+            const order = [ ...this.activeSong.order, this.newPatternIndex ];
+            createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
+        },
     },
 };
 </script>
@@ -165,7 +197,7 @@ export default {
 
 $width: 450px;
 $height: 500px;
-$headerFooterHeight: 104px;
+$headerFooterHeight: 134px;
 
 .pattern-order-window {
     @include editorComponent();
@@ -177,6 +209,28 @@ $headerFooterHeight: 104px;
     .header,
     .footer {
         padding: $spacing-small $spacing-large 0;
+    }
+
+    .header {
+        &__explanation {
+            display: block;
+            padding: $spacing-small 0 0;
+        }
+    }
+
+    .footer {
+        &__ui {
+            display: flex;
+            justify-content: space-evenly;
+
+            .button {
+                flex: 0.2;
+            }
+
+            &-select-box {
+                flex: 0.7;
+            }
+        }
     }
 
     .divider {

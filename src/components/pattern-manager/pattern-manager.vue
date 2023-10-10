@@ -78,6 +78,12 @@
                 class="button"
                 @click="handleCreateNew()"
             ></button>
+            <button
+                v-t="'orderPatterns'"
+                type="button"
+                class="button"
+                @click="handleOrderClick()"
+            ></button>
         </div>
     </div>
 </template>
@@ -86,6 +92,7 @@
 import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
 import Actions from "@/definitions/actions";
+import ModalWindows from "@/definitions/modal-windows";
 import createAction from "@/model/factories/action-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxState } from "@/store";
@@ -95,8 +102,8 @@ import messages from "./messages.json";
 type WrappedPatternEntry = {
     pattern: EffluxPattern;
     description: string;
-    index: number;
-    name: string;    // name of pattern (derived from its pattern list index)
+    index: number;  // index within the Songs pattern list
+    name: string;   // name of pattern (derived from its pattern list index)
 };
 
 export default {
@@ -130,6 +137,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "openModal",
             "replacePattern",
             "saveState",
             "setActiveOrderIndex",
@@ -138,11 +146,17 @@ export default {
         handleCreateNew(): void {
             this.saveState( createAction( Actions.ADD_PATTERN, { store: this.$store, patternIndex: this.entries.length }));
         },
+        handleOrderClick(): void {
+            this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );
+        },
         handleSelect( entry: WrappedPatternEntry ): void {
             this.setActiveOrderIndex( entry.index );
         },
         handleDuplicateClick( entry: WrappedPatternEntry ): void {
-            console.info("TODO duplicate");
+            this.saveState( createAction(
+                Actions.PASTE_PATTERN_MULTIPLE,
+                { store: this.$store, patterns: [ entry.pattern ], insertIndex: entry.index }
+            ));
         },
         handleDeleteClick( entry: WrappedPatternEntry ): void {
             this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store, patternIndex: entry.index }));
