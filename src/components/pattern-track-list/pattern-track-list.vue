@@ -40,7 +40,7 @@
                 >
                     <template v-if="mustFollow && stepCentered">
                         <li
-                            v-for="index in lastIndices"
+                            v-for="index in prevIndices"
                             :key="`prev_index_${index}`"
                             class="index next"
                         >{{ index }}</li>
@@ -73,7 +73,7 @@
                             :selected-slot="stepIndex === selectedStep && channelIndex === selectedInstrument ? selectedSlot : -1"
                             :formatted-param="formatModuleParam( event.mp )"
                             class="pattern-row"
-                            :class="{ spacer: activePattern === 1 }"
+                            :class="{ spacer: activeOrderIndex === 1 }"
                         />
                     </template>
                     <pattern-event
@@ -96,7 +96,7 @@
                             :selected-slot="stepIndex === selectedStep && channelIndex === selectedInstrument ? selectedSlot : -1"
                             :formatted-param="formatModuleParam( event.mp )"
                             class="pattern-row"
-                            :class="{ spacer: activePattern === activeSong.patterns.length - 1 }"
+                            :class="{ spacer: activeOrderIndex === activeSong.order.length - 1 }"
                         />
                     </template>
                 </ul>
@@ -108,6 +108,7 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import type { EffluxAudioEventModuleParams } from "@/model/types/audio-event";
+import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import PatternEvent from "./pattern-event.vue";
 import KeyboardService from "@/services/keyboard-service";
@@ -147,6 +148,7 @@ export default {
         }),
         ...mapGetters([
             "activePattern",
+            "activeOrderIndex",
             "amountOfSteps",
             "hasSelection",
             "followPlayback",
@@ -157,16 +159,17 @@ export default {
             return this.activeSong.patterns[ this.activePattern ];
         },
         prevPatternIndex(): number {
-            return this.activeSong.order[ this.activePattern - 1 ] ?? - 1;
+            return this.activeSong.order[ this.activeOrderIndex - 1 ] ?? - 1;
         },
         nextPatternIndex(): number {
-            return this.activeSong.order[ this.activePattern + 1 ] ?? 0;
+            return this.activeSong.order[ this.activeOrderIndex + 1 ] ?? this.activeSong.order[ 0 ] ;
         },
         previousPatternChannels(): EffluxChannel[] | null {
             if ( !this.mustFollow ) {
                 return null;
             }
-            const prevIndex = this.prevPatternIndex < 0 ? this.activeSong.patterns.length - 1 : this.prevPatternIndex;
+            const lastPatternIndex = this.activeSong.order[ this.activeSong.order.length - 1 ];
+            const prevIndex = this.prevPatternIndex < 0 ? lastPatternIndex : this.prevPatternIndex;
             return this.activeSong.patterns[ prevIndex ].channels.map( channel => {
                 return channel.slice(( channel.length - 1 ) - this.prevEvents );
             });
@@ -177,10 +180,10 @@ export default {
             }
             const amountOfPatterns = this.activeSong.order.length;
             // also provide lookahead for the pattern(s) coming after the next one for a seamless scrolling list
-            const nextIndex = this.nextPatternIndex >= amountOfPatterns ? 0 : this.nextPatternIndex;
+            const nextIndex   = this.nextPatternIndex;
             let nextNextIndex = nextIndex;
 
-            // the amount of events we require to visualize the next pattern(s) for the current resolution
+            // the amount of events we require to visualize the next pattern(s) at the current resolution
             let sliceAmount = this.visibleSteps - this.prevEvents;
             return this.activeSong.patterns[ nextIndex ].channels.map(( channelEvents, channelIndex ) => {
                 const out = [ ...channelEvents ];
@@ -197,17 +200,16 @@ export default {
                 return out.slice( 0, sliceAmount );
             });
         },
-        lastIndices(): number[] {
-            const out = [];
-            // TODO get from order
-            const lastPatternAmount = this.activeSong.patterns[ this.activePattern - 1 ]?.steps || this.activeSongPattern.steps;
+        prevIndices(): number[] {
+            const out: number[] = [];
+            const lastPatternAmount = this.activeSong.patterns[ this.prevPatternIndex ]?.steps || this.activeSongPattern.steps;
             for ( let i = lastPatternAmount - this.prevEvents; i <= lastPatternAmount; ++i ) {
                 out.push( i );
             }
             return out;
         },
         nextIndices(): number[] {
-            const out = new Array( this.nextEvents );
+            const out: number[] = new Array( this.nextEvents );
             for ( let i = 0; i < this.nextEvents; ++i ) {
                 out[ i ] = i;
             }
@@ -278,7 +280,7 @@ export default {
             "setShowNoteEntry",
         ]),
         cacheDimensions(): void {
-            this.containerWidth = this.container.offsetWidth;
+            this.containerWidth  = this.container.offsetWidth;
             this.containerHeight = this.container.offsetHeight;
 
             // the amount of events we can fit vertically on the screen

@@ -231,7 +231,7 @@ describe( "Vuex sequencer module", () => {
                 activeSong.order = [ 0, 0, 1, 2 ];
             });
 
-            it( "should be able to navigate to the previous index when the current index is a positive value", () => {
+            it( "should be able to navigate to the next index when the current index is below the end of the list", () => {
                 const state = createSequencerState({ activeOrderIndex: 2, currentStep: 14 });
                 mutations.gotoNextPattern( state, activeSong );
 

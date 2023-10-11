@@ -29,9 +29,10 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters } from "vuex";
 import { canvas } from "zcanvas";
+import type { EffluxPattern } from "@/model/types/pattern";
 import PatternRenderer from "./renderers/pattern-renderer";
 import messages from "./messages.json";
 
@@ -47,23 +48,25 @@ export default {
         ...mapGetters([
             "activePattern",
         ]),
-        patterns() {
-            return this.activeSong.patterns;
+        patterns(): EffluxPattern[] {
+            return this.activeSong.order.map(( patternIndex: number ) => {
+                return this.activeSong.patterns[ patternIndex ];
+            });
         },
     },
     watch: {
         windowSize: {
-            handler() {
+            handler(): void {
                 if ( this.canvas ) {
                     this.resizeCanvas();
                 }
             },
         },
-        patterns() {
+        patterns(): void {
             this.syncActors();
         },
     },
-    mounted() {
+    mounted(): void {
         this._renderers = [];
 
         this.canvas = new canvas({ width: 100, height: 100 });
@@ -74,11 +77,11 @@ export default {
         this.syncActors();
         this.resizeCanvas();
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.canvas.dispose();
     },
     methods: {
-        resizeCanvas() {
+        resizeCanvas(): void {
             const { width, height } = this.$el.getBoundingClientRect();
             this.canvas.setDimensions( width, height );
             // TODO: implement zooming ?
@@ -87,13 +90,13 @@ export default {
                 renderer.setHeight( height );
             });
         },
-        syncActors() {
-            while ( this._renderers.length ) {
+        syncActors(): void {
+            while ( this._renderers.length > 0 ) {
                 this._renderers[ 0 ].dispose();
                 this._renderers.splice( 0, 1 );
             }
-            this.patterns.forEach(( pattern, index ) => {
-                const renderer = new PatternRenderer( pattern, index );
+            this.patterns.forEach(( pattern: EffluxPattern, index: number ): void => {
+                const renderer = new PatternRenderer( pattern, index, this.canvas.getWidth(), this.canvas.getHeight() );
                 this._renderers.push( renderer );
                 this.canvas.addChild( renderer );
             });
