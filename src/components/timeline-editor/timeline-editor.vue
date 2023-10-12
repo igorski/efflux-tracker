@@ -46,7 +46,7 @@ export default {
             windowSize: state => state.windowSize,
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
         ]),
         patterns(): EffluxPattern[] {
             return this.activeSong.order.map(( patternIndex: number ) => {

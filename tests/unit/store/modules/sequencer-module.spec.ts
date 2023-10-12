@@ -28,7 +28,12 @@ describe( "Vuex sequencer module", () => {
     const { getters, mutations, actions } = SequencerModule;
 
     let state: SequencerState;
-    let activeSong: EffluxSong;
+    
+    const activeSong = SongFactory.create();
+    activeSong.patterns = [
+        PatternFactory.create( 16 ), PatternFactory.create( 8 ), PatternFactory.create( 4 ) 
+    ];
+    activeSong.order = [ 0, 0, 1, 1, 2 ];
 
     afterEach(() => {
         vi.restoreAllMocks();
@@ -53,29 +58,18 @@ describe( "Vuex sequencer module", () => {
         it( "should be able to retrieve the active order index", () => {
             state = createSequencerState({ activeOrderIndex: 6 });
             expect( getters.activeOrderIndex( state )).toEqual( 6 );
-        })
+        });
 
-        describe( "when deriving the active pattern from the active order index", () => {
-            beforeAll(() => {
-                activeSong = SongFactory.create();
-                activeSong.patterns = [
-                    PatternFactory.create( 16 ), PatternFactory.create( 8 ), PatternFactory.create( 4 ) 
-                ];
-                activeSong.order = [ 0, 0, 1, 2 ];
-                state = createSequencerState({ activeOrderIndex: 2 });
-            });
+        it( "should be able to retrieve the active pattern index", () => {
+            state = createSequencerState({ activePatternIndex: 5 });
+            expect( getters.activePatternIndex( state )).toEqual( 5 );
+        });
 
-            it( "should be able to retrieve the active pattern", () => {
-                const rootGetters = { activeSong };
- 
-                expect( getters.activePattern( state, rootGetters )).toEqual( 1 );
-            });
+        it( "should be able to retrieve the amount of steps for the active pattern", () => {
+            state = createSequencerState({ activePatternIndex: 1 });
+            const rootGetters = { activeSong };
 
-            it( "should be able to retrieve the amount of steps for the active pattern", () => {
-                const rootGetters = { activeSong, activePattern: 1 };
-
-                expect( getters.amountOfSteps( state, rootGetters )).toEqual( 8 );
-            });
+            expect( getters.amountOfSteps( state, rootGetters )).toEqual( 8 );
         });
     });
 
@@ -198,16 +192,20 @@ describe( "Vuex sequencer module", () => {
             expect( state.activeOrderIndex ).toEqual( 7 );
         });
 
-        describe( "when navigating to the previous pattern inside the song pattern order list", () => {
-            beforeAll(() => {
-                activeSong = SongFactory.create();
-            });
+        it( "should be able to set the active pattern index", () => {
+            const state = createSequencerState({ activePatternIndex: 3 });
+            mutations.setActivePatternIndex( state, 4 );
 
+            expect( state.activePatternIndex ).toEqual( 4 );
+        });
+
+        describe( "when navigating to the previous pattern inside the song pattern order list", () => {
             it( "should be able to navigate to the previous index when the current index is a positive value", () => {
                 const state = createSequencerState({ activeOrderIndex: 4, currentStep: 14 });
                 mutations.gotoPreviousPattern( state, activeSong );
 
                 expect( state.activeOrderIndex ).toEqual( 3 );
+                expect( state.activePatternIndex ).toEqual( 1 );
             });
 
             it( "should reset the current step to the first index when the current step is a positive value", () => {
@@ -222,20 +220,17 @@ describe( "Vuex sequencer module", () => {
                 mutations.gotoPreviousPattern( state, activeSong );
 
                 expect( state.activeOrderIndex ).toEqual( 0 );
+                expect( state.activePatternIndex ).toEqual( 0 );
             });
         });
 
         describe( "when navigating to the next pattern inside the song pattern order list", () => {
-            beforeAll(() => {
-                activeSong = SongFactory.create();
-                activeSong.order = [ 0, 0, 1, 2 ];
-            });
-
             it( "should be able to navigate to the next index when the current index is below the end of the list", () => {
-                const state = createSequencerState({ activeOrderIndex: 2, currentStep: 14 });
+                const state = createSequencerState({ activeOrderIndex: 3, currentStep: 14 });
                 mutations.gotoNextPattern( state, activeSong );
 
-                expect( state.activeOrderIndex ).toEqual( 3 );
+                expect( state.activeOrderIndex ).toEqual( 4 );
+                expect( state.activePatternIndex ).toEqual( 2 );
             });
 
             it( "should reset the current step to the first index when the current step is a positive value", () => {
@@ -246,10 +241,11 @@ describe( "Vuex sequencer module", () => {
             });
 
             it( "should not navigate to an index larger than the song order list size when the current index is at the end of the list", () => {
-                const state = createSequencerState({ activeOrderIndex: 3, currentStep: 14 });
+                const state = createSequencerState({ activeOrderIndex: 4, activePatternIndex: 2, currentStep: 14 });
                 mutations.gotoNextPattern( state, activeSong );
 
-                expect( state.activeOrderIndex ).toEqual( 3 );
+                expect( state.activeOrderIndex ).toEqual( 4 );
+                expect( state.activePatternIndex ).toEqual( 2 );
             });
         });
 
@@ -263,17 +259,16 @@ describe( "Vuex sequencer module", () => {
         describe( "when setting the sequencer position", () => {
             beforeEach(() => {
                 state = createSequencerState({ activeOrderIndex: 2, currentStep: 6 });
-                
-                activeSong = SongFactory.create();
-                activeSong.patterns = [
-                    PatternFactory.create( 16 ), PatternFactory.create( 8 ), PatternFactory.create( 4 ) 
-                ];
-                activeSong.order = [ 0, 0, 1, 1, 2 ];
             });
 
             it( "should update the active order index to match given order index", () => {
                 mutations.setPosition( state, { activeSong, orderIndex: 3 });
                 expect( state.activeOrderIndex ).toEqual( 3 );
+            });
+
+            it( "should update the active pattern index to match given order index", () => {
+                mutations.setPosition( state, { activeSong, orderIndex: 3 });
+                expect( state.activePatternIndex ).toEqual( 1 );
             });
 
             it( "should clamp to the last pattern in the order list when given orderIndex exceeds the order list bounds", () => {
@@ -306,6 +301,18 @@ describe( "Vuex sequencer module", () => {
 
                 expect( state.channels ).toEqual( activeSong.patterns[ 1 ].channels );
             });
+        });
+    });
+
+    describe( "actions", () => {
+        it( "should update both the active order and pattern index when stepping the sequencer", () => {
+            const getters = { activeSong };
+            const commit = vi.fn();
+
+            actions.gotoPattern({ getters, commit }, 4 );
+
+            expect( commit ).toHaveBeenCalledWith( "setActiveOrderIndex", 4 );
+            expect( commit ).toHaveBeenCalledWith( "setActivePatternIndex", 2 );
         });
     });
 });

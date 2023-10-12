@@ -279,7 +279,7 @@ export default {
             this.resetEditor();
             this.resetHistory();
             this.createLinkedList( song );
-            this.setActiveOrderIndex( 0 );
+            this.gotoPattern( 0 );
             this.setPlaying( false );
             this.setLooping( false );
             this.clearSelection();
@@ -422,7 +422,6 @@ export default {
             "addSample",
             "prepareLinkedList",
             "createLinkedList",
-            "setActiveOrderIndex",
             "setAmountOfSteps",
             "setBlindActive",
             "setCurrentSample",
@@ -449,7 +448,8 @@ export default {
             "loadStoredInstruments",
             "loadInstrumentFromFile",
             "loadStoredSongs",
-            "createSong"
+            "createSong",
+            "gotoPattern",
         ]),
         addListeners() {
             // no need to dispose as these will be active during application lifetime

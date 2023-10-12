@@ -100,7 +100,7 @@ export default {
             activeSong: state => state.song.activeSong,
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
         ]),
         maxPattern(): number {
             return this.activeSong.patterns.length;
@@ -108,7 +108,7 @@ export default {
     },
     created(): void {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
-        this.firstPattern = this.activePattern + 1;
+        this.firstPattern = this.activePatternIndex + 1;
         this.lastPattern  = this.activeSong.patterns.length;
         this.firstChannel = 1;
         this.lastChannel  = this.activeSong.instruments.length;

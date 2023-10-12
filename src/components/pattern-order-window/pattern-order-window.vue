@@ -41,6 +41,10 @@
                     v-for="entry in entries"
                     :key="`entry_${entry.name}_${entry.index}`"
                     class="order-list__entry"
+                    :class="{
+                        'order-list__entry--active': entry.index === activeOrderIndex
+                    }"
+                    ref="listEntry"
                 >
                     <span
                         class="order-list__entry-title"
@@ -92,7 +96,7 @@
 
 <script lang="ts">
 import Draggable from "vuedraggable";
-import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { mapActions, mapState, mapGetters, mapMutations, type Store } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
 import Actions from "@/definitions/actions";
 import createAction from "@/model/factories/action-factory";
@@ -153,14 +157,20 @@ export default {
             return this.entries.length > 1;
         },
     },
+    async mounted(): Promise<void> {
+        await this.$nextTick();
+        this.$refs.listEntry?.[ this.activeOrderIndex ]?.scrollIntoView?.({ block: "center" });
+    },
     methods: {
         ...mapMutations([
-            "setActiveOrderIndex",
             "setPlaying",
             "setLooping",
         ]),
+        ...mapActions([
+            "gotoPattern",
+        ]),
         handleSelect( entry: WrappedPatternOrderEntry ): void {
-            this.setActiveOrderIndex( entry.index );
+            this.gotoPattern( entry.index );
         },
         handlePlayClick( entry: WrappedPatternOrderEntry ): void {
             this.handleSelect( entry );
@@ -311,6 +321,15 @@ $headerFooterHeight: 134px;
         &:hover {
             background-color: $color-5;
             color: #000;
+
+            .order-list__entry-action-button {
+                filter: brightness(0);
+            }
+        }
+
+        &--active {
+            background-color: $color-3 !important;
+            color: #fff;
 
             .order-list__entry-action-button {
                 filter: brightness(0);

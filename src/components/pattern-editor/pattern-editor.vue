@@ -80,6 +80,7 @@
             <li class="list-item">
                 <button
                     v-t="'delete'"
+                    :disabled="!canDelete"
                     type="button"
                     @click="handlePatternDelete()"
                 ></button>
@@ -120,15 +121,15 @@ export default {
             mobileMode: state => state.mobileMode
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
             "amountOfSteps",
         ]),
         patternStep: {
             get(): string {
-                return this.activeSong.patterns[ this.activePattern ].steps.toString();
+                return this.activeSong.patterns[ this.activePatternIndex ].steps.toString();
             },
             set( value: string ): void {
-                const pattern = this.activeSong.patterns[ this.activePattern ];
+                const pattern = this.activeSong.patterns[ this.activePatternIndex ];
                 this.setPatternSteps({ pattern, steps: parseFloat( value ) });
             }
         },
@@ -138,7 +139,10 @@ export default {
             }));
         },
         patternName(): string {
-            return indexToName( this.activePattern );
+            return indexToName( this.activePatternIndex );
+        },
+        canDelete(): boolean {
+            return this.activeSong.patterns.length > 1;
         },
     },
     methods: {
@@ -156,7 +160,7 @@ export default {
             this.saveState( createAction( Actions.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy(): void {
-            this.patternCopy = clone( this.activeSong.patterns[ this.activePattern ]);
+            this.patternCopy = clone( this.activeSong.patterns[ this.activePatternIndex ]);
         },
         handlePatternPaste(): void {
             if ( this.patternCopy ) {
@@ -182,8 +186,7 @@ export default {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === 1 ) {
                 this.handlePatternClear();
-            }
-            else {
+            } else {
                 this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store }));
             }
         },
@@ -244,6 +247,10 @@ export default {
 
             &:hover {
                 color: #fff;
+            }
+
+            &:disabled {
+                color: #666;
             }
         }
     }

@@ -263,7 +263,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
 
     const { playing } = state.sequencer;
-    const { activePattern, amountOfSteps } = getters;
+    const { activePatternIndex, amountOfSteps } = getters;
 
     // if the sequencer isn't playing, noteOff events must be added explicitly
     // (this noteOff event is the result of a key release)
@@ -272,7 +272,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     }
 
     const song         = state.song.activeSong;
-    const pattern      = song.patterns[ activePattern ];
+    const pattern      = song.patterns[ activePatternIndex ];
     const channelIndex = state.editor.selectedInstrument;
     const channel      = pattern.channels[ channelIndex ];
     const step         = playing ? Math.round( state.sequencer.currentStep / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
@@ -309,7 +309,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
 
         // sequencer is playing, add event at current step
 
-        optData.patternIndex      = activePattern;
+        optData.patternIndex      = activePatternIndex;
         optData.channelIndex      = channelIndex;
         optData.step              = step;
         optData.advanceOnAddition = false; // don't advanced selected step during playback
@@ -321,7 +321,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
 
     // unset recording state of previous event
     const previousEvent = EventUtil.getFirstEventBeforeEvent(
-        song.patterns, activePattern, channelIndex, audioEvent
+        song.patterns, activePatternIndex, channelIndex, audioEvent
     );
     if ( previousEvent ) previousEvent.recording = false;
 }

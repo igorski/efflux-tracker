@@ -45,7 +45,8 @@ export interface SequencerState {
     beatUnit: number;
     queueHandlers: OscillatorNode[],
     channelQueue: LinkedList[],
-    activeOrderIndex: number; // active index within order list
+    activeOrderIndex: number; // active entry inside Songs order list (its value is a pattern list index)
+    activePatternIndex: number; // active entry inside Songs pattern list
     measureStartTime: number;
     firstMeasureStartTime: number;
     currentStep: number;
@@ -64,6 +65,7 @@ export const createSequencerState = ( props?: Partial<SequencerState> ): Sequenc
     queueHandlers         : [],
     channelQueue          : new Array( Config.INSTRUMENT_AMOUNT ),
     activeOrderIndex      : 0,
+    activePatternIndex    : 0,
     measureStartTime      : 0,
     firstMeasureStartTime : 0,
     currentStep           : 0,
@@ -93,7 +95,7 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
 
     const patternDuration = ( 60 / activeSong.meta.tempo ) * beatAmount;
     const patterns        = activeSong.patterns;
-    const eventPattern    = patterns[ store.getters.activePattern ];
+    const eventPattern    = patterns[ store.getters.activePatternIndex ];
 
     seq.mpLength = eventPattern ? patternDuration / eventPattern.steps : 0;
 
@@ -187,7 +189,7 @@ function collect( store: Store<EffluxState> ): void {
     const sequenceEvents = !( state.recording && Metronome.countIn && !Metronome.countInComplete );
     let i, channel, channelStep, event, seq, compareTime;
 
-    const { activePattern } = store.getters;
+    const { activePatternIndex } = store.getters;
 
     while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime )) {
         if ( sequenceEvents ) {
@@ -202,7 +204,7 @@ function collect( store: Store<EffluxState> ): void {
                     event = channel[ channelStep ];
 
                     // empty slots, recording events or events outside of the current measure can be ignored
-                    if ( !event || event.recording || event.seq.startMeasure !== activePattern ) {
+                    if ( !event || event.recording || event.seq.startMeasure !== activePatternIndex ) {
                         continue;
                     }
                     seq = event.seq;
@@ -245,8 +247,7 @@ function collect( store: Store<EffluxState> ): void {
 function step( store: Store<EffluxState> ): void {
     const activeSong = store.state.song.activeSong;
     const state      = store.state.sequencer;
-    const { commit } = store;
-
+    
     // Advance current note and time by the given subdivision...
     state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
 
@@ -254,7 +255,7 @@ function step( store: Store<EffluxState> ): void {
 
     const currentStep = state.currentStep + 1;
     if ( currentStep === state.stepPrecision ) {
-        commit( "setCurrentStep", 0 );
+        store.commit( "setCurrentStep", 0 );
 
         let sync = true;
         const nextOrderIndex = state.activeOrderIndex + 1;
@@ -264,16 +265,16 @@ function step( store: Store<EffluxState> ): void {
         if ( !state.looping ) {
             if ( nextOrderIndex > maxOrderIndex ) {
                 // last measure reached, jump back to first
-                commit( "setActiveOrderIndex", 0 );
+                store.dispatch( "gotoPattern", 0 );
 
                 // stop playing if we're recording output
 
                 if ( isRecording() ) {
-                    commit( "setPlaying", false );
+                    store.commit( "setPlaying", false );
                     return;
                 }
             } else {
-                commit( "gotoNextPattern", activeSong );
+                store.commit( "gotoNextPattern", activeSong );
                 sync = false; // gotoNextPattern already syncs
             }
         }
@@ -291,12 +292,12 @@ function step( store: Store<EffluxState> ): void {
                 Metronome.countInComplete   = true;
                 state.firstMeasureStartTime = getAudioContext().currentTime;
 
-                commit( "setActiveOrderIndex", 0 );
+                store.dispatch( "gotoPattern", 0 );
                 return;
             }
         }
     } else {
-        commit( "setCurrentStep", currentStep );
+        store.commit( "setCurrentStep", currentStep );
     }
 }
 
@@ -324,18 +325,19 @@ function setPosition( state: SequencerState, { activeSong, orderIndex, currentTi
     }
 
     if ( state.activeOrderIndex !== orderIndex ) {
+        state.activeOrderIndex  = orderIndex;
+        state.activePatternIndex = activeSong.order[ orderIndex ];    
         state.currentStep = 0;
     }
 
     if ( typeof currentTime !== "number" ) {
         currentTime = getAudioContext()?.currentTime || 0;
     }
-    state.activeOrderIndex      = orderIndex;
     state.nextNoteTime          = currentTime!;
     state.measureStartTime      = currentTime!;
     state.firstMeasureStartTime = currentTime! - ( orderIndex * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
 
-    state.channels = patterns[ activeSong.order[ orderIndex ]].channels;
+    state.channels = patterns[ state.activePatternIndex ].channels;
 
     // when going to the first measure after having reached the end of the song, stop playing
     // all currently sounding notes (that were enqueued after the first measure, in case we
@@ -378,13 +380,11 @@ const SequencerModule: Module<SequencerState, any> = {
         activeOrderIndex( state: SequencerState ): number {
             return state.activeOrderIndex;
         },
-        // TODO: rename to activePatternIndex ?
-        activePattern( state: SequencerState, rootGetters: any ): number {
-            return rootGetters.activeSong.order[ state.activeOrderIndex ];
+        activePatternIndex( state: SequencerState ): number {
+            return state.activePatternIndex;
         },
-        // @ts-expect-error 'state' is declared but its value is never read.
         amountOfSteps( state: SequencerState, rootGetters: any ): number {
-            return rootGetters.activeSong.patterns[ rootGetters.activePattern ].steps;
+            return rootGetters.activeSong.patterns[ state.activePatternIndex ].steps;
         },
     },
     mutations: {
@@ -422,9 +422,13 @@ const SequencerModule: Module<SequencerState, any> = {
         setActiveOrderIndex( state: SequencerState, value: number ): void {
             state.activeOrderIndex = value;
         },
+        setActivePatternIndex( state: SequencerState, value: number ): void {
+            state.activePatternIndex = value;
+        },
         gotoPreviousPattern( state: SequencerState, activeSong: EffluxSong ): void {
             if ( state.activeOrderIndex > 0 ) {
-                state.activeOrderIndex = state.activeOrderIndex - 1;
+                state.activeOrderIndex   = state.activeOrderIndex - 1;
+                state.activePatternIndex = activeSong.order[ state.activeOrderIndex ];  
             }
             if ( state.playing ) {
                 syncPositionToSequencerUpdate( state, activeSong );
@@ -435,7 +439,8 @@ const SequencerModule: Module<SequencerState, any> = {
         gotoNextPattern( state: SequencerState, activeSong: EffluxSong ): void {
             const max = activeSong.order.length - 1;
             if ( state.activeOrderIndex < max ) {
-                state.activeOrderIndex = state.activeOrderIndex + 1;
+                state.activeOrderIndex   = state.activeOrderIndex + 1;
+                state.activePatternIndex = activeSong.order[ state.activeOrderIndex ];  
             }
             if ( state.playing ) {
                 syncPositionToSequencerUpdate( state, activeSong );
@@ -501,7 +506,11 @@ const SequencerModule: Module<SequencerState, any> = {
                 };
                 resolve();
             });
-        }
+        },
+        gotoPattern({ getters, commit }, orderIndex: number ): void {
+            commit( "setActiveOrderIndex", orderIndex );
+            commit( "setActivePatternIndex", getters.activeSong.order[ orderIndex ] );
+        },
     }
 };
 export default SequencerModule;

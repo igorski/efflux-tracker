@@ -44,7 +44,7 @@ export default {
     setInstrument( keyCode: number ): void {
         if ( keyCode >= ONE && keyCode <= MAX_ACCEPTED_KEYCODE ) {
             const event = state.song.activeSong
-                            .patterns[ store.getters.activePattern ]
+                            .patterns[ store.getters.activePatternIndex ]
                             .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
             if ( event ) {

@@ -44,7 +44,7 @@
 </template>
 
 <script lang="ts">
-import { mapMutations } from "vuex";
+import { mapActions } from "vuex";
 
 export default {
     props: {
@@ -66,11 +66,11 @@ export default {
         },
     },
     methods: {
-        ...mapMutations([
-            "setActiveOrderIndex",
+        ...mapActions([
+            "gotoPattern",
         ]),
         selectPattern(): void {
-            this.setActiveOrderIndex( this.index );
+            this.gotoPattern( this.index );
             this.setEditing( false );
         },
         setEditing( isEditing: boolean ): void {

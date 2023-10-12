@@ -36,11 +36,15 @@
                 v-for="entry in entries"
                 :key="`entry_${entry.name}_${entry.index}`"
                 class="pattern-list__entry"
+                :class="{
+                    'pattern-list__entry--active': entry.index === activePatternIndex
+                }"
+                ref="listEntry"
+                role="button"
+                @click.stop="handleSelect( entry )"
             >
                 <span
                     class="pattern-list__entry-title"
-                    role="button"
-                    @click.stop="handleSelect( entry )"
                 >{{ entry.name }}</span>
                 <input
                     v-if="showDescriptionInput === entry.index"
@@ -124,7 +128,7 @@ export default {
             activeSong : state => state.song.activeSong,
         }),
         ...mapGetters([
-            "activeOrderIndex",
+            "activePatternIndex",
             "isPlaying",
         ]),
         entries(): WrappedPatternEntry[] {
@@ -140,12 +144,16 @@ export default {
             return this.entries.length > 1;
         },
     },
+    async mounted(): Promise<void> {
+        await this.$nextTick();
+        this.$refs.listEntry?.[ this.activePatternIndex ]?.scrollIntoView?.({ block: "center" });
+    },
     methods: {
         ...mapMutations([
             "openModal",
             "replacePattern",
             "saveState",
-            "setActiveOrderIndex",
+            "setActivePatternIndex",
             "suspendKeyboardService",
         ]),
         handleCreateNew(): void {
@@ -155,7 +163,7 @@ export default {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );
         },
         handleSelect( entry: WrappedPatternEntry ): void {
-            this.setActiveOrderIndex( entry.index );
+            this.setActivePatternIndex( entry.index );
         },
         handleDuplicateClick( entry: WrappedPatternEntry ): void {
             this.saveState( createAction(
@@ -250,7 +258,7 @@ $headerFooterHeight: 104px;
     &__entry {
         @include titleFont();
         @include boxSize();
-        cursor: grab;
+        cursor: pointer;
         display: flex;
         align-items: center;
         width: 100%;
@@ -266,6 +274,7 @@ $headerFooterHeight: 104px;
 
         &-description {
             width: calc(100% - 190px);
+            cursor: text;
             @include truncate();
         }
 
@@ -298,6 +307,15 @@ $headerFooterHeight: 104px;
         &:hover {
             background-color: $color-5;
             color: #000;
+
+            .pattern-list__entry-action-button {
+                filter: brightness(0);
+            }
+        }
+
+        &--active {
+            background-color: $color-3 !important;
+            color: #fff;
 
             .pattern-list__entry-action-button {
                 filter: brightness(0);

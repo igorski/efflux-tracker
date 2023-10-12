@@ -114,7 +114,7 @@ export default {
             selectedStep         : state => state.editor.selectedStep,
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
             "isRecording",
         ]),
         octave: {
@@ -153,7 +153,7 @@ export default {
             return out;
         },
         currentChannel() {
-            const pattern = this.activeSong.patterns[ this.activePattern ];
+            const pattern = this.activeSong.patterns[ this.activePatternIndex ];
             return pattern.channels[ this.selectedInstrument ];
         },
         /* optionally existing event at the current editor position */
@@ -162,7 +162,7 @@ export default {
         },
     },
     watch: {
-        activePattern() {
+        activePatternIndex() {
             this.syncWithExisting();
         },
         selectedInstrument() {
@@ -236,7 +236,7 @@ export default {
                 store: this.$store,
                 event: { ...event, ...eventData, action: ACTION_NOTE_ON },
                 optData: {
-                    patternIndex : this.activePattern,
+                    patternIndex : this.activePatternIndex,
                     channelIndex : this.selectedInstrument,
                     newEvent     : isNewEvent,
                     step

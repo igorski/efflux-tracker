@@ -147,7 +147,7 @@ export default {
             windowSize: state => state.windowSize,
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
             "activeOrderIndex",
             "amountOfSteps",
             "hasSelection",
@@ -156,7 +156,7 @@ export default {
             "isPlaying"
         ]),
         activeSongPattern(): EffluxPattern {
-            return this.activeSong.patterns[ this.activePattern ];
+            return this.activeSong.patterns[ this.activePatternIndex ];
         },
         prevPatternIndex(): number {
             return this.activeSong.order[ this.activeOrderIndex - 1 ] ?? - 1;
@@ -220,7 +220,7 @@ export default {
         },
     },
     watch: {
-        activePattern(): void {
+        activePatternIndex(): void {
             this.clearSelection();
             this.setSelectedSlot( -1 );
             this.pContainerSteps = [];

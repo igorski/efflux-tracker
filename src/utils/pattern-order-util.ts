@@ -23,14 +23,14 @@
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 
 export default { 
-    removePatternAtIndex( order: EffluxPatternOrder, index: number ): EffluxPatternOrder {
+    removePatternAtIndex( order: EffluxPatternOrder, orderIndex: number ): EffluxPatternOrder {
         const newOrder = [ ...order ];
-        newOrder.splice( index, 1 );
+        newOrder.splice( orderIndex, 1 );
 
         return newOrder;
     },
 
-    removeAllPatternInstances( order: EffluxPatternOrder, patternNumber: number ): EffluxPatternOrder {
-        return order.filter( entryNum => entryNum !== patternNumber );
+    removeAllPatternInstances( order: EffluxPatternOrder, patternIndex: number ): EffluxPatternOrder {
+        return order.filter( entryNum => entryNum !== patternIndex );
     },
 };

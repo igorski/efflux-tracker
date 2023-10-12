@@ -143,7 +143,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { mapState, mapGetters, mapMutations } from "vuex";
+import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
 import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
 import { enqueueState } from "@/model/factories/history-state-factory";
@@ -170,7 +170,7 @@ export default {
             mobileMode: state => state.mobileMode,
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
             "isPlaying",
             "isLooping",
             "isRecording",
@@ -249,13 +249,13 @@ export default {
                 });
             }
         },
-        activePattern: {
+        activePatternIndex: {
             immediate: true,
             handler( value: number ): void {
                 const newSteps = this.activeSong.patterns[ value ].steps;
                 if ( this.amountOfSteps !== newSteps ) {
                     this.setPatternSteps({
-                        pattern: this.activeSong.patterns[ this.activePattern ],
+                        pattern: this.activeSong.patterns[ this.activePatternIndex ],
                         steps: newSteps
                     });
                 }
@@ -281,12 +281,14 @@ export default {
             "setCurrentStep",
             "setMetronomeEnabled",
             "setTempo",
-            "setActiveOrderIndex",
             "setPatternSteps",
             "suspendKeyboardService",
             "gotoPreviousPattern",
             "gotoNextPattern",
             "setMobileMode",
+        ]),
+        ...mapActions([
+            "gotoPattern",
         ]),
         handleSettingsToggle(): void {
             this.setMobileMode( this.mobileMode ? null : "settings" );
@@ -296,7 +298,7 @@ export default {
             if ( value ) {
                 this.tempOrderIndex = this.activeOrderIndex;
             } else {
-                this.setActiveOrderIndex( this.tempOrderIndex );
+                this.gotoPattern( this.tempOrderIndex );
             }
             this.patternFocused = value;
         },

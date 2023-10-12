@@ -82,7 +82,11 @@ const rootStore: Store<EffluxState> = {
     getters: { sampleCache },
     commit( mutationType: string, value?: any ): void {
         mutations[ mutationType ]( state, value );
-    }
+    },
+    dispatch( actionType: string, value?: any ): Promise<any> {
+        // @ts-expect-error Type 'ActionObject<SequencerState, any>' has no call signatures.
+        return actions[ actionType ]({ state }, value );
+    },
 };
 
 // helpers

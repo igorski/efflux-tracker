@@ -78,7 +78,7 @@ export default {
             showNoteEntry: state => state.editor.showNoteEntry,
         }),
         ...mapGetters([
-            "activePattern",
+            "activePatternIndex",
             "canUndo",
             "canRedo"
         ]),
@@ -116,7 +116,7 @@ export default {
         },
         glideParams() {
             EventUtil.glideParameterAutomations(
-                this.activeSong, this.selectedStep, this.activePattern,
+                this.activeSong, this.selectedStep, this.activePatternIndex,
                 this.selectedInstrument, this.eventList, this.$store,
             );
         },
