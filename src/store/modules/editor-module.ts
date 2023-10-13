@@ -115,7 +115,7 @@ const EditorModule: Module<EditorState, any> = {
             }
         },
         createLinkedList( state: EditorState, song: EffluxSong ): void {
-            EventUtil.linkEvents( song.patterns, state.eventList );
+            EventUtil.linkEvents( song, state.eventList );
         },
         setShowNoteEntry( state: EditorState, value: boolean ): void {
             state.showNoteEntry = value;

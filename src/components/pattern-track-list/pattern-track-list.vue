@@ -180,12 +180,13 @@ export default {
             }
             const amountOfPatterns = this.activeSong.order.length;
             // also provide lookahead for the pattern(s) coming after the next one for a seamless scrolling list
-            const nextIndex   = this.nextPatternIndex;
-            let nextNextIndex = nextIndex;
+            const nextOrderIndex   = this.activeOrderIndex + 1;
+            const nextPatternIndex = this.activeSong.order[ nextOrderIndex ] ?? this.activeSong.order[ 0 ];
+            let nextNextIndex = nextOrderIndex;
 
             // the amount of events we require to visualize the next pattern(s) at the current resolution
             let sliceAmount = this.visibleSteps - this.prevEvents;
-            return this.activeSong.patterns[ nextIndex ].channels.map(( channelEvents, channelIndex ) => {
+            return this.activeSong.patterns[ nextPatternIndex ].channels.map(( channelEvents, channelIndex ) => {
                 const out = [ ...channelEvents ];
                 while ( out.length < sliceAmount ) {
                     if ( ++nextNextIndex >= amountOfPatterns ) {
@@ -193,7 +194,7 @@ export default {
                     }
                     let nextChannelEvents = NEXT_EVENTS;
                     if ( nextNextIndex !== 0 ) {
-                        nextChannelEvents = this.activeSong.patterns[ nextNextIndex ].channels[ channelIndex ];
+                        nextChannelEvents = this.activeSong.patterns[ this.activeSong.order[ nextNextIndex ]].channels[ channelIndex ];
                     }
                     out.push( ...nextChannelEvents );
                 }

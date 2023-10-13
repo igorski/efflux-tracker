@@ -489,11 +489,19 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
 function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
     const song          = store.state.song.activeSong,
           orderIndex    = store.state.sequencer.activeOrderIndex,
+          existingPatternIndex = store.getters.activePatternIndex,
           amountOfSteps = store.getters.amountOfSteps;
 
     if ( typeof patternIndex !== "number" ) {
-        patternIndex = store.getters.activePatternIndex + 1;
+        patternIndex = existingPatternIndex + 1;
     }
+
+    const existingOrder = [ ...song.order ];
+    const newOrder = existingOrder.map( index => {
+        // all remaining patterns have shifted up by one
+        return index >= patternIndex! ? index + 1 : index;
+    });
+    newOrder.push( patternIndex ); // add new pattern at end of order list
 
     const { commit, dispatch } = store;
 
@@ -503,12 +511,15 @@ function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patter
     function act(): void {
         const pattern = PatternFactory.create( amountOfSteps );
         commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex!, amountOfSteps, pattern ));
+        commit( "replacePatternOrder", newOrder );
+        dispatch( "gotoPattern", newOrder.lastIndexOf( patternIndex ));
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex! ));
+            commit( "replacePatternOrder", existingOrder );
             dispatch( "gotoPattern", orderIndex );
         },
         redo: act

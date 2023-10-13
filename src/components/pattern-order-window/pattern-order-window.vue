@@ -174,7 +174,7 @@ export default {
         },
         handlePlayClick( entry: WrappedPatternOrderEntry ): void {
             this.handleSelect( entry );
-            this.setLooping( true );
+            // this.setLooping( true );
             if ( !this.isPlaying ) {
                 this.setPlaying( true );
             }

@@ -325,7 +325,7 @@ function setPosition( state: SequencerState, { activeSong, orderIndex, currentTi
     }
 
     if ( state.activeOrderIndex !== orderIndex ) {
-        state.activeOrderIndex  = orderIndex;
+        state.activeOrderIndex   = orderIndex;
         state.activePatternIndex = activeSong.order[ orderIndex ];    
         state.currentStep = 0;
     }

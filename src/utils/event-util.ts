@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,6 +26,7 @@ import EventFactory from "@/model/factories/event-factory";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxState } from "@/store";
 import type { EffluxSong } from "@/model/types/song";
 import type LinkedList from "@/utils/linked-list";
@@ -101,10 +102,11 @@ const EventUtil =
      * pattern lists. The sequencer will read
      * from the LinkedList for more performant results
      */
-    linkEvents( patterns: EffluxPattern[], lists: LinkedList[] ): void {
+    linkEvents( song: EffluxSong, lists: LinkedList[] ): void {
         lists.forEach(( list: LinkedList, channelIndex: number ): void => {
             list.flush(); // clear existing list contents
-            patterns.forEach(( pattern: EffluxPattern ): void => {
+            song.order.forEach(( patternIndex: number ): void => {
+                const pattern = song.patterns[ patternIndex ];
                 pattern.channels[ channelIndex ].forEach(( event: EffluxAudioEvent ): void => {
                     if ( event ) {
                         list.add( event );
