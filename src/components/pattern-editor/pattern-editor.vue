@@ -31,7 +31,7 @@
             class="pattern-editor__title"
         ></h2>
         <span class="pattern-editor__pattern-name">
-            {{ patternName }}
+            {{ activePattern.name }}
         </span>
         <ul class="inline-list">
             <li class="list-item">
@@ -105,7 +105,6 @@ import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import { clone } from "@/utils/object-util";
 import SelectBox from "@/components/forms/select-box.vue";
-import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
 export default {
@@ -123,24 +122,22 @@ export default {
         }),
         ...mapGetters([
             "activePatternIndex",
-            "amountOfSteps",
         ]),
+        activePattern(): EffluxPattern {
+            return this.activeSong.patterns[ this.activePatternIndex ];
+        },
         patternStep: {
             get(): string {
-                return this.activeSong.patterns[ this.activePatternIndex ].steps.toString();
+                return this.activePattern.steps.toString();
             },
             set( value: string ): void {
-                const pattern = this.activeSong.patterns[ this.activePatternIndex ];
-                this.setPatternSteps({ pattern, steps: parseFloat( value ) });
+                this.setPatternSteps({ pattern: this.activePattern, steps: parseFloat( value ) });
             }
         },
         patternStepOptions(): { label: string, value: string }[] {
             return [ 16, 32, 64, 128 ].map( amount => ({
                 label: this.$t( "steps", { amount }), value: amount.toString()
             }));
-        },
-        patternName(): string {
-            return indexToName( this.activePatternIndex );
         },
         canDelete(): boolean {
             return this.activeSong.patterns.length > 1;
@@ -161,7 +158,7 @@ export default {
             this.saveState( createAction( Actions.CLEAR_PATTERN, { store: this.$store }));
         },
         handlePatternCopy(): void {
-            this.patternCopy = clone( this.activeSong.patterns[ this.activePatternIndex ]);
+            this.patternCopy = clone( this.activePattern );
         },
         handlePatternPaste(): void {
             if ( this.patternCopy ) {

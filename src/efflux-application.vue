@@ -285,6 +285,7 @@ export default {
             }
             this.resetEditor();
             this.resetHistory();
+            this.cachePatternNames();
             this.gotoPattern( 0 );
             this.setPlaying( false );
             this.setLooping( false );
@@ -293,7 +294,6 @@ export default {
             if ( this.useOrders && song.version < 4 && song.order.length === song.patterns.length ) {
                 return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
             }
-            
             this.createLinkedList( song );
             this.publishMessage( PubSubMessages.SONG_LOADED );
 
@@ -433,6 +433,7 @@ export default {
         ...mapMutations([
             "addSample",
             "prepareLinkedList",
+            "cachePatternNames",
             "createLinkedList",
             "setAmountOfSteps",
             "setBlindActive",

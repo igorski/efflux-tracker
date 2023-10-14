@@ -25,6 +25,12 @@
         <div class="header">
             <h2 v-t="'patternOrder'"></h2>
             <button
+                :title="$t('help')"
+                class="help-button"
+                @click="openHelp()"
+            >?</button>
+            <button
+                :title="$t('close')"
                 type="button"
                 class="close-button"
                 @click="$emit('close')"
@@ -99,17 +105,16 @@ import Draggable from "vuedraggable";
 import { mapActions, mapState, mapGetters, mapMutations, type Store } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
 import Actions from "@/definitions/actions";
+import ManualURLs from "@/definitions/manual-urls";
 import createAction from "@/model/factories/action-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import type { EffluxState } from "@/store";
 import PatternOrderUtil from "@/utils/pattern-order-util";
-import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
 type WrappedPatternOrderEntry = {
     pattern: number; // index of pattern in pattern list
     description?: string;
-    name: string;    // name of pattern (derived from its pattern list index)
+    name: string;
     index: number;   // index of pattern within order list
 };
 
@@ -137,7 +142,7 @@ export default {
                     .map(( pattern: number, index: number ) => ({
                         pattern,
                         index,
-                        name: indexToName( pattern ),
+                        name: pattern.name!,
                         description: patterns[ pattern ].description,
                     }));
             },
@@ -149,7 +154,7 @@ export default {
         patterns(): { label: string, value: number }[] {
             return this.activeSong.patterns
                 .map(( pattern: EffluxPatternOrder, index: number ) => ({
-                    label: `${indexToName( index )} ${pattern.description ?? ""}`,
+                    label: `${pattern.name} ${pattern.description ?? ""}`,
                     value: index,
                 }));
         },
@@ -169,6 +174,9 @@ export default {
         ...mapActions([
             "gotoPattern",
         ]),
+        openHelp(): void {
+            window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
+        },
         handleSelect( entry: WrappedPatternOrderEntry ): void {
             this.gotoPattern( entry.index );
         },

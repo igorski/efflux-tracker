@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { EffluxAudioEvent } from "./audio-event";
 import type { EffluxChannel } from "./channel";
 
 /**
@@ -32,4 +31,5 @@ export type EffluxPattern = {
     steps: number;
     channels: EffluxChannel[];
     description?: string;
+    name?: string; // calculated at runtime (derived from its index inside the pattern list)
 };

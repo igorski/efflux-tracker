@@ -80,15 +80,13 @@ import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import createAction from "@/model/factories/action-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import type { EffluxState } from "@/store";
 import PatternOrderUtil from "@/utils/pattern-order-util";
 import PatternOrderEntry from "./components/pattern-order-entry.vue";
-import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
 type WrappedPatternOrderEntry = {
     pattern: number; // index of pattern in pattern list
-    name: string;    // name of pattern (derived from its pattern list index)
+    name: string;
     index: number;   // index of pattern within order list
     active: boolean;
     editing: boolean;
@@ -117,7 +115,7 @@ export default {
                 .map(( pattern: number, index: number ) => ({
                     pattern,
                     index,
-                    name: indexToName( pattern ),
+                    name: this.activeSong.patterns[ pattern ].name,
                     active: this.activeOrderIndex === index,
                     editing: this.editableEntry === index,
                 }));

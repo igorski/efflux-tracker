@@ -6,6 +6,8 @@
         "delete": "Delete",
         "createNew": "Create new pattern",
         "orderPatterns": "Order patterns",
-        "stepAmount": "{amount} steps"
+        "stepAmount": "{amount} steps",
+        "help": "Help",
+        "close": "Close"
     }
 }

@@ -25,6 +25,12 @@
         <div class="header">
             <h2 v-t="'patternManager'"></h2>
             <button
+                :title="$t('help')"
+                class="help-button"
+                @click="openHelp()"
+            >?</button>
+            <button
+                :title="$t('close')"
                 type="button"
                 class="close-button"
                 @click="$emit('close')"
@@ -102,11 +108,11 @@
 import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
 import Actions from "@/definitions/actions";
+import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import addPattern from "@/model/actions/pattern-add";
 import createAction from "@/model/factories/action-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
 type WrappedPatternEntry = {
@@ -139,7 +145,7 @@ export default {
                     pattern,
                     description: pattern.description ?? this.$t( "untitled" ),
                     index,
-                    name: indexToName( index ),
+                    name: pattern.name!,
                 }));
         },
         canDelete(): boolean {
@@ -158,6 +164,9 @@ export default {
             "setActivePatternIndex",
             "suspendKeyboardService",
         ]),
+        openHelp(): void {
+            window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
+        },
         handleCreateNew(): void {
             this.saveState( addPattern({ store: this.$store, patternIndex: this.entries.length }));
         },

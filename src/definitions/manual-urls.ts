@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -30,5 +30,6 @@ export default
     ONLINE_MANUAL          : MANUAL_ROOT,
     PARAM_ENTRY_HELP       : `${MANUAL_ROOT}patterns#parameter-change-ui`,
     INSTRUMENT_EDITOR_HELP : `${MANUAL_ROOT}instrument-editor`,
-    SAMPLE_EDITOR_HELP     : `${MANUAL_ROOT}sample-editor`
+    SAMPLE_EDITOR_HELP     : `${MANUAL_ROOT}sample-editor`,
+    PATTERN_ORDER_HELP     : `${MANUAL_ROOT}patterns`,
 };

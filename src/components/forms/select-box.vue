@@ -96,22 +96,8 @@ export default {
             }
         },
         withPopper( dropdownList, component, { width }): () => void {
-            /**
-             * We need to explicitly define the dropdown width since
-             * it is usually inherited from the parent with CSS.
-             */
             dropdownList.style.width = width;
 
-            /**
-             * Here we position the dropdownList relative to the $refs.toggle Element.
-             *
-             * The 'offset' modifier aligns the dropdown so that the $refs.toggle and
-             * the dropdownList overlap by 1 pixel.
-             *
-             * The 'toggleClass' modifier adds a 'drop-up' class to the Vue Select
-             * wrapper so that we can set some styles for when the dropdown is placed
-             * above.
-             */
             const popper = createPopper( component.$refs.toggle, dropdownList, {
                 placement: "top",
                 modifiers: [{
@@ -129,11 +115,6 @@ export default {
                     },
                 }],
             });
-
-            /**
-             * To prevent memory leaks Popper needs to be destroyed.
-             * If you return function, it will be called just before dropdown is removed from DOM.
-             */
             return (): void => {
                 popper.destroy();
             }

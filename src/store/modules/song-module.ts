@@ -43,6 +43,7 @@ import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@
 import { clone } from "@/utils/object-util";
 import StorageUtil from "@/utils/storage-util";
 import { saveAsFile } from "@/utils/file-util";
+import { indexToName } from "@/utils/pattern-name-util";
 import { toFileName } from "@/utils/string-util";
 import { parseXTK, toXTK } from "@/utils/xtk-util";
 import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
@@ -164,19 +165,24 @@ const SongModule: Module<SongState, any> = {
         },
         replacePattern( state: SongState, { patternIndex, pattern }: { patternIndex: number, pattern: EffluxPattern }): void {
             Vue.set( state.activeSong.patterns, patternIndex, pattern );
+            cachePatternNames( state.activeSong.patterns );
         },
         replacePatterns( state: SongState, patterns: EffluxPattern[] ): void {
+            cachePatternNames( patterns );
             Vue.set( state.activeSong, "patterns", patterns );
         },
         replacePatternOrder( state: SongState, order: EffluxPatternOrder ): void {
             Vue.set( state.activeSong, "order", order );
+        },
+        cachePatternNames( state: SongState ): void {
+            cachePatternNames( state.activeSong.patterns );
         },
         setShowSaveMessage( state: SongState, value: boolean ): void {
             state.showSaveMessage = !!value;
         },
         setStatesOnSave( state: SongState, value: number ): void {
             state.statesOnSave = value;
-        }
+        },
     },
     actions: {
         loadStoredSongs({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }): void {
@@ -436,3 +442,9 @@ const getDescriptorForSong = ( song: EffluxSong ): StoredEffluxSongDescriptor =>
 });
 
 const persistState = ( state: SongState ): Promise<void> => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( state.songs ));
+
+const cachePatternNames = ( patterns: EffluxPattern[] ): void => {
+    patterns.forEach(( pattern: EffluxPattern, patternIndex: number ) => {
+        pattern.name = indexToName( patternIndex );
+    });
+};

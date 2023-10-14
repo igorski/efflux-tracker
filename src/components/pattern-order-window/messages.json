@@ -5,6 +5,8 @@
         "addPattern": "Add pattern",
         "play": "Play",
         "duplicate": "Duplicate",
-        "delete": "Delete"
+        "delete": "Delete",
+        "help": "Help",
+        "close": "Close"
     }
 }
