@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -76,6 +76,13 @@
                         sync
                     />
                 </div>
+                <div class="wrapper toggle">
+                    <label v-t="'usePatternOrders'" class="label"></label>
+                    <toggle-button
+                        v-model="usePatternOrders"
+                        sync
+                    />
+                </div>
             </fieldset>
         </section>
         <section id="midiSetup" v-if="hasMidiSupport">
@@ -108,7 +115,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { zMIDI } from "zmidi";
 import { ToggleButton } from "vue-js-toggle-button";
@@ -138,9 +145,10 @@ export default {
             "midiMessageHandler",
             "paramFormat",
             "hasMidiSupport",
+            "useOrders",
             "timelineMode",
         ]),
-        supportsTimelineMode() {
+        supportsTimelineMode(): boolean {
             // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
             if ( import.meta.env.MODE !== "production" ) {
                 return true; // still very much under development
@@ -148,60 +156,68 @@ export default {
             return false;
         },
         displayHelpPanel: {
-            get() {
+            get(): boolean {
                 return this.displayHelp;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.saveSetting({ name: PROPERTIES.DISPLAY_HELP, value });
             }
         },
         paramFormatType: {
-            get() {
+            get(): boolean {
                 return this.paramFormat;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.saveSetting({ name: PROPERTIES.INPUT_FORMAT, value });
             }
         },
         trackFollow: {
-            get() {
+            get(): boolean {
                 return this.followPlayback;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.saveSetting({ name: PROPERTIES.FOLLOW_PLAYBACK, value });
             }
         },
         showHelpOnStartup: {
-            get() {
+            get(): boolean {
                 return this.displayWelcome;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.saveSetting({ name: PROPERTIES.DISPLAY_WELCOME, value });
             }
         },
+        usePatternOrders: {
+            get(): boolean {
+                return this.useOrders;
+            },
+            set( value: boolean ): void {
+                this.saveSetting({ name: PROPERTIES.USE_ORDERS, value });
+            },
+        },
         useTimelineMode: {
-            get() {
+            get(): boolean {
                 return this.timelineMode;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.saveSetting({ name: PROPERTIES.TIMELINE_MODE, value });
             },
         },
         portNumber: {
-            get() {
+            get(): string {
                 return this.midiPortNumber.toString();
             },
-            set( value ) {
+            set( value: string ): void {
                 this.setMidiPortNumber( parseFloat( value ));
             }
         },
-        paramFormatOptions() {
+        paramFormatOptions(): { label: string, value: string }[] {
             return [
                 { label: this.$t( "hex" ), value: "hex" },
                 { label: this.$t( "pct" ), value: "pct" }
             ];
         },
-        midiDeviceOptions() {
+        midiDeviceOptions(): { label: string, value: string }[] {
             if ( !this.midiDeviceList.length ) {
                 return [{ label: this.$t( "connectDevice" ), value: "-1" }];
             }
@@ -212,7 +228,7 @@ export default {
         },
     },
     watch: {
-        portNumber( value ) {
+        portNumber( value: number ): void {
             // first clean up all old listeners
             let amountOfPorts = zMIDI.getInChannels().length;
 
@@ -228,7 +244,7 @@ export default {
             });
         },
     },
-    destroyed() {
+    destroyed(): void {
         if ( this.changeListener ) {
             zMIDI.removeChangeListener( this.changeListener );
         }
@@ -241,12 +257,12 @@ export default {
             "setMidiPortNumber",
             "publishMessage",
         ]),
-        connectMidiDevices() {
+        connectMidiDevices(): void {
             zMIDI.connect()
                  .then( this.handleMIDIconnectSuccess )
                  .catch( this.handleMIDIconnectFailure );
         },
-        handleMIDIconnectSuccess( inputs ) {
+        handleMIDIconnectSuccess( inputs: WebMidi.MIDIInput[] ): void {
             // add status change listener to handle device connection events
             if ( !this.changeListener ) {
                 this.changeListener = this.handleMIDIconnectSuccess.bind( this );
@@ -265,7 +281,7 @@ export default {
                 this.setMidiPortNumber( this.midiDeviceList[ 0 ].value );
             }
         },
-        handleMIDIconnectFailure() {
+        handleMIDIconnectFailure(): void {
             this.showNotification({ title: this.$t( "error" ), message: this.$t( "midiFailure" ) });
         },
     }
@@ -279,7 +295,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 550px;
-$height: 550px;
+$height: 575px;
 
 .settings {
     @include editorComponent();

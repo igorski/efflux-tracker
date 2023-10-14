@@ -88,6 +88,7 @@
                 @click="handleCreateNew()"
             ></button>
             <button
+                v-if="useOrders"
                 v-t="'orderPatterns'"
                 type="button"
                 class="button"
@@ -130,6 +131,7 @@ export default {
         ...mapGetters([
             "activePatternIndex",
             "isPlaying",
+            "useOrders",
         ]),
         entries(): WrappedPatternEntry[] {
             return this.activeSong.patterns

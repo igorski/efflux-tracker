@@ -136,7 +136,9 @@
                 </li>
                 <li class="transport-controls__tempo-divider section-divider"><!-- x --></li>
             </ul>
-            <pattern-order-list />
+            <pattern-order-list
+                v-if="useOrders"
+            />
         </div>
     </section>
 </template>
@@ -175,7 +177,8 @@ export default {
             "isLooping",
             "isRecording",
             "isMetronomeEnabled",
-            "amountOfSteps"
+            "amountOfSteps",
+            "useOrders",
         ]),
         canRecord(): boolean {
             // for desktop/laptop devices we enable record mode (for keyboard input)

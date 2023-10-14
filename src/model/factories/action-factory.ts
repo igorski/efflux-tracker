@@ -499,7 +499,7 @@ function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patter
     const existingOrder = [ ...song.order ];
     const newOrder = existingOrder.map( index => {
         // all remaining patterns have shifted up by one
-        return index >= patternIndex! ? index + 1 : index;
+        return index > existingPatternIndex! ? index + 1 : index;
     });
     newOrder.push( patternIndex ); // add new pattern at end of order list
 
@@ -512,7 +512,8 @@ function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patter
         const pattern = PatternFactory.create( amountOfSteps );
         commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex!, amountOfSteps, pattern ));
         commit( "replacePatternOrder", newOrder );
-        dispatch( "gotoPattern", newOrder.lastIndexOf( patternIndex ));
+        commit( "setActiveOrderIndex", newOrder.lastIndexOf( patternIndex ));
+        commit( "setActivePatternIndex", patternIndex );
     }
     act(); // perform action
 
@@ -520,7 +521,8 @@ function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patter
         undo(): void {
             commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex! ));
             commit( "replacePatternOrder", existingOrder );
-            dispatch( "gotoPattern", orderIndex );
+            commit( "setActiveOrderIndex", orderIndex );
+            commit( "setActivePatternIndex", existingPatternIndex );
         },
         redo: act
     };

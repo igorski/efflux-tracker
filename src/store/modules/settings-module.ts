@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Commit, Module } from "vuex";
+import type { Commit, Dispatch, Module } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
 import StorageUtil from "@/utils/storage-util";
@@ -39,6 +39,7 @@ export enum PROPERTIES {
     FOLLOW_PLAYBACK = "fp",
     DISPLAY_HELP    = "dh",
     DISPLAY_WELCOME = "dw",
+    USE_ORDERS      = "po",
     TIMELINE_MODE   = "tl"
 };
 
@@ -61,7 +62,8 @@ const SettingsModule: Module<SettingsState, any> = {
         displayWelcome : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,
         followPlayback : ( state: SettingsState ) => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
         timelineMode   : ( state: SettingsState ) => state._settings[ PROPERTIES.TIMELINE_MODE ] === true,
-        paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex"
+        paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex",
+        useOrders      : ( state: SettingsState ) => state._settings[ PROPERTIES.USE_ORDERS ] !== false,
     },
     mutations: {
         saveSetting( state: SettingsState, { name, value }: { name: string, value: any }): void {
@@ -73,20 +75,32 @@ const SettingsModule: Module<SettingsState, any> = {
         }
     },
     actions: {
-        async loadStoredSettings({ commit }: { commit: Commit }): Promise<void> {
+        async loadStoredSettings({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }): Promise<void> {
             StorageUtil.init();
             try {
                 const result = await StorageUtil.getItem( Config.LOCAL_STORAGE_SETTINGS );
                 if ( typeof result === "string" ) {
                     try {
                         commit( "setStoredSettings", JSON.parse( result ));
+                        dispatch( "updateExisting" );
                     } catch {
                         // that's fine (non-blocking)
                     }
                 }
             } catch {
                 // no settings available yet, that is fine (non-blocking)
+                dispatch( "setFirstRunDefaults" );
             }
+        },
+        updateExisting({ commit, state }: { commit: Commit, state: SettingsState }): void {
+            if ( state._settings[ PROPERTIES.USE_ORDERS ] === undefined ) {
+                // orders were introduced in Oct '23. These will be enabled for new users, but
+                // for returning users we disabled them to keep workflow clear.
+                commit( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: false });
+            }
+        },
+        setFirstRunDefaults({ commit }: { commit: Commit }): void {
+            commit( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: true });
         },
     }
 };
