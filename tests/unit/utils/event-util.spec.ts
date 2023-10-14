@@ -3,12 +3,12 @@ import { D_MODULES } from "@/definitions/automatable-parameters";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import { ACTION_NOTE_ON } from "@/model/types/audio-event";
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
-import EventUtil from "@/utils/event-util";
+import EventUtil, { areEventsEqual } from "@/utils/event-util";
 import LinkedList from "@/utils/linked-list";
 
 describe( "EventUtil", () => {
@@ -544,6 +544,81 @@ describe( "EventUtil", () => {
                 expect(event.mp.glide).toBe(true); // expected event module parameter change to be set to glide
                 expect(event.mp.value.toFixed(2)).toEqual(expectedValues[ e ].toFixed(2));
             }
+        });
+    });
+
+    describe( "when determining whether two given events are equal in content", () => {
+        const event1 = EventFactory.create();
+
+        //instrument: number = 0, note: string = "", octave: number = 0, action: number = 0
+        it( "should consider events for different instruments unequal", () => {
+            const event1 = EventFactory.create( 0, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+        });
+
+        it( "should consider noteOn-events for different notes unequal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "D", 3, ACTION_NOTE_ON );
+
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+        });
+
+        it( "should consider noteOn-events for different octaves unequal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 4, ACTION_NOTE_ON );
+
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+        });
+
+        it( "should consider events for different actions unequal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 3, ACTION_NOTE_OFF );
+
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+        });
+
+        it( "should consider events with the same properties (where neither have automation parameters) as equal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+
+            expect( areEventsEqual( event1, event2 )).toBe( true );
+        });
+
+        it( "should consider events where only one of both has automation parameters unequal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+
+            event1.mp = { module: "delayEnabled", value: 1, glide: true };
+
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+        });
+
+        it( "should consider events where only both have different automation parameters unequal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+
+            event1.mp = { module: "delayEnabled", value: 1, glide: true };
+
+            event2.mp = { module: "delayCutoff", value: 1, glide: true };
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+
+            event2.mp = { module: "delayEnabled", value: 2, glide: true };
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+
+            event2.mp = { module: "delayEnabled", value: 2, glide: false };
+            expect( areEventsEqual( event1, event2 )).toBe( false );
+        });
+
+        it( "should consider events where both have the same automation parameters as equal", () => {
+            const event1 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+            const event2 = EventFactory.create( 1, "C", 3, ACTION_NOTE_ON );
+
+            event1.mp = { module: "delayEnabled", value: 1, glide: true };
+            event2.mp = { module: "delayEnabled", value: 1, glide: true };
+
+            expect( areEventsEqual( event1, event2 )).toBe( true );
         });
     });
 });

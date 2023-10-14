@@ -3,7 +3,6 @@ import PatternFactory from "@/model/factories/pattern-factory";
 import PatternOrderFactory from "@/model/factories/pattern-order-factory";
 import { serialize } from "@/model/serializers/pattern-order-serializer";
 import { serialize as serializePatterns } from "@/model/serializers/pattern-serializer";
-import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 describe( "PatternOrderFactory", () => {

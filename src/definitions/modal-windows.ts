@@ -41,5 +41,6 @@ enum ModalWindows
     JAM_MODE,
     PATTERN_MANAGER,
     PATTERN_ORDER_WINDOW,
+    PATTERN_TO_ORDER_CONVERSION_WINDOW,
 };
 export default ModalWindows;

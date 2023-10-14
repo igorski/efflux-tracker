@@ -103,9 +103,9 @@ import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
 import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
+import addPattern from "@/model/actions/pattern-add";
 import createAction from "@/model/factories/action-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxState } from "@/store";
 import { indexToName } from "@/utils/pattern-name-util";
 import messages from "./messages.json";
 
@@ -159,7 +159,7 @@ export default {
             "suspendKeyboardService",
         ]),
         handleCreateNew(): void {
-            this.saveState( createAction( Actions.ADD_PATTERN, { store: this.$store, patternIndex: this.entries.length }));
+            this.saveState( addPattern({ store: this.$store, patternIndex: this.entries.length }));
         },
         handleOrderClick(): void {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );

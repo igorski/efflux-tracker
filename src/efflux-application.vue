@@ -103,9 +103,9 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import Vue from "vue";
+import Vue, { type Component } from "vue";
 import Vuex from "vuex";
 import VueI18n from "vue-i18n";
 import Bowser from "bowser";
@@ -120,6 +120,7 @@ import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SampleFactory from "@/model/factories/sample-factory";
+import type { EffluxSong } from "@/model/types/song";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
 import store from "@/store";
@@ -134,7 +135,8 @@ const i18n = new VueI18n({
 });
 
 // wrapper for loading dynamic components with custom loading states
-function asyncComponent( key, importFn ) {
+type IAsyncComponent = { component: Promise<Component>};
+function asyncComponent( key: string, importFn: () => Promise<any> ): IAsyncComponent {
     return {
         component: new Promise( async ( resolve, reject ) => {
             Pubsub.publish( PubSubMessages.SET_LOADING_STATE, key );
@@ -195,8 +197,9 @@ export default {
             "hasChanges",
             "isLoading",
             "timelineMode",
+            "useOrders",
         ]),
-        activeModal() {
+        activeModal(): null | (() => IAsyncComponent) {
             let loadFn;
             switch ( this.modal ) {
                 default:
@@ -258,19 +261,23 @@ export default {
                 case ModalWindows.PATTERN_ORDER_WINDOW:
                     loadFn = () => import( "@/components/pattern-order-window/pattern-order-window.vue" );
                     break;
+                case ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW:
+                    loadFn = () => import( "@/components/pattern-to-order-conversion-window/pattern-to-order-conversion-window.vue" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },
     },
     watch: {
-        menuOpened( isOpen ) {
+        menuOpened( isOpen: boolean ): void {
             // prevent scrolling main body when scrolling menu list
             window.document.body.style.overflow = isOpen ? "hidden" : "auto";
         },
-        activeSong( song = null ) {
-            if ( song == null ) {
+        activeSong( song?: EffluxSong ): void {
+            if ( !song ) {
                 return;
             }
+
             if ( AudioService.initialized ) {
                 AudioService.reset();
                 AudioService.cacheCustomTables( song.instruments );
@@ -278,11 +285,17 @@ export default {
             }
             this.resetEditor();
             this.resetHistory();
-            this.createLinkedList( song );
             this.gotoPattern( 0 );
             this.setPlaying( false );
             this.setLooping( false );
             this.clearSelection();
+
+            if ( this.useOrders && song.version < 4 && song.order.length === song.patterns.length ) {
+                return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
+            }
+            
+            this.createLinkedList( song );
+            this.publishMessage( PubSubMessages.SONG_LOADED );
 
             if ( !song.meta.title ) {
                 return;
@@ -291,16 +304,15 @@ export default {
                 title   : this.$t( "songLoadedTitle" ),
                 message : this.$t( "songLoaded", { name: song.meta.title })
             });
-            this.publishMessage( PubSubMessages.SONG_LOADED );
         },
         /**
          * synchronize editor module changes with keyboard service
          */
-        selectedSlot() {
+        selectedSlot(): void {
             this.syncKeyboard();
         }
     },
-    async created() {
+    async created(): Promise<void> {
 
         // expose publish / subscribe bus to integrate with outside API"s
         window.efflux = { ...window.efflux, Pubsub };
@@ -451,21 +463,21 @@ export default {
             "createSong",
             "gotoPattern",
         ]),
-        addListeners() {
+        addListeners(): void {
             // no need to dispose as these will be active during application lifetime
             window.addEventListener( "resize", this.handleResize );
         },
-        handleReady() {
+        handleReady(): void {
             if ( this.displayWelcome ) {
                 this.openModal( ModalWindows.WELCOME_WINDOW );
             }
             this.$nextTick( this.calculateDimensions );
         },
-        handleResize() {
+        handleResize(): void {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             this.calculateDimensions();
         },
-        calculateDimensions() {
+        calculateDimensions(): void {
             /**
              * due to the nature of the table display of the pattern editors track list
              * we need JavaScript to calculate to correct dimensions of the overflowed track list

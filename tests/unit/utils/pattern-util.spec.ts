@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import PatternUtil, { serializePatternFile, deserializePatternFile } from "@/utils/pattern-util";
+import PatternUtil, { serializePatternFile, deserializePatternFile, arePatternsEqual } from "@/utils/pattern-util";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -172,6 +172,68 @@ describe( "PatternUtil", () => {
                 sourceChannels[ 3 ],  sourceChannels[ 4 ],  sourceChannels[ 5 ],  sourceChannels[ 6 ], // 3, 4, 5, 6
                 emptyChannel, // 7
             ]);
+        });
+    });
+
+    describe( "when determining whether two given patterns are equal in content", () => {
+        const event1 = EventFactory.create( 1, "C", 3 );
+        const event2 = EventFactory.create( 1, "D", 3 );
+        const event3 = EventFactory.create( 2, "C", 3 );
+
+        it( "should consider patterns of different step sizes unequal", () => {
+            const pattern1 = PatternFactory.create( 16 );
+            const pattern2 = PatternFactory.create( 8 );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( false );
+        });
+
+        it( "should consider patterns of different channel amounts unequal", () => {
+            const pattern1 = PatternFactory.create( 16, [[], []] );
+            const pattern2 = PatternFactory.create( 16, [[]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( false );
+        });
+
+        it( "should consider patterns with different event amounts per channel unequal", () => {
+            const pattern1 = PatternFactory.create( 16, [[event1], [event2]] );
+            const pattern2 = PatternFactory.create( 16, [[event1], [event1, event2]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( false );
+        });
+
+        it( "should consider patterns with different event amounts across channels unequal", () => {
+            const pattern1 = PatternFactory.create( 16, [[event1], []] );
+            const pattern2 = PatternFactory.create( 16, [[event1]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( false );
+        });
+
+        it( "should consider patterns with equal events positioned differently per channel unequal", () => {
+            const pattern1 = PatternFactory.create( 16, [[event1, event2]] );
+            const pattern2 = PatternFactory.create( 16, [[event2, event1]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( false );
+        });
+
+        it( "should consider patterns with equal events positioned differently with undefined values per channel unequal", () => {
+            const pattern1 = PatternFactory.create( 16, [[event1, undefined, event2]] );
+            const pattern2 = PatternFactory.create( 16, [[event1, event2, undefined]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( false );
+        });
+
+        it( "should consider patterns with equal events positioned in the same channel position equal", () => {
+            const pattern1 = PatternFactory.create( 16, [[event1, event2]] );
+            const pattern2 = PatternFactory.create( 16, [[event1, event2]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( true );
+        });
+
+        it( "should consider patterns with equal events positioned in the same channels position equal", () => {
+            const pattern1 = PatternFactory.create( 16, [[event1, event2, undefined], [event3, event2]] );
+            const pattern2 = PatternFactory.create( 16, [[event1, event2, undefined], [event3, event2]] );
+
+            expect( arePatternsEqual( pattern1, pattern2 )).toBe( true );
         });
     });
 });

@@ -26,7 +26,6 @@ import EventFactory from "@/model/factories/event-factory";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxState } from "@/store";
 import type { EffluxSong } from "@/model/types/song";
 import type LinkedList from "@/utils/linked-list";
@@ -397,6 +396,29 @@ const EventUtil =
     },
 };
 export default EventUtil;
+
+export const areEventsEqual = ( event: EffluxAudioEvent, compareEvent: EffluxAudioEvent ): boolean => {
+    if ( event.instrument !== compareEvent.instrument ||
+         event.note       !== compareEvent.note       ||
+         event.octave     !== compareEvent.octave     ||
+         event.action     !== compareEvent.action
+    ) {
+       return false;
+    }
+
+    if ( !!event.mp ) {
+        if ( !compareEvent.mp ) {
+            return false;
+        }
+        if ( event.mp.module !== compareEvent.mp.module ||
+             event.mp.glide  !== compareEvent.mp.glide  ||
+             event.mp.value  !== compareEvent.mp.value
+        ) {
+            return false;
+        }
+    }
+    return true;
+};
 
 /* internal methods */
 

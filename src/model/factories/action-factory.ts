@@ -74,9 +74,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
         case Actions.PASTE_PATTERN_MULTIPLE:
             return pastePatternMultiple( data );
 
-        case Actions.ADD_PATTERN:
-            return addPattern( data );
-
         case Actions.DELETE_PATTERN:
             return deletePattern( data );
 
@@ -481,48 +478,6 @@ function pastePatternMultiple({ store, patterns, insertIndex } :
                 dispatch( "gotoPattern", getters.activeSong.order.length - 1 );
             }
             linkLists();
-        },
-        redo: act
-    };
-}
-
-function addPattern({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
-    const song          = store.state.song.activeSong,
-          orderIndex    = store.state.sequencer.activeOrderIndex,
-          existingPatternIndex = store.getters.activePatternIndex,
-          amountOfSteps = store.getters.amountOfSteps;
-
-    if ( typeof patternIndex !== "number" ) {
-        patternIndex = existingPatternIndex + 1;
-    }
-
-    const existingOrder = [ ...song.order ];
-    const newOrder = existingOrder.map( index => {
-        // all remaining patterns have shifted up by one
-        return index > existingPatternIndex! ? index + 1 : index;
-    });
-    newOrder.push( patternIndex ); // add new pattern at end of order list
-
-    const { commit, dispatch } = store;
-
-    // note we don't cache song.patterns but always reference it from the song as the
-    // patterns list is effectively replaced by below actions
-
-    function act(): void {
-        const pattern = PatternFactory.create( amountOfSteps );
-        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex!, amountOfSteps, pattern ));
-        commit( "replacePatternOrder", newOrder );
-        commit( "setActiveOrderIndex", newOrder.lastIndexOf( patternIndex ));
-        commit( "setActivePatternIndex", patternIndex );
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex! ));
-            commit( "replacePatternOrder", existingOrder );
-            commit( "setActiveOrderIndex", orderIndex );
-            commit( "setActivePatternIndex", existingPatternIndex );
         },
         redo: act
     };

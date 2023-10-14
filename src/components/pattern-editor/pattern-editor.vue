@@ -98,6 +98,7 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
+import addPattern from "@/model/actions/pattern-add";
 import createAction from "@/model/factories/action-factory";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
@@ -179,7 +180,7 @@ export default {
                 this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
-            this.saveState( createAction( Actions.ADD_PATTERN, { store: this.$store }));
+            this.saveState( addPattern({ store: this.$store }));
             this.gotoNextPattern( this.activeSong );
         },
         handlePatternDelete(): void {

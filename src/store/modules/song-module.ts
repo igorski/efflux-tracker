@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -32,6 +32,7 @@ import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
 import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages from "@/services/pubsub/messages";
+import { FACTORY_VERSION } from "@/model/factories/song-factory";
 import SongValidator from "@/model/validators/song-validator";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
@@ -414,6 +415,7 @@ const SongModule: Module<SongState, any> = {
         },
         async saveSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): Promise<void> {
             await dispatch( "validateSong", song );
+            song.version = FACTORY_VERSION;
             if ( song.origin === "dropbox" ) {
                 commit( "setLoading", "dbxS" );
                 await dispatch( "exportSongToDropbox", { song, folder: getCurrentFolder() });

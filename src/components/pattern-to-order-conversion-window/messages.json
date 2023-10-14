@@ -1,0 +1,8 @@
+{
+    "en-US": {
+        "title": "Convert patterns to orders?",
+        "conversionExpl": "You have opened a song saved in an Efflux version that predates the introduction of orders. You can either continue without changes (where the existing patterns are maintained), or choose to convert the song. Patterns will be deduplicated and your existing song structure will be converted to an appropriate order list.",
+        "convert": "Convert",
+        "continue": "Continue"
+    }
+}

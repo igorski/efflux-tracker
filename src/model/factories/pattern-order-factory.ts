@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import type { EffluxPattern } from "@/model/types/pattern";
 import { PATTERN_ORDER } from "@/model/serializers/pattern-order-serializer";
 import { PATTERNS } from "@/model/serializers/pattern-serializer";
 
@@ -36,5 +35,4 @@ const PatternOrderFactory =
         return [ ...xtk[ PATTERN_ORDER ]];
     },
 };
-
 export default PatternOrderFactory;

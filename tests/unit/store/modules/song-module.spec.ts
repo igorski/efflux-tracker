@@ -3,7 +3,7 @@ import type { MutationTree, ActionTree } from "vuex";
 import songModule, { createSongState } from "@/store/modules/song-module";
 import type { SongState } from "@/store/modules/song-module";
 import PatternFactory from "@/model/factories/pattern-factory";
-import SongFactory from "@/model/factories/song-factory";
+import SongFactory, { FACTORY_VERSION } from "@/model/factories/song-factory";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong, EffluxSongMeta } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
@@ -336,6 +336,16 @@ describe( "Vuex song module", () => {
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
                 await actions.saveSong({ dispatch, commit: vi.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", { song, folder: "folder" });
+            });
+
+            it( "should update the song version to reflect the latest SongFactory version", async () => {
+                const dispatch = vi.fn();
+                const song = createSong({ id: "baz", origin: "dropbox" });
+                song.version = 1;
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                await actions.saveSong({ dispatch, commit: vi.fn() }, song );
+                expect( song.version ).toEqual( FACTORY_VERSION );
             });
         });
     });

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,9 +22,11 @@
  */
 import Config from "@/config";
 import PatternFactory from "@/model/factories/pattern-factory";
+import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import PatternValidator from "@/model/validators/pattern-validator";
 import { clone } from "@/utils/object-util";
+import { areEventsEqual } from "@/utils/event-util";
 
 type SerializedPatternList = {
     patterns: EffluxPattern[]
@@ -111,7 +113,7 @@ export const serializePatternFile = ( patterns: EffluxPattern[], firstChannel = 
     return window.btoa( JSON.stringify({ patterns: cloned }));
 };
 
-export const deserializePatternFile = ( encodedPatternData: string ): EffluxPattern[] => {
+export const deserializePatternFile = ( encodedPatternData: string ): EffluxPattern[] | null => {
     try {
         const parsed = JSON.parse( window.atob( encodedPatternData )) as SerializedPatternList;
         // validate contents
@@ -122,4 +124,39 @@ export const deserializePatternFile = ( encodedPatternData: string ): EffluxPatt
     } catch {
         return null;
     }
+};
+
+export const arePatternsEqual = ( pattern: EffluxPattern, comparePattern: EffluxPattern ): boolean => {
+    if ( pattern.steps !== comparePattern.steps ) {
+        return false;
+    }
+
+    if ( pattern.channels.length !== comparePattern.channels.length ) {
+        return false;
+    }
+    
+    for ( let i = 0, l = pattern.channels.length; i < l; ++i ) {
+        const channel: EffluxChannel = pattern.channels[ i ];
+        const compareChannel: EffluxChannel = comparePattern.channels[ i ];
+
+        if ( channel.length !== compareChannel.length ) {
+            return false;
+        }
+        for ( let j = 0, jl = channel.length; j < jl; ++j ) {
+            const event        = channel[ j ];
+            const compareEvent = compareChannel[ j ];
+
+            if ( !event || !compareEvent ) {
+                if ( event === compareEvent ) {
+                    continue; // both events are undefined
+                }
+                return false;
+            }
+
+            if ( !areEventsEqual( event, compareEvent )) {
+                return false;
+            }
+        }
+    }
+    return true;
 };
