@@ -268,7 +268,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 37: // left
 
             if ( hasOption ) {
-                store.commit( "gotoPreviousPattern", activeSong);
+                store.commit( "gotoPreviousPattern", activeSong );
             }
             else {
                 if ( setSelectedSlot( editor.selectedSlot - 1 )) {

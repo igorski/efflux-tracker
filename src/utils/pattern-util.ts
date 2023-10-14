@@ -22,8 +22,10 @@
  */
 import Config from "@/config";
 import PatternFactory from "@/model/factories/pattern-factory";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxSong } from "@/model/types/song";
 import PatternValidator from "@/model/validators/pattern-validator";
 import { clone } from "@/utils/object-util";
 import { areEventsEqual } from "@/utils/event-util";
@@ -159,4 +161,21 @@ export const arePatternsEqual = ( pattern: EffluxPattern, comparePattern: Efflux
         }
     }
     return true;
+};
+
+/**
+ * convenience method to clone all event and channel data for given pattern
+ * this also resets each events play state to ensure seamless playback when
+ * performing und/redo actions during playback
+ */
+export const clonePattern = ( song: EffluxSong, activePatternIndex: number ): EffluxPattern => {
+    const clonedPattern = clone( song.patterns[ activePatternIndex ]);
+    clonedPattern.channels.forEach(( channel: EffluxChannel ) => {
+        channel.forEach(( event: EffluxAudioEvent ) => {
+            if ( event?.seq?.playing ) {
+                event.seq.playing = false;
+            }
+        });
+    });
+    return clonedPattern;
 };

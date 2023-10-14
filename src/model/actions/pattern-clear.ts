@@ -20,28 +20,29 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import type { Store } from "vuex";
+import type { IUndoRedoState } from "@/model/factories/history-state-factory";
+import PatternFactory from "@/model/factories/pattern-factory";
+import type { EffluxState } from "@/store";
+import { clonePattern } from "@/utils/pattern-util";
 
-/**
- * These define the editor actions that can be invoked from multiple origins
- * (e.g. keyboard-service when dealing with a shortcut, visual editors, mouse
- * actions inside the pattern editor, etc.). These actions can also be added to
- * state history, allowing to undo/redo them at will.
- *
- * @see action-factory, history-state-factory and history-module
- */
-enum Actions
-{
-    ADD_EVENT = 0,
-    ADD_EVENTS,
-    DELETE_EVENT,
-    DELETE_SELECTION,
-    ADD_MODULE_AUTOMATION,
-    DELETE_MODULE_AUTOMATION,
-    CUT_SELECTION,
-    PASTE_SELECTION,
-    TEMPO_CHANGE,
-    REPLACE_INSTRUMENT,
-    TRANSPOSE,
-    UPDATE_PATTERN_ORDER,
-};
-export default Actions;
+export default function({ store }: { store: Store<EffluxState> }): IUndoRedoState {
+    const song          = store.state.song.activeSong,
+          patternIndex  = store.getters.activePatternIndex,
+          amountOfSteps = store.getters.amountOfSteps;
+
+    const { commit } = store;
+    const pattern = clonePattern( song, patternIndex );
+
+    function act(): void {
+        commit( "replacePattern", { patternIndex, pattern: PatternFactory.create( amountOfSteps ) });
+    }
+    act(); // perform action
+
+    return {
+        undo(): void {
+            commit( "replacePattern", { patternIndex, pattern });
+        },
+        redo: act
+    };
+}

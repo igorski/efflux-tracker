@@ -26,20 +26,18 @@ import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import PatternUtil from "@/utils/pattern-util";
-import PatternOrderUtil from "@/utils/pattern-order-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import type { EffluxSong } from "@/model/types/song";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import AudioService, { connectAnalysers } from "@/services/audio-service";
 import { Transpose } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
+import { clonePattern } from "@/utils/pattern-util";
 import PatternFactory from "./pattern-factory";
 
 export default function( type: Actions, data: any ): IUndoRedoState | null {
@@ -64,18 +62,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.DELETE_MODULE_AUTOMATION:
             return deleteModuleAutomationAction( data );
-
-        case Actions.CLEAR_PATTERN:
-            return clearPattern( data );
-
-        case Actions.PASTE_PATTERN:
-            return pastePattern( data );
-
-        case Actions.PASTE_PATTERN_MULTIPLE:
-            return pastePatternMultiple( data );
-
-        case Actions.DELETE_PATTERN:
-            return deletePattern( data );
 
         case Actions.CUT_SELECTION:
             return cutSelectionAction( data );
@@ -384,141 +370,6 @@ function deleteModuleAutomationAction({ event }: { event: EffluxAudioEvent }): I
     };
 }
 
-function clearPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
-    const song          = store.state.song.activeSong,
-          patternIndex  = store.getters.activePatternIndex,
-          amountOfSteps = store.getters.amountOfSteps;
-
-    const { commit } = store;
-    const pattern = clonePattern( song, patternIndex );
-
-    function act(): void {
-        commit( "replacePattern", { patternIndex, pattern: PatternFactory.create( amountOfSteps ) });
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePattern", { patternIndex, pattern });
-        },
-        redo: act
-    };
-}
-
-function pastePattern({ store, patternCopy }: { store: Store<EffluxState>, patternCopy: EffluxPattern }): IUndoRedoState {
-    const song         = store.state.song.activeSong,
-          patternIndex = store.getters.activePatternIndex;
-
-    const { getters, commit } = store;
-
-    const targetPattern = clonePattern( song, patternIndex );
-    const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy, patternIndex );
-
-    function act(): void {
-        commit( "replacePattern", { patternIndex, pattern: pastedPattern });
-        commit( "createLinkedList", getters.activeSong );
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePattern", { patternIndex, pattern: targetPattern });
-            commit( "createLinkedList", getters.activeSong );
-        },
-        redo: act
-    };
-}
-
-function pastePatternMultiple({ store, patterns, insertIndex } :
-    { store: ActionContext<EffluxState, any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
-    const { getters, commit, dispatch, rootState } = store;
-    const songPatterns = getters.activeSong.patterns;
-
-    if ( insertIndex === -1 ) {
-         // if no index was specified, insert after current position
-        insertIndex = store.getters.activePatternIndex;
-    }
-
-    // splice the pattern list at the insertion point, head will contain
-    // the front of the list, tail the end of the list, and inserted will contain the cloned content
-
-    const patternsHead = clone( songPatterns );
-    const patternsTail = patternsHead.splice( insertIndex );
-
-    function linkLists() {
-        // update event offsets to match insert position
-        const activeSongPatterns = getters.activeSong.patterns;
-        for ( let patternIndex = insertIndex, l = activeSongPatterns.length; patternIndex < l; ++patternIndex ) {
-            activeSongPatterns[ patternIndex ].channels.forEach(( channel: EffluxChannel ) => {
-                channel.forEach(( event: EffluxAudioEvent ) => {
-                    if ( event?.seq ) {
-                        const eventStart  = event.seq.startMeasure;
-                        const eventEnd    = event.seq.endMeasure;
-                        const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                        event.seq.startMeasure = patternIndex;
-                        event.seq.endMeasure   = event.seq.startMeasure + eventLength;
-                    }
-                });
-            });
-        }
-        commit( "createLinkedList", getters.activeSong );
-    }
-
-    function act(): void {
-        commit( "replacePatterns", clone( patternsHead.concat( patterns, patternsTail )));
-        linkLists();
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePatterns", patternsHead.concat( patternsTail ));
-            if ( getters.activeSong.order.length <= store.state.sequencer.activeOrderIndex ) {
-                dispatch( "gotoPattern", getters.activeSong.order.length - 1 );
-            }
-            linkLists();
-        },
-        redo: act
-    };
-}
-
-function deletePattern({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
-    const song            = store.state.song.activeSong,
-          patterns        = song.patterns,
-          amountOfSteps   = store.getters.amountOfSteps;
-
-    if ( typeof patternIndex !== "number" ) {
-        patternIndex = store.state.sequencer.activePatternIndex;
-    }
-    const targetIndex = patternIndex === ( song.patterns.length - 1 ) ? patternIndex - 1 : patternIndex;
-
-    const { commit, dispatch } = store;
-    const existingPattern = clonePattern( song, patternIndex! );
-    const existingOrder = [ ...song.order ];
-
-    function act(): void {
-        commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex ));
-        commit( "replacePatternOrder", PatternOrderUtil.removeAllPatternInstances( existingOrder, patternIndex ).map( index => {
-            // all remaining patterns have shifted down by one
-            return ( index > patternIndex! ) ? index - 1 : index;
-        }));
-        commit( "setActivePatternIndex", targetIndex );
-    //    dispatch( "gotoPattern", targetIndex );
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex, amountOfSteps, existingPattern ));
-            commit( "replacePatternOrder", existingOrder );
-            commit( "setActivePatternIndex", patternIndex );
-          //  dispatch( "gotoPattern", orderIndex );
-        },
-        redo: act
-    };
-}
-
 function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
@@ -730,21 +581,4 @@ function serialize( object: any = null ): any {
 
 function deserialize( serializedObject: any = null ): any {
     return serializedObject ? JSON.parse( serializedObject ) : null;
-}
-
-/**
- * convenience method to clone all event and channel data for given pattern
- * this also resets each events play state to ensure seamless playback when
- * performing und/redo actions during playback
- */
-function clonePattern( song: EffluxSong, activePatternIndex: number ): EffluxPattern {
-    const clonedPattern = clone( song.patterns[ activePatternIndex ]);
-    clonedPattern.channels.forEach(( channel: EffluxChannel ) => {
-        channel.forEach(( event: EffluxAudioEvent ) => {
-            if ( event?.seq?.playing ) {
-                event.seq.playing = false;
-            }
-        });
-    });
-    return clonedPattern;
 }

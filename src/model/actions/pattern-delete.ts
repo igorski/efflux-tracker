@@ -21,57 +21,49 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { Store } from "vuex";
-import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import PatternUtil from "@/utils/pattern-util";
 import PatternOrderUtil from "@/utils/pattern-order-util";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import PatternFactory from "@/model/factories/pattern-factory";
 import type { EffluxState } from "@/store";
+import { clonePattern } from "@/utils/pattern-util";
 
 export default function({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
     const song          = store.state.song.activeSong,
-          orderIndex    = store.state.sequencer.activeOrderIndex,
-          existingPatternIndex = store.getters.activePatternIndex,
+          patterns      = song.patterns,
           amountOfSteps = store.getters.amountOfSteps,
-          useOrders     = store.getters.useOrders;
+          orderIndex    = store.getters.activeOrderIndex;
 
     if ( typeof patternIndex !== "number" ) {
-        patternIndex = existingPatternIndex + 1;
+        patternIndex = store.state.sequencer.activePatternIndex;
     }
+    const targetIndex = patternIndex === ( song.patterns.length - 1 ) ? patternIndex - 1 : patternIndex;
 
+    const { commit } = store;
+    const existingPattern = clonePattern( song, patternIndex! );
     const existingOrder = [ ...song.order ];
-    let newOrder: EffluxPatternOrder = existingOrder.map( index => {
-        // all remaining patterns have shifted up by one
-        return index > existingPatternIndex! ? index + 1 : index;
+    const newOrder = PatternOrderUtil.removeAllPatternInstances( existingOrder, patternIndex ).map( index => {
+        // all remaining patterns have shifted down by one
+        return ( index > patternIndex! ) ? index - 1 : index;
     });
-    let targetOrderIndex = existingPatternIndex;
- 
-    if ( useOrders ) {
-        newOrder.push( patternIndex );
-        targetOrderIndex = newOrder[ newOrder.length - 1 ];
-    } else {
-        newOrder = PatternOrderUtil.addPatternAtIndex( newOrder, patternIndex, patternIndex );
-    }
-    const { commit, dispatch } = store;
-
-    // note we don't cache song.patterns but always reference it from the song as the
-    // patterns list is effectively replaced by below actions
 
     function act(): void {
-        const pattern = PatternFactory.create( amountOfSteps );
-        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex!, amountOfSteps, pattern ));
+        commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex ));
         commit( "replacePatternOrder", newOrder );
-        commit( "setActiveOrderIndex", targetOrderIndex );
-        commit( "setActivePatternIndex", patternIndex );
+        commit( "setActivePatternIndex", targetIndex );
+        if ( orderIndex >= song.order.length ) {
+            commit( "setActiveOrderIndex", newOrder.length - 1 );
+        }
     }
     act(); // perform action
 
     return {
         undo(): void {
-            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex! ));
+            commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex, amountOfSteps, existingPattern ));
             commit( "replacePatternOrder", existingOrder );
-            commit( "setActiveOrderIndex", orderIndex );
-            commit( "setActivePatternIndex", existingPatternIndex );
+            commit( "setActivePatternIndex", patternIndex );
+            if ( !store.getters.isPlaying ) {
+                commit( "setActiveOrderIndex", orderIndex );
+            }
         },
         redo: act
     };

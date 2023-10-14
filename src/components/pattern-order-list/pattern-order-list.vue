@@ -148,6 +148,7 @@ export default {
         ...mapMutations([
             "openModal",
             "replacePatternOrder",
+            "setActiveOrderIndex",
         ]),
         repeatPattern( entry: WrappedPatternOrderEntry ): void {
             const newOrder = [ ...this.activeSong.order ];
@@ -170,6 +171,9 @@ export default {
         },
         updateOrder( order: EffluxPatternOrder ): void {
             createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
+            if ( this.activeOrderIndex >= order.length ) {
+                this.setActiveOrderIndex( order.length - 1 );
+            }
         },
         handleEditClick(): void {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );

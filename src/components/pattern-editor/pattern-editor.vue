@@ -99,9 +99,11 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import addPattern from "@/model/actions/pattern-add";
-import createAction from "@/model/factories/action-factory";
+import patternClear from "@/model/actions/pattern-clear";
+import patternDelete from "@/model/actions/pattern-delete";
+import patternPaste from "@/model/actions/pattern-paste";
+import { EffluxPattern } from "@/model/types/pattern";
 import Config from "@/config";
-import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import { clone } from "@/utils/object-util";
 import SelectBox from "@/components/forms/select-box.vue";
@@ -155,7 +157,7 @@ export default {
         ]),
         handlePatternClear(): void {
             this.clearSelection();
-            this.saveState( createAction( Actions.CLEAR_PATTERN, { store: this.$store }));
+            this.saveState( patternClear({ store: this.$store }));
         },
         handlePatternCopy(): void {
             this.patternCopy = clone( this.activePattern );
@@ -164,8 +166,7 @@ export default {
             if ( this.patternCopy ) {
                 this.clearSelection();
                 this.saveState(
-                    createAction(
-                        Actions.PASTE_PATTERN,
+                    patternPaste(
                         { store: this.$store, patternCopy: this.patternCopy }
                     )
                 );
@@ -185,7 +186,7 @@ export default {
             if ( patterns.length === 1 ) {
                 this.handlePatternClear();
             } else {
-                this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store }));
+                this.saveState( patternDelete({ store: this.$store }));
             }
         },
         handlePatternAdvanced(): void {

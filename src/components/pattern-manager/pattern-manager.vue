@@ -107,11 +107,11 @@
 <script lang="ts">
 import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
-import Actions from "@/definitions/actions";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
-import addPattern from "@/model/actions/pattern-add";
-import createAction from "@/model/factories/action-factory";
+import patternAdd from "@/model/actions/pattern-add";
+import patternDelete from "@/model/actions/pattern-delete";
+import patternPasteMultiple from "@/model/actions/pattern-paste-multiple";
 import type { EffluxPattern } from "@/model/types/pattern";
 import messages from "./messages.json";
 
@@ -168,7 +168,7 @@ export default {
             window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
         },
         handleCreateNew(): void {
-            this.saveState( addPattern({ store: this.$store, patternIndex: this.entries.length }));
+            this.saveState( patternAdd({ store: this.$store, patternIndex: this.entries.length }));
         },
         handleOrderClick(): void {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );
@@ -177,14 +177,13 @@ export default {
             this.setActivePatternIndex( entry.index );
         },
         handleDuplicateClick( entry: WrappedPatternEntry ): void {
-            this.saveState( createAction(
-                Actions.PASTE_PATTERN_MULTIPLE,
+            this.saveState( patternPasteMultiple(
                 // note we insert at the end (to not upset order indices)
                 { store: this.$store, patterns: [ entry.pattern ], insertIndex: this.entries.length }
             ));
         },
         handleDeleteClick( entry: WrappedPatternEntry ): void {
-            this.saveState( createAction( Actions.DELETE_PATTERN, { store: this.$store, patternIndex: entry.index }));
+            this.saveState( patternDelete({ store: this.$store, patternIndex: entry.index }));
         },
         async handleDescriptionInputShow( entry: WrappedPatternEntry ): Promise<void> {
             this.showDescriptionInput = entry.index;
