@@ -142,7 +142,7 @@ export default {
                     .map(( pattern: number, index: number ) => ({
                         pattern,
                         index,
-                        name: pattern.name!,
+                        name: patterns[ pattern ].name,
                         description: patterns[ pattern ].description,
                     }));
             },
