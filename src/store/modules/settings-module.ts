@@ -63,7 +63,14 @@ const SettingsModule: Module<SettingsState, any> = {
         followPlayback : ( state: SettingsState ) => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
         timelineMode   : ( state: SettingsState ) => state._settings[ PROPERTIES.TIMELINE_MODE ] === true,
         paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex",
-        useOrders      : ( state: SettingsState ) => state._settings[ PROPERTIES.USE_ORDERS ] !== false,
+        useOrders      : ( state: SettingsState, rootGetters: any ) => {
+            const setting = state._settings[ PROPERTIES.USE_ORDERS ] !== false;
+            if ( setting ) {
+                return true;
+            }
+            const { activeSong } = rootGetters;
+            return activeSong.patterns.length !== activeSong.order.length;
+        },
     },
     mutations: {
         saveSetting( state: SettingsState, { name, value }: { name: string, value: any }): void {

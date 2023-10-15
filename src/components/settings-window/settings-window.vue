@@ -80,6 +80,7 @@
                     <label v-t="'usePatternOrders'" class="label"></label>
                     <toggle-button
                         v-model="usePatternOrders"
+                        :disabled="!canUseOrders"
                         sync
                     />
                 </div>
@@ -139,6 +140,7 @@ export default {
             midiConnected  : state => state.midi.midiConnected,
         }),
         ...mapGetters([
+            "activeSong",
             "displayHelp",
             "displayWelcome",
             "followPlayback",
@@ -154,6 +156,9 @@ export default {
                 return true; // still very much under development
             }
             return false;
+        },
+        canUseOrders(): boolean {
+            return this.activeSong.patterns.length === this.activeSong.order.length;
         },
         displayHelpPanel: {
             get(): boolean {

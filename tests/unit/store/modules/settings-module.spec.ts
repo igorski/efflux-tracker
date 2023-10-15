@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import Config from "@/config";
+import type { EffluxSong } from "@/model/types/song";
 import settingsModule, { createSettingsState, PROPERTIES } from "@/store/modules/settings-module";
 import type { SettingsState } from "@/store/modules/settings-module";
 
@@ -72,6 +73,35 @@ describe( "Vuex settings module", () => {
         it( "should return the saved value for following playback", () => {
             const state = createSettingsState({ _settings: { [ PROPERTIES.INPUT_FORMAT ]: "pct" } });
             expect( getters.paramFormat( state )).toBe( "pct" );
+        });
+
+        describe( "and retrieving whether orders can be used", () => {
+            it( "should return the saved value", () => {
+                const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: true } });
+                expect( getters.useOrders( state )).toBe( true );
+            });
+
+            it( "should return the saved value when false as true when the currently active song uses orders", () => {
+                const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: false } });
+                const rootGetters = {
+                    activeSong: {
+                        patterns: [[], []],
+                        order: [0, 1, 1, 0]
+                    } as Partial<EffluxSong>,
+                };
+                expect( getters.useOrders( state, rootGetters )).toBe( true );
+            });
+
+            it( "should return the saved value when false when the currently active song does not use orders", () => {
+                const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: false } });
+                const rootGetters = {
+                    activeSong: {
+                        patterns: [[], []],
+                        order: [0, 1]
+                    } as Partial<EffluxSong>,
+                };
+                expect( getters.useOrders( state, rootGetters )).toBe( false );
+            });
         });
     });
 
