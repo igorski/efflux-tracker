@@ -210,7 +210,7 @@ function collect( store: Store<EffluxState> ): void {
                     seq = event.seq;
 
                     if ( seq.playing ) {
-                        continue; // so can playing events (efc58fc188d5b3e137f709c6cef3d0a04fff3f7c)
+                        continue; // so can playing events
                     }
 
                     // event playback is triggered when its duration is within the current sequencer position range
@@ -218,15 +218,6 @@ function collect( store: Store<EffluxState> ): void {
                     if ( compareTime >= seq.startMeasureOffset &&
                          compareTime < ( seq.startMeasureOffset + seq.length )) {
                         enqueueEvent( store, event, i );
-
-                        // ------------- from efc58fc188d5b3e137f709c6cef3d0a04fff3f7c
-                        // we"d like to use noteOff(event, time) scheduled at the right note off time
-                        // without using a timer in dequeueEvent(), but we suffer from stability issues
-                        //} else {
-                        //    // event is outside of trigger range, unset its playback
-                        //    // state so it can be retriggered when in range
-                        //    seq.playing = false;
-                        // E.O. efc58fc188d5b3e137f709c6cef3d0a04fff3f7c -------------
                     }
                 }
             }

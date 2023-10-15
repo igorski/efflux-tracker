@@ -30,7 +30,7 @@
             :title="$t('previous')"
             :disabled="!canNavBack"
             type="button"
-            class="pattern-order-list__navigate-button"
+            class="pattern-order-list__navigate-button pattern-order-list__navigate-button_left"
             @click="handleBackClick()"
         ><</button>
         <pattern-order-entry
@@ -62,7 +62,7 @@
             :title="$t('next')"
             :disabled="!canNavNext"
             type="button"
-            class="pattern-order-list__navigate-button"
+            class="pattern-order-list__navigate-button pattern-order-list__navigate-button_right"
             @click="handleNextClick()"
         >></button>
         <button
@@ -198,6 +198,17 @@ export default {
     &__label {
         margin-right: $spacing-small;
         @include toolFont();
+    }
+
+    &__navigate-button {
+        @include toolFont();
+        
+        &_left {
+            margin-right: $spacing-xsmall;
+        }
+        &_right {
+            margin-left: $spacing-xxsmall;
+        }
     }
 
     &__edit-button {

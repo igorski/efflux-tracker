@@ -52,7 +52,7 @@ export default function({ store, patternIndex }: { store: Store<EffluxState>, pa
     } else {
         newOrder = PatternOrderUtil.addPatternAtIndex( newOrder, patternIndex, patternIndex );
     }
-    const { commit, dispatch } = store;
+    const { commit } = store;
 
     // note we don't cache song.patterns but always reference it from the song as the
     // patterns list is effectively replaced by below actions

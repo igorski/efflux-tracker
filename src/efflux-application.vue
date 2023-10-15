@@ -45,6 +45,7 @@
                 <div
                     ref="properties"
                     class="application-properties"
+                    :class="{ 'application-properties--expanded' : useOrders }"
                 >
                     <pattern-editor />
                 </div>
@@ -54,9 +55,10 @@
                     ref="editor"
                     class="application-editor"
                     :class="{
-                        'has-help-panel'  : displayHelp,
-                        'settings-mode'   : mobileMode === 'settings',
-                        'note-entry-mode' : showNoteEntry
+                        'has-help-panel'          : displayHelp,
+                        'settings-mode'           : mobileMode === 'settings',
+                        'settings-mode--expanded' : mobileMode === 'settings' && useOrders,
+                        'note-entry-mode'         : showNoteEntry
                     }"
                 >
                     <track-editor />

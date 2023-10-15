@@ -568,7 +568,7 @@ h1 {
             .menu-list {
                 left: 0;
                 display: block;
-                height: 100%;
+                height: inherit;
             }
         }
 

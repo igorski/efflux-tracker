@@ -500,7 +500,7 @@ export default {
     /* tempo control */
 
     &__tempo {
-        padding: 0 0 0 $spacing-small;
+        padding: 0;
     
         label {
             margin-right: $spacing-small;
@@ -571,18 +571,29 @@ export default {
             width: auto;
         }
 
-        &__tempo {
+        &__tempo,
+        .pattern-order-list {
             display: none;
         }
 
-        &.settings-mode &__tempo {
+        &__buttons button.icon-settings {
+            display: inline;
+        }
+    }
+
+    .settings-mode {
+        display: flex;
+        flex-direction: column;
+
+        .transport-controls__tempo {
             display: inline-block;
             margin: 0 $spacing-small $spacing-small;
             padding: 0 0 0 $spacing-small;
         }
 
-        &__buttons button.icon-settings {
-            display: inline;
+        .pattern-order-list {
+            display: inline-flex;
+            margin: 0 $spacing-medium;
         }
     }
 }

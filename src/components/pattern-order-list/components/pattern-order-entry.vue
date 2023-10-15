@@ -84,13 +84,17 @@ export default {
 @import "@/styles/_variables";
 @import "@/styles/_mixins";
 
+$button-width: 32px;
 $button-height: 26px;
 
 .pattern-order-entry {
     cursor: pointer;
     position: relative;
-    margin: 0 $spacing-xsmall;
-    padding: $spacing-xxsmall $spacing-small;
+    width: $button-width;
+    box-sizing: border-box;
+    text-align: center;
+    margin: 0 $spacing-xxsmall 0 0;
+    padding: $spacing-xxsmall 0;
     border: 1px solid $color-border;
     border-radius: 3px;
     @include toolFont();

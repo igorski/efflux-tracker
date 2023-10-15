@@ -286,7 +286,9 @@ export default {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
-            display: inline;
+            display: flex;
+            flex-direction: column;
+            padding: 0 $spacing-medium;
 
             .inline-list button {
                 margin: 0 $spacing-xsmall $spacing-small 0;
@@ -295,7 +297,7 @@ export default {
     }
 
     .pattern-editor {
-        h2 {
+        h2, .pattern-editor__pattern-name {
             display: none;
         }
         .inline-list {
