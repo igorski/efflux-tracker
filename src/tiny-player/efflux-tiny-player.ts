@@ -73,25 +73,31 @@ const actions: ActionTree<SequencerState, any> = sequencerModule.actions!;
 const sampleCache: Map<string, Sample> = new Map();
 
 // mock Vuex root store
+
 const rootStore: Store<EffluxState> = {
     // @ts-expect-error state not complete
     state: {
         sequencer: state,
         song: {} as unknown as SongState,
     },
-    getters: { sampleCache },
+    getters: {
+        sampleCache,
+        get activeSong() {
+            return rootStore.state.song.activeSong;
+        },
+    },
     commit( mutationType: string, value?: any ): void {
         mutations[ mutationType ]( state, value );
     },
     dispatch( actionType: string, value?: any ): Promise<any> {
         // @ts-expect-error Type 'ActionObject<SequencerState, any>' has no call signatures.
-        return actions[ actionType ]({ state }, value );
+        return actions[ actionType ]( rootStore, value );
     },
 };
 
 // helpers
 
-const jp = ( i: number ): void => mutations.setPosition( state, { activeSong, pattern: i });
+const jp = ( i: number ): void => mutations.setPosition( state, { activeSong, orderIndex: i });
 
 // logging
 const log = ( type = "log", message: string, optData?: any ): void => {
@@ -151,7 +157,7 @@ export default {
             });
             applyModules( activeSong );
 
-            jp( 0 ); // start at first pattern
+            jp( 0 ); // start at first pattern defined in the order list
 
             return TRUE;
 

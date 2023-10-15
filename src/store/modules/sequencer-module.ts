@@ -189,7 +189,7 @@ function collect( store: Store<EffluxState> ): void {
     const sequenceEvents = !( state.recording && Metronome.countIn && !Metronome.countInComplete );
     let i, channel, channelStep, event, seq, compareTime;
 
-    const { activePatternIndex } = store.getters;
+    const { activePatternIndex } = state;
 
     while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime )) {
         if ( sequenceEvents ) {
