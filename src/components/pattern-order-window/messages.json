@@ -2,7 +2,7 @@
     "en-US": {
         "patternOrder": "Song pattern order",
         "patternExpl": "You can drag patterns up & down in the list",
-        "addPattern": "Add pattern",
+        "addPattern": "Add",
         "play": "Play",
         "duplicate": "Duplicate",
         "delete": "Delete",

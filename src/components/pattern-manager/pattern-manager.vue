@@ -63,12 +63,17 @@
                 <span
                     v-else
                     class="pattern-list__entry-description"
-                    @click="handleDescriptionInputShow( entry )"
                 >{{ entry.description }}</span>
                 <span
                     class="pattern-list__entry-steps"
                 >{{ $t( "stepAmount", { amount: entry.pattern.steps }) }}</span>
                 <div class="pattern-list__entry-action-buttons">
+                    <button
+                        type="button"
+                        class="pattern-list__entry-action-button pattern-list__entry-action-button--dark"
+                        :title="$t('edit')"
+                        @click.stop="handleDescriptionInputShow( entry )"
+                    ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('edit')" /></button>
                     <button
                         type="button"
                         class="pattern-list__entry-action-button"
@@ -161,6 +166,7 @@ export default {
             "openModal",
             "replacePattern",
             "saveState",
+            "setActiveOrderIndex",
             "setActivePatternIndex",
             "suspendKeyboardService",
         ]),
@@ -175,6 +181,7 @@ export default {
         },
         handleSelect( entry: WrappedPatternEntry ): void {
             this.setActivePatternIndex( entry.index );
+            this.setActiveOrderIndex( this.activeSong.order.indexOf( entry.index ));
         },
         handleDuplicateClick( entry: WrappedPatternEntry ): void {
             this.saveState( patternPasteMultiple(
@@ -196,7 +203,7 @@ export default {
             this.showDescriptionInput = -1;
             this.suspendKeyboardService( false );
             this.replacePattern({ patternIndex: entry.index, pattern: { ...entry.pattern, description } });
-        }
+        },
     },
 };
 </script>
@@ -284,7 +291,6 @@ $headerFooterHeight: 104px;
 
         &-description {
             width: calc(100% - 190px);
-            cursor: text;
             @include truncate();
         }
 
@@ -293,7 +299,7 @@ $headerFooterHeight: 104px;
         }
 
         &-action-buttons {
-            width: 70px;
+            width: 110px;
         }
 
         &-action-button {
@@ -306,6 +312,10 @@ $headerFooterHeight: 104px;
 
             &.icon-play {
                 margin-right: $spacing-small;
+            }
+
+            &--dark {
+                filter: invert(80%) sepia(7%) saturate(146%) hue-rotate(175deg) brightness(93%) contrast(92%);
             }
         }
 
