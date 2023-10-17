@@ -74,20 +74,15 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            eventList: state => state.editor.eventList,
             showNoteEntry: state => state.editor.showNoteEntry,
+            selectedStep: state => state.editor.selectedStep,
+            selectedInstrument: state => state.editor.selectedInstrument,
         }),
         ...mapGetters([
-            "activePatternIndex",
+            "activeOrderIndex",
             "canUndo",
             "canRedo"
         ]),
-        ...mapState({
-            activeSong: state => state.song.activeSong,
-            selectedStep: state => state.editor.selectedStep,
-            selectedInstrument: state => state.editor.selectedInstrument,
-            eventList: state => state.editor.eventList,
-        })
     },
     methods: {
         ...mapMutations([
@@ -112,19 +107,17 @@ export default {
             this.saveState(createAction(Actions.DELETE_EVENT, { store: this.$store }));
         },
         editModuleParams() {
-            this.openModal(ModalWindows.MODULE_PARAM_EDITOR);
+            this.openModal( ModalWindows.MODULE_PARAM_EDITOR );
         },
         glideParams() {
             EventUtil.glideParameterAutomations(
-                this.activeSong, this.selectedStep, this.activePatternIndex,
-                this.selectedInstrument, this.eventList, this.$store,
+                this.activeSong, this.selectedStep, this.activeOrderIndex,
+                this.selectedInstrument, this.$store,
             );
         },
         async navigateHistory( action = "undo" ) {
             await this.$store.dispatch( action );
-            // TODO this is wasteful, can we do this more elegantly?
-            EventUtil.linkEvents( this.activeSong, this.eventList );
-        }
+        },
     }
 };
 </script>

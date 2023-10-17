@@ -216,7 +216,7 @@ export default {
         // we define these upfront as we assume that the position the sequencer had (when running) is
         // where we would like to add/edit a module parameter change event
 
-        this.patternIndex = ( event ) ? event.seq.startMeasure : this.activePatternIndex;
+        this.patternIndex = this.activePatternIndex;
         this.channelIndex = this.selectedInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
         this.step         = this.selectedStep;
 

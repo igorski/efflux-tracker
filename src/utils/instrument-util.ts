@@ -33,6 +33,7 @@ import type { EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+import { getPrevEvent } from "@/utils/event-util";
 import type { EffluxState } from "@/store";
 
 const RECORD_THRESHOLD = 50;
@@ -263,7 +264,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
 
     const { playing } = state.sequencer;
-    const { activePatternIndex, amountOfSteps } = getters;
+    const { activePatternIndex, activeOrderIndex, amountOfSteps } = getters;
 
     // if the sequencer isn't playing, noteOff events must be added explicitly
     // (this noteOff event is the result of a key release)
@@ -320,8 +321,8 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     lastAddition = now;
 
     // unset recording state of previous event
-    const previousEvent = EventUtil.getFirstEventBeforeEvent(
-        song.patterns, activePatternIndex, channelIndex, audioEvent
-    );
-    if ( previousEvent ) previousEvent.recording = false;
+    const previousEvent = getPrevEvent( song, audioEvent, channelIndex, activeOrderIndex );
+    if ( previousEvent ) {
+        previousEvent.event.recording = false;
+    }
 }

@@ -145,7 +145,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { mapActions, mapState, mapGetters, mapMutations } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
 import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
 import { enqueueState } from "@/model/factories/history-state-factory";
@@ -277,6 +277,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "gotoPattern",
             "setPlaying",
             "setPosition",
             "setLooping",
@@ -290,9 +291,6 @@ export default {
             "gotoNextPattern",
             "setMobileMode",
         ]),
-        ...mapActions([
-            "gotoPattern",
-        ]),
         handleSettingsToggle(): void {
             this.setMobileMode( this.mobileMode ? null : "settings" );
         },
@@ -301,7 +299,7 @@ export default {
             if ( value ) {
                 this.tempOrderIndex = this.activeOrderIndex;
             } else {
-                this.gotoPattern( this.tempOrderIndex );
+                this.gotoPattern({ orderIndex: this.tempOrderIndex, song: this.activeSong });
             }
             this.patternFocused = value;
         },

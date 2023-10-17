@@ -40,6 +40,7 @@
             :index="entry.index"
             :active="entry.active"
             :editing="entry.editing"
+            @select="handleEntryClick( $event )"
             @toggle-edit-mode="toggleEditMode( $event, entry )"
         >
             <template v-if="entry.editing">
@@ -146,6 +147,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "gotoPattern",
             "openModal",
             "replacePatternOrder",
             "setActiveOrderIndex",
@@ -183,6 +185,10 @@ export default {
         },
         handleNextClick(): void {
             this.offset += 1;
+        },
+        handleEntryClick( orderIndex: number ): void {
+            console.info('handle entry click', orderIndex)
+            this.gotoPattern({ orderIndex, song: this.activeSong });
         },
     }
 };

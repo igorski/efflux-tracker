@@ -66,7 +66,6 @@ export const updateEventOffsets = ( patterns: EffluxPattern[], ratio: number ): 
 
                 if ( pattern && pattern.seq ) {
                     const { seq } = pattern;
-                    seq.startOffset        *= ratio;
                     seq.startMeasureOffset *= ratio;
                     seq.length             *= ratio;
                 }
@@ -118,7 +117,8 @@ export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
     const TICKS = ( 128 * 4 ) / measureDuration; // ticks per measure, songs are always in 4/4 time (currently...)
 
     // walk through all patterns
-    song.patterns.forEach(({ channels }, patternIndex ) => {
+    song.order.forEach( patternIndex => {
+        const { channels } = song.patterns[ patternIndex ];
         // ignore patterns outside of allowed range
         if ( patternIndex < firstPattern || patternIndex > lastPattern ) {
             return;
@@ -134,10 +134,10 @@ export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
                 if ( event.instrument < firstInstrument || event.instrument > lastInstrument ) {
                     return;
                 }
-                const { length, startMeasure, startMeasureOffset } = event.seq;
+                const { length, startMeasureOffset } = event.seq;
                 const duration = `T${Math.round( length * TICKS )}`;
                 const startTick = Math.round(
-                    ((( startMeasure - firstPattern ) * measureDuration ) + startMeasureOffset ) * TICKS
+                    ((( patternIndex - firstPattern ) * measureDuration ) + startMeasureOffset ) * TICKS
                 );
                 midiTracks[ event.instrument ].addEvent(
                     new midiWriter.NoteEvent({

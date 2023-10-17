@@ -44,8 +44,6 @@
 </template>
 
 <script lang="ts">
-import { mapActions } from "vuex";
-
 export default {
     props: {
         name: {
@@ -66,11 +64,8 @@ export default {
         },
     },
     methods: {
-        ...mapActions([
-            "gotoPattern",
-        ]),
         selectPattern(): void {
-            this.gotoPattern( this.index );
+            this.$emit( 'select', this.index );
             this.setEditing( false );
         },
         setEditing( isEditing: boolean ): void {

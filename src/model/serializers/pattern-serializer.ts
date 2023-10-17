@@ -43,7 +43,6 @@ export const EVENT_ACTION            = "a";
 export const EVENT_INSTRUMENT        = "ins";
 export const EVENT_NOTE              = "n";
 export const EVENT_OCTAVE            = "o";
-export const EVENT_LENGTH            = "l";
 export const EVENT_MODULE_AUTOMATION = "ma";
 export const EVENT_MODULE            = "m";
 export const EVENT_MODULE_VALUE      = "v";
@@ -84,7 +83,6 @@ export const serialize = ( xtk: any, patterns: EffluxPattern[] ): void => {
                     xtkEvent[ EVENT_INSTRUMENT ] = event.instrument;
                     xtkEvent[ EVENT_NOTE ]       = event.note;
                     xtkEvent[ EVENT_OCTAVE ]     = event.octave;
-                    xtkEvent[ EVENT_LENGTH ]     = event.seq.length;
 
                     // pool the event or reference the pool if its definition already existed
                     poolRef = poolObject( xtkNotePool, xtkEvent );

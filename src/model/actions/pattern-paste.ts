@@ -34,18 +34,16 @@ export default function({ store, patternCopy }: { store: Store<EffluxState>, pat
     const { getters, commit } = store;
 
     const targetPattern = clonePattern( song, patternIndex );
-    const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy, patternIndex );
+    const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy );
 
     function act(): void {
         commit( "replacePattern", { patternIndex, pattern: pastedPattern });
-        commit( "createLinkedList", getters.activeSong );
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePattern", { patternIndex, pattern: targetPattern });
-            commit( "createLinkedList", getters.activeSong );
         },
         redo: act
     };

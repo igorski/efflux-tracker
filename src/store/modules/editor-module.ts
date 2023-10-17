@@ -24,9 +24,6 @@ import type { ActionContext, Module } from "vuex";
 import Config from "@/config";
 import patternPasteMultiple from "@/model/actions/pattern-paste-multiple";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxSong } from "@/model/types/song";
-import EventUtil from "@/utils/event-util";
-import LinkedList from "@/utils/linked-list";
 
 export interface EditorState {
     /**
@@ -57,14 +54,6 @@ export interface EditorState {
      * in the instrument-editor
      */
     selectedOscillatorIndex: number;
-    /**
-     * linked list that is used to chain all song pattern
-     * events sequentially, used for fast lookup and editing
-     *
-     * NOTE: the linked list is NOT reactive, do not use
-     * Vue.set/delete on its properties.
-     */
-    eventList: LinkedList[];
     showNoteEntry: boolean; // whether the note entry panel is docked on screen
 };
 
@@ -75,7 +64,6 @@ export const createEditorState = ( props?: Partial<EditorState> ): EditorState =
     higherKeyboardOctave: 4,
     lowerKeyboardOctave: 2,
     selectedOscillatorIndex: 0,
-    eventList: null,
     showNoteEntry: false,
     ...props
 });
@@ -104,16 +92,6 @@ const EditorModule: Module<EditorState, any> = {
         },
         setSelectedOscillatorIndex( state: EditorState, index: number ): void {
             state.selectedOscillatorIndex = index;
-        },
-        prepareLinkedList( state: EditorState ): void {
-            state.eventList = new Array( Config.INSTRUMENT_AMOUNT ) as LinkedList[];
-
-            for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-                state.eventList[ i ] = new LinkedList();
-            }
-        },
-        createLinkedList( state: EditorState, song: EffluxSong ): void {
-            EventUtil.linkEvents( song, state.eventList );
         },
         setShowNoteEntry( state: EditorState, value: boolean ): void {
             state.showNoteEntry = value;

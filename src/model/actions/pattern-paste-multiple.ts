@@ -22,14 +22,12 @@
  */
 import type { ActionContext } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import { clone } from "@/utils/object-util";
 
 export default function({ store, patterns, insertIndex } :
     { store: ActionContext<any, any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
-    const { getters, commit, dispatch, rootState } = store;
+    const { getters, commit, rootState } = store;
     const songPatterns = getters.activeSong.patterns;
 
     if ( insertIndex === -1 ) {
@@ -43,39 +41,18 @@ export default function({ store, patterns, insertIndex } :
     const patternsHead = clone( songPatterns );
     const patternsTail = patternsHead.splice( insertIndex );
 
-    function linkLists() {
-        // update event offsets to match insert position
-        const activeSongPatterns = getters.activeSong.patterns;
-        for ( let patternIndex = insertIndex, l = activeSongPatterns.length; patternIndex < l; ++patternIndex ) {
-            activeSongPatterns[ patternIndex ].channels.forEach(( channel: EffluxChannel ) => {
-                channel.forEach(( event: EffluxAudioEvent ) => {
-                    if ( event?.seq ) {
-                        const eventStart  = event.seq.startMeasure;
-                        const eventEnd    = event.seq.endMeasure;
-                        const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                        event.seq.startMeasure = patternIndex;
-                        event.seq.endMeasure   = event.seq.startMeasure + eventLength;
-                    }
-                });
-            });
-        }
-        commit( "createLinkedList", getters.activeSong );
-    }
-
     function act(): void {
         commit( "replacePatterns", clone( patternsHead.concat( patterns, patternsTail )));
-        linkLists();
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePatterns", patternsHead.concat( patternsTail ));
-            if ( getters.activeSong.order.length <= store.getters.activeOrderIndex ) {
-                dispatch( "gotoPattern", getters.activeSong.order.length - 1 );
+            const { activeSong } = getters;
+            if ( activeSong.order.length <= store.getters.activeOrderIndex ) {
+                commit( "gotoPattern", { orderIndex: activeSong.order.length - 1, song: activeSong });
             }
-            linkLists();
         },
         redo: act
     };

@@ -50,18 +50,6 @@ export default {
 
         front.push( pattern ? pattern : PatternFactory.create( amountOfSteps ));
 
-        // update event offset for back patterns (as their start/end offsets should now shift)
-
-        back.forEach( pattern => {
-            pattern.channels.forEach( channel => {
-                channel.forEach( event => {
-                    if ( event ) {
-                        ++event.seq.startMeasure;
-                        ++event.seq.endMeasure;
-                    }
-                });
-            });
-        });
         return front.concat( back );
     },
     /**
@@ -77,18 +65,6 @@ export default {
         const front = patterns.slice( 0, index );
         const back  = patterns.slice( index );
 
-        // update event offset for back patterns (as their start/end offsets should now shift)
-
-        back.forEach( pattern => {
-            pattern.channels.forEach( channel => {
-                channel.forEach( event => {
-                    if ( event ) {
-                        --event.seq.startMeasure;
-                        --event.seq.endMeasure;
-                    }
-                });
-            });
-        });
         return front.concat( back );
     }
 };

@@ -63,7 +63,6 @@ export default {
     },
     methods: {
         ...mapMutations([
-            "createLinkedList",
             "openDialog",
             "removeSample",
             "removeSampleFromCache",
@@ -102,8 +101,8 @@ export default {
 
             // remove useless instructions
             const lastEvents = new Array( this.activeSong.patterns.length );
-            this.activeSong.patterns.forEach(( pattern, patternIndex ) => {
-                pattern.channels.forEach(( channel, channelIndex ) => {
+            this.activeSong.order.forEach(( patternIndex, orderIndex ) => {
+                song.patterns[ patternIndex ].channels.forEach(( channel, channelIndex ) => {
                     channel.forEach(( event, index ) => {
                         if ( !event ) {
                             return;
@@ -132,10 +131,6 @@ export default {
                     });
                 });
             });
-
-            if ( cleanedInstructions > 0 ) {
-                this.createLinkedList( this.activeSong );
-            }
 
             this.openDialog({
                 title: this.$t( "optimizationComplete" ),

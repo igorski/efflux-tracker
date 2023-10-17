@@ -288,7 +288,7 @@ export default {
             this.resetEditor();
             this.resetHistory();
             this.cachePatternNames();
-            this.gotoPattern( 0 );
+            this.gotoPattern({ orderIndex: 0, song });
             this.setPlaying( false );
             this.setLooping( false );
             this.clearSelection();
@@ -296,7 +296,6 @@ export default {
             if ( this.useOrders && song.version < 4 && song.order.length === song.patterns.length ) {
                 return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
             }
-            this.createLinkedList( song );
             this.publishMessage( PubSubMessages.SONG_LOADED );
 
             if ( !song.meta.title ) {
@@ -330,7 +329,6 @@ export default {
 
         // prepare model
 
-        this.prepareLinkedList();
         this.openSong( await this.createSong());
         await this.prepareSequencer( this.$store );
         await this.setupServices( i18n );
@@ -434,9 +432,8 @@ export default {
     methods: {
         ...mapMutations([
             "addSample",
-            "prepareLinkedList",
             "cachePatternNames",
-            "createLinkedList",
+            "gotoPattern",
             "setAmountOfSteps",
             "setBlindActive",
             "setCurrentSample",
@@ -464,7 +461,6 @@ export default {
             "loadInstrumentFromFile",
             "loadStoredSongs",
             "createSong",
-            "gotoPattern",
         ]),
         addListeners(): void {
             // no need to dispose as these will be active during application lifetime

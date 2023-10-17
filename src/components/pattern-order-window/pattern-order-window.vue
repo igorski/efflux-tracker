@@ -102,7 +102,7 @@
 
 <script lang="ts">
 import Draggable from "vuedraggable";
-import { mapActions, mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { mapState, mapGetters, mapMutations, type Store } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
 import Actions from "@/definitions/actions";
 import ManualURLs from "@/definitions/manual-urls";
@@ -168,17 +168,15 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "gotoPattern",
             "setPlaying",
             "setLooping",
-        ]),
-        ...mapActions([
-            "gotoPattern",
         ]),
         openHelp(): void {
             window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
         },
         handleSelect( entry: WrappedPatternOrderEntry ): void {
-            this.gotoPattern( entry.index );
+            this.gotoPattern({ orderIndex: entry.index, song: this.activeSong });
         },
         handlePlayClick( entry: WrappedPatternOrderEntry ): void {
             this.handleSelect( entry );

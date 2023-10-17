@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,12 +24,10 @@ import type { Module } from "vuex";
 import Vue from "vue";
 import { writeToClipboard } from "@/utils/clipboard-util";
 import EventUtil from "@/utils/event-util";
-import type LinkedList from "@/utils/linked-list";
 import { clone } from "@/utils/object-util";
 import { ACTION_IDLE } from "@/model/types/audio-event";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
-import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
 
 type ChannelSelection = number[];
@@ -152,10 +150,10 @@ const copySelection = ( state: SelectionState, { song, activePattern, optOutputA
  */
 const deleteSelection = ( state: SelectionState,
     {
-        song, eventList, activePattern, optSelectionContent, optFirstSelectedChannel, optLastSelectedChannel,
+        song, activePattern, optSelectionContent, optFirstSelectedChannel, optLastSelectedChannel,
         optMinSelectedStep, optMaxSelectedStep
     }: {
-        song: EffluxSong, eventList: LinkedList[], activePattern: number, optSelectionContent?: number,
+        song: EffluxSong, activePattern: number, optSelectionContent?: number,
         optFirstSelectedChannel?: number, optLastSelectedChannel?: number,
         optMinSelectedStep?: number, optMaxSelectedStep?: number
     }) => {
@@ -185,7 +183,6 @@ const deleteSelection = ( state: SelectionState,
                     activePattern,
                     channelIndex,
                     sIndex,
-                    eventList[ activePattern ]
                 );
                 // @ts-expect-error we allow '0' as a falsy value to specify an empty event within the channel
                 pattern.channels[ channelIndex ][ sIndex ] = 0;
@@ -301,8 +298,8 @@ const SelectionModule: Module<SelectionState, any> = {
          * cuts the contents within the current selection
          * (copies their data and deletes them)
          */
-        cutSelection( state: SelectionState, { song, activePattern, eventList }:
-            { song: EffluxSong, activePattern: number, eventList: LinkedList[] }): void {
+        cutSelection( state: SelectionState, { song, activePattern }:
+            { song: EffluxSong, activePattern: number }): void {
             if ( getSelectionLength( state ) === 0 ) {
                 return;
             }
@@ -310,15 +307,15 @@ const SelectionModule: Module<SelectionState, any> = {
             copySelection( state, { song, activePattern });
 
             // delete second
-            deleteSelection( state, { song, activePattern, eventList });
+            deleteSelection( state, { song, activePattern });
         },
         /**
          * note: optSelectionContent is optional selection content to paste from, when undefined this method
          * will by default paste from the selection stored inside this model
          */
         pasteSelection( state: SelectionState,
-            { song, eventList, activePattern, selectedInstrument, selectedStep, optSelectionContent = null }:
-            { song: EffluxSong, eventList: LinkedList[], activePattern: number, selectedInstrument: number,
+            { song, activePattern, selectedInstrument, selectedStep, optSelectionContent = null }:
+            { song: EffluxSong, activePattern: number, selectedInstrument: number,
               selectedStep: number, optSelectionContent?: EffluxChannel[] | null }
         ): void {
             if ( !Array.isArray( optSelectionContent )) {
@@ -342,9 +339,8 @@ const SelectionModule: Module<SelectionState, any> = {
                                 clonedEvent.instrument  = cIndex;
                                 clonedEvent.seq.playing = false;
 
-                                EventUtil.setPosition( clonedEvent, targetPattern, activePattern, writeIndex, song.meta.tempo, clonedEvent.seq.length );
+                                EventUtil.setPosition( clonedEvent, targetPattern, writeIndex, song.meta.tempo );
                                 Vue.set( targetChannel, writeIndex, clonedEvent );
-                                EventUtil.linkEvent( clonedEvent, cIndex, song, eventList );
                             }
                         }
                     });

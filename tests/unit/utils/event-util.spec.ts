@@ -3,13 +3,11 @@ import { D_MODULES } from "@/definitions/automatable-parameters";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
-import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
-import EventUtil, { areEventsEqual } from "@/utils/event-util";
-import LinkedList from "@/utils/linked-list";
+import EventUtil, { areEventsEqual, getEventLength, getPrevEvent, getNextEvent, calculateMeasureLength } from "@/utils/event-util";
 
 describe( "EventUtil", () => {
     let song: EffluxSong;
@@ -20,69 +18,18 @@ describe( "EventUtil", () => {
 
     /* actual unit tests */
 
-    it( "should, when no length is given, calculate the duration as the minimum unit relative to the patterns length", () => {
-        const pattern = song.patterns[ 0 ];
-        song.meta.tempo = 120;
-
-        const audioEvent = EventFactory.create();
-
-        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
-
-        const measureLength  = ( 60 / song.meta.tempo ) * 4;
-        let expectedLength = ( 1 / pattern.steps ) * measureLength;
-
-        expect(expectedLength).toEqual(audioEvent.seq.length);
-
-        // increase pattern size
-
-        pattern.steps  *= 2;
-        expectedLength = ( 1 / pattern.steps ) * measureLength;
-
-        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo );
-
-        expect(audioEvent.seq.length).toEqual(expectedLength);
-    });
-
     it( "should be able to update the position of a AudioEvent", () => {
         const pattern = song.patterns[ 0 ];
         song.meta.tempo = 120;
 
-        const expectedStartOffset        = 2;
-        const expectedStartMeasure       = 1;
         const expectedStartMeasureOffset = 1; // half in measure (measure lasts 2s at 120 BPM)
-        const expectedEndMeasure         = 1;
         const expectedLength             = .5;
 
         const audioEvent = EventFactory.create();
 
-        EventUtil.setPosition( audioEvent, pattern, 1, pattern.steps / 2, song.meta.tempo, expectedLength );
+        EventUtil.setPosition( audioEvent, pattern, pattern.steps / 2, song.meta.tempo, expectedLength );
 
-        expect(audioEvent.seq.startMeasure).toEqual(expectedStartMeasure);
-        expect(audioEvent.seq.startOffset).toEqual(expectedStartOffset);
         expect(audioEvent.seq.startMeasureOffset).toEqual(expectedStartMeasureOffset);
-        expect(audioEvent.seq.endMeasure).toEqual(expectedEndMeasure);
-        expect(audioEvent.seq.length).toEqual(expectedLength);
-    });
-
-    it( "should be able to update the position of an AudioEvent that spans several measures in duration", () => {
-        const pattern = song.patterns[ 0 ];
-        song.meta.tempo = 120;
-
-        const expectedStartOffset        = 0;
-        const expectedStartMeasure       = 0;
-        const expectedStartMeasureOffset = .5; // a quarter note into measure (measure lasts 2s at 120 BPM)
-        const expectedLength             = 5;  // duration is 5 seconds (2.5 measures at 120 BPM)
-        const expectedEndMeasure         = 2;  // events duration exceeds 2 measures (each at 2s at 120 BPM)
-
-        const audioEvent = EventFactory.create();
-
-        EventUtil.setPosition( audioEvent, pattern, 0, pattern.steps / 4, song.meta.tempo, expectedLength );
-
-        expect(expectedStartMeasure).toEqual(audioEvent.seq.startMeasure);
-        expect(expectedStartOffset).toEqual(audioEvent.seq.startOffset);
-        expect(expectedStartMeasureOffset).toEqual(audioEvent.seq.startMeasureOffset);
-        expect(expectedEndMeasure).toEqual(audioEvent.seq.endMeasure);
-        expect(expectedLength).toEqual(audioEvent.seq.length);
     });
 
     it( "should be able to clear the AudioEvent content for any requested step position", () => {
@@ -117,33 +64,6 @@ describe( "EventUtil", () => {
 
         expect(expected2).toEqual(pchannel1[ 1 ]);
         expect(expected4).toEqual(pchannel2[ 1 ]);
-    });
-
-    it( "should be able to remove the AudioEvent from the cached LinkedList when clearing the event", () => {
-        const patternIndex = 0;
-        const pattern = song.patterns[ patternIndex ];
-
-        // generate some note content
-
-        const pchannel1 = pattern.channels[ 0 ];
-        const pchannel2 = pattern.channels[ 1 ];
-
-        // create some AudioEvents
-
-        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, "E", 2, 1 );
-        const expected2 = pchannel2[ 1 ] = EventFactory.create( 1, "F", 3, 1 );
-
-        const list = new LinkedList();
-
-        const expected2node = list.add( expected2 );
-
-        EventUtil.clearEvent( song, patternIndex, 0, 0, list );
-        expect(null).toEqual(list.getNodeByData( expected1 ));
-
-        expect(expected2node).toEqual(list.getNodeByData( expected2 ));
-
-        EventUtil.clearEvent( song, patternIndex, 1, 1, list );
-        expect(null).toEqual(list.getNodeByData( expected2 ));
     });
 
     describe("calculating previous and next events for any given event", () => {
@@ -182,240 +102,6 @@ describe( "EventUtil", () => {
                 return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 0 ];
             }));
         });
-
-        it( "should be able to retrieve the first event before the given event", () => {
-            const patterns = [
-                { channels: [ new Array(2), new Array(2) ] },
-                { channels: [ new Array(2), new Array(2) ] },
-                { channels: [ new Array(2), new Array(2) ] }
-            ] as EffluxPattern[];
-
-            const event1 = EventFactory.create();
-            const event2 = EventFactory.create();
-            const event3 = EventFactory.create();
-            const event4 = EventFactory.create();
-
-            patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 2
-            patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
-            patterns[1].channels[0].push( event3 ); // pattern 2, channel 1, step 0
-            patterns[2].channels[1].push( event4 );
-
-            // expected to find no results for these situations
-            expect(EventUtil.getFirstEventBeforeEvent(patterns, 0, 0, event1)).toBeNull(); // first event in channel
-            expect(EventUtil.getFirstEventBeforeEvent(patterns, 2, 1, event4)).toBeNull(); // only event in channel
-
-            // test within same pattern
-            expect(event1).toEqual(EventUtil.getFirstEventBeforeEvent(patterns, 0, 0, event2));
-
-            // test across patterns
-            expect(event2).toEqual(EventUtil.getFirstEventBeforeEvent(patterns, 1, 0, event3));
-        });
-
-        it( "should be able to retrieve the first event before the given event that matches given compare function", () => {
-            const patterns = [
-                { channels: [ new Array(2) ] },
-                { channels: [ new Array(2) ] },
-                { channels: [ new Array(2) ] }
-            ] as EffluxPattern[];
-
-            const event1 = EventFactory.create();
-            const event2 = EventFactory.create();
-            const event3 = EventFactory.create();
-
-            patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 2
-            patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
-            patterns[0].channels[0].push( event3 ); // pattern 1, channel 1, step 4
-
-            event1.mp = { value: 0.5, glide: false, module: D_MODULES[ 1 ] };
-
-            expect(event1).toEqual(EventUtil.getFirstEventBeforeEvent( patterns, 0, 0, event3, ( compareEvent ) => {
-                return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 1 ];
-            }));
-        });
-
-        it( "should be able to retrieve the first event after the given event", () => {
-            const patterns = [
-                { channels: [ new Array(2), new Array(2) ] },
-                { channels: [ new Array(2), new Array(2) ] },
-                { channels: [ new Array(2), new Array(2) ] }
-            ] as EffluxPattern[];
-
-            const event1 = EventFactory.create();
-            const event2 = EventFactory.create();
-            const event3 = EventFactory.create();
-            const event4 = EventFactory.create();
-
-            patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 2
-            patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
-            patterns[1].channels[0].push( event3 ); // pattern 2, channel 1, step 0
-            patterns[2].channels[1].push( event4 );
-
-            // expected to find no results for these situations
-            expect(EventUtil.getFirstEventAfterEvent(patterns, 1, 0, event3)).toBeNull(); // last event in channel
-            expect(EventUtil.getFirstEventAfterEvent(patterns, 2, 1, event4)).toBeNull(); // only event in channel
-
-            // test within same pattern
-            expect(event2).toEqual(EventUtil.getFirstEventAfterEvent(patterns, 0, 0, event1));
-
-            // test across patterns
-            expect(event3).toEqual(EventUtil.getFirstEventAfterEvent(patterns, 0, 0, event2));
-        });
-
-        it( "should be able to retrieve the first event after the given event that matches given compare function", () => {
-            const patterns = [
-                { channels: [ new Array(2) ] },
-                { channels: [ new Array(2) ] },
-                { channels: [ new Array(2) ] }
-            ] as EffluxPattern[];
-
-            const event1 = EventFactory.create();
-            const event2 = EventFactory.create();
-            const event3 = EventFactory.create();
-
-            patterns[0].channels[0].push( event1 ); // pattern 1, channel 1, step 0
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 1
-            patterns[0].channels[0].push( null );   // pattern 1, channel 1, step 2
-            patterns[0].channels[0].push( event2 ); // pattern 1, channel 1, step 3
-            patterns[0].channels[0].push( event3 ); // pattern 1, channel 1, step 4
-
-            event3.mp = { value: 0.5, glide: false, module: D_MODULES[ 2 ] };
-
-            expect(event3).toEqual(EventUtil.getFirstEventAfterEvent( patterns, 0, 0, event1, ( compareEvent ) => {
-                return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 2 ];
-            }));
-        });
-    });
-
-    describe("event length calculations", () => {
-        it( "should update the sequence length of the previous event when linking a new event in the linked event list", () => {
-            const patternIndex  = 0;
-            const channelIndex  = 0;
-            const lists         = [ new LinkedList() ]; // just a single list (we"ll test on channel 0)
-            song.meta.tempo     = 120; // 120 BPM means each measure lasts for 2 seconds
-
-            const event1step = 0; // step 0 is at start offset of 0 seconds
-            const event2step = 8; // step 8 is at start offset of 1 second (half a 16 step measure at 120 BPM)
-
-            const event1 = createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
-            createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
-
-            expect(event1.seq.length).toEqual(1); // expected event 1 sequence length to have been updated to match
-
-            // insert new event in between
-
-            const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
-            createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
-
-            expect(event1.seq.length).toEqual(.5); // expected event 1 sequence length to have been updated to match insertion before previous next Node
-        });
-
-        it( "should update the sequence length of the previous event when linking a new event in another measure " +
-            "in the linked event list", () => {
-            const pattern1Index = 0;
-            const pattern2Index = 2;
-            const patternAmount = pattern2Index + 1;
-            const channelIndex  = 0;
-            const lists: LinkedList[] = [ new LinkedList() ]; // we"ll operate on a single channel (0)
-
-            for ( let i = 0; i < patternAmount; ++i ) {
-                song.patterns[ i ] = PatternFactory.create( 16 );
-            }
-            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
-
-            const event1step = 0; // step 0 is at start offset of 0 seconds
-            const event2step = 4; // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM)
-                                  // HOWEVER we will add this event at a different pattern index (pattern 2 == the 3rd
-                                  // pattern, meaning we expect two full measures between event1 and event2 (4 seconds at 120 BPM)
-                                  // and that this event starts 4.5 seconds in
-
-            const event1 = createNoteOnEvent( event1step, song, pattern1Index, channelIndex, lists );
-            createNoteOnEvent( event2step, song, pattern2Index, channelIndex, lists );
-
-            expect(event1.seq.length).toEqual(4.5); // expected event 1 sequence length to stretch across several measures
-
-            // insert new event in between
-
-            const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
-            createNoteOnEvent( event3step, song, pattern1Index, channelIndex, lists );
-
-            expect(event1.seq.length).toEqual(.5); // expected event 1 sequence length to have been updated to match insertion before previous next Node
-        });
-
-        it( "should update the sequence length of the previous event when clearing a event in the linked event list", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const lists: LinkedList[] = [ new LinkedList() ]; // just a single list (we"ll test on channel 0)
-            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
-
-            const event1step = 0;  // step 0 is at start offset of 0 seconds
-            const event2step = 4;  // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM))
-            const event3step = 12; // step 12 is at start offset of 1.5 second (three quarters of a 16 step measure at 120 BPM)
-
-            const event1 = createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
-
-            createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
-            createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
-
-            expect(event1.seq.length).toEqual(.5);
-
-            // remove middle event
-
-            EventUtil.clearEvent( song, patternIndex, channelIndex, event2step, lists[ channelIndex ] );
-
-            expect(event1.seq.length).toEqual(1.5); // expected event 1 sequence length to have updated after removal of its next event
-        });
-
-        it( "should update the sequence length of the given event when prepending a new event in the linked event list", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const lists: LinkedList[] = [ new LinkedList() ]; // just a single list (we"ll test on channel 0)
-            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
-
-            const event1step = 0; // step 0 is at start offset of 0 seconds
-            const event2step = 8; // step 8 is at start offset of 1 second (half a 16 step measure at 120 BPM)
-
-            createNoteOnEvent( event1step, song, patternIndex, channelIndex, lists );
-            createNoteOnEvent( event2step, song, patternIndex, channelIndex, lists );
-
-            const event3step = 4; // step 4 is at start offset 0.5 seconds (quarter of a 16 step measure at 120 BPM)
-            const event3 = createNoteOnEvent( event3step, song, patternIndex, channelIndex, lists );
-
-            expect(event3.seq.length).toEqual(.5);
-        });
-
-        it( "should update the sequence length of the given event when prepending a new event in another measure " +
-            "in the linked event list", () => {
-            const pattern1Index = 0;
-            const pattern2Index = 2;
-            const patternAmount = pattern2Index + 1;
-            const channelIndex  = 0;
-            const lists: LinkedList[] = [ new LinkedList() ]; // we"ll operate on a single channel (0)
-
-            for ( let i = 0; i < patternAmount; ++i ) {
-                song.patterns[ i ] = PatternFactory.create( 16 );
-            }
-            song.meta.tempo = 120; // 120 BPM means each measure lasts for 2 seconds
-
-            const event1step = 0; // step 0 is at start offset of 0 seconds
-            const event2step = 4; // step 4 is at start offset of .5 second (quarter of a 16 step measure at 120 BPM)
-                                  // HOWEVER we will add this event at a different pattern index (pattern 2 == the 3rd
-                                  // pattern, meaning we expect two full measures between event1 and event2 (4 seconds at 120 BPM)
-                                  // and that this event starts 4.5 seconds in
-
-            createNoteOnEvent( event1step, song, pattern1Index, channelIndex, lists );
-            createNoteOnEvent( event2step, song, pattern2Index, channelIndex, lists );
-
-            const event3step = 2; // step 2 is at start offset 0.25 seconds (eight of a 16 step measure at 120 BPM)
-            const event3 = createNoteOnEvent( event3step, song, pattern1Index, channelIndex, lists );
-
-            expect(event3.seq.length).toEqual(4.25);
-        });
     });
 
     describe("module parameter gliding", () => {
@@ -423,10 +109,9 @@ describe( "EventUtil", () => {
             const patternIndex = 0;
             const channelIndex = 0;
             const eventIndex = 0;
-            const lists: LinkedList[] = [ new LinkedList() ];
 
-            const event = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists );
+            const event = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
+            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
 
             expect(success).toBe(null); // expected glide to have failed as only one event was available
             expect(event.mp).toEqual(undefined); // expected no module parameter change to be set
@@ -436,11 +121,10 @@ describe( "EventUtil", () => {
             const patternIndex = 0;
             const channelIndex = 0;
             const eventIndex = 0;
-            const lists: LinkedList[] = [ new LinkedList() ];
 
-            const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
-            const event2 = createNoteOnEvent( eventIndex + 5, song, patternIndex, channelIndex, lists );
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists );
+            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( eventIndex + 5, song, patternIndex, channelIndex );
+            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
 
             expect(success).toBeNull(); // expected glide to have failed as no module parameter changes were available
             expect(event1.mp).toEqual(undefined); // expected no module parameter change to be set
@@ -452,10 +136,9 @@ describe( "EventUtil", () => {
             const channelIndex = 0;
             const eventIndex = 0;
             const event2Index = eventIndex + 5;
-            const lists: LinkedList[] = [ new LinkedList() ];
 
-            const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
-            const event2 = createNoteOnEvent( event2Index, song, patternIndex, channelIndex, lists );
+            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
 
             event1.mp = {
                 module: "foo",
@@ -469,7 +152,7 @@ describe( "EventUtil", () => {
                 glide: false
             };
 
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists );
+            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
 
             expect(success).toBe(null); // expected glide to have failed as no same module parameter changes were available
         });
@@ -479,10 +162,9 @@ describe( "EventUtil", () => {
             const channelIndex = 0;
             const eventIndex = 0;
             const event2Index = eventIndex + 4;
-            const lists: LinkedList[] = [ new LinkedList() ];
 
-            const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
-            const event2 = createNoteOnEvent( event2Index, song, patternIndex, channelIndex, lists );
+            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
 
             event1.mp = {
                 module: "foo",
@@ -496,7 +178,7 @@ describe( "EventUtil", () => {
                 glide: false
             };
 
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists );
+            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
 
             expect(Array.isArray(success)).toBe(true); // expected glide to have completed as the same module parameter changes were available
 
@@ -515,10 +197,9 @@ describe( "EventUtil", () => {
             const channelIndex = 0;
             const eventIndex = 0;
             const event2Index = eventIndex + 4;
-            const lists: LinkedList[] = [ new LinkedList() ];
 
-            const event1 = createNoteOnEvent( eventIndex, song, patternIndex, channelIndex, lists );
-            const event2 = createNoteOnEvent( event2Index, song, patternIndex, channelIndex, lists );
+            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
 
             event1.mp = {
                 module: "foo",
@@ -532,7 +213,7 @@ describe( "EventUtil", () => {
                 glide: false
             };
 
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex, lists );
+            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
 
             expect(Array.isArray(success)).toBe(true); // expected glide to have completed as the same module parameter changes were available
 
@@ -621,18 +302,317 @@ describe( "EventUtil", () => {
             expect( areEventsEqual( event1, event2 )).toBe( true );
         });
     });
+
+    describe( "when managing the relative position of an event inside a Song", () => {
+        const song = SongFactory.create( 2 );
+        const pattern1channels = [
+            [], [],
+        ];
+        const pattern2channels = [
+            [], [],
+        ];
+        const pattern3channels = [
+            [], [],
+        ];
+        song.patterns = [
+            PatternFactory.create( 4, pattern1channels ),
+            PatternFactory.create( 4, pattern2channels ),
+            PatternFactory.create( 4, pattern3channels ),
+        ];
+        let orderIndex, patternIndex, channelIndex;
+
+        beforeEach(() => {
+            [ pattern1channels, pattern2channels, pattern3channels ].forEach( channelList => {
+                for ( const channel of channelList ) {
+                    channel.length = 0;
+                }
+            })
+        });
+
+        describe( "and retrieving the next event following the given one", () => {
+            beforeEach(() => {
+                song.order = [ 0, 1, 1, 2, 1 ];
+                orderIndex   = 3;
+                patternIndex = song.order[ orderIndex ];
+                channelIndex = 0;
+            });
+
+            it( "should return undefined when no event could be found", () => {
+                const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+
+                const result = getNextEvent( song, event, channelIndex, orderIndex );
+
+                expect( result ).toBeUndefined();
+            });
+
+            it( "should return a reference to the next event and its order index, when found", () => {
+                const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 2, song, patternIndex, channelIndex );
+
+                const result = getNextEvent( song, event, channelIndex, orderIndex );
+
+                expect( result.event ).toEqual( event2 );
+                expect( result.orderIndex ).toEqual( orderIndex );
+            });
+
+            it( "should be able to find the next event within the same channel", () => {
+                const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 2, song, patternIndex, channelIndex ); // expected match
+                const event3 = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+                const event4 = createAndInsertEvent( 1, song, patternIndex, channelIndex + 1 ); // closer, but different channel
+
+                expect( getNextEvent( song, event, channelIndex, orderIndex ).event ).toEqual( event2 );
+            });
+
+            it( "should be able to find the next event in the following pattern (as determined by the song order)", () => {
+                const nextPatternIndex = song.order[ orderIndex + 1 ];
+
+                const event  = createAndInsertEvent( 2, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex );
+                const event3 = createAndInsertEvent( 1, song, nextPatternIndex, channelIndex ); // expected match
+                const event4 = createAndInsertEvent( 3, song, nextPatternIndex, channelIndex );
+
+                const result = getNextEvent( song, event, channelIndex, orderIndex );
+
+                expect( result.event ).toEqual( event3 );
+                expect( result.orderIndex ).toEqual( orderIndex + 1 );
+            });
+
+            it( "should be able to ignore an event when its matched the predicate of the optionally provided ignore function", () => {
+                const ignoreFn = ( event, compareEvent ) => {
+                    return compareEvent.action === ACTION_IDLE;
+                };
+
+                const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex, ACTION_IDLE ); // should be ignored
+                const event3 = createAndInsertEvent( 2, song, patternIndex, channelIndex ); // expected match
+
+                expect( getNextEvent( song, event, channelIndex, orderIndex, ignoreFn ).event ).toEqual( event3 );
+            });
+
+            it( "should be able to find itself when the event's pattern is reused in a subsequent position inside the order index", () => {
+                song.order = [ 0, 1, 1, 2, 1 ];
+                orderIndex   = 2;
+                patternIndex = song.order[ orderIndex ];
+
+                const event  = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+                const result = getNextEvent( song, event, channelIndex, orderIndex );
+
+                // event also appears in order index #4
+                expect( result.event ).toEqual( event );
+                expect( result.orderIndex ).toEqual( 4 );
+            });
+
+            it( "should be able to find the last event in the last pattern as defined by the order index", () => {
+                const orderIndex = 0;
+                const patternIndex = song.order[ orderIndex ];
+                const lastPatternIndex = song.order[ song.order.length - 1 ];
+
+                const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 3, song, lastPatternIndex, channelIndex );
+
+                const result = getNextEvent( song, event, channelIndex, orderIndex );
+
+                expect( result.event ).toEqual( event2 );
+                expect( result.orderIndex ).toEqual( lastPatternIndex );
+            });
+        });
+
+        describe( "and retrieving the previous event preceding the given one", () => {
+            beforeEach(() => {
+                song.order = [ 0, 1, 1, 2, 1 ];
+                orderIndex   = 4;
+                patternIndex = song.order[ orderIndex ];
+                channelIndex = 0;
+            });
+
+            it( "should return undefined when no event could be found", () => {
+                orderIndex   = 3;
+                patternIndex = song.order[ orderIndex ];
+
+                const event = createAndInsertEvent( 2, song, patternIndex, channelIndex );
+
+                const result = getPrevEvent( song, event, channelIndex, orderIndex );
+
+                expect( result ).toBeUndefined();
+            });
+
+            it( "should return a reference to the previous event and its order index, when found", () => {
+                const event  = createAndInsertEvent( 2, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+
+                const result = getPrevEvent( song, event, channelIndex, orderIndex );
+
+                expect( result.event ).toEqual( event2 );
+                expect( result.orderIndex ).toEqual( orderIndex );
+            });
+
+            it( "should be able to find the previous event within the same channel", () => {
+                const event  = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex ); // expected match
+                const event3 = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+                const event4 = createAndInsertEvent( 2, song, patternIndex, channelIndex + 1 ); // closer, but different channel
+
+                expect( getPrevEvent( song, event, channelIndex, orderIndex ).event ).toEqual( event2 );
+            });
+
+            it( "should be able to find the previous event in the preceding pattern (as determined by the song order)", () => {
+                const prevPatternIndex = song.order[ orderIndex - 1 ];
+
+                const event  = createAndInsertEvent( 2, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+                const event3 = createAndInsertEvent( 1, song, prevPatternIndex, channelIndex );
+                const event4 = createAndInsertEvent( 2, song, prevPatternIndex, channelIndex ); // expected match
+
+                const result = getPrevEvent( song, event, channelIndex, orderIndex );
+
+                expect( result.event ).toEqual( event4 );
+                expect( result.orderIndex ).toEqual( orderIndex - 1 );
+            });
+
+            it( "should be able to ignore an event when its matched the predicate of the optionally provided ignore function", () => {
+                const ignoreFn = ( event, compareEvent ) => {
+                    return compareEvent.action === ACTION_IDLE;
+                };
+
+                const event  = createAndInsertEvent( 2, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex, ACTION_IDLE ); // should be ignored
+                const event3 = createAndInsertEvent( 0, song, patternIndex, channelIndex ); // expected match
+
+                expect( getPrevEvent( song, event, channelIndex, orderIndex, ignoreFn ).event ).toEqual( event3 );
+            });
+
+            it( "should be able to find itself when the event's pattern is reused in a previous position inside the order index", () => {
+                const firstPatternIndex = song.order[ 0 ];
+
+                const event  = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 0, song, firstPatternIndex, channelIndex );
+
+                const result = getPrevEvent( song, event, channelIndex, orderIndex );
+
+                // event appears previously in order index #2
+                expect( result.event ).toEqual( event );
+                expect( result.orderIndex ).toEqual( 2 );
+            });
+
+            it( "should be able to find the first event in the first pattern as defined by the order index", () => {
+                song.order = [ 0, 2, 2, 2, 1 ];
+
+                const firstPatternIndex = song.order[ 0 ];
+
+                const event  = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+                const event2 = createAndInsertEvent( 0, song, firstPatternIndex, channelIndex );
+
+                const result = getPrevEvent( song, event, channelIndex, orderIndex );
+
+                expect( result.event ).toEqual( event2 );
+                expect( result.orderIndex ).toEqual( 0 );
+            });
+        });
+    });
+
+    describe( "when calculating the total event duration", () => {
+        const song = SongFactory.create( 2 );
+        const measureLength = calculateMeasureLength( song.meta.tempo );
+        const pattern1channels = [
+            [], [],
+        ];
+        const pattern2channels = [
+            [], [],
+        ];
+        const pattern3channels = [
+            [], [],
+        ];
+        song.patterns = [
+            PatternFactory.create( 4, pattern1channels ),
+            PatternFactory.create( 4, pattern2channels ),
+            PatternFactory.create( 4, pattern3channels ),
+        ];
+        song.order = [ 0, 1, 1, 2, 1 ];
+
+        const orderIndex   = 3;
+        const patternIndex = song.order[ orderIndex ];
+        const channelIndex = 0;
+
+        beforeEach(() => {
+            [ pattern1channels, pattern2channels, pattern3channels ].forEach( channelList => {
+                for ( const channel of channelList ) {
+                    channel.length = 0;
+                }
+            })
+        });
+
+        it( "should always return a single-step duration for an effect parameter modulation-only event", () => {
+            const event = createAndInsertEvent( 0, song, patternIndex, channelIndex, ACTION_IDLE );
+            event.mp = {
+                module: "filterQ",
+                value: 1,
+                glide: true,
+            };
+            const event2 = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+
+            const expected = ( 1 / song.patterns[ patternIndex ].steps ) * measureLength;
+
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( expected );
+        });
+
+        it( "should extend its duration until the next available event inside the same pattern", () => {
+            const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( 3, song, patternIndex, channelIndex );
+            
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 1.5 );
+        });
+
+        it( "should extend its duration until the next available event inside the following pattern, as defined by the order index", () => {
+            const lastPatternIndex = song.order[ song.order.length - 1 ];
+            
+            const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( 3, song, lastPatternIndex, channelIndex );
+            
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 3.5 );
+        });
+
+        it( "should extend its duration until it encounters itself as the next available event if the songs order index reuses the same parent pattern", () => {
+            const orderIndex   = 2; // expected parent pattern to reappear at index 4
+            const patternIndex = song.order[ orderIndex ];
+            
+            const event = createAndInsertEvent( 1, song, patternIndex, channelIndex );
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 4 );
+        });
+
+        it( "should only consider events inside the same channel", () => {
+            const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( 2, song, patternIndex, channelIndex + 1 ); // closest, but different channel
+            const event3 = createAndInsertEvent( 3, song, patternIndex, channelIndex ); // expected match
+            
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 1.5 );
+        });
+
+        it( "should ignore non-noteOn/noteOff events", () => {
+            const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+            const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex , ACTION_IDLE ); // closest, but ignored
+            const event3 = createAndInsertEvent( 2, song, patternIndex, channelIndex, ACTION_NOTE_OFF ); // expected match
+            
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 1 );
+        });
+
+        it( "should extend its duration until the end of the pattern order if no subsequent event is found", () => {
+            const event = createAndInsertEvent( 0, song, patternIndex, channelIndex );
+            
+            expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 4 );
+        });
+    });
 });
 
 /* internal methods */
 
-function createNoteOnEvent( step: number, song: EffluxSong, patternIndex: number, channelIndex: number, lists: LinkedList[] ): EffluxAudioEvent {
-    const event = EventFactory.create( channelIndex, "C", 3, ACTION_NOTE_ON );
+function createAndInsertEvent( step: number, song: EffluxSong, patternIndex: number, channelIndex: number, action = ACTION_NOTE_ON ): EffluxAudioEvent {
+    const event = EventFactory.create( channelIndex, "C", 3, action );
     const pattern = song.patterns[ patternIndex ];
 
     pattern.channels[ channelIndex ][ step ] = event;
 
-    EventUtil.setPosition( event, pattern, patternIndex, step, song.meta.tempo );
-    EventUtil.linkEvent( event, channelIndex, song, lists );
+    EventUtil.setPosition( event, pattern, step, song.meta.tempo );
 
     return event;
 }

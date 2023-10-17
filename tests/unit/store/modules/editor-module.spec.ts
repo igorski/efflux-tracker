@@ -73,15 +73,6 @@ describe( "Vuex editor module", () => {
             expect( state.selectedOscillatorIndex ).toEqual( 1 );
         });
 
-        it( "should be able to prepare the linked list for the events", () => {
-            const state = createEditorState({ eventList: [] } );
-            mutations.prepareLinkedList( state );
-            expect(state.eventList.length).toEqual(Config.INSTRUMENT_AMOUNT);
-            for ( let i = 0; i < state.eventList.length; ++i ) {
-                expect(state.eventList[i] instanceof LinkedList);
-            }
-        });
-
         it( "should be able to reset the editor", () => {
             const state = createEditorState({
                 selectedInstrument: 7,

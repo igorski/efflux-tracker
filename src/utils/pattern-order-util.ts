@@ -101,13 +101,13 @@ export const convertLegacy = ( song: EffluxSong ): EffluxSong => {
     }
     song.order = order;
 
-    song.patterns.forEach(( pattern: EffluxPattern, patternIndex: number ) => {
+    song.patterns.forEach(( pattern: EffluxPattern /*, patternIndex: number */ ) => {
         pattern.channels.forEach(( channel: EffluxChannel ) => {
             channel.forEach(( event: EffluxAudioEvent, eventIndex: number ) => {
                 if ( !event ) {
                     return;
                 }
-                EventUtil.setPosition( event, pattern, patternIndex, eventIndex, song.meta.tempo );
+                EventUtil.setPosition( event, pattern, eventIndex, song.meta.tempo );
             });
         });
     });

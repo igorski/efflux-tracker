@@ -236,7 +236,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 39: // right
 
             if ( hasOption ) {
-                store.commit( "gotoNextPattern", activeSong);
+                store.commit( "gotoNextPattern", activeSong );
             }
             else {
                 currentInstrument = editor.selectedInstrument; // cache the current instrument before updating slot positions
@@ -244,7 +244,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
                     // when not in selection mode and we go right from the most right lane, move to the next pattern (when existing)
                     if ( !shiftDown && editor.selectedInstrument + 1 > MAX_CHANNEL ) {
                         if ( sequencer.activeOrderIndex < ( activeSong.order.length - 1 )) {
-                            store.dispatch( "gotoPattern", sequencer.activeOrderIndex + 1 );
+                            store.commit( "gotoPattern", { orderIndex: sequencer.activeOrderIndex + 1, song: activeSong });
                             store.commit( "setSelectedInstrument", 0 );
                         } else {
                             store.commit( "setSelectedSlot", MAX_SLOT );
@@ -275,7 +275,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
                     // when not in selection mode and we go left from the most left lane, move to the previous pattern (when existing)
                     if ( !shiftDown && editor.selectedInstrument - 1 < 0 ) {
                         if ( sequencer.activeOrderIndex > 0 ) {
-                            store.dispatch( "gotoPattern", sequencer.activeOrderIndex - 1 );
+                            store.commit( "gotoPattern", { orderIndex: sequencer.activeOrderIndex - 1, song: activeSong });
                             store.commit( "setSelectedInstrument", MAX_CHANNEL );
                             store.commit( "setSelectedSlot", MAX_SLOT );
                         } else {
@@ -364,8 +364,8 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 71: // G
             if ( hasOption ) {
                 EventUtil.glideParameterAutomations(
-                    activeSong, editor.selectedStep, store.getters.activePatternIndex,
-                    editor.selectedInstrument, editor.eventList, store
+                    activeSong, editor.selectedStep, store.getters.activeOrderIndex,
+                    editor.selectedInstrument, store
                 );
                 preventDefault( event ); // in-page search
             }
@@ -431,11 +431,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 90: // Z
 
             if ( hasOption ) {
-                const action = !shiftDown ? "undo" : "redo";
-                store.dispatch( action ).then(() => {
-                    // TODO this is wasteful, can we do this more elegantly?
-                    EventUtil.linkEvents( activeSong, editor.eventList );
-                });
+                store.dispatch( !shiftDown ? "undo" : "redo" );
                 preventDefault( event ); // override browser undo
             }
             break;

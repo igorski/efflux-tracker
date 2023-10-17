@@ -36,37 +36,6 @@ describe( "PatternUtil", () => {
         expect(temp[insertion]).toEqual(patternToInsert); // expected the content inserted at the insertion point to be the given pattern
     });
 
-    it( "should update the start indices of all events present in the patterns after the insertion point", () => {
-        const amount = 3;
-        const steps = 16;
-        const patterns: EffluxPattern[] = new Array(amount);
-
-        for ( let i = 0; i < amount; ++i ) {
-            patterns[i] = PatternFactory.create(steps);
-        }
-        // generate some events
-
-        const insertion = 1;
-
-        const event1 = EventFactory.create();
-        const event2 = EventFactory.create();
-
-        event1.seq.startMeasure = 0;
-        event1.seq.endMeasure = 0;
-        event2.seq.startMeasure = insertion + 1;
-        event2.seq.endMeasure = insertion + 1;
-
-        patterns[0].channels[0][0] = event1;
-        patterns[insertion + 1].channels[0][0] = event2;
-
-        PatternUtil.addPatternAtIndex(patterns, insertion, steps);
-
-        expect(0).toEqual(event1.seq.startMeasure); // expected event 1 start measure to have remained unchanged as it was present before the insertion point
-        expect(0).toEqual(event1.seq.endMeasure); // expected event 1 end measure to have remained unchanged as it was present before the insertion point
-        expect(insertion + 2).toEqual(event2.seq.startMeasure); // expected event 2 start measure to have incremented as it was present after the insertion point
-        expect(insertion + 2).toEqual(event2.seq.endMeasure); // expected event 2 end measure to have incremented as it was present after the insertion point
-    });
-
     it( "should be able to add a new pattern with a unique amount of steps different to the existing pattern step amounts", () => {
         const amount = 10, steps = 16, newSteps = 32, insertion = 5;
         let patterns: EffluxPattern[] = new Array( amount );
@@ -99,36 +68,6 @@ describe( "PatternUtil", () => {
         expect(amount - 1).toEqual(patterns.length); // expected pattern list to have contracted in size
         expect(temp[deletion - 1]).toEqual(patterns[deletion - 1]); // expected the last pattern prior to the removal to equal the original one
         expect(temp[deletion + 1]).toEqual(patterns[deletion]); // expected the first pattern after the removal to equal the original one at the deletion index
-    });
-
-    it( "should update the start indices of all events present in the patterns after the deletion index", () => {
-        const amount = 3;
-        const patterns: EffluxPattern[] = new Array(amount);
-
-        for ( let i = 0; i < amount; ++i ) {
-            patterns[i] = PatternFactory.create(16);
-        }
-        // generate some events
-
-        const deletion = 1;
-
-        const event1 = EventFactory.create();
-        const event2 = EventFactory.create();
-
-        event1.seq.startMeasure = 0;
-        event1.seq.endMeasure = 0;
-        event2.seq.startMeasure = deletion + 1;
-        event2.seq.endMeasure = deletion + 1;
-
-        patterns[0].channels[0][0] = event1;
-        patterns[deletion + 1].channels[0][0] = event2;
-
-        PatternUtil.removePatternAtIndex(patterns, deletion);
-
-        expect(0).toEqual(event1.seq.startMeasure); // expected event 1 start measure to have remained unchanged as it was present before the removal point
-        expect(0).toEqual(event1.seq.endMeasure); // expected event 1 end measure to have remained unchanged as it was present before the removal point
-        expect(deletion).toEqual(event2.seq.startMeasure); // expected event 2 start measure to have decremented as it was present after the removal point
-        expect(deletion).toEqual(event2.seq.endMeasure); // expected event 2 end measure to have decremented as it was present after the removal point
     });
 
     describe( "when serializing and deserializing a pattern into a encoded file", () => {
