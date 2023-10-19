@@ -191,6 +191,10 @@ function collect( store: Store<EffluxState> ): void {
 
     const { activeOrderIndex } = state;
 
+    if ( !state.channels ) {
+        return;
+    }
+
     while ( state.nextNoteTime < ( audioContext.currentTime + state.scheduleAheadTime )) {
         if ( sequenceEvents ) {
             compareTime = state.nextNoteTime - state.measureStartTime;
