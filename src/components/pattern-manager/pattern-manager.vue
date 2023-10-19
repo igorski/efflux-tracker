@@ -325,7 +325,7 @@ $headerFooterHeight: 104px;
         }
 
         &:hover {
-            background-color: $color-5;
+            background-color: $color-3;
             color: #000;
 
             .pattern-list__entry-action-button {
@@ -334,7 +334,7 @@ $headerFooterHeight: 104px;
         }
 
         &--active {
-            background-color: $color-3 !important;
+            background-color: $color-5 !important;
             color: #fff;
 
             .pattern-list__entry-action-button {

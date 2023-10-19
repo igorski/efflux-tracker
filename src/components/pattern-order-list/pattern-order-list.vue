@@ -187,7 +187,6 @@ export default {
             this.offset += 1;
         },
         handleEntryClick( orderIndex: number ): void {
-            console.info('handle entry click', orderIndex)
             this.gotoPattern({ orderIndex, song: this.activeSong });
         },
     }

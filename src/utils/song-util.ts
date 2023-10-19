@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,8 +22,10 @@
  */
 import type { Track } from "midi-writer-js";
 import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
+import { getEventLength } from "@/utils/event-util";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
 /**
@@ -94,13 +96,13 @@ export const resetPlayState = ( patterns: EffluxPattern[] ): void => {
  *
  * @param {MidiWriter} midiWriter module (midi-writer-js)
  * @param {EffluxSong} song to export
- * @param {number=} firstPattern optional index of first pattern to export, defaults to first
- * @param {number=} lastPattern optional index of last pattern to export, defaults to last
+ * @param {number=} firstOrderIndex optional index of first pattern in the order list to export, defaults to first
+ * @param {number=} lastOrderIndex optional index of last pattern in the order list to export, defaults to last
  * @param {number=} firstInstrument optional index of first instrument to export, defaults to first
  * @param {number=} lastInstrument optional index of last instrument to export, defaults to last
  */
 export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
-    firstPattern = 0, lastPattern = Infinity, firstInstrument = 0, lastInstrument = Infinity ): void => {
+    firstOrderIndex = 0, lastOrderIndex = Infinity, firstInstrument = 0, lastInstrument = Infinity ): void => {
     // create tracks for each instrument
     const midiTracks: Track[] = [];
     song.instruments.forEach( instrument => {
@@ -117,13 +119,14 @@ export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
     const TICKS = ( 128 * 4 ) / measureDuration; // ticks per measure, songs are always in 4/4 time (currently...)
 
     // walk through all patterns
-    song.order.forEach( patternIndex => {
-        const { channels } = song.patterns[ patternIndex ];
+    song.order.forEach(( patternIndex: number, orderIndex: number ) => {
         // ignore patterns outside of allowed range
-        if ( patternIndex < firstPattern || patternIndex > lastPattern ) {
+        if ( orderIndex < firstOrderIndex || orderIndex > lastOrderIndex ) {
             return;
         }
-        channels.forEach( events => {
+        const { channels } = song.patterns[ patternIndex ];
+
+        channels.forEach(( events: EffluxAudioEvent[], channelIndex: number ) => {
             events.forEach( event => {
                 // only process note-on events
                 // TODO: how to process module automations into CC/pitch bend messages
@@ -134,10 +137,11 @@ export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
                 if ( event.instrument < firstInstrument || event.instrument > lastInstrument ) {
                     return;
                 }
-                const { length, startMeasureOffset } = event.seq;
+                const length = getEventLength( event, channelIndex, orderIndex, song );
+                const { startMeasureOffset } = event.seq;
                 const duration = `T${Math.round( length * TICKS )}`;
                 const startTick = Math.round(
-                    ((( patternIndex - firstPattern ) * measureDuration ) + startMeasureOffset ) * TICKS
+                    ((( orderIndex - firstOrderIndex ) * measureDuration ) + startMeasureOffset ) * TICKS
                 );
                 midiTracks[ event.instrument ].addEvent(
                     new midiWriter.NoteEvent({

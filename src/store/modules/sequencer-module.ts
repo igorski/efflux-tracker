@@ -309,8 +309,6 @@ function syncPositionToSequencerUpdate( state: SequencerState, activeSong: Efflu
 function setPosition( state: SequencerState, { activeSong, orderIndex, currentTime }:
     { activeSong: EffluxSong, orderIndex: number, currentTime?: number }) {
 
-console.info('setPosition:'+orderIndex);
-
     if ( orderIndex >= activeSong.order.length ) {
         orderIndex = activeSong.order.length - 1;
     }
@@ -322,7 +320,6 @@ console.info('setPosition:'+orderIndex);
 
         state.channels = activeSong.patterns[ state.activePatternIndex ].channels;
 
-        console.info('--- CACHE');
         // We need to cache the durations of all events, by doing it for the currently playing pattern we can
         // read this value in the collect() phase. As the song order list can reuse patterns (and thus events)
         // we cannot cache this at the event level as depending on the subsequent pattern the event duration can

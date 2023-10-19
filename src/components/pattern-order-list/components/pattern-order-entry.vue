@@ -65,11 +65,11 @@ export default {
     },
     methods: {
         selectPattern(): void {
-            this.$emit( 'select', this.index );
+            this.$emit( "select", this.index );
             this.setEditing( false );
         },
         setEditing( isEditing: boolean ): void {
-            this.$emit( 'toggle-edit-mode', isEditing );
+            this.$emit( "toggle-edit-mode", isEditing );
         },
     }
 };
