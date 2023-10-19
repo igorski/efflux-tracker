@@ -45,10 +45,13 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapMutations } from "vuex";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import { ACTION_NOTE_OFF, ACTION_IDLE } from "@/model/types/audio-event";
+import type { EffluxChannel } from "@/model/types/channel";
+import type { InstrumentOscillator, EffluxInstrument } from "@/model/types/instrument";
+import type { Sample } from "@/model/types/sample";
 import EventUtil from "@/utils/event-util";
 
 import messages from "./messages.json";
@@ -67,16 +70,16 @@ export default {
             "removeSample",
             "removeSampleFromCache",
         ]),
-        optimize() {
+        optimize(): void {
             let cleanedTables = 0;
             let cleanedSamples = 0;
             let cleanedInstructions = 0;
 
-            const seenSamples = [];
+            const seenSamples: Sample = [];
 
             // clean up unused custom wave tables
-            this.activeSong.instruments.forEach( instrument => {
-                instrument.oscillators.forEach( oscillator => {
+            this.activeSong.instruments.forEach(( instrument: EffluxInstrument ) => {
+                instrument.oscillators.forEach(( oscillator: InstrumentOscillator ) => {
                     if ( oscillator.table && oscillator.waveform !== OscillatorTypes.CUSTOM ) {
                         oscillator.table = 0;
                         ++cleanedTables;
@@ -91,7 +94,7 @@ export default {
             });
 
             // clean up unused samples
-            this.samples.forEach( sample => {
+            this.samples.forEach(( sample: Sample ) => {
                 if ( !seenSamples.includes( sample.id )) {
                     this.removeSampleFromCache( sample );
                     this.removeSample( sample );
@@ -101,8 +104,8 @@ export default {
 
             // remove useless instructions
             const lastEvents = new Array( this.activeSong.patterns.length );
-            this.activeSong.order.forEach(( patternIndex, orderIndex ) => {
-                song.patterns[ patternIndex ].channels.forEach(( channel, channelIndex ) => {
+            this.activeSong.order.forEach(( patternIndex: number /* , orderIndex: number */ ) => {
+                this.activeSong.patterns[ patternIndex ].channels.forEach(( channel: EffluxChannel, channelIndex: number ) => {
                     channel.forEach(( event, index ) => {
                         if ( !event ) {
                             return;

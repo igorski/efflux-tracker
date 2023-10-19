@@ -27,7 +27,7 @@ import { clone } from "@/utils/object-util";
 
 export default function({ store, patterns, insertIndex } :
     { store: ActionContext<any, any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
-    const { getters, commit, rootState } = store;
+    const { getters, commit } = store;
     const songPatterns = getters.activeSong.patterns;
 
     if ( insertIndex === -1 ) {
