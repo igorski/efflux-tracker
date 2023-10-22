@@ -26,6 +26,7 @@
             <h2 v-t="'patternManager'"></h2>
             <button
                 :title="$t('help')"
+                type="button"
                 class="help-button"
                 @click="openHelp()"
             >?</button>
@@ -174,7 +175,7 @@ export default {
             window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
         },
         handleCreateNew(): void {
-            this.saveState( patternAdd({ store: this.$store, patternIndex: this.entries.length }));
+            this.saveState( patternAdd( this.$store, true ));
         },
         handleOrderClick(): void {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );

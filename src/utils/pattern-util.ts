@@ -40,7 +40,7 @@ export default {
      *
      * @param {Array<EffluxPattern>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
-     * @param {number} amountOfSteps the amount of steps in the pattern to generate
+     * @param {number} amountOfSteps the amount of steps in the pattern to generate (unless pattern is given)
      * @param {EffluxPattern=} pattern optional pattern to inject, otherwise empty pattern is created
      * @return {Array<EffluxPattern>} updated list
      */

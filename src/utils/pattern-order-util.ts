@@ -28,7 +28,10 @@ import { EffluxAudioEvent } from "@/model/types/audio-event";
 import { arePatternsEqual } from "@/utils/pattern-util";
 import EventUtil from "@/utils/event-util";
 
-export default { 
+export default {
+    /**
+     * Inserts given patternIndex inside given order list at given orderIndex
+     */
     addPatternAtIndex( order: EffluxPatternOrder, orderIndex: number, patternIndex: number ): EffluxPatternOrder {
         const front = order.slice( 0, orderIndex );
         const back  = order.slice( orderIndex );

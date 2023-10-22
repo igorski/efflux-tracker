@@ -178,7 +178,7 @@ export default {
                 this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
-            this.saveState( addPattern({ store: this.$store }));
+            this.saveState( addPattern( this.$store ));
             this.gotoNextPattern( this.activeSong );
         },
         handlePatternDelete(): void {

@@ -28,30 +28,32 @@ import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import type { EffluxState } from "@/store";
 
-export default function({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
-    const song          = store.state.song.activeSong,
-          orderIndex    = store.state.sequencer.activeOrderIndex,
-          existingPatternIndex = store.getters.activePatternIndex,
-          amountOfSteps = store.getters.amountOfSteps,
-          useOrders     = store.getters.useOrders;
-
-    if ( typeof patternIndex !== "number" ) {
-        patternIndex = existingPatternIndex + 1;
-    }
+export default function( store: Store<EffluxState>, insertAtEnd?: boolean ): IUndoRedoState {
+    const song = store.state.song.activeSong;
+    const {
+          activeOrderIndex,
+          activePatternIndex,
+          amountOfSteps,
+          useOrders,
+    } = store.getters;
 
     const existingOrder = [ ...song.order ];
-    let newOrder: EffluxPatternOrder = existingOrder.map( index => {
-        // all remaining patterns have shifted up by one
-        return index > existingPatternIndex! ? index + 1 : index;
-    });
-    let targetOrderIndex = existingPatternIndex;
- 
+    let newPatternIndex: number;
+    let newOrderIndex = insertAtEnd ? song.order.length : activeOrderIndex;
+    let newOrder: EffluxPatternOrder;
+    
     if ( useOrders ) {
-        newOrder.push( patternIndex );
-        targetOrderIndex = newOrder[ newOrder.length - 1 ];
+        newPatternIndex = song.patterns.length; // when using orders, newest pattern is always inserted at the end
+        if ( insertAtEnd ) {
+            newOrder = existingOrder.concat( song.patterns.length );
+        } else {
+            newOrder = PatternOrderUtil.addPatternAtIndex( existingOrder, newOrderIndex + 1, newPatternIndex );
+        }
     } else {
-        newOrder = PatternOrderUtil.addPatternAtIndex( newOrder, patternIndex, patternIndex );
+        newPatternIndex = insertAtEnd ? song.patterns.length : activePatternIndex + 1;
+        newOrder = existingOrder.concat( song.patterns.length ); // order is always linear with patterns in this mode
     }
+    
     const { commit } = store;
 
     // note we don't cache song.patterns but always reference it from the song as the
@@ -59,19 +61,19 @@ export default function({ store, patternIndex }: { store: Store<EffluxState>, pa
 
     function act(): void {
         const pattern = PatternFactory.create( amountOfSteps );
-        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex!, amountOfSteps, pattern ));
+        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, newPatternIndex, amountOfSteps, pattern ));
         commit( "replacePatternOrder", newOrder );
-        commit( "setActiveOrderIndex", targetOrderIndex );
-        commit( "setActivePatternIndex", patternIndex );
+        commit( "setActiveOrderIndex", newOrderIndex );
+        commit( "setActivePatternIndex", newPatternIndex );
     }
     act(); // perform action
 
     return {
         undo(): void {
-            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex! ));
+            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, newPatternIndex ));
             commit( "replacePatternOrder", existingOrder );
-            commit( "setActiveOrderIndex", orderIndex );
-            commit( "setActivePatternIndex", existingPatternIndex );
+            commit( "setActiveOrderIndex", activeOrderIndex );
+            commit( "setActivePatternIndex", activePatternIndex );
         },
         redo: act
     };
