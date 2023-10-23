@@ -186,7 +186,7 @@ export default {
             if ( patterns.length === 1 ) {
                 this.handlePatternClear();
             } else {
-                this.saveState( patternDelete({ store: this.$store }));
+                this.saveState( patternDelete( this.$store ));
             }
         },
         handlePatternAdvanced(): void {

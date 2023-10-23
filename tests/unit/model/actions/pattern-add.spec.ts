@@ -1,5 +1,5 @@
 import { describe, vi, it, expect, beforeEach, afterEach } from "vitest";
-import PatternAdd from "@/model/actions/pattern-add";
+import AddPattern from "@/model/actions/pattern-add";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -7,7 +7,6 @@ import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { EffluxSong } from "@/model/types/song";
 import PatternUtil from "@/utils/pattern-util";
 import { createMockStore } from "../../mocks";
-import patternAdd from "../../../../src/model/actions/pattern-add";
 
 describe( "Pattern add action", () => {
     let song: EffluxSong;
@@ -52,7 +51,7 @@ describe( "Pattern add action", () => {
         it( "should insert the new pattern at the current pattern/order index position", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            patternAdd( store );
+            AddPattern( store );
 
             expect( commitSpy ).toHaveBeenCalledWith( "replacePatterns", [
                 orgPatterns[ 0 ],
@@ -65,7 +64,7 @@ describe( "Pattern add action", () => {
         it( "should update the order list by appending the newly created pattern at the currently active order index while incrementing the indices of the patterns following in the pattern list", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            patternAdd( store );
+            AddPattern( store );
 
             expect( commitSpy ).toHaveBeenCalledWith( "replacePatternOrder", [ 0, 1, 2, 3 ]);
         });
@@ -73,14 +72,14 @@ describe( "Pattern add action", () => {
         it( "should set the current order and pattern index to reflect the newly inserted pattern", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            patternAdd( store );
+            AddPattern( store );
             expect( commitSpy ).toHaveBeenCalledWith( "setActivePatternIndex", activeOrderIndex + 1 );
         });
 
         it( "should restore the original values appropriately on undo", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            const { undo } = patternAdd( store );
+            const { undo } = AddPattern( store );
 
             vi.restoreAllMocks();
 
@@ -101,7 +100,7 @@ describe( "Pattern add action", () => {
             it( "should insert the new pattern at the end of the list", () => {
                 const commitSpy = vi.spyOn( store, "commit" );
     
-                patternAdd( store, true );
+                AddPattern( store, true );
     
                 expect( commitSpy ).toHaveBeenCalledWith( "replacePatterns", [
                     orgPatterns[ 0 ],
@@ -114,7 +113,7 @@ describe( "Pattern add action", () => {
             it( "should update the order list by appending the newly created pattern at the end of the list", () => {
                 const commitSpy = vi.spyOn( store, "commit" );
     
-                patternAdd( store, true );
+                AddPattern( store, true );
     
                 expect( commitSpy ).toHaveBeenCalledWith( "replacePatternOrder", [ 0, 1, 2, 3 ]);
             });
@@ -123,7 +122,7 @@ describe( "Pattern add action", () => {
                 const commitSpy = vi.spyOn( store, "commit" );
                 const patternLength = song.patterns.length;
     
-                patternAdd( store, true );
+                AddPattern( store, true );
     
                 expect( commitSpy ).toHaveBeenCalledWith( "setActivePatternIndex", patternLength );
             });
@@ -157,7 +156,7 @@ describe( "Pattern add action", () => {
         it( "should insert the new pattern at the end of the pattern list", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            patternAdd( store );
+            AddPattern( store );
 
             expect( commitSpy ).toHaveBeenCalledWith( "replacePatterns", [
                 orgPatterns[ 0 ],
@@ -170,7 +169,7 @@ describe( "Pattern add action", () => {
         it( "should update the order list by appending the newly created pattern at the currently active order index", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            patternAdd( store );
+            AddPattern( store );
 
             expect( commitSpy ).toHaveBeenCalledWith( "replacePatternOrder", [ 0, 1, 1, 3, 2, 1 ]);
         });
@@ -179,7 +178,7 @@ describe( "Pattern add action", () => {
             const commitSpy = vi.spyOn( store, "commit" );
             const patternAmount = song.patterns.length;
 
-            patternAdd( store );
+            AddPattern( store );
 
             expect( commitSpy ).toHaveBeenCalledWith( "setActiveOrderIndex", activeOrderIndex );
             expect( commitSpy ).toHaveBeenCalledWith( "setActivePatternIndex", patternAmount );
@@ -188,7 +187,7 @@ describe( "Pattern add action", () => {
         it( "should restore the original values appropriately on undo", () => {
             const commitSpy = vi.spyOn( store, "commit" );
 
-            const { undo } = patternAdd( store );
+            const { undo } = AddPattern( store );
 
             vi.restoreAllMocks();
 
@@ -204,7 +203,7 @@ describe( "Pattern add action", () => {
             it( "should update the order list by appending the newly created pattern at the end of the list", () => {
                 const commitSpy = vi.spyOn( store, "commit" );
     
-                patternAdd( store, true );
+                AddPattern( store, true );
     
                 expect( commitSpy ).toHaveBeenCalledWith( "replacePatternOrder", [ 0, 1, 1, 2, 1, 3 ]);
             });
@@ -213,7 +212,7 @@ describe( "Pattern add action", () => {
                 const commitSpy = vi.spyOn( store, "commit" );
                 const orderLength = song.order.length;
     
-                patternAdd( store, true );
+                AddPattern( store, true );
     
                 expect( commitSpy ).toHaveBeenCalledWith( "setActiveOrderIndex", orderLength );
             });

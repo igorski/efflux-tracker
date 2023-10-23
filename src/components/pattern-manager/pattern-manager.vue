@@ -191,7 +191,7 @@ export default {
             ));
         },
         handleDeleteClick( entry: WrappedPatternEntry ): void {
-            this.saveState( patternDelete({ store: this.$store, patternIndex: entry.index }));
+            this.saveState( patternDelete( this.$store, entry.index ));
         },
         async handleDescriptionInputShow( entry: WrappedPatternEntry ): Promise<void> {
             this.showDescriptionInput = entry.index;

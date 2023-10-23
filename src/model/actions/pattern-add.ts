@@ -61,6 +61,7 @@ export default function( store: Store<EffluxState>, insertAtEnd?: boolean ): IUn
 
     function act(): void {
         const pattern = PatternFactory.create( amountOfSteps );
+        
         commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, newPatternIndex, amountOfSteps, pattern ));
         commit( "replacePatternOrder", newOrder );
         commit( "setActiveOrderIndex", newOrderIndex );

@@ -27,14 +27,14 @@ import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import type { EffluxState } from "@/store";
 import { clonePattern } from "@/utils/pattern-util";
 
-export default function({ store, patternIndex }: { store: Store<EffluxState>, patternIndex?: number }): IUndoRedoState {
+export default function( store: Store<EffluxState>, patternIndex?: number ): IUndoRedoState {
     const song          = store.state.song.activeSong,
           patterns      = song.patterns,
           amountOfSteps = store.getters.amountOfSteps,
           orderIndex    = store.getters.activeOrderIndex;
 
     if ( typeof patternIndex !== "number" ) {
-        patternIndex = store.state.sequencer.activePatternIndex;
+        patternIndex = store.getters.activePatternIndex;
     }
     const targetIndex = patternIndex === ( song.patterns.length - 1 ) ? patternIndex - 1 : patternIndex;
 
