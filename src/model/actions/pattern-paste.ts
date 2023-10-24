@@ -31,7 +31,7 @@ export default function({ store, patternCopy }: { store: Store<EffluxState>, pat
     const song         = store.state.song.activeSong,
           patternIndex = store.getters.activePatternIndex;
 
-    const { getters, commit } = store;
+    const { commit } = store;
 
     const targetPattern = clonePattern( song, patternIndex );
     const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy );

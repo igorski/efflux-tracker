@@ -26,7 +26,7 @@ import PatternFactory from "@/model/factories/pattern-factory";
 import type { EffluxState } from "@/store";
 import { clonePattern } from "@/utils/pattern-util";
 
-export default function({ store }: { store: Store<EffluxState> }): IUndoRedoState {
+export default function( store: Store<EffluxState> ): IUndoRedoState {
     const song          = store.state.song.activeSong,
           patternIndex  = store.getters.activePatternIndex,
           amountOfSteps = store.getters.amountOfSteps;

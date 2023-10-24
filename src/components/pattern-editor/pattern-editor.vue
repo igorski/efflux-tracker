@@ -157,7 +157,7 @@ export default {
         ]),
         handlePatternClear(): void {
             this.clearSelection();
-            this.saveState( patternClear({ store: this.$store }));
+            this.saveState( patternClear( this.$store ));
         },
         handlePatternCopy(): void {
             this.patternCopy = clone( this.activePattern );
