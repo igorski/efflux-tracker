@@ -69,26 +69,28 @@ export default {
     }
 };
 
-/**
- * Serializes a list of patterns ranges into an encoded PATTERN_FILE_EXTENSION file
- *
- * @param {Array<EffluxPattern>} patterns to serialize
- * @param {number} firstChannel first channel index to serialize pattern data from
- * @param {number} lastChannel last channel index to serialize pattern data from
- * @return {string} base64 encoded PATTERN_FILE_EXTENSION file content
- */
-export const serializePatternFile = ( patterns: EffluxPattern[], firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ): string => {
-    // clone the pattern contents
-    const cloned: EffluxPattern[] = [];
-    patterns.forEach( p => {
+export const copyPatternsByRange = ( patternsToClone: EffluxPattern[], firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ): EffluxPattern[] => {
+    const clonedPatterns: EffluxPattern[] = [];
+    patternsToClone.forEach( p => {
         const clonedPattern = PatternFactory.create( p.steps );
         for ( let i = firstChannel; i <= lastChannel; ++i ) {
             clonedPattern.channels[ i ] = clone( p.channels[ i ]);
         }
-        cloned.push( clonedPattern );
+        clonedPattern.description = p.description ? `${p.description} Copy` : undefined;
+        clonedPatterns.push( clonedPattern );
     });
+    return clonedPatterns;
+};
+
+/**
+ * Serializes a list of patterns ranges into an encoded PATTERN_FILE_EXTENSION file
+ *
+ * @param {EffluxPattern[]} patterns to serialize
+ * @return {string} base64 encoded PATTERN_FILE_EXTENSION file content
+ */
+export const serializePatternFile = ( patterns: EffluxPattern[] ): string => {
     // serialize
-    return window.btoa( JSON.stringify({ patterns: cloned }));
+    return window.btoa( JSON.stringify({ patterns }));
 };
 
 export const deserializePatternFile = ( encodedPatternData: string ): EffluxPattern[] | null => {

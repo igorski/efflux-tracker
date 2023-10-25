@@ -35,38 +35,41 @@
         </div>
         <hr class="divider" />
         <fieldset>
-            <div class="wrapper input">
+            <legend v-t="'copyRange'"></legend>
+            <div class="wrapper input push">
                 <label v-t="'copyPatternRangeLabel'"></label>
                 <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
             </div>
-        </fieldset>
-        <fieldset>
             <div class="wrapper input">
                 <label v-t="'copyChannelRangeLabel'"></label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
-        <button
-            v-t="'exportContent'"
-            type="button"
-            class="export-button"
-            @click="handleExportClick()"
-        ></button>
         <fieldset>
+            <legend v-t="'insertClone'"></legend>
             <div class="wrapper input">
                 <label v-t="'insertAfterLabel'"></label>
                 <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
+            <button
+                v-t="'insertClonedContent'"
+                type="button"
+                class="confirm-button"
+                @keyup.enter="handleInsertClick()"
+                @click="handleInsertClick()"
+            ></button>
         </fieldset>
-        <button
-            v-t="'insertClonedContent'"
-            type="button"
-            class="confirm-button"
-            @keyup.enter="handleDuplicateClick()"
-            @click="handleDuplicateClick()"
-        ></button>
+        <fieldset>
+            <legend v-t="'or'"></legend>
+            <button
+                v-t="'exportContent'"
+                type="button"
+                class="export-button"
+                @click="handleExportClick()"
+            ></button>
+        </fieldset>
     </div>
 </template>
 
@@ -75,7 +78,7 @@ import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { PATTERN_FILE_EXTENSION } from "@/definitions/file-types";
 import type { EffluxPattern } from "@/model/types/pattern";
 import { saveAsFile } from "@/utils/file-util";
-import { serializePatternFile } from "@/utils/pattern-util";
+import { copyPatternsByRange, serializePatternFile } from "@/utils/pattern-util";
 import messages from "./messages.json";
 
 type ClonedPatternDef = {
@@ -83,7 +86,7 @@ type ClonedPatternDef = {
     lastPatternValue: number;
     firstChannelValue: number;
     lastChannelValue: number;
-    patternsToClone: EffluxPattern[];
+    clonedPatterns: EffluxPattern[];
 };
 
 export default {
@@ -140,11 +143,11 @@ export default {
                 const {
                     firstChannelValue, lastChannelValue,
                     firstPatternValue, lastPatternValue,
-                    patternsToClone,
+                    clonedPatterns,
                 }  = this.clonePatternRange();
 
                 // encode pattern range
-                const data = serializePatternFile( patternsToClone, firstChannelValue, lastChannelValue );
+                const data = serializePatternFile( clonedPatterns );
                 const name = `${this.activeSong.meta.title}_${firstPatternValue}-${lastPatternValue}_${firstChannelValue}-${lastChannelValue}`;
 
                 // download file to disk
@@ -160,19 +163,14 @@ export default {
         handleClose(): void {
             this.$emit( "close" );
         },
-        async handleDuplicateClick(): Promise<void> {
+        async handleInsertClick(): Promise<void> {
             const patterns = this.activeSong.patterns;
             const pastePatternValue = Math.min( patterns.length, this.pastePattern );
 
-            const {
-                firstChannelValue,
-                lastChannelValue,
-                patternsToClone,
-            }  = this.clonePatternRange();
+            const { clonedPatterns } = this.clonePatternRange();
 
             await this.pastePatternsIntoSong({
-                patterns     : patternsToClone,
-                channelRange : [ firstChannelValue, lastChannelValue ],
+                patterns     : clonedPatterns,
                 insertIndex  : pastePatternValue
             });
             this.handleClose();
@@ -194,7 +192,7 @@ export default {
                 lastPatternValue,
                 firstChannelValue,
                 lastChannelValue,
-                patternsToClone,
+                clonedPatterns: copyPatternsByRange( patternsToClone, firstChannelValue, lastChannelValue ),
             };
         },
     },
@@ -208,7 +206,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 410px;
+$height: 470px;
 
 .advanced-pattern-editor {
     @include editorComponent();
@@ -251,6 +249,9 @@ $height: 410px;
         input {
             display: inline-block;
         }
+        &.push {
+            margin-bottom: $spacing-medium;
+        }
     }
 
     .export-button,
@@ -259,8 +260,8 @@ $height: 410px;
         padding: $spacing-medium $spacing-large;
     }
 
-    .export-button {
-        margin-bottom: $spacing-medium;
+    .confirm-button {
+        margin-top: $spacing-medium;
     }
 }
 </style>

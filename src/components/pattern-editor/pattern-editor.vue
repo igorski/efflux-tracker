@@ -85,7 +85,10 @@
                     @click="handlePatternDelete()"
                 ></button>
             </li>
-            <li class="list-item">
+            <li
+                v-if="!useOrders"
+                class="list-item"
+            >
                 <button
                     v-t="'advanced'"
                     type="button"
@@ -99,9 +102,9 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import addPattern from "@/model/actions/pattern-add";
-import patternClear from "@/model/actions/pattern-clear";
-import patternDelete from "@/model/actions/pattern-delete";
-import patternPaste from "@/model/actions/pattern-paste";
+import clearPattern from "@/model/actions/pattern-clear";
+import deletePattern from "@/model/actions/pattern-delete";
+import pastePattern from "@/model/actions/pattern-paste";
 import { EffluxPattern } from "@/model/types/pattern";
 import Config from "@/config";
 import ModalWindows from "@/definitions/modal-windows";
@@ -124,6 +127,7 @@ export default {
         }),
         ...mapGetters([
             "activePatternIndex",
+            "useOrders",
         ]),
         activePattern(): EffluxPattern {
             return this.activeSong.patterns[ this.activePatternIndex ];
@@ -157,7 +161,7 @@ export default {
         ]),
         handlePatternClear(): void {
             this.clearSelection();
-            this.saveState( patternClear( this.$store ));
+            this.saveState( clearPattern( this.$store ));
         },
         handlePatternCopy(): void {
             this.patternCopy = clone( this.activePattern );
@@ -165,11 +169,7 @@ export default {
         handlePatternPaste(): void {
             if ( this.patternCopy ) {
                 this.clearSelection();
-                this.saveState(
-                    patternPaste(
-                        { store: this.$store, patternCopy: this.patternCopy }
-                    )
-                );
+                this.saveState( pastePattern( this.$store, this.patternCopy ));
             }
         },
         handlePatternAdd(): void {
@@ -186,7 +186,7 @@ export default {
             if ( patterns.length === 1 ) {
                 this.handlePatternClear();
             } else {
-                this.saveState( patternDelete( this.$store ));
+                this.saveState( deletePattern( this.$store ));
             }
         },
         handlePatternAdvanced(): void {

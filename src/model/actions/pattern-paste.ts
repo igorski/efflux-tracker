@@ -25,15 +25,14 @@ import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxState } from "@/store";
-import { clonePattern } from "@/utils/pattern-util";
 
-export default function({ store, patternCopy }: { store: Store<EffluxState>, patternCopy: EffluxPattern }): IUndoRedoState {
+export default function( store: Store<EffluxState>, patternCopy: EffluxPattern ): IUndoRedoState {
     const song         = store.state.song.activeSong,
           patternIndex = store.getters.activePatternIndex;
 
     const { commit } = store;
 
-    const targetPattern = clonePattern( song, patternIndex );
+    const targetPattern = song.patterns[ patternIndex ];
     const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy );
 
     function act(): void {

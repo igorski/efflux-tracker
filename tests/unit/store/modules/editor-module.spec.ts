@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import EditorModule, { createEditorState } from "@/store/modules/editor-module";
-import LinkedList from "@/utils/linked-list";
 import Config from "@/config";
 
 const { mutations } = EditorModule;

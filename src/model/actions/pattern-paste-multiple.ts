@@ -23,34 +23,44 @@
 import type { ActionContext } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { clone } from "@/utils/object-util";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 
-export default function({ store, patterns, insertIndex } :
-    { store: ActionContext<any, any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
+// @todo (?) this is only supported when useOrders is false (@see settings-module)
+export default function( store: ActionContext<any, any>, patterns: EffluxPattern[], insertIndex?: number ): IUndoRedoState {
     const { getters, commit } = store;
-    const songPatterns = getters.activeSong.patterns;
+    const { activeSong, activePatternIndex } = getters;
 
-    if ( insertIndex === -1 ) {
-         // if no index was specified, insert after current position
-        insertIndex = store.getters.activePatternIndex;
+    if ( insertIndex === undefined ) {
+         // if no index was specified, insert after currently active sequencer position
+        insertIndex = activePatternIndex;
     }
+
+    const orgOrder = [ ...activeSong.order ];
+    const orgPatternLength = activeSong.patterns.length;
 
     // splice the pattern list at the insertion point, head will contain
     // the front of the list, tail the end of the list, and inserted will contain the cloned content
 
-    const patternsHead = clone( songPatterns );
-    const patternsTail = patternsHead.splice( insertIndex );
+    const patternsHead = activeSong.patterns.slice( 0, insertIndex );
+    const patternsTail = activeSong.patterns.slice( insertIndex );
 
     function act(): void {
-        commit( "replacePatterns", clone( patternsHead.concat( patterns, patternsTail )));
+        commit( "replacePatterns", patternsHead.concat( patterns, patternsTail ));
+        // keep order list in sync with pattern list
+        const newOrder: EffluxPatternOrder = [ ...orgOrder ];
+        for ( let i = orgPatternLength; i < activeSong.patterns.length; ++i ) {
+            newOrder.push( i );
+        }
+        commit( "replacePatternOrder", newOrder );
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePatterns", patternsHead.concat( patternsTail ));
+            commit( "replacePatternOrder", orgOrder );
             const { activeSong } = getters;
-            if ( activeSong.order.length <= store.getters.activeOrderIndex ) {
+            if ( activeSong.order.length <= getters.activeOrderIndex ) {
                 commit( "gotoPattern", { orderIndex: activeSong.order.length - 1, song: activeSong });
             }
         },

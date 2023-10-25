@@ -22,7 +22,7 @@
  */
 import type { ActionContext, Module } from "vuex";
 import Config from "@/config";
-import patternPasteMultiple from "@/model/actions/pattern-paste-multiple";
+import pasteMultiplePatterns from "@/model/actions/pattern-paste-multiple";
 import type { EffluxPattern } from "@/model/types/pattern";
 
 export interface EditorState {
@@ -103,13 +103,9 @@ const EditorModule: Module<EditorState, any> = {
     },
     actions: {
         async pastePatternsIntoSong( context: ActionContext<EditorState, any>,
-            { patterns, insertIndex = -1 }: { patterns: EffluxPattern[], insertIndex: number }): Promise<void> {
+            { patterns, insertIndex }: { patterns: EffluxPattern[], insertIndex?: number }): Promise<void> {
             context.commit( "saveState",
-                patternPasteMultiple({
-                    store: context,
-                    patterns,
-                    insertIndex
-                })
+                pasteMultiplePatterns( context, patterns, insertIndex )
             );
         }
     }

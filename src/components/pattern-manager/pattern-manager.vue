@@ -112,12 +112,11 @@
 
 <script lang="ts">
 import Draggable from "vuedraggable";
-import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { mapState, mapGetters, mapMutations, mapActions, type Store } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
-import patternAdd from "@/model/actions/pattern-add";
-import patternDelete from "@/model/actions/pattern-delete";
-import patternPasteMultiple from "@/model/actions/pattern-paste-multiple";
+import addPattern from "@/model/actions/pattern-add";
+import deletePattern from "@/model/actions/pattern-delete";
 import type { EffluxPattern } from "@/model/types/pattern";
 import messages from "./messages.json";
 
@@ -171,11 +170,14 @@ export default {
             "setActivePatternIndex",
             "suspendKeyboardService",
         ]),
+        ...mapActions([
+            "pastePatternsIntoSong",
+        ]),
         openHelp(): void {
             window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
         },
         handleCreateNew(): void {
-            this.saveState( patternAdd( this.$store, true ));
+            this.saveState( addPattern( this.$store, true ));
         },
         handleOrderClick(): void {
             this.openModal( ModalWindows.PATTERN_ORDER_WINDOW );
@@ -185,13 +187,11 @@ export default {
             this.setActiveOrderIndex( this.activeSong.order.indexOf( entry.index ));
         },
         handleDuplicateClick( entry: WrappedPatternEntry ): void {
-            this.saveState( patternPasteMultiple(
-                // note we insert at the end (to not upset order indices)
-                { store: this.$store, patterns: [ entry.pattern ], insertIndex: this.entries.length }
-            ));
+            // note we insert at the end (to not upset order indices)
+            this.pastePatternsIntoSong({ patterns: [ entry.pattern ], insertIndex: this.entries.length });
         },
         handleDeleteClick( entry: WrappedPatternEntry ): void {
-            this.saveState( patternDelete( this.$store, entry.index ));
+            this.saveState( deletePattern( this.$store, entry.index ));
         },
         async handleDescriptionInputShow( entry: WrappedPatternEntry ): Promise<void> {
             this.showDescriptionInput = entry.index;

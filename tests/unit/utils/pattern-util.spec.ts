@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from "vitest";
-import PatternUtil, { serializePatternFile, deserializePatternFile, arePatternsEqual } from "@/utils/pattern-util";
+import PatternUtil, { copyPatternsByRange, serializePatternFile, deserializePatternFile, arePatternsEqual } from "@/utils/pattern-util";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -70,7 +70,29 @@ describe( "PatternUtil", () => {
         expect(temp[deletion + 1]).toEqual(patterns[deletion]); // expected the first pattern after the removal to equal the original one at the deletion index
     });
 
-    describe( "when serializing and deserializing a pattern into a encoded file", () => {
+    it( "should be able to copy only specific channels within a given pattern range", () => {
+        const patternSteps = 16;
+        const patterns: EffluxPattern[] = [];
+        const pattern = PatternFactory.create( patternSteps );
+        pattern.channels.forEach(( channel, channelIndex ) => {
+            for ( let i = 0; i < 4; i += 2 ) {
+                channel[ i ] = EventFactory.create( channelIndex );
+            }
+        });
+        patterns.push( pattern );
+        
+        const copied = copyPatternsByRange( patterns, 3, 6 );
+        const emptyChannel = new Array( patternSteps ).fill( 0 );
+        const sourceChannels = patterns[ 0 ].channels;
+
+        expect( copied[ 0 ].channels ).toEqual([
+            emptyChannel, emptyChannel, emptyChannel, // 0, 1, 2
+            sourceChannels[ 3 ], sourceChannels[ 4 ], sourceChannels[ 5 ], sourceChannels[ 6 ], // 3, 4, 5, 6
+            emptyChannel, // 7
+        ]);
+    });
+
+    describe( "when serializing and deserializing a pattern into an encoded file", () => {
         const patternSteps = 4;
         const patterns: EffluxPattern[] = [];
 
@@ -95,22 +117,6 @@ describe( "PatternUtil", () => {
         it( "should return null when an deserialized pattern list failed to validate as a valid pattern list", () => {
             const invalid = window.btoa( JSON.stringify({ patterns: [{ id: "not a pattern" }] }));
             expect( deserializePatternFile( invalid )).toBeNull();
-        });
-
-        it( "should by default copy the full channel range", () => {
-            const copied = deserializePatternFile( serializePatternFile( patterns ));
-            expect( copied ).toEqual( patterns );
-        });
-
-        it( "should allow copying from arbitrary channel ranges", () => {
-            const copied = deserializePatternFile( serializePatternFile( patterns, 3, 6 ));
-            const emptyChannel = new Array( patternSteps ).fill( 0 );
-            const sourceChannels = patterns[ 0 ].channels;
-            expect( copied[ 0 ].channels ).toEqual([
-                emptyChannel, emptyChannel, emptyChannel, // 0, 1, 2
-                sourceChannels[ 3 ],  sourceChannels[ 4 ],  sourceChannels[ 5 ],  sourceChannels[ 6 ], // 3, 4, 5, 6
-                emptyChannel, // 7
-            ]);
         });
     });
 

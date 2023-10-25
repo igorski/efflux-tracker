@@ -1,11 +1,14 @@
 {
   "en-US": {
     "title": "Advanced pattern editor",
+    "copyRange": "Copy range",
     "copyPatternRangeLabel": "Copy pattern range:",
     "copyChannelRangeLabel": "Copy channel range:",
+    "insertClone": "Insert cloned range",
     "insertAfterLabel": "Insert after pattern:",
+    "or": "or",
     "exportContent": "Export content",
-    "insertClonedContent": "Insert cloned content",
+    "insertClonedContent": "Clone and insert content",
     "patternRangeExported": "Pattern range exported",
     "errorPatternRangeExport": "An error has occurred while exporting the pattern range"
   }

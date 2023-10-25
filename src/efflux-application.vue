@@ -350,7 +350,7 @@ export default {
             for ( const file of patterns ) {
                 const deserializedPatterns = deserializePatternFile( await readTextFromFile( file ));
                 if ( deserializedPatterns ) {
-                    this.pastePatternsIntoSong({ patterns: deserializedPatterns });
+                    this.pastePatternsIntoSong({ patterns: deserializedPatterns, insertIndex: this.activeSong.patterns.length });
                 } else {
                     this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.patternImport" )});
                 }

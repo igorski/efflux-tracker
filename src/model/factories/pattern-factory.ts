@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from "@/config";
-import EventFactory from "./event-factory";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
