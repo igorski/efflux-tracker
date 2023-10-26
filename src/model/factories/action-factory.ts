@@ -26,7 +26,7 @@ import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -137,6 +137,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
             EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
         Vue.set( channel, step, event );
+        store.commit( "invalidateChannelCache", { song });
 
         if ( optEventData?.newEvent === true ) {
 
@@ -176,6 +177,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
             if ( existingEvent ) {
                 const restoredEvent = deserialize( existingEvent );
                 Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
+                store.commit( "invalidateChannelCache", { song });
             }
             updateHandler();
         },
@@ -512,7 +514,7 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
         let c = firstChannel;
         do {
             channels[ c ].forEach(( event: EffluxAudioEvent ) => {
-                if ( !event ) {
+                if ( !event || event.action !== ACTION_NOTE_ON ) {
                     return;
                 }
                 const { note, octave } = Transpose( event.note, event.octave, semitones );
@@ -526,12 +528,14 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
 
     function act(): void {
         commit( "replacePatterns", transposedPatterns );
+        commit( "invalidateChannelCache", { song: getters.activeSong });
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePatterns", songPatterns );
+            commit( "invalidateChannelCache", { song: getters.activeSong });
         },
         redo: act
     };

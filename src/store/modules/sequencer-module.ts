@@ -301,6 +301,19 @@ function syncPositionToSequencerUpdate( state: SequencerState, activeSong: Efflu
     setPosition( state, { activeSong, orderIndex, currentTime: state.nextNoteTime });
 }
 
+function cacheActivePatternChannels( state: SequencerState, activeSong: EffluxSong ): void {
+    const { activeOrderIndex, activePatternIndex } = state;
+    state.channels = activeSong.patterns[ activePatternIndex ].channels;
+
+    for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
+        for ( const event of state.channels![ channelIndex ] ) {
+            if ( event ) {
+                event.seq.length = getEventLength( event, channelIndex, activeOrderIndex, activeSong );
+            }
+        }
+    }
+}
+
 /**
  * set the sequencers position to given target pattern and optional offset defined by currentTime
  *
@@ -322,20 +335,11 @@ function setPosition( state: SequencerState, { activeSong, orderIndex, currentTi
         state.activePatternIndex = activeSong.order[ orderIndex ];    
         state.currentStep = 0;
 
-        state.channels = activeSong.patterns[ state.activePatternIndex ].channels;
+        // We need to cache the durations of all events, by doing it for the currently playing pattern we can read
+        // this value in the collect() phase. As the song order list can reuse patterns (and thus events) we cannot
+        // cache this at the event level as depending on the subsequent pattern the event duration can differ.
 
-        // We need to cache the durations of all events, by doing it for the currently playing pattern we can
-        // read this value in the collect() phase. As the song order list can reuse patterns (and thus events)
-        // we cannot cache this at the event level as depending on the subsequent pattern the event duration can
-        // change. Maybe we can cache this value somewhere else. Then again, we need to manage changes carefully.
-        
-        for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
-            for ( const event of state.channels![ channelIndex ] ) {
-                if ( event ) {
-                    event.seq.length = getEventLength( event, channelIndex, orderIndex, activeSong );
-                }
-            }
-        }
+        cacheActivePatternChannels( state, activeSong );
     }
 
     if ( typeof currentTime !== "number" ) {
@@ -500,6 +504,13 @@ const SequencerModule: Module<SequencerState, any> = {
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
             Metronome.enabled.value = !!enabled;
+        },
+        invalidateChannelCache( state: SequencerState, { song, orderIndex }: { song: EffluxSong, orderIndex?: number }): void {
+            const compareIndex = orderIndex ?? state.activeOrderIndex;
+            if ( !state.playing || state.activeOrderIndex !== compareIndex ) {
+                return; // cache will be invalidated by sequencers position update
+            }
+            cacheActivePatternChannels( state, song );
         },
         setPosition,
     },

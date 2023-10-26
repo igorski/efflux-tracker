@@ -365,6 +365,60 @@ describe( "Vuex sequencer module", () => {
                 expect( mockGetEventLength ).not.toHaveBeenCalled();
             });
         });
+
+        describe( "when handling a request to invalidate the channel cache", () => {
+            let event1: EffluxAudioEvent;
+            let event2: EffluxAudioEvent;
+            let event3: EffluxAudioEvent;
+
+            beforeEach(() => {
+                state = createSequencerState({
+                    activeOrderIndex: 2,
+                    activePatternIndex: activeSong.order[ 2 ],
+                    currentStep: 6,
+                    playing: true
+                });
+                event1 = EventFactory.create( 0, "C", 3, ACTION_NOTE_ON );
+                event2 = EventFactory.create( 1, "C", 4, ACTION_NOTE_ON );
+                event3 = EventFactory.create( 0, "C", 5, ACTION_NOTE_ON );
+
+                activeSong.patterns[ 0 ].channels = [
+                    [ event3, undefined, undefined, undefined ],
+                    [ undefined, undefined, undefined, undefined ],
+                ];
+                activeSong.patterns[ state.activePatternIndex ].channels = [
+                    [ event1, undefined, undefined, undefined ],
+                    [ undefined, undefined, event2, undefined ],
+                ];
+            });
+
+            it( "should not do anything when the sequencer isn't playing", () => {
+                state.playing = false;
+                mutations.invalidateChannelCache( state, { song: activeSong });
+                expect( mockGetEventLength ).not.toHaveBeenCalled();
+            });
+
+            it( "should not do anything when provided orderIndex is different to the currently activeOrderIndex", () => {
+                mutations.invalidateChannelCache( state, { song: activeSong, orderIndex: 3 });
+                expect( mockGetEventLength ).not.toHaveBeenCalled();
+            });
+
+            it( "should default to using the currently activeOrderIndex when an index was not provided and cache the events in the currently active pattern", () => {
+                mutations.invalidateChannelCache( state, { song: activeSong });
+
+                expect( mockGetEventLength ).toHaveBeenCalledTimes( 2 );
+                expect( mockGetEventLength ).toHaveBeenNthCalledWith( 1, event1, 0, state.activeOrderIndex, activeSong );
+                expect( mockGetEventLength ).toHaveBeenNthCalledWith( 2, event2, 1, state.activeOrderIndex, activeSong );
+            });
+
+            it( "should cache a reference to the currently active patterns channels", () => {
+                expect( state.channels ).toBeUndefined();
+
+                mutations.invalidateChannelCache( state, { song: activeSong });
+
+                expect( state.channels ).toEqual( activeSong.patterns[ state.activePatternIndex ].channels );
+            });
+        });
     });
 
     describe( "when tracking state updates from the SequencerWorker", () => {

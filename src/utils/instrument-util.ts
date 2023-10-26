@@ -317,6 +317,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
         audioEvent.recording = markAsRecording && !isParamChange;
     }
     commit( "addEventAtPosition", { store, event: audioEvent, optData });
+    commit( "invalidateChannelCache", { song });
 
     lastAddition = now;
 
