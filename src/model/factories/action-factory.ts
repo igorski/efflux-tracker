@@ -380,6 +380,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
             cutPattern = clonePattern( song, activePattern );
         }
         commit( "clearSelection" );
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
@@ -392,6 +393,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
             commit( "setMinSelectedStep", selectedMinStep);
             commit( "setMaxSelectedStep", selectedMaxStep);
             commit( "setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "invalidateChannelCache", { song });
         },
         redo: act
     };
@@ -418,6 +420,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
             cutPattern = clonePattern( song, activePattern );
         }
         commit( "clearSelection" );
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
@@ -430,6 +433,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
             commit( "setMinSelectedStep", selectedMinStep);
             commit( "setMaxSelectedStep", selectedMaxStep);
             commit( "setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "invalidateChannelCache", { song });
        },
        redo: act
     };
@@ -457,6 +461,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
             commit( "pasteSelection", { song, activePattern, selectedInstrument, selectedStep });
             pastedPattern = clonePattern( song, activePattern );
         }
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
@@ -472,6 +477,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
             commit( "setMinSelectedStep", selectedMinStep );
             commit( "setMaxSelectedStep", selectedMaxStep );
             commit( "setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "invalidateChannelCache", { song });
         },
         redo: act
     };

@@ -61,6 +61,14 @@ describe( "Pattern paste action", () => {
         expect( pattern.channels[ 0 ][ 1 ]).toEqual( event2 );
     });
 
+    it( "should invalidate the sequencer channel cache", () => {
+        const commitSpy = vi.spyOn( store, "commit" );
+
+        PatternPaste( store, patternToPaste );
+
+        expect( commitSpy ).toHaveBeenCalledWith( "invalidateChannelCache", { song });
+    });
+
     it( "should restore the original values appropriately on undo", () => {
         const commitSpy = vi.spyOn( store, "commit" );
 

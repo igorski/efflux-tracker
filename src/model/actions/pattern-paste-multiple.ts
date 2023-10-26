@@ -52,6 +52,7 @@ export default function( store: ActionContext<any, any>, patterns: EffluxPattern
             newOrder.push( i );
         }
         commit( "replacePatternOrder", newOrder );
+        commit( "invalidateChannelCache", { song: activeSong });
     }
     act(); // perform action
 
@@ -59,7 +60,8 @@ export default function( store: ActionContext<any, any>, patterns: EffluxPattern
         undo(): void {
             commit( "replacePatterns", patternsHead.concat( patternsTail ));
             commit( "replacePatternOrder", orgOrder );
-            const { activeSong } = getters;
+            commit( "invalidateChannelCache", { song: activeSong });
+
             if ( activeSong.order.length <= getters.activeOrderIndex ) {
                 commit( "gotoPattern", { orderIndex: activeSong.order.length - 1, song: activeSong });
             }

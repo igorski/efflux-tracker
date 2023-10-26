@@ -88,6 +88,14 @@ describe( "Pattern paste (multiple) action", () => {
         expect( commitSpy ).toHaveBeenCalledWith( "replacePatternOrder", [ 0, 1, 2, 3, 4 ]);
     });
 
+    it( "should invalidate the sequencer channel cache", () => {
+        const commitSpy = vi.spyOn( store, "commit" );
+
+        PatternPasteMultiple( store, patternsToPaste );
+
+        expect( commitSpy ).toHaveBeenCalledWith( "invalidateChannelCache", { song });
+    });
+
     describe( "when undo-ing the changes", () => {
         it( "should restore the original values appropriately", () => {
             const commitSpy = vi.spyOn( store, "commit" );

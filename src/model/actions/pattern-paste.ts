@@ -37,12 +37,14 @@ export default function( store: Store<EffluxState>, patternCopy: EffluxPattern )
 
     function act(): void {
         commit( "replacePattern", { patternIndex, pattern: pastedPattern });
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePattern", { patternIndex, pattern: targetPattern });
+            commit( "invalidateChannelCache", { song });
         },
         redo: act
     };
