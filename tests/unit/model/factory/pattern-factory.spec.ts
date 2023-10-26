@@ -39,6 +39,13 @@ describe( "PatternFactory", () => {
         expect( pattern.channels ).toEqual( channels );
     });
 
+    it( "should be able to generate a pattern with optionally passed description", () => {
+        // @ts-expect-error number is not assignable to EffluxAudioEvent
+        const channels: EffluxChannel[] = [[ 0, 1, 2 ], [ 1, 1, 0 ]];
+        const pattern = PatternFactory.create( 4, channels, "fooBar" );
+        expect( pattern.description ).toEqual( "fooBar" );
+    });
+
     it( "should be able to merge equal length patterns", () => {
         const pattern1 = PatternFactory.create();
         const pattern2 = PatternFactory.create();
@@ -125,29 +132,8 @@ describe( "PatternFactory", () => {
         expect(expected4).toEqual(m1channel1[8]);
     });
 
-    it( "should be able to update the events startMeasure indices when merging patterns at specific target index", () => {
-        const pattern1 = PatternFactory.create(16);
-        const pattern2 = PatternFactory.create(16);
-
-        // generate some note content
-
-        const p2channel1 = pattern2.channels[0];
-        p2channel1[15] = EventFactory.create(1, "E", 6, 1);
-
-        // merge patterns
-
-        const targetPatternIndex = 1;
-        const merged = PatternFactory.mergePatterns(pattern1, pattern2, targetPatternIndex);
-
-        const m1channel1 = merged.channels[0];
-
-        // assert results
-        // expect target pattern index of cloned event to equal the pattern index it was pasted into
-        expect(targetPatternIndex).toEqual(m1channel1[15].seq.startMeasure);
-    });
-
     it( "should be able to serialize a pattern list without loss of data", () => {
-        const pattern1 = PatternFactory.create( 16 );
+        const pattern1 = PatternFactory.create( 16, [], "foo" );
         const pattern2 = PatternFactory.create( 32 );
 
         const patterns = [ pattern1, pattern2 ];

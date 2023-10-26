@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,8 +28,9 @@ import type { EffluxPattern } from "@/model/types/pattern";
  * Objects into their JSON representation
  */
 export const PATTERNS = "p";
-export const PATTERN_STEPS    = "s";
+export const PATTERN_STEPS = "s";
 export const PATTERN_CHANNELS = "c";
+export const PATTERN_DESCRIPTION = "d";
 
 // as notes and automation instruction might be repeated
 // throughout a song we create pools to prevent redefining them
@@ -42,7 +43,6 @@ export const EVENT_ACTION            = "a";
 export const EVENT_INSTRUMENT        = "ins";
 export const EVENT_NOTE              = "n";
 export const EVENT_OCTAVE            = "o";
-export const EVENT_LENGTH            = "l";
 export const EVENT_MODULE_AUTOMATION = "ma";
 export const EVENT_MODULE            = "m";
 export const EVENT_MODULE_VALUE      = "v";
@@ -65,8 +65,9 @@ export const serialize = ( xtk: any, patterns: EffluxPattern[] ): void => {
 
         xtkPattern = xtkPatterns[ pIndex ] = {};
 
-        xtkPattern[ PATTERN_STEPS ]    = pattern.steps;
+        xtkPattern[ PATTERN_STEPS ]  = pattern.steps;
         xtkPattern[ PATTERN_CHANNELS ] = new Array( pattern.channels.length );
+        xtkPattern[ PATTERN_DESCRIPTION ] = pattern.description;
 
         pattern.channels.forEach(( channel: EffluxAudioEvent[], cIndex: number ): void => {
 
@@ -82,7 +83,6 @@ export const serialize = ( xtk: any, patterns: EffluxPattern[] ): void => {
                     xtkEvent[ EVENT_INSTRUMENT ] = event.instrument;
                     xtkEvent[ EVENT_NOTE ]       = event.note;
                     xtkEvent[ EVENT_OCTAVE ]     = event.octave;
-                    xtkEvent[ EVENT_LENGTH ]     = event.seq.length;
 
                     // pool the event or reference the pool if its definition already existed
                     poolRef = poolObject( xtkNotePool, xtkEvent );

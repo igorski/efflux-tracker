@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2021 - https://www.igorski.nl
+* Igor Zinken 2021-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -29,9 +29,10 @@
     </div>
 </template>
 
-<script>
-import { mapState } from "vuex";
+<script lang="ts">
+import { mapState, mapGetters } from "vuex";
 import { canvas } from "zcanvas";
+import type { EffluxPattern } from "@/model/types/pattern";
 import PatternRenderer from "./renderers/pattern-renderer";
 import messages from "./messages.json";
 
@@ -40,28 +41,32 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
             currentStep: state => state.sequencer.currentStep,
             selectedInstrument: state => state.editor.selectedInstrument,
             windowSize: state => state.windowSize,
         }),
-        patterns() {
-            return this.activeSong.patterns;
+        ...mapGetters([
+            "activePatternIndex",
+        ]),
+        patterns(): EffluxPattern[] {
+            return this.activeSong.order.map(( patternIndex: number ) => {
+                return this.activeSong.patterns[ patternIndex ];
+            });
         },
     },
     watch: {
         windowSize: {
-            handler() {
+            handler(): void {
                 if ( this.canvas ) {
                     this.resizeCanvas();
                 }
             },
         },
-        patterns() {
+        patterns(): void {
             this.syncActors();
         },
     },
-    mounted() {
+    mounted(): void {
         this._renderers = [];
 
         this.canvas = new canvas({ width: 100, height: 100 });
@@ -72,11 +77,11 @@ export default {
         this.syncActors();
         this.resizeCanvas();
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.canvas.dispose();
     },
     methods: {
-        resizeCanvas() {
+        resizeCanvas(): void {
             const { width, height } = this.$el.getBoundingClientRect();
             this.canvas.setDimensions( width, height );
             // TODO: implement zooming ?
@@ -85,13 +90,13 @@ export default {
                 renderer.setHeight( height );
             });
         },
-        syncActors() {
-            while ( this._renderers.length ) {
+        syncActors(): void {
+            while ( this._renderers.length > 0 ) {
                 this._renderers[ 0 ].dispose();
                 this._renderers.splice( 0, 1 );
             }
-            this.patterns.forEach(( pattern, index ) => {
-                const renderer = new PatternRenderer( pattern, index );
+            this.patterns.forEach(( pattern: EffluxPattern, index: number ): void => {
+                const renderer = new PatternRenderer( pattern, index, this.canvas.getWidth(), this.canvas.getHeight() );
                 this._renderers.push( renderer );
                 this.canvas.addChild( renderer );
             });

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -37,15 +37,11 @@ enum Actions
     DELETE_SELECTION,
     ADD_MODULE_AUTOMATION,
     DELETE_MODULE_AUTOMATION,
-    CLEAR_PATTERN,
-    PASTE_PATTERN,
-    PASTE_PATTERN_MULTIPLE,
-    ADD_PATTERN,
-    DELETE_PATTERN,
     CUT_SELECTION,
     PASTE_SELECTION,
     TEMPO_CHANGE,
     REPLACE_INSTRUMENT,
     TRANSPOSE,
+    UPDATE_PATTERN_ORDER,
 };
 export default Actions;

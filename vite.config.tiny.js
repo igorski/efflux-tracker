@@ -4,6 +4,9 @@ import path from "path";
 const dirSrc = `${__dirname}/src`;
 
 export default defineConfig({
+    define: {
+        __TINY__: true,
+    },
     base: "./",
     build: {
         lib: {

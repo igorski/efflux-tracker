@@ -25,7 +25,7 @@ import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
 import type { EffluxSong } from "@/model/types/song";
 
-export const ASSEMBLER_VERSION = 7;
+export const ASSEMBLER_VERSION = 8;
 
 const ASSEMBLER_VERSION_CODE = "av";
 

@@ -53,8 +53,6 @@ export default
                && (
                    typeof event.seq              === 'object'  &&
                    typeof event.seq.playing      === 'boolean' &&
-                   typeof event.seq.startMeasure === 'number'  &&
-                   typeof event.seq.endMeasure   === 'number'  &&
                    typeof event.seq.length       === 'number'  &&
                    typeof event.seq.mpLength     === 'number'
                );

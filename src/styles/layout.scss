@@ -102,6 +102,8 @@
 /* PHONE */
 
 @include mobile() {
+    $order-menu-height: 43px; // eventually this should always be present, for now its optional
+
     .application-header {
         height: $transport-height;
         &.expanded {
@@ -117,13 +119,22 @@
     /* when mobileMode is "settings" we show the tempo control and song editor by expanding these */
     .application-properties {
         margin: 116px auto 0;
+
+        &--expanded {
+            margin-top: (116px + $order-menu-height);
+        }
     }
+
     .application-editor {
         width: inherit;
         top: 85px !important;
 
         &.settings-mode {
             top: 210px !important;
+
+            &--expanded {
+                top: (210px + $order-menu-height) !important;
+            }
         }
     }
 

@@ -2,16 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import APPLICATION_MODE from "@/definitions/application-modes";
 import ModalWindows from "@/definitions/modal-windows";
 import store from "@/store";
-import type { EffluxState } from "@/store";
-import { createEditorState } from "@/store/modules/editor-module";
-import { createHistoryState } from "@/store/modules/history-module";
-import { createInstrumentState } from "@/store/modules/instrument-module";
-import { createMidiState } from "@/store/modules/midi-module";
-import { createSampleState } from "@/store/modules/sample-module";
-import { createSelectionState } from "@/store/modules/selection-module";
-import { createSequencerState } from "@/store/modules/sequencer-module";
-import { createSettingsState } from "@/store/modules/settings-module";
-import { createSongState } from "@/store/modules/song-module";
+import { createState } from "../mocks";
 
 const { getters, mutations } = store;
 
@@ -24,31 +15,6 @@ vi.mock("@/services/keyboard-service", () => ({
 }));
 
 describe( "Application Vuex store root", () => {
-    const createState = ( props?: Partial<EffluxState> ): EffluxState => ({
-        menuOpened: false,
-        blindActive: false,
-        helpTopic: "general",
-        loadingStates: [], // wether one or more long running operations are running
-        windowSize: { width: 800, height: 600 },
-        dialog: null,
-        notifications: [],
-        modal: null,
-        mobileMode: null,
-        dropboxConnected: false,
-        mediaConnected: false,
-        applicationMode: APPLICATION_MODE.TRACKER,
-        editor: createEditorState(),
-        history: createHistoryState(),
-        instrument: createInstrumentState(),
-        midi: createMidiState(),
-        sample: createSampleState(),
-        selection: createSelectionState(),
-        sequencer: createSequencerState(),
-        settings: createSettingsState(),
-        song: createSongState(),
-        ...props
-    });
-
     describe( "getters", () => {
         it( "should know when there is currently a loading state active", () => {
             const state = createState();

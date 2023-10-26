@@ -202,13 +202,13 @@ function handleKeyDown( event: KeyboardEvent ): void {
             break;
 
         case 34: // page down
-            maxStep = activeSong.patterns[ sequencer.activePattern ].steps - 1;
+            maxStep = activeSong.patterns[ store.getters.activePatternIndex ].steps - 1;
             store.commit( "setSelectedStep", Math.min( maxStep, editor.selectedStep + 4 ));
             handleSelectionOnVerticalMovement( event );
             break;
 
         case 35: // end
-            store.commit( "setSelectedStep", activeSong.patterns[ sequencer.activePattern ].steps - 1 );
+            store.commit( "setSelectedStep", activeSong.patterns[ store.getters.activePatternIndex ].steps - 1 );
             handleSelectionOnVerticalMovement( event );
             break;
 
@@ -224,7 +224,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
 
         case 40: // down
 
-            maxStep = activeSong.patterns[ sequencer.activePattern ].steps - 1;
+            maxStep = activeSong.patterns[ store.getters.activePatternIndex ].steps - 1;
             targetStep = editor.selectedStep + 1;
 
             if ( targetStep <= maxStep ) {
@@ -236,15 +236,15 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 39: // right
 
             if ( hasOption ) {
-                store.commit( "gotoNextPattern", activeSong);
+                store.commit( "gotoNextPattern", activeSong );
             }
             else {
                 currentInstrument = editor.selectedInstrument; // cache the current instrument before updating slot positions
                 if ( setSelectedSlot( editor.selectedSlot + 1 )) {
                     // when not in selection mode and we go right from the most right lane, move to the next pattern (when existing)
                     if ( !shiftDown && editor.selectedInstrument + 1 > MAX_CHANNEL ) {
-                        if ( sequencer.activePattern < ( activeSong.patterns.length - 1 )) {
-                            store.commit( "setActivePattern", sequencer.activePattern + 1 );
+                        if ( sequencer.activeOrderIndex < ( activeSong.order.length - 1 )) {
+                            store.commit( "gotoPattern", { orderIndex: sequencer.activeOrderIndex + 1, song: activeSong });
                             store.commit( "setSelectedInstrument", 0 );
                         } else {
                             store.commit( "setSelectedSlot", MAX_SLOT );
@@ -268,14 +268,14 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 37: // left
 
             if ( hasOption ) {
-                store.commit( "gotoPreviousPattern", activeSong);
+                store.commit( "gotoPreviousPattern", activeSong );
             }
             else {
                 if ( setSelectedSlot( editor.selectedSlot - 1 )) {
                     // when not in selection mode and we go left from the most left lane, move to the previous pattern (when existing)
                     if ( !shiftDown && editor.selectedInstrument - 1 < 0 ) {
-                        if ( sequencer.activePattern > 0 ) {
-                            store.commit( "setActivePattern", sequencer.activePattern - 1 );
+                        if ( sequencer.activeOrderIndex > 0 ) {
+                            store.commit( "gotoPattern", { orderIndex: sequencer.activeOrderIndex - 1, song: activeSong });
                             store.commit( "setSelectedInstrument", MAX_CHANNEL );
                             store.commit( "setSelectedSlot", MAX_SLOT );
                         } else {
@@ -328,7 +328,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
             // select all
             if ( hasOption ) {
                 store.commit( "setMinSelectedStep", 0 );
-                store.commit( "setMaxSelectedStep", activeSong.patterns[ sequencer.activePattern ].steps );
+                store.commit( "setMaxSelectedStep", activeSong.patterns[ store.getters.activePatternIndex ].steps );
                 store.commit( "setSelectionChannelRange", { firstChannel: 0, lastChannel: Config.INSTRUMENT_AMOUNT - 1 });
             }
             break;
@@ -341,7 +341,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
                      store.commit( "setSelectionChannelRange", { firstChannel: editor.selectedInstrument });
                      store.commit( "setSelection", { selectionStart: editor.selectedStep });
                  }
-                 store.commit( "copySelection", { song: activeSong, activePattern: sequencer.activePattern });
+                 store.commit( "copySelection", { song: activeSong, activePattern: store.getters.activePatternIndex });
                  store.commit( "clearSelection" );
              }
              break;
@@ -364,8 +364,8 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 71: // G
             if ( hasOption ) {
                 EventUtil.glideParameterAutomations(
-                    activeSong, editor.selectedStep, sequencer.activePattern,
-                    editor.selectedInstrument, editor.eventList, store
+                    activeSong, editor.selectedStep, store.getters.activeOrderIndex,
+                    editor.selectedInstrument, store
                 );
                 preventDefault( event ); // in-page search
             }
@@ -431,11 +431,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 90: // Z
 
             if ( hasOption ) {
-                const action = !shiftDown ? "undo" : "redo";
-                store.dispatch( action ).then(() => {
-                    // TODO this is wasteful, can we do this more elegantly?
-                    EventUtil.linkEvents( activeSong.patterns, editor.eventList );
-                });
+                store.dispatch( !shiftDown ? "undo" : "redo" );
                 preventDefault( event ); // override browser undo
             }
             break;
@@ -540,8 +536,8 @@ function handleDeleteActionForCurrentMode(): void {
             break;
         case MODES.PARAM_VALUE:
         case MODES.PARAM_SELECT:
-            event = state.song.activeSong.patterns[state.sequencer.activePattern]
-                         .channels[state.editor.selectedInstrument ][state.editor.selectedStep];
+            event = state.song.activeSong.patterns[ store.getters.activePatternIndex ]
+                         .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
 
             if ( !event || !event.mp ) {
                 return;

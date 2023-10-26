@@ -107,7 +107,6 @@ export default {
     computed: {
         ...mapState({
             activeSong           : state => state.song.activeSong,
-            activePattern        : state => state.sequencer.activePattern,
             currentStep          : state => state.sequencer.currentStep,
             higherKeyboardOctave : state => state.editor.higherKeyboardOctave,
             playing              : state => state.sequencer.playing,
@@ -115,6 +114,7 @@ export default {
             selectedStep         : state => state.editor.selectedStep,
         }),
         ...mapGetters([
+            "activePatternIndex",
             "isRecording",
         ]),
         octave: {
@@ -153,7 +153,7 @@ export default {
             return out;
         },
         currentChannel() {
-            const pattern = this.activeSong.patterns[ this.activePattern ];
+            const pattern = this.activeSong.patterns[ this.activePatternIndex ];
             return pattern.channels[ this.selectedInstrument ];
         },
         /* optionally existing event at the current editor position */
@@ -162,7 +162,7 @@ export default {
         },
     },
     watch: {
-        activePattern() {
+        activePatternIndex() {
             this.syncWithExisting();
         },
         selectedInstrument() {
@@ -236,7 +236,7 @@ export default {
                 store: this.$store,
                 event: { ...event, ...eventData, action: ACTION_NOTE_ON },
                 optData: {
-                    patternIndex : this.activePattern,
+                    patternIndex : this.activePatternIndex,
                     channelIndex : this.selectedInstrument,
                     newEvent     : isNewEvent,
                     step
@@ -456,7 +456,6 @@ $largeWidth: 700px;
     @include list();
     @include toolFont();
     text-transform: uppercase;
-    text-indent: $spacing-small;
     display: inline-block;
 
     li {
@@ -464,6 +463,7 @@ $largeWidth: 700px;
         border: 2px solid #666;
         padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
         margin: $spacing-xsmall $spacing-small 0 0;
+        text-indent: $spacing-small;
         cursor: pointer;
 
         &.selected {

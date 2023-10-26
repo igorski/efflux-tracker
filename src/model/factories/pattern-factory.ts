@@ -21,17 +21,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from "@/config";
-import EventFactory from "./event-factory";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import {
-    PATTERNS, PATTERN_STEPS, PATTERN_CHANNELS,
+    PATTERNS, PATTERN_STEPS, PATTERN_CHANNELS, PATTERN_DESCRIPTION,
     NOTE_POOLS, AUTOMATION_POOLS,
     EVENT_ACTION, // EVENT_ID,
-    EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE, EVENT_LENGTH,
+    EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE,
     EVENT_MODULE_AUTOMATION, EVENT_MODULE, EVENT_MODULE_VALUE, EVENT_MODULE_GLIDE
 } from "../serializers/pattern-serializer";
 import { ACTION_IDLE } from "../types/audio-event";
@@ -41,14 +40,15 @@ const PatternFactory =
     /**
      * @param {number=} amountOfSteps optional, the amount of
      *        subdivisions desired within the pattern, defaults to 16
-     * @param {Array<Array<EffluxAudioEvent>>=} optChannels optional channels to
+     * @param {EffluxAudioEvent[][]=} optChannels optional channels to
      *        assign to the pattern, otherwise empty channels are generated accordingly
      * @return {EffluxPattern}
      */
-    create( amountOfSteps: number = 16, optChannels: EffluxChannel[] = null ): EffluxPattern {
+    create( amountOfSteps: number = 16, optChannels?: EffluxChannel[], description?: string ): EffluxPattern {
         return {
             steps    : amountOfSteps,
-            channels : optChannels || generateEmptyChannelPatterns( amountOfSteps )
+            channels : optChannels || generateEmptyChannelPatterns( amountOfSteps ),
+            description,
         };
     },
 
@@ -72,7 +72,8 @@ const PatternFactory =
 
             pattern = patterns[ pIndex ] = PatternFactory.create(
                 xtkPattern[ PATTERN_STEPS ],
-                xtkPattern[ PATTERN_CHANNELS ]
+                xtkPattern[ PATTERN_CHANNELS ],
+                xtkPattern[ PATTERN_DESCRIPTION ],
             );
 
             xtkPattern[ PATTERN_CHANNELS ].forEach(( xtkChannel: any, cIndex: number ): void => {
@@ -119,7 +120,7 @@ const PatternFactory =
                             },
                         };
 
-                        EventUtil.setPosition( event, pattern, pIndex, eIndex, tempo, eventData[ EVENT_LENGTH ]);
+                        EventUtil.setPosition( event, pattern, eIndex, tempo );
                         const xtkAutomation = eventData[ EVENT_MODULE_AUTOMATION ];
 
                         if ( xtkAutomation) {
@@ -149,10 +150,9 @@ const PatternFactory =
      *
      * @param {EffluxPattern} targetPattern
      * @param {EffluxPattern} sourcePattern
-     * @param {number} targetPatternIndex
      * @return {EffluxPattern} new pattern with merged contents
      */
-    mergePatterns( targetPattern: EffluxPattern, sourcePattern: EffluxPattern, targetPatternIndex: number ): EffluxPattern {
+    mergePatterns( targetPattern: EffluxPattern, sourcePattern: EffluxPattern ): EffluxPattern {
         let targetLength = targetPattern.steps;
         let sourceLength = sourcePattern.steps;
 
@@ -205,17 +205,7 @@ const PatternFactory =
                 // copy source content into the target channel (only when it has a note action or module parameter automation)
 
                 if ( sourceEvent && ( sourceEvent.action !== ACTION_IDLE || sourceEvent.mp )) {
-
-                    const targetEvent = targetChannel[ i ] = clone( sourceEvent );
-
-                    // update the start measure of the event
-
-                    const eventStart  = targetEvent.seq.startMeasure;
-                    const eventEnd    = targetEvent.seq.endMeasure;
-                    const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                    targetEvent.seq.startMeasure = targetPatternIndex;
-                    targetEvent.seq.endMeasure   = targetEvent.seq.startMeasure + eventLength;
+                     targetChannel[ i ] = clone( sourceEvent );
                 }
             }
         });
@@ -228,25 +218,13 @@ export default PatternFactory;
 
 /**
  * @param {number} amountOfSteps the amount of steps to generate in each pattern
- * @param {boolean=} addEmptyPatternStep optional, whether to add empty steps inside the pattern
- * @returns {Array<EffluxChannel>}
+ * @returns {EffluxChannel[]}
  */
-function generateEmptyChannelPatterns( amountOfSteps: number, addEmptyPatternStep: boolean = false ): EffluxChannel[] {
-    let out = [], i;
-
-    for ( i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-        out.push( new Array( amountOfSteps ));
+function generateEmptyChannelPatterns( amountOfSteps: number ): EffluxChannel[] {
+    const out = [];
+    for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
+        // we are cheating a bit using JS falsy values, but 0 stringifies nicely in JSON (smaller than "null")
+        out.push( new Array( amountOfSteps ).fill( 0 ));
     }
-    out.forEach(( channel: EffluxChannel ): void => {
-        i = amountOfSteps;
-        while ( i-- ) {
-            if ( addEmptyPatternStep === true ) {
-                channel[ i ] = EventFactory.create();
-            } else {
-                // @ts-expect-error we are cheating a bit using JS falsy values
-                channel[ i ] = 0; // stringifies nicely in JSON save (otherwise is recorded as "null")
-            }
-        }
-    });
     return out;
 }

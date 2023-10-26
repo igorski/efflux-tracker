@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,9 +22,13 @@
  */
 import Config from "@/config";
 import PatternFactory from "@/model/factories/pattern-factory";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxSong } from "@/model/types/song";
 import PatternValidator from "@/model/validators/pattern-validator";
 import { clone } from "@/utils/object-util";
+import { areEventsEqual } from "@/utils/event-util";
 
 type SerializedPatternList = {
     patterns: EffluxPattern[]
@@ -36,7 +40,7 @@ export default {
      *
      * @param {Array<EffluxPattern>} patterns list of patterns
      * @param {number} index where the generated pattern will be added
-     * @param {number} amountOfSteps the amount of steps in the pattern to generate
+     * @param {number} amountOfSteps the amount of steps in the pattern to generate (unless pattern is given)
      * @param {EffluxPattern=} pattern optional pattern to inject, otherwise empty pattern is created
      * @return {Array<EffluxPattern>} updated list
      */
@@ -46,18 +50,6 @@ export default {
 
         front.push( pattern ? pattern : PatternFactory.create( amountOfSteps ));
 
-        // update event offset for back patterns (as their start/end offsets should now shift)
-
-        back.forEach( pattern => {
-            pattern.channels.forEach( channel => {
-                channel.forEach( event => {
-                    if ( event ) {
-                        ++event.seq.startMeasure;
-                        ++event.seq.endMeasure;
-                    }
-                });
-            });
-        });
         return front.concat( back );
     },
     /**
@@ -73,45 +65,35 @@ export default {
         const front = patterns.slice( 0, index );
         const back  = patterns.slice( index );
 
-        // update event offset for back patterns (as their start/end offsets should now shift)
-
-        back.forEach( pattern => {
-            pattern.channels.forEach( channel => {
-                channel.forEach( event => {
-                    if ( event ) {
-                        --event.seq.startMeasure;
-                        --event.seq.endMeasure;
-                    }
-                });
-            });
-        });
         return front.concat( back );
     }
+};
+
+export const copyPatternsByRange = ( patternsToClone: EffluxPattern[], firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ): EffluxPattern[] => {
+    const clonedPatterns: EffluxPattern[] = [];
+    patternsToClone.forEach( p => {
+        const clonedPattern = PatternFactory.create( p.steps );
+        for ( let i = firstChannel; i <= lastChannel; ++i ) {
+            clonedPattern.channels[ i ] = clone( p.channels[ i ]);
+        }
+        clonedPattern.description = p.description ? `${p.description} Copy` : undefined;
+        clonedPatterns.push( clonedPattern );
+    });
+    return clonedPatterns;
 };
 
 /**
  * Serializes a list of patterns ranges into an encoded PATTERN_FILE_EXTENSION file
  *
- * @param {Array<EffluxPattern>} patterns to serialize
- * @param {number} firstChannel first channel index to serialize pattern data from
- * @param {number} lastChannel last channel index to serialize pattern data from
+ * @param {EffluxPattern[]} patterns to serialize
  * @return {string} base64 encoded PATTERN_FILE_EXTENSION file content
  */
-export const serializePatternFile = ( patterns: EffluxPattern[], firstChannel = 0, lastChannel = Config.INSTRUMENT_AMOUNT - 1 ): string => {
-    // clone the pattern contents
-    const cloned: EffluxPattern[] = [];
-    patterns.forEach( p => {
-        const clonedPattern = PatternFactory.create( p.steps );
-        for ( let i = firstChannel; i <= lastChannel; ++i ) {
-            clonedPattern.channels[ i ] = clone( p.channels[ i ]);
-        }
-        cloned.push( clonedPattern );
-    });
+export const serializePatternFile = ( patterns: EffluxPattern[] ): string => {
     // serialize
-    return window.btoa( JSON.stringify({ patterns: cloned }));
+    return window.btoa( JSON.stringify({ patterns }));
 };
 
-export const deserializePatternFile = ( encodedPatternData: string ): EffluxPattern[] => {
+export const deserializePatternFile = ( encodedPatternData: string ): EffluxPattern[] | null => {
     try {
         const parsed = JSON.parse( window.atob( encodedPatternData )) as SerializedPatternList;
         // validate contents
@@ -122,4 +104,56 @@ export const deserializePatternFile = ( encodedPatternData: string ): EffluxPatt
     } catch {
         return null;
     }
+};
+
+export const arePatternsEqual = ( pattern: EffluxPattern, comparePattern: EffluxPattern ): boolean => {
+    if ( pattern.steps !== comparePattern.steps ) {
+        return false;
+    }
+
+    if ( pattern.channels.length !== comparePattern.channels.length ) {
+        return false;
+    }
+    
+    for ( let i = 0, l = pattern.channels.length; i < l; ++i ) {
+        const channel: EffluxChannel = pattern.channels[ i ];
+        const compareChannel: EffluxChannel = comparePattern.channels[ i ];
+
+        if ( channel.length !== compareChannel.length ) {
+            return false;
+        }
+        for ( let j = 0, jl = channel.length; j < jl; ++j ) {
+            const event        = channel[ j ];
+            const compareEvent = compareChannel[ j ];
+
+            if ( !event || !compareEvent ) {
+                if ( event === compareEvent ) {
+                    continue; // both events are undefined
+                }
+                return false;
+            }
+
+            if ( !areEventsEqual( event, compareEvent )) {
+                return false;
+            }
+        }
+    }
+    return true;
+};
+
+/**
+ * convenience method to clone all event and channel data for given pattern
+ * this also resets each events play state to ensure seamless playback when
+ * performing und/redo actions during playback
+ */
+export const clonePattern = ( song: EffluxSong, activePatternIndex: number ): EffluxPattern => {
+    const clonedPattern = clone( song.patterns[ activePatternIndex ]);
+    clonedPattern.channels.forEach(( channel: EffluxChannel ) => {
+        channel.forEach(( event: EffluxAudioEvent ) => {
+            if ( event?.seq?.playing ) {
+                event.seq.playing = false;
+            }
+        });
+    });
+    return clonedPattern;
 };

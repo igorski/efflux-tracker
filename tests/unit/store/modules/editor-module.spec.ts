@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import EditorModule, { createEditorState } from "@/store/modules/editor-module";
-import LinkedList from "@/utils/linked-list";
 import Config from "@/config";
 
 const { mutations } = EditorModule;
@@ -71,15 +70,6 @@ describe( "Vuex editor module", () => {
             const state = createEditorState({ selectedOscillatorIndex: 0 } );
             mutations.setSelectedOscillatorIndex( state, 1 );
             expect( state.selectedOscillatorIndex ).toEqual( 1 );
-        });
-
-        it( "should be able to prepare the linked list for the events", () => {
-            const state = createEditorState({ eventList: [] } );
-            mutations.prepareLinkedList( state );
-            expect(state.eventList.length).toEqual(Config.INSTRUMENT_AMOUNT);
-            for ( let i = 0; i < state.eventList.length; ++i ) {
-                expect(state.eventList[i] instanceof LinkedList);
-            }
         });
 
         it( "should be able to reset the editor", () => {

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,25 +22,29 @@
  */
 <template>
     <div class="select-box-wrapper">
-        <vue-select :options="options"
-                    :searchable="searchable"
-                    :disabled="disabled"
-                    :clearable="false"
-                    v-model="internalValue"
-                    class="select"
-                    ref="select"
+        <vue-select
+            :options="options"
+            :searchable="searchable"
+            :disabled="disabled"
+            :clearable="false"
+            :append-to-body="autoPosition"
+            :calculate-position="withPopper"
+            v-model="internalValue"
+            class="select"
+            ref="select"
         />
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import VueSelect from "vue-select";
 import "vue-select/dist/vue-select.css";
+import { createPopper } from '@popperjs/core'
 
 export default {
     props: {
         value: {
-            type: String,
+            type: [ String, Number ],
             default: null,
         },
         options: {
@@ -55,16 +59,20 @@ export default {
             type: Boolean,
             default: false,
         },
+        autoPosition: {
+            type: Boolean,
+            default: false,
+        },
     },
     components: {
         VueSelect,
     },
     computed: {
         internalValue: {
-            get() {
+            get(): string | number {
                 return this.options.find(({ value }) => value === this.value );
             },
-            set({ value }) {
+            set({ value }: { value: string | number }): void {
                 this.$emit( "input", value );
                 this.assertSync();
             }
@@ -77,7 +85,7 @@ export default {
          * the v-model just fine). Here we do a quick open/close (invisible to
          * the eye) to ensure all looks OK.
          */
-        async assertSync() {
+        async assertSync(): Promise<void> {
             await this.$nextTick();
             const select = this.$refs.select;
             if ( typeof select?.closeSearchOptions === "function" ) {
@@ -86,7 +94,31 @@ export default {
                     select.closeSearchOptions();
                 });
             }
-        }
+        },
+        withPopper( dropdownList, component, { width }): () => void {
+            dropdownList.style.width = width;
+
+            const popper = createPopper( component.$refs.toggle, dropdownList, {
+                placement: "top",
+                modifiers: [{
+                    name: "offset",
+                    options: {
+                       offset: [ 0, -1 ],
+                    },
+                },
+                {
+                    name: "toggleClass",
+                    enabled: true,
+                    phase: "write",
+                    fn({ state }) {
+                        component.$el.classList.toggle( "drop-up", state.placement === "top" );
+                    },
+                }],
+            });
+            return (): void => {
+                popper.destroy();
+            }
+        },
     }
 };
 </script>
@@ -115,9 +147,16 @@ export default {
 .vs__open-indicator {
     fill: #222;
 }
+.vs--unsearchable .vs__search {
+    // fixes weird vertical jump after selectbox open
+    // by keeping it in the DOM, focus/blur/esc still work
+    position: absolute;
+    top: -9999px;
+}
 .vs__selected {
     margin: #{$spacing-xsmall + 1} $spacing-xsmall 0;
     font-size: 95%;
+    @include truncate();
 }
 
 .vs__selected-options {

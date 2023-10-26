@@ -297,13 +297,11 @@ function applyExternalEvent( audioContext: BaseAudioContext, event: EffluxAudioE
         return;
     }
     createTimer( audioContext, startTimeInSeconds, (): void => {
-        const { seq, mp } = event;
-        const t = seq.startOffset + seq.startMeasureOffset;
-
+       
         // note that within Efflux values are scaled to percentile, so here
         // we convert the model value to the same on-screen hexadecimal value
 
-        eventCallback({ c: parseInt(`0x${toHex(mp.value)}`, 16), t });
+        eventCallback({ c: parseInt(`0x${toHex(event.mp.value)}`, 16), t: startTimeInSeconds });
     });
 }
 

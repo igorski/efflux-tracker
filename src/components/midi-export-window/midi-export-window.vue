@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2022 - https://www.igorski.nl
+* Igor Zinken 2022-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -37,8 +37,19 @@
         <fieldset>
             <div class="wrapper input">
                 <label v-t="'patternRange'"></label>
-                <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
-                <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
+                <input
+                    v-model.number="firstOrderIndex"
+                    ref="firstPatternInput"
+                    type="number"
+                    min="1"
+                    :max="maxOrderIndex"
+                >
+                <input
+                    v-model.number="lastOrderIndex"
+                    type="number"
+                    min="1"
+                    :max="maxOrderIndex"
+                >
             </div>
         </fieldset>
         <fieldset>
@@ -58,7 +69,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapMutations } from "vuex";
 import midiWriter from "midi-writer-js";
 import { saveAsFile } from "@/utils/file-util";
@@ -69,24 +80,25 @@ import messages from "./messages.json";
 export default {
     i18n: { messages },
     data: () => ({
-        firstPattern : 1,
-        lastPattern  : 1,
-        firstChannel : 1,
-        lastChannel  : 8,
-        pastePattern : 1,
+        firstOrderIndex : 1,
+        lastOrderIndex  : 1,
+        firstChannel    : 1,
+        lastChannel     : 8,
+        pastePattern    : 1,
     }),
     computed: {
         ...mapGetters([
             "activeSong",
         ]),
-        maxPattern() {
-            return this.activeSong.patterns.length;
+        maxOrderIndex(): number {
+            return this.activeSong.order.length;
         },
     },
-    created() {
+    created(): void {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
-        this.firstPattern = 1;
-        this.lastPattern  = this.activeSong.patterns.length;
+        this.firstOrderIndex = 1;
+        this.lastOrderIndex  = this.activeSong.order.length;
+
         this.firstChannel = 1;
         this.lastChannel  = this.activeSong.instruments.length;
         this.pastePattern = this.maxPattern;
@@ -97,29 +109,28 @@ export default {
             this.$refs.firstPatternInput.focus();
         });
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.suspendKeyboardService( false );
     },
     methods: {
         ...mapMutations([
             "suspendKeyboardService",
         ]),
-        handleClose() {
+        handleClose(): void {
             this.$emit( "close" );
         },
-        handleConfirm() {
-            const patterns        = this.activeSong.patterns;
-            const maxPatternValue = patterns.length;
+        handleConfirm(): void {
+            const maxPatternValue = this.activeSong.order.length;
             const maxChannelValue = this.activeSong.instruments.length - 1;
 
-            const firstPatternValue = Math.min( maxPatternValue, this.firstPattern - 1 );
-            const lastPatternValue  = Math.min( maxPatternValue, this.lastPattern - 1 );
+            const firstOrderIndexValue = Math.min( maxPatternValue, this.firstOrderIndex - 1 );
+            const lastOrderIndexValue  = Math.min( maxPatternValue, this.lastOrderIndex - 1 );
             const firstChannelValue = Math.min( maxChannelValue, this.firstChannel - 1 );
             const lastChannelValue  = Math.min( maxChannelValue, this.lastChannel - 1 );
 
             const midiData = exportAsMIDI(
                 midiWriter, this.activeSong,
-                firstPatternValue, lastPatternValue,
+                firstOrderIndexValue, lastOrderIndexValue,
                 firstChannelValue, lastChannelValue
             );
             const filename = toFileName( this.activeSong.meta.title, ".mid" );

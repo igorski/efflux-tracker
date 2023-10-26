@@ -21,6 +21,6 @@
     font-size: 85%;
     padding: $spacing-medium;
     @include boxSize();
-    border: 1px solid #666;
+    border: 1px solid $color-border;
     border-radius: $spacing-medium;
 }

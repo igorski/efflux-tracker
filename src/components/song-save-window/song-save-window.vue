@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2020-2021 - https://www.igorski.nl
+* Igor Zinken 2020-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -79,7 +79,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { getCurrentFolder, setCurrentFolder } from "@/services/dropbox-service";
 import { ToggleButton } from "vue-js-toggle-button";
@@ -105,7 +105,7 @@ export default {
             "activeSong",
         ]),
     },
-    mounted() {
+    mounted(): void {
         this.title  = this.activeSong.meta.title;
         this.author = this.activeSong.meta.author;
         this.saveInDropbox = this.dropboxConnected;
@@ -124,37 +124,33 @@ export default {
             "unsetLoading"
         ]),
         ...mapActions([
-            "saveSongInLS",
-            "exportSongToDropbox",
-            "validateSong",
+            "saveSong",
         ]),
         /**
          * when typing, we want to suspend the KeyboardController
          * so it doesn't broadcast the typing to its listeners
          */
-        handleFocusIn() {
+        handleFocusIn(): void {
             this.suspendKeyboardService( true );
         },
         /**
          * on focus out, restore the KeyboardControllers broadcasting
          */
-        handleFocusOut() {
+        handleFocusOut(): void {
             this.suspendKeyboardService( false );
         },
-        async save() {
+        async save(): Promise<void> {
             this.isSaving = true;
             try {
                 this.setActiveSongAuthor( this.author );
                 this.setActiveSongTitle( this.title );
-                await this.validateSong( this.activeSong );
+                if ( this.saveInDropbox ) {
+                    setCurrentFolder( this.folder );
+                }
+                this.activeSong.origin = this.saveInDropbox ? "dropbox" : "local";
                 this.setLoading( "save" );
                 try {
-                    if ( this.saveInDropbox ) {
-                        await this.exportSongToDropbox({ song: this.activeSong, folder: this.folder });
-                        setCurrentFolder( this.folder );
-                    } else {
-                        await this.saveSongInLS( this.activeSong );
-                    }
+                    await this.saveSong( this.activeSong );
                 } catch {
                     // TODO would that occur at this point ?
                 }

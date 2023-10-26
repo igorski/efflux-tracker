@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -35,48 +35,59 @@
         </div>
         <hr class="divider" />
         <fieldset>
-            <div class="wrapper input">
+            <legend v-t="'copyRange'"></legend>
+            <div class="wrapper input push">
                 <label v-t="'copyPatternRangeLabel'"></label>
                 <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
             </div>
-        </fieldset>
-        <fieldset>
             <div class="wrapper input">
                 <label v-t="'copyChannelRangeLabel'"></label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
-        <button
-            v-t="'exportContent'"
-            type="button"
-            class="export-button"
-            @click="handleExportClick()"
-        ></button>
         <fieldset>
+            <legend v-t="'insertClone'"></legend>
             <div class="wrapper input">
                 <label v-t="'insertAfterLabel'"></label>
                 <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
+            <button
+                v-t="'insertClonedContent'"
+                type="button"
+                class="confirm-button"
+                @keyup.enter="handleInsertClick()"
+                @click="handleInsertClick()"
+            ></button>
         </fieldset>
-        <button
-            v-t="'insertClonedContent'"
-            type="button"
-            class="confirm-button"
-            @keyup.enter="handleDuplicateClick()"
-            @click="handleDuplicateClick()"
-        ></button>
+        <fieldset>
+            <legend v-t="'or'"></legend>
+            <button
+                v-t="'exportContent'"
+                type="button"
+                class="export-button"
+                @click="handleExportClick()"
+            ></button>
+        </fieldset>
     </div>
 </template>
 
-<script>
-import { mapState, mapMutations, mapActions } from "vuex";
-
+<script lang="ts">
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { PATTERN_FILE_EXTENSION } from "@/definitions/file-types";
+import type { EffluxPattern } from "@/model/types/pattern";
 import { saveAsFile } from "@/utils/file-util";
-import { serializePatternFile } from "@/utils/pattern-util";
+import { copyPatternsByRange, serializePatternFile } from "@/utils/pattern-util";
 import messages from "./messages.json";
+
+type ClonedPatternDef = {
+    firstPatternValue: number;
+    lastPatternValue: number;
+    firstChannelValue: number;
+    lastChannelValue: number;
+    clonedPatterns: EffluxPattern[];
+};
 
 export default {
     i18n: { messages },
@@ -90,15 +101,17 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
         }),
-        maxPattern() {
+        ...mapGetters([
+            "activePatternIndex",
+        ]),
+        maxPattern(): number {
             return this.activeSong.patterns.length;
         },
     },
-    created() {
+    created(): void {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
-        this.firstPattern = this.activePattern + 1;
+        this.firstPattern = this.activePatternIndex + 1;
         this.lastPattern  = this.activeSong.patterns.length;
         this.firstChannel = 1;
         this.lastChannel  = this.activeSong.instruments.length;
@@ -110,7 +123,7 @@ export default {
             this.$refs.firstPatternInput.focus();
         });
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.suspendKeyboardService( false );
     },
     methods: {
@@ -124,17 +137,17 @@ export default {
         ...mapActions([
             "pastePatternsIntoSong",
         ]),
-        async handleExportClick() {
+        async handleExportClick(): Promise<void> {
             this.setLoading( "pexp" );
             try {
                 const {
                     firstChannelValue, lastChannelValue,
                     firstPatternValue, lastPatternValue,
-                    patternsToClone,
+                    clonedPatterns,
                 }  = this.clonePatternRange();
 
                 // encode pattern range
-                const data = serializePatternFile( patternsToClone, firstChannelValue, lastChannelValue );
+                const data = serializePatternFile( clonedPatterns );
                 const name = `${this.activeSong.meta.title}_${firstPatternValue}-${lastPatternValue}_${firstChannelValue}-${lastChannelValue}`;
 
                 // download file to disk
@@ -147,27 +160,22 @@ export default {
             }
             this.unsetLoading( "pexp" );
         },
-        handleClose() {
+        handleClose(): void {
             this.$emit( "close" );
         },
-        async handleDuplicateClick() {
+        async handleInsertClick(): Promise<void> {
             const patterns = this.activeSong.patterns;
             const pastePatternValue = Math.min( patterns.length, this.pastePattern );
 
-            const {
-                firstChannelValue,
-                lastChannelValue,
-                patternsToClone,
-            }  = this.clonePatternRange();
+            const { clonedPatterns } = this.clonePatternRange();
 
             await this.pastePatternsIntoSong({
-                patterns     : patternsToClone,
-                channelRange : [ firstChannelValue, lastChannelValue ],
+                patterns     : clonedPatterns,
                 insertIndex  : pastePatternValue
             });
             this.handleClose();
         },
-        clonePatternRange() {
+        clonePatternRange(): ClonedPatternDef {
             const patterns        = this.activeSong.patterns;
             const maxChannelValue = this.activeSong.instruments.length - 1;
 
@@ -184,7 +192,7 @@ export default {
                 lastPatternValue,
                 firstChannelValue,
                 lastChannelValue,
-                patternsToClone,
+                clonedPatterns: copyPatternsByRange( patternsToClone, firstChannelValue, lastChannelValue ),
             };
         },
     },
@@ -198,7 +206,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 450px;
-$height: 410px;
+$height: 470px;
 
 .advanced-pattern-editor {
     @include editorComponent();
@@ -241,6 +249,9 @@ $height: 410px;
         input {
             display: inline-block;
         }
+        &.push {
+            margin-bottom: $spacing-medium;
+        }
     }
 
     .export-button,
@@ -249,8 +260,8 @@ $height: 410px;
         padding: $spacing-medium $spacing-large;
     }
 
-    .export-button {
-        margin-bottom: $spacing-medium;
+    .confirm-button {
+        margin-top: $spacing-medium;
     }
 }
 </style>

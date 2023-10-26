@@ -45,9 +45,9 @@
                 <div
                     ref="properties"
                     class="application-properties"
+                    :class="{ 'application-properties--expanded' : useOrders }"
                 >
                     <pattern-editor />
-                    <song-editor />
                 </div>
             </div>
             <div class="container">
@@ -55,9 +55,10 @@
                     ref="editor"
                     class="application-editor"
                     :class="{
-                        'has-help-panel'  : displayHelp,
-                        'settings-mode'   : mobileMode === 'settings',
-                        'note-entry-mode' : showNoteEntry
+                        'has-help-panel'          : displayHelp,
+                        'settings-mode'           : mobileMode === 'settings',
+                        'settings-mode--expanded' : mobileMode === 'settings' && useOrders,
+                        'note-entry-mode'         : showNoteEntry
                     }"
                 >
                     <track-editor />
@@ -104,9 +105,9 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import Vue from "vue";
+import Vue, { type Component } from "vue";
 import Vuex from "vuex";
 import VueI18n from "vue-i18n";
 import Bowser from "bowser";
@@ -121,6 +122,7 @@ import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SampleFactory from "@/model/factories/sample-factory";
+import type { EffluxSong } from "@/model/types/song";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
 import store from "@/store";
@@ -135,7 +137,8 @@ const i18n = new VueI18n({
 });
 
 // wrapper for loading dynamic components with custom loading states
-function asyncComponent( key, importFn ) {
+type IAsyncComponent = { component: Promise<Component>};
+function asyncComponent( key: string, importFn: () => Promise<any> ): IAsyncComponent {
     return {
         component: new Promise( async ( resolve, reject ) => {
             Pubsub.publish( PubSubMessages.SET_LOADING_STATE, key );
@@ -167,7 +170,6 @@ export default {
         NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        SongEditor: () => asyncComponent( "se", () => import( "@/components/song-editor/song-editor.vue" )),
         TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor.vue" )),
         TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
@@ -197,8 +199,9 @@ export default {
             "hasChanges",
             "isLoading",
             "timelineMode",
+            "useOrders",
         ]),
-        activeModal() {
+        activeModal(): null | (() => IAsyncComponent) {
             let loadFn;
             switch ( this.modal ) {
                 default:
@@ -254,19 +257,29 @@ export default {
                 case ModalWindows.JAM_MODE:
                     loadFn = () => import( "@/components/jam/jam.vue" );
                     break;
+                case ModalWindows.PATTERN_MANAGER:
+                    loadFn = () => import( "@/components/pattern-manager/pattern-manager.vue" );
+                    break;
+                case ModalWindows.PATTERN_ORDER_WINDOW:
+                    loadFn = () => import( "@/components/pattern-order-window/pattern-order-window.vue" );
+                    break;
+                case ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW:
+                    loadFn = () => import( "@/components/pattern-to-order-conversion-window/pattern-to-order-conversion-window.vue" );
+                    break;
             }
             return () => asyncComponent( "mw", loadFn );
         },
     },
     watch: {
-        menuOpened( isOpen ) {
+        menuOpened( isOpen: boolean ): void {
             // prevent scrolling main body when scrolling menu list
             window.document.body.style.overflow = isOpen ? "hidden" : "auto";
         },
-        activeSong( song = null ) {
-            if ( song == null ) {
+        activeSong( song?: EffluxSong ): void {
+            if ( !song ) {
                 return;
             }
+
             if ( AudioService.initialized ) {
                 AudioService.reset();
                 AudioService.cacheCustomTables( song.instruments );
@@ -274,11 +287,16 @@ export default {
             }
             this.resetEditor();
             this.resetHistory();
-            this.createLinkedList( song );
-            this.setActivePattern( 0 );
+            this.cachePatternNames();
+            this.gotoPattern({ orderIndex: 0, song });
             this.setPlaying( false );
             this.setLooping( false );
             this.clearSelection();
+
+            if ( this.useOrders && song.version < 4 && song.order.length === song.patterns.length ) {
+                return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
+            }
+            this.publishMessage( PubSubMessages.SONG_LOADED );
 
             if ( !song.meta.title ) {
                 return;
@@ -287,16 +305,15 @@ export default {
                 title   : this.$t( "songLoadedTitle" ),
                 message : this.$t( "songLoaded", { name: song.meta.title })
             });
-            this.publishMessage( PubSubMessages.SONG_LOADED );
         },
         /**
          * synchronize editor module changes with keyboard service
          */
-        selectedSlot() {
+        selectedSlot(): void {
             this.syncKeyboard();
         }
     },
-    async created() {
+    async created(): Promise<void> {
 
         // expose publish / subscribe bus to integrate with outside API"s
         window.efflux = { ...window.efflux, Pubsub };
@@ -312,7 +329,6 @@ export default {
 
         // prepare model
 
-        this.prepareLinkedList();
         this.openSong( await this.createSong());
         await this.prepareSequencer( this.$store );
         await this.setupServices( i18n );
@@ -334,7 +350,7 @@ export default {
             for ( const file of patterns ) {
                 const deserializedPatterns = deserializePatternFile( await readTextFromFile( file ));
                 if ( deserializedPatterns ) {
-                    this.pastePatternsIntoSong({ patterns: deserializedPatterns });
+                    this.pastePatternsIntoSong({ patterns: deserializedPatterns, insertIndex: this.activeSong.patterns.length });
                 } else {
                     this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.patternImport" )});
                 }
@@ -416,9 +432,8 @@ export default {
     methods: {
         ...mapMutations([
             "addSample",
-            "prepareLinkedList",
-            "createLinkedList",
-            "setActivePattern",
+            "cachePatternNames",
+            "gotoPattern",
             "setAmountOfSteps",
             "setBlindActive",
             "setCurrentSample",
@@ -445,23 +460,23 @@ export default {
             "loadStoredInstruments",
             "loadInstrumentFromFile",
             "loadStoredSongs",
-            "createSong"
+            "createSong",
         ]),
-        addListeners() {
+        addListeners(): void {
             // no need to dispose as these will be active during application lifetime
             window.addEventListener( "resize", this.handleResize );
         },
-        handleReady() {
+        handleReady(): void {
             if ( this.displayWelcome ) {
                 this.openModal( ModalWindows.WELCOME_WINDOW );
             }
             this.$nextTick( this.calculateDimensions );
         },
-        handleResize() {
+        handleResize(): void {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             this.calculateDimensions();
         },
-        calculateDimensions() {
+        calculateDimensions(): void {
             /**
              * due to the nature of the table display of the pattern editors track list
              * we need JavaScript to calculate to correct dimensions of the overflowed track list

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -32,15 +32,18 @@ import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
 import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages from "@/services/pubsub/messages";
+import { FACTORY_VERSION } from "@/model/factories/song-factory";
 import SongValidator from "@/model/validators/song-validator";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@/model/types/song";
 import { clone } from "@/utils/object-util";
 import StorageUtil from "@/utils/storage-util";
 import { saveAsFile } from "@/utils/file-util";
+import { indexToName } from "@/utils/pattern-name-util";
 import { toFileName } from "@/utils/string-util";
 import { parseXTK, toXTK } from "@/utils/xtk-util";
 import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
@@ -137,7 +140,7 @@ const SongModule: Module<SongState, any> = {
 
                     if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
                         // move to the next step in the pattern (unless executed from undo/redo)
-                        const maxStep = store.state.song.activeSong.patterns[ store.state.sequencer.activePattern ].steps - 1;
+                        const maxStep = store.state.song.activeSong.patterns[ store.getters.activePatternIndex ].steps - 1;
                         const targetStep = store.state.editor.selectedStep + 1;
 
                         if ( targetStep <= maxStep ) {
@@ -162,16 +165,24 @@ const SongModule: Module<SongState, any> = {
         },
         replacePattern( state: SongState, { patternIndex, pattern }: { patternIndex: number, pattern: EffluxPattern }): void {
             Vue.set( state.activeSong.patterns, patternIndex, pattern );
+            cachePatternNames( state.activeSong.patterns );
         },
         replacePatterns( state: SongState, patterns: EffluxPattern[] ): void {
+            cachePatternNames( patterns );
             Vue.set( state.activeSong, "patterns", patterns );
+        },
+        replacePatternOrder( state: SongState, order: EffluxPatternOrder ): void {
+            Vue.set( state.activeSong, "order", order );
+        },
+        cachePatternNames( state: SongState ): void {
+            cachePatternNames( state.activeSong.patterns );
         },
         setShowSaveMessage( state: SongState, value: boolean ): void {
             state.showSaveMessage = !!value;
         },
         setStatesOnSave( state: SongState, value: number ): void {
             state.statesOnSave = value;
-        }
+        },
     },
     actions: {
         loadStoredSongs({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }): void {
@@ -410,6 +421,7 @@ const SongModule: Module<SongState, any> = {
         },
         async saveSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): Promise<void> {
             await dispatch( "validateSong", song );
+            song.version = FACTORY_VERSION;
             if ( song.origin === "dropbox" ) {
                 commit( "setLoading", "dbxS" );
                 await dispatch( "exportSongToDropbox", { song, folder: getCurrentFolder() });
@@ -430,3 +442,9 @@ const getDescriptorForSong = ( song: EffluxSong ): StoredEffluxSongDescriptor =>
 });
 
 const persistState = ( state: SongState ): Promise<void> => StorageUtil.setItem( Config.LOCAL_STORAGE_SONGS, JSON.stringify( state.songs ));
+
+const cachePatternNames = ( patterns: EffluxPattern[] ): void => {
+    patterns.forEach(( pattern: EffluxPattern, patternIndex: number ) => {
+        pattern.name = indexToName( patternIndex );
+    });
+};

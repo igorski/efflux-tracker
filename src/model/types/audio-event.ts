@@ -47,17 +47,17 @@ export type EffluxAudioEvent = {
     note: string;
     octave: number;
     action: number;
+    mp?: EffluxAudioEventModuleParams;
+    // the following properties are set at runtime
+    // during recording or playback.
     recording: boolean;
     seq: {
         playing: boolean;
-        startOffset: number;        // start offset (in seconds) relative to song start
-        startMeasure: number;       // index of the measure in which the event starts playback
-        startMeasureOffset: number; // offset (in seconds) within the start measure
-        endMeasure: number;         // index of the measure in which the event stops playback
-        length: number;             // total length (in seconds) of event
-        mpLength: number;           // total length (in seconds) of module parameter automation
+        startMeasure: number;       // index of the measure that started playback for this event (set by sequencer-module)
+        startMeasureOffset: number; // offset (in seconds) within the start measure (e.g. its parent pattern)
+        length: number;             // total duration (in seconds) of event (set by sequencer-module)
+        mpLength: number;           // total duration (in seconds) of module parameter automation (set by sequencer-module)
     },
-    mp?: EffluxAudioEventModuleParams;
 };
 
 /**

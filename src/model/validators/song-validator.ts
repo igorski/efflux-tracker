@@ -93,24 +93,6 @@ export default
             }
         });
 
-        // fix bug where copied channels have the wrong startMeasure offset
-        // we probably want to remove this at a certain point as the source of the bug has been fixed...
-
-        song.patterns.forEach(( pattern, patternIndex ) => {
-            pattern.channels.forEach(( channel ) => {
-                channel.forEach(( event ) => {
-                    if ( event && event.seq ) {
-                        const eventStart  = event.seq.startMeasure;
-                        const eventEnd    = event.seq.endMeasure;
-                        const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                        event.seq.startMeasure = patternIndex;
-                        event.seq.endMeasure   = event.seq.startMeasure + eventLength;
-                    }
-                });
-            });
-        });
-
         if ( !Array.isArray( song.samples )) {
             song.samples = [];
         }

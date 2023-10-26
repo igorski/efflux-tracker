@@ -23,6 +23,7 @@
 import type { EffluxSong } from "@/model/types/song";
 import { serialize as serializeInstruments } from "./instrument-serializer";
 import { serialize as serializePatterns } from "./pattern-serializer";
+import { serialize as serializePatternOrder } from "./pattern-order-serializer";
 import { serialize as serializeSamples } from "./sample-serializer";
 
 /**
@@ -53,6 +54,7 @@ export const serialize = async ( song: EffluxSong ): Promise<XTK> => {
 
     serializeInstruments( xtk, song.instruments );
     serializePatterns( xtk, song.patterns );
+    serializePatternOrder( xtk, song.order );
 
     xtk[ SAMPLES ] = await Promise.all( song.samples.map( serializeSamples ));
 

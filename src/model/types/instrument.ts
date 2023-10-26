@@ -22,7 +22,6 @@
  */
 import OscillatorTypes from "@/definitions/oscillator-types";
 import type { XTKSample } from "@/model/serializers/sample-serializer";
-import type { Sample } from "@/model/types/sample";
 
 /**
  * type definition for an instrument

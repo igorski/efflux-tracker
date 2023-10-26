@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -84,13 +84,13 @@
                     <input
                         class="current"
                         ref="currentPatternInput"
-                        v-model.number="currentPatternValue"
+                        v-model.number="currentOrderIndex"
                         maxlength="3"
                         @focus="focusPatternInput( true )"
                         @blur="focusPatternInput( false )"
                     />
                     <span class="divider">/</span>
-                    <span class="total">{{ activeSong.patterns.length.toString() }}</span>
+                    <span class="total">{{ activeSong.order.length.toString() }}</span>
                 </li>
                 <li>
                     <button
@@ -100,9 +100,9 @@
                         @click="gotoNextPattern( activeSong )"
                     >&gt;&gt;</button>
                 </li>
+                <li class="section-divider"><!-- x --></li>
             </ul>
             <ul class="transport-controls__tempo wrapper input range">
-                <li class="section-divider"><!-- x --></li>
                 <li>
                     <label
                         v-t="'tempoLabel'"
@@ -134,15 +134,20 @@
                         @click="handleTempoInputShow()"
                     >{{ $t('tempo', { tempo }) }}</span>
                 </li>
+                <li class="transport-controls__tempo-divider section-divider"><!-- x --></li>
             </ul>
+            <pattern-order-list
+                v-if="useOrders"
+            />
         </div>
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import Vue from "vue";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
+import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import KeyboardService from "@/services/keyboard-service";
 import { resetPlayState } from "@/utils/song-util";
@@ -150,8 +155,11 @@ import messages from "./messages.json";
 
 export default {
     i18n: { messages },
+    components: {
+        PatternOrderList,
+    },
     data: () => ({
-        tempPatternValue: 0,
+        tempOrderIndex: 0,
         patternFocused: false,
         originalTempo: 0,
         showTempoInput: false,
@@ -159,28 +167,30 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
+            activeOrderIndex: state => state.sequencer.activeOrderIndex,
             midiConnected: state => state.midi.midiConnected,
             mobileMode: state => state.mobileMode,
         }),
         ...mapGetters([
+            "activePatternIndex",
             "isPlaying",
             "isLooping",
             "isRecording",
             "isMetronomeEnabled",
-            "amountOfSteps"
+            "amountOfSteps",
+            "useOrders",
         ]),
-        canRecord() {
+        canRecord(): boolean {
             // for desktop/laptop devices we enable record mode (for keyboard input)
             // if a MIDI device is connected on a mobile device, it is enabled as well
             const hasKeyboard = !Bowser.ios && !Bowser.android;
             return hasKeyboard || this.midiConnected;
         },
         tempo: {
-            get() {
+            get(): number {
                 return this.activeSong.meta.tempo;
             },
-            set( value ) {
+            set( value: number ): void {
                 if ( isNaN( value )) {
                     return;
                 }
@@ -199,23 +209,23 @@ export default {
                 this.originalTempo = value;
             }
         },
-        currentPatternValue: {
-            get() {
-                return ( this.patternFocused ? this.tempPatternValue : this.activePattern ) + 1;
+        currentOrderIndex: {
+            get(): number {
+                return ( this.patternFocused ? this.tempOrderIndex : this.activeOrderIndex ) + 1;
             },
-            set( patternValue ) {
+            set( index: number ): void {
                 // normalize to Array indices (0 == first, not 1)
-                const value = Math.min( parseFloat( patternValue ), this.activeSong.patterns.length ) - 1;
-                if ( value >= 0 && value !== this.activePattern ) {
-                    this.tempPatternValue = value;
+                const value = Math.min( parseFloat( index.toString() ), this.activeSong.order.length ) - 1;
+                if ( value >= 0 && value !== this.activeOrderIndex ) {
+                    this.tempOrderIndex = value;
                 }
             }
         },
     },
     watch: {
-        isPlaying( playing ) {
+        isPlaying( playing: boolean ): void {
             if ( playing ) {
-                this.setPosition({ activeSong: this.activeSong, pattern: this.activePattern });
+                this.setPosition({ activeSong: this.activeSong, orderIndex: this.activeOrderIndex });
             } else {
                 if ( this.isRecording ) {
                     this.setRecording( false );
@@ -223,7 +233,7 @@ export default {
                 resetPlayState( this.activeSong.patterns ); // unset playing state of existing events
             }
         },
-        isRecording( recording, wasRecording ) {
+        isRecording( recording: boolean, wasRecording?: boolean ): void {
             if ( wasRecording ) {
                 // unflag the recorded state of all the events
                 const patterns = this.activeSong.patterns;
@@ -242,13 +252,13 @@ export default {
                 });
             }
         },
-        activePattern: {
+        activePatternIndex: {
             immediate: true,
-            handler( value ) {
+            handler( value: number ): void {
                 const newSteps = this.activeSong.patterns[ value ].steps;
                 if ( this.amountOfSteps !== newSteps ) {
                     this.setPatternSteps({
-                        pattern: this.activeSong.patterns[ this.activePattern ],
+                        pattern: this.activeSong.patterns[ this.activePatternIndex ],
                         steps: newSteps
                     });
                 }
@@ -256,17 +266,18 @@ export default {
         },
         activeSong: {
             immediate: true,
-            handler() {
+            handler(): void {
                 this.originalTempo = this.tempo;
             }
         },
     },
-    created() {
+    created(): void {
         this.minTempo = 40;
         this.maxTempo = 300;
     },
     methods: {
         ...mapMutations([
+            "gotoPattern",
             "setPlaying",
             "setPosition",
             "setLooping",
@@ -274,28 +285,28 @@ export default {
             "setCurrentStep",
             "setMetronomeEnabled",
             "setTempo",
-            "setActivePattern",
             "setPatternSteps",
+            "suspendKeyboardService",
             "gotoPreviousPattern",
             "gotoNextPattern",
             "setMobileMode",
         ]),
-        handleSettingsToggle() {
+        handleSettingsToggle(): void {
             this.setMobileMode( this.mobileMode ? null : "settings" );
         },
-        focusPatternInput( value ) {
+        focusPatternInput( value: boolean ): void {
             KeyboardService.setListener( value ? this.handlePatternInput.bind( this ) : null );
             if ( value ) {
-                this.tempPatternValue = this.activePattern;
+                this.tempOrderIndex = this.activeOrderIndex;
             } else {
-                this.setActivePattern( this.tempPatternValue );
+                this.gotoPattern({ orderIndex: this.tempOrderIndex, song: this.activeSong });
             }
             this.patternFocused = value;
         },
-        blurPatternInput() {
+        blurPatternInput(): void {
             this.$refs.currentPatternInput?.blur();
         },
-        handlePatternInput( type, keyCode ) {
+        handlePatternInput( type: string, keyCode: number, event: KeyboardEvent ): void {
             if ( type !== "up" ) {
                 return;
             }
@@ -306,7 +317,7 @@ export default {
                     this.blurPatternInput();
                     break;
                 case 27: // esc
-                    this.tempPatternValue = this.activePattern; // cancel changes
+                    this.tempOrderIndex = this.activeOrderIndex; // cancel changes
                     this.blurPatternInput();
                     break;
                 case 32: // spacebar
@@ -316,13 +327,13 @@ export default {
             }
             event.preventDefault();
         },
-        async handleTempoInputShow() {
+        async handleTempoInputShow(): Promise<void> {
             this.showTempoInput = true;
             this.suspendKeyboardService( true );
             await this.$nextTick();
             this.$refs.tempoInput.focus();
         },
-        handleTempoInputBlur() {
+        handleTempoInputBlur(): void {
             this.tempo = parseFloat( this.$refs.tempoInput.value );
             this.showTempoInput = false;
             this.suspendKeyboardService( false );
@@ -350,7 +361,7 @@ export default {
 }
 
 .transport-section {
-    background-color: $color-editor-background;;
+    background-color: $color-editor-background;
 }
 
 .transport-controls {
@@ -360,6 +371,11 @@ export default {
     margin: 0 auto;
     min-width: 100%;
     max-width: $ideal-width;
+
+    @include large() {
+        display: flex;
+        align-items: center;
+    }
 
     &__buttons,
     &__tempo {
@@ -482,18 +498,17 @@ export default {
     /* tempo control */
 
     &__tempo {
-        padding: $spacing-medium 0 0 $spacing-small;
-        display: inline;
-
+        padding: 0;
+    
         label {
-            margin-right: $spacing-medium;
+            margin-right: $spacing-small;
             display: inline-block;
             @include toolFont();
         }
 
         input {
             display: inline-block;
-            margin: 0 $spacing-medium 0 0;
+            margin: 0 $spacing-small 0 0;
             vertical-align: middle;
         }
 
@@ -501,6 +516,12 @@ export default {
             display: inline-block;
             @include toolFont();
             cursor: pointer;
+        }
+
+        &-divider {
+            // yes we're hacking here
+            position: relative;
+            top: -10px;
         }
     }
 
@@ -548,18 +569,29 @@ export default {
             width: auto;
         }
 
-        &__tempo {
+        &__tempo,
+        .pattern-order-list {
             display: none;
         }
 
-        &.settings-mode &__tempo {
+        &__buttons button.icon-settings {
+            display: inline;
+        }
+    }
+
+    .settings-mode {
+        display: flex;
+        flex-direction: column;
+
+        .transport-controls__tempo {
             display: inline-block;
             margin: 0 $spacing-small $spacing-small;
             padding: 0 0 0 $spacing-small;
         }
 
-        &__buttons button.icon-settings {
-            display: inline;
+        .pattern-order-list {
+            display: inline-flex;
+            margin: 0 $spacing-medium;
         }
     }
 }

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -33,6 +33,7 @@ import type { EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+import { getPrevEvent } from "@/utils/event-util";
 import type { EffluxState } from "@/store";
 
 const RECORD_THRESHOLD = 50;
@@ -262,8 +263,8 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     const now = Date.now();
     if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
 
-    const { playing, activePattern } = state.sequencer;
-    const { amountOfSteps } = getters;
+    const { playing } = state.sequencer;
+    const { activePatternIndex, activeOrderIndex, amountOfSteps } = getters;
 
     // if the sequencer isn't playing, noteOff events must be added explicitly
     // (this noteOff event is the result of a key release)
@@ -272,10 +273,10 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     }
 
     const song         = state.song.activeSong;
-    const pattern      = song.patterns[ activePattern ];
+    const pattern      = song.patterns[ activePatternIndex ];
     const channelIndex = state.editor.selectedInstrument;
     const channel      = pattern.channels[ channelIndex ];
-    const step         = playing ? Math.round( getters.position.step / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
+    const step         = playing ? Math.round( state.sequencer.currentStep / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
 
     // check if the intended target position of the recording already contains an event
 
@@ -309,19 +310,20 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
 
         // sequencer is playing, add event at current step
 
-        optData.patternIndex      = activePattern;
+        optData.patternIndex      = activePatternIndex;
         optData.channelIndex      = channelIndex;
         optData.step              = step;
         optData.advanceOnAddition = false; // don't advanced selected step during playback
         audioEvent.recording = markAsRecording && !isParamChange;
     }
     commit( "addEventAtPosition", { store, event: audioEvent, optData });
+    commit( "invalidateChannelCache", { song });
 
     lastAddition = now;
 
     // unset recording state of previous event
-    const previousEvent = EventUtil.getFirstEventBeforeEvent(
-        song.patterns, activePattern, channelIndex, audioEvent
-    );
-    if ( previousEvent ) previousEvent.recording = false;
+    const previousEvent = getPrevEvent( song, audioEvent, channelIndex, activeOrderIndex );
+    if ( previousEvent ) {
+        previousEvent.event.recording = false;
+    }
 }

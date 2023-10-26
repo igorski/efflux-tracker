@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2022 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -152,7 +152,7 @@
 </template>
 
 <script>
-import { mapState, mapMutations } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import EventFactory from "@/model/factories/event-factory";
 import KeyboardService from "@/services/keyboard-service";
@@ -192,17 +192,19 @@ export default {
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
-            activePattern: state => state.sequencer.activePattern,
             selectedInstrument: state => state.editor.selectedInstrument,
             selectedStep: state => state.editor.selectedStep,
         }),
+        ...mapGetters([
+            "activePatternIndex",
+        ]),
         valueText() {
             const value = this.value.toFixed(2);
             return ( this.value < 10 ) ? `0${value}` : value;
         },
     },
     mounted() {
-        const pattern = this.activeSong.patterns[ this.activePattern ],
+        const pattern = this.activeSong.patterns[ this.activePatternIndex ],
               channel = pattern.channels[ this.selectedInstrument ],
               event   = channel[ this.selectedStep ];
 
@@ -214,7 +216,7 @@ export default {
         // we define these upfront as we assume that the position the sequencer had (when running) is
         // where we would like to add/edit a module parameter change event
 
-        this.patternIndex = ( event ) ? event.seq.startMeasure : this.activePattern;
+        this.patternIndex = this.activePatternIndex;
         this.channelIndex = this.selectedInstrument; // always use channel index (event instrument might be associated w/ different channel lane)
         this.step         = this.selectedStep;
 

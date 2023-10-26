@@ -26,19 +26,18 @@ import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import PatternUtil from "@/utils/pattern-util";
-import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
-import type { EffluxChannel } from "@/model/types/channel";
+import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxSong } from "@/model/types/song";
+import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import AudioService, { connectAnalysers } from "@/services/audio-service";
 import { Transpose } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
-import PatternFactory from "./pattern-factory";
+import { getPrevEvent } from "@/utils/event-util";
+import { clonePattern } from "@/utils/pattern-util";
 
 export default function( type: Actions, data: any ): IUndoRedoState | null {
     switch ( type ) {
@@ -63,21 +62,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
         case Actions.DELETE_MODULE_AUTOMATION:
             return deleteModuleAutomationAction( data );
 
-        case Actions.CLEAR_PATTERN:
-            return clearPattern( data );
-
-        case Actions.PASTE_PATTERN:
-            return pastePattern( data );
-
-        case Actions.PASTE_PATTERN_MULTIPLE:
-            return pastePatternMultiple( data );
-
-        case Actions.ADD_PATTERN:
-            return addPattern( data );
-
-        case Actions.DELETE_PATTERN:
-            return deletePattern( data );
-
         case Actions.CUT_SELECTION:
             return cutSelectionAction( data );
 
@@ -90,6 +74,10 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.TRANSPOSE:
             return transpositionAction( data );
+
+        case Actions.UPDATE_PATTERN_ORDER:
+            updatePatternOrder( data );
+            return null;
     }
 }
 
@@ -101,14 +89,13 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 function addSingleEventAction({ store, event, optEventData, updateHandler } :
     { store: Store<EffluxState>, event: EffluxAudioEvent, optEventData: any, updateHandler: ( advanceStep?: boolean ) => void }
 ): IUndoRedoState {
-    const { state }   = store;
-    const song        = state.song.activeSong,
-          eventList   = state.editor.eventList;
+    const { state } = store;
+    const song = state.song.activeSong;
 
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
 
-    let patternIndex = state.sequencer.activePattern,
+    let patternIndex = store.getters.activePatternIndex,
         channelIndex = state.editor.selectedInstrument,
         step         = state.editor.selectedStep;
 
@@ -123,8 +110,9 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
         channelIndex = ( typeof optEventData.channelIndex === "number" ) ? optEventData.channelIndex : channelIndex;
         step         = ( typeof optEventData.step         === "number" ) ? optEventData.step         : step;
 
-        if ( typeof optEventData.advanceOnAddition === "boolean" )
+        if ( typeof optEventData.advanceOnAddition === "boolean" ) {
             advanceStepOnAddition = optEventData.advanceOnAddition;
+        }
     }
     // if there is an existing event, cache it for undo-purpose (see add())
     let existingEvent: EffluxAudioEvent;
@@ -134,7 +122,7 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
         const pattern = song.patterns[ patternIndex ],
               channel = pattern.channels[ channelIndex ];
 
-        EventUtil.setPosition( event, pattern, patternIndex, step, song.meta.tempo );
+        EventUtil.setPosition( event, pattern, step, song.meta.tempo );
 
         // remove previous event if one existed at the insertion point
         // (but take its module parameter automation when existing for non-off events)
@@ -146,35 +134,30 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
             if ( event.action !== ACTION_NOTE_OFF && !event.mp && existingEventMp ) {
                 Vue.set( event, "mp", deserialize( existingEventMp ));
             }
-            EventUtil.clearEvent( song, patternIndex, channelIndex, step, eventList[ patternIndex ]);
+            EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
         Vue.set( channel, step, event );
-
-        // update linked list for AudioEvents
-        EventUtil.linkEvent( event, channelIndex, song, eventList );
+        store.commit( "invalidateChannelCache", { song });
 
         if ( optEventData?.newEvent === true ) {
 
             // new events by default take the instrument of the previously declared note in
             // the current patterns event channel
 
-            const node = eventList[ channelIndex ].getNodeByData( event );
-            let prevNode = ( node ) ? node.previous : null;
-
-            // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
-            // keep on traversing backwards until we find a valid event
-
-            while ( prevNode && prevNode.data.action === ACTION_NOTE_OFF ) {
-                prevNode = prevNode.previous;
-            }
+            // @ts-expect-error first argument in comparator unused
+            const prevEvent = getPrevEvent( song, event, channelIndex, song.order.indexOf( patternIndex ), ( a, b ): boolean => {
+                // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
+                // keep on traversing backwards until we find a valid event
+                return b.action === ACTION_NOTE_OFF;
+            });
 
             // only do this for events within the same measure though
 
-            if ( prevNode && prevNode.data.seq.startMeasure === event.seq.startMeasure &&
-                 prevNode.data.instrument !== channelIndex &&
+            if ( prevEvent && prevEvent.event.seq.startMeasure === event.seq.startMeasure &&
+                 prevEvent.event.instrument !== channelIndex &&
                  event.instrument === channelIndex ) {
 
-                event.instrument = prevNode.data.instrument;
+                event.instrument = prevEvent.event.instrument;
             }
         }
         updateHandler( advanceStepOnAddition );
@@ -189,13 +172,12 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
                 patternIndex,
                 channelIndex,
                 step,
-                eventList[ channelIndex ]
             );
             // restore existing event if it was present during addition
             if ( existingEvent ) {
                 const restoredEvent = deserialize( existingEvent );
                 Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
-                EventUtil.linkEvent( restoredEvent, channelIndex, song, eventList );
+                store.commit( "invalidateChannelCache", { song });
             }
             updateHandler();
         },
@@ -208,14 +190,13 @@ function addSingleEventAction({ store, event, optEventData, updateHandler } :
  */
 function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>, events: EffluxAudioEvent[] }): IUndoRedoState {
 
-    const { state }   = store;
-    const song        = state.song.activeSong,
-          eventList   = state.editor.eventList;
+    const { state } = store;
+    const song      = state.song.activeSong;
 
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
 
-    let patternIndex = state.sequencer.activePattern,
+    let patternIndex = store.getters.activePatternIndex,
         channelIndex = state.editor.selectedInstrument,
         step         = state.editor.selectedStep;
 
@@ -229,7 +210,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
             const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
             const channel = pattern.channels[ targetIndex ];
 
-            EventUtil.setPosition( event, pattern, patternIndex, step, song.meta.tempo );
+            EventUtil.setPosition( event, pattern, step, song.meta.tempo );
 
             // remove previous event if one existed at the insertion point
             // (but take its module parameter automation when existing for non-off events)
@@ -240,12 +221,9 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                 if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp ) {
                     Vue.set( event, "mp", clone( channel[ step ].mp ));
                 }
-                EventUtil.clearEvent( song, patternIndex, targetIndex, step, eventList[ patternIndex ]);
+                EventUtil.clearEvent( song, patternIndex, targetIndex, step );
             }
             Vue.set( channel, step, event );
-
-            // update linked list for AudioEvents
-            EventUtil.linkEvent( event, targetIndex, song, eventList );
         });
     }
     act(); // perform action
@@ -260,14 +238,12 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                     patternIndex,
                     targetIndex,
                     step,
-                    eventList[ targetIndex ]
                 );
                 // restore existing event if it was present during addition
                 const existingEvent: EffluxAudioEvent = existingEvents[ index ];
                 if ( existingEvent ) {
                     const restoredEvent = deserialize( existingEvent );
                     Vue.set( song.patterns[ patternIndex ].channels[ targetIndex ], step, restoredEvent );
-                    EventUtil.linkEvent( restoredEvent, targetIndex, song, eventList );
                 }
             });
         },
@@ -281,11 +257,10 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
  */
 function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxState> }): IUndoRedoState {
     const song               = store.state.song.activeSong,
-          eventList          = store.state.editor.eventList,
-          activePattern      = store.state.sequencer.activePattern,
+          activePattern      = store.getters.activePatternIndex,
           selectedInstrument = store.state.editor.selectedInstrument,
           selectedStep       = store.state.editor.selectedStep,
-          event              = song.patterns[activePattern].channels[selectedInstrument][selectedStep];
+          event              = song.patterns[ activePattern ].channels[ selectedInstrument ][ selectedStep ];
 
     // if a selection is set, store its state for redo purposes
 
@@ -302,7 +277,7 @@ function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxSta
         if ( hadSelection ) {
             // pass selection when redoing a delete action on a selection
             commit( "deleteSelection", {
-                song, activePattern, eventList,
+                song, activePattern,
                 optSelectionContent: optSelection, optFirstSelectedChannel: selectedFirstChannel,
                 optLastSelectedChannel: selectedLastChannel, optMinSelectedStep: selectedMinStep, optMaxSelectedStep: selectedMaxStep
             });
@@ -313,7 +288,6 @@ function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxSta
                 activePattern,
                 selectedInstrument,
                 selectedStep,
-                eventList[ selectedInstrument ]
             );
         }
     }
@@ -325,7 +299,7 @@ function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxSta
         undo(): void {
             if ( hadSelection ) {
                 commit( "pasteSelection", {
-                    song, eventList, activePattern, selectedInstrument, selectedStep, optSelectionContent: selection
+                    song, activePattern, selectedInstrument, selectedStep, optSelectionContent: selection
                 });
             }
             else {
@@ -380,155 +354,6 @@ function deleteModuleAutomationAction({ event }: { event: EffluxAudioEvent }): I
     };
 }
 
-function clearPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
-    const song          = store.state.song.activeSong,
-          patternIndex  = store.state.sequencer.activePattern,
-          amountOfSteps = store.getters.amountOfSteps;
-
-    const { commit } = store;
-    const pattern = clonePattern( song, patternIndex );
-
-    function act(): void {
-        commit( "replacePattern", { patternIndex, pattern: PatternFactory.create( amountOfSteps ) });
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePattern", { patternIndex, pattern });
-        },
-        redo: act
-    };
-}
-
-function pastePattern({ store, patternCopy }: { store: Store<EffluxState>, patternCopy: EffluxPattern }): IUndoRedoState {
-    const song         = store.state.song.activeSong,
-          patternIndex = store.state.sequencer.activePattern;
-
-    const { getters, commit } = store;
-
-    const targetPattern = clonePattern( song, patternIndex );
-    const pastedPattern = PatternFactory.mergePatterns( targetPattern, patternCopy, patternIndex );
-
-    function act(): void {
-        commit( "replacePattern", { patternIndex, pattern: pastedPattern });
-        commit( "createLinkedList", getters.activeSong );
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePattern", { patternIndex, pattern: targetPattern });
-            commit( "createLinkedList", getters.activeSong );
-        },
-        redo: act
-    };
-}
-
-function pastePatternMultiple({ store, patterns, insertIndex } :
-    { store: ActionContext<EffluxState, any>, patterns: EffluxPattern[], insertIndex: number }): IUndoRedoState {
-    const { getters, commit, rootState } = store;
-    const songPatterns = getters.activeSong.patterns;
-
-    if ( insertIndex === -1 ) {
-         // if no index was specified, insert after current position
-        insertIndex = rootState.sequencer.activePattern;
-    }
-
-    // splice the pattern list at the insertion point, head will contain
-    // the front of the list, tail the end of the list, and inserted will contain the cloned content
-
-    const patternsHead = clone( songPatterns );
-    const patternsTail = patternsHead.splice( insertIndex );
-
-    function linkLists() {
-        // update event offsets to match insert position
-        const activeSongPatterns = getters.activeSong.patterns;
-        for ( let patternIndex = insertIndex, l = activeSongPatterns.length; patternIndex < l; ++patternIndex ) {
-            activeSongPatterns[ patternIndex ].channels.forEach(( channel: EffluxChannel ) => {
-                channel.forEach(( event: EffluxAudioEvent ) => {
-                    if ( event?.seq ) {
-                        const eventStart  = event.seq.startMeasure;
-                        const eventEnd    = event.seq.endMeasure;
-                        const eventLength = isNaN( eventEnd ) ? 1 : eventEnd - eventStart;
-
-                        event.seq.startMeasure = patternIndex;
-                        event.seq.endMeasure   = event.seq.startMeasure + eventLength;
-                    }
-                });
-            });
-        }
-        commit( "createLinkedList", getters.activeSong );
-    }
-
-    function act(): void {
-        commit( "replacePatterns", clone( patternsHead.concat( patterns, patternsTail )));
-        linkLists();
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePatterns", patternsHead.concat( patternsTail ));
-            if ( getters.activeSong.patterns.length <= rootState.sequencer.activePattern ) {
-                commit( "setActivePattern", getters.activeSong.patterns.length - 1 );
-            }
-            linkLists();
-        },
-        redo: act
-    };
-}
-
-function addPattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
-    const song          = store.state.song.activeSong,
-          patternIndex  = store.state.sequencer.activePattern,
-          amountOfSteps = store.getters.amountOfSteps;
-
-    const { commit } = store;
-
-    // note we don't cache song.patterns but always reference it from the song as the
-    // patterns list is effectively replaced by below actions
-
-    function act(): void {
-        const pattern = PatternFactory.create( amountOfSteps );
-        commit( "replacePatterns", PatternUtil.addPatternAtIndex( song.patterns, patternIndex + 1, amountOfSteps, pattern ));
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePatterns", PatternUtil.removePatternAtIndex( song.patterns, patternIndex + 1 ));
-            commit( "setActivePattern", patternIndex );
-        },
-        redo: act
-    };
-}
-
-function deletePattern({ store }: { store: Store<EffluxState> }): IUndoRedoState {
-    const song            = store.state.song.activeSong,
-          patterns        = song.patterns,
-          patternIndex    = store.state.sequencer.activePattern,
-          amountOfSteps   = store.getters.amountOfSteps,
-          targetIndex     = patternIndex === ( patterns.length - 1 ) ? patternIndex - 1 : patternIndex;
-
-    const { commit } = store;
-    const existingPattern = clonePattern( song, patternIndex );
-
-    function act(): void {
-        commit( "setActivePattern", targetIndex );
-        commit( "replacePatterns", PatternUtil.removePatternAtIndex( patterns, patternIndex ));
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "setActivePattern", targetIndex );
-            commit( "replacePatterns", PatternUtil.addPatternAtIndex( patterns, patternIndex, amountOfSteps, existingPattern ));
-        },
-        redo: act
-    };
-}
-
 function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
@@ -538,7 +363,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
         commit( "setSelectionChannelRange", { firstChannel: editor.selectedInstrument });
         commit( "setSelection", { selectionStart: editor.selectedStep });
     }
-    const activePattern   = store.state.sequencer.activePattern;
+    const activePattern   = store.getters.activePatternIndex;
     const firstChannel    = selection.firstSelectedChannel;
     const lastChannel     = selection.lastSelectedChannel;
     const selectedMinStep = selection.minSelectedStep;
@@ -551,10 +376,11 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
             Vue.set( song.patterns, activePattern, cutPattern );
         }
         else {
-            commit( "cutSelection", { song, activePattern, eventList: editor.eventList });
+            commit( "cutSelection", { song, activePattern });
             cutPattern = clonePattern( song, activePattern );
         }
         commit( "clearSelection" );
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
@@ -567,6 +393,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
             commit( "setMinSelectedStep", selectedMinStep);
             commit( "setMaxSelectedStep", selectedMaxStep);
             commit( "setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "invalidateChannelCache", { song });
         },
         redo: act
     };
@@ -574,10 +401,10 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
 
 function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
-    const { selection, editor } = store.state;
+    const { selection } = store.state;
     const { commit }    = store;
 
-    const activePattern   = store.state.sequencer.activePattern;
+    const activePattern   = store.getters.activePatternIndex;
     const firstChannel    = selection.firstSelectedChannel;
     const lastChannel     = selection.lastSelectedChannel;
     const selectedMinStep = selection.minSelectedStep;
@@ -589,10 +416,11 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
         if ( cutPattern ) {
             Vue.set( song.patterns, activePattern, cutPattern );
         } else {
-            commit( "deleteSelection", { song, activePattern, eventList: editor.eventList });
+            commit( "deleteSelection", { song, activePattern });
             cutPattern = clonePattern( song, activePattern );
         }
         commit( "clearSelection" );
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
@@ -605,6 +433,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
             commit( "setMinSelectedStep", selectedMinStep);
             commit( "setMaxSelectedStep", selectedMaxStep);
             commit( "setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "invalidateChannelCache", { song });
        },
        redo: act
     };
@@ -612,8 +441,8 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
 
 function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
-    const { eventList, selectedInstrument, selectedStep } = store.state.editor;
-    const { activePattern } = store.state.sequencer;
+    const { selectedInstrument, selectedStep } = store.state.editor;
+    const activePattern = store.getters.activePatternIndex;
     const { selection } = store.state;
     const { commit } = store;
 
@@ -629,9 +458,10 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
         if ( pastedPattern ) {
             Vue.set( song.patterns, activePattern, pastedPattern );
         } else {
-            commit( "pasteSelection", { song, eventList, activePattern, selectedInstrument, selectedStep });
+            commit( "pasteSelection", { song, activePattern, selectedInstrument, selectedStep });
             pastedPattern = clonePattern( song, activePattern );
         }
+        commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
@@ -647,6 +477,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
             commit( "setMinSelectedStep", selectedMinStep );
             commit( "setMaxSelectedStep", selectedMaxStep );
             commit( "setSelectionChannelRange", { firstChannel, lastChannel });
+            commit( "invalidateChannelCache", { song });
         },
         redo: act
     };
@@ -689,7 +520,7 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
         let c = firstChannel;
         do {
             channels[ c ].forEach(( event: EffluxAudioEvent ) => {
-                if ( !event ) {
+                if ( !event || event.action !== ACTION_NOTE_ON ) {
                     return;
                 }
                 const { note, octave } = Transpose( event.note, event.octave, semitones );
@@ -703,15 +534,33 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
 
     function act(): void {
         commit( "replacePatterns", transposedPatterns );
+        commit( "invalidateChannelCache", { song: getters.activeSong });
     }
     act(); // perform action
 
     return {
         undo(): void {
             commit( "replacePatterns", songPatterns );
+            commit( "invalidateChannelCache", { song: getters.activeSong });
         },
         redo: act
     };
+}
+
+function updatePatternOrder({ store, order }: { store: ActionContext<EffluxState, any>, order: EffluxPatternOrder }): void {
+    const existingValue = [ ...store.getters.activeSong.order ];
+
+    const act = (): void => store.commit( "replacePatternOrder", order );
+    act();
+
+    enqueueState( "songOrder", {
+        undo(): void {
+            store.commit( "replacePatternOrder", existingValue );
+        },
+        redo(): void {
+            act();
+        },
+    });
 }
 
 // when changing states of observables, we need to take heed to always restore
@@ -724,21 +573,4 @@ function serialize( object: any = null ): any {
 
 function deserialize( serializedObject: any = null ): any {
     return serializedObject ? JSON.parse( serializedObject ) : null;
-}
-
-/**
- * convenience method to clone all event and channel data for given pattern
- * this also resets each events play state to ensure seamless playback when
- * performing und/redo actions during playback
- */
-function clonePattern( song: EffluxSong, activePattern: number ): EffluxPattern {
-    const clonedPattern = clone( song.patterns[ activePattern ]);
-    clonedPattern.channels.forEach(( channel: EffluxChannel ) => {
-        channel.forEach(( event: EffluxAudioEvent ) => {
-            if ( event?.seq?.playing ) {
-                event.seq.playing = false;
-            }
-        });
-    });
-    return clonedPattern;
 }

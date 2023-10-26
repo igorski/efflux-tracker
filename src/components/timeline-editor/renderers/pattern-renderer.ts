@@ -21,32 +21,41 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 import { sprite } from "zcanvas";
+import type { EffluxPattern } from "@/model/types/pattern";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
 const NOTE_LIST = [ "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B" ];
 
 export default class PatternRenderer extends sprite
 {
-    constructor( pattern, index ) {
-        super({ x: 0, y: 0, width: 500, height: 1 }); // height will be updated after construction
+    private _pattern: EffluxPattern;
+    private _index: number;
+    private _patternWidth: number = 0;
+    private _patternHeight: number = 0;
+
+    constructor( pattern: EffluxPattern, index: number, width: number, height: number ) {
+        super({ x: 0, y: 0, width, height });
 
         this._pattern = pattern;
         this._index = index;
+
+        this.setWidth( width );
+        this.setHeight( height );
     }
 
     /* zCanvas overrides */
 
-    setWidth( width ) {
+    setWidth( width: number ): void {
         super.setWidth( width );
         this._patternWidth = width;
     }
 
-    setHeight( height ) {
+    setHeight( height : number): void {
         super.setHeight( height );
         this._patternHeight = height / this._pattern.channels.length;
     }
 
-    draw( ctx ) {
+    draw( ctx: CanvasRenderingContext2D ): void {
         const patternDuration = getMeasureDurationInSeconds( 120 ); // TODO: this._tempo
         for ( let i = 0; i < this._pattern.channels.length; ++i ) {
             const channel = this._pattern.channels[ i ];
