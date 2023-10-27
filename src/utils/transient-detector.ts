@@ -24,13 +24,12 @@ import type { SampleRange } from "@/model/types/sample";
 
 const FILTER_FREQ  = 150;
 const FILTER_T     = 1 / ( 2 * Math.PI * FILTER_FREQ );
-const RELEASE_TIME = 0.02; // in seconds
 
-export const transientToSlices = ( buffer: AudioBuffer, threshold = 0.3, maxSlices = 32 ): SampleRange[] => {
+export const transientToSlices = ( buffer: AudioBuffer, threshold = 0.3, releaseMs = 0.02, maxSlices = 256 ): SampleRange[] => {
     const out: SampleRange[] = [];
-
+console.info('slicing at threshold:' + threshold + ' and release:' + releaseMs);
     const coeff        = 1 / ( buffer.sampleRate * FILTER_T );
-    const releaseCoeff = Math.exp( -1 / ( buffer.sampleRate * RELEASE_TIME ));
+    const releaseCoeff = Math.exp( -1 / ( buffer.sampleRate * releaseMs ));
 
     let Filter1Out = 0;
     let Filter2Out = 0;
@@ -40,6 +39,8 @@ export const transientToSlices = ( buffer: AudioBuffer, threshold = 0.3, maxSlic
     let BeatPulse = false;           // Beat detector output
 
     let envelope: number;
+
+    const peakThreshold = threshold / 2; /* 0.15 */
 
     // @todo (?) we are only operating in mono here
     const samples = buffer.getChannelData( 0 );
@@ -67,7 +68,7 @@ export const transientToSlices = ( buffer: AudioBuffer, threshold = 0.3, maxSlic
             if ( PeakEnv > threshold ) {
                 BeatTrigger = true;
             }
-        } else if ( PeakEnv < 0.15 ) {
+        } else if ( PeakEnv < peakThreshold ) {
             BeatTrigger = false;
         }
 
@@ -85,7 +86,7 @@ export const transientToSlices = ( buffer: AudioBuffer, threshold = 0.3, maxSlic
     }
 
     let sliceAmount = out.length;
-
+console.info("--- harvested " + sliceAmount + " slices.");
     while ( sliceAmount-- ) {
         const slice = out[ sliceAmount ];
         slice.rangeEnd = rangeEnd;

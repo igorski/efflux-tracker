@@ -29,7 +29,7 @@
 </template>
 
 <script lang="ts">
-import type { Sample } from "@/model/types/sample";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { bufferToWaveForm } from "@/utils/sample-util";
 
 export default {
@@ -45,8 +45,8 @@ export default {
     },
     computed: {
         hasSlices(): boolean {
-            console.info('argh?')
-            return this.sample.slices?.length > 0;
+            console.info('sample-display update hasSlices')
+            return this.sample.type === PlaybackType.SLICED && this.sample.slices?.length > 0;
         },
     },
     watch: {
@@ -78,18 +78,12 @@ export default {
             ctx.drawImage( bufferToWaveForm( buffer, this.color, 720, 200 ), 0, 0, width, height );
 
             if ( this.hasSlices ) {
-                ctx.save();
-
                 const scale = width / buffer.length;
                 for ( const slice of this.sample.slices ) {
-                    const sliceWidth = slice.rangeEnd - slice.rangeStart;
-                    ctx.globalAlpha = 0.5;
+                    // const sliceWidth = slice.rangeEnd - slice.rangeStart;
                     ctx.fillStyle = "#FFF";
-                    ctx.fillRect( slice.rangeStart * scale, 0, 1, height );
-                    ctx.fillStyle = "magenta";
-                    ctx.fillRect( slice.rangeStart * scale, 0, sliceWidth * scale, height );
+                    ctx.fillRect( slice.rangeStart * scale, 0, 0.5, height );
                 }
-                ctx.restore();
             }
         },
     }

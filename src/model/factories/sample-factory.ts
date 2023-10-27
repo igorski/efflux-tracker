@@ -48,6 +48,7 @@ const SampleFactory = {
             rangeEnd   : buffer.duration,
             rate       : buffer.sampleRate, // in Hz
             length     : buffer.duration,   // in seconds
+            loop       : true,
             pitch      : null, // @see sample-editor
             slices     : [],
             type,
@@ -85,6 +86,7 @@ const SampleFactory = {
 
                 sample.rangeStart = xtkSample.s;
                 sample.rangeEnd   = xtkSample.e;
+                sample.loop       = xtkSample.lp ?? true;
                 sample.pitch      = xtkSample.p;
                 sample.rate       = buffer.sampleRate;
                 sample.length     = buffer.duration;

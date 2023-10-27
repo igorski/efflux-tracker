@@ -19,14 +19,16 @@
         "channelAmount": "Channels: {amount}",
         "notInUse": "Sample is currently not in use",
         "trim": "Trim",
-        "slice": "Slice",
         "delete": "Delete",
+        "slice": "Slice",
+        "threshold": "Threshold",
+        "release": "Release",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
         "saveChanges": "Save changes",
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",
         "trimmingSample": "Trimming sample",
         "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}",
-        "savedChanges": "Saved changes"
+        "savedChanges": "Saved changes to sample \"{sample}\""
     }
 }

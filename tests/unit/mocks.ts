@@ -1,7 +1,7 @@
 import { vi } from "vitest";
 import type { Store } from "vuex";
 import APPLICATION_MODE from "@/definitions/application-modes";
-import type { Sample } from "@/model/types/sample";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import { createEditorState } from "@/store/modules/editor-module";
 import { createHistoryState } from "@/store/modules/history-module";
@@ -12,7 +12,6 @@ import { createSelectionState } from "@/store/modules/selection-module";
 import { createSequencerState } from "@/store/modules/sequencer-module";
 import { createSettingsState } from "@/store/modules/settings-module";
 import { createSongState } from "@/store/modules/song-module";
-import { PlaybackType } from "../../src/model/types/sample";
 
 export const mockAudioContext: BaseAudioContext = {
     sampleRate: 44100,
@@ -48,6 +47,7 @@ export const createSample = ( sampleName: string, optId?: string, type = Playbac
     rate       : mockAudioBuffer.sampleRate,
     length     : mockAudioBuffer.duration,
     pitch      : null,
+    slices     : [],
     type,
 });
 

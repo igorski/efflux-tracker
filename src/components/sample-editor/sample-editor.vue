@@ -101,16 +101,14 @@
                     >
                         <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
                     </button>
-                    <button
-                        type="button"
-                        class="transport-controls__button"
-                        :class="{ active: loopPlayback && !isBusy }"
-                        :title="$t('loop')"
-                        :disabled="isBusy"
-                        @click="loopPlayback = !loopPlayback"
-                    >
-                        <i class="icon-loop" :class="{ active: loopPlayback && !isBusy }"></i>
-                    </button>
+                    <div class="toggle-control">
+                        <label v-t="'loop'"></label>
+                        <toggle-button
+                            v-model="sample.loop"
+                            sync
+                            :disabled="isBusy"
+                        />
+                    </div>
                     <div class="playback-type-control">
                         <label v-t="'playbackType'"></label>
                         <select-box
@@ -150,6 +148,36 @@
                     </div>
                     <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
                 </div>
+                <div v-if="canSlice">
+                    <div class="range-control">
+                        <label v-t="'threshold'"></label>
+                        <input
+                            type="range"
+                            name="threshold"
+                            v-model.number="sliceThreshold"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                        />
+                    </div>
+                    <div class="range-control">
+                        <label v-t="'release'"></label>
+                        <input
+                            type="range"
+                            name="release"
+                            v-model.number="sliceRelease"
+                            min="0"
+                            max="100"
+                            step="0.01"
+                        />
+                    </div>
+                    <button
+                        v-t="'slice'"
+                        type="button"
+                        :disabled="!sample || isBusy"
+                        @click="sliceSample()"
+                    ></button>
+                </div>
             </section>
         </template>
         <div
@@ -180,13 +208,6 @@
                     :disabled="!sample || !hasAltRange || isBusy"
                     @click="trimSample()"
                 ></button>
-                <button
-                    v-if="canSlice"
-                    v-t="'slice'"
-                    type="button"
-                    :disabled="!sample || isBusy"
-                    @click="sliceSample()"
-                ></button>
                 <span
                     v-if="isBusy && encodeProgress"
                     class="progress"
@@ -206,6 +227,7 @@
 
 <script lang="ts">
 import AudioEncoder from "audio-encoder";
+import { ToggleButton } from "vue-js-toggle-button";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
@@ -237,18 +259,20 @@ export default {
         SampleDisplay,
         SampleRecorder,
         SelectBox,
+        ToggleButton,
     },
     data: () => ({
         sample         : null,
         recordInput    : false,
         playbackNode   : null,
         isPlaying      : false,
-        loopPlayback   : false,
         encodeProgress : 0,
         isBusy         : false,
         isInUse        : false,
         showNameInput  : false,
         hasPitch       : false,
+        sliceThreshold : 20,
+        sliceRelease   : 2,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
@@ -341,9 +365,17 @@ export default {
                         this.hasPitch = !!this.sample.pitch;
                     });
                 }
+            },
+        },
+        "sample.type"( type: PlaybackType, oldType?: PlaybackType ): void {
+            if ( type === PlaybackType.SLICED && this.sample.slices.length === 0 ) {
+                this.sliceSample();
+            } else {
+                this.hasPitch = !!this.sample.pitch;
             }
         },
-        loopPlayback( value: boolean ): void {
+        "sample.loop"( value: boolean ): void {
+            console.info("loop?:"+value);
             if ( this.playbackNode ) {
                 this.playbackNode.loop = value;
             }
@@ -410,7 +442,7 @@ export default {
             this.playbackNode.addEventListener( "ended", event => {
                 this.isPlaying = this.playbackNode && event.target !== this.playbackNode;
             });
-            this.playbackNode.loop = this.loopPlayback;
+            this.playbackNode.loop = this.sample.loop;
             if ( !muted ) {
                 this.playbackNode.connect( getAudioContext().destination );
             }
@@ -425,17 +457,21 @@ export default {
         },
         /* saving sample, after performing pitch analysis, when required */
         commitChanges(): void {
+            const sample = {
+                ...this.sample,
+                rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
+                rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
+            };
             // if no pitch changes need to be calculated (e.g. had pitch and range wasn't adjusted)
-            if ( this.hasPitch ) {
-                this.updateSampleProps( this.sample );
+            if ( this.hasPitch || this.canSlice ) {
+                this.updateSampleProps( sample );
                 this.showNotification({
-                    message : this.$t( "savedChanges" )
+                    message : this.$t( "savedChanges", { sample: sample.name })
                 });
                 return;
             }
             this.isBusy = true;
             this.stopPlayback();
-            const wasLooping = this.loopPlayback;
 
             this.openDialog({
                 title       : this.$t( "pleaseWait" ),
@@ -444,7 +480,6 @@ export default {
             });
             this.setBlindActive( true );
 
-            this.loopPlayback = true;
             this.pitches = [];
             this.startPlayback( true );
 
@@ -454,7 +489,6 @@ export default {
 
             setTimeout(() => {
                 this.stopPlayback();
-                this.loopPlayback = wasLooping;
 
                 window.cancelAnimationFrame( this.pitchRaf );
                 this.pitchAnalyser?.disconnect();
@@ -471,12 +505,8 @@ export default {
                 const { note, octave, cents } = getPitchByFrequency( frequency );
                 this.pitches.length = 0;
 
-                const sample = {
-                    ...this.sample,
-                    pitch : { frequency, note, octave, cents },
-                    rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
-                    rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
-                };
+                sample.pitch = { frequency, note, octave, cents };
+                
                 this.hasPitch = true;
                 this.updateSongSample( sample );
                 this.cacheSample( sample );
@@ -496,6 +526,9 @@ export default {
         },
         /* range handling */
         handleDragStart( event: PointerEvent ): void {
+            if ( !this.canTrim ) {
+                return;
+            }
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
@@ -572,7 +605,11 @@ export default {
             });
         },
         sliceSample(): void {
-            this.sample.slices = transientToSlices( this.sample.buffer, 0.15 );
+            this.sample.slices = transientToSlices(
+                this.sample.buffer,
+                Math.max( 0.05, ( this.sliceThreshold / 100 ) / 2 ),
+                Math.max( 0.01, ( this.sliceRelease / 100 )),
+            );
         },
         invalidateRange(): void {
             if ( this.isPlaying ) {
@@ -603,7 +640,7 @@ export default {
 @import "@/styles/forms";
 @import "@/styles/transporter";
 
-$width: 720px;
+$width: 760px;
 
 .sample-editor {
     @include editorComponent();
@@ -646,7 +683,7 @@ $width: 720px;
         @include minWidth( $width ) {
             display: flex;
             justify-content: space-between;
-            padding: $spacing-small $spacing-medium;
+            padding: $spacing-small $spacing-medium $spacing-xsmall;
         }
 
         @include minWidthFallback( $width ) {
@@ -721,16 +758,25 @@ $width: 720px;
 .range-controls {
     display: flex;
     justify-content: space-around;
+}
 
-    .range-control {
-        @include toolFont();
+.range-control {
+    @include toolFont();
+    display: inline;
+
+    label, input {
+        vertical-align: middle;
+        width: auto;
         display: inline;
+    }
+}
 
-        label, input {
-            vertical-align: middle;
-            width: auto;
-            display: inline;
-        }
+.toggle-control {
+    @include toolFont();
+    display: inline;
+
+    label {
+        margin: 0 $spacing-small 0 $spacing-xxsmall;
     }
 }
 

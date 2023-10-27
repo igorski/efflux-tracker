@@ -37,6 +37,7 @@ describe( "SampleFactory", () => {
             buffer: mockAudioBuffer,
             rangeStart: 0,
             rangeEnd: mockAudioBuffer.duration,
+            loop: true,
             pitch: null,
             rate: mockAudioBuffer.sampleRate,
             length: mockAudioBuffer.duration,
@@ -50,7 +51,7 @@ describe( "SampleFactory", () => {
         expect( sample.type ).toEqual( PlaybackType.REPITCHED );
     });
 
-    describe( "when getting the buffer for a sample", () => {
+    describe( "when retrieving the buffer for a sample", () => {
         it( "should return the buffer unchanged when there is no custom range playback defined", () => {
             const sample = SampleFactory.create( null, mockAudioBuffer, "foo" );
             expect( SampleFactory.getBuffer( sample, mockAudioContext )).toEqual( mockAudioBuffer );
@@ -83,6 +84,7 @@ describe( "SampleFactory", () => {
                 n  : "foo",
                 s  : 0,
                 e  : mockAudioBuffer.duration,
+                lp : true,
                 p  : null,
                 sr : sample.rate,
                 l  : sample.length,
@@ -104,6 +106,7 @@ describe( "SampleFactory", () => {
                 n  : "foo",
                 s  : 0,
                 e  : mockAudioBuffer.duration,
+                lp : true,
                 p  : null,
                 sr : mockAudioBuffer.sampleRate,
                 l  : mockAudioBuffer.duration,
@@ -131,6 +134,7 @@ describe( "SampleFactory", () => {
                 n  : "foo",
                 s  : 5,
                 e  : 10,
+                lp : true,
                 p  : pitch,
                 sr : sample.rate,
                 l  : mockAudioBuffer.duration,
@@ -161,8 +165,8 @@ describe( "SampleFactory", () => {
                 n  : "foo",
                 s  : 5,
                 e  : 10,
+                lp : true,
                 p  : pitch,
-                r  : sample.repitch,
                 sr : sample.rate,
                 l  : mockAudioBuffer.duration,
                 sl : [{ s: 0, e: 1.5 }, { s: 1.5, e: 3 }, { s: 3, e: 10 }],
@@ -177,6 +181,7 @@ describe( "SampleFactory", () => {
             n: "foo",
             s: 1,
             e: 2.5,
+            lp: false,
             p: {
                 frequency: 440.12,
                 note: "A",
@@ -203,6 +208,7 @@ describe( "SampleFactory", () => {
             name: "foo",
             rangeStart: 1,
             rangeEnd: 2.5,
+            loop: false,
             pitch: serialized.p,
             rate: 44100,
             length: mockAudioBuffer.duration,
@@ -223,6 +229,7 @@ describe( "SampleFactory", () => {
             n: "foo",
             s: 1,
             e: 5,
+            lp: true,
             p: {
                 frequency: 440.12,
                 note: "A",
@@ -248,6 +255,7 @@ describe( "SampleFactory", () => {
             name: "foo",
             rangeStart: 1,
             rangeEnd: mockAudioBuffer.duration,
+            loop: true,
             pitch: serialized.p,
             rate: 44100,
             length: mockAudioBuffer.duration,
@@ -257,54 +265,50 @@ describe( "SampleFactory", () => {
     });
 
     describe( "when deserializing a legacy sample format", () => {
+        const MOCK_LEGACY_SAMPLE = {
+            b: "base64",
+            n: "foo",
+            s: 1,
+            e: 5,
+            p: {
+                frequency: 440.12,
+                note: "A",
+                octave: 3,
+                cents: 12
+            },
+            r: false,
+            sr: 44100,
+            l: mockAudioBuffer.duration
+        };
+        
         it( "should appropriately set the DEFAULT PlaybackType", async () => {
-            const serialized = {
-                b: "base64",
-                n: "foo",
-                s: 1,
-                e: 5,
-                p: {
-                    frequency: 440.12,
-                    note: "A",
-                    octave: 3,
-                    cents: 12
-                },
-                r: false,
-                sr: 44100,
-                l: mockAudioBuffer.duration,
-            };
-            const source = new Blob();
-            mockFnFileUtil = vi.fn(() => source );
+            mockFnFileUtil = vi.fn(() => new Blob() );
             mockFn = vi.fn(() => mockAudioBuffer );
     
-            const assembled = await SampleFactory.deserialize( serialized );
+            const assembled = await SampleFactory.deserialize( MOCK_LEGACY_SAMPLE );
 
             expect( assembled.type ).toEqual( PlaybackType.DEFAULT );
         });
 
         it( "should appropriately set the PITCHED PlaybackType", async () => {
-            const serialized = {
-                b: "base64",
-                n: "foo",
-                s: 1,
-                e: 5,
-                p: {
-                    frequency: 440.12,
-                    note: "A",
-                    octave: 3,
-                    cents: 12
-                },
-                r: true,
-                sr: 44100,
-                l: mockAudioBuffer.duration,
-            };
-            const source = new Blob();
-            mockFnFileUtil = vi.fn(() => source );
+            const serialized = { ...MOCK_LEGACY_SAMPLE, r: true };
+
+            mockFnFileUtil = vi.fn(() => new Blob() );
             mockFn = vi.fn(() => mockAudioBuffer );
     
             const assembled = await SampleFactory.deserialize( serialized );
 
             expect( assembled.type ).toEqual( PlaybackType.REPITCHED );
+        });
+
+        it( "should force the loop state to enabled", async () => {
+
+            mockFnFileUtil = vi.fn(() => new Blob() );
+            mockFn = vi.fn(() => mockAudioBuffer );
+    
+            const assembled = await SampleFactory.deserialize( MOCK_LEGACY_SAMPLE );
+
+            expect( assembled.loop ).toEqual( true );
         });
     });
 });

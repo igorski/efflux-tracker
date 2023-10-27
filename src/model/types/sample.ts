@@ -38,6 +38,7 @@ export type Sample = SampleRange & {
     buffer: AudioBuffer;
     rate: number;
     length: number;
+    loop: boolean;
     pitch: SamplePitch | null;
     slices: SampleRange[];
     type: PlaybackType;

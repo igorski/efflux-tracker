@@ -28,6 +28,7 @@ export type XTKSample = {
     n  : string;
     s  : number;
     e  : number;
+    lp : boolean;
     p  : SamplePitch | null;
     sr : number;
     l  : number;
@@ -45,6 +46,7 @@ export const serialize = async ( sample: Sample ): Promise<XTKSample> => {
         n  : sample.name,
         s  : sample.rangeStart,
         e  : sample.rangeEnd,
+        lp : sample.loop,
         p  : sample.pitch,
         sr : sample.rate,
         l  : sample.length,

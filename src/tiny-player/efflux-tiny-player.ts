@@ -42,8 +42,6 @@ import SampleFactory from "@/model/factories/sample-factory";
 import { WAVE_TABLES } from "@/model/serializers/instrument-serializer";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
-import type { Instrument } from "@/model/types/instrument";
-import type { EffluxPattern } from "@/model/types/pattern";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong } from "@/model/types/song";
 import {
@@ -51,6 +49,8 @@ import {
 } from "@/services/audio-service";
 import type { Pitch } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
+import type { SampleCacheEntry } from "@/store/modules/sample-module";
+import { sliceBuffer } from "@/utils/sample-util";
 
 type TinyEvent = Pitch & { instrument: number, action: number, mp: EffluxAudioEventModuleParams };
 
@@ -70,7 +70,7 @@ const state: SequencerState = sequencerModule.state as SequencerState;
 const mutations: MutationTree<SequencerState> = sequencerModule.mutations!;
 const actions: ActionTree<SequencerState, any> = sequencerModule.actions!;
 
-const sampleCache: Map<string, Sample> = new Map();
+const sampleCache: Map<string, SampleCacheEntry> = new Map();
 
 // mock Vuex root store
 
@@ -150,9 +150,16 @@ export default {
             reset();
             cacheCustomTables( activeSong.instruments );
             activeSong.samples?.forEach(( sample: Sample ): void => {
+                const buffer = SampleFactory.getBuffer( sample, audioContext );
+                const { length } = buffer;
                 sampleCache.set( sample.name, {
-                    ...sample,
-                    buffer: SampleFactory.getBuffer( sample, audioContext )
+                    sample: {
+                        ...sample,
+                        buffer,
+                    },
+                    slices: sample.slices.map( range => {
+                        return sliceBuffer( audioContext, buffer, range.rangeStart / length, range.rangeEnd / length );
+                    })
                 });
             });
             applyModules( activeSong );

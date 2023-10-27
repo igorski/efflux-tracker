@@ -29,7 +29,10 @@ describe( "Vuex sample module", () => {
             const sample1 = createSample( "bar" );
             const sample2 = createSample( "qux" );
             const state = createSampleState({
-                sampleCache: new Map([[ "foo", sample1 ], [ "baz", sample2 ]])
+                sampleCache: new Map([
+                    [ "foo", { sample: sample1, slices: [] } ],
+                    [ "baz", { sample: sample2, slices: [] } ]
+                ])
             });
             expect( getters.sampleFromCache( state, {}, mockRootState, mockRootGetters )( "foo" )).toEqual( sample1 );
         });
@@ -56,13 +59,13 @@ describe( "Vuex sample module", () => {
             });
 
             mockResult = { duration: 5000 } as AudioBuffer;
-            const sample = { name: "baz" };
-
+            const sample = createSample( "baz" );
+            
             mutations.cacheSample( state, sample );
 
             expect( state.sampleCache.size ).toEqual( 2 );
             expect( state.sampleCache.has( sample.name ));
-            expect( state.sampleCache.get( sample.name )).toEqual({ ...sample, buffer: mockResult });
+            expect( state.sampleCache.get( sample.name )).toEqual({ sample: { ...sample, buffer: mockResult }, slices: expect.any( Array ) });
         });
 
         it( "should be able to remove individual samples from the cache", () => {
