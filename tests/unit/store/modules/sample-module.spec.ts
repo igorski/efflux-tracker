@@ -3,6 +3,7 @@ import type { Sample } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import storeModule, { createSampleState } from "@/store/modules/sample-module";
 import { createSample } from "../../mocks";
+import { PlaybackType } from "../../../../src/model/types/sample";
 
 const { getters, mutations, actions } = storeModule;
 
@@ -89,7 +90,7 @@ describe( "Vuex sample module", () => {
             expect( commit ).toHaveBeenNthCalledWith( 4, "cacheSample", samples[ 2 ]);
         });
 
-        describe( "when updating an existing sample name", () => {
+        describe( "when updating an existing sample's properties", () => {
             let mockedGetters: any;
 
             beforeEach(() => {
@@ -101,46 +102,72 @@ describe( "Vuex sample module", () => {
                 };
             });
 
-            it( "should update the sample cache identifiers and return the new name", () => {
+            it( "should be able to update the sample type and sample-related caches", () => {
                 const commit = vi.fn();
-                const name = "qux";
+                const type = PlaybackType.SLICED;
+
+                const originalSample = mockedGetters.samples[ 2 ];
+                const newSample = { ...originalSample, type };
 
                 // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
-                const newName = actions.updateSampleName({ getters: mockedGetters, commit }, { id: "s1", name });
-
-                const originalSample = mockedGetters.samples[ 0 ];
-                const updatedSample  = { ...originalSample, name };
+                const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "removeSampleFromCache", originalSample );
-                expect( commit ).toHaveBeenNthCalledWith( 2, "updateSample", updatedSample );
+                expect( commit ).toHaveBeenNthCalledWith( 2, "updateSongSample", updatedSample );
                 expect( commit ).toHaveBeenNthCalledWith( 3, "cacheSample", updatedSample );
 
-                expect( newName ).toEqual( "qux" );
+                expect( updatedSample.type ).toEqual( type );
             });
 
-            it( "should update all references to the old names for all instruments", () => {
-                const commit = vi.fn();
+            describe( "and renaming the sample", () => {
+                it( "should update the sample cache identifiers and return the new name", () => {
+                    const commit = vi.fn();
+                    const name = "qux";
 
-                // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
-                const newName = actions.updateSampleName(
-                    { getters: mockedGetters, commit },
-                    { id: "s2", name: "qux" }
-                );
+                    const originalSample = mockedGetters.samples[ 0 ];
+                    const newSample = { ...originalSample, name };
+                   
+                    // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                    const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
-                expect( commit ).toHaveBeenNthCalledWith( 4, "updateOscillator", {
-                    instrumentIndex: 0,
-                    oscillatorIndex: 1,
-                    prop: "sample",
-                    value: "qux"
+                    expect( commit ).toHaveBeenNthCalledWith( 1, "removeSampleFromCache", originalSample );
+                    expect( commit ).toHaveBeenNthCalledWith( 2, "updateSongSample", updatedSample );
+                    expect( commit ).toHaveBeenNthCalledWith( 3, "cacheSample", updatedSample );
+
+                    expect( updatedSample.name ).toEqual( "qux" );
                 });
-            });
 
-            it( "should be able to deduplicate existing names", () => {
-                const commit = vi.fn();
+                it( "should update all references to the old names for all instruments", () => {
+                    const commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
-                const newName = actions.updateSampleName({ getters: mockedGetters, commit }, { id: "s1", name: "bar" });
-                expect( newName ).toEqual( "bar #2" );
+                    const name = "qux";
+
+                    const originalSample = mockedGetters.samples[ 1 ];
+                    const newSample = { ...originalSample, name };
+
+                    // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                    actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
+
+                    expect( commit ).toHaveBeenNthCalledWith( 4, "updateOscillator", {
+                        instrumentIndex: 0,
+                        oscillatorIndex: 1,
+                        prop: "sample",
+                        value: "qux"
+                    });
+                });
+
+                it( "should be able to deduplicate existing names", () => {
+                    const commit = vi.fn();
+                    const name = "bar";
+
+                    const originalSample = mockedGetters.samples[ 0 ];
+                    const newSample = { ...originalSample, name };
+
+                    // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                    const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
+                    
+                    expect( updatedSample.name ).toEqual( "bar #2" );
+                });
             });
         });
     });

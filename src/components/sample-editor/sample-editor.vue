@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -89,62 +89,68 @@
                 ></div>
             </div>
             <hr class="divider" />
-            <div class="transport-controls">
-                <button
-                    type="button"
-                    class="transport-controls__button"
-                    :class="{ active: isPlaying && !isBusy }"
-                    :title="$t( isPlaying && !isBusy ? 'stop' : 'play')"
-                    :disabled="isBusy"
-                    @click="isPlaying && !isBusy ? stopPlayback() : startPlayback()"
-                >
-                    <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
-                </button>
-                <button
-                    type="button"
-                    class="transport-controls__button"
-                    :class="{ active: loopPlayback && !isBusy }"
-                    :title="$t('loop')"
-                    :disabled="isBusy"
-                    @click="loopPlayback = !loopPlayback"
-                >
-                    <i class="icon-loop" :class="{ active: loopPlayback && !isBusy }"></i>
-                </button>
-            </div>
-            <div class="range-controls">
-                <div class="range-control">
-                    <label v-t="'sampleStart'"></label>
-                    <input
-                        type="range"
-                        name="sampleStart"
-                        v-model.number="sampleStart"
-                        min="0"
-                        max="100"
-                        step="0.1"
+            <section class="sample-control-list">
+                <div class="transport-controls">
+                    <button
+                        type="button"
+                        class="transport-controls__button"
+                        :class="{ active: isPlaying && !isBusy }"
+                        :title="$t( isPlaying && !isBusy ? 'stop' : 'play')"
                         :disabled="isBusy"
-                    />
-                </div>
-                <div class="range-control">
-                    <label v-t="'sampleEnd'"></label>
-                    <input
-                        type="range"
-                        name="sampleEnd"
-                        v-model.number="sampleEnd"
-                        min="0"
-                        max="100"
-                        step="0.1"
+                        @click="isPlaying && !isBusy ? stopPlayback() : startPlayback()"
+                    >
+                        <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
+                    </button>
+                    <button
+                        type="button"
+                        class="transport-controls__button"
+                        :class="{ active: loopPlayback && !isBusy }"
+                        :title="$t('loop')"
                         :disabled="isBusy"
-                    />
+                        @click="loopPlayback = !loopPlayback"
+                    >
+                        <i class="icon-loop" :class="{ active: loopPlayback && !isBusy }"></i>
+                    </button>
+                    <div class="playback-type-control">
+                        <label v-t="'playbackType'"></label>
+                        <select-box
+                            v-model="sample.type"
+                            :options="availablePlaybackTypes"
+                            class="playback-type-control__select"
+                        />
+                    </div>
                 </div>
-                <div class="toggle-control">
-                    <label v-t="'repitch'"></label>
-                    <toggle-button
-                        v-model="sample.repitch"
-                        sync
-                    />
+                <div
+                    v-if="hasRangeControls"
+                    class="range-controls"
+                >
+                    <div class="range-control">
+                        <label v-t="'sampleStart'"></label>
+                        <input
+                            type="range"
+                            name="sampleStart"
+                            v-model.number="sampleStart"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            :disabled="isBusy"
+                        />
+                    </div>
+                    <div class="range-control">
+                        <label v-t="'sampleEnd'"></label>
+                        <input
+                            type="range"
+                            name="sampleEnd"
+                            v-model.number="sampleEnd"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            :disabled="isBusy"
+                        />
+                    </div>
+                    <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
                 </div>
-                <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
-            </div>
+            </section>
         </template>
         <div
             v-else-if="availableSamples.length === 0"
@@ -174,6 +180,13 @@
                     :disabled="!sample || !hasAltRange || isBusy"
                     @click="trimSample()"
                 ></button>
+                <button
+                    v-if="canSlice"
+                    v-t="'slice'"
+                    type="button"
+                    :disabled="!sample || isBusy"
+                    @click="sliceSample()"
+                ></button>
                 <span
                     v-if="isBusy && encodeProgress"
                     class="progress"
@@ -191,28 +204,29 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import AudioEncoder from "audio-encoder";
-import { ToggleButton } from "vue-js-toggle-button";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
 import SampleDisplay from "@/components/sample-display/sample-display.vue";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder.vue";
 import SelectBox from "@/components/forms/select-box.vue";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
 import { sliceBuffer } from "@/utils/sample-util";
+import { transientToSlices } from "@/utils/transient-detector";
 
 import messages from "./messages.json";
 
-const MP3_PAD_START = 1057; // samples added at the beginning of an MP3 encoded file
+const MP3_PAD_START   = 1057; // samples added at the beginning of an MP3 encoded file
 const rangeToPosition = ( rangeValue, length ) => length * ( rangeValue / 100 );
 const secToPctRatio   = ({ duration }) => 100 / duration;
 
-function sanitizeRangeValue( value ) {
+function sanitizeRangeValue( value : number): number {
     return Math.max( 0, Math.min( 100, value ));
 }
 
@@ -223,7 +237,6 @@ export default {
         SampleDisplay,
         SampleRecorder,
         SelectBox,
-        ToggleButton,
     },
     data: () => ({
         sample         : null,
@@ -246,18 +259,28 @@ export default {
             "currentSample",
             "samples",
         ]),
-        availableSamples() {
+        availableSamples(): { label: string, value: string }[] {
             return this.samples.map(({ id, name }) => ({ label: name, value: id }));
         },
+        availablePlaybackTypes(): { label: string, value: PlaybackType }[] {
+            return [
+                { label: this.$t( "default" ), value: PlaybackType.DEFAULT },
+                { label: this.$t( "repitch" ), value: PlaybackType.REPITCHED },
+                { label: this.$t( "sliced" ),  value: PlaybackType.SLICED },
+            ];
+        },
         selectedSample: {
-            get() {
+            get(): string | undefined {
                 return this.currentSample?.id;
             },
-            set( id ) {
+            set( id: string ): void {
                 this.setCurrentSample( this.samples.find( sample => sample.id === id ));
             }
         },
-        hasAltRange() {
+        hasRangeControls(): boolean {
+            return this.sample?.type !== PlaybackType.SLICED;
+        },
+        hasAltRange(): boolean {
             if ( !this.sample?.buffer ) {
                 return false;
             }
@@ -272,17 +295,20 @@ export default {
             }
             return this.sampleStart !== 0 || this.sampleEnd !== 100;
         },
-        rangeStyle() {
+        rangeStyle(): { left: string, right: string, width: string } {
             return {
                 left  : `${this.sampleStart}%`,
                 right : `${this.sampleEnd}%`,
                 width : `${this.sampleEnd - this.sampleStart}%`
             };
         },
-        canTrim() {
-            return this.sample?.buffer?.sampleRate === 44100; // TODO currently only 44.1 kHz supported.
+        canTrim(): boolean {
+            return !this.canSlice && this.sample?.buffer?.sampleRate === 44100; // TODO currently only 44.1 kHz supported.
         },
-        meta() {
+        canSlice(): boolean {
+            return this.sample?.type === PlaybackType.SLICED;
+        },
+        meta(): { totalDuration: string, sampleRate: number, amountOfChannels: number, duration: string } {
             const { duration } = this.sample.buffer;
             return {
                 totalDuration: duration.toFixed( 2 ),
@@ -295,7 +321,7 @@ export default {
     watch: {
         currentSample: {
             immediate: true,
-            handler( value, oldValue ) {
+            handler( value: Sample, oldValue?: Sample ): void {
                 if ( !oldValue || !value || value.id !== oldValue.id ) {
                     this.sample = value ? { ...value } : null;
                     this.stopPlayback();
@@ -317,30 +343,30 @@ export default {
                 }
             }
         },
-        loopPlayback( value ) {
+        loopPlayback( value: boolean ): void {
             if ( this.playbackNode ) {
                 this.playbackNode.loop = value;
             }
         },
-        sampleStart( value ) {
+        sampleStart( value: number ): void {
             if ( value > this.sampleEnd ) {
                 this.sampleEnd = Math.min( 100, value + 1 );
             }
             this.invalidateRange();
         },
-        sampleEnd( value ) {
+        sampleEnd( value: number ): void {
             if ( value < this.sampleStart ) {
                 this.sampleStart = Math.max( 0, value - 1 );
             }
             this.invalidateRange();
         },
     },
-    created() {
+    created(): void {
         if ( !this.sample && this.samples.length ) {
              this.setCurrentSample( this.samples[ 0 ]);
         }
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.stopPlayback();
     },
     methods: {
@@ -355,15 +381,15 @@ export default {
             "showNotification",
             "suspendKeyboardService",
             "updateOscillator",
-            "updateSample",
+            "updateSongSample",
         ]),
         ...mapActions([
-            "updateSampleName",
+            "updateSampleProps",
         ]),
-        openHelp() {
+        openHelp(): void {
             window.open( ManualURLs.SAMPLE_EDITOR_HELP, "_blank" );
         },
-        deleteSample() {
+        deleteSample(): void {
             this.openDialog({
                 type    : "confirm",
                 message : this.$t( "deleteConfirmDescr" ),
@@ -375,7 +401,7 @@ export default {
             });
         },
         /* sample auditioning */
-        startPlayback( muted = false ) {
+        startPlayback( muted = false ): void {
             if ( this.playbackNode ) {
                 this.stopPlayback();
             }
@@ -391,17 +417,17 @@ export default {
             this.playbackNode.start();
             this.isPlaying = true;
         },
-        stopPlayback() {
+        stopPlayback(): void {
             this.playbackNode?.disconnect();
             this.playbackNode?.stop();
             this.playbackNode = null;
             this.isPlaying = false;
         },
         /* saving sample, after performing pitch analysis, when required */
-        commitChanges() {
+        commitChanges(): void {
             // if no pitch changes need to be calculated (e.g. had pitch and range wasn't adjusted)
             if ( this.hasPitch ) {
-                this.updateSample({ ...this.sample });
+                this.updateSampleProps( this.sample );
                 this.showNotification({
                     message : this.$t( "savedChanges" )
                 });
@@ -452,7 +478,7 @@ export default {
                     rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
                 };
                 this.hasPitch = true;
-                this.updateSample( sample );
+                this.updateSongSample( sample );
                 this.cacheSample( sample );
                 this.closeDialog();
                 this.showNotification({
@@ -461,7 +487,7 @@ export default {
                 this.isBusy = false;
             }, 2000 );
         },
-        detectCurrentPitch() {
+        detectCurrentPitch(): void {
             const pitch = detectPitch( this.pitchAnalyser, getAudioContext() );
             if ( pitch ) {
                 this.pitches.push( pitch );
@@ -469,7 +495,7 @@ export default {
             this.pitchRaf = window.requestAnimationFrame( this.pitchFn );
         },
         /* range handling */
-        handleDragStart( event ) {
+        handleDragStart( event: PointerEvent ): void {
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
@@ -481,10 +507,10 @@ export default {
             this.dragSS       = this.sampleStart;
             this.dragSE       = this.sampleEnd;
         },
-        handleDragEnd() {
+        handleDragEnd(): void {
             this.isDragging = false;
         },
-        handleDragMove( event ) {
+        handleDragMove( event: PointerEvent ): void {
             if ( !this.isDragging ) {
                 return;
             }
@@ -495,14 +521,14 @@ export default {
             this.sampleEnd   = sanitizeRangeValue( this.dragSE + ( delta / this.dragRatio ) );
         },
         /* other */
-        sliceBufferForRange() {
+        sliceBufferForRange(): AudioBuffer | null {
             return sliceBuffer(
                 getAudioContext(), this.sample.buffer,
                 rangeToPosition( this.sampleStart, this.sample.buffer.duration ),
                 rangeToPosition( this.sampleEnd,   this.sample.buffer.duration )
             )
         },
-        trimSample() {
+        trimSample(): void {
             this.isBusy = true;
             this.openDialog({
                 title       : this.$t( "pleaseWait" ),
@@ -532,7 +558,7 @@ export default {
                     rate     : buffer.sampleRate,
                     length   : buffer.duration
                 };
-                this.updateSample( sample );
+                this.updateSongSample( sample );
                 const ratio = secToPctRatio( buffer );
                 this.sampleStart = sample.rangeStart * ratio;
                 this.sampleEnd   = sample.rangeEnd * ratio;
@@ -545,26 +571,29 @@ export default {
                 this.isBusy = false;
             });
         },
-        invalidateRange() {
+        sliceSample(): void {
+            this.sample.slices = transientToSlices( this.sample.buffer, 0.15 );
+        },
+        invalidateRange(): void {
             if ( this.isPlaying ) {
                 this.startPlayback();
             }
             this.hasPitch = false; // pitch must be recalculated
         },
-        async handleNameInputShow() {
+        async handleNameInputShow(): Promise<void> {
             this.showNameInput = true;
             await this.$nextTick();
             this.suspendKeyboardService( true );
             this.$refs.nameInput.focus();
         },
-        async handleNameInputBlur() {
+        async handleNameInputBlur(): Promise<void> {
             this.showNameInput = false;
             this.suspendKeyboardService( false );
             let name = this.$refs.nameInput.value;
             if ( name ) {
-                this.sample.name = await this.updateSampleName({ id: this.sample.id, name });
+                this.sample.name = await this.updateSampleProps({ ...this.sample, name }).name;
             }
-        }
+        },
     }
 };
 </script>
@@ -639,7 +668,7 @@ $width: 720px;
 }
 
 .sample-meta {
-    padding: $spacing-small $spacing-medium;
+    padding: $spacing-xxsmall $spacing-medium;
     @include toolFont();
 
     span {
@@ -656,9 +685,18 @@ $width: 720px;
     width: 180px;
 }
 
+.sample-control-list {
+    @include large() {
+        display: flex;
+        flex-direction: row;
+        padding: 0 $spacing-medium;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
 .transport-controls {
-    display: inline-block;
-    padding: $spacing-xsmall 0 0 $spacing-medium;
+    padding: $spacing-xsmall 0 0 0;
 
     .transport-controls__button {
         cursor: pointer;
@@ -681,14 +719,12 @@ $width: 720px;
 }
 
 .range-controls {
-    display: inline-block;
-    margin: 0 $spacing-small;
-    vertical-align: middle;
+    display: flex;
+    justify-content: space-around;
 
     .range-control {
         @include toolFont();
         display: inline;
-        margin-right: $spacing-small;
 
         label, input {
             vertical-align: middle;
@@ -698,12 +734,16 @@ $width: 720px;
     }
 }
 
-.toggle-control {
+.playback-type-control {
     @include toolFont();
     display: inline;
 
     label {
-        margin-right: $spacing-small;
+        margin: 0 $spacing-medium 0 $spacing-small;
+    }
+
+    &__select {
+        width: 120px;
     }
 }
 

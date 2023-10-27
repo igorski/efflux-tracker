@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 import SampleFactory from "@/model/factories/sample-factory";
 import { serialize } from "@/model/serializers/sample-serializer";
 import type { XTKSample } from "@/model/serializers/sample-serializer";
+import { PlaybackType } from "@/model/types/sample";
 import { mockAudioContext, mockAudioBuffer } from "../../mocks";
 
 let mockFn: ( fnName: string, ...args: any ) => void;
@@ -25,10 +26,10 @@ vi.mock( "@/utils/file-util", () => ({
 }));
 
 describe( "SampleFactory", () => {
-    it( "should be able to construct a new instance from given source, buffer and name", () => {
+    it( "should be able to construct a new instance from given source, buffer, name and playback type", () => {
         const blob = new Blob();
         const name = "foo";
-        const sample = SampleFactory.create( blob, mockAudioBuffer, name );
+        const sample = SampleFactory.create( blob, mockAudioBuffer, name, PlaybackType.SLICED );
         expect( sample ).toEqual({
             id: expect.any( String ),
             name,
@@ -37,10 +38,16 @@ describe( "SampleFactory", () => {
             rangeStart: 0,
             rangeEnd: mockAudioBuffer.duration,
             pitch: null,
-            repitch: true,
             rate: mockAudioBuffer.sampleRate,
             length: mockAudioBuffer.duration,
+            slices: expect.any( Array ),
+            type: PlaybackType.SLICED,
         });
+    });
+
+    it( "should by default construct for the REPITCHED playbackType", () => {
+        const sample = SampleFactory.create( new Blob(), mockAudioBuffer, "foo" );
+        expect( sample.type ).toEqual( PlaybackType.REPITCHED );
     });
 
     describe( "when getting the buffer for a sample", () => {
@@ -77,9 +84,10 @@ describe( "SampleFactory", () => {
                 s  : 0,
                 e  : mockAudioBuffer.duration,
                 p  : null,
-                r  : true,
                 sr : sample.rate,
-                l  : sample.length
+                l  : sample.length,
+                sl : [],
+                t  : sample.type,
             });
         });
 
@@ -97,9 +105,10 @@ describe( "SampleFactory", () => {
                 s  : 0,
                 e  : mockAudioBuffer.duration,
                 p  : null,
-                r  : true,
                 sr : mockAudioBuffer.sampleRate,
-                l  : mockAudioBuffer.duration
+                l  : mockAudioBuffer.duration,
+                sl : [],
+                t  : sample.type,
             });
         });
 
@@ -114,7 +123,37 @@ describe( "SampleFactory", () => {
                 cents: 12
             };
             sample.pitch = pitch;
-            sample.repitch = false;
+            sample.type  = PlaybackType.DEFAULT;
+
+            const serialized = await serialize( sample );
+            expect( serialized ).toEqual({
+                b  : "base64",
+                n  : "foo",
+                s  : 5,
+                e  : 10,
+                p  : pitch,
+                sr : sample.rate,
+                l  : mockAudioBuffer.duration,
+                sl : [],
+                t  : PlaybackType.DEFAULT,
+            })
+        });
+
+        it( "should serialize the optional slice-data", async () => {
+            const sample = SampleFactory.create( "base64", mockAudioBuffer, "foo" );
+            sample.rangeStart = 5;
+            sample.rangeEnd = 10;
+            const pitch = {
+                frequency: 440.12,
+                note: "A",
+                octave: 3,
+                cents: 12
+            };
+            sample.pitch = pitch;
+            sample.slices = [
+                { rangeStart: 0, rangeEnd: 1.5 }, { rangeStart: 1.5, rangeEnd: 3 }, { rangeStart: 3, rangeEnd: 10 },
+            ];
+            sample.type = PlaybackType.SLICED;
 
             const serialized = await serialize( sample );
             expect( serialized ).toEqual({
@@ -125,8 +164,10 @@ describe( "SampleFactory", () => {
                 p  : pitch,
                 r  : sample.repitch,
                 sr : sample.rate,
-                l  : mockAudioBuffer.duration
-            })
+                l  : mockAudioBuffer.duration,
+                sl : [{ s: 0, e: 1.5 }, { s: 1.5, e: 3 }, { s: 3, e: 10 }],
+                t  : PlaybackType.SLICED,
+            });
         });
     });
 
@@ -142,9 +183,10 @@ describe( "SampleFactory", () => {
                 octave: 3,
                 cents: 12
             },
-            r: false,
             sr: 44100,
-            l: 3.5
+            l: 3.5,
+            sl: [{ s: 0, e: 0.5 }, { s: 0.5, e: 2.5 }],
+            t: PlaybackType.SLICED,
         };
         const source = new Blob();
         mockFnFileUtil = vi.fn(() => source );
@@ -162,9 +204,16 @@ describe( "SampleFactory", () => {
             rangeStart: 1,
             rangeEnd: 2.5,
             pitch: serialized.p,
-            repitch: false,
             rate: 44100,
-            length: mockAudioBuffer.duration
+            length: mockAudioBuffer.duration,
+            slices: [{
+                rangeStart: 0,
+                rangeEnd: 0.5,
+            }, {
+                rangeStart: 0.5,
+                rangeEnd: 2.5,
+            }],
+            type: PlaybackType.SLICED,
         });
     });
 
@@ -180,9 +229,9 @@ describe( "SampleFactory", () => {
                 octave: 3,
                 cents: 12
             },
-            r: false,
             sr: 44100,
-            l: mockAudioBuffer.duration
+            l: mockAudioBuffer.duration,
+            t: PlaybackType.DEFAULT,
         };
         const source = new Blob();
         mockFnFileUtil = vi.fn(() => source );
@@ -200,9 +249,62 @@ describe( "SampleFactory", () => {
             rangeStart: 1,
             rangeEnd: mockAudioBuffer.duration,
             pitch: serialized.p,
-            repitch: false,
             rate: 44100,
-            length: mockAudioBuffer.duration
+            length: mockAudioBuffer.duration,
+            slices: expect.any( Array ),
+            type: PlaybackType.DEFAULT,
+        });
+    });
+
+    describe( "when deserializing a legacy sample format", () => {
+        it( "should appropriately set the DEFAULT PlaybackType", async () => {
+            const serialized = {
+                b: "base64",
+                n: "foo",
+                s: 1,
+                e: 5,
+                p: {
+                    frequency: 440.12,
+                    note: "A",
+                    octave: 3,
+                    cents: 12
+                },
+                r: false,
+                sr: 44100,
+                l: mockAudioBuffer.duration,
+            };
+            const source = new Blob();
+            mockFnFileUtil = vi.fn(() => source );
+            mockFn = vi.fn(() => mockAudioBuffer );
+    
+            const assembled = await SampleFactory.deserialize( serialized );
+
+            expect( assembled.type ).toEqual( PlaybackType.DEFAULT );
+        });
+
+        it( "should appropriately set the PITCHED PlaybackType", async () => {
+            const serialized = {
+                b: "base64",
+                n: "foo",
+                s: 1,
+                e: 5,
+                p: {
+                    frequency: 440.12,
+                    note: "A",
+                    octave: 3,
+                    cents: 12
+                },
+                r: true,
+                sr: 44100,
+                l: mockAudioBuffer.duration,
+            };
+            const source = new Blob();
+            mockFnFileUtil = vi.fn(() => source );
+            mockFn = vi.fn(() => mockAudioBuffer );
+    
+            const assembled = await SampleFactory.deserialize( serialized );
+
+            expect( assembled.type ).toEqual( PlaybackType.REPITCHED );
         });
     });
 });

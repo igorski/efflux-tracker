@@ -38,7 +38,7 @@ import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { InstrumentModules, InstrumentVoice, InstrumentVoiceList } from "@/model/types/instrument-modules";
-import type { Sample } from "@/model/types/sample";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import type { EffluxSong } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import {
@@ -287,7 +287,7 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                     generatorNode = audioContext.createBufferSource();
                     generatorNode.buffer = sample.buffer;
                     generatorNode.loop = true;
-                    if ( sample.repitch ) {
+                    if ( sample.type === PlaybackType.REPITCHED ) {
                         tuneSamplePitch( generatorNode, frequency, sample, oscillator );
                     } else {
                         tuneBufferPlaybackRate( generatorNode, oscillator );

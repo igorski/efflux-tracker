@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { XTKSample } from "@/model/serializers/sample-serializer";
-import type { Sample } from "@/model/types/sample";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createOfflineAudioContext } from "@/services/audio/webaudio-helper";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -38,7 +38,7 @@ const SampleFactory = {
      * Wraps a binary source and AudioBuffer into a sample Object
      * which can be serialized into a Song.
      */
-    create( source: File | Blob | string, buffer: AudioBuffer, name: string = "New sample" ): Sample {
+    create( source: File | Blob | string, buffer: AudioBuffer, name: string = "New sample", type = PlaybackType.REPITCHED ): Sample {
         return {
             id: `s${generateUid()}`,
             name,
@@ -49,7 +49,8 @@ const SampleFactory = {
             rate       : buffer.sampleRate, // in Hz
             length     : buffer.duration,   // in seconds
             pitch      : null, // @see sample-editor
-            repitch    : true, // whether to actually apply repitching
+            slices     : [],
+            type,
         };
     },
 
@@ -85,7 +86,6 @@ const SampleFactory = {
                 sample.rangeStart = xtkSample.s;
                 sample.rangeEnd   = xtkSample.e;
                 sample.pitch      = xtkSample.p;
-                sample.repitch    = xtkSample.r;
                 sample.rate       = buffer.sampleRate;
                 sample.length     = buffer.duration;
 
@@ -97,6 +97,16 @@ const SampleFactory = {
                     sample.rangeEnd = sample.length;
                     // eslint-disable-next-line no-console
                     //console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
+                }
+
+                sample.slices = xtkSample.sl?.map(({ s, e }) => ({ rangeStart: s, rangeEnd: e })) ?? [];
+
+                // @ts-expect-error 'r' no longer exists in XTKSample, but it did in the legacy format
+                if ( typeof xtkSample.r !== undefined && xtkSample.t === undefined ) {
+                    // @ts-expect-error
+                    sample.type = !!xtkSample.r ? PlaybackType.REPITCHED : PlaybackType.DEFAULT;
+                } else {
+                    sample.type = xtkSample.t;
                 }
 
                 resolve( sample );

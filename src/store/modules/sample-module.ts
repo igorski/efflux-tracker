@@ -71,19 +71,21 @@ const SampleModule: Module<SampleState, any> = {
                 commit( "cacheSample", sample );
             });
         },
-        updateSampleName({ getters, commit }: { getters: any, commit: Commit },
-            { id, name }: { id: string, name: string }): string {
-            const sample = getters.samples.find(( s: Sample ) => s.id === id );
+        updateSampleProps({ getters, commit }: { getters: any, commit: Commit }, sample: Sample ): Sample {
+            const existingSample = getters.samples.find(( s: Sample ) => s.id === sample.id );
+            const currentName    = existingSample.name;
+
+            let { name } = sample;
+
             // first check if name exists under different id as we don't take kindly to duplicates
-            const hasDuplicate = getters.samples.find(( s: Sample ) => s.name === name && s.id !== id );
+            const hasDuplicate = getters.samples.find(( s: Sample ) => s.name === name && s.id !== sample.id );
             if ( hasDuplicate ) {
                 name += " #2";
             }
-            const currentName   = sample.name;
             const updatedSample = { ...sample, name };
 
-            commit( "removeSampleFromCache", sample );
-            commit( "updateSample", updatedSample );
+            commit( "removeSampleFromCache", existingSample );
+            commit( "updateSongSample", updatedSample );
             commit( "cacheSample", updatedSample );
 
             // update all instruments as the sample name is the key
@@ -96,7 +98,7 @@ const SampleModule: Module<SampleState, any> = {
                     }
                 });
             });
-            return name;
+            return updatedSample;
         }
     },
 };

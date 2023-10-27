@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,7 +28,8 @@
     ></canvas>
 </template>
 
-<script>
+<script lang="ts">
+import type { Sample } from "@/model/types/sample";
 import { bufferToWaveForm } from "@/utils/sample-util";
 
 export default {
@@ -42,19 +43,31 @@ export default {
             default: "#FF5900"
         },
     },
+    computed: {
+        hasSlices(): boolean {
+            console.info('argh?')
+            return this.sample.slices?.length > 0;
+        },
+    },
     watch: {
         sample: {
             immediate: true,
-            async handler( sample ) {
-                if ( sample?.buffer ) {
+            async handler( sample: Sample, oldSample?: Sample ): Promise<void> {
+                if ( sample?.buffer !== oldSample?.buffer )
+                {
                     await this.$nextTick(); // wait for component to mount on first run
                     this.render( sample.buffer );
                 }
             }
         },
+        "sample.slices": {
+            handler(): void {
+                this.render( this.sample.buffer );
+            },
+        },
     },
     methods: {
-        render( buffer ) {
+        render( buffer: AudioBuffer ): void {
             const canvas = this.$refs.waveformDisplay;
             const ctx    = canvas.getContext( "2d" );
             ctx.imageSmoothingEnabled = false;
@@ -63,7 +76,22 @@ export default {
 
             ctx.clearRect( 0, 0, width, height );
             ctx.drawImage( bufferToWaveForm( buffer, this.color, 720, 200 ), 0, 0, width, height );
-        }
+
+            if ( this.hasSlices ) {
+                ctx.save();
+
+                const scale = width / buffer.length;
+                for ( const slice of this.sample.slices ) {
+                    const sliceWidth = slice.rangeEnd - slice.rangeStart;
+                    ctx.globalAlpha = 0.5;
+                    ctx.fillStyle = "#FFF";
+                    ctx.fillRect( slice.rangeStart * scale, 0, 1, height );
+                    ctx.fillStyle = "magenta";
+                    ctx.fillRect( slice.rangeStart * scale, 0, sliceWidth * scale, height );
+                }
+                ctx.restore();
+            }
+        },
     }
 };
 </script>

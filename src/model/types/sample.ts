@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,17 +20,27 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export type Sample = {
+export type SampleRange = {
+    rangeStart: number;
+    rangeEnd: number;
+};
+
+export enum PlaybackType {
+    DEFAULT = 0,
+    REPITCHED,
+    SLICED
+};
+
+export type Sample = SampleRange & {
     id: string;
     name: string;
     source: File | Blob | string;
     buffer: AudioBuffer;
-    rangeStart: number;
-    rangeEnd: number;
     rate: number;
     length: number;
     pitch: SamplePitch | null;
-    repitch: boolean;
+    slices: SampleRange[];
+    type: PlaybackType;
 };
 
 export type SamplePitch = {

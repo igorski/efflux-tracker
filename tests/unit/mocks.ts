@@ -12,6 +12,7 @@ import { createSelectionState } from "@/store/modules/selection-module";
 import { createSequencerState } from "@/store/modules/sequencer-module";
 import { createSettingsState } from "@/store/modules/settings-module";
 import { createSongState } from "@/store/modules/song-module";
+import { PlaybackType } from "../../src/model/types/sample";
 
 export const mockAudioContext: BaseAudioContext = {
     sampleRate: 44100,
@@ -37,7 +38,7 @@ export const mockAudioBuffer: AudioBuffer = {
     numberOfChannels: 1
 } as AudioBuffer;
 
-export const createSample = ( sampleName: string, optId?: string ): Sample => ({
+export const createSample = ( sampleName: string, optId?: string, type = PlaybackType.REPITCHED ): Sample => ({
     id         : optId ?? `s{Math.ceil( Math.random() * 100 )}`,
     name       : sampleName,
     source     : "base64;",
@@ -47,7 +48,7 @@ export const createSample = ( sampleName: string, optId?: string ): Sample => ({
     rate       : mockAudioBuffer.sampleRate,
     length     : mockAudioBuffer.duration,
     pitch      : null,
-    repitch    : true,
+    type,
 });
 
 export const createState = ( props?: Partial<EffluxState> ): EffluxState => ({
