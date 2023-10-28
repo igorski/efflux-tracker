@@ -74,6 +74,8 @@
                 <sample-display
                     :sample="sample"
                     ref="waveformDisplay"
+                    width="740"
+                    height="200"
                     @mousedown="handleDragStart"
                     @touchstart="handleDragStart"
                     @mouseup="handleDragEnd"

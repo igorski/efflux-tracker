@@ -26,39 +26,6 @@ import type { Sample, SampleRange } from "@/model/types/sample";
 import Pitch from "@/services/audio/pitch";
 
 /**
- * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
- * of provided width and height
- */
-export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150 ): HTMLCanvasElement => {
-    const canvas  = document.createElement( "canvas" );
-    const ctx     = canvas.getContext( "2d" );
-    canvas.width  = width;
-    canvas.height = height;
-
-    ctx.fillStyle = color;
-
-    // TODO: render all channels ?
-    const data = buffer.getChannelData( 0 );
-    const step = Math.ceil( data.length / width );
-    const amp  = height / 2;
-
-    for ( let i = 0; i < width; ++i ) {
-        let min = 1.0;
-        let max = -1.0;
-        for ( var j = 0; j < step; ++j ) {
-            const datum = data[( i * step ) + j ];
-            if ( datum < min ) {
-                min = datum;
-            } else if ( datum > max ) {
-                max = datum;
-            }
-        }
-        ctx.fillRect( i, ( 1 + min ) * amp, 1, Math.max( 1, ( max - min ) * amp ));
-    }
-    return canvas;
-};
-
-/**
  * Slices given Buffer for given range into a new Buffer.
  * Returns null when an invalid range was requested.
  * 
