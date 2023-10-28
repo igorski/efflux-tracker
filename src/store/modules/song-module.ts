@@ -40,7 +40,6 @@ import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@/model/types/song";
-import { clone } from "@/utils/object-util";
 import StorageUtil from "@/utils/storage-util";
 import { saveAsFile } from "@/utils/file-util";
 import { indexToName } from "@/utils/pattern-name-util";
@@ -84,8 +83,7 @@ const SongModule: Module<SongState, any> = {
         },
         setActiveSong( state: SongState, song: EffluxSong ): void {
             if ( song && song.meta && song.patterns ) {
-                // close song as we do not want to modify the original song stored in list
-                state.activeSong = clone( song );
+                state.activeSong = song;
                 resetPlayState( state.activeSong.patterns ); // ensures saved song hasn't got "frozen" events
             }
         },
@@ -117,6 +115,9 @@ const SongModule: Module<SongState, any> = {
             state.activeSong.samples.splice( index, 1 );
         },
         flushSamples( state: SongState ): void {
+            if ( !state.activeSong ) {
+                return;
+            }
             state.activeSong.samples.length = 0;
         },
         updateSample( state: SongState, sample: Sample ): void {
@@ -196,8 +197,8 @@ const SongModule: Module<SongState, any> = {
                         // the legacy format where all songs were serialized in a single list
                         // convert the storage to the new memory-friendly format
 
-                        for (let i = 0; i < songs.length; ++i) {
-                            if (typeof songs[i] !== 'string') {
+                        for ( let i = 0; i < songs.length; ++i ) {
+                            if ( typeof songs[ i ] !== "string" ) {
                                 break;
                             }
                             const song = JSON.parse( songs[ i ]);
@@ -207,7 +208,7 @@ const SongModule: Module<SongState, any> = {
                             }
                         }
                         if ( !wasLegacyStorageFormat ) {
-                            commit( "setSongs", songs);
+                            commit( "setSongs", songs );
                         }
                     }
                     catch ( e ) {
@@ -242,8 +243,8 @@ const SongModule: Module<SongState, any> = {
             });
         },
         openSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): void {
-            commit( "setActiveSong", song );
             commit( "flushSamples" );
+            commit( "setActiveSong", song );
             commit( "setSamples", song.samples );
             commit( "setStatesOnSave", 0 );
             dispatch( "cacheSongSamples", song.samples );

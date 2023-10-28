@@ -56,7 +56,8 @@
                         class="order-list__entry-title"
                         role="button"
                         @click.stop="handleSelect( entry )"
-                    >{{ entry.name }} {{ entry.description }}</span>
+                    >{{ entry.name }} <span class="order-list__entry-title-description">{{ entry.description }}</span>
+                    </span>
                     <button
                         type="button"
                         class="order-list__entry-action-button icon-play"
@@ -304,6 +305,10 @@ $headerFooterHeight: 134px;
             cursor: pointer;
             @include truncate();
             vertical-align: middle;
+
+            &-description {
+                font-style: italic;
+            }
         }
 
         &-action-button {

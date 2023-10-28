@@ -48,7 +48,7 @@
 </template>
 
 <script lang="ts">
-import { mapActions, mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { mapState, mapMutations } from "vuex";
 import { FACTORY_VERSION } from "@/model/factories/song-factory";
 import type { EffluxSong } from "@/model/types/song";
 import { convertLegacy } from "@/utils/pattern-order-util";
@@ -67,6 +67,7 @@ export default {
     methods: {
         ...mapMutations([
             "setActiveSong",
+            "setSamples",
         ]),
         keep(): void {
             this.close( this.activeSong );
@@ -77,6 +78,7 @@ export default {
         close( song: EffluxSong ): void {
             song.version = FACTORY_VERSION;
             this.setActiveSong( song );
+            this.setSamples( song.samples );
             this.$emit( "close" );
         },
     },

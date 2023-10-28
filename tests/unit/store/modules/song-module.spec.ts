@@ -179,8 +179,8 @@ describe( "Vuex song module", () => {
             // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
             actions.openSong({ commit, dispatch }, song );
 
-            expect( commit ).toHaveBeenNthCalledWith( 1, "setActiveSong", song );
-            expect( commit ).toHaveBeenNthCalledWith( 2, "flushSamples" );
+            expect( commit ).toHaveBeenNthCalledWith( 1, "flushSamples" );
+            expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveSong", song );
             expect( commit ).toHaveBeenNthCalledWith( 3, "setSamples", song.samples );
             expect( commit ).toHaveBeenNthCalledWith( 4, "setStatesOnSave", 0 );
             expect( dispatch ).toHaveBeenNthCalledWith( 1, "cacheSongSamples", song.samples );

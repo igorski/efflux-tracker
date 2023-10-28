@@ -197,13 +197,18 @@ export default {
             this.showDescriptionInput = entry.index;
             this.suspendKeyboardService( true );
             await this.$nextTick();
+            if ( !entry.pattern.description ) {
+                this.$refs.descrInput[ 0 ].value = "";
+            }
             this.$refs.descrInput[ 0 ]?.focus();
         },
         handleDescriptionInputBlur( entry: WrappedPatternEntry ): void {
             const description = this.$refs.descrInput[ 0 ].value;
             this.showDescriptionInput = -1;
             this.suspendKeyboardService( false );
-            this.replacePattern({ patternIndex: entry.index, pattern: { ...entry.pattern, description } });
+            if ( description ) {
+                this.replacePattern({ patternIndex: entry.index, pattern: { ...entry.pattern, description } });
+            }
         },
     },
 };
@@ -293,6 +298,7 @@ $headerFooterHeight: 104px;
         &-description {
             width: calc(100% - 190px);
             @include truncate();
+            font-style: italic;
         }
 
         &-steps {

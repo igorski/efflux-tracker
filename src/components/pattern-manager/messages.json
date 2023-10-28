@@ -1,7 +1,7 @@
 {
     "en-US": {
         "patternManager": "Song pattern manager",
-        "untitled": "Untitled",
+        "untitled": "(Untitled)",
         "edit": "Edit",
         "duplicate": "Duplicate",
         "delete": "Delete",
