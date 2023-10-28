@@ -20,7 +20,6 @@
         "notInUse": "Sample is currently not in use",
         "trim": "Trim",
         "delete": "Delete",
-        "slice": "Slice",
         "threshold": "Threshold",
         "release": "Release",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",

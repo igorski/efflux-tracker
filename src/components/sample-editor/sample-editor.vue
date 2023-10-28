@@ -150,7 +150,10 @@
                     </div>
                     <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
                 </div>
-                <div v-if="canSlice">
+                <div
+                    v-if="canSlice"
+                    class="slice-controls"
+                >
                     <div class="range-control">
                         <label v-t="'threshold'"></label>
                         <input
@@ -173,12 +176,6 @@
                             step="0.01"
                         />
                     </div>
-                    <button
-                        v-t="'slice'"
-                        type="button"
-                        :disabled="!sample || isBusy"
-                        @click="sliceSample()"
-                    ></button>
                 </div>
             </section>
         </template>
@@ -241,6 +238,7 @@ import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
+import { debounce } from "@/utils/debounce";
 import { sliceBuffer } from "@/utils/sample-util";
 import { transientToSlices } from "@/utils/transient-detector";
 
@@ -370,7 +368,7 @@ export default {
             },
         },
         "sample.type"( type: PlaybackType, oldType?: PlaybackType ): void {
-            if ( type === PlaybackType.SLICED && this.sample.slices.length === 0 ) {
+            if ( type === PlaybackType.SLICED /*&& this.sample.slices.length === 0*/ ) {
                 this.sliceSample();
             } else {
                 this.hasPitch = !!this.sample.pitch;
@@ -394,11 +392,18 @@ export default {
             }
             this.invalidateRange();
         },
+        sliceThreshold(): void {
+            this.debouncedSlice();
+        },
+        sliceRelease(): void {
+            this.debouncedSlice();
+        },
     },
     created(): void {
         if ( !this.sample && this.samples.length ) {
              this.setCurrentSample( this.samples[ 0 ]);
         }
+        this.debouncedSlice = debounce( this.sliceSample.bind( this ), 50 );
     },
     beforeDestroy(): void {
         this.stopPlayback();
@@ -464,8 +469,8 @@ export default {
                 rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
                 rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
             };
-            // if no pitch changes need to be calculated (e.g. had pitch and range wasn't adjusted)
-            if ( this.hasPitch || this.canSlice ) {
+            // if no pitch changes need to be calculated (e.g. isn't repitched type or already has pitch)
+            if ( sample.type !== PlaybackType.REPITCHED || this.hasPitch ) {
                 this.updateSampleProps( sample );
                 this.showNotification({
                     message : this.$t( "savedChanges", { sample: sample.name })
@@ -607,6 +612,7 @@ export default {
             });
         },
         sliceSample(): void {
+            console.info("slice");
             this.sample.slices = transientToSlices(
                 this.sample.buffer,
                 Math.max( 0.05, ( this.sliceThreshold / 100 ) / 2 ),
@@ -773,6 +779,10 @@ $width: 760px;
     }
 }
 
+.slice-controls .range-control input {
+    width: 120px;
+}
+
 .toggle-control {
     @include toolFont();
     display: inline;
@@ -791,7 +801,7 @@ $width: 760px;
     }
 
     &__select {
-        width: 120px;
+        width: 110px;
     }
 }
 

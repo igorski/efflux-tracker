@@ -47,6 +47,8 @@
             <sample-display
                 :sample="selectedSample"
                 :color="instrumentColor"
+                width="740"
+                height="200"
                 class="waveform-canvas"
             />
             <button
