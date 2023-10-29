@@ -107,8 +107,8 @@
                         <label v-t="'loop'"></label>
                         <toggle-button
                             v-model="sample.loop"
-                            sync
                             :disabled="isBusy"
+                            sync
                         />
                     </div>
                     <div class="playback-type-control">
@@ -368,14 +368,13 @@ export default {
             },
         },
         "sample.type"( type: PlaybackType, oldType?: PlaybackType ): void {
-            if ( type === PlaybackType.SLICED /*&& this.sample.slices.length === 0*/ ) {
+            if ( type === PlaybackType.SLICED && this.sample.slices.length === 0 ) {
                 this.sliceSample();
             } else {
                 this.hasPitch = !!this.sample.pitch;
             }
         },
         "sample.loop"( value: boolean ): void {
-            console.info("loop?:"+value);
             if ( this.playbackNode ) {
                 this.playbackNode.loop = value;
             }
@@ -612,7 +611,6 @@ export default {
             });
         },
         sliceSample(): void {
-            console.info("slice");
             this.sample.slices = transientToSlices(
                 this.sample.buffer,
                 Math.max( 0.05, ( this.sliceThreshold / 100 ) / 2 ),

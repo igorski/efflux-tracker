@@ -76,8 +76,7 @@ export default {
         },
     },
     computed: {
-        hasSlices(): boolean {
-            console.info('sample-display update hasSlices')
+        showSlices(): boolean {
             return this.sample.type === PlaybackType.SLICED && this.sample.slices?.length > 0;
         },
     },
@@ -91,6 +90,11 @@ export default {
                     this.render( sample.buffer );
                 }
             }
+        },
+        "sample.type": {
+            handler( type: PlaybackType ): void {
+                this.render( this.sample.buffer );
+            },
         },
         "sample.slices": {
             handler(): void {
@@ -109,7 +113,7 @@ export default {
             ctx.clearRect( 0, 0, width, height );
             ctx.drawImage( bufferToWaveForm( buffer, this.color, width, height ), 0, 0, width, height );
 
-            if ( this.hasSlices ) {
+            if ( this.showSlices ) {
                 const scale = width / buffer.length;
                 for ( const slice of this.sample.slices ) {
                     // const sliceWidth = slice.rangeEnd - slice.rangeStart;

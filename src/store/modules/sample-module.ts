@@ -63,13 +63,8 @@ const SampleModule: Module<SampleState, any> = {
         cacheSample( state: SampleState, sample: Sample ): void {
             const buffer = SampleFactory.getBuffer( sample, getAudioContext());
             const { length, duration } = buffer;
-                   console.info(length,duration);
-            console.info("caching dat sample and its slices, yo");
             const slices = sample.type === PlaybackType.SLICED ? sample.slices.map(({ rangeStart, rangeEnd }) => {
-                const start = window.performance.now();
-                const b = sliceBuffer( getAudioContext(), buffer, ( rangeStart / length ) * duration, ( rangeEnd / length ) * duration );
-                console.info("elapsed slicing:"+(window.performance.now() - start).toFixed(2) + " for sample of range " + ( rangeStart + " - " +  rangeEnd), b);
-                return b;
+                return sliceBuffer( getAudioContext(), buffer, ( rangeStart / length ) * duration, ( rangeEnd / length ) * duration );
             }) : [];
             state.sampleCache.set( sample.name, {
                 sample: {
