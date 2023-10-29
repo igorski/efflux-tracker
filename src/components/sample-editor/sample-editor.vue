@@ -70,10 +70,10 @@
                 <span v-if="!isInUse" v-t="'notInUse'"></span>
             </div>
             <hr class="divider section-divider" />
-            <div class="waveform-display">
+            <div class="sample-display">
                 <sample-display
                     :sample="sample"
-                    ref="waveformDisplay"
+                    ref="sampleDisplay"
                     width="740"
                     height="200"
                     @mousedown="handleDragStart"
@@ -86,7 +86,7 @@
                     @touchmove="handleDragMove"
                 />
                 <div
-                    class="waveform-display__range"
+                    class="sample-display__range"
                     :style="rangeStyle"
                 ></div>
             </div>
@@ -166,14 +166,14 @@
                         />
                     </div>
                     <div class="range-control">
-                        <label v-t="'release'"></label>
+                        <label v-t="'lowpassFreq'"></label>
                         <input
                             type="range"
-                            name="release"
-                            v-model.number="sliceRelease"
-                            min="0"
-                            max="100"
-                            step="0.01"
+                            name="lowpassFreq"
+                            v-model.number="sliceFreq"
+                            min="150"
+                            max="1500"
+                            step="1"
                         />
                     </div>
                 </div>
@@ -240,7 +240,7 @@ import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
 import { debounce } from "@/utils/debounce";
 import { sliceBuffer } from "@/utils/sample-util";
-import { transientToSlices } from "@/utils/transient-detector";
+import { mapTransients } from "@/utils/transient-detector";
 
 import messages from "./messages.json";
 
@@ -272,7 +272,7 @@ export default {
         showNameInput  : false,
         hasPitch       : false,
         sliceThreshold : 20,
-        sliceRelease   : 2,
+        sliceFreq      : 1000,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
@@ -320,6 +320,9 @@ export default {
             return this.sampleStart !== 0 || this.sampleEnd !== 100;
         },
         rangeStyle(): { left: string, right: string, width: string } {
+            if ( this.canSlice ) {
+                return { left: 0, right: 0, width: "100%" };
+            }
             return {
                 left  : `${this.sampleStart}%`,
                 right : `${this.sampleEnd}%`,
@@ -394,7 +397,7 @@ export default {
         sliceThreshold(): void {
             this.debouncedSlice();
         },
-        sliceRelease(): void {
+        sliceFreq(): void {
             this.debouncedSlice();
         },
     },
@@ -444,7 +447,7 @@ export default {
                 this.stopPlayback();
             }
             this.playbackNode = getAudioContext().createBufferSource();
-            this.playbackNode.buffer = this.sliceBufferForRange();
+            this.playbackNode.buffer = this.canSlice ? this.sample.buffer : this.sliceBufferForRange();
             this.playbackNode.addEventListener( "ended", event => {
                 this.isPlaying = this.playbackNode && event.target !== this.playbackNode;
             });
@@ -538,7 +541,7 @@ export default {
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
-            const waveformBounds = this.$refs.waveformDisplay.$el.getBoundingClientRect();
+            const waveformBounds = this.$refs.sampleDisplay.$el.getBoundingClientRect();
 
             this.dragWidth    = waveformBounds.width;
             this.dragRatio    = this.dragWidth / 100;
@@ -611,10 +614,10 @@ export default {
             });
         },
         sliceSample(): void {
-            this.sample.slices = transientToSlices(
+            this.sample.slices = mapTransients(
                 this.sample.buffer,
-                Math.max( 0.05, ( this.sliceThreshold / 100 ) / 2 ),
-                Math.max( 0.01, this.sliceRelease / 100 ),
+                Math.max( 0.01, ( this.sliceThreshold / 100 ) / 2 ),
+                this.sliceFreq,
             );
         },
         invalidateRange(): void {
@@ -807,7 +810,7 @@ $width: 760px;
     @include toolFont();
 }
 
-.waveform-display {
+.sample-display {
     position: relative;
     width: 100%;
     height: $sampleWaveformHeight;

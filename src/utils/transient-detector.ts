@@ -22,25 +22,30 @@
  */
 import type { SampleRange } from "@/model/types/sample";
 
-const FILTER_FREQ  = 150;
-const FILTER_T     = 1 / ( 2 * Math.PI * FILTER_FREQ );
-
-export const transientToSlices = ( buffer: AudioBuffer, threshold = 0.3, releaseMs = 0.02, maxSlices = 256 ): SampleRange[] => {
+/**
+ * Scans given buffer for transients (defined by provided threshold levels).
+ * Whenever a new transient is found, this is mapped to a new sample range.
+ * 
+ * The transients are detected using low pass filter, envelope follower and
+ * a Schmitt trigger. 
+ */
+export const mapTransients = ( buffer: AudioBuffer, threshold = 0.3, filterFreq = 150, releaseMs = 0.02, maxSlices = 256 ): SampleRange[] => {
     const out: SampleRange[] = [];
-console.info('slicing at threshold:' + threshold + ' and release:' + releaseMs);
+
+    const FILTER_T     = 1 / ( 2 * Math.PI * filterFreq );
     const coeff        = 1 / ( buffer.sampleRate * FILTER_T );
     const releaseCoeff = Math.exp( -1 / ( buffer.sampleRate * releaseMs ));
 
-    let Filter1Out = 0;
-    let Filter2Out = 0;
-    let PeakEnv = 0;          // Peak envelope follower
-    let BeatTrigger = false;         // Schmitt trigger output
-    let PrevBeatPulse = false;       // Rising edge memory
-    let BeatPulse = false;           // Beat detector output
+    let filteredInput1  = 0;
+    let filteredInput2  = 0;
+    let peakEnvFollower = 0;
 
+    let hasTrigger   = false; 
+    let hasTransient = false; // whether a transient was identified in the preceding sample(s)
+    let newTransient = false; // whether the currently processed sample is identified as a new transient
     let envelope: number;
 
-    const peakThreshold = threshold / 2; /* 0.15 */
+    const peakThreshold = threshold / 2; /* 0.15 when threshold is 0.3 */
 
     // @todo (?) we are only operating in mono here
     const samples = buffer.getChannelData( 0 );
@@ -49,44 +54,48 @@ console.info('slicing at threshold:' + threshold + ' and release:' + releaseMs);
     for ( let i = 0; i < rangeEnd; ++i ) {
         const input = samples[ i ];
       
-        // Step 1 : 2nd order low pass filter (made of two 1st order RC filter)
-        Filter1Out += ( coeff * ( input - Filter1Out ));
-        Filter2Out += ( coeff * ( Filter1Out - Filter2Out ));
+        filteredInput1 += ( coeff * ( input - filteredInput1 ));
+        filteredInput2 += ( coeff * ( filteredInput1 - filteredInput2 ));
 
-        // Step 2 : peak detector
-        envelope = Math.abs( Filter2Out );
+        // detect the peaks
+        envelope = Math.abs( filteredInput2 );
 
-        if ( envelope > PeakEnv ) {
-            PeakEnv = envelope;  // Attack time = 0
+        if ( envelope > peakEnvFollower ) {
+            peakEnvFollower = envelope;
         } else {
-            PeakEnv *= releaseCoeff;
-            PeakEnv += ( 1 - releaseCoeff ) * envelope;
+            peakEnvFollower *= releaseCoeff;
+            peakEnvFollower += ( 1 - releaseCoeff ) * envelope;
         }
 
-        // Step 3 : Schmitt trigger
-        if ( !BeatTrigger ) {
-            if ( PeakEnv > threshold ) {
-                BeatTrigger = true;
+        // handle the Schmitt trigger when the envelope exceeds the threshold
+        if ( !hasTrigger ) {
+            if ( peakEnvFollower > threshold ) {
+                hasTrigger = true;
             }
-        } else if ( PeakEnv < peakThreshold ) {
-            BeatTrigger = false;
+        } else if ( peakEnvFollower < peakThreshold ) {
+            hasTrigger = false;
         }
 
-        // Step 4 : rising edge detector
-        BeatPulse = BeatTrigger && !PrevBeatPulse;
+        // if the trigger was set and the current sample is not within the tail of a previously identified
+        // transient, we mark this sample as a new transient
+        newTransient = hasTrigger && !hasTransient;
 
-        if ( BeatPulse ) {
+        if ( newTransient ) {
             out.push({ rangeStart: i, rangeEnd });
-
             if ( out.length === maxSlices ) {
                 break;
             }
         }
-        PrevBeatPulse = BeatTrigger;
+        hasTransient = hasTrigger;
     }
 
+    // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+    if ( import.meta.env.MODE !== "production" ) {
+        console.info( `Sliced ${out.length} regions at threshold ${threshold}, LPF ${filterFreq} and release ${releaseMs}` );
+    }
+
+    // format the range values for all found transients
     let sliceAmount = out.length;
-console.info("--- harvested " + sliceAmount + " slices.");
     while ( sliceAmount-- ) {
         const slice = out[ sliceAmount ];
         slice.rangeEnd = rangeEnd;

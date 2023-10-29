@@ -21,7 +21,7 @@
         "trim": "Trim",
         "delete": "Delete",
         "threshold": "Threshold",
-        "release": "Release",
+        "lowpassFreq": "LPF Freq",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
         "saveChanges": "Save changes",
         "pleaseWait": "Please wait...",

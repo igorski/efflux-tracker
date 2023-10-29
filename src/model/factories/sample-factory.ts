@@ -48,7 +48,7 @@ const SampleFactory = {
             rangeEnd   : buffer.duration,
             rate       : buffer.sampleRate, // in Hz
             length     : buffer.duration,   // in seconds
-            loop       : true,
+            loop       : false,
             pitch      : null, // @see sample-editor
             slices     : [],
             type,
