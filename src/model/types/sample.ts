@@ -36,8 +36,8 @@ export type Sample = SampleRange & {
     name: string;
     source: File | Blob | string;
     buffer: AudioBuffer;
-    rate: number;
-    length: number;
+    rate: number;     // sample rate in Hz
+    duration: number; // in seconds, matches buffer.duration used for deserialization
     loop: boolean;
     pitch: SamplePitch | null;
     slices: SampleRange[];

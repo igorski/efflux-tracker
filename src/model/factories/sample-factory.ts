@@ -46,8 +46,8 @@ const SampleFactory = {
             buffer,
             rangeStart : 0,
             rangeEnd   : buffer.duration,
-            rate       : buffer.sampleRate, // in Hz
-            length     : buffer.duration,   // in seconds
+            rate       : buffer.sampleRate,
+            duration   : buffer.duration,
             loop       : false,
             pitch      : null, // @see sample-editor
             slices     : [],
@@ -91,14 +91,14 @@ const SampleFactory = {
                 sample.loop       = xtkSample.lp ?? true;
                 sample.pitch      = xtkSample.p;
                 sample.rate       = buffer.sampleRate;
-                sample.length     = buffer.duration;
+                sample.duration   = buffer.duration;
 
                 // curious : when loading samples, sometimes the range end is beyond the
                 // buffer duration. This is likely because of different sample rates used
                 // in the environment that created and the one that is loading the sample.
 
-                if ( sample.rangeEnd > sample.length ) {
-                    sample.rangeEnd = sample.length;
+                if ( sample.rangeEnd > sample.duration ) {
+                    sample.rangeEnd = sample.duration;
                     // eslint-disable-next-line no-console
                     //console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
                 }

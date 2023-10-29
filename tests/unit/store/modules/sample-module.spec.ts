@@ -67,7 +67,7 @@ describe( "Vuex sample module", () => {
                 });
                 const sample = createSample( "baz" );
 
-                const mockBuffer = { duration: sample.length } as AudioBuffer;
+                const mockBuffer = { duration: sample.duration } as AudioBuffer;
                 mockGetBuffer.mockImplementation(() => mockBuffer );
                 
                 mutations.cacheSample( state, sample );

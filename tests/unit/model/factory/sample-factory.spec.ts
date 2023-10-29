@@ -40,7 +40,7 @@ describe( "SampleFactory", () => {
             loop: false,
             pitch: null,
             rate: mockAudioBuffer.sampleRate,
-            length: mockAudioBuffer.duration,
+            duration: mockAudioBuffer.duration,
             slices: expect.any( Array ),
             type: PlaybackType.SLICED,
         });
@@ -97,7 +97,7 @@ describe( "SampleFactory", () => {
                 lp : false,
                 p  : null,
                 sr : sample.rate,
-                l  : sample.length,
+                l  : sample.duration,
                 sl : [],
                 t  : sample.type,
             });
@@ -221,7 +221,7 @@ describe( "SampleFactory", () => {
             loop: false,
             pitch: serialized.p,
             rate: 44100,
-            length: mockAudioBuffer.duration,
+            duration: mockAudioBuffer.duration,
             slices: [{
                 rangeStart: 0,
                 rangeEnd: 0.5,
@@ -268,7 +268,7 @@ describe( "SampleFactory", () => {
             loop: true,
             pitch: serialized.p,
             rate: 44100,
-            length: mockAudioBuffer.duration,
+            duration: mockAudioBuffer.duration,
             slices: expect.any( Array ),
             type: PlaybackType.DEFAULT,
         });

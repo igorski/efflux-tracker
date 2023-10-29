@@ -49,7 +49,7 @@ export const serialize = async ( sample: Sample ): Promise<XTKSample> => {
         lp : sample.loop,
         p  : sample.pitch,
         sr : sample.rate,
-        l  : sample.length,
+        l  : sample.duration,
         sl : sample?.slices.map( slice => ({ s: slice.rangeStart, e: slice.rangeEnd })),
         t  : sample.type,
     });
