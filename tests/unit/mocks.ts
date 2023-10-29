@@ -46,6 +46,7 @@ export const createSample = ( sampleName: string, optId?: string, type = Playbac
     rangeEnd   : mockAudioBuffer.duration,
     rate       : mockAudioBuffer.sampleRate,
     length     : mockAudioBuffer.duration,
+    loop       : true,
     pitch      : null,
     slices     : [],
     type,

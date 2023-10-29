@@ -1,20 +1,32 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import type { Sample } from "@/model/types/sample";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import storeModule, { createSampleState } from "@/store/modules/sample-module";
-import { createSample } from "../../mocks";
-import { PlaybackType } from "../../../../src/model/types/sample";
+import { mockAudioContext, createSample } from "../../mocks";
 
 const { getters, mutations, actions } = storeModule;
 
-let mockResult: AudioBuffer;
+vi.mock( "@/services/audio-service", () => ({
+    getAudioContext: () => mockAudioContext,
+}));
+
+let mockGetBufferResult: AudioBuffer;
 vi.mock( "@/model/factories/sample-factory", () => ({
     default: {
-        getBuffer: vi.fn(() => mockResult )
+        getBuffer: vi.fn(( sample: Sample ) => mockGetBufferResult = sample.buffer )
     }
 }));
 
+const mockSliceBuffer = vi.fn();
+vi.mock( "@/utils/sample-util", () => ({
+    sliceBuffer: vi.fn(( ...args ) => mockSliceBuffer( ...args ))
+}));
+
 describe( "Vuex sample module", () => {
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
     describe( "getters", () => {
         const mockRootState: EffluxState = {} as EffluxState;
         const mockRootGetters: any = {};
@@ -53,25 +65,68 @@ describe( "Vuex sample module", () => {
             expect( state.sampleCache.size ).toEqual( 0 );
         });
 
-        it( "should be able to cache the buffer for individual samples and add it to the cache Map", () => {
-            const state = createSampleState({
-                sampleCache: new Map([[ "foo", createSample( "bar" )]])
+        describe( "when caching an individual samples buffer(s)", () => {
+            it( "should be able to cache the buffer for individual samples and add it to the cache Map", () => {
+                const state = createSampleState({
+                    sampleCache: new Map([[ "foo", createSample( "bar" )]])
+                });
+                const sample = createSample( "baz" );
+                
+                mutations.cacheSample( state, sample );
+
+                expect( state.sampleCache.size ).toEqual( 2 );
+                expect( state.sampleCache.has( sample.name ));
+                expect( state.sampleCache.get( sample.name )).toEqual({ sample: { ...sample, buffer: mockGetBufferResult }, slices: expect.any( Array ) });
             });
 
-            mockResult = { duration: 5000 } as AudioBuffer;
-            const sample = createSample( "baz" );
-            
-            mutations.cacheSample( state, sample );
+            it( "should be able to cache the buffer for the individual slices within a sample of the SLICED type and add it to the same cache Map", () => {
+                const state = createSampleState({
+                    sampleCache: new Map([[ "foo", createSample( "bar" ) ]])
+                });
+                const slicedSample = createSample( "bar", "baz", PlaybackType.SLICED );
+                slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 2 });
+                slicedSample.slices.push({ rangeStart: slicedSample.slices[ 0 ].rangeEnd, rangeEnd: slicedSample.buffer.length });
 
-            expect( state.sampleCache.size ).toEqual( 2 );
-            expect( state.sampleCache.has( sample.name ));
-            expect( state.sampleCache.get( sample.name )).toEqual({ sample: { ...sample, buffer: mockResult }, slices: expect.any( Array ) });
+                const mockSlice1 = { duration: slicedSample.buffer.duration / 2 } as AudioBuffer;
+                const mockSlice2 = { duration: slicedSample.buffer.duration / 2 } as AudioBuffer;
+
+                // spy on slice calls to assert returned buffers are assigned to slices Array appropriately
+                let slices = 0;
+                mockSliceBuffer.mockImplementation(() => {
+                    return ( ++slices === 1 ) ? mockSlice1 : mockSlice2;
+                });
+                
+                mutations.cacheSample( state, slicedSample );
+
+                // assert slice calls have been called with appropriate values
+                expect( mockSliceBuffer ).toHaveBeenCalledTimes( 2 );
+                expect( mockSliceBuffer ).toHaveBeenNthCalledWith( 1, mockAudioContext, mockGetBufferResult, 0, 1.5 );
+                expect( mockSliceBuffer ).toHaveBeenNthCalledWith( 2, mockAudioContext, mockGetBufferResult, 1.5, 3 );
+
+                expect( state.sampleCache.get( slicedSample.name )).toEqual({ sample: { ...slicedSample, buffer: mockGetBufferResult },
+                    slices: [ mockSlice1, mockSlice2 ]
+                });
+            });
+
+            it( "should not cache buffers for individual slices when a sample containing slices is not of the SLICED type", () => {
+                const state = createSampleState({
+                    sampleCache: new Map([[ "foo", createSample( "bar" ) ]])
+                });
+                const slicedSample = createSample( "bar", "baz", PlaybackType.DEFAULT );
+                slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 2 });
+                slicedSample.slices.push({ rangeStart: slicedSample.slices[ 0 ].rangeEnd, rangeEnd: slicedSample.buffer.length });
+                
+                mutations.cacheSample( state, slicedSample );
+
+                expect( mockSliceBuffer ).not.toHaveBeenCalled();
+                expect( state.sampleCache.get( slicedSample.name ).slices ).toHaveLength( 0 );
+            });
         });
 
         it( "should be able to remove individual samples from the cache", () => {
             const state = createSampleState({
                 sampleCache: new Map([[ "foo", createSample( "bar" )],[ "baz", createSample( "qux" )]])
-            } as unknown);
+            } as unknown );
 
             mutations.removeSampleFromCache( state, { name: "baz" });
             expect( state.sampleCache.size ).toEqual( 1 );
@@ -125,10 +180,9 @@ describe( "Vuex sample module", () => {
             describe( "and renaming the sample", () => {
                 it( "should update the sample cache identifiers and return the new name", () => {
                     const commit = vi.fn();
-                    const name = "qux";
 
                     const originalSample = mockedGetters.samples[ 0 ];
-                    const newSample = { ...originalSample, name };
+                    const newSample = { ...originalSample, name: "qux" };
                    
                     // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                     const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
@@ -143,10 +197,8 @@ describe( "Vuex sample module", () => {
                 it( "should update all references to the old names for all instruments", () => {
                     const commit = vi.fn();
 
-                    const name = "qux";
-
                     const originalSample = mockedGetters.samples[ 1 ];
-                    const newSample = { ...originalSample, name };
+                    const newSample = { ...originalSample, name: "qux" };
 
                     // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                     actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
@@ -161,10 +213,9 @@ describe( "Vuex sample module", () => {
 
                 it( "should be able to deduplicate existing names", () => {
                     const commit = vi.fn();
-                    const name = "bar";
 
                     const originalSample = mockedGetters.samples[ 0 ];
-                    const newSample = { ...originalSample, name };
+                    const newSample = { ...originalSample, name: "bar" };
 
                     // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
                     const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
