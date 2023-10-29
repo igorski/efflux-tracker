@@ -50,7 +50,6 @@ import {
 import type { Pitch } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
 import type { SampleCacheEntry } from "@/store/modules/sample-module";
-import { sliceBuffer } from "@/utils/sample-util";
 
 type TinyEvent = Pitch & { instrument: number, action: number, mp: EffluxAudioEventModuleParams };
 
@@ -82,8 +81,11 @@ const rootStore: Store<EffluxState> = {
     },
     getters: {
         sampleCache,
-        get activeSong() {
-            return rootStore.state.song.activeSong;
+        get activePatternIndex(): number {
+            return state.activePatternIndex;
+        },
+        get activeSong(): EffluxSong {
+            return activeSong;
         },
     },
     commit( mutationType: string, value?: any ): void {
@@ -150,22 +152,23 @@ export default {
             reset();
             cacheCustomTables( activeSong.instruments );
             activeSong.samples?.forEach(( sample: Sample ): void => {
+                // essentially sample-module#cacheSample
                 const buffer = SampleFactory.getBuffer( sample, audioContext );
-                const { length } = buffer;
+                const { length, duration } = buffer;
                 sampleCache.set( sample.name, {
                     sample: {
                         ...sample,
                         buffer,
                     },
                     slices: sample.slices.map( range => {
-                        return sliceBuffer( audioContext, buffer, range.rangeStart / length, range.rangeEnd / length );
+                        return SampleFactory.getBuffer( sample, audioContext, ( range.rangeStart / length ) * duration, ( range.rangeEnd / length ) * duration );
                     })
                 });
             });
             applyModules( activeSong );
 
             jp( 0 ); // start at first pattern defined in the order list
-
+            
             return TRUE;
 
         } catch ( e ) {
@@ -178,6 +181,7 @@ export default {
      */
     p: (): void => {
         mutations.setPlaying( state, TRUE );
+        mutations.invalidateChannelCache( state, { song: activeSong });
     },
     /**
      * Stop playing song
