@@ -22,7 +22,7 @@
  */
 import { WAV } from "@/definitions/file-types";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { Sample, SampleRange } from "@/model/types/sample";
+import type { Sample } from "@/model/types/sample";
 import Pitch from "@/services/audio/pitch";
 
 /**
@@ -58,7 +58,7 @@ export const sliceBuffer = ( audioContext: BaseAudioContext, buffer: AudioBuffer
     return outputBuffer;
 };
 
-export const getSampleSliceForNote = ( audioEvent: EffluxAudioEvent, sample: Sample ): number | undefined  => {
+export const getSliceIndexForNote = ( audioEvent: EffluxAudioEvent, sample: Sample ): number | undefined  => {
     const max = sample.slices.length;
     const idx = Pitch.OCTAVE_SCALE.indexOf( audioEvent.note ) + (( audioEvent.octave - 1 ) * Pitch.OCTAVE_SCALE.length );
 

@@ -52,7 +52,7 @@ import {
     createGainNode, createStereoPanner, createPWM, createWaveTableFromGraph
 } from "./audio/webaudio-helper";
 import { blobToResource, disposeResource } from "@/utils/resource-manager";
-import { getSampleSliceForNote } from "@/utils/sample-util";
+import { getSliceIndexForNote } from "@/utils/sample-util";
 
 /* private properties */
 
@@ -293,7 +293,7 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                     generatorNode.loop = sample.loop;
 
                     if ( sample.type === PlaybackType.SLICED ) {
-                        const sliceIndex = getSampleSliceForNote( event, sample );
+                        const sliceIndex = getSliceIndexForNote( event, sample );
                         if ( cacheEntry.slices[ sliceIndex ] === undefined ) {
                             console.info("NEEheee!")
                             return returnUnusedVoiceNodesToPool( modules, oscillatorIndex, oscillatorNodes );
