@@ -43,7 +43,6 @@ export const mapTransients = ( buffer: AudioBuffer, threshold = 0.3, filterFreq 
 
     let hasTrigger   = false; 
     let hasTransient = false; // whether a transient was identified in the preceding sample(s)
-    let newTransient = false; // whether the currently processed sample is identified as a new transient
     let envelope: number;
 
     const peakThreshold = threshold / 2; /* 0.15 when threshold is 0.3 */
@@ -68,7 +67,7 @@ export const mapTransients = ( buffer: AudioBuffer, threshold = 0.3, filterFreq 
             peakEnvFollower += ( 1 - releaseCoeff ) * envelope;
         }
 
-        // handle the Schmitt trigger when the envelope exceeds the threshold
+        // set the Schmitt trigger when the envelope exceeds the threshold
         if ( !hasTrigger ) {
             if ( peakEnvFollower > threshold ) {
                 hasTrigger = true;
@@ -78,15 +77,16 @@ export const mapTransients = ( buffer: AudioBuffer, threshold = 0.3, filterFreq 
         }
 
         // if the trigger was set and the current sample is not within the tail of a previously identified
-        // transient, we mark this sample as a new transient
-        newTransient = hasTrigger && !hasTransient;
+        // transient, we can now consider this sample to be a new transient
+        const isNewTransient = hasTrigger && !hasTransient;
 
-        if ( newTransient ) {
+        if ( isNewTransient ) {
             out.push({ rangeStart: i, rangeEnd });
             if ( out.length === maxSlices ) {
                 break;
             }
         }
+        // as long as the Schmitt trigger is set we are inside the tail of a transient
         hasTransient = hasTrigger;
     }
 
