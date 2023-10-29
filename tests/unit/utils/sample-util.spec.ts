@@ -25,7 +25,7 @@ describe( "Sample utility", () => {
             expect( index ).toEqual( 0 );
         });
 
-        it( "should get all the subsequent indices for the following notes within the same 1 octave", () => {
+        it( "should get all the subsequent indices for the following notes within the same 1st octave", () => {
             for ( let i = 1, total = Pitch.OCTAVE_SCALE.length; i < total; ++i ) {
                 const note = Pitch.OCTAVE_SCALE[ i ];
                 expect( getSampleSliceForNote( EventFactory.create( 0, note, 1 ), sample )).toEqual( i );
@@ -37,7 +37,7 @@ describe( "Sample utility", () => {
             expect( index ).toEqual( 12 );
         });
 
-        it( "should get all the subsequent indices for the following notes within the same 2 octave", () => {
+        it( "should get all the subsequent indices for the following notes within the same 2nd octave", () => {
             for ( let i = 1, total = Pitch.OCTAVE_SCALE.length; i < total; ++i ) {
                 const note = Pitch.OCTAVE_SCALE[ i ];
                 expect( getSampleSliceForNote( EventFactory.create( 0, note, 2 ), sample )).toEqual( i + 12 );
@@ -45,10 +45,8 @@ describe( "Sample utility", () => {
         });
 
         it( "should return undefined when exceeding all available slices", () => {
-            it( "should start at the first slice for a C0 note", () => {
-                const index = getSampleSliceForNote( EventFactory.create( 0, "C", 2 ), sample );
-                expect( index ).toBeUndefined();
-            });
+            const index = getSampleSliceForNote( EventFactory.create( 0, "C", 3 ), sample );
+            expect( index ).toBeUndefined();
         });
     });
 });
