@@ -59,7 +59,7 @@ const SampleFactory = {
      * Retrieves the appropriate buffer for playback of the sample.
      * In case the sample has a custom playback range, a new AudioBuffer will be sliced.
      * In case the sample has multiple sliced regions, this method should be called providing the rangeStart|End
-     * values for each of the regions to slice.
+     * values for each of the regions to slice. Provided values are in second, relative to the sample buffer duration.
      * 
      * For repeated playback, the returned AudioBuffer should be cached and invalidated when appropriate.
      */

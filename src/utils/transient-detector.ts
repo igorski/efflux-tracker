@@ -24,9 +24,10 @@ import type { SampleRange } from "@/model/types/sample";
 
 /**
  * Scans given buffer for transients (defined by provided threshold levels).
- * Whenever a new transient is found, this is mapped to a new sample range.
+ * Whenever a new transient is found, this is mapped to a new sample range and
+ * added to a list (with a maximum size of provided maxSlices in length)
  * 
- * The transients are detected using low pass filter, envelope follower and
+ * The transients are detected using a low pass filter, envelope following and
  * a Schmitt trigger. 
  */
 export const mapTransients = ( buffer: AudioBuffer, threshold = 0.3, filterFreq = 150, releaseMs = 0.02, maxSlices = 256 ): SampleRange[] => {

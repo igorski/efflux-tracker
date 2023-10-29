@@ -68,6 +68,16 @@ describe( "SampleFactory", () => {
             expect( SampleFactory.getBuffer( sample, mockAudioContext )).toEqual( mockSlicedBuffer );
             expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioContext, mockAudioBuffer, sample.rangeStart, sample.rangeEnd );
         });
+
+        it( "should return a sliced buffer for the optionally provided range", () => {
+            const sample = SampleFactory.create( null, mockAudioBuffer, "foo" );
+
+            const mockSlicedBuffer = { length: 300 } as AudioBuffer;
+            mockFn = vi.fn(() => mockSlicedBuffer );
+
+            expect( SampleFactory.getBuffer( sample, mockAudioContext, 100, 400 )).toEqual( mockSlicedBuffer );
+            expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioContext, mockAudioBuffer, 100, 400 );
+        });
     });
 
     describe( "when serializing a sample", () => {
