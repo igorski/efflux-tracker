@@ -25,7 +25,6 @@ import SampleFactory from "@/model/factories/sample-factory";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
-import { sliceBuffer } from "@/utils/sample-util";
 
 export type SampleCacheEntry = {
     sample: Sample;
@@ -64,7 +63,7 @@ const SampleModule: Module<SampleState, any> = {
             const buffer = SampleFactory.getBuffer( sample, getAudioContext());
             const { length, duration } = buffer;
             const slices = sample.type === PlaybackType.SLICED ? sample.slices.map(({ rangeStart, rangeEnd }) => {
-                return sliceBuffer( getAudioContext(), buffer, ( rangeStart / length ) * duration, ( rangeEnd / length ) * duration );
+                return SampleFactory.getBuffer( sample, getAudioContext(), ( rangeStart / length ) * duration, ( rangeEnd / length ) * duration );
             }) : [];
             state.sampleCache.set( sample.name, {
                 sample: {

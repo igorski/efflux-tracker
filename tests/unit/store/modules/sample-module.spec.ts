@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { type Sample, PlaybackType } from "@/model/types/sample";
+import { PlaybackType } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import storeModule, { createSampleState } from "@/store/modules/sample-module";
 import { mockAudioContext, createSample } from "../../mocks";
@@ -10,16 +10,11 @@ vi.mock( "@/services/audio-service", () => ({
     getAudioContext: () => mockAudioContext,
 }));
 
-let mockGetBufferResult: AudioBuffer;
+const mockGetBuffer = vi.fn();
 vi.mock( "@/model/factories/sample-factory", () => ({
     default: {
-        getBuffer: vi.fn(( sample: Sample ) => mockGetBufferResult = sample.buffer )
+        getBuffer: vi.fn(( ...args ) => mockGetBuffer( ...args ))
     }
-}));
-
-const mockSliceBuffer = vi.fn();
-vi.mock( "@/utils/sample-util", () => ({
-    sliceBuffer: vi.fn(( ...args ) => mockSliceBuffer( ...args ))
 }));
 
 describe( "Vuex sample module", () => {
@@ -71,12 +66,15 @@ describe( "Vuex sample module", () => {
                     sampleCache: new Map([[ "foo", createSample( "bar" )]])
                 });
                 const sample = createSample( "baz" );
+
+                const mockBuffer = { duration: sample.length } as AudioBuffer;
+                mockGetBuffer.mockImplementation(() => mockBuffer );
                 
                 mutations.cacheSample( state, sample );
 
                 expect( state.sampleCache.size ).toEqual( 2 );
                 expect( state.sampleCache.has( sample.name ));
-                expect( state.sampleCache.get( sample.name )).toEqual({ sample: { ...sample, buffer: mockGetBufferResult }, slices: expect.any( Array ) });
+                expect( state.sampleCache.get( sample.name )).toEqual({ sample: { ...sample, buffer: mockBuffer }, slices: expect.any( Array ) });
             });
 
             it( "should be able to cache the buffer for the individual slices within a sample of the SLICED type and add it to the same cache Map", () => {
@@ -84,26 +82,29 @@ describe( "Vuex sample module", () => {
                     sampleCache: new Map([[ "foo", createSample( "bar" ) ]])
                 });
                 const slicedSample = createSample( "bar", "baz", PlaybackType.SLICED );
-                slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 2 });
-                slicedSample.slices.push({ rangeStart: slicedSample.slices[ 0 ].rangeEnd, rangeEnd: slicedSample.buffer.length });
+                slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 3 });
+                slicedSample.slices.push({ rangeStart: slicedSample.buffer.length / 2, rangeEnd: slicedSample.buffer.length });
 
-                const mockSlice1 = { duration: slicedSample.buffer.duration / 2 } as AudioBuffer;
-                const mockSlice2 = { duration: slicedSample.buffer.duration / 2 } as AudioBuffer;
+                const mockBuffer = slicedSample.buffer; // full sample buffer
+                const mockSlice1 = { duration: slicedSample.buffer.duration / 3 } as AudioBuffer; // 1st sample slice
+                const mockSlice2 = { duration: slicedSample.buffer.duration / 2 } as AudioBuffer; // 2nd sample slice
 
-                // spy on slice calls to assert returned buffers are assigned to slices Array appropriately
-                let slices = 0;
-                mockSliceBuffer.mockImplementation(() => {
-                    return ( ++slices === 1 ) ? mockSlice1 : mockSlice2;
+                // spy on getBuffer-calls to assert returned buffers are assigned to slices Array appropriately
+                let getBufferCalls = -1;
+                const getBufferResults = [ mockBuffer, mockSlice1, mockSlice2 ];
+                mockGetBuffer.mockImplementation(() => {
+                    return getBufferResults[ ++getBufferCalls ];
                 });
                 
                 mutations.cacheSample( state, slicedSample );
 
-                // assert slice calls have been called with appropriate values
-                expect( mockSliceBuffer ).toHaveBeenCalledTimes( 2 );
-                expect( mockSliceBuffer ).toHaveBeenNthCalledWith( 1, mockAudioContext, mockGetBufferResult, 0, 1.5 );
-                expect( mockSliceBuffer ).toHaveBeenNthCalledWith( 2, mockAudioContext, mockGetBufferResult, 1.5, 3 );
+                // assert getBuffer-calls have been called with appropriate values
+                expect( mockGetBuffer ).toHaveBeenCalledTimes( 3 );
+                expect( mockGetBuffer ).toHaveBeenNthCalledWith( 1, slicedSample, mockAudioContext );
+                expect( mockGetBuffer ).toHaveBeenNthCalledWith( 2, slicedSample, mockAudioContext, 0, 1 );
+                expect( mockGetBuffer ).toHaveBeenNthCalledWith( 3, slicedSample, mockAudioContext, 1.5, 3 );
 
-                expect( state.sampleCache.get( slicedSample.name )).toEqual({ sample: { ...slicedSample, buffer: mockGetBufferResult },
+                expect( state.sampleCache.get( slicedSample.name )).toEqual({ sample: { ...slicedSample, buffer: mockBuffer },
                     slices: [ mockSlice1, mockSlice2 ]
                 });
             });
@@ -116,9 +117,11 @@ describe( "Vuex sample module", () => {
                 slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 2 });
                 slicedSample.slices.push({ rangeStart: slicedSample.slices[ 0 ].rangeEnd, rangeEnd: slicedSample.buffer.length });
                 
+                mockGetBuffer.mockImplementation(() => slicedSample.buffer );
+
                 mutations.cacheSample( state, slicedSample );
 
-                expect( mockSliceBuffer ).not.toHaveBeenCalled();
+                expect( mockGetBuffer ).toHaveBeenCalledTimes( 1 );
                 expect( state.sampleCache.get( slicedSample.name ).slices ).toHaveLength( 0 );
             });
         });

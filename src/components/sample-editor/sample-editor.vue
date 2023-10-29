@@ -614,7 +614,7 @@ export default {
             this.sample.slices = transientToSlices(
                 this.sample.buffer,
                 Math.max( 0.05, ( this.sliceThreshold / 100 ) / 2 ),
-                Math.max( 0.01, ( this.sliceRelease / 100 )),
+                Math.max( 0.01, this.sliceRelease / 100 ),
             );
         },
         invalidateRange(): void {

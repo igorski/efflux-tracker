@@ -52,17 +52,17 @@ describe( "SampleFactory", () => {
     });
 
     describe( "when retrieving the buffer for a sample", () => {
-        it( "should return the buffer unchanged when there is no custom range playback defined", () => {
+        it( "should return the buffer unchanged when there is no custom playback range defined", () => {
             const sample = SampleFactory.create( null, mockAudioBuffer, "foo" );
             expect( SampleFactory.getBuffer( sample, mockAudioContext )).toEqual( mockAudioBuffer );
         });
 
-        it( "should return a sliced buffer when a custom range playback is defined", () => {
+        it( "should return a sliced buffer when the sample has a custom playback range", () => {
             const sample = SampleFactory.create( null, mockAudioBuffer, "foo" );
             sample.rangeStart = 10;
             sample.rangeEnd   = 500;
 
-            const mockSlicedBuffer = { duration: 490 };
+            const mockSlicedBuffer = { length: 490 } as AudioBuffer;
             mockFn = vi.fn(() => mockSlicedBuffer );
 
             expect( SampleFactory.getBuffer( sample, mockAudioContext )).toEqual( mockSlicedBuffer );
