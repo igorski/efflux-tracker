@@ -113,6 +113,12 @@ const SampleFactory = {
                     sample.type = xtkSample.t;
                 }
 
+                if ( !!xtkSample.ep ) {
+                    try {
+                        sample.editProps = JSON.parse( xtkSample.ep );
+                    } catch {}
+                }
+
                 resolve( sample );
             } catch {
                 resolve( null );

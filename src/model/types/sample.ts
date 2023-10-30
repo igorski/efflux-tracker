@@ -42,6 +42,11 @@ export type Sample = SampleRange & {
     pitch: SamplePitch | null;
     slices: SampleRange[];
     type: PlaybackType;
+    // optional properties used in sample editor
+    editProps?: {
+        st: number; // slice threshold
+        sf: number; // slice lowpass freq
+    }
 };
 
 export type SamplePitch = {

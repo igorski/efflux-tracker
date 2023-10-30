@@ -321,4 +321,17 @@ describe( "SampleFactory", () => {
             expect( assembled.loop ).toEqual( true );
         });
     });
+
+    it( "should be able to serialize and deserialize optional sample editor properties", async () => {
+        const sample = SampleFactory.create( new Blob(), mockAudioBuffer, "foo" ); 
+        sample.editProps = { st: 0.5, sf: 220 };
+
+        mockFnFileUtil = vi.fn(() => "serializedSource" );
+        mockFn = vi.fn(() => mockAudioBuffer );
+
+        const serializedSample = await serialize( sample );
+        const assembled = await SampleFactory.deserialize( serializedSample );
+
+        expect( assembled.editProps ).toEqual({ st: 0.5, sf: 220 });
+    });
 });

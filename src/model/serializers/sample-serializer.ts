@@ -24,16 +24,17 @@ import type { Sample, SamplePitch } from "@/model/types/sample";
 import { fileToBase64 } from "@/utils/file-util";
 
 export type XTKSample = {
-    b  : string; // base64 encoded source buffer
-    n  : string;
-    s  : number;
-    e  : number;
-    lp : boolean;
-    p  : SamplePitch | null;
-    sr : number;
-    l  : number;
-    sl : { s: number, e: number }[];
-    t  : number;
+    b   : string; // base64 encoded source buffer
+    n   : string;
+    s   : number;
+    e   : number;
+    lp  : boolean;
+    p   : SamplePitch | null;
+    sr  : number;
+    l   : number;
+    sl  : { s: number, e: number }[];
+    t   : number;
+    ep? : string; // optional serialized sample editor properties
 };
 
 /**
@@ -52,6 +53,7 @@ export const serialize = async ( sample: Sample ): Promise<XTKSample> => {
         l  : sample.duration,
         sl : sample?.slices.map( slice => ({ s: slice.rangeStart, e: slice.rangeEnd })),
         t  : sample.type,
+        ep : sample.editProps ? JSON.stringify( sample.editProps ) : undefined,
     });
     return new Promise(( resolve, reject ): void => {
         // we serialize the source instead of the buffer

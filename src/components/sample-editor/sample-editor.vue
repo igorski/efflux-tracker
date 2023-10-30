@@ -361,6 +361,11 @@ export default {
                     this.sampleStart = sanitizeRangeValue( value.rangeStart * ratio );
                     this.sampleEnd   = sanitizeRangeValue( value.rangeEnd * ratio );
 
+                    if ( value.editProps ) {
+                        this.sliceThreshold = value.editProps.st;
+                        this.sliceFreq = value.editProps.sf;
+                    }
+
                     this.isInUse = this.activeSong.instruments.some(({ oscillators }) =>
                         oscillators.some(({ sample }) => sample === value.name )
                     );
@@ -469,7 +474,11 @@ export default {
             const sample = {
                 ...this.sample,
                 rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
-                rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
+                rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration,
+                editProps: {
+                    st: this.sliceThreshold,
+                    sf: this.sliceFreq,
+                },
             };
             // if no pitch changes need to be calculated (e.g. isn't repitched type or already has pitch)
             if ( sample.type !== PlaybackType.REPITCHED || this.hasPitch ) {
