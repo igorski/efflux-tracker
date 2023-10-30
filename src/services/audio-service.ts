@@ -295,7 +295,6 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                     if ( sample.type === PlaybackType.SLICED ) {
                         const sliceIndex = getSliceIndexForNote( event, sample );
                         if ( cacheEntry.slices[ sliceIndex ] === undefined ) {
-                            console.info("NEEheee!")
                             return returnUnusedVoiceNodesToPool( modules, oscillatorIndex, oscillatorNodes );
                         }
                         generatorNode.buffer = cacheEntry.slices[ sliceIndex ];
