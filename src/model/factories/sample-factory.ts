@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { XTKSample } from "@/model/serializers/sample-serializer";
-import type { Sample } from "@/model/types/sample";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createOfflineAudioContext } from "@/services/audio/webaudio-helper";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -38,7 +38,7 @@ const SampleFactory = {
      * Wraps a binary source and AudioBuffer into a sample Object
      * which can be serialized into a Song.
      */
-    create( source: File | Blob | string, buffer: AudioBuffer, name: string = "New sample" ): Sample {
+    create( source: File | Blob | string, buffer: AudioBuffer, name: string = "New sample", type = PlaybackType.REPITCHED ): Sample {
         return {
             id: `s${generateUid()}`,
             name,
@@ -46,24 +46,28 @@ const SampleFactory = {
             buffer,
             rangeStart : 0,
             rangeEnd   : buffer.duration,
-            rate       : buffer.sampleRate, // in Hz
-            length     : buffer.duration,   // in seconds
+            rate       : buffer.sampleRate,
+            duration   : buffer.duration,
+            loop       : false,
             pitch      : null, // @see sample-editor
-            repitch    : true, // whether to actually apply repitching
+            slices     : [],
+            type,
         };
     },
 
     /**
      * Retrieves the appropriate buffer for playback of the sample.
-     * In case the sample has a custom playback range, a new AudioBuffer
-     * will be sliced. For repeated playback this should be cached and
-     * invalidated when appropriate.
+     * In case the sample has a custom playback range, a new AudioBuffer will be sliced.
+     * In case the sample has multiple sliced regions, this method should be called providing the rangeStart|End
+     * values for each of the regions to slice. Provided values are in seconds, relative to the sample buffer duration.
+     * 
+     * For repeated playback, the returned AudioBuffer should be cached and invalidated when appropriate.
      */
-    getBuffer( sample: Sample, audioContext: BaseAudioContext ): AudioBuffer {
-        if ( sample.rangeStart === 0 && sample.rangeEnd === sample.buffer.duration ) {
+    getBuffer( sample: Sample, audioContext: BaseAudioContext, rangeStart = sample.rangeStart, rangeEnd = sample.rangeEnd ): AudioBuffer {
+        if ( rangeStart === 0 && rangeEnd === sample.buffer.duration ) {
             return sample.buffer;
         }
-        return sliceBuffer( audioContext, sample.buffer, sample.rangeStart, sample.rangeEnd );
+        return sliceBuffer( audioContext, sample.buffer, rangeStart, rangeEnd );
     },
 
     /**
@@ -84,19 +88,35 @@ const SampleFactory = {
 
                 sample.rangeStart = xtkSample.s;
                 sample.rangeEnd   = xtkSample.e;
+                sample.loop       = xtkSample.lp ?? true;
                 sample.pitch      = xtkSample.p;
-                sample.repitch    = xtkSample.r;
                 sample.rate       = buffer.sampleRate;
-                sample.length     = buffer.duration;
+                sample.duration   = buffer.duration;
 
                 // curious : when loading samples, sometimes the range end is beyond the
                 // buffer duration. This is likely because of different sample rates used
                 // in the environment that created and the one that is loading the sample.
 
-                if ( sample.rangeEnd > sample.length ) {
-                    sample.rangeEnd = sample.length;
+                if ( sample.rangeEnd > sample.duration ) {
+                    sample.rangeEnd = sample.duration;
                     // eslint-disable-next-line no-console
                     //console?.warn( `Corrected duration for sample "${xtkSample.n}" with saved rate ${xtkSample.sr} against current rate ${buffer.sampleRate}` );
+                }
+
+                sample.slices = xtkSample.sl?.map(({ s, e }) => ({ rangeStart: s, rangeEnd: e })) ?? [];
+
+                // @ts-expect-error 'r' no longer exists in XTKSample, but it did in the legacy format
+                if ( typeof xtkSample.r !== undefined && xtkSample.t === undefined ) {
+                    // @ts-expect-error
+                    sample.type = !!xtkSample.r ? PlaybackType.REPITCHED : PlaybackType.DEFAULT;
+                } else {
+                    sample.type = xtkSample.t;
+                }
+
+                if ( !!xtkSample.ep ) {
+                    try {
+                        sample.editProps = JSON.parse( xtkSample.ep );
+                    } catch {}
                 }
 
                 resolve( sample );

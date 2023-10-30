@@ -38,9 +38,10 @@ import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { InstrumentModules, InstrumentVoice, InstrumentVoiceList } from "@/model/types/instrument-modules";
-import type { Sample } from "@/model/types/sample";
+import { PlaybackType } from "@/model/types/sample";
 import type { EffluxSong } from "@/model/types/song";
 import type { EffluxState } from "@/store";
+import type { SampleCacheEntry } from "@/store/modules/sample-module";
 import {
     tuneToOscillator, tuneSamplePitch, tuneBufferPlaybackRate, adjustEventWaveForms,
     adjustEventVolume, adjustEventTunings
@@ -51,6 +52,7 @@ import {
     createGainNode, createStereoPanner, createPWM, createWaveTableFromGraph
 } from "./audio/webaudio-helper";
 import { blobToResource, disposeResource } from "@/utils/resource-manager";
+import { getSliceIndexForNote } from "@/utils/sample-util";
 
 /* private properties */
 
@@ -208,7 +210,7 @@ export const applyModules = ( song: EffluxSong, connectAnalysers = false ): void
  * synthesize the audio for given event at given startTime
  */
 export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
-    sampleCache: Map<string, Sample>, startTimeInSeconds = audioContext.currentTime ): void => {
+    sampleCache: Map<string, SampleCacheEntry>, startTimeInSeconds = audioContext.currentTime ): void => {
 
     if ( event.action === ACTION_NOTE_ON ) {
 
@@ -249,7 +251,7 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
             // retrieve from pool the envelope gain structure for the oscillator voice
             const oscillatorNodes = retrieveAvailableVoiceNodesFromPool( modules, oscillatorIndex );
             if ( oscillatorNodes === null ) {
-                // console.warn(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.index}`);
+                console.info(`no more nodes in the pool for oscillator ${oscillatorIndex} of instrument ${instrument.index}`);
                 return;
             }
             const { oscillatorNode, adsrNode } = oscillatorNodes;
@@ -282,12 +284,25 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                     break;
 
                 case OscillatorTypes.SAMPLE:
-                    const sample: Sample = sampleCache.get( oscillator.sample );
-                    if ( !sample ) return;
+                    const cacheEntry: SampleCacheEntry = sampleCache.get( oscillator.sample );
+                    if ( !cacheEntry ) {
+                        return returnUnusedVoiceNodesToPool( modules, oscillatorIndex, oscillatorNodes );
+                    }
+                    const { sample } = cacheEntry;
                     generatorNode = audioContext.createBufferSource();
-                    generatorNode.buffer = sample.buffer;
-                    generatorNode.loop = true;
-                    if ( sample.repitch ) {
+                    generatorNode.loop = sample.loop;
+
+                    if ( sample.type === PlaybackType.SLICED ) {
+                        const sliceIndex = getSliceIndexForNote( event, sample );
+                        if ( cacheEntry.slices[ sliceIndex ] === undefined ) {
+                            return returnUnusedVoiceNodesToPool( modules, oscillatorIndex, oscillatorNodes );
+                        }
+                        generatorNode.buffer = cacheEntry.slices[ sliceIndex ];
+                    } else {
+                        generatorNode.buffer = sample.buffer;
+                    }
+                    
+                    if ( sample.type === PlaybackType.REPITCHED ) {
                         tuneSamplePitch( generatorNode, frequency, sample, oscillator );
                     } else {
                         tuneBufferPlaybackRate( generatorNode, oscillator );
@@ -295,7 +310,6 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                     break;
 
                 case OscillatorTypes.NOISE:
-                    // buffer source ? assign it to the oscillator
                     generatorNode = audioContext.createBufferSource();
                     generatorNode.buffer = pool.NOISE;
                     generatorNode.loop = true;
@@ -546,6 +560,10 @@ function retrieveAvailableVoiceNodesFromPool( instrumentModules: InstrumentModul
         return availableVoices.shift();
     }
     return null;
+}
+
+function returnUnusedVoiceNodesToPool( instrumentModules: InstrumentModules, oscillatorIndex: number, voice: InstrumentVoice ): void {
+    instrumentModules.voices[ oscillatorIndex ].push( voice );
 }
 
 function returnVoiceNodesToPoolOnPlaybackEnd( instrumentModules: InstrumentModules, oscillatorIndex: number,

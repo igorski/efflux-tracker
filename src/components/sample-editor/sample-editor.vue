@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -70,10 +70,12 @@
                 <span v-if="!isInUse" v-t="'notInUse'"></span>
             </div>
             <hr class="divider section-divider" />
-            <div class="waveform-display">
+            <div class="sample-display">
                 <sample-display
                     :sample="sample"
-                    ref="waveformDisplay"
+                    ref="sampleDisplay"
+                    width="740"
+                    height="200"
                     @mousedown="handleDragStart"
                     @touchstart="handleDragStart"
                     @mouseup="handleDragEnd"
@@ -84,67 +86,98 @@
                     @touchmove="handleDragMove"
                 />
                 <div
-                    class="waveform-display__range"
+                    class="sample-display__range"
                     :style="rangeStyle"
                 ></div>
             </div>
             <hr class="divider" />
-            <div class="transport-controls">
-                <button
-                    type="button"
-                    class="transport-controls__button"
-                    :class="{ active: isPlaying && !isBusy }"
-                    :title="$t( isPlaying && !isBusy ? 'stop' : 'play')"
-                    :disabled="isBusy"
-                    @click="isPlaying && !isBusy ? stopPlayback() : startPlayback()"
-                >
-                    <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
-                </button>
-                <button
-                    type="button"
-                    class="transport-controls__button"
-                    :class="{ active: loopPlayback && !isBusy }"
-                    :title="$t('loop')"
-                    :disabled="isBusy"
-                    @click="loopPlayback = !loopPlayback"
-                >
-                    <i class="icon-loop" :class="{ active: loopPlayback && !isBusy }"></i>
-                </button>
-            </div>
-            <div class="range-controls">
-                <div class="range-control">
-                    <label v-t="'sampleStart'"></label>
-                    <input
-                        type="range"
-                        name="sampleStart"
-                        v-model.number="sampleStart"
-                        min="0"
-                        max="100"
-                        step="0.1"
+            <section class="sample-control-list">
+                <div class="transport-controls">
+                    <button
+                        type="button"
+                        class="transport-controls__button"
+                        :class="{ active: isPlaying && !isBusy }"
+                        :title="$t( isPlaying && !isBusy ? 'stop' : 'play')"
                         :disabled="isBusy"
-                    />
+                        @click="isPlaying && !isBusy ? stopPlayback() : startPlayback()"
+                    >
+                        <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
+                    </button>
+                    <div class="toggle-control">
+                        <label v-t="'loop'"></label>
+                        <toggle-button
+                            v-model="sample.loop"
+                            :disabled="isBusy"
+                            sync
+                        />
+                    </div>
+                    <div class="playback-type-control">
+                        <label v-t="'playbackType'"></label>
+                        <select-box
+                            v-model="sample.type"
+                            :options="availablePlaybackTypes"
+                            class="playback-type-control__select"
+                        />
+                    </div>
                 </div>
-                <div class="range-control">
-                    <label v-t="'sampleEnd'"></label>
-                    <input
-                        type="range"
-                        name="sampleEnd"
-                        v-model.number="sampleEnd"
-                        min="0"
-                        max="100"
-                        step="0.1"
-                        :disabled="isBusy"
-                    />
+                <div
+                    v-if="hasRangeControls"
+                    class="range-controls"
+                >
+                    <div class="range-control">
+                        <label v-t="'sampleStart'"></label>
+                        <input
+                            type="range"
+                            name="sampleStart"
+                            v-model.number="sampleStart"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            :disabled="isBusy"
+                        />
+                    </div>
+                    <div class="range-control">
+                        <label v-t="'sampleEnd'"></label>
+                        <input
+                            type="range"
+                            name="sampleEnd"
+                            v-model.number="sampleEnd"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                            :disabled="isBusy"
+                        />
+                    </div>
+                    <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
                 </div>
-                <div class="toggle-control">
-                    <label v-t="'repitch'"></label>
-                    <toggle-button
-                        v-model="sample.repitch"
-                        sync
-                    />
+                <div
+                    v-if="canSlice"
+                    class="slice-controls"
+                >
+                    <div class="range-control">
+                        <label v-t="'threshold'"></label>
+                        <input
+                            type="range"
+                            name="threshold"
+                            v-model.number="sliceThreshold"
+                            min="0"
+                            max="100"
+                            step="0.1"
+                        />
+                    </div>
+                    <div class="range-control">
+                        <label v-t="'lowpassFreq'"></label>
+                        <input
+                            type="range"
+                            name="lowpassFreq"
+                            v-model.number="sliceFreq"
+                            min="150"
+                            max="1500"
+                            step="1"
+                        />
+                    </div>
                 </div>
-                <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
-            </div>
+            </section>
         </template>
         <div
             v-else-if="availableSamples.length === 0"
@@ -191,7 +224,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import AudioEncoder from "audio-encoder";
 import { ToggleButton } from "vue-js-toggle-button";
 import { mapGetters, mapMutations, mapActions } from "vuex";
@@ -200,19 +233,22 @@ import ManualURLs from "@/definitions/manual-urls";
 import SampleDisplay from "@/components/sample-display/sample-display.vue";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder.vue";
 import SelectBox from "@/components/forms/select-box.vue";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
+import { debounce } from "@/utils/debounce";
 import { sliceBuffer } from "@/utils/sample-util";
+import { mapTransients } from "@/utils/transient-detector";
 
 import messages from "./messages.json";
 
-const MP3_PAD_START = 1057; // samples added at the beginning of an MP3 encoded file
+const MP3_PAD_START   = 1057; // samples added at the beginning of an MP3 encoded file
 const rangeToPosition = ( rangeValue, length ) => length * ( rangeValue / 100 );
 const secToPctRatio   = ({ duration }) => 100 / duration;
 
-function sanitizeRangeValue( value ) {
+function sanitizeRangeValue( value : number): number {
     return Math.max( 0, Math.min( 100, value ));
 }
 
@@ -230,12 +266,13 @@ export default {
         recordInput    : false,
         playbackNode   : null,
         isPlaying      : false,
-        loopPlayback   : false,
         encodeProgress : 0,
         isBusy         : false,
         isInUse        : false,
         showNameInput  : false,
         hasPitch       : false,
+        sliceThreshold : 20,
+        sliceFreq      : 1000,
         // playback range (in percentile range)
         sampleStart : 0,
         sampleEnd   : 100
@@ -246,18 +283,28 @@ export default {
             "currentSample",
             "samples",
         ]),
-        availableSamples() {
+        availableSamples(): { label: string, value: string }[] {
             return this.samples.map(({ id, name }) => ({ label: name, value: id }));
         },
+        availablePlaybackTypes(): { label: string, value: PlaybackType }[] {
+            return [
+                { label: this.$t( "default" ), value: PlaybackType.DEFAULT },
+                { label: this.$t( "repitch" ), value: PlaybackType.REPITCHED },
+                { label: this.$t( "sliced" ),  value: PlaybackType.SLICED },
+            ];
+        },
         selectedSample: {
-            get() {
+            get(): string | undefined {
                 return this.currentSample?.id;
             },
-            set( id ) {
+            set( id: string ): void {
                 this.setCurrentSample( this.samples.find( sample => sample.id === id ));
             }
         },
-        hasAltRange() {
+        hasRangeControls(): boolean {
+            return this.sample?.type !== PlaybackType.SLICED;
+        },
+        hasAltRange(): boolean {
             if ( !this.sample?.buffer ) {
                 return false;
             }
@@ -272,17 +319,23 @@ export default {
             }
             return this.sampleStart !== 0 || this.sampleEnd !== 100;
         },
-        rangeStyle() {
+        rangeStyle(): { left: string, right: string, width: string } {
+            if ( this.canSlice ) {
+                return { left: 0, right: 0, width: "100%" };
+            }
             return {
                 left  : `${this.sampleStart}%`,
                 right : `${this.sampleEnd}%`,
                 width : `${this.sampleEnd - this.sampleStart}%`
             };
         },
-        canTrim() {
-            return this.sample?.buffer?.sampleRate === 44100; // TODO currently only 44.1 kHz supported.
+        canTrim(): boolean {
+            return !this.canSlice && this.sample?.buffer?.sampleRate === 44100; // TODO currently only 44.1 kHz supported.
         },
-        meta() {
+        canSlice(): boolean {
+            return this.sample?.type === PlaybackType.SLICED;
+        },
+        meta(): { totalDuration: string, sampleRate: number, amountOfChannels: number, duration: string } {
             const { duration } = this.sample.buffer;
             return {
                 totalDuration: duration.toFixed( 2 ),
@@ -295,7 +348,7 @@ export default {
     watch: {
         currentSample: {
             immediate: true,
-            handler( value, oldValue ) {
+            handler( value: Sample, oldValue?: Sample ): void {
                 if ( !oldValue || !value || value.id !== oldValue.id ) {
                     this.sample = value ? { ...value } : null;
                     this.stopPlayback();
@@ -308,6 +361,11 @@ export default {
                     this.sampleStart = sanitizeRangeValue( value.rangeStart * ratio );
                     this.sampleEnd   = sanitizeRangeValue( value.rangeEnd * ratio );
 
+                    if ( value.editProps ) {
+                        this.sliceThreshold = value.editProps.st;
+                        this.sliceFreq = value.editProps.sf;
+                    }
+
                     this.isInUse = this.activeSong.instruments.some(({ oscillators }) =>
                         oscillators.some(({ sample }) => sample === value.name )
                     );
@@ -315,32 +373,46 @@ export default {
                         this.hasPitch = !!this.sample.pitch;
                     });
                 }
+            },
+        },
+        "sample.type"( type: PlaybackType, oldType?: PlaybackType ): void {
+            if ( type === PlaybackType.SLICED && this.sample.slices.length === 0 ) {
+                this.sliceSample();
+            } else {
+                this.hasPitch = !!this.sample.pitch;
             }
         },
-        loopPlayback( value ) {
+        "sample.loop"( value: boolean ): void {
             if ( this.playbackNode ) {
                 this.playbackNode.loop = value;
             }
         },
-        sampleStart( value ) {
+        sampleStart( value: number ): void {
             if ( value > this.sampleEnd ) {
                 this.sampleEnd = Math.min( 100, value + 1 );
             }
             this.invalidateRange();
         },
-        sampleEnd( value ) {
+        sampleEnd( value: number ): void {
             if ( value < this.sampleStart ) {
                 this.sampleStart = Math.max( 0, value - 1 );
             }
             this.invalidateRange();
         },
+        sliceThreshold(): void {
+            this.debouncedSlice();
+        },
+        sliceFreq(): void {
+            this.debouncedSlice();
+        },
     },
-    created() {
+    created(): void {
         if ( !this.sample && this.samples.length ) {
              this.setCurrentSample( this.samples[ 0 ]);
         }
+        this.debouncedSlice = debounce( this.sliceSample.bind( this ), 50 );
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         this.stopPlayback();
     },
     methods: {
@@ -355,15 +427,15 @@ export default {
             "showNotification",
             "suspendKeyboardService",
             "updateOscillator",
-            "updateSample",
+            "updateSongSample",
         ]),
         ...mapActions([
-            "updateSampleName",
+            "updateSampleProps",
         ]),
-        openHelp() {
+        openHelp(): void {
             window.open( ManualURLs.SAMPLE_EDITOR_HELP, "_blank" );
         },
-        deleteSample() {
+        deleteSample(): void {
             this.openDialog({
                 type    : "confirm",
                 message : this.$t( "deleteConfirmDescr" ),
@@ -375,41 +447,49 @@ export default {
             });
         },
         /* sample auditioning */
-        startPlayback( muted = false ) {
+        startPlayback( muted = false ): void {
             if ( this.playbackNode ) {
                 this.stopPlayback();
             }
             this.playbackNode = getAudioContext().createBufferSource();
-            this.playbackNode.buffer = this.sliceBufferForRange();
+            this.playbackNode.buffer = this.canSlice ? this.sample.buffer : this.sliceBufferForRange();
             this.playbackNode.addEventListener( "ended", event => {
                 this.isPlaying = this.playbackNode && event.target !== this.playbackNode;
             });
-            this.playbackNode.loop = this.loopPlayback;
+            this.playbackNode.loop = this.sample.loop;
             if ( !muted ) {
                 this.playbackNode.connect( getAudioContext().destination );
             }
             this.playbackNode.start();
             this.isPlaying = true;
         },
-        stopPlayback() {
+        stopPlayback(): void {
             this.playbackNode?.disconnect();
             this.playbackNode?.stop();
             this.playbackNode = null;
             this.isPlaying = false;
         },
         /* saving sample, after performing pitch analysis, when required */
-        commitChanges() {
-            // if no pitch changes need to be calculated (e.g. had pitch and range wasn't adjusted)
-            if ( this.hasPitch ) {
-                this.updateSample({ ...this.sample });
+        commitChanges(): void {
+            const sample = {
+                ...this.sample,
+                rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
+                rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration,
+                editProps: {
+                    st: this.sliceThreshold,
+                    sf: this.sliceFreq,
+                },
+            };
+            // if no pitch changes need to be calculated (e.g. isn't repitched type or already has pitch)
+            if ( sample.type !== PlaybackType.REPITCHED || this.hasPitch ) {
+                this.updateSampleProps( sample );
                 this.showNotification({
-                    message : this.$t( "savedChanges" )
+                    message : this.$t( "savedChanges", { sample: sample.name })
                 });
                 return;
             }
             this.isBusy = true;
             this.stopPlayback();
-            const wasLooping = this.loopPlayback;
 
             this.openDialog({
                 title       : this.$t( "pleaseWait" ),
@@ -418,7 +498,6 @@ export default {
             });
             this.setBlindActive( true );
 
-            this.loopPlayback = true;
             this.pitches = [];
             this.startPlayback( true );
 
@@ -428,7 +507,6 @@ export default {
 
             setTimeout(() => {
                 this.stopPlayback();
-                this.loopPlayback = wasLooping;
 
                 window.cancelAnimationFrame( this.pitchRaf );
                 this.pitchAnalyser?.disconnect();
@@ -445,14 +523,10 @@ export default {
                 const { note, octave, cents } = getPitchByFrequency( frequency );
                 this.pitches.length = 0;
 
-                const sample = {
-                    ...this.sample,
-                    pitch : { frequency, note, octave, cents },
-                    rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
-                    rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration
-                };
+                sample.pitch = { frequency, note, octave, cents };
+                
                 this.hasPitch = true;
-                this.updateSample( sample );
+                this.updateSongSample( sample );
                 this.cacheSample( sample );
                 this.closeDialog();
                 this.showNotification({
@@ -461,7 +535,7 @@ export default {
                 this.isBusy = false;
             }, 2000 );
         },
-        detectCurrentPitch() {
+        detectCurrentPitch(): void {
             const pitch = detectPitch( this.pitchAnalyser, getAudioContext() );
             if ( pitch ) {
                 this.pitches.push( pitch );
@@ -469,11 +543,14 @@ export default {
             this.pitchRaf = window.requestAnimationFrame( this.pitchFn );
         },
         /* range handling */
-        handleDragStart( event ) {
+        handleDragStart( event: PointerEvent ): void {
+            if ( !this.canTrim ) {
+                return;
+            }
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
-            const waveformBounds = this.$refs.waveformDisplay.$el.getBoundingClientRect();
+            const waveformBounds = this.$refs.sampleDisplay.$el.getBoundingClientRect();
 
             this.dragWidth    = waveformBounds.width;
             this.dragRatio    = this.dragWidth / 100;
@@ -481,10 +558,10 @@ export default {
             this.dragSS       = this.sampleStart;
             this.dragSE       = this.sampleEnd;
         },
-        handleDragEnd() {
+        handleDragEnd(): void {
             this.isDragging = false;
         },
-        handleDragMove( event ) {
+        handleDragMove( event: PointerEvent ): void {
             if ( !this.isDragging ) {
                 return;
             }
@@ -495,14 +572,14 @@ export default {
             this.sampleEnd   = sanitizeRangeValue( this.dragSE + ( delta / this.dragRatio ) );
         },
         /* other */
-        sliceBufferForRange() {
+        sliceBufferForRange(): AudioBuffer | null {
             return sliceBuffer(
                 getAudioContext(), this.sample.buffer,
                 rangeToPosition( this.sampleStart, this.sample.buffer.duration ),
                 rangeToPosition( this.sampleEnd,   this.sample.buffer.duration )
             )
         },
-        trimSample() {
+        trimSample(): void {
             this.isBusy = true;
             this.openDialog({
                 title       : this.$t( "pleaseWait" ),
@@ -532,7 +609,7 @@ export default {
                     rate     : buffer.sampleRate,
                     length   : buffer.duration
                 };
-                this.updateSample( sample );
+                this.updateSongSample( sample );
                 const ratio = secToPctRatio( buffer );
                 this.sampleStart = sample.rangeStart * ratio;
                 this.sampleEnd   = sample.rangeEnd * ratio;
@@ -545,26 +622,33 @@ export default {
                 this.isBusy = false;
             });
         },
-        invalidateRange() {
+        sliceSample(): void {
+            this.sample.slices = mapTransients(
+                this.sample.buffer,
+                Math.max( 0.01, ( this.sliceThreshold / 100 ) / 2 ),
+                this.sliceFreq,
+            );
+        },
+        invalidateRange(): void {
             if ( this.isPlaying ) {
                 this.startPlayback();
             }
             this.hasPitch = false; // pitch must be recalculated
         },
-        async handleNameInputShow() {
+        async handleNameInputShow(): Promise<void> {
             this.showNameInput = true;
             await this.$nextTick();
             this.suspendKeyboardService( true );
             this.$refs.nameInput.focus();
         },
-        async handleNameInputBlur() {
+        async handleNameInputBlur(): Promise<void> {
             this.showNameInput = false;
             this.suspendKeyboardService( false );
             let name = this.$refs.nameInput.value;
             if ( name ) {
-                this.sample.name = await this.updateSampleName({ id: this.sample.id, name });
+                this.sample.name = await this.updateSampleProps({ ...this.sample, name }).name;
             }
-        }
+        },
     }
 };
 </script>
@@ -574,7 +658,7 @@ export default {
 @import "@/styles/forms";
 @import "@/styles/transporter";
 
-$width: 720px;
+$width: 760px;
 
 .sample-editor {
     @include editorComponent();
@@ -617,7 +701,7 @@ $width: 720px;
         @include minWidth( $width ) {
             display: flex;
             justify-content: space-between;
-            padding: $spacing-small $spacing-medium;
+            padding: $spacing-small $spacing-medium $spacing-xsmall;
         }
 
         @include minWidthFallback( $width ) {
@@ -639,7 +723,7 @@ $width: 720px;
 }
 
 .sample-meta {
-    padding: $spacing-small $spacing-medium;
+    padding: $spacing-xxsmall $spacing-medium;
     @include toolFont();
 
     span {
@@ -656,9 +740,18 @@ $width: 720px;
     width: 180px;
 }
 
+.sample-control-list {
+    @include large() {
+        display: flex;
+        flex-direction: row;
+        padding: 0 $spacing-medium;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
 .transport-controls {
-    display: inline-block;
-    padding: $spacing-xsmall 0 0 $spacing-medium;
+    padding: $spacing-xsmall 0 0 0;
 
     .transport-controls__button {
         cursor: pointer;
@@ -681,21 +774,23 @@ $width: 720px;
 }
 
 .range-controls {
-    display: inline-block;
-    margin: 0 $spacing-small;
-    vertical-align: middle;
+    display: flex;
+    justify-content: space-around;
+}
 
-    .range-control {
-        @include toolFont();
+.range-control {
+    @include toolFont();
+    display: inline;
+
+    label, input {
+        vertical-align: middle;
+        width: auto;
         display: inline;
-        margin-right: $spacing-small;
-
-        label, input {
-            vertical-align: middle;
-            width: auto;
-            display: inline;
-        }
     }
+}
+
+.slice-controls .range-control input {
+    width: 120px;
 }
 
 .toggle-control {
@@ -703,7 +798,20 @@ $width: 720px;
     display: inline;
 
     label {
-        margin-right: $spacing-small;
+        margin: 0 $spacing-small 0 $spacing-xxsmall;
+    }
+}
+
+.playback-type-control {
+    @include toolFont();
+    display: inline;
+
+    label {
+        margin: 0 $spacing-medium 0 $spacing-small;
+    }
+
+    &__select {
+        width: 110px;
     }
 }
 
@@ -711,7 +819,7 @@ $width: 720px;
     @include toolFont();
 }
 
-.waveform-display {
+.sample-display {
     position: relative;
     width: 100%;
     height: $sampleWaveformHeight;

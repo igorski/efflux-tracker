@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,43 +21,15 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { WAV } from "@/definitions/file-types";
-
-/**
- * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
- * of provided width and height
- */
-export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150 ): HTMLCanvasElement => {
-    const canvas  = document.createElement( "canvas" );
-    const ctx     = canvas.getContext( "2d" );
-    canvas.width  = width;
-    canvas.height = height;
-
-    ctx.fillStyle = color;
-
-    // TODO: render all channels ?
-    const data = buffer.getChannelData( 0 );
-    const step = Math.ceil( data.length / width );
-    const amp  = height / 2;
-
-    for ( let i = 0; i < width; ++i ) {
-        let min = 1.0;
-        let max = -1.0;
-        for ( var j = 0; j < step; ++j ) {
-            const datum = data[( i * step ) + j ];
-            if ( datum < min ) {
-                min = datum;
-            } else if ( datum > max ) {
-                max = datum;
-            }
-        }
-        ctx.fillRect( i, ( 1 + min ) * amp, 1, Math.max( 1, ( max - min ) * amp ));
-    }
-    return canvas;
-};
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import type { Sample } from "@/model/types/sample";
+import Pitch from "@/services/audio/pitch";
 
 /**
  * Slices given Buffer for given range into a new Buffer.
  * Returns null when an invalid range was requested.
+ * 
+ * Begin and end values are provided in seconds (relative to buffer.duration)
  */
 export const sliceBuffer = ( audioContext: BaseAudioContext, buffer: AudioBuffer, begin: number, end: number ): AudioBuffer | null => {
     const { duration, numberOfChannels, sampleRate } = buffer;
@@ -69,7 +41,7 @@ export const sliceBuffer = ( audioContext: BaseAudioContext, buffer: AudioBuffer
     const endOffset   = sampleRate * end;
     const frameCount  = endOffset - startOffset;
 
-    let outputBuffer = null;
+    let outputBuffer: AudioBuffer;
 
     try {
         outputBuffer = audioContext.createBuffer( numberOfChannels, frameCount, sampleRate );
@@ -84,6 +56,13 @@ export const sliceBuffer = ( audioContext: BaseAudioContext, buffer: AudioBuffer
         return null;
     }
     return outputBuffer;
+};
+
+export const getSliceIndexForNote = ( audioEvent: EffluxAudioEvent, sample: Sample ): number | undefined  => {
+    const max = sample.slices.length;
+    const idx = Pitch.OCTAVE_SCALE.indexOf( audioEvent.note ) + (( audioEvent.octave - 1 ) * Pitch.OCTAVE_SCALE.length );
+
+    return idx < max ? idx : undefined;
 };
 
 /**

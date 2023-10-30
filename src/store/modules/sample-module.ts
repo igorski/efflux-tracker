@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,12 +23,17 @@
 import type { Commit, Module } from "vuex";
 import SampleFactory from "@/model/factories/sample-factory";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
-import type { Sample } from "@/model/types/sample";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
+
+export type SampleCacheEntry = {
+    sample: Sample;
+    slices: AudioBuffer[];
+};
 
 export interface SampleState {
     currentSampleId: string | null; // id of sample currently being edited
-    sampleCache: Map<string, Sample>; // contains all sample buffers available for playback
+    sampleCache: Map<string, SampleCacheEntry>; // contains all sample buffers available for playback
 };
 
 export const createSampleState = ( props?: Partial<SampleState> ): SampleState => ({
@@ -43,8 +48,8 @@ const SampleModule: Module<SampleState, any> = {
         currentSample: ( state: SampleState, getters: any ): Sample => {
             return getters.samples.find(( s: Sample ) => s.id === state.currentSampleId );
         },
-        sampleCache: ( state: SampleState ): Map<string, Sample> => state.sampleCache,
-        sampleFromCache: ( state: SampleState ) => ( name: string ): Sample => state.sampleCache.get( name ),
+        sampleCache: ( state: SampleState ): Map<string, SampleCacheEntry> => state.sampleCache,
+        sampleFromCache: ( state: SampleState ) => ( name: string ): Sample => state.sampleCache.get( name )?.sample,
     },
     mutations: {
         setCurrentSample( state: SampleState, sample: Sample ): void {
@@ -55,9 +60,17 @@ const SampleModule: Module<SampleState, any> = {
         },
         /* caching works on name basis (names are used across sessions - contrary to ids - and referenced by instruments) */
         cacheSample( state: SampleState, sample: Sample ): void {
+            const buffer = SampleFactory.getBuffer( sample, getAudioContext());
+            const { length, duration } = buffer;
+            const slices = sample.type === PlaybackType.SLICED ? sample.slices.map(({ rangeStart, rangeEnd }) => {
+                return SampleFactory.getBuffer( sample, getAudioContext(), ( rangeStart / length ) * duration, ( rangeEnd / length ) * duration );
+            }) : [];
             state.sampleCache.set( sample.name, {
-                ...sample,
-                buffer: SampleFactory.getBuffer( sample, getAudioContext() )
+                sample: {
+                    ...sample,
+                    buffer,
+                },
+                slices,
             });
         },
         removeSampleFromCache( state: SampleState, { name } : { name: string }): void {
@@ -71,19 +84,21 @@ const SampleModule: Module<SampleState, any> = {
                 commit( "cacheSample", sample );
             });
         },
-        updateSampleName({ getters, commit }: { getters: any, commit: Commit },
-            { id, name }: { id: string, name: string }): string {
-            const sample = getters.samples.find(( s: Sample ) => s.id === id );
+        updateSampleProps({ getters, commit }: { getters: any, commit: Commit }, sample: Sample ): Sample {
+            const existingSample = getters.samples.find(( s: Sample ) => s.id === sample.id );
+            const currentName    = existingSample.name;
+
+            let { name } = sample;
+
             // first check if name exists under different id as we don't take kindly to duplicates
-            const hasDuplicate = getters.samples.find(( s: Sample ) => s.name === name && s.id !== id );
+            const hasDuplicate = getters.samples.find(( s: Sample ) => s.name === name && s.id !== sample.id );
             if ( hasDuplicate ) {
                 name += " #2";
             }
-            const currentName   = sample.name;
             const updatedSample = { ...sample, name };
 
-            commit( "removeSampleFromCache", sample );
-            commit( "updateSample", updatedSample );
+            commit( "removeSampleFromCache", existingSample );
+            commit( "updateSongSample", updatedSample );
             commit( "cacheSample", updatedSample );
 
             // update all instruments as the sample name is the key
@@ -96,7 +111,7 @@ const SampleModule: Module<SampleState, any> = {
                     }
                 });
             });
-            return name;
+            return updatedSample;
         }
     },
 };

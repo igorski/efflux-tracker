@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,8 +28,41 @@
     ></canvas>
 </template>
 
-<script>
-import { bufferToWaveForm } from "@/utils/sample-util";
+<script lang="ts">
+import { type Sample, PlaybackType } from "@/model/types/sample";
+
+/**
+ * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
+ * of provided width and height
+ */
+const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150 ): HTMLCanvasElement => {
+    const canvas  = document.createElement( "canvas" );
+    const ctx     = canvas.getContext( "2d" )!;
+    canvas.width  = width;
+    canvas.height = height;
+
+    ctx.fillStyle = color;
+
+    // @todo: render all channels ? (this is left channel mono currently)
+    const data = buffer.getChannelData( 0 );
+    const step = Math.ceil( data.length / width );
+    const amp  = height / 2;
+
+    for ( let i = 0; i < width; ++i ) {
+        let min = 1.0;
+        let max = -1.0;
+        for ( let j = 0; j < step; ++j ) {
+            const value = data[( i * step ) + j ];
+            if ( value < min ) {
+                min = value;
+            } else if ( value > max ) {
+                max = value;
+            }
+        }
+        ctx.fillRect( i, ( 1 + min ) * amp, 1, Math.max( 1, ( max - min ) * amp ));
+    }
+    return canvas;
+};
 
 export default {
     props: {
@@ -42,19 +75,35 @@ export default {
             default: "#FF5900"
         },
     },
+    computed: {
+        showSlices(): boolean {
+            return this.sample.type === PlaybackType.SLICED && this.sample.slices?.length > 0;
+        },
+    },
     watch: {
         sample: {
             immediate: true,
-            async handler( sample ) {
-                if ( sample?.buffer ) {
+            async handler( sample: Sample, oldSample?: Sample ): Promise<void> {
+                if ( sample?.buffer !== oldSample?.buffer )
+                {
                     await this.$nextTick(); // wait for component to mount on first run
                     this.render( sample.buffer );
                 }
             }
         },
+        "sample.type": {
+            handler( type: PlaybackType ): void {
+                this.render( this.sample.buffer );
+            },
+        },
+        "sample.slices": {
+            handler(): void {
+                this.render( this.sample.buffer );
+            },
+        },
     },
     methods: {
-        render( buffer ) {
+        render( buffer: AudioBuffer ): void {
             const canvas = this.$refs.waveformDisplay;
             const ctx    = canvas.getContext( "2d" );
             ctx.imageSmoothingEnabled = false;
@@ -62,8 +111,17 @@ export default {
             const { width, height } = canvas;
 
             ctx.clearRect( 0, 0, width, height );
-            ctx.drawImage( bufferToWaveForm( buffer, this.color, 720, 200 ), 0, 0, width, height );
-        }
+            ctx.drawImage( bufferToWaveForm( buffer, this.color, width, height ), 0, 0, width, height );
+
+            if ( this.showSlices ) {
+                const scale = width / buffer.length;
+                for ( const slice of this.sample.slices ) {
+                    // const sliceWidth = slice.rangeEnd - slice.rangeStart;
+                    ctx.fillStyle = "#FFF";
+                    ctx.fillRect( slice.rangeStart * scale, 0, 0.5, height );
+                }
+            }
+        },
     }
 };
 </script>

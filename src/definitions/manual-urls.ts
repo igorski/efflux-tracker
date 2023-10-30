@@ -31,5 +31,6 @@ export default
     PARAM_ENTRY_HELP       : `${MANUAL_ROOT}patterns#parameter-change-ui`,
     INSTRUMENT_EDITOR_HELP : `${MANUAL_ROOT}instrument-editor`,
     SAMPLE_EDITOR_HELP     : `${MANUAL_ROOT}sample-editor`,
-    PATTERN_ORDER_HELP     : `${MANUAL_ROOT}patterns`,
+    PATTERN_MANAGER_HELP   : `${MANUAL_ROOT}patterns`,
+    PATTERN_ORDER_HELP     : `${MANUAL_ROOT}patterns/#pattern-order`,
 };

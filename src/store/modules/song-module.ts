@@ -120,7 +120,7 @@ const SongModule: Module<SongState, any> = {
             }
             state.activeSong.samples.length = 0;
         },
-        updateSample( state: SongState, sample: Sample ): void {
+        updateSongSample( state: SongState, sample: Sample ): void {
             const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
             Vue.set( state.activeSong.samples, index, sample );
         },

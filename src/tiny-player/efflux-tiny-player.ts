@@ -42,8 +42,6 @@ import SampleFactory from "@/model/factories/sample-factory";
 import { WAVE_TABLES } from "@/model/serializers/instrument-serializer";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
-import type { Instrument } from "@/model/types/instrument";
-import type { EffluxPattern } from "@/model/types/pattern";
 import type { Sample } from "@/model/types/sample";
 import type { EffluxSong } from "@/model/types/song";
 import {
@@ -51,6 +49,7 @@ import {
 } from "@/services/audio-service";
 import type { Pitch } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
+import type { SampleCacheEntry } from "@/store/modules/sample-module";
 
 type TinyEvent = Pitch & { instrument: number, action: number, mp: EffluxAudioEventModuleParams };
 
@@ -70,7 +69,7 @@ const state: SequencerState = sequencerModule.state as SequencerState;
 const mutations: MutationTree<SequencerState> = sequencerModule.mutations!;
 const actions: ActionTree<SequencerState, any> = sequencerModule.actions!;
 
-const sampleCache: Map<string, Sample> = new Map();
+const sampleCache: Map<string, SampleCacheEntry> = new Map();
 
 // mock Vuex root store
 
@@ -82,8 +81,11 @@ const rootStore: Store<EffluxState> = {
     },
     getters: {
         sampleCache,
-        get activeSong() {
-            return rootStore.state.song.activeSong;
+        get activePatternIndex(): number {
+            return state.activePatternIndex;
+        },
+        get activeSong(): EffluxSong {
+            return activeSong;
         },
     },
     commit( mutationType: string, value?: any ): void {
@@ -150,15 +152,23 @@ export default {
             reset();
             cacheCustomTables( activeSong.instruments );
             activeSong.samples?.forEach(( sample: Sample ): void => {
+                // essentially sample-module#cacheSample
+                const buffer = SampleFactory.getBuffer( sample, audioContext );
+                const { length, duration } = buffer;
                 sampleCache.set( sample.name, {
-                    ...sample,
-                    buffer: SampleFactory.getBuffer( sample, audioContext )
+                    sample: {
+                        ...sample,
+                        buffer,
+                    },
+                    slices: sample.slices.map( range => {
+                        return SampleFactory.getBuffer( sample, audioContext, ( range.rangeStart / length ) * duration, ( range.rangeEnd / length ) * duration );
+                    })
                 });
             });
             applyModules( activeSong );
 
             jp( 0 ); // start at first pattern defined in the order list
-
+            
             return TRUE;
 
         } catch ( e ) {
@@ -171,6 +181,7 @@ export default {
      */
     p: (): void => {
         mutations.setPlaying( state, TRUE );
+        mutations.invalidateChannelCache( state, { song: activeSong });
     },
     /**
      * Stop playing song

@@ -6,10 +6,13 @@
         "stop": "Stop",
         "loop": "Loop",
         "record": "Record",
-        "repitch": "Repitch",
+        "default": "Default",
+        "playbackType": "Playback type",
+        "repitch": "Repitched",
+        "sliced": "Sliced",
         "sampleName": "\"{name}\"",
-        "sampleStart": "Sample start",
-        "sampleEnd": "Sample end",
+        "sampleStart": "Start",
+        "sampleEnd": "End",
         "editName": "Edit name",
         "totalDuration": "Duration {duration}s",
         "sampleRate": "Sample rate: {sampleRate} Hz",
@@ -17,12 +20,14 @@
         "notInUse": "Sample is currently not in use",
         "trim": "Trim",
         "delete": "Delete",
+        "threshold": "Threshold",
+        "lowpassFreq": "LPF Freq",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
         "saveChanges": "Save changes",
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",
         "trimmingSample": "Trimming sample",
         "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}",
-        "savedChanges": "Saved changes"
+        "savedChanges": "Saved changes to sample \"{sample}\""
     }
 }

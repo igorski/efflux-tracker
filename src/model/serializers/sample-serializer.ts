@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2022 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,14 +24,17 @@ import type { Sample, SamplePitch } from "@/model/types/sample";
 import { fileToBase64 } from "@/utils/file-util";
 
 export type XTKSample = {
-    b : string; // base64 encoded source buffer
-    n : string;
-    s : number;
-    e : number;
-    p : SamplePitch | null;
-    r : boolean;
-    sr: number;
-    l : number;
+    b   : string; // base64 encoded source buffer
+    n   : string;
+    s   : number;
+    e   : number;
+    lp  : boolean;
+    p   : SamplePitch | null;
+    sr  : number;
+    l   : number;
+    sl  : { s: number, e: number }[];
+    t   : number;
+    ep? : string; // optional serialized sample editor properties
 };
 
 /**
@@ -44,10 +47,13 @@ export const serialize = async ( sample: Sample ): Promise<XTKSample> => {
         n  : sample.name,
         s  : sample.rangeStart,
         e  : sample.rangeEnd,
+        lp : sample.loop,
         p  : sample.pitch,
-        r  : sample.repitch,
         sr : sample.rate,
-        l  : sample.length,
+        l  : sample.duration,
+        sl : sample?.slices.map( slice => ({ s: slice.rangeStart, e: slice.rangeEnd })),
+        t  : sample.type,
+        ep : sample.editProps ? JSON.stringify( sample.editProps ) : undefined,
     });
     return new Promise(( resolve, reject ): void => {
         // we serialize the source instead of the buffer

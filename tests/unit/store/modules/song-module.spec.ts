@@ -137,7 +137,7 @@ describe( "Vuex song module", () => {
                     samples: [ createSample( "foo", "s1" ), createSample( "bar", "s2" ), createSample( "baz", "s3" )]
                 })
             });
-            mutations.updateSample( state, { id: "s2", name: "qux" });
+            mutations.updateSongSample( state, { id: "s2", name: "qux" });
 
             expect( state.activeSong.samples ).toHaveLength( 3 );
             const [ first, second, third ] = state.activeSong.samples;
