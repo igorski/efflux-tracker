@@ -39,9 +39,13 @@
 .application-editor {
     @include flex();
     position: absolute;
-    top: 134px; /* menu + song meta */
+    top: 134px; /* menu + pattern editor */
     bottom: $footer-height;
     overflow: hidden;
+
+    &.jam-mode {
+        top: 86px; /* no pattern editor */
+    }
 
     &.note-entry-mode {
         bottom: $note-entry-editor-height !important;

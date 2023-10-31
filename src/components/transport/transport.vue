@@ -72,35 +72,37 @@
                     ></button>
                 </li>
                 <li class="section-divider"><!-- x --></li>
-                <li>
-                    <button
-                        type="button"
-                        class="pattern-back"
-                        :title="$t('previousPattern')"
-                        @click="gotoPreviousPattern( activeSong )"
-                    >&lt;&lt;</button>
-                </li>
-                <li class="current-pattern">
-                    <input
-                        class="current"
-                        ref="currentPatternInput"
-                        v-model.number="currentOrderIndex"
-                        maxlength="3"
-                        @focus="focusPatternInput( true )"
-                        @blur="focusPatternInput( false )"
-                    />
-                    <span class="divider">/</span>
-                    <span class="total">{{ activeSong.order.length.toString() }}</span>
-                </li>
-                <li>
-                    <button
-                        type="button"
-                        class="pattern-next"
-                        :title="$t('nextPattern')"
-                        @click="gotoNextPattern( activeSong )"
-                    >&gt;&gt;</button>
-                </li>
-                <li class="section-divider"><!-- x --></li>
+                <template v-if="!jamMode">
+                    <li>
+                        <button
+                            type="button"
+                            class="pattern-back"
+                            :title="$t('previousPattern')"
+                            @click="gotoPreviousPattern( activeSong )"
+                        >&lt;&lt;</button>
+                    </li>
+                    <li class="current-pattern">
+                        <input
+                            class="current"
+                            ref="currentPatternInput"
+                            v-model.number="currentOrderIndex"
+                            maxlength="3"
+                            @focus="focusPatternInput( true )"
+                            @blur="focusPatternInput( false )"
+                        />
+                        <span class="divider">/</span>
+                        <span class="total">{{ activeSong.order.length.toString() }}</span>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            class="pattern-next"
+                            :title="$t('nextPattern')"
+                            @click="gotoNextPattern( activeSong )"
+                        >&gt;&gt;</button>
+                    </li>
+                    <li class="section-divider"><!-- x --></li>
+                </template>
             </ul>
             <ul class="transport-controls__tempo wrapper input range">
                 <li>
@@ -137,7 +139,7 @@
                 <li class="transport-controls__tempo-divider section-divider"><!-- x --></li>
             </ul>
             <pattern-order-list
-                v-if="useOrders"
+                v-if="!jamMode && useOrders"
             />
         </div>
     </section>
@@ -177,6 +179,7 @@ export default {
             "isLooping",
             "isRecording",
             "isMetronomeEnabled",
+            "jamMode",
             "amountOfSteps",
             "useOrders",
         ]),
@@ -371,6 +374,7 @@ export default {
     margin: 0 auto;
     min-width: 100%;
     max-width: $ideal-width;
+    min-height: 44px;
 
     @include large() {
         display: flex;

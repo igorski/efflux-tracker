@@ -41,7 +41,7 @@
                 <transport />
             </header>
             <!-- actual application -->
-            <div class="container">
+            <div v-if="!jamMode" class="container">
                 <div
                     ref="properties"
                     class="application-properties"
@@ -58,11 +58,12 @@
                         'has-help-panel'          : displayHelp,
                         'settings-mode'           : mobileMode === 'settings',
                         'settings-mode--expanded' : mobileMode === 'settings' && useOrders,
-                        'note-entry-mode'         : showNoteEntry
+                        'note-entry-mode'         : showNoteEntry,
+                        'jam-mode'                : jamMode,
                     }"
                 >
                     <track-editor />
-                    <timeline-editor v-if="timelineMode" />
+                    <jam-mode-editor v-if="jamMode" />
                     <pattern-track-list v-else />
                     <help-section v-if="displayHelp" />
                 </div>
@@ -114,15 +115,15 @@ import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
 import Loader from "@/components/loader.vue";
-import ModalWindows from "@/definitions/modal-windows";
-import { JAM_MODE } from "@/definitions/url-params";
 import ApplicationMenu from "@/components/application-menu/application-menu.vue";
 import Notifications from "@/components/notifications.vue";
+import ModalWindows from "@/definitions/modal-windows";
+import { JAM_MODE } from "@/definitions/url-params";
+import SampleFactory from "@/model/factories/sample-factory";
+import { type EffluxSong } from "@/model/types/song";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
-import SampleFactory from "@/model/factories/sample-factory";
-import type { EffluxSong } from "@/model/types/song";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
 import store from "@/store";
@@ -170,7 +171,7 @@ export default {
         NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor.vue" )),
+        JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam/jam-mode-editor/jam-mode-editor.vue" )),
         TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
@@ -198,7 +199,7 @@ export default {
             "displayWelcome",
             "hasChanges",
             "isLoading",
-            "timelineMode",
+            "jamMode",
             "useOrders",
         ]),
         activeModal(): null | (() => IAsyncComponent) {

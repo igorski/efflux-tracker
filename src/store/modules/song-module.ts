@@ -39,7 +39,7 @@ import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
-import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@/model/types/song";
+import { type EffluxSong, type StoredEffluxSongDescriptor, type EffluxSongOrigin, EffluxSongType } from "@/model/types/song";
 import StorageUtil from "@/utils/storage-util";
 import { saveAsFile } from "@/utils/file-util";
 import { indexToName } from "@/utils/pattern-name-util";
@@ -76,6 +76,7 @@ const SongModule: Module<SongState, any> = {
             return state.songs.find(( song: StoredEffluxSongDescriptor ) => song.id === id ) || null;
         },
         hasChanges  : ( state: SongState, getters: any ): boolean => state.statesOnSave < getters.totalSaved,
+        jamMode : ( state: SongState ): boolean => state.activeSong?.type === EffluxSongType.JAM,
     },
     mutations: {
         setSongs( state: SongState, songs: EffluxSong[] ): void {

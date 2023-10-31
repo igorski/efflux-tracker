@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,44 +20,16 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { EffluxPatternOrder } from "./pattern-order";
-import type { EffluxPattern } from "./pattern";
-import type { Instrument } from "./instrument";
-import type { Sample } from "@/model/types/sample";
+<template>
+    <h2>Uh.</h2>
+</template>
 
-export enum EffluxSongType {
-    TRACKER = 0,
-    JAM
+<script lang="ts">
+export default {
+
 };
+</script>
 
-export type EffluxSongMeta = {
-    title: string;
-    author: string;
-    created: number;
-    modified: number;
-    tempo: number;
-};
+<style lang="scss" scoped>
 
-export type EffluxSongOrigin = "local" | "dropbox" | undefined;
-
-/**
- * type definition for a Song
- *
- * @see SongFactory, SongValidator
- */
-export type EffluxSong = {
-    version: number;
-    id: string;
-    meta: EffluxSongMeta,
-    instruments: Instrument[];
-    patterns: EffluxPattern[];
-    order: EffluxPatternOrder;
-    samples: Sample[];
-    origin?: EffluxSongOrigin;
-    type: EffluxSongType
-};
-
-export type StoredEffluxSongDescriptor = {
-    id: string;
-    meta: EffluxSongMeta;
-};
+</style>

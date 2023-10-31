@@ -55,16 +55,6 @@ describe( "Vuex settings module", () => {
             expect( getters.followPlayback( state )).toBe( true );
         });
 
-        it( "should by default not display the timeline mode", () => {
-            const state = createSettingsState();
-            expect( getters.timelineMode( state )).toBe( false );
-        });
-
-        it( "should return the saved value for following playback", () => {
-            const state = createSettingsState({ _settings: { [ PROPERTIES.TIMELINE_MODE ]: true } });
-            expect( getters.timelineMode( state )).toBe( true );
-        });
-
         it( "should by default have hexadecimal as the default parameter input format", () => {
             const state = createSettingsState();
             expect( getters.paramFormat( state )).toBe( "hex" );

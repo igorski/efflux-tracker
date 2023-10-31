@@ -34,16 +34,6 @@
         <section>
             <fieldset>
                 <legend v-t="'generalSettings'"></legend>
-                <div
-                    v-if="supportsTimelineMode"
-                    class="wrapper toggle"
-                >
-                    <label v-t="'timelineMode'" class="label"></label>
-                    <toggle-button
-                        v-model="useTimelineMode"
-                        syc
-                    />
-                </div>
                 <div class="wrapper toggle">
                     <label v-t="'showHelpPanel'" class="label"></label>
                     <toggle-button
@@ -148,15 +138,7 @@ export default {
             "paramFormat",
             "hasMidiSupport",
             "useOrders",
-            "timelineMode",
         ]),
-        supportsTimelineMode(): boolean {
-            // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
-            if ( import.meta.env.MODE !== "production" ) {
-                return true; // still very much under development
-            }
-            return false;
-        },
         canUseOrders(): boolean {
             return this.activeSong.patterns.length === this.activeSong.order.length;
         },
@@ -198,14 +180,6 @@ export default {
             },
             set( value: boolean ): void {
                 this.saveSetting({ name: PROPERTIES.USE_ORDERS, value });
-            },
-        },
-        useTimelineMode: {
-            get(): boolean {
-                return this.timelineMode;
-            },
-            set( value: boolean ): void {
-                this.saveSetting({ name: PROPERTIES.TIMELINE_MODE, value });
             },
         },
         portNumber: {

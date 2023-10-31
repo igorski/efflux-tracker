@@ -26,11 +26,11 @@ import PatternOrderFactory from "./pattern-order-factory";
 import PatternFactory from "./pattern-factory";
 import SampleFactory from "./sample-factory";
 import {
-    SONG_ID, SONG_VERSION_ID, SAMPLES,
+    SONG_ID, SONG_VERSION_ID, SONG_TYPE, SAMPLES,
     META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED, META_TEMPO
 } from "../serializers/song-serializer";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import type { EffluxSong } from "@/model/types/song";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import type { Instrument } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import type { XTK } from "@/model/serializers/song-serializer";
@@ -40,7 +40,7 @@ export const LEGACY_VERSION  = 1;
 
 const SongFactory =
 {
-    create( amountOfInstruments = Config.INSTRUMENT_AMOUNT ): EffluxSong {
+    create( amountOfInstruments = Config.INSTRUMENT_AMOUNT, type = EffluxSongType.TRACKER ): EffluxSong {
         const song = {
             version: FACTORY_VERSION, // allows backwards compatibility when updating Song Object signature
 
@@ -75,6 +75,8 @@ const SongFactory =
             // pattern playback order
 
             order: [ 0 ] as EffluxPatternOrder,
+
+            type,
         };
 
         for ( let i = 0; i < amountOfInstruments; ++i ) {
@@ -91,6 +93,7 @@ const SongFactory =
 
          song.id      = xtk[ SONG_ID ];
          song.version = xtk[ SONG_VERSION_ID ];
+         song.type    = xtk[ SONG_TYPE ] ?? EffluxSongType.TRACKER;
          song.meta    = deserializeMeta( xtk[ META_OBJECT ] );
 
          song.instruments = InstrumentFactory.deserialize( xtk, xtkVersion );
