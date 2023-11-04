@@ -25,14 +25,14 @@ import Vue from "vue";
 import Config from "@/config";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
-import SongFactory from "@/model/factories/song-factory";
 import createAction from "@/model/factories/action-factory";
+import PatternFactory from  "@/model/factories/pattern-factory";
+import SongFactory, { FACTORY_VERSION } from "@/model/factories/song-factory";
 import Actions from "@/definitions/actions";
 import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
 import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages from "@/services/pubsub/messages";
-import { FACTORY_VERSION } from "@/model/factories/song-factory";
 import SongValidator from "@/model/validators/song-validator";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
@@ -157,7 +157,8 @@ const SongModule: Module<SongState, any> = {
             }
         },
         updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
-            Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value);
+            Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value );
+            console.info("updateOscillator", instrumentIndex, oscillatorIndex, prop, value, state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ]);
         },
         updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
             Vue.set( state.activeSong.instruments[ instrumentIndex ], prop, value );
@@ -238,10 +239,15 @@ const SongModule: Module<SongState, any> = {
                 }
             });
         },
-        createSong(): Promise<EffluxSong> {
-            return new Promise( resolve => {
-                resolve( SongFactory.create( Config.INSTRUMENT_AMOUNT ));
-            });
+        // @ts-expect-error 'context' is declared but its value is never read.
+        async createSong( context: ActionContext<SongState, any>, type = EffluxSongType.TRACKER ): Promise<EffluxSong> {
+            const song = SongFactory.create( Config.INSTRUMENT_AMOUNT, type );
+            if ( type === EffluxSongType.JAM ) {
+                for ( let i = 1; i < Config.JAM_MODE_PATTERN_AMOUNT; ++i ) {
+                    song.patterns.push( PatternFactory.create());
+                }
+            }
+            return song;
         },
         openSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): void {
             commit( "flushSamples" );

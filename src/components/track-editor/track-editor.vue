@@ -49,14 +49,16 @@
                 class="remove-note"
                 @click="deleteNote"
             ></li>
-            <li
-                class="module-params"
-                @click="editModuleParams"
-            ></li>
-            <li
-                class="module-glide"
-                @click="glideParams"
-            ></li>
+            <template v-if="!jamMode">
+                <li
+                    class="module-params"
+                    @click="editModuleParams"
+                ></li>
+                <li
+                    class="module-glide"
+                    @click="glideParams"
+                ></li>
+            </template>
         </ul>
     </section>
 </template>
@@ -81,7 +83,8 @@ export default {
         ...mapGetters([
             "activeOrderIndex",
             "canUndo",
-            "canRedo"
+            "canRedo",
+            "jamMode",
         ]),
     },
     methods: {

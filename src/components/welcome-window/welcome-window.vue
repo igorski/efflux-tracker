@@ -118,6 +118,7 @@ export default {
             "saveSetting",
         ]),
         ...mapActions([
+            "createSong",
             "openSong",
         ]),
         openDemo(): void {
@@ -130,8 +131,10 @@ export default {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         createJamSong(): void {
-            this.openSong( SongFactory.create( Config.INSTRUMENT_AMOUNT, EffluxSongType.JAM ));
-            this.close();
+            this.createSong( EffluxSongType.JAM ).then( song => {
+                this.openSong( song );
+                this.close();
+            });
         },
         close(): void {
             this.$emit( "close" );

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,15 +20,17 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite }      from "zcanvas";
-import Config          from "@/config";
+import { sprite } from "zcanvas";
+import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
+import { bufferToWaveForm } from "@/utils/waveform-util";
 
 type IUpdateHandler = ( table: number[] ) => void;
 
-class WaveTableDisplay extends sprite
+class WaveformRenderer extends sprite
 {
     private table: number[];
+    private cache: HTMLCanvasElement | undefined;
     private updateHandler: ( table: number[] ) => void;
     private drawHandler: ( ctx: CanvasRenderingContext2D ) => boolean;
     private interactionCache: { x: number, y: number };
@@ -40,7 +42,6 @@ class WaveTableDisplay extends sprite
     constructor( width: number, height: number, updateHandler: IUpdateHandler, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
 
-        this.setDraggable( true );
         this.setColor( color );
         this.setEnabled( enabled );
 
@@ -54,12 +55,30 @@ class WaveTableDisplay extends sprite
 
     /* public methods */
 
+    setEditable( isEditable: boolean ): void {
+        this.setInteractive( isEditable );
+        this.setDraggable( isEditable );
+    }
+
     /**
      * set a reference to the current WaveTable we're displaying/editing
      */
     setTable( table: number[] ): void {
+        this.cache = undefined;
         this.table = table;
+        console.info(this.table);
         this.canvas?.invalidate(); // force re-render
+    }
+
+    /**
+     * Renders and caches a representation of the current Sample we're displaying
+     */
+    setSample( buffer?: AudioBuffer ): void {
+        if ( buffer === undefined ) {
+            return;
+        }
+        const { width, height } = this.canvas.getElement();
+        this.cache = bufferToWaveForm( buffer, this.color, width, height );
     }
 
     /**
@@ -132,6 +151,7 @@ class WaveTableDisplay extends sprite
      * Optional external draw handler to hook into the render routine
      * Returns boolean indicating whether it has handled all required
      * rendering (when false, base draw behaviour will be executed afterwards)
+     * This can be used for conditional rendering overrides.
      */
     setExternalDraw( handler: ( ctx: CanvasRenderingContext2D ) => boolean ): void {
         this.drawHandler = handler;
@@ -148,6 +168,16 @@ class WaveTableDisplay extends sprite
         if ( this.drawHandler?.( ctx )) {
             return;
         }
+
+        if ( this.cache ) {
+            const { width, height } = ctx.canvas;
+            ctx.imageSmoothingEnabled = false;
+            ctx.fillRect( 0, 0, width, height );
+            ctx.drawImage( this.cache, 0, 0, width, height );
+
+            return;
+        }
+
         this.syncStyles( ctx );
         ctx.beginPath();
 
@@ -167,13 +197,13 @@ class WaveTableDisplay extends sprite
         ctx.closePath();
     }
 
-    handleInteraction( aEventX: number, aEventY: number, aEvent: Event ): boolean
-    {
+    handleInteraction( aEventX: number, aEventY: number, aEvent: Event ): boolean {
+        if ( !this._interactive ) {
+            return false;
+        }
         if ( this.isDragging ) {
-
             if ( aEvent.type === "touchend" ||
                  aEvent.type === "mouseup" ) {
-
                 this.isDragging = false;
                 return true;
             }
@@ -194,8 +224,7 @@ class WaveTableDisplay extends sprite
 
             // smooth the surrounding coordinates to avoid sudden spikes
 
-            if ( cache.x > -1 )
-            {
+            if ( cache.x > -1 ) {
                 let xDelta    = aEventX - cache.x,
                     yDelta    = aEventY - cache.y,
                     xScale    = xDelta / Math.abs( xDelta ),
@@ -206,7 +235,6 @@ class WaveTableDisplay extends sprite
                     l         = this.table.length;
 
                 while ( cache.x !== aEventX ) {
-
                     tableIndex = Math.round(( cache.x / w ) * l );
                     tableIndex = Math.min( l - 1, tableIndex ); // do not exceed max length
                     value      = ( 1 - ( Math.floor(( yScale * increment ) + cache.y ) / h ) * 2 );
@@ -239,4 +267,4 @@ class WaveTableDisplay extends sprite
         return false;
     }
 }
-export default WaveTableDisplay;
+export default WaveformRenderer;

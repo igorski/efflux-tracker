@@ -256,7 +256,7 @@ export default {
                     loadFn = () => import( "@/components/chord-generator-window/chord-generator-window.vue" );
                     break;
                 case ModalWindows.JAM_MODE:
-                    loadFn = () => import( "@/components/jam/jam.vue" );
+                    loadFn = () => import( "@/components/jam/jam-mode-instrument/jam-mode-instrument.vue" );
                     break;
                 case ModalWindows.PATTERN_MANAGER:
                     loadFn = () => import( "@/components/pattern-manager/pattern-manager.vue" );

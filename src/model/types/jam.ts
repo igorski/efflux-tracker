@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,32 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-export default
-{
-    LOCAL_STORAGE_SONGS         : "effluxData",
-    LOCAL_STORAGE_INSTRUMENTS   : "effluxInstruments",
-    LOCAL_STORAGE_SETTINGS      : "effluxSettings",
-    INSTRUMENT_AMOUNT           : 8,
-    OSCILLATOR_AMOUNT           : 3,
-    WAVE_TABLE_SIZE             : 512,
-    MAX_PATTERN_AMOUNT          : 128,
-    MAX_OCTAVE                  : 8,
+import { type EffluxChannel } from "./channel";
 
-    MIN_EQ_GAIN                 : -40.0, // in dB
-
-    DEFAULT_FILTER_FREQ         : 880,
-    DEFAULT_FILTER_Q            : 5,
-    MAX_FILTER_FREQ             : 22050, // BiQuad filter max
-    MAX_FILTER_Q                : 40,
-
-    DEFAULT_FILTER_LFO_SPEED    : 0.5,
-    DEFAULT_FILTER_LFO_DEPTH    : 50,
-    MAX_FILTER_LFO_SPEED        : 25,
-    MAX_FILTER_LFO_DEPTH        : 100,
-
-    MAX_DELAY_CUTOFF            : 22050, // BiQuad filter max
-    MIN_DELAY_OFFSET            : -0.5,
-    MAX_DELAY_TIME              : 5, // in seconds (180 is max)
-
-    JAM_MODE_PATTERN_AMOUNT     : 8,
+type JamChannel = {
+    index: number;
+    patterns: EffluxChannel[]
 };

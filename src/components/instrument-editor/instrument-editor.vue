@@ -75,7 +75,6 @@
             </ul>
             <div>
                 <oscillator-editor
-                    :instrument-ref="instrumentRef"
                     :instrument-index="selectedInstrument"
                     :oscillator-index="selectedOscillatorIndex"
                     @invalidate="invalidatePreset()"
@@ -179,7 +178,7 @@ export default {
             },
         },
         instrumentRef() {
-            return this.activeSong.instruments[this.selectedInstrument];
+            return this.activeSong.instruments[ this.selectedInstrument ];
         },
         presetName: {
             get() {
@@ -248,7 +247,6 @@ export default {
             "suspendKeyboardService",
             "showError",
             "showNotification",
-            "updateInstrument",
             "setMidiAssignMode",
             "setPresetName",
             "publishMessage",

@@ -21,15 +21,54 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <h2>Uh.</h2>
+    <section class="jam-mode-editor">
+        <jam-mode-channel-entry
+            v-for="channel in channelEntries"
+            :key="`ch_${channel.index}`"
+            :channel="channel"
+            :mode="0"
+        />
+    </section>
 </template>
 
 <script lang="ts">
-export default {
+import { mapGetters } from "vuex";
+import JamModeChannelEntry from "./components/jam-mode-channel-entry/jam-mode-channel-entry.vue";
+import { type JamChannel } from "@/model/types/jam";
 
+export default {
+    components: {
+        JamModeChannelEntry,
+    },
+    computed: {
+        ...mapGetters([
+            "activeSong",
+        ]),
+        channelEntries(): JamChannel[] {
+            const amountOfPatterns = this.activeSong.patterns.length;
+            const channels: JamChannel[] = new Array( this.activeSong.patterns[ 0 ].channels.length );
+
+            this.activeSong.patterns.forEach(( pattern, patternIndex ) => {
+                pattern.channels.forEach(( channel, channelIndex ) => {
+                    const jamChannel = channels[ channelIndex ] ?? {
+                        index: channelIndex,
+                        patterns: new Array( amountOfPatterns ),
+                    };
+                    jamChannel.patterns[ patternIndex ] = channel;
+
+                    channels[ channelIndex ] = jamChannel;
+                });
+            });
+            return channels;
+        },
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-
+.jam-mode-editor {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-y: auto;
+}
 </style>
