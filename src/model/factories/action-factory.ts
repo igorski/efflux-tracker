@@ -36,7 +36,6 @@ import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import AudioService, { connectAnalysers } from "@/services/audio-service";
 import { Transpose } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
-import { getPrevEvent } from "@/utils/event-util";
 import { clonePattern } from "@/utils/pattern-util";
 
 export default function( type: Actions, data: any ): IUndoRedoState | null {
@@ -44,14 +43,8 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
         default:
             return null;
 
-        case Actions.ADD_EVENT:
-            return addSingleEventAction( data );
-
         case Actions.ADD_EVENTS:
             return addMultipleEventsAction( data );
-
-        case Actions.DELETE_EVENT:
-            return deleteSingleEventOrSelectionAction( data );
 
         case Actions.DELETE_SELECTION:
             return deleteSelectionAction( data );
@@ -82,108 +75,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 }
 
 /* internal methods */
-
-/**
- * adds a single EffluxAudioEvent into a pattern
- */
-function addSingleEventAction({ store, event, optEventData, updateHandler } :
-    { store: Store<EffluxState>, event: EffluxAudioEvent, optEventData: any, updateHandler: ( advanceStep?: boolean ) => void }
-): IUndoRedoState {
-    const { state } = store;
-    const song = state.song.activeSong;
-
-    // active instrument and pattern for event (can be different to currently visible pattern
-    // e.g. undo/redo action performed when viewing another pattern)
-
-    let patternIndex = store.getters.activePatternIndex,
-        channelIndex = state.editor.selectedInstrument,
-        step         = state.editor.selectedStep;
-
-    // currently active instrument and pattern (e.g. visible on screen)
-
-    let advanceStepOnAddition = true;
-
-    // if options Object was given, use those values instead of current sequencer values
-
-    if ( optEventData ) {
-        patternIndex = ( typeof optEventData.patternIndex === "number" ) ? optEventData.patternIndex : patternIndex;
-        channelIndex = ( typeof optEventData.channelIndex === "number" ) ? optEventData.channelIndex : channelIndex;
-        step         = ( typeof optEventData.step         === "number" ) ? optEventData.step         : step;
-
-        if ( typeof optEventData.advanceOnAddition === "boolean" ) {
-            advanceStepOnAddition = optEventData.advanceOnAddition;
-        }
-    }
-    // if there is an existing event, cache it for undo-purpose (see add())
-    let existingEvent: EffluxAudioEvent;
-    let existingEventMp: EffluxAudioEventModuleParams;
-
-    function act(): void {
-        const pattern = song.patterns[ patternIndex ],
-              channel = pattern.channels[ channelIndex ];
-
-        EventUtil.setPosition( event, pattern, step, song.meta.tempo );
-
-        // remove previous event if one existed at the insertion point
-        // (but take its module parameter automation when existing for non-off events)
-
-        if ( channel[ step ]) {
-            existingEvent   = serialize( channel[ step ]);
-            existingEventMp = serialize( channel[ step ].mp );
-
-            if ( event.action !== ACTION_NOTE_OFF && !event.mp && existingEventMp ) {
-                Vue.set( event, "mp", deserialize( existingEventMp ));
-            }
-            EventUtil.clearEvent( song, patternIndex, channelIndex, step );
-        }
-        Vue.set( channel, step, event );
-        store.commit( "invalidateChannelCache", { song });
-
-        if ( optEventData?.newEvent === true ) {
-
-            // new events by default take the instrument of the previously declared note in
-            // the current patterns event channel
-
-            // @ts-expect-error first argument in comparator unused
-            const prevEvent = getPrevEvent( song, event, channelIndex, song.order.indexOf( patternIndex ), ( a, b ): boolean => {
-                // but don't take a noteOff instruction into account (as it is not assigned to an instrument)
-                // keep on traversing backwards until we find a valid event
-                return b.action === ACTION_NOTE_OFF;
-            });
-
-            // only do this for events within the same measure though
-
-            if ( prevEvent && prevEvent.event.seq.startMeasure === event.seq.startMeasure &&
-                 prevEvent.event.instrument !== channelIndex &&
-                 event.instrument === channelIndex ) {
-
-                event.instrument = prevEvent.event.instrument;
-            }
-        }
-        updateHandler( advanceStepOnAddition );
-        advanceStepOnAddition = false;
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            EventUtil.clearEvent(
-                song,
-                patternIndex,
-                channelIndex,
-                step,
-            );
-            // restore existing event if it was present during addition
-            if ( existingEvent ) {
-                const restoredEvent = deserialize( existingEvent );
-                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
-                store.commit( "invalidateChannelCache", { song });
-            }
-            updateHandler();
-        },
-        redo: act
-    };
-}
 
 /**
  * adds multiple EffluxAudioEvent into a pattern
@@ -248,76 +139,6 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
             });
         },
         redo: act
-    };
-}
-
-/**
- * removes a single EffluxAudioEvent or multiple EffluxAudioEvents within a selection
- * from a pattern
- */
-function deleteSingleEventOrSelectionAction({ store } : { store: Store<EffluxState> }): IUndoRedoState {
-    const song               = store.state.song.activeSong,
-          activePattern      = store.getters.activePatternIndex,
-          selectedInstrument = store.state.editor.selectedInstrument,
-          selectedStep       = store.state.editor.selectedStep,
-          event              = song.patterns[ activePattern ].channels[ selectedInstrument ][ selectedStep ];
-
-    // if a selection is set, store its state for redo purposes
-
-    const selection            = store.getters.getSelection({ song, activePattern });
-    const hadSelection         = selection.length > 0;
-    const selectedFirstChannel = store.state.selection.firstSelectedChannel;
-    const selectedLastChannel  = store.state.selection.lastSelectedChannel;
-    const selectedMinStep      = store.state.selection.minSelectedStep;
-    const selectedMaxStep      = store.state.selection.maxSelectedStep;
-
-    const { commit } = store;
-
-    function act( optSelection: any[] ): void {
-        if ( hadSelection ) {
-            // pass selection when redoing a delete action on a selection
-            commit( "deleteSelection", {
-                song, activePattern,
-                optSelectionContent: optSelection, optFirstSelectedChannel: selectedFirstChannel,
-                optLastSelectedChannel: selectedLastChannel, optMinSelectedStep: selectedMinStep, optMaxSelectedStep: selectedMaxStep
-            });
-        }
-        else {
-            EventUtil.clearEvent(
-                song,
-                activePattern,
-                selectedInstrument,
-                selectedStep,
-            );
-        }
-    }
-
-    // delete the event(s)
-    act( selection );
-
-    return {
-        undo(): void {
-            if ( hadSelection ) {
-                commit( "pasteSelection", {
-                    song, activePattern, selectedInstrument, selectedStep, optSelectionContent: selection
-                });
-            }
-            else {
-                commit( "addEventAtPosition", {
-                    event,
-                    store,
-                    optData: {
-                        patternIndex: activePattern,
-                        channelIndex: selectedInstrument,
-                        step: selectedStep
-                    },
-                    optStoreInUndoRedo: false // prevents storing in undo/redo again, kinda important!
-                });
-            }
-        },
-        redo() {
-            act( selection );
-        }
     };
 }
 

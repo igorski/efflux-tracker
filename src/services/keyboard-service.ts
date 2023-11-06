@@ -26,6 +26,7 @@ import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import EventFactory from "@/model/factories/event-factory";
 import createAction from "@/model/factories/action-factory";
+import deleteEvent from "@/model/actions/event-or-selection-delete";
 import EventUtil from "@/utils/event-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
@@ -543,9 +544,11 @@ function handleDeleteActionForCurrentMode(): void {
     let event;
     switch ( mode ) {
         default:
-            store.commit( "saveState", createAction(
-                store.getters.hasSelection ? Actions.DELETE_SELECTION : Actions.DELETE_EVENT, { store })
-            );
+            if ( store.getters.hasSelection ) {
+                store.commit( "saveState", createAction( Actions.DELETE_SELECTION, { store }));
+            } else {
+                store.commit( "saveState", deleteEvent( store ));
+            }
             break;
         case MODES.PARAM_VALUE:
         case MODES.PARAM_SELECT:

@@ -22,153 +22,195 @@
  */
 <template>
     <div class="piano-roll">
-        <div
-            v-for="(event, index) in eventList"
-            :key="`event${index}`"
-            :style="event.style"
-            class="piano-roll__note"
-            :class="{
-                'piano-roll__note--empty': !event.note,
-                'piano-roll__note--selected' : index === selectedStep,
-            }"
-        ></div>
-        <div
-            class="piano-roll__editor-position"
-            :style="{
-                'left': `${selectedStep * 12}px`
-            }"
-        ></div>
-        <div
-            class="piano-roll__sequencer-position"
-            :style="{
-                'left': `${playingStep * 12}px`
-            }"
-        ></div>
+        <section class="header">
+            <h2>{{ instrument.name }}</h2>
+            <button
+                type="button"
+                class="close-button"
+                @click="$emit('close')"
+            >x</button>
+        </section>
+        <hr class="divider" />
+        <section class="piano-roll__body">
+            <table class="piano-roll__table">
+                <tbody>
+                    <piano-roll-row
+                        v-for="(row) in rows"
+                        :key="`${row.note}_${row.octave}`"
+                        :note="row.note"
+                        :octave="row.octave"
+                        :events="row.events"
+                        :columns="columnAmount"
+                        :step="playingStep"
+                        class="piano-roll__table-row"
+                        :class="{
+                            'piano-roll__table-row--sharp': row.note.includes( '#' )
+                        }"
+                        @note:add="handleNoteAdd( row, $event )"
+                        @note:move="handleNoteMove( row, $event )"
+                        @note:delete="handleNoteDelete( row, $event )"
+                    />
+                </tbody>
+            </table>
+        </section>
     </div>
 </template>
 
 <script lang="ts">
-import { mapState } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
+import Config from "@/config";
+import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row.vue";
+import moveEvent from "@/model/actions/event-move";
+import EventFactory from "@/model/factories/event-factory";
+import { type EffluxAudioEvent, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
+import EventUtil from "@/utils/event-util";
 
-type EventEntry = {
+export type PianoRollEvent = {
+    event: EffluxAudioEvent;
+    step: number;
+};
+
+type PianoRollRow = {
     note: string;
     octave: number;
-    style: {
-        marginTop: string;
-    };
+    events: PianoRollEvent[];
 };
 
 export default {
-    props: {
-        channel: {
-            type: Object, /* type JamChannel */
-            required: true,
-        },
-        patternIndex: {
-            type: Number,
-            required: true,
-        },
+    components: {
+        PianoRollRow,
     },
     computed: {
         ...mapState({
-            selectedStep  : state => state.editor.selectedStep,
-            currentStep   : state => state.sequencer.currentStep,
-            stepPrecision : state => state.sequencer.stepPrecision,
+            selectedInstrument : state => state.editor.selectedInstrument,
+            currentStep        : state => state.sequencer.currentStep,
+            stepPrecision      : state => state.sequencer.stepPrecision,
         }),
-        pattern(): Pattern {
-            return this.channel.patterns[ this.patternIndex ];
+        ...mapGetters([
+            "activeSong",
+            // @todo should be for current instrument channel!
+            "activePatternIndex",
+        ]),
+        instrument(): Instrument {
+            return this.activeSong.instruments[ this.selectedInstrument ];
         },
-        eventList(): EventEntry[] {
-            const sorted = this.pattern.filter( Boolean ).sort(( a, b ) => {
-                if ( !a || !b ) {
-                    return 0;
-                }
-                if ( a.note === b.note && a.octave === b.octave ) {
-                    return 0;
-                }
-                if ( a.octave === b.octave ) {
-                    const aNoteIndex = Pitch.OCTAVE_SCALE.indexOf( a.note );
-                    const bNoteIndex = Pitch.OCTAVE_SCALE.indexOf( b.note );
+        pattern(): Pattern {
+            return this.activeSong.patterns[ this.activePatternIndex ];
+        },
+        patternEvents(): EffluxAudioEvent[] {
+            return this.pattern.channels[ this.selectedInstrument ];
+        },
+        rows(): PianoRollRow[] {
+            const out: PianoRollRow[] = [];
+            for ( let octave = 1; octave <= Config.MAX_OCTAVE; ++octave ) {
+                for ( const note of Pitch.OCTAVE_SCALE ) {
+                    const events: PianoRollEvent[] = this.patternEvents.map(( event, index ) => {
+                        if ( event?.note === note && event?.octave === octave ) {
+                            return { event, step: index };
+                        }
+                        return undefined;
+                    }).filter( Boolean );
 
-                    return ( aNoteIndex > bNoteIndex ) ? 1 : -1;
+                    out.push({ note, octave, events });
                 }
-                return ( a.octave > b.octave ) ? 1 : -1;
-            }).reverse();
-
-            if ( sorted.length === 0 ) {
-                return [];
             }
-            return this.pattern.map(( event, index ) => {
-                if ( !event ) {
-                    return undefined;
-                }
-                let nextIndex = this.pattern.findIndex(( event, compareIndex ) => {
-                    return compareIndex > index && !!event;
-                });
-                if ( nextIndex === -1 ) {
-                    nextIndex = this.pattern.length - 1;
-                }
-                return {
-                    note: event?.note,
-                    octave: event?.octave,
-                    style: {
-                        width: !!event ? (( nextIndex  - index ) * 12 ) + "px" : "12px",
-                        marginTop: !!event ? ( sorted.findIndex( entry => {
-                            return entry.note === event.note && entry.octave === event.octave;
-                        }) * 8 ) + "px" : undefined,
-                    },
-                };
-            }).filter( Boolean );
+            return out.reverse();
+        },
+        columnAmount(): number {
+            return this.pattern.steps;
         },
         playingStep(): number {
-            const stepsInPattern = this.pattern.length;
+            const stepsInPattern = this.pattern.steps + 1;
             const diff = this.stepPrecision / stepsInPattern;
 
             return Math.floor( this.currentStep / diff ) % stepsInPattern;
         },
     },
+    methods: {
+        ...mapMutations([
+            "addEventAtPosition",
+            "saveState",
+        ]),
+        handleNoteAdd( row: PianoRollRow, step: number ): void {
+            this.addEventAtPosition({
+                event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
+                store : this.$store,
+                optData: {
+                    patternIndex : this.activePatternIndex, // @todo
+                    channelIndex : this.selectedInstrument,
+                    newEvent     : true,
+                    step,
+                }
+            });
+        },
+        handleNoteMove( row: PianoRollRow, { payload, newStep } : { payload: SerializedRowEvent, newStep: number }): void {
+            this.saveState( moveEvent( this.$store, {
+                patternIndex: this.activePatternIndex, // @todo
+                channelIndex: this.selectedInstrument,
+                oldStep: payload.step,
+                newStep,
+                optProps: { note: row.note, octave: row.octave }
+            }));
+        },
+        handleNoteDelete( row: PianoRollRow, event: PianoRollEvent ): void {
+            const { activePatternIndex, selectedInstrument } = this;
+            const act = (): void => {
+                EventUtil.clearEvent( this.activeSong, activePatternIndex, selectedInstrument, event.step );
+            };
+            act();
+            this.saveState({
+                undo: (): void => {
+                    const pattern = this.activeSong.patterns[ activePatternIndex ];
+                    EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.tempo );
+                    this.$set( pattern.channels[ selectedInstrument ], event.step, event.event );
+                },
+                redo: act,
+            });
+        }
+    },
 };
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
+@use "sass:math";
+
+@import "@/styles/_mixins";
 
 .piano-roll {
-    position: relative;
-    display: inline-flex;
+    @include editorComponent();
+    @include overlay();
 
-    &__note {
-        width: 12px;
-        height: 8px;
-        background-color: $color-2;
+    /* ideal size and above (tablet/desktop) */
 
-        &--empty {
-            background: none !important;
-        }
-
-        &--selected {
-            background-color: $color-5;
-        }
-        
-        &--active {
-            background-color: $color-3;
-        }
+    @media screen and ( min-width: $ideal-instrument-editor-width )  {
+        left: 50%;
+        width: $ideal-instrument-editor-width;
+        margin-left: math.div( -$ideal-instrument-editor-width, 2 );
     }
 
-    &__sequencer-position {
-        position: absolute;
-        width: 2px;
-        height: 100%;
-        background-color: #FFF;
+    @media screen and ( min-height: 600px ) {
+        top: 50%;
+        margin-top: math.div( -600px, 2 );
+        height: 600px;
     }
 
-    &__editor-position {
-        position: absolute;
-        width: 12px;
-        height: 100%;
-        background-color: rgba(255,255,255,0.5);
+    &__body {
+        height: calc(100% - 60px); // 60px being header height
+        overflow-y: auto;
+    }
+
+    &__table {
+        min-width: 100%;
+
+        &-row {
+            &--sharp {
+                background-color: $color-pattern-odd;
+                border-color: $color-pattern-odd;
+            }
+        }
     }
 }
 </style>

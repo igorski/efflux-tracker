@@ -59,5 +59,6 @@ export type EffluxSong = {
 
 export type StoredEffluxSongDescriptor = {
     id: string;
+    type: EffluxSongType;
     meta: EffluxSongMeta;
 };

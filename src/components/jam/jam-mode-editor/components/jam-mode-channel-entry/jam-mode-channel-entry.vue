@@ -30,7 +30,7 @@
     >
         <h3 class="jam-mode-channel-entry__title">{{ instrumentName }}</h3>
         <!-- @todo pattern number -->
-        <piano-roll
+        <piano-roll-lite
             v-if="showPianoRoll"
             :channel="channel"
             :pattern-index="0"
@@ -52,12 +52,20 @@
                 {{ index }}
             </div>
         </div>
-        <button
-            v-t="'editInstrument'"
-            type="button"
-            class="jam-mode-channel-entry__instrument"
-            @click.stop="openInstrumentEditor()"
-        ></button>
+        <div class="jam-mode-channel-entry__buttons">
+            <button
+                v-t="'editInstrument'"
+                type="button"
+                class="jam-mode-channel-entry"
+                @click.stop="openInstrumentEditor()"
+            ></button>
+            <button
+                v-t="'editPattern'"
+                type="button"
+                class="jam-mode-channel-entry"
+                @click.stop="openPianoRoll()"
+            ></button>
+        </div>
     </div>
 </template>
 
@@ -66,7 +74,7 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import { type Instrument } from "@/model/types/instrument";
-import PianoRoll from "../piano-roll/piano-roll.vue";
+import PianoRollLite from "../piano-roll-lite/piano-roll-lite.vue";
 
 import messages from "./messages.json";
 
@@ -78,7 +86,7 @@ enum JamChannelEntryMode {
 export default {
     i18n: { messages },
     components: {
-        PianoRoll,
+        PianoRollLite,
         WaveformDisplay,
     },
     props: {
@@ -128,6 +136,10 @@ export default {
         openInstrumentEditor(): void {
             this.setSelectedInstrument( this.instrumentIndex );
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+        },
+        openPianoRoll(): void {
+            this.setSelectedInstrument( this.channel.index );
+            this.openModal( ModalWindows.JAM_MODE_PIANO_ROLL );
         },
     },
 };

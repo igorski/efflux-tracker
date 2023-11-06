@@ -20,20 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { ActionContext, Commit, Dispatch, Module } from "vuex";
+import type { ActionContext, Commit, Dispatch, Module, Store } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
-import createAction from "@/model/factories/action-factory";
 import PatternFactory from  "@/model/factories/pattern-factory";
 import SongFactory, { FACTORY_VERSION } from "@/model/factories/song-factory";
-import Actions from "@/definitions/actions";
 import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
 import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SongValidator from "@/model/validators/song-validator";
+import addEvent from "@/model/actions/event-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -133,12 +132,10 @@ const SongModule: Module<SongState, any> = {
          */
         // @ts-expect-error 'state' is declared but its value is never read.
         addEventAtPosition( state: SongState, { event, store, optData, optStoreInUndoRedo = true } :
-            { event: EffluxAudioEvent, store: ActionContext<EffluxState, any>, optData?: any, optStoreInUndoRedo?: boolean }): void {
-            const undoRedoAction = createAction( Actions.ADD_EVENT, {
-                store,
-                event,
-                optEventData:  optData,
-                updateHandler: ( optHighlightActiveStep?: boolean ) => {
+            { event: EffluxAudioEvent, store: Store<EffluxState>, optData?: any, optStoreInUndoRedo?: boolean }): void {
+                const undoRedoAction = addEvent(
+                store, event, optData,
+                ( optHighlightActiveStep?: boolean ) => {
 
                     if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
                         // move to the next step in the pattern (unless executed from undo/redo)
@@ -151,7 +148,7 @@ const SongModule: Module<SongState, any> = {
                         store.commit( "clearSelection" );
                     }
                 }
-            });
+            );
             if ( optStoreInUndoRedo ) {
                 store.commit( "saveState", undoRedoAction );
             }
@@ -446,6 +443,7 @@ export default SongModule;
 
 const getDescriptorForSong = ( song: EffluxSong ): StoredEffluxSongDescriptor => ({
     id: song.id,
+    type: song.type,
     meta: { ...song.meta }
 });
 

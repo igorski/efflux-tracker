@@ -66,9 +66,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import "@/styles/_mixins";
+
 .jam-mode-editor {
     display: flex;
     flex-wrap: wrap;
     overflow-y: auto;
+
+    @include mobile() {
+        padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
+    }
 }
 </style>

@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the 'Software'), to deal in
@@ -43,6 +43,7 @@
             >
                 <span class="title">{{ $t( "titleByAuthor", { title: song.meta.title, author: song.meta.author }) }}</span>
                 <!-- <span class="date">{{ getSongDate(song) }}</span> -->
+                <span class="type">{{  song.type }}</span>
                 <span class="size">{{ song.size }}</span>
                 <button
                     type="button"
@@ -74,16 +75,22 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { SONG_STORAGE_KEY, getStorageKeyForSong } from "@/store/modules/song-module";
 import { openFileBrowser } from "@/utils/file-util";
 import Time from "@/utils/time-util";
 import StorageUtil from "@/utils/storage-util";
 import sharedMessages from "@/messages.json";
 import messages from "./messages.json";
+
+type WrappedSongEntry = EffluxSong & {
+    size: number;
+    type: string;
+};
 
 export default {
     i18n: { messages, sharedMessages },
@@ -96,18 +103,19 @@ export default {
             "getSongById",
             "songs"
         ]),
-        mappedSongs() {
+        mappedSongs(): WrappedSongEntry[] {
             const sizes = StorageUtil.getItemSizes( SONG_STORAGE_KEY );
             return this.songs.map( song => ({
                 ...song,
-                size: sizes[ getStorageKeyForSong( song )]
+                size: sizes[ getStorageKeyForSong( song )],
+                type: song.type === EffluxSongType.JAM ? this.$t( "jam" ) : this.$t( "tracker" ),
             })).sort(( a, b ) => a.meta.title.toLowerCase().localeCompare( b.meta.title.toLowerCase()));
         }
     },
     watch: {
         songs: {
             immediate: true,
-            handler( songs ) {
+            handler( songs ): void {
                 if ( songs.length === 0 ) {
                     this.openDialog({ title: this.$t( "error" ), message: this.$t( "errorNoSongs" ) });
                 }
@@ -127,10 +135,10 @@ export default {
             "importSong",
             "exportSong"
         ]),
-        getSongDate( song ) {
+        getSongDate( song: EffluxSong ): void {
             return Time.timestampToDate( song.meta.modified );
         },
-        openSongClick( songId ) {
+        openSongClick( songId: string ): void {
             const open = async () => {
                 try {
                     const song = await this.loadSongFromLS( this.getSongById( songId ));
@@ -150,7 +158,7 @@ export default {
                 open();
             }
         },
-        async exportSongClick( songId ) {
+        async exportSongClick( songId: string ): Promise<void> {
             try {
                 const song = await this.loadSongFromLS( this.getSongById( songId ));
                 await this.exportSong( song );
@@ -159,7 +167,7 @@ export default {
                 this.showError( this.$t( "errorSongExport" ));
             }
         },
-        deleteSongClick( songId ) {
+        deleteSongClick( songId: string ): void {
             const song = this.getSongById( songId );
             if ( !song ) {
                 return;
@@ -172,7 +180,7 @@ export default {
                 }
             });
         },
-        handleSongImport() {
+        handleSongImport(): void {
             openFileBrowser( async fileBrowserEvent => {
                 const file = fileBrowserEvent.target.files?.[ 0 ];
                 if ( !file ) {
@@ -287,6 +295,10 @@ $headerFooterHeightNoExpl: 102px;
             @include truncate();
         }
 
+        .type {
+            width: 15%;
+        }
+
         .size {
             width: 15%;
         }
@@ -310,6 +322,7 @@ $headerFooterHeightNoExpl: 102px;
             .title {
                 width: 90%;
             }
+            .type,
             .size {
                 display: none;
             }
