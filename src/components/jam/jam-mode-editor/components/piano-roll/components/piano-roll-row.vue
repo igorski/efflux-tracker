@@ -37,16 +37,14 @@
             @dragover.prevent
             @dragenter.prevent
         >
-            <!-- todo cache the .find() lookups... -->
             <div
-                v-if="events.find( event => event.step === index )"
+                v-if="getEventForIndex( index )"
                 ref="event"
                 class="piano-roll-row__column--content"
                 role="button"
-                @click.stop="handleNoteClick( events.find( event => event.step === index ))"
-                @dblclick.stop="handleNoteDelete( events.find( event => event.step === index ))"
-                @dragstart="handleDragStart( $event, events.find( event => event.step === index ))"
                 draggable
+                @dblclick.stop="handleNoteDelete( index )"
+                @dragstart="handleDragStart( $event, index )"
             >
             </div>
         </td>
@@ -102,21 +100,21 @@ export default {
         }
     },
     methods: {
+        getEventForIndex( index: number ): PianoRollEvent | undefined {
+            return this.events.find( event => event.step === index );
+        },
         handleEmptySlotClick( step: number ): void {
             this.$emit( "note:add", step );
         },
-        handleNoteClick( event: PianoRollEvent ): void {
-            console.info("clicked", event);
+        handleNoteDelete( index: number ): void {
+            this.$emit( "note:delete", this.getEventForIndex( index ));
         },
-        handleNoteDelete( event: PianoRollEvent ): void {
-            this.$emit( "note:delete", event );
-        },
-        handleDragStart( dragEvent: DragEvent, event: PianoRollEvent ): void {
+        handleDragStart( dragEvent: DragEvent, index: number ): void {
             if ( !dragEvent.dataTransfer ) {
                 return;
             }
             dragEvent.dataTransfer.dropEffect = "move";
-            dragEvent.dataTransfer.setData( "event", serializeData( this.note, this.octave, event ));
+            dragEvent.dataTransfer.setData( "event", serializeData( this.note, this.octave, this.getEventForIndex( index ) ));
         },
         handleDrop( dragEvent: DragEvent, newStep: Number ): void {
             const payload = deserialiseData( dragEvent.dataTransfer?.getData( "event" ));
