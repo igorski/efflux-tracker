@@ -242,6 +242,7 @@ const SongModule: Module<SongState, any> = {
             if ( type === EffluxSongType.JAM ) {
                 for ( let i = 1; i < Config.JAM_MODE_PATTERN_AMOUNT; ++i ) {
                     song.patterns.push( PatternFactory.create());
+                    song.order.push( i );
                 }
             }
             return song;

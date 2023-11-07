@@ -27,12 +27,11 @@ import LinkedList from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
 import { createTimer } from "@/services/audio/webaudio-helper";
 import Metronome from "@/services/audio/metronome";
-import type { EffluxState } from "@/store";
-import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { EffluxChannel } from "@/model/types/channel";
-import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxSong } from "@/model/types/song";
+import { type EffluxState } from "@/store";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, } from "@/model/types/audio-event";
+import { type EffluxChannel } from "@/model/types/channel";
+import { type EffluxPattern } from "@/model/types/pattern";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { getEventLength, calculateMeasureLength } from "@/utils/event-util";
 import SequencerWorker from "@/workers/sequencer.worker?worker&inline";
 
@@ -53,6 +52,8 @@ export interface SequencerState {
     currentStep: number;
     nextNoteTime: number;
     channels?: EffluxChannel[];
+    // only used when song is of EffluxSongType.JAM
+    jam: { playingPatternIndex: number, nextPatternIndex: number }[];
 };
 
 export const createSequencerState = ( props?: Partial<SequencerState> ): SequencerState => ({
@@ -72,6 +73,7 @@ export const createSequencerState = ( props?: Partial<SequencerState> ): Sequenc
     currentStep           : 0,
     nextNoteTime          : 0,
     channels              : undefined,
+    jam                   : new Array( Config.INSTRUMENT_AMOUNT ),
     ...props
 });
 
@@ -253,12 +255,26 @@ function step( store: Store<EffluxState> ): void {
     if ( currentStep === state.stepPrecision ) {
         store.commit( "setCurrentStep", 0 );
 
+        if ( activeSong.type === EffluxSongType.JAM ) {
+            let sync = false;
+            for ( const channel of state.jam ) {
+                if ( channel.playingPatternIndex !== channel.nextPatternIndex ) {
+                    channel.playingPatternIndex = channel.nextPatternIndex;
+                    sync = true;
+                }
+            }
+            if ( sync ) {
+                cacheActivePatternChannels( state, activeSong );
+                console.info('synced pattern indices');
+            }
+        }
+
         let sync = true;
         const nextOrderIndex = state.activeOrderIndex + 1;
         const maxOrderIndex  = activeSong.order.length - 1;
     
-        // advance/update the measure only when the Sequencer isn't looping
-        if ( !state.looping ) {
+        // for non-JAM songs, advance/update the measure only when the Sequencer isn't looping
+        if ( !state.looping && activeSong.type !== EffluxSongType.JAM ) {
             if ( nextOrderIndex > maxOrderIndex ) {
                 // last measure reached, jump back to first
                 store.commit( "gotoPattern", { orderIndex: 0, song: activeSong });
@@ -303,12 +319,29 @@ function syncPositionToSequencerUpdate( state: SequencerState, activeSong: Efflu
 
 function cacheActivePatternChannels( state: SequencerState, activeSong: EffluxSong ): void {
     const { activeOrderIndex, activePatternIndex } = state;
-    state.channels = activeSong.patterns[ activePatternIndex ].channels;
+
+    // a jam song allows each individual channel to be playing back at a different pattern index
+    const isJam = activeSong.type === EffluxSongType.JAM;
+
+    if ( isJam ) {
+        const channels: EffluxChannel[] = [];
+        for ( let channelIndex = 0, cl = state.jam.length; channelIndex < cl; ++channelIndex ) {
+            const { playingPatternIndex } = state.jam[ channelIndex ];
+            channels.push( activeSong.patterns[ playingPatternIndex ].channels[ channelIndex ]);
+        }
+        state.channels = channels;
+
+        console.info("-- caching them channels", channels)
+    } else {
+        state.channels = activeSong.patterns[ activePatternIndex ].channels;
+    }
 
     for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
+        // as jams don't use orders, the order and pattern index is always the same
+        const orderIndex = isJam ? state.jam[ channelIndex ].playingPatternIndex : activeOrderIndex;
         for ( const event of state.channels![ channelIndex ] ) {
             if ( event ) {
-                event.seq.length = getEventLength( event, channelIndex, activeOrderIndex, activeSong );
+                event.seq.length = getEventLength( event, channelIndex, orderIndex, activeSong );
             }
         }
     }
@@ -501,6 +534,14 @@ const SequencerModule: Module<SequencerState, any> = {
                 Vue.set( pattern, "steps", steps );
             });
         },
+        setJamPattern( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
+            const nextPatternIndex = patternIndex;
+            let { playingPatternIndex } = state.jam[ instrumentIndex ];
+            if ( !state.playing ) {
+                playingPatternIndex = nextPatternIndex;
+            }
+            Vue.set( state.jam, instrumentIndex, { playingPatternIndex, nextPatternIndex });
+        },
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
             Metronome.enabled.value = !!enabled;
@@ -517,6 +558,10 @@ const SequencerModule: Module<SequencerState, any> = {
     actions: {
         prepareSequencer({ state }: { state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
             return new Promise( resolve => {
+                for ( let i = 0; i < state.jam.length; ++i ) {
+                    state.jam[ i ] = { playingPatternIndex: 0, nextPatternIndex: 0 };
+                }
+
                 // create LinkedLists to store all currently playing events for all channels
 
                 for ( let i = 0; i < state.channelQueue.length; ++i ) {

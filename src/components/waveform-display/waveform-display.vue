@@ -86,6 +86,18 @@ export default {
             type: Number,
             required: true,
         },
+        width: {
+            type: Number,
+            default: Config.WAVE_TABLE_SIZE,
+        },
+        height: {
+            type: Number,
+            default: 200,
+        },
+        renderWaveformOnSilence: {
+            type: Boolean,
+            default: true,
+        },
     },
     computed: {
         ...mapState([
@@ -164,7 +176,7 @@ export default {
     },
     mounted(): void {
         // @todo track isSampler state (don't forget destroy hooks!)
-        this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200, fps: 60 });
+        this.canvas = new canvas({ width: this.width, height: this.height, fps: 60 });
         this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
         this.canvas.getElement().className = "waveform-canvas";
@@ -203,7 +215,7 @@ export default {
             "setCurrentSample",
         ]),
         resizeWaveRenderer( width = window.innerWidth ) {
-            const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
+            const ideal       = this.width; // equal to the length of the wave table
             const targetWidth = ( width < ideal ) ? width * 0.9: ideal;
 
             if ( this.canvas.getWidth() !== targetWidth ) {
@@ -340,7 +352,7 @@ export default {
                         ctx.globalAlpha = 0;
                     }
                 }
-                return false;
+                return !this.renderWaveformOnSilence;
             });
         },
     },

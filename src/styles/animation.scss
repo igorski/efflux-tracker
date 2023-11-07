@@ -1,0 +1,19 @@
+@mixin animationBlink( $interval: 1s ) {
+    animation: blink-animation $interval steps( 5, start ) infinite;
+    -webkit-animation: blink-animation $interval steps( 5, start ) infinite;
+}
+
+@keyframes blink-animation {
+    to {
+        visibility: hidden;
+    }
+}
+
+@mixin animationFadeIn( $duration: 1s ) {
+    animation: fadeIn $duration;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

@@ -21,36 +21,42 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <div class="piano-roll">
+    <div class="piano-roll-lite">
         <div
             v-for="(event, index) in eventList"
-            :key="`event${index}`"
+            :key="`event_${index}`"
             :style="event.style"
-            class="piano-roll__note"
+            class="piano-roll-lite__note"
             :class="{
-                'piano-roll__note--empty': !event.note,
-                'piano-roll__note--selected' : index === selectedStep,
+                'piano-roll-lite__note--empty': !event.note,
+                'piano-roll-lite__note--selected' : index === selectedStep,
             }"
         ></div>
         <div
-            class="piano-roll__editor-position"
-            :style="{
-                'left': `${selectedStep * 12}px`
-            }"
+            class="piano-roll-lite__editor-position"
+            :style="editorPositionStyle"
         ></div>
         <div
-            class="piano-roll__sequencer-position"
-            :style="{
-                'left': `${playingStep * 12}px`
-            }"
+            class="piano-roll-lite__sequencer-position"
+            :style="sequencerPositionStyle"
         ></div>
+        <button
+            :title="'editPattern'"
+            type="button"
+            class="piano-roll-lite__edit-pattern"
+            @click.stop="openPianoRoll()"
+        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editPattern')" /></button>
     </div>
 </template>
 
 <script lang="ts">
-import { mapState } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
+import ModalWindows from "@/definitions/modal-windows";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
+
+import messages from "./messages.json";
 
 type EventEntry = {
     note: string;
@@ -61,6 +67,7 @@ type EventEntry = {
 };
 
 export default {
+    i18n: { messages },
     props: {
         channel: {
             type: Object, /* type JamChannel */
@@ -71,12 +78,18 @@ export default {
             required: true,
         },
     },
+    data: () => ({
+        entryWidth: 0, // in pct
+    }),
     computed: {
         ...mapState({
             selectedStep  : state => state.editor.selectedStep,
             currentStep   : state => state.sequencer.currentStep,
             stepPrecision : state => state.sequencer.stepPrecision,
         }),
+        ...mapGetters([
+            "activeSong",
+        ]),
         pattern(): Pattern {
             return this.channel.patterns[ this.patternIndex ];
         },
@@ -100,10 +113,8 @@ export default {
             if ( sorted.length === 0 ) {
                 return [];
             }
+
             return this.pattern.map(( event, index ) => {
-                if ( !event ) {
-                    return undefined;
-                }
                 let nextIndex = this.pattern.findIndex(( event, compareIndex ) => {
                     return compareIndex > index && !!event;
                 });
@@ -114,19 +125,44 @@ export default {
                     note: event?.note,
                     octave: event?.octave,
                     style: {
-                        width: !!event ? (( nextIndex  - index ) * 12 ) + "px" : "12px",
+                        width: `${this.entryWidth}%`, // `${!!event ? (( nextIndex  - index ) * this.entryWidth ) : this.entryWidth}%`,
                         marginTop: !!event ? ( sorted.findIndex( entry => {
                             return entry.note === event.note && entry.octave === event.octave;
                         }) * 8 ) + "px" : undefined,
                     },
                 };
-            }).filter( Boolean );
+            });
         },
-        playingStep(): number {
+        editorPositionStyle(): Record<string, string> {
+            return {
+                "left"  : `${this.selectedStep * this.entryWidth}%`,
+                "width" : `${this.entryWidth}%`,
+            };
+        },
+        sequencerPositionStyle(): Record<string, string> {
             const stepsInPattern = this.pattern.length;
             const diff = this.stepPrecision / stepsInPattern;
 
-            return Math.floor( this.currentStep / diff ) % stepsInPattern;
+            const playingStep = Math.floor( this.currentStep / diff ) % stepsInPattern;
+            const speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 ) / stepsInPattern;
+
+            return {
+                "left" : `${playingStep * this.entryWidth}%`,
+                "transition-duration": `${speed}s`,
+            };
+        },
+    },
+    created(): void {
+        this.entryWidth = 100 / this.pattern.length;
+    },
+    methods: {
+        ...mapMutations([
+            "openModal",
+            "setSelectedInstrument",
+        ]),
+        openPianoRoll(): void {
+            this.setSelectedInstrument( this.channel.index );
+            this.openModal( ModalWindows.JAM_MODE_PIANO_ROLL );
         },
     },
 };
@@ -134,13 +170,16 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
+@import "@/styles/forms";
 
-.piano-roll {
+.piano-roll-lite {
     position: relative;
     display: inline-flex;
+    background-color: #666;
+    width: 100%;
+    height: 100px;
 
     &__note {
-        width: 12px;
         height: 8px;
         background-color: $color-2;
 
@@ -162,13 +201,20 @@ export default {
         width: 2px;
         height: 100%;
         background-color: #FFF;
+        transition: left 0.1s linear;
     }
 
     &__editor-position {
         position: absolute;
-        width: 12px;
         height: 100%;
         background-color: rgba(255,255,255,0.5);
+    }
+
+    &__edit-pattern {
+        position: absolute;
+        right: $spacing-xxsmall;
+        bottom: $spacing-small;
+        padding: $spacing-xsmall $spacing-small;
     }
 }
 </style>

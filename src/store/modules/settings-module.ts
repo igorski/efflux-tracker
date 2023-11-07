@@ -23,6 +23,7 @@
 import type { Commit, Dispatch, Module } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
+import { EffluxSongType } from "@/model/types/song";
 import StorageUtil from "@/utils/storage-util";
 
 export interface SettingsState {
@@ -62,11 +63,14 @@ const SettingsModule: Module<SettingsState, any> = {
         followPlayback : ( state: SettingsState ) => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
         paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex",
         useOrders      : ( state: SettingsState, rootGetters: any ) => {
+            const { activeSong } = rootGetters;
+            if ( activeSong.type === EffluxSongType.JAM ) {
+                return false;
+            }
             const setting = state._settings[ PROPERTIES.USE_ORDERS ] !== false;
             if ( setting ) {
                 return true;
             }
-            const { activeSong } = rootGetters;
             return activeSong.patterns.length !== activeSong.order.length;
         },
     },

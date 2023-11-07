@@ -87,18 +87,20 @@ export default {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,
             currentStep        : state => state.sequencer.currentStep,
+            jam                : state => state.sequencer.jam,
             stepPrecision      : state => state.sequencer.stepPrecision,
         }),
         ...mapGetters([
             "activeSong",
-            // @todo should be for current instrument channel!
-            "activePatternIndex",
         ]),
+        playingPatternIndex(): number {
+            return this.jam[ this.selectedInstrument ].playingPatternIndex;
+        },
         instrument(): Instrument {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
         pattern(): Pattern {
-            return this.activeSong.patterns[ this.activePatternIndex ];
+            return this.activeSong.patterns[ this.playingPatternIndex ];
         },
         patternEvents(): EffluxAudioEvent[] {
             return this.pattern.channels[ this.selectedInstrument ];
@@ -139,16 +141,15 @@ export default {
                 event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
                 store : this.$store,
                 optData: {
-                    patternIndex : this.activePatternIndex, // @todo
+                    patternIndex : this.playingPatternIndex,
                     channelIndex : this.selectedInstrument,
-                    newEvent     : true,
                     step,
                 }
             });
         },
         handleNoteMove( row: PianoRollRow, { payload, newStep } : { payload: SerializedRowEvent, newStep: number }): void {
             this.saveState( moveEvent( this.$store, {
-                patternIndex: this.activePatternIndex, // @todo
+                patternIndex: this.playingPatternIndex,
                 channelIndex: this.selectedInstrument,
                 oldStep: payload.step,
                 newStep,
@@ -156,14 +157,14 @@ export default {
             }));
         },
         handleNoteDelete( row: PianoRollRow, event: PianoRollEvent ): void {
-            const { activePatternIndex, selectedInstrument } = this;
+            const { playingPatternIndex, selectedInstrument } = this;
             const act = (): void => {
-                EventUtil.clearEvent( this.activeSong, activePatternIndex, selectedInstrument, event.step );
+                EventUtil.clearEvent( this.activeSong, playingPatternIndex, selectedInstrument, event.step );
             };
             act();
             this.saveState({
                 undo: (): void => {
-                    const pattern = this.activeSong.patterns[ activePatternIndex ];
+                    const pattern = this.activeSong.patterns[ playingPatternIndex ];
                     EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.tempo );
                     this.$set( pattern.channels[ selectedInstrument ], event.step, event.event );
                 },

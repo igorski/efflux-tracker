@@ -29,43 +29,44 @@
         @click="setSelectedInstrument( instrumentIndex )"
     >
         <h3 class="jam-mode-channel-entry__title">{{ instrumentName }}</h3>
-        <!-- @todo pattern number -->
-        <piano-roll-lite
-            v-if="showPianoRoll"
-            :channel="channel"
-            :pattern-index="0"
-        />
         <!-- @todo what to do with oscillator indices at this level ?-->
+        <!-- 512 x 200 is default waveform size -->
         <waveform-display
-            v-else
             :instrument-index="instrumentIndex"
             :oscillator-index="0"
             :editable="false"
+            :render-waveform-on-silence="false"
+            width="275"
+            height="107"
+            class="waveform-display"
+        />
+        <piano-roll-lite
+            v-if="showPianoRoll"
+            class="piano-roll-display"
+            :channel="channel"
+            :pattern-index="playingPatternIndex"
         />
         <div class="jam-mode-channel-entry__patterns">
             <div
                 v-for="(pattern, index) in channel.patterns"
                 :key="`p_${index}`"
-                class="jam-mode-channel-entry__patterns-button"
                 role="button"
+                class="jam-mode-channel-entry__patterns-button"
+                :class="{
+                    'jam-mode-channel-entry__patterns-button--playing': index === playingPatternIndex,
+                    'jam-mode-channel-entry__patterns-button--queued' : index === nextPatternIndex && nextPatternIndex !== playingPatternIndex
+                }"
+                @click="handlePatternClick( index )"
             >
                 {{ index }}
             </div>
         </div>
-        <div class="jam-mode-channel-entry__buttons">
-            <button
-                v-t="'editInstrument'"
-                type="button"
-                class="jam-mode-channel-entry"
-                @click.stop="openInstrumentEditor()"
-            ></button>
-            <button
-                v-t="'editPattern'"
-                type="button"
-                class="jam-mode-channel-entry"
-                @click.stop="openPianoRoll()"
-            ></button>
-        </div>
+        <button
+            :title="'editInstrument'"
+            type="button"
+            class="jam-mode-channel-entry__button"
+            @click.stop="openInstrumentEditor()"
+        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editInstrument')" /></button>
     </div>
 </template>
 
@@ -101,11 +102,18 @@ export default {
     },
     computed: {
         ...mapState({
-            selectedInstrument: state => state.editor.selectedInstrument,
+            selectedInstrument : state => state.editor.selectedInstrument,
+            jam                : state => state.sequencer.jam,
         }),
         ...mapGetters([
             "activeSong",
         ]),
+        playingPatternIndex(): number {
+            return this.jam[ this.instrumentIndex ].playingPatternIndex;
+        },
+        nextPatternIndex(): number {
+            return this.jam[ this.instrumentIndex ].nextPatternIndex;
+        },
         instrumentIndex(): number {
             return this.channel.index;
         },
@@ -131,15 +139,18 @@ export default {
     methods: {
         ...mapMutations([
             "openModal",
+            "invalidateChannelCache",
+            "setJamPattern",
             "setSelectedInstrument",
         ]),
         openInstrumentEditor(): void {
             this.setSelectedInstrument( this.instrumentIndex );
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
-        openPianoRoll(): void {
-            this.setSelectedInstrument( this.channel.index );
-            this.openModal( ModalWindows.JAM_MODE_PIANO_ROLL );
+        handlePatternClick( index: number ): void {
+            console.info(this.instrumentIndex + " clicked on:" + index);
+            this.setJamPattern({ instrumentIndex: this.instrumentIndex, patternIndex: index });
+            this.invalidateChannelCache({ song: this.activeSong });
         },
     },
 };
@@ -148,12 +159,14 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_variables";
 @import "@/styles/_mixins";
+@import "@/styles/animation";
 @import "@/styles/forms";
 
 $button-width: 32px;
 $button-height: 26px;
 
 .jam-mode-channel-entry {
+    position: relative;
     display: inline-block;
     border-radius: $spacing-small;
     box-sizing: border-box;
@@ -163,33 +176,54 @@ $button-height: 26px;
     &--selected {
         border-color: $color-1;
     }
-}
+    
+    &__patterns {
+        display: flex;
+        flex-direction: row;
 
-.jam-mode-channel-entry__patterns {
-    display: flex;
-    flex-direction: row;
+        &-button {
+            cursor: pointer;
+            position: relative;
+            width: $button-width;
+            box-sizing: border-box;
+            text-align: center;
+            margin: 0 $spacing-xxsmall 0 0;
+            padding: $spacing-xxsmall 0;
+            border: 1px solid $color-border;
+            border-radius: 3px;
+            @include toolFont();
 
-    &-button {
-        cursor: pointer;
-        position: relative;
-        width: $button-width;
-        box-sizing: border-box;
-        text-align: center;
-        margin: 0 $spacing-xxsmall 0 0;
-        padding: $spacing-xxsmall 0;
-        border: 1px solid $color-border;
-        border-radius: 3px;
-        @include toolFont();
+            &:hover {
+                background-color: $color-2;
+                color: #000;
+            }
 
-        &:hover {
-            background-color: $color-2;
-            color: #000;
-        }
+            &--queued {
+                @include animationBlink( .5s );
+                background-color: $color-5;
+                color: #000;
+            }
 
-        &--active {
-            background-color: $color-1;
-            color: #000;
+            &--playing {
+                background-color: $color-1;
+                color: #000;
+            }
         }
     }
+
+    &__button {
+        position: absolute;
+        top: $spacing-small;
+        right: $spacing-xsmall;
+        padding: $spacing-xsmall $spacing-small;
+    }
+}
+
+.waveform-display {
+    margin-bottom: -$spacing-small;
+}
+
+.piano-roll-display {
+    margin-bottom: $spacing-medium;
 }
 </style>

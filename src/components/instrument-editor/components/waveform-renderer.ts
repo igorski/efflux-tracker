@@ -66,7 +66,7 @@ class WaveformRenderer extends sprite
     setTable( table: number[] ): void {
         this.cache = undefined;
         this.table = table;
-        console.info(this.table);
+        console.info('waveform-renderer#setTable', this.table);
         this.canvas?.invalidate(); // force re-render
     }
 
@@ -181,17 +181,20 @@ class WaveformRenderer extends sprite
         this.syncStyles( ctx );
         ctx.beginPath();
 
+        const canvasWidth = this._bounds.width;
+
         let h = this._bounds.height,
             x = this._bounds.left,
             y = this._bounds.top + h,
             l = this.table.length,
-            size = ( this._bounds.width / ( l - 1 )),
-            i = l, point;
+            ratio = ( l / canvasWidth ),
+            i = canvasWidth;
 
-        while ( i-- )
+        while ( i-- > 0 )
         {
-            point = ( this.table[ i ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
-            ctx.lineTo( x + ( i * size ), y - ( point * h ));
+            const tableIndex = Math.round( ratio * i );
+            const point = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
+            ctx.lineTo( i, y - ( point * h ));
         }
         ctx.stroke();
         ctx.closePath();

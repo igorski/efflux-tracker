@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import Config from "@/config";
-import type { EffluxSong } from "@/model/types/song";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import settingsModule, { createSettingsState, PROPERTIES } from "@/store/modules/settings-module";
 import type { SettingsState } from "@/store/modules/settings-module";
 
@@ -67,14 +67,20 @@ describe( "Vuex settings module", () => {
 
         describe( "and retrieving whether orders can be used", () => {
             it( "should return the saved value", () => {
+                const rootGetters = {
+                    activeSong: {
+                        type: EffluxSongType.TRACKER,
+                    } as Partial<EffluxSong>,
+                };
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: true } });
-                expect( getters.useOrders( state )).toBe( true );
+                expect( getters.useOrders( state, rootGetters )).toBe( true );
             });
 
             it( "should return the saved value when false as true when the currently active song uses orders", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: false } });
                 const rootGetters = {
                     activeSong: {
+                        type: EffluxSongType.TRACKER,
                         patterns: [[], []],
                         order: [0, 1, 1, 0]
                     } as Partial<EffluxSong>,
@@ -86,10 +92,21 @@ describe( "Vuex settings module", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: false } });
                 const rootGetters = {
                     activeSong: {
+                        type: EffluxSongType.TRACKER,
                         patterns: [[], []],
                         order: [0, 1]
                     } as Partial<EffluxSong>,
                 };
+                expect( getters.useOrders( state, rootGetters )).toBe( false );
+            });
+
+            it( "should return false, regardless of the saved value when the active song is of the JAM type", () => {
+                const rootGetters = {
+                    activeSong: {
+                        type: EffluxSongType.JAM,
+                    } as Partial<EffluxSong>,
+                };
+                const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: true } });
                 expect( getters.useOrders( state, rootGetters )).toBe( false );
             });
         });
