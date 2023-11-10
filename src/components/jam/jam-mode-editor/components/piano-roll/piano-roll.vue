@@ -24,9 +24,35 @@
     <div class="piano-roll">
         <section class="header">
             <h2 class="header__title">{{ title }}</h2>
+            <div class="header__actions">
+                <button
+                    type="button"
+                    :title="$t('previousPattern')"
+                    :disabled="playingPatternIndex === 0"
+                    @click="gotoPreviousPattern()"
+                >&lt;</button>
+                <button
+                    type="button"
+                    :title="$t('nextPattern')"
+                    :disabled="playingPatternIndex === maxPatternIndex"
+                    @click="gotoNextPattern()"
+                >></button>
+                <button
+                    v-t="'copy'"
+                    type="button"
+                    @click="handlePatternCopy()"
+                ></button>
+                <button
+                    v-t="'paste'"
+                    type="button"
+                    :disabled="!patternCopy"
+                    @click="handlePatternPaste()"
+                ></button>
+            </div>
             <button
                 type="button"
                 class="close-button"
+                :title="$t('close')"
                 @click="$emit('close')"
             >x</button>
         </section>
@@ -69,7 +95,9 @@ import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
 import EventUtil from "@/utils/event-util";
+import { clone } from "@/utils/object-util";
 import { getInstrumentName } from "@/utils/string-util";
+import messages from "./messages.json";
 
 export type PianoRollEvent = {
     event: EffluxAudioEvent;
@@ -84,9 +112,13 @@ type PianoRollRow = {
 };
 
 export default {
+    i18n: { messages },
     components: {
         PianoRollRow,
     },
+    data: () => ({
+        patternCopy: null,
+    }),
     computed: {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,
@@ -145,11 +177,47 @@ export default {
             return Math.floor( this.currentStep / diff ) % stepsInPattern;
         },
     },
+    created(): void {
+        this.maxPatternIndex = this.activeSong.patterns.length - 1;
+    },
     methods: {
         ...mapMutations([
             "addEventAtPosition",
+            "setJamPattern",
             "saveState",
         ]),
+        gotoPreviousPattern(): void {
+            this.setJamPattern({ instrumentIndex: this.selectedInstrument, patternIndex: this.playingPatternIndex - 1 });
+        },
+        gotoNextPattern(): void {
+            this.setJamPattern({ instrumentIndex: this.selectedInstrument, patternIndex: this.playingPatternIndex + 1 });
+        },
+        handlePatternCopy(): void {
+            this.patternCopy = clone( this.pattern.channels[ this.selectedInstrument ] );
+        },
+        handlePatternPaste(): void {
+            const { selectedInstrument, playingPatternIndex, $store } = this;
+            const song = this.activeSong;
+            
+            const orgPattern = clone( this.pattern );
+            const newPattern = clone( orgPattern );
+
+            newPattern.channels[ selectedInstrument ] = this.patternCopy;
+
+            const act = (): void => {
+                $store.commit( "replacePattern", { patternIndex: playingPatternIndex, pattern: newPattern });
+                $store.commit( "invalidateChannelCache", { song });
+            };
+            act();
+
+            this.saveState({
+                undo(): void {
+                    $store.commit( "replacePattern", { patternIndex: playingPatternIndex, pattern: orgPattern });
+                    $store.commit( "invalidateChannelCache", { song });
+                },
+                redo: act
+            });
+        },
         handleNoteAdd( row: PianoRollRow, step: number ): void {
             this.addEventAtPosition({
                 event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
@@ -174,7 +242,8 @@ export default {
         handleNoteDelete( row: PianoRollRow, event: PianoRollEvent ): void {
             const { playingPatternIndex, selectedInstrument } = this;
             const act = (): void => {
-                EventUtil.clearEvent( this.activeSong, playingPatternIndex, selectedInstrument, event.step );
+                const pattern = this.activeSong.patterns[ playingPatternIndex ];
+                this.$set( pattern.channels[ selectedInstrument ], event.step, EventFactory.create( selectedInstrument, "", 0, ACTION_NOTE_OFF ));
             };
             act();
             this.saveState({
@@ -221,6 +290,10 @@ $ideal-width: 840px;
 
     .header__title {
         margin-left: $spacing-medium !important;
+    }
+
+    .header__actions button {
+        @include button();
     }
 
     &__body {

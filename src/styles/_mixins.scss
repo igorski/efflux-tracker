@@ -205,6 +205,12 @@
             right: ($spacing-large * 2 + $spacing-xsmall);
         }
 
+        &__actions {
+            position: absolute;
+            top: $action-button-top;
+            right: ($spacing-large * 2 + $spacing-xsmall);
+        }
+
         .close-button {
             @include button();
             position: absolute;
