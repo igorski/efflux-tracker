@@ -155,7 +155,6 @@ const SongModule: Module<SongState, any> = {
         },
         updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
             Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value );
-            console.info("updateOscillator", instrumentIndex, oscillatorIndex, prop, value, state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ]);
         },
         updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
             Vue.set( state.activeSong.instruments[ instrumentIndex ], prop, value );
