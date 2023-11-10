@@ -66,7 +66,6 @@ class WaveformRenderer extends sprite
     setTable( table: number[] ): void {
         this.cache = undefined;
         this.table = table;
-        console.info('waveform-renderer#setTable', this.table);
         this.canvas?.invalidate(); // force re-render
     }
 

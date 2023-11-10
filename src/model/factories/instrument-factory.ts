@@ -279,10 +279,7 @@ const InstrumentFactory =
                 size = Config.WAVE_TABLE_SIZE;
             }
             oscillator.table = new Array( size );
-
-            while ( size-- ) {
-                oscillator.table[ size ] = 0;
-            }
+            oscillator.table.fill( 0 );
         }
         return oscillator.table;
     },

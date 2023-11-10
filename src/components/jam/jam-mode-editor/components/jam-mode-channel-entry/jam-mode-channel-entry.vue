@@ -92,7 +92,7 @@ export default {
     },
     computed: {
         ...mapState({
-            jam                : state => state.sequencer.jam,
+            jam : state => state.sequencer.jam,
             selectedInstrument : state => state.editor.selectedInstrument,
         }),
         ...mapGetters([
@@ -157,7 +157,8 @@ $button-height: 26px;
     background-color: #53565c;
 
     &--selected {
-        border-color: $color-1;
+        background-color: #b6b6b6;
+        color: $color-form-background;
     }
     
     &__title {

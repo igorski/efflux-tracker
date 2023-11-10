@@ -195,8 +195,7 @@ export default {
         cursor: pointer;
         content: "---";
         height: 24px;
-        min-width: 48px;
-        max-width: 48px; // see NOTE_WIDTH
+        width: 48px; // see NOTE_WIDTH
         box-sizing: border-box;
         border: 1px solid $color-pattern-odd;
         border-top-color: #000;
