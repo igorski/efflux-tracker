@@ -69,6 +69,7 @@ import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
 import EventUtil from "@/utils/event-util";
+import { getInstrumentName } from "@/utils/string-util";
 
 export type PianoRollEvent = {
     event: EffluxAudioEvent;
@@ -103,12 +104,7 @@ export default {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
         title(): string {
-            let { name, presetName } = this.instrument;
-            if ( name.startsWith( "Instrument ")) {
-                // instrument has preset, use its name
-                name = ( presetName || name || "" ).replace( "FACTORY ", "" );
-            }
-            return `${name} - ${this.playingPatternIndex + 1}`;
+            return `${getInstrumentName( this.instrument )} - ${this.playingPatternIndex + 1}`;
         },
         pattern(): Pattern {
             return this.activeSong.patterns[ this.playingPatternIndex ];

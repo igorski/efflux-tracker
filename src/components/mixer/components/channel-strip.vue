@@ -106,6 +106,7 @@ import AudioService, { applyModule } from "@/services/audio-service";
 import { supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
 import { supports } from "@/services/audio/webaudio-helper";
 import { clone } from "@/utils/object-util";
+import { getInstrumentName } from "@/utils/string-util";
 import EqControl from "./eq-control.vue";
 
 export default {
@@ -135,13 +136,7 @@ export default {
             return this.activeSong.instruments[ this.instrumentIndex ];
         },
         name() {
-            const { name, presetName } = this.instrument;
-            if ( !name.startsWith( "Instrument ")) {
-                // instrument has a non-default name set
-                return name;
-            }
-            // instrument has preset, use its name
-            return ( presetName || name || "" ).replace( "FACTORY ", "" );
+            return getInstrumentName( this.instrument );
         },
         volume: {
             get() {

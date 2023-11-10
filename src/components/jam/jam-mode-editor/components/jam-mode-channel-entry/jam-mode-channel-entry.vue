@@ -76,6 +76,7 @@ import WaveformDisplay from "@/components/waveform-display/waveform-display.vue"
 import ModalWindows from "@/definitions/modal-windows";
 import { type Instrument } from "@/model/types/instrument";
 import PianoRollLite from "../piano-roll-lite/piano-roll-lite.vue";
+import { getInstrumentName } from "@/utils/string-util";
 
 import messages from "./messages.json";
 
@@ -121,13 +122,7 @@ export default {
             return this.activeSong.instruments[ this.instrumentIndex ];
         },
         instrumentName(): string {
-            const { name, presetName } = this.instrument;
-            if ( !name.startsWith( "Instrument ")) {
-                // instrument has a non-default name set
-                return name;
-            }
-            // instrument has preset, use its name
-            return ( presetName || name || "" ).replace( "FACTORY ", "" );
+            return getInstrumentName( this.instrument );
         },
         isSelected(): boolean {
             return this.selectedInstrument === this.instrumentIndex;
