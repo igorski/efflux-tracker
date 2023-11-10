@@ -23,7 +23,7 @@
 <template>
     <div class="piano-roll">
         <section class="header">
-            <h2>{{ instrument.name }}</h2>
+            <h2 class="header__title">{{ title }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -41,7 +41,7 @@
                         :octave="row.octave"
                         :events="row.events"
                         :columns="columnAmount"
-                        :step="playingStep"
+                        :playing-step="playingStep"
                         class="piano-roll__table-row"
                         :class="{
                             'piano-roll__table-row--sharp': row.note.includes( '#' )
@@ -49,6 +49,7 @@
                         @note:add="handleNoteAdd( row, $event )"
                         @note:move="handleNoteMove( row, $event )"
                         @note:delete="handleNoteDelete( row, $event )"
+                        @note:resize="handleNoteResize( row, $event )"
                     />
                 </tbody>
             </table>
@@ -61,8 +62,9 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row.vue";
 import moveEvent from "@/model/actions/event-move";
+import resizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
@@ -71,6 +73,7 @@ import EventUtil from "@/utils/event-util";
 export type PianoRollEvent = {
     event: EffluxAudioEvent;
     step: number;
+    length: number;
 };
 
 type PianoRollRow = {
@@ -99,6 +102,14 @@ export default {
         instrument(): Instrument {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
+        title(): string {
+            let { name, presetName } = this.instrument;
+            if ( name.startsWith( "Instrument ")) {
+                // instrument has preset, use its name
+                name = ( presetName || name || "" ).replace( "FACTORY ", "" );
+            }
+            return `${name} - ${this.playingPatternIndex + 1}`;
+        },
         pattern(): Pattern {
             return this.activeSong.patterns[ this.playingPatternIndex ];
         },
@@ -111,7 +122,14 @@ export default {
                 for ( const note of Pitch.OCTAVE_SCALE ) {
                     const events: PianoRollEvent[] = this.patternEvents.map(( event, index ) => {
                         if ( event?.note === note && event?.octave === octave ) {
-                            return { event, step: index };
+                            let length = 1;
+                            for ( let i = index + 1, l = this.patternEvents.length; i < l; ++i ) {
+                                if ( this.patternEvents[ i ]) {
+                                    break;
+                                }
+                                ++length;
+                            }
+                            return { event, length, step: index };
                         }
                         return undefined;
                     }).filter( Boolean );
@@ -143,6 +161,7 @@ export default {
                 optData: {
                     patternIndex : this.playingPatternIndex,
                     channelIndex : this.selectedInstrument,
+                    short: true,
                     step,
                 }
             });
@@ -170,7 +189,11 @@ export default {
                 },
                 redo: act,
             });
-        }
+        },
+        handleNoteResize( row: PianoRollRow, { payload, newLength } : { payload: SerializedRowEvent, newLength: number }): void {
+            const { playingPatternIndex, selectedInstrument } = this;
+            this.saveState( resizeEvent( this.$store, playingPatternIndex, selectedInstrument, payload.step, newLength ));
+        },
     },
 };
 </script>
@@ -180,22 +203,28 @@ export default {
 
 @import "@/styles/_mixins";
 
+$ideal-width: 840px;
+
 .piano-roll {
     @include editorComponent();
     @include overlay();
 
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $ideal-instrument-editor-width )  {
+    @media screen and ( min-width: $ideal-width )  {
         left: 50%;
-        width: $ideal-instrument-editor-width;
-        margin-left: math.div( -$ideal-instrument-editor-width, 2 );
+        width: $ideal-width;
+        margin-left: math.div( -$ideal-width, 2 );
     }
 
     @media screen and ( min-height: 600px ) {
         top: 50%;
         margin-top: math.div( -600px, 2 );
         height: 600px;
+    }
+
+    .header__title {
+        margin-left: $spacing-medium !important;
     }
 
     &__body {
@@ -205,6 +234,8 @@ export default {
 
     &__table {
         min-width: 100%;
+        display: table-cell;
+        border-collapse: collapse;
 
         &-row {
             &--sharp {

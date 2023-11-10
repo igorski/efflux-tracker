@@ -29,15 +29,15 @@
         @click="setSelectedInstrument( instrumentIndex )"
     >
         <h3 class="jam-mode-channel-entry__title">{{ instrumentName }}</h3>
-        <!-- @todo what to do with oscillator indices at this level ?-->
+        <!-- as we don't render silent waveforms, we can hard code the oscillator-index -->
         <!-- 512 x 200 is default waveform size -->
         <waveform-display
             :instrument-index="instrumentIndex"
             :oscillator-index="0"
             :editable="false"
             :render-waveform-on-silence="false"
-            width="275"
-            height="107"
+            :width="275"
+            :height="107"
             class="waveform-display"
         />
         <piano-roll-lite
@@ -58,7 +58,7 @@
                 }"
                 @click="handlePatternClick( index )"
             >
-                {{ index }}
+                {{ index + 1 }}
             </div>
         </div>
         <button
@@ -102,8 +102,8 @@ export default {
     },
     computed: {
         ...mapState({
-            selectedInstrument : state => state.editor.selectedInstrument,
             jam                : state => state.sequencer.jam,
+            selectedInstrument : state => state.editor.selectedInstrument,
         }),
         ...mapGetters([
             "activeSong",
@@ -161,6 +161,7 @@ export default {
 @import "@/styles/_mixins";
 @import "@/styles/animation";
 @import "@/styles/forms";
+@import "@/styles/typography";
 
 $button-width: 32px;
 $button-height: 26px;
@@ -168,15 +169,20 @@ $button-height: 26px;
 .jam-mode-channel-entry {
     position: relative;
     display: inline-block;
-    border-radius: $spacing-small;
-    box-sizing: border-box;
-    padding: $spacing-small $spacing-medium;
     border: 2px solid #666;
+    border-radius: $spacing-small;
+    padding: 0 $spacing-medium $spacing-small;
+    box-sizing: border-box;
+    background-color: #53565c;
 
     &--selected {
         border-color: $color-1;
     }
     
+    &__title {
+        @include toolFont();
+    }
+
     &__patterns {
         display: flex;
         flex-direction: row;
@@ -200,12 +206,12 @@ $button-height: 26px;
 
             &--queued {
                 @include animationBlink( .5s );
-                background-color: $color-5;
+                background-color: $color-4;
                 color: #000;
             }
 
             &--playing {
-                background-color: $color-1;
+                background-color: $color-5;
                 color: #000;
             }
         }
@@ -213,9 +219,10 @@ $button-height: 26px;
 
     &__button {
         position: absolute;
-        top: $spacing-small;
+        top: $spacing-xsmall + $spacing-xxsmall;
         right: $spacing-xsmall;
         padding: $spacing-xsmall $spacing-small;
+        background-color: $color-1;
     }
 }
 

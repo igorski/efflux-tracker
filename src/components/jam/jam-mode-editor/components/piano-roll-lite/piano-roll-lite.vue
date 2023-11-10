@@ -43,7 +43,7 @@
         <button
             :title="'editPattern'"
             type="button"
-            class="piano-roll-lite__edit-pattern"
+            class="piano-roll-lite__edit-button"
             @click.stop="openPianoRoll()"
         ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editPattern')" /></button>
     </div>
@@ -89,6 +89,7 @@ export default {
         }),
         ...mapGetters([
             "activeSong",
+            "isPlaying",
         ]),
         pattern(): Pattern {
             return this.channel.patterns[ this.patternIndex ];
@@ -144,16 +145,26 @@ export default {
             const diff = this.stepPrecision / stepsInPattern;
 
             const playingStep = Math.floor( this.currentStep / diff ) % stepsInPattern;
-            const speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 ) / stepsInPattern;
+            let targetStep = stepsInPattern;
+            let speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 );
+            
+            // wrap back to beginning
+            if ( !this.isPlaying || ( playingStep === 0 && this.lastStep !== 0 )) {
+                targetStep = 0;
+                speed = 0;
+            }
+
+            this.lastStep = playingStep;
 
             return {
-                "left" : `${playingStep * this.entryWidth}%`,
+                "left" : `${targetStep * this.entryWidth}%`,
                 "transition-duration": `${speed}s`,
             };
         },
     },
     created(): void {
         this.entryWidth = 100 / this.pattern.length;
+        this.lastStep = 0;
     },
     methods: {
         ...mapMutations([
@@ -174,10 +185,11 @@ export default {
 
 .piano-roll-lite {
     position: relative;
-    display: inline-flex;
+    display: flex;
     background-color: #666;
     width: 100%;
     height: 100px;
+    overflow: hidden;
 
     &__note {
         height: 8px;
@@ -207,14 +219,15 @@ export default {
     &__editor-position {
         position: absolute;
         height: 100%;
-        background-color: rgba(255,255,255,0.5);
+        background-color: rgba(255,255,255,0.15);
     }
 
-    &__edit-pattern {
+    &__edit-button {
         position: absolute;
-        right: $spacing-xxsmall;
+        right: 0;
         bottom: $spacing-small;
         padding: $spacing-xsmall $spacing-small;
+        background-color: #b6b6b6;
     }
 }
 </style>

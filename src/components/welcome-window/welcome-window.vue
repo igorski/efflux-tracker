@@ -35,8 +35,8 @@
             <p v-t="'introductionFirstTime'"></p>
             <button
                 type="button"
-                v-t="'openDemo'"
-                @click="openDemo()"
+                v-t="'openSong'"
+                @click="openSavedSong()"
             ></button>
             <button
                 type="button"
@@ -121,7 +121,7 @@ export default {
             "createSong",
             "openSong",
         ]),
-        openDemo(): void {
+        openSavedSong(): void {
             this.openModal( ModalWindows.SONG_BROWSER );
         },
         openHelp(): void {

@@ -27,7 +27,7 @@
             class="waveform-container"
         ><!-- x --></div>
         <button
-            v-if="isSampler"
+            v-if="isSampler && editable"
             v-t="'editSample'"
             type="button"
             class="waveform-container__action-button"
@@ -100,6 +100,9 @@ export default {
         },
     },
     computed: {
+        ...mapState({
+            modal: state => state.modal,
+        }),
         ...mapState([
             "windowSize",
         ]),
@@ -134,6 +137,11 @@ export default {
         performAnalysis: false,
     }),
     watch: {
+        modal( value: ModalWindows ): void {
+            if ( !value && this.performAnalysis ) {
+                this.connectAnalyser();
+            }
+        },
         windowSize: {
             immediate: true,
             handler({ width, height }): void {
@@ -168,9 +176,7 @@ export default {
         },
         performAnalysis( value: boolean ): void {
             if ( value ) {
-                // connect the AnalyserNodes to the all instrument channels
-                applyModules( this.activeSong, true );
-                this.renderOscilloscope();
+                this.connectAnalyser();
             }
         },
     },
@@ -354,6 +360,11 @@ export default {
                 }
                 return !this.renderWaveformOnSilence;
             });
+        },
+        connectAnalyser(): void {
+            // connect the AnalyserNodes to the all instrument channels
+            applyModules( this.activeSong, true );
+            this.renderOscilloscope();
         },
     },
 };

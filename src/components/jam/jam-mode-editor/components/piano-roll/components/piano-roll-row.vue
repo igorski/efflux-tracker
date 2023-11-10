@@ -26,26 +26,34 @@
             {{ note }}{{ octave }}
         </td>
         <td
-            v-for="(column, index) in columns"
-            :key="`column_${column}`"
+            v-for="(column) in formattedColumns"
+            :key="`column_${column.index}`"
             class="piano-roll-row__column"
             :class="{
-                'piano-roll-row__column--playing': step === column,
+                'piano-roll-row__column--playing': playingStep === column.index,
             }"
-            @click="handleEmptySlotClick( index )"
-            @drop="handleDrop( $event, index )"
+            @click="handleEmptySlotClick( column.index )"
+            @drop="handleDrop( $event, column.index )"
             @dragover.prevent
             @dragenter.prevent
+            :colspan="column.colspan"
         >
             <div
-                v-if="getEventForIndex( index )"
+                v-if="column.event"
                 ref="event"
-                class="piano-roll-row__column--content"
+                class="piano-roll-row__column-content"
                 role="button"
+                :style="{ width: column.width }"
                 draggable
-                @dblclick.stop="handleNoteDelete( index )"
-                @dragstart="handleDragStart( $event, index )"
+                @dblclick.stop="handleNoteDelete( column.index )"
+                @dragstart="handleDragStart( $event, column.index )"
             >
+                <div
+                    class="piano-roll-row__column-size-handle"
+                    role="button"
+                    draggable
+                    @dragstart.stop="handleResizeDragStart( $event, column.index )"
+                ></div>
             </div>
         </td>
     </tr>
@@ -58,10 +66,11 @@ export type SerializedRowEvent = {
     note: string;
     octave: number;
     step: number;
+    length: number;
 };
 
 function serializeData( note: string, octave: number, event: PianoRollEvent ): string {
-    return JSON.stringify({ note, octave, step: event.step });
+    return JSON.stringify({ note, octave, step: event.step, length: event.length });
 }
 
 function deserialiseData( serialized?: string ): SerializedRowEvent | undefined {
@@ -69,6 +78,8 @@ function deserialiseData( serialized?: string ): SerializedRowEvent | undefined 
         return JSON.parse( serialized! );
     } catch {}
 }
+
+const NOTE_WIDTH = 48;
 
 export default {
     props: {
@@ -88,9 +99,31 @@ export default {
             type: Array, // PianoRollEvent[]
             required: true,
         },
-        step: {
+        playingStep: {
             type: Number,
             required: true,
+        },
+    },
+    data: () => ({
+        resizing: false,
+        resizeProps: {
+            index  : 0,
+            startX : 0,
+        },
+    }),
+    computed: {
+        formattedColumns(): { event?: PianoRollEvent, index: number, width: string, colspan: number }[] {
+            const out = [];
+            for ( let index = 0; index < this.columns; ) {
+                const event   = this.getEventForIndex( index );
+                const width   = `${NOTE_WIDTH * event?.length}px`;
+                const colspan = event?.length ?? 1;
+
+                out.push({ index, event, width, colspan });
+
+                index += colspan;
+            }
+            return out;
         },
     },
     mounted(): void {
@@ -119,8 +152,26 @@ export default {
         handleDrop( dragEvent: DragEvent, newStep: Number ): void {
             const payload = deserialiseData( dragEvent.dataTransfer?.getData( "event" ));
             if ( payload ) {
-                this.$emit( "note:move", { payload, newStep });
+                if ( this.resizing ) {
+                    const delta  = dragEvent.clientX - this.resizeProps.startX;
+                    const length = payload.length + Math.round( delta / NOTE_WIDTH );
+                    this.$emit( "note:resize", { payload, newLength: Math.max( 1, length ) });
+                } else {
+                    this.$emit( "note:move", { payload, newStep });
+                }
             }
+            this.resizing = false;
+        },
+        handleResizeDragStart( dragEvent: DragEvent, index: number ): void {
+            if ( !dragEvent.dataTransfer ) {
+                return;
+            }
+            dragEvent.dataTransfer.setData( "event",
+                serializeData( this.note, this.octave, this.getEventForIndex( index ) )
+            );
+            this.resizing = true;
+            this.resizeProps.index = index;
+            this.resizeProps.startX = dragEvent.clientX;
         },
     }
 };
@@ -132,11 +183,6 @@ export default {
 
 .piano-roll-row {
     background-color: $color-pattern-even;
-    border-top-color: #000;
-    border-bottom-color: $color-pattern-odd;
-    // the below effectively cancel out selection outlines during playback
-    border-left: none;
-    border-right: none;
 
     &__name {
         @include toolFont();
@@ -149,7 +195,11 @@ export default {
         cursor: pointer;
         content: "---";
         height: 24px;
-        width: 48px;
+        min-width: 48px;
+        max-width: 48px; // see NOTE_WIDTH
+        box-sizing: border-box;
+        border: 1px solid $color-pattern-odd;
+        border-top-color: #000;
 
         &:hover {
             background-color: $color-3;
@@ -158,13 +208,26 @@ export default {
 
         &--playing {
             background-color: $color-4;
-            border: 0 !important;
+            // opacity: 0.5;
         }
 
-        &--content {
+        &-content {
+            cursor: move;
+            position: relative;
             background-color: $color-2;
-            border: 2px solid $color-5;
+            // border: 2px solid $color-5;
             height: 20px;
+            box-sizing: border-box;
+        }
+
+        &-size-handle {
+            cursor: ew-resize;
+            position: absolute;
+            right: 0;
+            top: 0;
+            background-color: $color-5;
+            height: inherit;
+            width: 10px;
         }
     }
 }

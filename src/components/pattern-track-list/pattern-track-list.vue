@@ -469,7 +469,7 @@ $stepHeight: 32px;
 .pattern-track-list-container {
     position: relative;
     overflow: auto;
-    background-color: #101015;
+    background-color: $color-form-background;
 
     @include ideal() {
         overflow-x: hidden; // no need to show scroll

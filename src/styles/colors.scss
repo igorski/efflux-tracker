@@ -7,9 +7,10 @@ $color-4: #BBFF3D;
 $color-5: #FF813D;
 $color-background: #53565c;
 $color-editor-background: #393B40;
+$color-form-background: #101015;
 $color-border: #666;
 
-$color-pattern-even: #101015;
+$color-pattern-even: $color-form-background;
 $color-pattern-odd : #212123;
 
 $color-instrument-1: #b25050;

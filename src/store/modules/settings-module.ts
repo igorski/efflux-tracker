@@ -58,11 +58,13 @@ const persistState = ( state: SettingsState ): void => {
 const SettingsModule: Module<SettingsState, any> = {
     state: (): SettingsState => createSettingsState(),
     getters: {
-        displayHelp    : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_HELP ] !== false,
+        displayHelp : ( state: SettingsState, rootGetters: any ) => {
+            return state._settings[ PROPERTIES.DISPLAY_HELP ] !== false && rootGetters.activeSong.type !== EffluxSongType.JAM;
+        },
         displayWelcome : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,
         followPlayback : ( state: SettingsState ) => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
         paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex",
-        useOrders      : ( state: SettingsState, rootGetters: any ) => {
+        useOrders : ( state: SettingsState, rootGetters: any ) => {
             const { activeSong } = rootGetters;
             if ( activeSong.type === EffluxSongType.JAM ) {
                 return false;

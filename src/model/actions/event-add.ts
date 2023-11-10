@@ -22,6 +22,7 @@
  */
 import Vue from "vue";
 import type { Store } from "vuex";
+import EventFactory from "@/model/factories/event-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
@@ -48,6 +49,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
     // currently active instrument and pattern (e.g. visible on screen)
 
     let advanceStepOnAddition = true;
+    let short = false;
 
     // if options Object was given, use those values instead of current sequencer values
 
@@ -55,6 +57,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         patternIndex = ( typeof optEventData.patternIndex === "number" ) ? optEventData.patternIndex : patternIndex;
         channelIndex = ( typeof optEventData.channelIndex === "number" ) ? optEventData.channelIndex : channelIndex;
         step         = ( typeof optEventData.step         === "number" ) ? optEventData.step         : step;
+        short        = ( typeof optEventData.short        === "boolean" ) ? optEventData.short       : false;
 
         if ( typeof optEventData.advanceOnAddition === "boolean" ) {
             advanceStepOnAddition = optEventData.advanceOnAddition;
@@ -63,6 +66,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
     // if there is an existing event, cache it for undo-purpose (see add())
     let existingEvent: EffluxAudioEvent;
     let existingEventMp: EffluxAudioEventModuleParams;
+    const hasNext = !!song.patterns[ patternIndex ].channels[ channelIndex ][ step + 1 ];
 
     function act(): void {
         const pattern = song.patterns[ patternIndex ],
@@ -83,6 +87,9 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
         Vue.set( channel, step, event );
+        if ( !hasNext ) {
+            Vue.set( channel, step + 1, EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF ));
+        }
         store.commit( "invalidateChannelCache", { song });
 
         if ( optEventData?.newEvent === true ) {
@@ -124,6 +131,9 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
                 const restoredEvent = deserialize( existingEvent );
                 Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
                 store.commit( "invalidateChannelCache", { song });
+            }
+            if ( !hasNext ) {
+                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step + 1, 0 );
             }
             updateHandler();
         },

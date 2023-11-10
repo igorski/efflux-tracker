@@ -69,9 +69,8 @@ export default {
 @import "@/styles/_mixins";
 
 .jam-mode-editor {
-    display: flex;
-    flex-wrap: wrap;
     overflow-y: auto;
+    background-color: $color-form-background;
 
     @include mobile() {
         padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */

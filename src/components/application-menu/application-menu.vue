@@ -164,17 +164,6 @@
                                 @click="handleMixerClick()"
                             ></button>
                         </li>
-                        <li>
-                            <hr class="divider" />
-                        </li>
-                        <li>
-                            <button
-                                v-t="'jamMode'"
-                                type="button"
-                                class="menu-list__button"
-                                @click="openJamMode()"
-                            ></button>
-                        </li>
                     </ul>
                 </li>
                 <li>
@@ -390,9 +379,6 @@ export default {
         },
         handleMixerClick(): void {
             this.openModal( ModalWindows.MIXER );
-        },
-        openJamMode(): void {
-            this.openModal( ModalWindows.JAM_MODE );
         },
     }
 };

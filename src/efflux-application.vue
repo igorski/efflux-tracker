@@ -50,7 +50,12 @@
                     <pattern-editor />
                 </div>
             </div>
-            <div class="container">
+            <div
+                class="container"
+                :class="{
+                    'jam-mode': jamMode
+                }"
+            >
                 <div
                     ref="editor"
                     class="application-editor"
@@ -59,7 +64,6 @@
                         'settings-mode'           : mobileMode === 'settings',
                         'settings-mode--expanded' : mobileMode === 'settings' && useOrders,
                         'note-entry-mode'         : showNoteEntry,
-                        'jam-mode'                : jamMode,
                     }"
                 >
                     <track-editor />
@@ -301,6 +305,7 @@ export default {
                 return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
             }
             this.publishMessage( PubSubMessages.SONG_LOADED );
+            this.$nextTick( this.calculateDimensions );
 
             if ( !song.meta.title ) {
                 return;
@@ -480,21 +485,25 @@ export default {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             this.calculateDimensions();
         },
+        /**
+         * due to the nature of the table display of the pattern editors track list
+         * we need JavaScript to calculate to correct dimensions of the overflowed track list
+         */
         calculateDimensions(): void {
-            /**
-             * due to the nature of the table display of the pattern editors track list
-             * we need JavaScript to calculate to correct dimensions of the overflowed track list
-             */
-
-            // synchronize center section width with properties section width
-
-            this.centerWidth = `${this.$refs.properties.offsetWidth}px`;
+            if ( this.$refs.properties ) {
+                // synchronize center section width with properties section width
+                this.centerWidth = `${this.$refs.properties.offsetWidth}px`;
+            } else {
+                this.centerWidth = "100%";
+            }
 
             // note we do not bind a :style property onto the element inside the template as it
             // interferes with keyboard interactions done within (offsets keep jumping to center) !!
 
-            this.$refs.editor.style.width = this.centerWidth;
-        }
+            if ( this.$refs.editor ) {
+                this.$refs.editor.style.width = this.centerWidth;
+            }
+        },
     }
 };
 </script>

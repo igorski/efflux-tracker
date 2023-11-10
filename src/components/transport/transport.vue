@@ -63,7 +63,7 @@
                         @click="setMetronomeEnabled( !isMetronomeEnabled )"
                     ></button>
                 </li>
-                <li>
+                <li v-if="!jamMode">
                     <button
                         type="button"
                         class="icon-settings"
@@ -368,6 +368,8 @@ export default {
 }
 
 .transport-controls {
+    display: flex;
+    align-items: center;
     @include titleFont();
     border: none;
     border-radius: 0;
@@ -375,11 +377,6 @@ export default {
     min-width: 100%;
     max-width: $ideal-width;
     min-height: 44px;
-
-    @include large() {
-        display: flex;
-        align-items: center;
-    }
 
     &__buttons,
     &__tempo {
@@ -586,6 +583,7 @@ export default {
     .settings-mode {
         display: flex;
         flex-direction: column;
+        align-items: normal;
 
         .transport-controls__tempo {
             display: inline-block;

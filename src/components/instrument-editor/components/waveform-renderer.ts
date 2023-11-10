@@ -184,14 +184,11 @@ class WaveformRenderer extends sprite
         const canvasWidth = this._bounds.width;
 
         let h = this._bounds.height,
-            x = this._bounds.left,
-            y = this._bounds.top + h,
             l = this.table.length,
-            ratio = ( l / canvasWidth ),
-            i = canvasWidth;
-
-        while ( i-- > 0 )
-        {
+            y = this._bounds.top + h,
+            ratio = ( l / canvasWidth );
+            
+        for ( let i = 0; i < canvasWidth; ++i ) {
             const tableIndex = Math.round( ratio * i );
             const point = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
             ctx.lineTo( i, y - ( point * h ));

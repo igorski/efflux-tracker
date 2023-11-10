@@ -237,6 +237,14 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 39: // right
 
             if ( store.getters.jamMode ) {
+                if ( hasOption ) {
+                    const maxPattern = activeSong.patterns.length - 1;
+                    for ( let i = 0, l = activeSong.patterns[ 0 ].channels.length; i < l; ++i ) {
+                        const patternIndex = Math.min( maxPattern, store.state.sequencer.jam[ i ].nextPatternIndex + 1 );
+                        store.commit( "setJamPattern", { instrumentIndex: i, patternIndex });
+                    }
+                    break;
+                }
                 maxStep = activeSong.patterns[ store.getters.activePatternIndex ].steps - 1;
                 targetStep = editor.selectedStep + 1;
                 store.commit( "setSelectedStep", targetStep <= maxStep ? targetStep : 0 );
@@ -276,6 +284,14 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 37: // left
 
             if ( store.getters.jamMode ) {
+                if ( hasOption ) {
+                    const maxPattern = activeSong.patterns.length - 1;
+                    for ( let i = 0, l = activeSong.patterns[ 0 ].channels.length; i < l; ++i ) {
+                        const patternIndex = Math.max( 0, store.state.sequencer.jam[ i ].nextPatternIndex - 1 );
+                        store.commit( "setJamPattern", { instrumentIndex: i, patternIndex });
+                    }
+                    break;
+                }
                 targetStep = editor.selectedStep - 1;
                 store.commit( "setSelectedStep", targetStep >= 0 ? targetStep : activeSong.patterns[ store.getters.activePatternIndex ].steps - 1 );
                 break;

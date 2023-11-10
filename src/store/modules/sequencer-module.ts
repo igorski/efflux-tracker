@@ -90,7 +90,7 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
     const activeSong = store.state.song.activeSong;
     const { action, seq } = event;
 
-    seq.playing      = true; // prevents retriggering of same event
+    seq.playing      = true; // prevents retriggering of same event during its playback
     seq.startMeasure = startMeasure;
 
     // calculate the total duration for the events optional module parameter
@@ -182,6 +182,18 @@ function freeHandler( state: SequencerState, node: OscillatorNode ): void {
     }
 }
 
+function haltPlaybackForChannel( state: SequencerState, channel: number ): void {
+    const list = state.channelQueue[ channel ];
+    let playingNote = list.tail;
+    while ( playingNote ) {
+        const nextNote = playingNote.previous;
+        dequeueEvent( state, playingNote.data, 0 );
+        playingNote.data.seq.playing = false;
+        playingNote.remove();
+        playingNote = nextNote;
+    }
+}
+
 function collect( store: Store<EffluxState> ): void {
     const state: SequencerState = store.state.sequencer;
     const audioContext: BaseAudioContext = getAudioContext();
@@ -266,6 +278,11 @@ function step( store: Store<EffluxState> ): void {
             if ( sync ) {
                 cacheActivePatternChannels( state, activeSong );
                 console.info('synced pattern indices');
+                for ( let i = 0, l = state.channels.length; i < l; ++i ) {
+                    if ( state.channels[ i ].filter( Boolean ).length === 0 ) {
+                        haltPlaybackForChannel( state, i ); // halt playback of existing notes in channel when new pattern is empty
+                    }
+                }
             }
         }
 
