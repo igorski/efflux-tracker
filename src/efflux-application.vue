@@ -124,7 +124,7 @@ import Notifications from "@/components/notifications.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import { JAM_MODE } from "@/definitions/url-params";
 import SampleFactory from "@/model/factories/sample-factory";
-import { type EffluxSong } from "@/model/types/song";
+import { type EffluxSong, EffluxSongType} from "@/model/types/song";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
@@ -338,7 +338,8 @@ export default {
 
         // prepare model
 
-        this.openSong( await this.createSong());
+        const urlParams = new URLSearchParams( window.location.search );
+        this.openSong( await this.createSong( urlParams.has( JAM_MODE ) ? EffluxSongType.JAM : EffluxSongType.TRACKER ));
         await this.prepareSequencer( this.$store );
         await this.setupServices( i18n );
         this.addListeners();
@@ -433,7 +434,6 @@ export default {
         await this.$nextTick();
         this.handleReady();
 
-        const urlParams = new URLSearchParams( window.location.search );
         if ( urlParams.has( JAM_MODE )) {
             this.openModal( ModalWindows.JAM_MODE );
         }
