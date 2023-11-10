@@ -475,8 +475,7 @@ const AudioService =
                     adjustEventWaveForms( events, oscillatorIndex,
                         createTableFromCustomGraph( instrumentIndex, oscillatorIndex, oscillator.table as number[] )
                     );
-                }
-                else {
+                } else {
                     // @ts-expect-error cannot use string to index pool type
                     adjustEventWaveForms( events, oscillatorIndex, pool[ oscillator.waveform ] );
                 }

@@ -53,7 +53,6 @@ import AudioService, { applyModules, getAnalysers } from "@/services/audio-servi
 import { supportsAnalysis } from "@/services/audio/analyser";
 import PubSubService from "@/services/pubsub-service";
 import Messages from "@/services/pubsub/messages";
-import { clone } from "@/utils/object-util";
 import { easeIn } from "@/utils/easing";
 
 // see colors.scss
@@ -170,7 +169,6 @@ export default {
         },
         instrumentRef(): void {
             this.wfRenderer.setColor( this.instrumentColor );
-            this.canvas.invalidate();
             this.handleAnalysis();
             this.renderContent();
         },
@@ -232,7 +230,9 @@ export default {
         },
         // invoked when drawing inside the waveform renderer
         handleWaveformUpdate( table: number[] ): void {
-            const orgTable    = clone( this.oscillator.table );
+            // destructuring is important here as provided table is a reference which can still be updated
+            const orgTable    = this.oscillator.table ? [ ...this.oscillator.table ] : 0;
+            const value       = [ ...table ];
             const orgWaveform = this.oscillator.waveform;
 
             const store = this.$store;
@@ -240,8 +240,7 @@ export default {
 
             const commit = (): void => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
-                console.info("commit table change", instrumentIndex, oscillatorIndex);
-                store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "table", value: table });
+                store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "table", value });
                 AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
             };
             commit();
@@ -260,7 +259,6 @@ export default {
             enqueueState( `wtable_${instrumentIndex}_${oscillatorIndex}`, {
                 undo(): void {
                     const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
-                    console.info("undo table change");
                     store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "table", value: orgTable });
                     store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "waveform", value: orgWaveform });
                     AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
@@ -275,7 +273,7 @@ export default {
         handleAnalysis(): void {
             this.performAnalysis = supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
         },
-        openSampleEditor() {
+        openSampleEditor(): void {
             const name = this.oscillator.sample;
             if ( name ) {
                 this.setCurrentSample( this.samples.find( sample => sample.name === name ));
@@ -285,15 +283,13 @@ export default {
         // render the current oscillators waveform into the waveform renderer
         // (is a zCanvas sprite and not part of the Vue component render cycle)
         renderContent(): void {
-            console.info('renderContent', this.oscillator.waveform );
             if ( this.isSampler ) {
                 this.wfRenderer.setSample( this.selectedSample?.buffer );
             } else if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
                 this.wfRenderer.generateAndSetTable( this.oscillator.waveform );
             } else {
-                // note we use a clone as the table references can be updated
-                // by stepping through the state history
-                this.wfRenderer.setTable( clone( InstrumentFactory.getTableForOscillator( this.oscillator )));
+                // we also clone the table here (as switching between instruments can update the ref)
+                this.wfRenderer.setTable( [ ...InstrumentFactory.getTableForOscillator( this.oscillator ) ]);
             }
         },
         // on audio output, render the current instruments audio

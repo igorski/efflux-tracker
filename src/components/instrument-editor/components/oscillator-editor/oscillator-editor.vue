@@ -173,11 +173,11 @@ export default {
         WaveformDisplay,
     },
     props: {
-        oscillatorIndex: {
+        instrumentIndex: {
             type: Number,
             required: true,
         },
-        instrumentIndex: {
+        oscillatorIndex: {
             type: Number,
             required: true,
         },
@@ -300,7 +300,6 @@ export default {
 
             const applyUpdate = (): void => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
-                console.info(prop, component._isDestroyed,oscillator.enabled);
                
                 if ( TUNING_PROPERTIES.includes( prop )) {
                     AudioService.updateOscillator( "tuning", instrumentIndex, oscillatorIndex, oscillator );

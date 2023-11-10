@@ -195,7 +195,9 @@ export default {
         cursor: pointer;
         content: "---";
         height: 24px;
-        width: 48px; // see NOTE_WIDTH
+        // see NOTE_WIDTH, this min & max looks weird (why not use width: 48px?) but necessary due to table-cell rendering
+        min-width: 48px;
+        max-width: 48px;
         box-sizing: border-box;
         border: 1px solid $color-pattern-odd;
         border-top-color: #000;

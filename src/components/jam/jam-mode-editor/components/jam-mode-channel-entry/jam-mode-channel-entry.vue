@@ -129,7 +129,6 @@ export default {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         handlePatternClick( index: number ): void {
-            console.info(this.instrumentIndex + " clicked on:" + index);
             this.setJamPattern({ instrumentIndex: this.instrumentIndex, patternIndex: index });
             this.invalidateChannelCache({ song: this.activeSong });
         },
