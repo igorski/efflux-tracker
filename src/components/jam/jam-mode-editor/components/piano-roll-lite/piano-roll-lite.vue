@@ -41,7 +41,7 @@
             :style="sequencerPositionStyle"
         ></div>
         <button
-            :title="'editPattern'"
+            :title="$t('editPattern')"
             type="button"
             class="piano-roll-lite__edit-button"
             @click.stop="openPianoRoll()"

@@ -203,8 +203,7 @@ the _.spec_-suffix, e.g. _functions.js_ will have a test file _functions.spec.js
 
 ## Roadmap
 
-Efflux is considered complete, but incrementally rises in major/minor versions by adding new features every now and then. 
+Efflux is considered complete, but you can expect incremental major/minor version bumps as new features are added every now and then. 
 
-Another consideration for the codebase is migrating from Vue 2 to Vue 3 (to facilitate this, first the Vuex
-modules must be migrated to Pinia). For the time being the focus is on new features rather than this migration as
-the end user doesn't care about these things, yo.
+A consideration for the codebase is migrating from Vue 2 to Vue 3 (to facilitate this, first the Vuex
+modules must be migrated to Pinia). For the time being the focus is on developing new features rather than on this migration as the end user doesn't care about these things, yo.

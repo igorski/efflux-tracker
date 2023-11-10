@@ -26,7 +26,6 @@
             v-for="channel in channelEntries"
             :key="`ch_${channel.index}`"
             :channel="channel"
-            :mode="0"
         />
     </section>
 </template>

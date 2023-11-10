@@ -43,7 +43,7 @@
             >
                 <span class="title">{{ $t( "titleByAuthor", { title: song.meta.title, author: song.meta.author }) }}</span>
                 <!-- <span class="date">{{ getSongDate(song) }}</span> -->
-                <span class="type">{{  song.type }}</span>
+                <span class="type">{{ song.type }}</span>
                 <span class="size">{{ song.size }}</span>
                 <button
                     type="button"

@@ -41,7 +41,6 @@
             class="waveform-display"
         />
         <piano-roll-lite
-            v-if="showPianoRoll"
             class="piano-roll-display"
             :channel="channel"
             :pattern-index="playingPatternIndex"
@@ -62,7 +61,7 @@
             </div>
         </div>
         <button
-            :title="'editInstrument'"
+            :title="$t('editInstrument')"
             type="button"
             class="jam-mode-channel-entry__button"
             @click.stop="openInstrumentEditor()"
@@ -77,13 +76,7 @@ import ModalWindows from "@/definitions/modal-windows";
 import { type Instrument } from "@/model/types/instrument";
 import PianoRollLite from "../piano-roll-lite/piano-roll-lite.vue";
 import { getInstrumentName } from "@/utils/string-util";
-
 import messages from "./messages.json";
-
-enum JamChannelEntryMode {
-    PIANO_ROLL = 0,
-    WAVEFORM,
-}
 
 export default {
     i18n: { messages },
@@ -95,10 +88,6 @@ export default {
         channel: {
             type: Object, /* type JamChannel */
             required: true,
-        },
-        mode: {
-            type: Number, /* type JamChannelEntryMode */
-            default: JamChannelEntryMode.WAVEFORM,
         },
     },
     computed: {
@@ -126,9 +115,6 @@ export default {
         },
         isSelected(): boolean {
             return this.selectedInstrument === this.instrumentIndex;
-        },
-        showPianoRoll(): boolean {
-            return this.mode === JamChannelEntryMode.PIANO_ROLL;
         },
     },
     methods: {

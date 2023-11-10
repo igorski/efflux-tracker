@@ -39,10 +39,12 @@ export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 40
     const amp  = height / 2;
 
     for ( let i = 0; i < width; ++i ) {
+        const index = i * step;
         let min = 1.0;
         let max = -1.0;
+        
         for ( let j = 0; j < step; ++j ) {
-            const value = data[( i * step ) + j ];
+            const value = data[ index + j ];
             if ( value < min ) {
                 min = value;
             } else if ( value > max ) {

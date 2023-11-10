@@ -25,14 +25,32 @@ describe( "Vuex settings module", () => {
     });
 
     describe( "getters", () => {
-        it( "should by default display the help section", () => {
-            const state = createSettingsState();
-            expect( getters.displayHelp( state )).toBe( true );
-        });
+        const rootGetters = {
+            activeSong: {
+                type: EffluxSongType.TRACKER,
+            } as Partial<EffluxSong>,
+        };
 
-        it( "should return the saved value for displaying the help section", () => {
-            const state = createSettingsState({ _settings: { [ PROPERTIES.DISPLAY_HELP ]: false } });
-            expect( getters.displayHelp( state )).toBe( false );
+        describe( "when querying whether the help section should be displayed", () => {
+            it( "should by default display the help section", () => {
+                const state = createSettingsState();
+                expect( getters.displayHelp( state, rootGetters )).toBe( true );
+            });
+
+            it( "should return the saved value for displaying the help section", () => {
+                const state = createSettingsState({ _settings: { [ PROPERTIES.DISPLAY_HELP ]: false } });
+                expect( getters.displayHelp( state, rootGetters )).toBe( false );
+            });
+
+            it( "should return false, regardless of the saved value when the active song is of the JAM type", () => {
+                const rootGetters = {
+                    activeSong: {
+                        type: EffluxSongType.JAM,
+                    } as Partial<EffluxSong>,
+                };
+                const state = createSettingsState({ _settings: { [ PROPERTIES.DISPLAY_HELP ]: true } });
+                expect( getters.displayHelp( state, rootGetters )).toBe( false );
+            });
         });
 
         it( "should by default display the welcome screen", () => {
@@ -65,13 +83,8 @@ describe( "Vuex settings module", () => {
             expect( getters.paramFormat( state )).toBe( "pct" );
         });
 
-        describe( "and retrieving whether orders can be used", () => {
+        describe( "when querying whether orders can be used", () => {
             it( "should return the saved value", () => {
-                const rootGetters = {
-                    activeSong: {
-                        type: EffluxSongType.TRACKER,
-                    } as Partial<EffluxSong>,
-                };
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: true } });
                 expect( getters.useOrders( state, rootGetters )).toBe( true );
             });

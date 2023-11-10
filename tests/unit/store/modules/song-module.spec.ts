@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
+import Config from "@/config";
 import songModule, { createSongState } from "@/store/modules/song-module";
 import type { SongState } from "@/store/modules/song-module";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory, { FACTORY_VERSION } from "@/model/factories/song-factory";
-import type { Sample } from "@/model/types/sample";
-import type { EffluxSong, EffluxSongMeta } from "@/model/types/song";
+import { type EffluxSong, type EffluxSongMeta, EffluxSongType } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
 import { createSample } from "../../mocks";
 
@@ -53,6 +53,13 @@ describe( "Vuex song module", () => {
         it( "should be able to retrieve the active song", () => {
             const state = createSongState({ activeSong: createSong() });
             expect( getters.activeSong( state )).toEqual( state.activeSong );
+        });
+
+        it( "should consider jam mode active when the active song is of the JAM type", () => {
+            const state = createSongState({ activeSong: createSong() });
+            expect( getters.jamMode( state )).toEqual( false );
+            state.activeSong.type = EffluxSongType.JAM;
+            expect( getters.jamMode( state )).toEqual( true );
         });
 
         it( "should be able to retrieve all registered samples within the active song", () => {
@@ -186,18 +193,29 @@ describe( "Vuex song module", () => {
             expect( dispatch ).toHaveBeenNthCalledWith( 1, "cacheSongSamples", song.samples );
         });
 
-        it( "should be able to create songs", async () => {
-            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
-            const song = await actions.createSong();
-
-            expect( SongValidator.isValid( song )).toBe( true );
-
-            for ( let i = 0; i < 16; ++i ) {
+        describe( "when calling the create song action", () => {
+            it( "should be able to create songs with unique identifiers", async () => {
                 // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
-                const compare = await actions.createSong();
-                // songs should have unique identifiers
-                expect( song.id ).not.toEqual( compare.id );
-            }
+                const song = await actions.createSong();
+
+                expect( SongValidator.isValid( song )).toBe( true );
+                expect( song.patterns ).toHaveLength( 1 );
+                expect( song.order ).toHaveLength( 1 );
+
+                for ( let i = 0; i < 16; ++i ) {
+                    // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                    const compare = await actions.createSong();
+                    // songs should have unique identifiers
+                    expect( song.id ).not.toEqual( compare.id );
+                }
+            });
+
+            it( "should automatically create a preset pattern and order list for JAM-type songs", async () => {
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                const song = await actions.createSong({}, EffluxSongType.JAM );
+                expect( song.patterns ).toHaveLength( Config.JAM_MODE_PATTERN_AMOUNT );
+                expect( song.order ).toHaveLength( Config.JAM_MODE_PATTERN_AMOUNT );
+            });
         });
 
         describe( "when saving songs into local storage", () => {
@@ -224,7 +242,8 @@ describe( "Vuex song module", () => {
                 // expected songs meta to have been saved into the song list
                 expect( state.songs ).toEqual([{
                     id: song.id,
-                    meta: song.meta
+                    meta: song.meta,
+                    type: song.type,
                 }]);
                 expect( commit ).toHaveBeenNthCalledWith( 1, "setStatesOnSave", mockedGetters.totalSaved );
                 expect( commit ).toHaveBeenNthCalledWith( 3, "showNotification", { message: undefined });

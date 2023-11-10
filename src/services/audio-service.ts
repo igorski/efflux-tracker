@@ -339,9 +339,9 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                 gliding: false
             });
 
-            // start playback and attach listener to playback end
-            // (we do it directly instead of in the noteOff-handler as very short non-looped AudioBufferSources
-            // can finish their playback before the sequencer requests the noteOff)
+            // start playback and attach listener to track playback end
+            // (we attach the listener directly instead of inside the noteOff-handler as very short, non-looped
+            // AudioBufferSources can finish their playback before the sequencer can request the noteOff)
 
             startOscillation( generatorNode, startTimeInSeconds );
             returnVoiceNodesToPoolOnPlaybackEnd( modules, oscillatorIndex, voices[ oscillatorIndex ], instrument.index, event.id );
