@@ -154,6 +154,30 @@ describe( "Event move action", () => {
                 NOTE_OFF_EVENT, null, event2, event1, null, NOTE_OFF_EVENT, null, event4
             ]);
         });
+
+        it( "should maintain its length and cut the length of any existing overlapping notes when moving back", () => {
+            const oldStep = pattern.channels[ channelIndex ].indexOf( event3 );
+            const newStep = oldStep - 1;
+    
+            MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+            expect( pattern.channels[ channelIndex ]).toEqual([
+                event1, null, event2, event3, null, null, NOTE_OFF_EVENT, event4
+            ]);
+        });
+
+        it( "should maintain its length and cut the length of any existing overlapping notes when moving forward", () => {
+            const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
+            const newStep = pattern.channels[ channelIndex ].indexOf( event3 ) + 2;
+    
+            MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+            expect( pattern.channels[ channelIndex ]).toEqual([
+                event1, null, NOTE_OFF_EVENT, null, event3, null, event2, null
+            ]);
+        });
     });
 
     it( "should restore the original pattern on undo", () => {
