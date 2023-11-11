@@ -24,47 +24,68 @@ import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
-import EventUtil from "@/utils/event-util";
-
-type IUpdateHandler = ( advanceStep?: boolean ) => void;
+import { getNextEvent } from "@/utils/event-util";
+import { clone } from "@/utils/object-util";
+import { createNoteOffEvent, insertEvent } from "./event-actions";
 
 export default function( store: Store<EffluxState>,
-    { patternIndex, channelIndex, oldStep, newStep, optProps } :
-    { patternIndex: number, channelIndex: number, oldStep: number, newStep: number, optProps: Partial<EffluxAudioEvent>}): IUndoRedoState
+    patternIndex: number, channelIndex: number,
+    oldStep: number, newStep: number,
+    optProps: Partial<EffluxAudioEvent> = {}): IUndoRedoState
 {
-    const { state } = store;
-    const song = state.song.activeSong;
+    const song = store.state.song.activeSong;
 
-    const orgEvent = song.patterns[ patternIndex ].channels[ channelIndex ][ oldStep ];
-    const existing = song.patterns[ patternIndex ].channels[ channelIndex ][ newStep ];
+    if ( song.type !== EffluxSongType.JAM ) {
+        // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
+        if ( import.meta.env.MODE !== "production" ) {
+            console.error( "Event move was created for JAM mode exclusively" );
+        }
+        return;
+    }
+
+    const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+    const orgContent = clone( channel );
+    const lastAvailableSlot = channel.length - 1;
+    
+    const orgEvent = channel[ oldStep ];
     const newEvent = { ...orgEvent, ...optProps };
 
+    const nextEvent = getNextEvent( song, orgEvent, channelIndex, patternIndex );
+    let eventLength = 1; // length in pattern steps
+
+    if ( nextEvent ) {
+        const nextEventStep = channel.indexOf( nextEvent.event );
+        eventLength = nextEventStep - oldStep;
+    }
+
+    const eventEnd = ( newStep + eventLength ) - 1; // last step index of the events new range
+    const nextIndex = eventEnd + 1; // index of the first event following the moved event
+
     function act(): void {
-        const pattern = song.patterns[ patternIndex ];
+        insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, oldStep );
+        insertEvent( newEvent, song, patternIndex, channelIndex, newStep );
 
-        EventUtil.clearEvent( song, patternIndex, channelIndex, oldStep );
-        EventUtil.setPosition( newEvent, pattern, newStep, song.meta.tempo );
+        if ( eventLength > 1 ) {
+            for ( let i = newStep + 1; i <= eventEnd; ++i ) {
+                Vue.set( channel, i, null );
+            }
+        }
 
-        Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], newStep, newEvent );
+        // when event (after repositioning) is not directly followed by another, we add a
+        // note off event so we maintain the original event duration
+        if ( nextIndex < lastAvailableSlot && !channel[ nextIndex ] ) {
+            insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
+        }
         store.commit( "invalidateChannelCache", { song });
     }
     act(); // perform action
 
     return {
         undo(): void {
-            const pattern = song.patterns[ patternIndex ];
-
-            EventUtil.clearEvent( song, patternIndex, channelIndex, newStep );
-
-            EventUtil.setPosition( orgEvent, pattern, oldStep, song.meta.tempo );
-            Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], oldStep, orgEvent );
-
-            // in case an event existed at the target position, restore it
-            if ( existing ) {
-                EventUtil.setPosition( existing, pattern, newStep, song.meta.tempo );
-                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], newStep, existing );
-            }
+            // clone() is necessary to avoid conflicts when stepping the history state back and forth
+            Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
             store.commit( "invalidateChannelCache", { song });
         },
         redo: act

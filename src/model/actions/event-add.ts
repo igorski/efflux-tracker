@@ -25,6 +25,7 @@ import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
 
@@ -37,7 +38,8 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
     optEventData: any, updateHandler: IUpdateHandler ): IUndoRedoState {
 
     const { state } = store;
-    const song = state.song.activeSong;
+    const song  = state.song.activeSong;
+    const isJam = song.type === EffluxSongType.JAM;
 
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
@@ -49,7 +51,6 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
     // currently active instrument and pattern (e.g. visible on screen)
 
     let advanceStepOnAddition = true;
-    let short = false;
 
     // if options Object was given, use those values instead of current sequencer values
 
@@ -57,8 +58,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         patternIndex = ( typeof optEventData.patternIndex === "number" ) ? optEventData.patternIndex : patternIndex;
         channelIndex = ( typeof optEventData.channelIndex === "number" ) ? optEventData.channelIndex : channelIndex;
         step         = ( typeof optEventData.step         === "number" ) ? optEventData.step         : step;
-        short        = ( typeof optEventData.short        === "boolean" ) ? optEventData.short       : false;
-
+    
         if ( typeof optEventData.advanceOnAddition === "boolean" ) {
             advanceStepOnAddition = optEventData.advanceOnAddition;
         }
@@ -66,7 +66,10 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
     // if there is an existing event, cache it for undo-purpose (see add())
     let existingEvent: EffluxAudioEvent;
     let existingEventMp: EffluxAudioEventModuleParams;
-    const hasNext = !!song.patterns[ patternIndex ].channels[ channelIndex ][ step + 1 ];
+
+    // if the event should be short (single step) in duration (e.g. in jam mode), ensure its followed by another
+    // event otherwise we add a note off instruction to kill its playback on the next step
+    const addNoteOff = isJam && !song.patterns[ patternIndex ].channels[ channelIndex ][ step + 1 ];
 
     function act(): void {
         const pattern = song.patterns[ patternIndex ],
@@ -87,11 +90,11 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
         Vue.set( channel, step, event );
-        if ( !hasNext ) {
+        if ( addNoteOff ) {
             Vue.set( channel, step + 1, EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF ));
         }
         store.commit( "invalidateChannelCache", { song });
-
+     
         if ( optEventData?.newEvent === true ) {
 
             // new events by default take the instrument of the previously declared note in
@@ -132,7 +135,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
                 Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
                 store.commit( "invalidateChannelCache", { song });
             }
-            if ( !hasNext ) {
+            if ( addNoteOff ) {
                 Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step + 1, 0 );
             }
             updateHandler();

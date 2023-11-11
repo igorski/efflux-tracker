@@ -230,13 +230,13 @@ export default {
             });
         },
         handleNoteMove( row: PianoRollRow, { payload, newStep } : { payload: SerializedRowEvent, newStep: number }): void {
-            this.saveState( moveEvent( this.$store, {
-                patternIndex: this.activePatternIndex,
-                channelIndex: this.selectedInstrument,
-                oldStep: payload.step,
+            this.saveState( moveEvent( this.$store,
+                this.activePatternIndex,
+                this.selectedInstrument,
+                payload.step,
                 newStep,
-                optProps: { note: row.note, octave: row.octave }
-            }));
+                { note: row.note, octave: row.octave }
+            ));
         },
         handleNoteDelete( row: PianoRollRow, event: PianoRollEvent ): void {
             const { activePatternIndex, selectedInstrument } = this;
