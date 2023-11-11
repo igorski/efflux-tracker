@@ -28,13 +28,13 @@
                 <button
                     type="button"
                     :title="$t('previousPattern')"
-                    :disabled="playingPatternIndex === 0"
+                    :disabled="activePatternIndex === 0"
                     @click="gotoPreviousPattern()"
                 >&lt;</button>
                 <button
                     type="button"
                     :title="$t('nextPattern')"
-                    :disabled="playingPatternIndex === maxPatternIndex"
+                    :disabled="activePatternIndex === maxPatternIndex"
                     @click="gotoNextPattern()"
                 >></button>
                 <button
@@ -129,17 +129,17 @@ export default {
         ...mapGetters([
             "activeSong",
         ]),
-        playingPatternIndex(): number {
-            return this.jam[ this.selectedInstrument ].playingPatternIndex;
+        activePatternIndex(): number {
+            return this.jam[ this.selectedInstrument ].activePatternIndex;
         },
         instrument(): Instrument {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
         title(): string {
-            return `${getInstrumentName( this.instrument )} - ${this.playingPatternIndex + 1}`;
+            return `${getInstrumentName( this.instrument )} - ${this.activePatternIndex + 1}`;
         },
         pattern(): Pattern {
-            return this.activeSong.patterns[ this.playingPatternIndex ];
+            return this.activeSong.patterns[ this.activePatternIndex ];
         },
         patternEvents(): EffluxAudioEvent[] {
             return this.pattern.channels[ this.selectedInstrument ];
@@ -183,20 +183,20 @@ export default {
     methods: {
         ...mapMutations([
             "addEventAtPosition",
-            "setJamPattern",
+            "setJamChannelPosition",
             "saveState",
         ]),
         gotoPreviousPattern(): void {
-            this.setJamPattern({ instrumentIndex: this.selectedInstrument, patternIndex: this.playingPatternIndex - 1 });
+            this.setJamChannelPosition({ instrumentIndex: this.selectedInstrument, patternIndex: this.activePatternIndex - 1 });
         },
         gotoNextPattern(): void {
-            this.setJamPattern({ instrumentIndex: this.selectedInstrument, patternIndex: this.playingPatternIndex + 1 });
+            this.setJamChannelPosition({ instrumentIndex: this.selectedInstrument, patternIndex: this.activePatternIndex + 1 });
         },
         handlePatternCopy(): void {
             this.patternCopy = clone( this.pattern.channels[ this.selectedInstrument ] );
         },
         handlePatternPaste(): void {
-            const { selectedInstrument, playingPatternIndex, $store } = this;
+            const { selectedInstrument, activePatternIndex, $store } = this;
             const song = this.activeSong;
             
             const orgPattern = clone( this.pattern );
@@ -205,14 +205,14 @@ export default {
             newPattern.channels[ selectedInstrument ] = this.patternCopy;
 
             const act = (): void => {
-                $store.commit( "replacePattern", { patternIndex: playingPatternIndex, pattern: newPattern });
+                $store.commit( "replacePattern", { patternIndex: activePatternIndex, pattern: newPattern });
                 $store.commit( "invalidateChannelCache", { song });
             };
             act();
 
             this.saveState({
                 undo(): void {
-                    $store.commit( "replacePattern", { patternIndex: playingPatternIndex, pattern: orgPattern });
+                    $store.commit( "replacePattern", { patternIndex: activePatternIndex, pattern: orgPattern });
                     $store.commit( "invalidateChannelCache", { song });
                 },
                 redo: act
@@ -223,16 +223,15 @@ export default {
                 event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
                 store : this.$store,
                 optData: {
-                    patternIndex : this.playingPatternIndex,
+                    patternIndex : this.activePatternIndex,
                     channelIndex : this.selectedInstrument,
-                    short: true,
                     step,
                 }
             });
         },
         handleNoteMove( row: PianoRollRow, { payload, newStep } : { payload: SerializedRowEvent, newStep: number }): void {
             this.saveState( moveEvent( this.$store, {
-                patternIndex: this.playingPatternIndex,
+                patternIndex: this.activePatternIndex,
                 channelIndex: this.selectedInstrument,
                 oldStep: payload.step,
                 newStep,
@@ -240,15 +239,15 @@ export default {
             }));
         },
         handleNoteDelete( row: PianoRollRow, event: PianoRollEvent ): void {
-            const { playingPatternIndex, selectedInstrument } = this;
+            const { activePatternIndex, selectedInstrument } = this;
             const act = (): void => {
-                const pattern = this.activeSong.patterns[ playingPatternIndex ];
+                const pattern = this.activeSong.patterns[ activePatternIndex ];
                 this.$set( pattern.channels[ selectedInstrument ], event.step, EventFactory.create( selectedInstrument, "", 0, ACTION_NOTE_OFF ));
             };
             act();
             this.saveState({
                 undo: (): void => {
-                    const pattern = this.activeSong.patterns[ playingPatternIndex ];
+                    const pattern = this.activeSong.patterns[ activePatternIndex ];
                     EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.tempo );
                     this.$set( pattern.channels[ selectedInstrument ], event.step, event.event );
                 },
@@ -256,8 +255,8 @@ export default {
             });
         },
         handleNoteResize( row: PianoRollRow, { payload, newLength } : { payload: SerializedRowEvent, newLength: number }): void {
-            const { playingPatternIndex, selectedInstrument } = this;
-            this.saveState( resizeEvent( this.$store, playingPatternIndex, selectedInstrument, payload.step, newLength ));
+            const { activePatternIndex, selectedInstrument } = this;
+            this.saveState( resizeEvent( this.$store, activePatternIndex, selectedInstrument, payload.step, newLength ));
         },
     },
 };

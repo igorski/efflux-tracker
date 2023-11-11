@@ -274,7 +274,7 @@ const InstrumentFactory =
      * @return {Array<number>}
      */
     getTableForOscillator( oscillator: InstrumentOscillator, size = Config.WAVE_TABLE_SIZE ): number[] | number {
-        if ( !oscillator.table || size !== oscillator.table.length ) {
+        if ( !oscillator.table || size !== ( oscillator.table as number[] ).length ) {
             oscillator.table = new Array( size );
             oscillator.table.fill( 0 );
         }

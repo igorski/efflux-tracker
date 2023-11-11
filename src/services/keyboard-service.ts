@@ -241,7 +241,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
                     const maxPattern = activeSong.patterns.length - 1;
                     for ( let i = 0, l = activeSong.patterns[ 0 ].channels.length; i < l; ++i ) {
                         const patternIndex = Math.min( maxPattern, store.state.sequencer.jam[ i ].nextPatternIndex + 1 );
-                        store.commit( "setJamPattern", { instrumentIndex: i, patternIndex });
+                        store.commit( "setJamChannelPosition", { instrumentIndex: i, patternIndex });
                     }
                     break;
                 }
@@ -288,7 +288,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
                     const maxPattern = activeSong.patterns.length - 1;
                     for ( let i = 0, l = activeSong.patterns[ 0 ].channels.length; i < l; ++i ) {
                         const patternIndex = Math.max( 0, store.state.sequencer.jam[ i ].nextPatternIndex - 1 );
-                        store.commit( "setJamPattern", { instrumentIndex: i, patternIndex });
+                        store.commit( "setJamChannelPosition", { instrumentIndex: i, patternIndex });
                     }
                     break;
                 }

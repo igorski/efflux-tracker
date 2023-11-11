@@ -3,6 +3,7 @@ import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import { ACTION_NOTE_ON, type EffluxAudioEvent } from "@/model/types/audio-event";
+import { EffluxSongType } from "@/model/types/song";
 import RootStore from "@/store";
 import SequencerModule, { createSequencerState, type SequencerState } from "@/store/modules/sequencer-module";
 import EventUtil from "@/utils/event-util";
@@ -289,6 +290,28 @@ describe( "Vuex sequencer module", () => {
             expect( state.currentStep ).toEqual( 4 );
         });
 
+        describe( "when setting a specific jam pattern index", () => {
+            it( "should directly set the provided pattern index as active when the sequencer isn't playing", () => {
+                const state = createSequencerState({ playing: false });
+                for ( let i = 0; i < state.jam.length; ++i ) {
+                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
+                }
+                mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
+
+                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 2, nextPatternIndex: 2 });
+            });
+
+            it( "should enqueue the provided pattern index when the sequencer is playing", () => {
+                const state = createSequencerState({ playing: true });
+                for ( let i = 0; i < state.jam.length; ++i ) {
+                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
+                }
+                mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
+
+                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 0, nextPatternIndex: 2 });
+            });
+        });
+
         describe( "when setting the sequencer position", () => {
             beforeEach(() => {
                 state = createSequencerState({ activeOrderIndex: 2, currentStep: 6 });
@@ -418,6 +441,29 @@ describe( "Vuex sequencer module", () => {
 
                 expect( state.channels ).toEqual( activeSong.patterns[ state.activePatternIndex ].channels );
             });
+
+            describe( "and the current song is of the JAM type", () => {
+                beforeEach(() => {
+                    activeSong.type = EffluxSongType.JAM;
+                    state.jam = [
+                        { activePatternIndex: 0, nextPatternIndex: 0 },
+                        { activePatternIndex: 1, nextPatternIndex: 1 },
+                    ];
+                });
+
+                afterEach(() => {
+                    activeSong.type = EffluxSongType.TRACKER;
+                });
+
+                it( "should combine all channel pattern into a single channel list", () => {
+                    mutations.invalidateChannelCache( state, { song: activeSong });
+
+                    expect( state.channels ).toEqual([
+                        activeSong.patterns[ 0 ].channels[ 0 ],
+                        activeSong.patterns[ 1 ].channels[ 1 ]  
+                    ]);
+                });
+            });
         });
     });
 
@@ -452,7 +498,7 @@ describe( "Vuex sequencer module", () => {
                 }
             } };
             rootStore.state.sequencer = state;
-            rootStore.state.song = { activeSong };
+            rootStore.state.song = { activeSong: { ...activeSong, type: EffluxSongType.TRACKER } };
 
             event1 = createEvent( "C", 7, patternIndex, 0 );
             event2 = createEvent( "D", 1, patternIndex, 1 );
@@ -597,6 +643,66 @@ describe( "Vuex sequencer module", () => {
                 mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
     
                 expect( commit ).toHaveBeenCalledWith( "setPlaying", false );
+            });
+
+            describe( "and the current song is of the JAM type", () => {
+                beforeEach(() => {
+                    rootStore.state.song.activeSong.type = EffluxSongType.JAM;
+                    state.jam = [
+                        { activePatternIndex: 0, nextPatternIndex: 1 },
+                        { activePatternIndex: 1, nextPatternIndex: 1 },
+                        { activePatternIndex: 1, nextPatternIndex: 2 },
+                    ];
+                    state.stepPrecision = 1; // just so a single collect-step advances pattern
+                });
+
+                it( "should set the active pattern indices to the next pattern indices when there were queued pattern switches", () => {
+                    mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
+
+                    expect( state.jam ).toEqual([
+                        { activePatternIndex: 1, nextPatternIndex: 1 },
+                        { activePatternIndex: 1, nextPatternIndex: 1 },
+                        { activePatternIndex: 2, nextPatternIndex: 2 },
+                    ]);
+                });
+
+                it( "should cache the individual pattern channels", () => {
+                    mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
+
+                    expect( state.channels ).toEqual([
+                        activeSong.patterns[ 1 ].channels[ 0 ],
+                        activeSong.patterns[ 1 ].channels[ 1 ],
+                        activeSong.patterns[ 2 ].channels[ 2 ],
+                    ]);
+                });
+
+                it( "should halt playback of notes when moving to a channel without events", async () => {
+                    // first run the sequencer to enqueue an event
+                    state.stepPrecision = 64;
+                    expect( state.channelQueue[ 1 ]).toHaveLength( 0 );
+                    mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
+                    
+                    // ensure channel 1 has had an event enqueued
+                    expect( state.channelQueue[ 1 ]).toHaveLength( 1 );
+                    const playingEvent = state.channelQueue[ 1 ].head.data;
+                 
+                    // adjust the sequencer properties so next collect phase marks the end of the current measure
+                    state.nextNoteTime  = 0;
+                    state.stepPrecision = 1;
+
+                    activeSong.patterns[ 1 ].channels[ 1 ].fill( 0 ); // remove events
+                    
+                    mockCreateTimer.mockImplementationOnce(( ctx, time, cb ) => {
+                        setTimeout( cb, time ); // resolves to call noteOff
+                        return { disconnect: vi.fn() } as unknown as OscillatorNode
+                    });
+
+                    mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
+                    await vi.runAllTimersAsync();
+
+                    expect( state.channelQueue[ 1 ]).toHaveLength( 0 );
+                    expect( mockAudioServiceNoteOff ).toHaveBeenCalledWith( playingEvent );
+                });
             });
         });
     })

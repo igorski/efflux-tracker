@@ -53,7 +53,7 @@ export interface SequencerState {
     nextNoteTime: number;
     channels?: EffluxChannel[];
     // only used when song is of EffluxSongType.JAM
-    jam: { playingPatternIndex: number, nextPatternIndex: number }[];
+    jam: { activePatternIndex: number, nextPatternIndex: number }[];
 };
 
 export const createSequencerState = ( props?: Partial<SequencerState> ): SequencerState => ({
@@ -262,7 +262,6 @@ function step( store: Store<EffluxState> ): void {
     state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
 
     // advance the beat number, wrap to zero when start of next bar is enqueued
-
     const currentStep = state.currentStep + 1;
     if ( currentStep === state.stepPrecision ) {
         store.commit( "setCurrentStep", 0 );
@@ -270,14 +269,13 @@ function step( store: Store<EffluxState> ): void {
         if ( activeSong.type === EffluxSongType.JAM ) {
             let sync = false;
             for ( const channel of state.jam ) {
-                if ( channel.playingPatternIndex !== channel.nextPatternIndex ) {
-                    channel.playingPatternIndex = channel.nextPatternIndex;
+                if ( channel.activePatternIndex !== channel.nextPatternIndex ) {
+                    channel.activePatternIndex = channel.nextPatternIndex;
                     sync = true;
                 }
             }
             if ( sync ) {
                 cacheActivePatternChannels( state, activeSong );
-                console.info('synced pattern indices');
                 for ( let i = 0, l = state.channels.length; i < l; ++i ) {
                     if ( state.channels[ i ].filter( Boolean ).length === 0 ) {
                         haltPlaybackForChannel( state, i ); // halt playback of existing notes in channel when new pattern is empty
@@ -343,19 +341,17 @@ function cacheActivePatternChannels( state: SequencerState, activeSong: EffluxSo
     if ( isJam ) {
         const channels: EffluxChannel[] = [];
         for ( let channelIndex = 0, cl = state.jam.length; channelIndex < cl; ++channelIndex ) {
-            const { playingPatternIndex } = state.jam[ channelIndex ];
-            channels.push( activeSong.patterns[ playingPatternIndex ].channels[ channelIndex ]);
+            const { activePatternIndex } = state.jam[ channelIndex ];
+            channels.push( activeSong.patterns[ activePatternIndex ].channels[ channelIndex ]);
         }
         state.channels = channels;
-
-        console.info("-- caching them channels", channels)
     } else {
         state.channels = activeSong.patterns[ activePatternIndex ].channels;
     }
 
     for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
         // as jams don't use orders, the order and pattern index is always the same
-        const orderIndex = isJam ? state.jam[ channelIndex ].playingPatternIndex : activeOrderIndex;
+        const orderIndex = isJam ? state.jam[ channelIndex ].activePatternIndex : activeOrderIndex;
         for ( const event of state.channels![ channelIndex ] ) {
             if ( event ) {
                 event.seq.length = getEventLength( event, channelIndex, orderIndex, activeSong );
@@ -551,13 +547,13 @@ const SequencerModule: Module<SequencerState, any> = {
                 Vue.set( pattern, "steps", steps );
             });
         },
-        setJamPattern( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
+        setJamChannelPosition( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
             const nextPatternIndex = patternIndex;
-            let { playingPatternIndex } = state.jam[ instrumentIndex ];
+            let { activePatternIndex } = state.jam[ instrumentIndex ];
             if ( !state.playing ) {
-                playingPatternIndex = nextPatternIndex;
+                activePatternIndex = nextPatternIndex;
             }
-            Vue.set( state.jam, instrumentIndex, { playingPatternIndex, nextPatternIndex });
+            Vue.set( state.jam, instrumentIndex, { activePatternIndex, nextPatternIndex });
         },
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
@@ -576,7 +572,7 @@ const SequencerModule: Module<SequencerState, any> = {
         prepareSequencer({ state }: { state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
             return new Promise( resolve => {
                 for ( let i = 0; i < state.jam.length; ++i ) {
-                    state.jam[ i ] = { playingPatternIndex: 0, nextPatternIndex: 0 };
+                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
                 }
 
                 // create LinkedLists to store all currently playing events for all channels

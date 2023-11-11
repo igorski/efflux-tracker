@@ -179,7 +179,6 @@ export default {
         },
     },
     mounted(): void {
-        // @todo track isSampler state (don't forget destroy hooks!)
         this.canvas = new canvas({ width: this.width, height: this.height, fps: 60 });
         this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );

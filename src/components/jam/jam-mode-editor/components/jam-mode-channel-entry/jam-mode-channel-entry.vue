@@ -43,7 +43,7 @@
         <piano-roll-lite
             class="piano-roll-display"
             :channel="channel"
-            :pattern-index="playingPatternIndex"
+            :pattern-index="activePatternIndex"
         />
         <div class="jam-mode-channel-entry__patterns">
             <div
@@ -52,8 +52,8 @@
                 role="button"
                 class="jam-mode-channel-entry__patterns-button"
                 :class="{
-                    'jam-mode-channel-entry__patterns-button--playing': index === playingPatternIndex,
-                    'jam-mode-channel-entry__patterns-button--queued' : index === nextPatternIndex && nextPatternIndex !== playingPatternIndex
+                    'jam-mode-channel-entry__patterns-button--playing': index === activePatternIndex,
+                    'jam-mode-channel-entry__patterns-button--queued' : index === nextPatternIndex && nextPatternIndex !== activePatternIndex
                 }"
                 @click="handlePatternClick( index )"
             >
@@ -98,8 +98,8 @@ export default {
         ...mapGetters([
             "activeSong",
         ]),
-        playingPatternIndex(): number {
-            return this.jam[ this.instrumentIndex ].playingPatternIndex;
+        activePatternIndex(): number {
+            return this.jam[ this.instrumentIndex ].activePatternIndex;
         },
         nextPatternIndex(): number {
             return this.jam[ this.instrumentIndex ].nextPatternIndex;
@@ -121,7 +121,7 @@ export default {
         ...mapMutations([
             "openModal",
             "invalidateChannelCache",
-            "setJamPattern",
+            "setJamChannelPosition",
             "setSelectedInstrument",
         ]),
         openInstrumentEditor(): void {
@@ -129,7 +129,7 @@ export default {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         handlePatternClick( index: number ): void {
-            this.setJamPattern({ instrumentIndex: this.instrumentIndex, patternIndex: index });
+            this.setJamChannelPosition({ instrumentIndex: this.instrumentIndex, patternIndex: index });
             this.invalidateChannelCache({ song: this.activeSong });
         },
     },
