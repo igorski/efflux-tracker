@@ -177,9 +177,9 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 27: // escape
 
             // close dialog (if existing), else close overlay (if existing)
-            if ( state.dialog ) {
+            if ( state.dialog !== null ) {
                 store.commit( "closeDialog" );
-            } else if ( state.modal ) {
+            } else if ( state.modal !== null ) {
                 store.commit( "closeModal" );
             }
             break;

@@ -280,11 +280,9 @@ export default {
             "unsetLoading",
         ]),
         ...mapActions([
-            "createSong",
             "exportSong",
             "exportSongForShare",
             "saveSong",
-            "openSong",
         ]),
         handleMouseOver(): void {
             this.setHelpTopic("menu");
@@ -342,7 +340,7 @@ export default {
                 type: "confirm",
                 message: this.$t("warningSongReset"),
                 confirm: () => {
-                    this.createSong().then( song => this.openSong( song ));
+                    this.openModal( ModalWindows.SONG_CREATION_WINDOW );
                 },
             });
         },
