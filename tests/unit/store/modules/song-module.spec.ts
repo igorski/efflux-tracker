@@ -190,6 +190,7 @@ describe( "Vuex song module", () => {
             expect( commit ).toHaveBeenNthCalledWith( 2, "setActiveSong", song );
             expect( commit ).toHaveBeenNthCalledWith( 3, "setSamples", song.samples );
             expect( commit ).toHaveBeenNthCalledWith( 4, "setStatesOnSave", 0 );
+            expect( commit ).toHaveBeenNthCalledWith( 5, "resetJamChannels" );
             expect( dispatch ).toHaveBeenNthCalledWith( 1, "cacheSongSamples", song.samples );
         });
 

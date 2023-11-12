@@ -101,7 +101,7 @@ describe( "Vuex sequencer module", () => {
     describe( "mutations", () => {
         describe( "when setting the playback state", () => {
             const prepare = async ( state: SequencerState ): Promise<SequencerState> => {
-                await actions.prepareSequencer({ state });
+                await actions.prepareSequencer({ state, commit: vi.fn() });
                 return state;
             }
 
@@ -312,6 +312,19 @@ describe( "Vuex sequencer module", () => {
             });
         });
 
+        it( "should be able to reset the active jam channel positions", () => {
+            const state = createSequencerState();
+            for ( let i = 0; i < state.jam.length; ++i ) {
+                state.jam[ i ] = { activePatternIndex: 3, nextPatternIndex: 2 };
+            }
+
+            mutations.resetJamChannels( state );
+
+            for ( let i = 0; i < state.jam.length; ++i ) {
+                expect( state.jam[ i ] ).toEqual({ activePatternIndex: 0, nextPatternIndex: 0 });
+            }
+        });
+
         describe( "when setting the sequencer position", () => {
             beforeEach(() => {
                 state = createSequencerState({ activeOrderIndex: 2, currentStep: 6 });
@@ -506,7 +519,7 @@ describe( "Vuex sequencer module", () => {
             mockGetEventLength.mockImplementation(() => 1 );
             mutations.setPosition( state, { activeSong, orderIndex });
 
-            await actions.prepareSequencer({ state }, rootStore );
+            await actions.prepareSequencer({ state, commit: vi.fn() }, rootStore );
         });
 
         it( "should step the lookahead range", () => {

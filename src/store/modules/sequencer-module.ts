@@ -20,7 +20,7 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import type { Module, Store } from "vuex";
+import type { Module, Store, Commit } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
 import LinkedList from "@/utils/linked-list";
@@ -555,6 +555,11 @@ const SequencerModule: Module<SequencerState, any> = {
             }
             Vue.set( state.jam, instrumentIndex, { activePatternIndex, nextPatternIndex });
         },
+        resetJamChannels( state: SequencerState ): void {
+            for ( let i = 0; i < state.jam.length; ++i ) {
+                state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
+            }
+        },
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
             Metronome.enabled.value = !!enabled;
@@ -569,11 +574,9 @@ const SequencerModule: Module<SequencerState, any> = {
         setPosition,
     },
     actions: {
-        prepareSequencer({ state }: { state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
+        prepareSequencer({ commit, state }: { commit: Commit, state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
             return new Promise( resolve => {
-                for ( let i = 0; i < state.jam.length; ++i ) {
-                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
-                }
+                commit( "resetJamChannels" );
 
                 // create LinkedLists to store all currently playing events for all channels
 

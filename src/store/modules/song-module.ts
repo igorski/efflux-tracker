@@ -251,6 +251,7 @@ const SongModule: Module<SongState, any> = {
             commit( "setActiveSong", song );
             commit( "setSamples", song.samples );
             commit( "setStatesOnSave", 0 );
+            commit( "resetJamChannels" );
             dispatch( "cacheSongSamples", song.samples );
         },
         saveSongInLS({ state, getters, commit, dispatch } :
