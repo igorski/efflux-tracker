@@ -100,7 +100,8 @@ export default {
     @include editorComponent();
     @include overlay();
     @include noSelect();
-
+    background-image: linear-gradient(to bottom, $color-editor-background 35%, $color-form-background 90%);
+  
     .header {
         display: flex;
         flex-direction: column;
@@ -111,11 +112,11 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-
+        gap: $spacing-large;
+ 
         @include large() {
             position: absolute;
             max-width: 600px;
-            gap: $spacing-large;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
@@ -132,11 +133,17 @@ export default {
     &__song-type {
         cursor: pointer;
         text-align: center;
-        border: 2px solid transparent;
-        border-radius: $spacing-medium;
-        padding: $spacing-medium;
-        box-sizing: border-box;
         width: 290px;
+        border: 2px solid transparent;
+        border-radius: $spacing-large;
+        border-bottom: 6px solid #666;
+        padding: $spacing-large $spacing-medium $spacing-xxsmall;
+        box-sizing: border-box;
+        background-color: $color-editor-background;
+    
+        @include large() {
+            box-shadow: 0 2px $spacing-large rgba(0,0,0,.25);
+        }
 
         &__preview {
             border-radius: $spacing-medium;
@@ -147,10 +154,14 @@ export default {
         &__title {
             @include toolFont();
             color: $color-1;
+            font-size: 150%;
         }
 
         &__descr {
             line-height: 1.75;
+            background-color: $color-form-background;
+            padding: $spacing-medium;
+            border-radius: $spacing-medium
         }
 
         &:hover {

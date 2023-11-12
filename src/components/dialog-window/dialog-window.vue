@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2021 - https://www.igorski.nl
+* Igor Zinken 2016-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -31,22 +31,25 @@
             v-if="!hideActions"
             class="actions"
         >
-            <button v-t="'ok'"
-                    type="button"
-                    @click="handleConfirm()"
+            <button
+                v-t="'ok'"
+                type="button"
+                @click="handleConfirm()"
             ></button>
-            <button v-t="'cancel'"
-                    v-if="type === 'confirm'"
-                    type="button"
-                    @click="handleCancel()"
+            <button
+                v-if="type === 'confirm'"    
+                v-t="'cancel'"
+                type="button"
+                @click="handleCancel()"
             ></button>
         </div>
     </div>
 </template>
 
-<script>
-import { mapMutations } from 'vuex';
-import messages from './messages.json';
+<script lang="ts">
+import { mapMutations } from "vuex";
+import KeyboardService from "@/services/keyboard-service";
+import messages from "./messages.json";
 
 export default {
     i18n: { messages },
@@ -77,25 +80,41 @@ export default {
             default: false,
         },
     },
+    created(): void {
+        KeyboardService.setListener( this.handleKey.bind( this ));
+    },
+    beforeDestroy(): void {
+        KeyboardService.reset();
+    },
     methods: {
         ...mapMutations([
-            'closeDialog',
+            "closeDialog",
         ]),
-        handleConfirm() {
+        handleKey( type: string, keyCode: number/*, event: KeyboardEvent */ ): void {
+            switch ( keyCode ) {
+                default:
+                    break;
+                case 13:
+                    return this.handleConfirm();
+                case 27:
+                    return this.handleCancel();
+            }
+        },
+        handleConfirm(): void {
             if ( typeof this.confirmHandler === "function" )
                 this.confirmHandler();
 
             this.close();
         },
-        handleCancel() {
+        handleCancel(): void {
             if ( typeof this.cancelHandler === "function" ) {
                 this.cancelHandler();
             }
             this.close();
         },
-        close() {
+        close(): void {
             this.closeDialog();
-        }
+        },
     }
 };
 </script>
