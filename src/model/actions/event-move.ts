@@ -23,7 +23,7 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import { getNextEvent } from "@/utils/event-util";
@@ -69,6 +69,12 @@ export default function( store: Store<EffluxState>,
 
         if ( eventLength > 1 ) {
             for ( let i = newStep + 1; i <= eventEnd; ++i ) {
+                const nextStep = i + 1;
+                // in case the new range of the event contains noteOn actions for longer events, we
+                // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
+                if ( nextStep < channel.length && channel[ i ]?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
+                    Vue.set( channel, nextStep, channel[ i ]);
+                }
                 Vue.set( channel, i, null );
             }
         }

@@ -42,7 +42,7 @@ describe( "Event move action", () => {
         store.state.song.activeSong = song;
         
         event1 = EventFactory.create( channelIndex, "C", 3, ACTION_NOTE_ON ); // from 0 - 2
-        event2 = EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF ); // from 2 - 4
+        event2 = EventFactory.create( channelIndex, "D", 3, ACTION_NOTE_ON ); // from 2 - 4
         event3 = EventFactory.create( channelIndex, "F", 3, ACTION_NOTE_ON ); // from 4 - 7
         event4 = EventFactory.create( channelIndex, "G", 3, ACTION_NOTE_ON ); // from 7
 
@@ -113,7 +113,8 @@ describe( "Event move action", () => {
     
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
  
-            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+            // original order was:
+            // [ event1, null, event2, null, event3, null, null, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
                 NOTE_OFF_EVENT, null, event2, null, event3, event1, null, event4
             ]);
@@ -125,7 +126,8 @@ describe( "Event move action", () => {
     
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
  
-            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+            // original order was:
+            // [ event1, null, event2, null, event3, null, null, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
                 NOTE_OFF_EVENT, null, event2, null, event1, null, NOTE_OFF_EVENT, event4
             ]);
@@ -136,46 +138,52 @@ describe( "Event move action", () => {
             const newStep = 6;
     
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
- 
-            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+
+            // original order was:
+            // [ event1, null, event2, null, event3, null, null, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
                 NOTE_OFF_EVENT, null, event2, null, event3, null, event1, null
             ]);
         });
 
-        it( "should maintain its length and erase other events within its new range", () => {
+        it( "should maintain its length and erase any existing overlapping notes with a short duration", () => {
+            // we will shorten the duration of event3 to only last for a single step
+            pattern.channels[ channelIndex ] = [
+                event1, null, event2, null, event3, NOTE_OFF_EVENT, null, event4
+            ];
             const oldStep = pattern.channels[ channelIndex ].indexOf( event1 );
             const newStep = 3;
     
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
-            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
                 NOTE_OFF_EVENT, null, event2, event1, null, NOTE_OFF_EVENT, null, event4
             ]);
         });
 
-        it( "should maintain its length and cut the length of any existing overlapping notes when moving back", () => {
+        it( "should maintain its length and cut the length of any existing overlapping (long duration) notes, when moving back", () => {
             const oldStep = pattern.channels[ channelIndex ].indexOf( event3 );
             const newStep = oldStep - 1;
     
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
-            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+            // original order was:
+            // [ event1, null, event2, null, event3, null, null, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
                 event1, null, event2, event3, null, null, NOTE_OFF_EVENT, event4
             ]);
         });
 
-        it( "should maintain its length and cut the length of any existing overlapping notes when moving forward", () => {
+        it( "should maintain its length and cut the length of any existing overlapping (long duration) notes, when moving forward", () => {
             const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
-            const newStep = pattern.channels[ channelIndex ].indexOf( event3 ) + 2;
+            const newStep = oldStep + 1;
     
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
-            // original order was: [ event1, null, event2, null, event3, null, null, event4 ]
+            // original order was:
+            // [ event1, null, event2, null, event3, null, null, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
-                event1, null, NOTE_OFF_EVENT, null, event3, null, event2, null
+                event1, null, NOTE_OFF_EVENT, event2, null, event3, null, event4
             ]);
         });
     });
