@@ -32,6 +32,24 @@
             <h3 class="jam-channel-editor__header-title">{{ instrumentName }}</h3>
             <div class="jam-channel-editor__header-actions">
                 <button
+                    :title="$t('mute')"
+                    type="button"
+                    class="jam-channel-editor__header-ghost-button"
+                    :class="{
+                        'jam-channel-editor__header-ghost-button--highlight': instrument.muted
+                    }"
+                    @click.stop="toggleMute()"
+                >M</button>
+                <button
+                    :title="$t('solo')"
+                    type="button"
+                    class="jam-channel-editor__header-ghost-button"
+                    :class="{
+                        'jam-channel-editor__header-ghost-button--highlight': instrument.solo
+                    }"
+                    @click.stop="toggleSolo()"
+                >S</button>
+                <button
                     :title="$t( jamProps.locked ? 'unlockPattern' : 'lockPattern')"
                     type="button"
                     class="jam-channel-editor__header-icon-button"
@@ -86,6 +104,9 @@
 import { mapState, mapGetters, mapMutations } from "vuex";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import ModalWindows from "@/definitions/modal-windows";
+import muteChannel from "@/model/actions/channel-mute";
+import soloChannel from "@/model/actions/channel-solo";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import { type Instrument } from "@/model/types/instrument";
 import { type JamChannelSequencerProps } from "@/model/types/jam";
 import PianoRollLite from "../piano-roll-lite/piano-roll-lite.vue";
@@ -143,6 +164,16 @@ export default {
             "setJamChannelPosition",
             "setSelectedInstrument",
         ]),
+        toggleMute(): void {
+            enqueueState( `param_${this.instrumentIndex}_muted`,
+                muteChannel( this.$store, this.instrumentIndex, !this.instrument.muted )
+            );
+        },
+        toggleSolo(): void {
+            enqueueState( `param_${this.instrumentIndex}_solo`,
+                soloChannel( this.$store, this.instrumentIndex, !this.instrument.solo )
+            );
+        },
         togglePatternLock(): void {
             this.setJamChannelLock({ instrumentIndex: this.instrumentIndex, locked: !this.jamProps.locked });
         },
@@ -202,13 +233,25 @@ $button-height: 26px;
         }
 
         &-actions {
-            // ...
+            display: flex;
+            align-items: center;
         }
 
         &-icon-button {
             padding: $spacing-xsmall $spacing-small;
             background: transparent;
             margin-right: 0;
+        }
+
+        &-ghost-button {
+            padding: $spacing-small ( $spacing-small + $spacing-xsmall );
+            margin: 0;
+            background: transparent;
+            border-radius: 50%;
+
+            &--highlight {
+                background-color: $color-4;
+            }
         }
 
         &-button {

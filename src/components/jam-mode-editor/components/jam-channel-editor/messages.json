@@ -2,6 +2,8 @@
     "en-US": {
         "editInstrument": "Edit instrument",
         "lockPattern": "Lock pattern",
-        "unlockPattern": "Unlock pattern"
+        "unlockPattern": "Unlock pattern",
+        "solo": "Solo channel",
+        "mute": "Mute channel"
     }
 }
