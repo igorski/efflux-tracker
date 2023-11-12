@@ -32,8 +32,8 @@
             :class="{
                 'piano-roll-row__column--playing': playingStep === column.index,
             }"
-            @click="handleEmptySlotClick( column.index )"
-            @drop="handleDrop( $event, column.index )"
+            @click="handleEmptySlotClick( column )"
+            @drop="handleDrop( $event, column )"
             @dragover.prevent
             @dragenter.prevent
             :colspan="column.colspan"
@@ -45,14 +45,14 @@
                 role="button"
                 :style="{ width: column.width }"
                 draggable
-                @dblclick.stop="handleNoteDelete( column.index )"
-                @dragstart="handleDragStart( $event, column.index )"
+                @dblclick.stop="handleNoteDelete( column )"
+                @dragstart="handleDragStart( $event, column, false )"
             >
                 <div
                     class="piano-roll-row__column-size-handle"
                     role="button"
                     draggable
-                    @dragstart.stop="handleResizeDragStart( $event, column.index )"
+                    @dragstart.stop="handleDragStart( $event, column, true )"
                 ></div>
             </div>
         </td>
@@ -67,10 +67,18 @@ export type SerializedRowEvent = {
     octave: number;
     step: number;
     length: number;
+    dragStartX: number;
 };
 
-function serializeData( note: string, octave: number, event: PianoRollEvent ): string {
-    return JSON.stringify({ note, octave, step: event.step, length: event.length });
+type FormattedColumn = {
+    event?: PianoRollEvent;
+    index: number;
+    width: string;
+    colspan: number;
+};
+
+function serializeData( dragStartX: number, note: string, octave: number, event: PianoRollEvent ): string {
+    return JSON.stringify({ note, octave, step: event.step, length: event.length, dragStartX });
 }
 
 function deserialiseData( serialized?: string ): SerializedRowEvent | undefined {
@@ -106,13 +114,9 @@ export default {
     },
     data: () => ({
         resizing: false,
-        resizeProps: {
-            index  : 0,
-            startX : 0,
-        },
     }),
     computed: {
-        formattedColumns(): { event?: PianoRollEvent, index: number, width: string, colspan: number }[] {
+        formattedColumns(): FormattedColumn[] {
             const out = [];
             for ( let index = 0; index < this.columns; ) {
                 const event   = this.getEventForIndex( index );
@@ -136,42 +140,36 @@ export default {
         getEventForIndex( index: number ): PianoRollEvent | undefined {
             return this.events.find( event => event.step === index );
         },
-        handleEmptySlotClick( step: number ): void {
-            this.$emit( "note:add", step );
+        handleEmptySlotClick( column: FormattedColumn ): void {
+            this.$emit( "note:add", column.index );
         },
-        handleNoteDelete( index: number ): void {
-            this.$emit( "note:delete", this.getEventForIndex( index ));
+        handleNoteDelete( column: FormattedColumn ): void {
+            this.$emit( "note:delete", this.getEventForIndex( column.index ));
         },
-        handleDragStart( dragEvent: DragEvent, index: number ): void {
+        handleDragStart( dragEvent: DragEvent, column: FormattedColumn, isResize: boolean ): void {
             if ( !dragEvent.dataTransfer ) {
                 return;
             }
-            dragEvent.dataTransfer.dropEffect = "move";
-            dragEvent.dataTransfer.setData( "event", serializeData( this.note, this.octave, this.getEventForIndex( index ) ));
+            if ( !isResize ) {
+                dragEvent.dataTransfer.dropEffect = "move";
+            }
+            dragEvent.dataTransfer.setData( "event",
+                serializeData( dragEvent.clientX, this.note, this.octave, this.getEventForIndex( column.index ))
+            );
+            this.resizing = isResize;
         },
-        handleDrop( dragEvent: DragEvent, newStep: Number ): void {
+        handleDrop( dragEvent: DragEvent, column: FormattedColumn ): void {
             const payload = deserialiseData( dragEvent.dataTransfer?.getData( "event" ));
             if ( payload ) {
+                const delta = dragEvent.clientX - payload.dragStartX;
+                const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
                 if ( this.resizing ) {
-                    const delta  = dragEvent.clientX - this.resizeProps.startX;
-                    const length = payload.length + Math.round( delta / NOTE_WIDTH );
-                    this.$emit( "note:resize", { payload, newLength: Math.max( 1, length ) });
+                    this.$emit( "note:resize", { payload, newLength: Math.max( 1, payload.length + moved ) });
                 } else {
-                    this.$emit( "note:move", { payload, newStep });
+                    this.$emit( "note:move", { payload, newStep: payload.step + moved });
                 }
             }
             this.resizing = false;
-        },
-        handleResizeDragStart( dragEvent: DragEvent, index: number ): void {
-            if ( !dragEvent.dataTransfer ) {
-                return;
-            }
-            dragEvent.dataTransfer.setData( "event",
-                serializeData( this.note, this.octave, this.getEventForIndex( index ) )
-            );
-            this.resizing = true;
-            this.resizeProps.index = index;
-            this.resizeProps.startX = dragEvent.clientX;
         },
     }
 };
