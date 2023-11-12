@@ -31,6 +31,7 @@ import { type EffluxState } from "@/store";
 import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, } from "@/model/types/audio-event";
 import { type EffluxChannel } from "@/model/types/channel";
 import { type EffluxPattern } from "@/model/types/pattern";
+import { type JamChannelSequencerProps } from "@/model/types/jam";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { getEventLength, calculateMeasureLength } from "@/utils/event-util";
 import SequencerWorker from "@/workers/sequencer.worker?worker&inline";
@@ -53,7 +54,7 @@ export interface SequencerState {
     nextNoteTime: number;
     channels?: EffluxChannel[];
     // only used when song is of EffluxSongType.JAM
-    jam: { activePatternIndex: number, nextPatternIndex: number }[];
+    jam: JamChannelSequencerProps[];
 };
 
 export const createSequencerState = ( props?: Partial<SequencerState> ): SequencerState => ({
@@ -547,7 +548,13 @@ const SequencerModule: Module<SequencerState, any> = {
                 Vue.set( pattern, "steps", steps );
             });
         },
+        setJamChannelLock( state: SequencerState, { instrumentIndex, locked } : { instrumentIndex: number, locked: boolean }): void {
+            Vue.set( state.jam, instrumentIndex, { ...state.jam[ instrumentIndex ], locked });
+        },
         setJamChannelPosition( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
+            if ( state.jam[ instrumentIndex ].locked ) {
+                return;
+            }
             const nextPatternIndex = patternIndex;
             let { activePatternIndex } = state.jam[ instrumentIndex ];
             if ( !state.playing ) {
@@ -557,7 +564,7 @@ const SequencerModule: Module<SequencerState, any> = {
         },
         resetJamChannels( state: SequencerState ): void {
             for ( let i = 0; i < state.jam.length; ++i ) {
-                state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
+                state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0, locked: false };
             }
         },
         // @ts-expect-error 'state' is declared but its value is never read.

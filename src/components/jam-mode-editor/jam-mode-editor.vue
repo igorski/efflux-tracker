@@ -22,7 +22,7 @@
  */
 <template>
     <section class="jam-mode-editor">
-        <jam-mode-channel-entry
+        <jam-channel-editor
             v-for="channel in channelEntries"
             :key="`ch_${channel.index}`"
             :channel="channel"
@@ -32,12 +32,12 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import JamModeChannelEntry from "./components/jam-mode-channel-entry/jam-mode-channel-entry.vue";
+import JamChannelEditor from "./components/jam-channel-editor/jam-channel-editor.vue";
 import { type JamChannel } from "@/model/types/jam";
 
 export default {
     components: {
-        JamModeChannelEntry,
+        JamChannelEditor,
     },
     computed: {
         ...mapGetters([

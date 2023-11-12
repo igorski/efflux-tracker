@@ -175,7 +175,7 @@ export default {
         NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam/jam-mode-editor/jam-mode-editor.vue" )),
+        JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
         TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
@@ -262,11 +262,11 @@ export default {
                 case ModalWindows.CHORD_GENERATOR_WINDOW:
                     loadFn = () => import( "@/components/chord-generator-window/chord-generator-window.vue" );
                     break;
-                case ModalWindows.JAM_MODE:
-                    loadFn = () => import( "@/components/jam/jam-mode-instrument/jam-mode-instrument.vue" );
+                case ModalWindows.JAM_MODE_INSTRUMENT_EDITOR:
+                    loadFn = () => import( "@/components/jam-mode-instrument-editor/jam-mode-instrument-editor.vue" );
                     break;
                 case ModalWindows.JAM_MODE_PIANO_ROLL:
-                    loadFn = () => import( "@/components/jam/jam-mode-editor/components/piano-roll/piano-roll.vue" );
+                    loadFn = () => import( "@/components/jam-mode-editor/components/piano-roll/piano-roll.vue" );
                     break;
                 case ModalWindows.PATTERN_MANAGER:
                     loadFn = () => import( "@/components/pattern-manager/pattern-manager.vue" );

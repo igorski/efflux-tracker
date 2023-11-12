@@ -22,13 +22,30 @@
  */
 <template>
     <div
-        class="jam-mode-channel-entry"
+        class="jam-channel-editor"
         :class="{
-            'jam-mode-channel-entry--selected': isSelected,
+            'jam-channel-editor--selected': isSelected,
         }"
         @click="setSelectedInstrument( instrumentIndex )"
     >
-        <h3 class="jam-mode-channel-entry__title">{{ instrumentName }}</h3>
+        <div class="jam-channel-editor__header">
+            <h3 class="jam-channel-editor__header-title">{{ instrumentName }}</h3>
+            <div class="jam-channel-editor__header-actions">
+                <button
+                    :title="$t( jamProps.locked ? 'unlockPattern' : 'lockPattern')"
+                    type="button"
+                    class="jam-channel-editor__header-icon-button"
+                    @click.stop="togglePatternLock()"
+                ><img v-if="jamProps.locked" src="@/assets/icons/icon-locked.svg" :alt="$t('unlockPattern')" />
+                <img v-else src="@/assets/icons/icon-unlocked.svg" :alt="$t('lockPattern')" /></button>
+                <button
+                    :title="$t('editInstrument')"
+                    type="button"
+                    class="jam-channel-editor__header-button"
+                    @click.stop="openInstrumentEditor()"
+                ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editInstrument')" /></button>
+            </div>
+        </div>
         <!-- as we don't render silent waveforms, we can hard code the oscillator-index -->
         <!-- 512 x 200 is default waveform size -->
         <waveform-display
@@ -46,27 +63,22 @@
             :channel="channel"
             :pattern-index="activePatternIndex"
         />
-        <div class="jam-mode-channel-entry__patterns">
+        <div class="jam-channel-editor__patterns">
             <div
                 v-for="(pattern, index) in channel.patterns"
                 :key="`p_${index}`"
                 role="button"
-                class="jam-mode-channel-entry__patterns-button"
+                class="jam-channel-editor__patterns-button"
                 :class="{
-                    'jam-mode-channel-entry__patterns-button--playing': index === activePatternIndex,
-                    'jam-mode-channel-entry__patterns-button--queued' : index === nextPatternIndex && nextPatternIndex !== activePatternIndex
+                    'jam-channel-editor__patterns-button--playing'  : index === activePatternIndex,
+                    'jam-channel-editor__patterns-button--queued'   : index === nextPatternIndex && nextPatternIndex !== activePatternIndex,
+                    'jam-channel-editor__patterns-button--disabled' : jamProps.locked,
                 }"
                 @click="handlePatternClick( index )"
             >
                 {{ index + 1 }}
             </div>
         </div>
-        <button
-            :title="$t('editInstrument')"
-            type="button"
-            class="jam-mode-channel-entry__button"
-            @click.stop="openInstrumentEditor()"
-        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editInstrument')" /></button>
     </div>
 </template>
 
@@ -75,6 +87,7 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import { type Instrument } from "@/model/types/instrument";
+import { type JamChannelSequencerProps } from "@/model/types/jam";
 import PianoRollLite from "../piano-roll-lite/piano-roll-lite.vue";
 import { getInstrumentName } from "@/utils/string-util";
 import messages from "./messages.json";
@@ -100,11 +113,14 @@ export default {
         ...mapGetters([
             "activeSong",
         ]),
+        jamProps(): JamChannelSequencerProps {
+            return this.jam[ this.instrumentIndex ];
+        },
         activePatternIndex(): number {
-            return this.jam[ this.instrumentIndex ].activePatternIndex;
+            return this.jamProps.activePatternIndex;
         },
         nextPatternIndex(): number {
-            return this.jam[ this.instrumentIndex ].nextPatternIndex;
+            return this.jamProps.nextPatternIndex;
         },
         instrumentIndex(): number {
             return this.channel.index;
@@ -123,12 +139,16 @@ export default {
         ...mapMutations([
             "openModal",
             "invalidateChannelCache",
+            "setJamChannelLock",
             "setJamChannelPosition",
             "setSelectedInstrument",
         ]),
+        togglePatternLock(): void {
+            this.setJamChannelLock({ instrumentIndex: this.instrumentIndex, locked: !this.jamProps.locked });
+        },
         openInstrumentEditor(): void {
             this.setSelectedInstrument( this.instrumentIndex );
-            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+            this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
         },
         handlePatternClick( index: number ): void {
             this.setJamChannelPosition({ instrumentIndex: this.instrumentIndex, patternIndex: index });
@@ -148,7 +168,7 @@ export default {
 $button-width: 32px;
 $button-height: 26px;
 
-.jam-mode-channel-entry {
+.jam-channel-editor {
     position: relative;
     display: inline-block;
     border: 2px solid #666;
@@ -157,14 +177,47 @@ $button-height: 26px;
     box-sizing: border-box;
     background-color: #53565c;
 
+    @include large() {
+        max-width: 308px;
+    }
+
+    @include mobile() {
+        width: 100%;
+    }
+
     &--selected {
         background-color: #b6b6b6;
         color: $color-form-background;
     }
-    
-    &__title {
-        @include toolFont();
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        &-title {
+            @include toolFont();
+            @include truncate();
+            flex: 1;
+        }
+
+        &-actions {
+            // ...
+        }
+
+        &-icon-button {
+            padding: $spacing-xsmall $spacing-small;
+            background: transparent;
+            margin-right: 0;
+        }
+
+        &-button {
+            padding: $spacing-xsmall $spacing-small;
+            background-color: $color-1;
+            margin-right: 0;
+        }
     }
+
 
     &__patterns {
         display: flex;
@@ -194,18 +247,16 @@ $button-height: 26px;
             }
 
             &--playing {
-                background-color: $color-5;
-                color: #000;
+                background-color: $color-5 !important;
+                color: #000 !important;
+            }
+
+            &--disabled {
+                @include noEvents();
+                background-color: #666;
+                color: #333;
             }
         }
-    }
-
-    &__button {
-        position: absolute;
-        top: $spacing-xsmall + $spacing-xxsmall;
-        right: $spacing-xsmall;
-        padding: $spacing-xsmall $spacing-small;
-        background-color: $color-1;
     }
 }
 

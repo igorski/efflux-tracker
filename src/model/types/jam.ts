@@ -22,7 +22,13 @@
  */
 import { type EffluxChannel } from "./channel";
 
-type JamChannel = {
+export type JamChannel = {
     index: number;
     patterns: EffluxChannel[]
+};
+
+export type JamChannelSequencerProps = {
+    activePatternIndex: number;
+    nextPatternIndex: number;
+    locked: boolean;
 };

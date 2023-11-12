@@ -294,7 +294,7 @@ describe( "Vuex sequencer module", () => {
             it( "should directly set the provided pattern index as active when the sequencer isn't playing", () => {
                 const state = createSequencerState({ playing: false });
                 for ( let i = 0; i < state.jam.length; ++i ) {
-                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
+                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0, locked: false };
                 }
                 mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
 
@@ -304,24 +304,34 @@ describe( "Vuex sequencer module", () => {
             it( "should enqueue the provided pattern index when the sequencer is playing", () => {
                 const state = createSequencerState({ playing: true });
                 for ( let i = 0; i < state.jam.length; ++i ) {
-                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0 };
+                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0, locked: false  };
                 }
                 mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
 
                 expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 0, nextPatternIndex: 2 });
+            });
+
+            it( "should ignore the request when the current channel is locked", () => {
+                const state = createSequencerState({ playing: false });
+                for ( let i = 0; i < state.jam.length; ++i ) {
+                    state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0, locked: true  };
+                }
+                mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
+
+                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 0, nextPatternIndex: 0, locked: true });
             });
         });
 
         it( "should be able to reset the active jam channel positions", () => {
             const state = createSequencerState();
             for ( let i = 0; i < state.jam.length; ++i ) {
-                state.jam[ i ] = { activePatternIndex: 3, nextPatternIndex: 2 };
+                state.jam[ i ] = { activePatternIndex: 3, nextPatternIndex: 2, locked: true };
             }
 
             mutations.resetJamChannels( state );
 
             for ( let i = 0; i < state.jam.length; ++i ) {
-                expect( state.jam[ i ] ).toEqual({ activePatternIndex: 0, nextPatternIndex: 0 });
+                expect( state.jam[ i ] ).toEqual({ activePatternIndex: 0, nextPatternIndex: 0, locked: false });
             }
         });
 
