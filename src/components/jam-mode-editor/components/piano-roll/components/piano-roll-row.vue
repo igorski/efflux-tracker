@@ -144,6 +144,8 @@ export default {
         // @todo should this just go to piano-roll.vue instead?
         if ( !!this.$refs.event ) {
             this.$refs.event[ 0 ]?.scrollIntoView?.({ block: "center" });
+        } else if ( this.note === "C" && this.octave === 3 ) {
+            this.$el?.scrollIntoView?.({ block: "center" });
         }
     },
     methods: {
