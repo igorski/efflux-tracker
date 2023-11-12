@@ -48,6 +48,11 @@
                     :disabled="!patternCopy"
                     @click="handlePatternPaste()"
                 ></button>
+                <button
+                    type="button"
+                    :title="$t('help')"
+                    @click="handleHelp()"
+                >?</button>
             </div>
             <button
                 type="button"
@@ -87,6 +92,7 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
+import ManualURLs from "@/definitions/manual-urls";
 import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row.vue";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
@@ -272,6 +278,9 @@ export default {
         handleNoteResize( row: PianoRollRow, { payload, newLength } : { payload: SerializedRowEvent, newLength: number }): void {
             const { activePatternIndex, selectedInstrument } = this;
             this.saveState( resizeEvent( this.$store, activePatternIndex, selectedInstrument, payload.step, newLength ));
+        },
+        handleHelp(): void {
+            window.open( ManualURLs.PATTERN_JAM_SESSION );
         },
     },
 };

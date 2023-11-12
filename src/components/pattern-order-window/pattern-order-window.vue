@@ -174,7 +174,7 @@ export default {
             "setLooping",
         ]),
         openHelp(): void {
-            window.open( ManualURLs.PATTERN_ORDER_HELP, "_blank" );
+            window.open( ManualURLs.PATTERN_ORDER, "_blank" );
         },
         handleSelect( entry: WrappedPatternOrderEntry ): void {
             this.gotoPattern({ orderIndex: entry.index, song: this.activeSong });

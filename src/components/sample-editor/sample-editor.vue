@@ -433,7 +433,7 @@ export default {
             "updateSampleProps",
         ]),
         openHelp(): void {
-            window.open( ManualURLs.SAMPLE_EDITOR_HELP, "_blank" );
+            window.open( ManualURLs.SAMPLE_EDITOR, "_blank" );
         },
         deleteSample(): void {
             this.openDialog({

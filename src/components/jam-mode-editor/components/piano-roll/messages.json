@@ -4,6 +4,7 @@
         "copy": "Copy",
         "paste": "Paste",
         "previousPattern": "Previous pattern",
-        "nextPattern": "Next pattern"
+        "nextPattern": "Next pattern",
+        "help": "Help"
     }
 }

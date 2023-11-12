@@ -344,7 +344,7 @@ export default {
             this.handleClose();
         },
         handleHelp() {
-            window.open( ManualURLs.PARAM_ENTRY_HELP, "_blank" );
+            window.open( ManualURLs.PARAM_ENTRY, "_blank" );
         },
     },
 };

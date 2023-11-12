@@ -257,7 +257,7 @@ export default {
             "saveInstrumentIntoLS",
         ]),
         openHelp() {
-            window.open( ManualURLs.INSTRUMENT_EDITOR_HELP, "_blank" );
+            window.open( ManualURLs.INSTRUMENT_EDITOR, "_blank" );
         },
         openSettingsPanel() {
             this.openModal( ModalWindows.SETTINGS_WINDOW );

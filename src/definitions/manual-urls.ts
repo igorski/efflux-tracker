@@ -27,10 +27,11 @@ export default
     /**
      * URLs to all online help pages
      */
-    ONLINE_MANUAL          : MANUAL_ROOT,
-    PARAM_ENTRY_HELP       : `${MANUAL_ROOT}patterns#parameter-change-ui`,
-    INSTRUMENT_EDITOR_HELP : `${MANUAL_ROOT}instrument-editor`,
-    SAMPLE_EDITOR_HELP     : `${MANUAL_ROOT}sample-editor`,
-    PATTERN_MANAGER_HELP   : `${MANUAL_ROOT}patterns`,
-    PATTERN_ORDER_HELP     : `${MANUAL_ROOT}patterns/#pattern-order`,
+    ONLINE_MANUAL       : MANUAL_ROOT,
+    PARAM_ENTRY         : `${MANUAL_ROOT}patterns#parameter-change-ui`,
+    INSTRUMENT_EDITOR   : `${MANUAL_ROOT}instrument-editor`,
+    SAMPLE_EDITOR       : `${MANUAL_ROOT}sample-editor`,
+    PATTERN_MANAGER     : `${MANUAL_ROOT}patterns`,
+    PATTERN_ORDER       : `${MANUAL_ROOT}patterns/#pattern-order`,
+    PATTERN_JAM_SESSION : `${MANUAL_ROOT}patterns/#jam`,
 };
