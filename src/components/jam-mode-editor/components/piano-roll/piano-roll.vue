@@ -61,13 +61,14 @@
             <table class="piano-roll__table">
                 <tbody>
                     <piano-roll-row
-                        v-for="(row) in rows"
+                        v-for="(row, index) in rows"
                         :key="`${row.note}_${row.octave}`"
                         :note="row.note"
                         :octave="row.octave"
                         :events="row.events"
                         :columns="columnAmount"
                         :playing-step="playingStep"
+                        :scroll-into-view="focusedRow === index"
                         class="piano-roll__table-row"
                         :class="{
                             'piano-roll__table-row--sharp': row.note.includes( '#' )
@@ -118,6 +119,7 @@ export default {
     },
     data: () => ({
         patternCopy: null,
+        focusedRow: 0,
     }),
     computed: {
         ...mapState({
@@ -179,6 +181,19 @@ export default {
     },
     created(): void {
         this.maxPatternIndex = this.activeSong.patterns.length - 1;
+    },
+    mounted(): void {
+        // on mount, scroll the first row with content centrally into the view
+        let i = this.rows.length;
+        this.focusedRow = this.rows.findIndex( row => row.note === "C" && row.octave === 3 );
+        while ( i-- ) {
+            const row = this.rows[ i ];
+            if ( row.events.length ) {
+                this.focusedRow = i;
+                break;
+            }
+        }
+        // console.info( `Focusing on row #${this.focusedRow}`, this.rows[ this.focusedRow ]);
     },
     methods: {
         ...mapMutations([

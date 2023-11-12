@@ -121,6 +121,10 @@ export default {
             type: Number,
             required: true,
         },
+        scrollIntoView: {
+            type: Boolean,
+            default: false,
+        },
     },
     data: () => ({
         resizing: false,
@@ -140,12 +144,11 @@ export default {
             return out;
         },
     },
-    mounted(): void {
-        // @todo should this just go to piano-roll.vue instead?
-        if ( !!this.$refs.event ) {
-            this.$refs.event[ 0 ]?.scrollIntoView?.({ block: "center" });
-        } else if ( this.note === "C" && this.octave === 3 ) {
-            this.$el?.scrollIntoView?.({ block: "center" });
+    watch: {
+        scrollIntoView( value: boolean ): void {
+            if ( value ) { 
+                this.$el?.scrollIntoView?.({ block: "center" });
+            }
         }
     },
     methods: {
