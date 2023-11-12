@@ -289,6 +289,21 @@ describe( "Vuex sequencer module", () => {
 
             expect( state.currentStep ).toEqual( 4 );
         });
+        
+        it( "should be able to lock specific jam channels", () => {
+            const state = createSequencerState({
+                jam: [
+                    { activePatternIndex: 0, nextPatternIndex: 1, locked: false },
+                    { activePatternIndex: 2, nextPatternIndex: 0, locked: false },
+                ]
+            });
+            mutations.setJamChannelLock( state, { instrumentIndex: 1, locked: true });
+
+            expect( state.jam ).toEqual([
+                { activePatternIndex: 0, nextPatternIndex: 1, locked: false },
+                { activePatternIndex: 2, nextPatternIndex: 0, locked: true },
+            ]);
+        });
 
         describe( "when setting a specific jam pattern index", () => {
             it( "should directly set the provided pattern index as active when the sequencer isn't playing", () => {
