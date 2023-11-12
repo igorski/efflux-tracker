@@ -66,7 +66,7 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
-import deleteEvent from "@/model/actions/event-or-selection-delete";
+import deleteEvent from "@/model/actions/event-delete";
 import EventFactory from "@/model/factories/event-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import EventUtil from "@/utils/event-util";
