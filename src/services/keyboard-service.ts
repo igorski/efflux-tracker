@@ -414,6 +414,13 @@ function handleKeyDown( event: KeyboardEvent ): void {
             }
             break;
 
+        case 78: // N
+            if ( hasOption ) {
+                store.dispatch( "resetSong" );
+                preventDefault( event ); // new window
+            }
+            break;
+
         case 79: // O
             if ( hasOption ) {
                 store.commit( "openModal", ModalWindows.SONG_BROWSER );

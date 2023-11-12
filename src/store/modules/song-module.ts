@@ -436,6 +436,15 @@ const SongModule: Module<SongState, any> = {
                 await dispatch( "saveSongInLS", song );
             }
         },
+        resetSong({ getters, commit }: { getters: any, commit: Commit }): void {
+            commit( "openDialog", {
+                type: "confirm",
+                message: getters.t( "warnings.songReset" ),
+                confirm: () => {
+                    commit( "openModal", ModalWindows.SONG_CREATION_WINDOW );
+                },
+            });
+        },
     }
 };
 export default SongModule;

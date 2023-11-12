@@ -29,7 +29,7 @@
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
             <span>&#9776;</span>
         </div>
-        <h1 v-t="'title'"></h1>
+        <h1 v-t="'title'" class="menu__title"></h1>
         <section class="inline">
             <ul class="menu-list">
                 <li>
@@ -40,7 +40,7 @@
                                 v-t="'new'"
                                 type="button"
                                 class="menu-list__button"
-                                @click="handleReset()"
+                                @click="resetSong()"
                             ></button>
                         </li>
                         <!-- note the use of data-attributes to expose these links for external -->
@@ -282,6 +282,7 @@ export default {
         ...mapActions([
             "exportSong",
             "exportSongForShare",
+            "resetSong",
             "saveSong",
         ]),
         handleMouseOver(): void {
@@ -335,15 +336,6 @@ export default {
         handleOptimizeClick(): void {
             this.openModal( ModalWindows.OPTIMIZATION_WINDOW );
         },
-        handleReset(): void {
-            this.openDialog({
-                type: "confirm",
-                message: this.$t("warningSongReset"),
-                confirm: () => {
-                    this.openModal( ModalWindows.SONG_CREATION_WINDOW );
-                },
-            });
-        },
         handleSettings(): void {
             this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
@@ -392,6 +384,10 @@ export default {
     padding: 0 $spacing-medium $spacing-small;
     width: 100%;
     @include boxSize();
+
+    &__title {
+        @include toolFont();
+    }
 }
 
 .menu-list__button,
