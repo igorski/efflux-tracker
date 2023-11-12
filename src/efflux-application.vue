@@ -211,6 +211,9 @@ export default {
             switch ( this.modal ) {
                 default:
                     return null;
+                case ModalWindows.SONG_CREATION_WINDOW:
+                    loadFn = () => import( "@/components/song-creation-window/song-creation-window.vue" );
+                    break;
                 case ModalWindows.ADVANCED_PATTERN_EDITOR:
                     loadFn = () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor.vue" );
                     break;
@@ -396,21 +399,32 @@ export default {
             }
         };
 
-        window.addEventListener( "paste", event => {
-            loadFiles( readClipboardFiles( event?.clipboardData ));
-        }, false );
+        // browser event we listen to during the application lifetime
+        const handlers: Record<string, ( event: Event ) => void> = {
+            paste: event => {
+                loadFiles( readClipboardFiles(( event as ClipboardEvent )?.clipboardData ));
+            },
+            dragover: event => {
+                event.stopPropagation();
+                event.preventDefault();
+                ( event as DragEvent ).dataTransfer!.dropEffect = "copy";
+            },
+            drop: event => {
+                loadFiles( readDroppedFiles(( event as DragEvent ).dataTransfer ));
+                event.preventDefault();
+                event.stopPropagation();
+            },
+            focus: event => {
+                this.setApplicationFocused( true );
+            },
+            blur: event => {
+                this.setApplicationFocused( false );
+            },
+        };
 
-        window.addEventListener( "dragover", event => {
-            event.stopPropagation();
-            event.preventDefault();
-            event.dataTransfer.dropEffect = "copy";
-        }, false );
-
-        window.addEventListener( "drop", event => {
-            loadFiles( readDroppedFiles( event?.dataTransfer ));
-            event.preventDefault();
-            event.stopPropagation();
-        }, false );
+        Object.entries( handlers ).forEach(([ event, handler ]) => {
+            window.addEventListener( event, handler, false );
+        });
 
         // show confirmation message on page reload
 
@@ -444,6 +458,7 @@ export default {
             "cachePatternNames",
             "gotoPattern",
             "setAmountOfSteps",
+            "setApplicationFocused",
             "setBlindActive",
             "setCurrentSample",
             "setPlaying",

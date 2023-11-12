@@ -1,5 +1,4 @@
 import { describe, it, expect, vi } from "vitest";
-import APPLICATION_MODE from "@/definitions/application-modes";
 import ModalWindows from "@/definitions/modal-windows";
 import store from "@/store";
 import { createState } from "../mocks";
@@ -61,18 +60,6 @@ describe( "Application Vuex store root", () => {
 
                 expect( state.blindActive ).toBe( false );
                 expect( state.modal ).toBeNull();
-            });
-
-            it( "should force reopen the jam modal, when closing any modal with jam mode still active", () => {
-                const state = createState({
-                    blindActive: true,
-                    applicationMode: APPLICATION_MODE.JAM_MODE,
-                    modal: ModalWindows.SETTINGS_WINDOW
-                });
-                mutations.closeModal( state );
-
-                expect( state.blindActive ).toBe( true );
-                expect( state.modal ).toEqual( ModalWindows.JAM_MODE );
             });
         });
 
@@ -219,10 +206,10 @@ describe( "Application Vuex store root", () => {
             expect( state.mediaConnected ).toBe( true );
         });
 
-        it( "should be able to set the application mode", () => {
-            const state = createState({ applicationMode: APPLICATION_MODE.TRACKER });
-            mutations.setApplicationMode( state, APPLICATION_MODE.JAM_MODE );
-            expect( state.applicationMode ).toEqual( APPLICATION_MODE.JAM_MODE );
+        it( "should be able to set the application focused state", () => {
+            const state = createState({ applicationFocused: true });
+            mutations.setApplicationFocused( state, false );
+            expect( state.applicationFocused ).toEqual( false );
         });
     });
 });

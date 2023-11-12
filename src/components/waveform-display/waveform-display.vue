@@ -77,6 +77,10 @@ export default {
             type: Number,
             required: true,
         },
+        showOscilloscope: {
+            type: Boolean,
+            default: true,
+        },
         /**
          * should become optional (we should be able to specify whether this display is editable and
          * if not, this shouldn't matter except for displaying of the default waveform purposes)
@@ -175,7 +179,12 @@ export default {
         performAnalysis( value: boolean ): void {
             if ( value ) {
                 this.connectAnalyser();
+            } else {
+                this.disconnectAnalyser();
             }
+        },
+        showOscilloscope(): void {
+            return this.handleAnalysis();
         },
     },
     mounted(): void {
@@ -205,7 +214,7 @@ export default {
     },
     beforeDestroy(): void {
         if ( this.performAnalysis ) {
-            applyModules( this.activeSong, false );
+            this.disconnectAnalyser();
         }
         if ( this.token ) {
             PubSubService.unsubscribe( this.token );
@@ -270,7 +279,7 @@ export default {
             }, 5000 ); // longer timeout as a lot of events can fire while drawing the waveform
         },
         handleAnalysis(): void {
-            this.performAnalysis = supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
+            this.performAnalysis = this.showOscilloscope && supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
         },
         openSampleEditor(): void {
             const name = this.oscillator.sample;
@@ -360,6 +369,9 @@ export default {
             // connect the AnalyserNodes to the all instrument channels
             applyModules( this.activeSong, true );
             this.renderOscilloscope();
+        },
+        disconnectAnalyser(): void {
+            applyModules( this.activeSong, false );
         },
     },
 };

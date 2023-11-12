@@ -9,7 +9,6 @@ import selection, { SelectionState } from "./modules/selection-module";
 import settings, { SettingsState } from "./modules/settings-module";
 import sequencer, { SequencerState } from "./modules/sequencer-module";
 import song, { SongState } from "./modules/song-module";
-import APPLICATION_MODE from "@/definitions/application-modes";
 import ModalWindows from "@/definitions/modal-windows";
 import { initHistory } from "@/model/factories/history-state-factory";
 import AudioService from "@/services/audio-service";
@@ -52,7 +51,7 @@ export interface EffluxState {
     mobileMode: string | null, /* string name of mobile view state */
     dropboxConnected: boolean,
     mediaConnected: boolean,
-    applicationMode: APPLICATION_MODE;
+    applicationFocused: boolean,
 
     // store sub-module states
 
@@ -93,7 +92,7 @@ export default
         mobileMode: null, /* string name of mobile view state */
         dropboxConnected: false,
         mediaConnected: false,
-        applicationMode: APPLICATION_MODE.TRACKER,
+        applicationFocused: true,
     }),
     getters: {
         // @ts-expect-error state is defined, but its value is never read
@@ -116,10 +115,6 @@ export default
             state.modal = modal;
         },
         closeModal( state: EffluxState ): void {
-            if ( state.applicationMode === APPLICATION_MODE.JAM_MODE ) {
-                state.modal = ModalWindows.JAM_MODE;
-                return;
-            }
             state.blindActive = false;
             state.modal = null;
         },
@@ -199,8 +194,8 @@ export default
         setMediaConnected( state: EffluxState, value: boolean ): void {
             state.mediaConnected = value;
         },
-        setApplicationMode( state: EffluxState, value: APPLICATION_MODE ): void {
-            state.applicationMode = value;
+        setApplicationFocused( state: EffluxState, value: boolean ): void {
+            state.applicationFocused = value;
         },
     },
     actions: {

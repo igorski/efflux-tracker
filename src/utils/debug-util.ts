@@ -39,5 +39,5 @@ export const listChannel = ( channel: EffluxChannel ): string => {
 };
 
 export const listPattern = ( pattern : EffluxPattern ): string => {
-    return pattern.channels.reduce(( acc, channel ) => [ ...acc, listChannel( channel )], [] ).join( "" );
+    return pattern.channels.reduce(( acc, channel ) => [ ...acc, listChannel( channel )], [] ).join( "," );
 };

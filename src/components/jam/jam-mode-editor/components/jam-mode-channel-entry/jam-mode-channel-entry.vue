@@ -35,6 +35,7 @@
             :instrument-index="instrumentIndex"
             :oscillator-index="0"
             :editable="false"
+            :show-oscilloscope="applicationFocused"
             :render-waveform-on-silence="false"
             :width="275"
             :height="107"
@@ -94,6 +95,7 @@ export default {
         ...mapState({
             jam : state => state.sequencer.jam,
             selectedInstrument : state => state.editor.selectedInstrument,
+            applicationFocused: state => state.applicationFocused,
         }),
         ...mapGetters([
             "activeSong",
