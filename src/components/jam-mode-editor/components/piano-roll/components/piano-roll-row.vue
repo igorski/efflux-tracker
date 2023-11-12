@@ -47,6 +47,9 @@
                 draggable
                 @dblclick.stop="handleNoteDelete( column )"
                 @dragstart="handleDragStart( $event, column, false )"
+                @touchstart="handleTouchStart( $event, column )"
+                @touchcancel="handleTouchEnd( $event )"
+                @touchend="handleTouchEnd( $event )"
             >
                 <div
                     class="piano-roll-row__column-size-handle"
@@ -88,7 +91,14 @@ function deserialiseData( serialized?: string ): SerializedRowEvent | undefined 
 }
 
 const NOTE_WIDTH = 48;
+let lastTouchStart = 0;
+let dataTransfer: DataTransfer;
 
+/**
+ * Renders a single row inside the piano roll.
+ * Arguably using a HTML <table> based solution could be replaced with a more efficient Canvas routine, however
+ * the DOM API allows for easy pointer event manipulation and the result is performant enough.
+ */
 export default {
     props: {
         note: {
@@ -163,6 +173,7 @@ export default {
             if ( payload ) {
                 const delta = dragEvent.clientX - payload.dragStartX;
                 const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
+            
                 if ( this.resizing ) {
                     this.$emit( "note:resize", { payload, newLength: Math.max( 1, payload.length + moved ) });
                 } else {
@@ -170,6 +181,46 @@ export default {
                 }
             }
             this.resizing = false;
+        },
+        /**
+         * Overrides for touch screens. As the drag events don't exist there, we create a synthetic
+         * DragEvent from the touch start / end actions, granting us a somewhat unified API
+         */
+        handleTouchStart( event: TouchEvent, column: FormattedColumn ): void {
+            const [ touch ] = event.touches;
+            if ( !touch ) {
+                return;
+            }
+            event.preventDefault(); // prevents table scroll
+
+            const now = Date.now();
+            if (( now - lastTouchStart ) < 300 ) {
+                return this.handleNoteDelete( column );
+            }
+            lastTouchStart = now;
+
+            dataTransfer = new DataTransfer();
+            event.target?.dispatchEvent( new DragEvent( "dragstart", {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                dataTransfer,
+            }));
+        },
+        handleTouchEnd( event: TouchEvent ): void {
+            const [ touch ] = event.changedTouches;
+            if ( !touch ) {
+                return;
+            }
+            event.preventDefault(); // prevents table scroll
+
+            // when resizing the target is the .piano_roll-row__column element that captures the drop
+            // otherwise we need get the Element at the provided coordinates from the DOM (to allow dragging across rows)
+            const target = this.resizing ? event.target?.parentNode?.parentNode : document.elementFromPoint( touch.pageX, touch.pageY );
+            target?.dispatchEvent( new DragEvent( "drop", {
+                clientX: touch.clientX,
+                clientY: touch.clientY,
+                dataTransfer,
+            }));
         },
     }
 };
