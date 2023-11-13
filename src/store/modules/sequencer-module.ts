@@ -33,7 +33,7 @@ import { type EffluxChannel } from "@/model/types/channel";
 import { type EffluxPattern } from "@/model/types/pattern";
 import { type JamChannelSequencerProps } from "@/model/types/jam";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
-import { getEventLength, calculateMeasureLength } from "@/utils/event-util";
+import { getEventLength, calculateMeasureLength, calculateJamChannelEventLengths } from "@/utils/event-util";
 import SequencerWorker from "@/workers/sequencer.worker?worker&inline";
 
 export interface SequencerState {
@@ -55,6 +55,7 @@ export interface SequencerState {
     channels?: EffluxChannel[];
     // only used when song is of EffluxSongType.JAM
     jam: JamChannelSequencerProps[];
+    jamChannelFlushIndex: number;
 };
 
 export const createSequencerState = ( props?: Partial<SequencerState> ): SequencerState => ({
@@ -75,6 +76,7 @@ export const createSequencerState = ( props?: Partial<SequencerState> ): Sequenc
     nextNoteTime          : 0,
     channels              : undefined,
     jam                   : new Array( Config.INSTRUMENT_AMOUNT ),
+    jamChannelFlushIndex  : -1,
     ...props
 });
 
@@ -183,8 +185,8 @@ function freeHandler( state: SequencerState, node: OscillatorNode ): void {
     }
 }
 
-function haltPlaybackForChannel( state: SequencerState, channel: number ): void {
-    const list = state.channelQueue[ channel ];
+function haltPlaybackForChannel( state: SequencerState, channelIndex: number ): void {
+    const list = state.channelQueue[ channelIndex ];
     let playingNote = list.tail;
     while ( playingNote ) {
         const nextNote = playingNote.previous;
@@ -192,6 +194,12 @@ function haltPlaybackForChannel( state: SequencerState, channel: number ): void 
         playingNote.data.seq.playing = false;
         playingNote.remove();
         playingNote = nextNote;
+    }
+    const channel = state.channels![ channelIndex ];
+    for ( const event of channel ) {
+        if ( event ) {
+            event.seq.playing = false;
+        }
     }
 }
 
@@ -268,20 +276,24 @@ function step( store: Store<EffluxState> ): void {
         store.commit( "setCurrentStep", 0 );
 
         if ( activeSong.type === EffluxSongType.JAM ) {
-            let sync = false;
+            let switchedPatterns = false;
             for ( const channel of state.jam ) {
                 if ( channel.activePatternIndex !== channel.nextPatternIndex ) {
                     channel.activePatternIndex = channel.nextPatternIndex;
-                    sync = true;
+                    switchedPatterns = true;
                 }
             }
-            if ( sync ) {
+            if ( switchedPatterns ) {
                 cacheActivePatternChannels( state, activeSong );
                 for ( let i = 0, l = state.channels.length; i < l; ++i ) {
                     if ( state.channels[ i ].filter( Boolean ).length === 0 ) {
                         haltPlaybackForChannel( state, i ); // halt playback of existing notes in channel when new pattern is empty
                     }
                 }
+            }
+            if ( state.jamChannelFlushIndex >= 0 ) {
+                haltPlaybackForChannel( state, state.jamChannelFlushIndex );
+                state.jamChannelFlushIndex = -1;
             }
         }
 
@@ -335,27 +347,29 @@ function syncPositionToSequencerUpdate( state: SequencerState, activeSong: Efflu
 
 function cacheActivePatternChannels( state: SequencerState, activeSong: EffluxSong ): void {
     const { activeOrderIndex, activePatternIndex } = state;
-
-    // a jam song allows each individual channel to be playing back at a different pattern index
     const isJam = activeSong.type === EffluxSongType.JAM;
 
     if ( isJam ) {
+        // a jam song allows each individual channel to be playing back at a different pattern index
         const channels: EffluxChannel[] = [];
         for ( let channelIndex = 0, cl = state.jam.length; channelIndex < cl; ++channelIndex ) {
             const { activePatternIndex } = state.jam[ channelIndex ];
             channels.push( activeSong.patterns[ activePatternIndex ].channels[ channelIndex ]);
         }
         state.channels = channels;
-    } else {
-        state.channels = activeSong.patterns[ activePatternIndex ].channels;
-    }
 
-    for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
-        // as jams don't use orders, the order and pattern index is always the same
-        const orderIndex = isJam ? state.jam[ channelIndex ].activePatternIndex : activeOrderIndex;
-        for ( const event of state.channels![ channelIndex ] ) {
-            if ( event ) {
-                event.seq.length = getEventLength( event, channelIndex, orderIndex, activeSong );
+        for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
+            calculateJamChannelEventLengths( state.channels![ channelIndex ], activeSong.meta.tempo );
+        }
+    }
+    else {
+        state.channels = activeSong.patterns[ activePatternIndex ].channels;
+
+        for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
+            for ( const event of state.channels![ channelIndex ] ) {
+                if ( event ) {
+                    event.seq.length = getEventLength( event, channelIndex, activeOrderIndex, activeSong );
+                }
             }
         }
     }
@@ -566,6 +580,9 @@ const SequencerModule: Module<SequencerState, any> = {
             for ( let i = 0; i < state.jam.length; ++i ) {
                 state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0, locked: false };
             }
+        },
+        flushJamChannel( state: SequencerState, channelIndex: number ): void {
+            state.jamChannelFlushIndex = channelIndex;
         },
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {

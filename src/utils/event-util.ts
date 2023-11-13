@@ -318,6 +318,27 @@ export function getEventLength( event: EffluxAudioEvent, channelIndex: number, o
     return ( measureLength - event.seq.startMeasureOffset ) * remainingMeasures;
 };
 
+export function calculateJamChannelEventLengths( channel: EffluxChannel, tempo: number ): void {
+    const { length } = channel;
+    const measureLength = calculateMeasureLength( tempo );
+    const stepToSecondsMultiplier = 1 / length * measureLength;
+
+    // for jam channels we can afford a single reverse loop to calculate the length of all events in the channel
+    let i = length;
+    let last = length;
+  
+    while ( i-- ) {
+        const event = channel[ i ];
+        if ( !event ) {
+            continue;
+        }
+        event.seq.length = ( event.action === ACTION_NOTE_ON ) ? ( last - i ) * stepToSecondsMultiplier : stepToSecondsMultiplier;
+        if ( event.action !== ACTION_IDLE ) {
+            last = i;
+        }
+    }
+}
+
 type IEventComparer = ( event: EffluxAudioEvent, compareEvent: EffluxAudioEvent ) => boolean;
 type WrappedEvent = {
     event: EffluxAudioEvent,

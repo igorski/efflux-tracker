@@ -94,6 +94,7 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import ManualURLs from "@/definitions/manual-urls";
 import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row.vue";
+import { invalidateCache } from "@/model/actions/event-actions";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
@@ -227,14 +228,14 @@ export default {
 
             const act = (): void => {
                 $store.commit( "replacePattern", { patternIndex: activePatternIndex, pattern: newPattern });
-                $store.commit( "invalidateChannelCache", { song });
+                invalidateCache( $store, song, selectedInstrument );
             };
             act();
 
             this.saveState({
                 undo(): void {
                     $store.commit( "replacePattern", { patternIndex: activePatternIndex, pattern: orgPattern });
-                    $store.commit( "invalidateChannelCache", { song });
+                    invalidateCache( $store, song, selectedInstrument );
                 },
                 redo: act
             });

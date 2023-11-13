@@ -350,6 +350,14 @@ describe( "Vuex sequencer module", () => {
             }
         });
 
+        it( "should be able to store the index of the jam channel that is to be invalidated", () => {
+            const state = createSequencerState({ jamChannelFlushIndex: -1 });
+
+            mutations.flushJamChannel( state, 2 );
+
+            expect( state.jamChannelFlushIndex ).toEqual( 2 );
+        });
+
         describe( "when setting the sequencer position", () => {
             beforeEach(() => {
                 state = createSequencerState({ activeOrderIndex: 2, currentStep: 6 });
@@ -740,6 +748,35 @@ describe( "Vuex sequencer module", () => {
 
                     expect( state.channelQueue[ 1 ]).toHaveLength( 0 );
                     expect( mockAudioServiceNoteOff ).toHaveBeenCalledWith( playingEvent );
+                });
+
+                it( "should halt playback of notes when a channel was requested to be flushed on pattern end", async () => {
+                    // first run the sequencer to enqueue an event
+                    state.stepPrecision = 64;
+                    expect( state.channelQueue[ 1 ]).toHaveLength( 0 );
+                    mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
+                    
+                    // ensure channel 1 has had an event enqueued
+                    expect( state.channelQueue[ 1 ]).toHaveLength( 1 );
+                    const playingEvent = state.channelQueue[ 1 ].head.data;
+                 
+                    // adjust the sequencer properties so next collect phase marks the end of the current measure
+                    state.nextNoteTime  = 0;
+                    state.stepPrecision = 1;
+                    // enqueue a channel to be flushed
+                    state.jamChannelFlushIndex = 1;
+
+                    mockCreateTimer.mockImplementationOnce(( ctx, time, cb ) => {
+                        setTimeout( cb, time ); // resolves to call noteOff
+                        return { disconnect: vi.fn() } as unknown as OscillatorNode
+                    });
+
+                    mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
+                    await vi.runAllTimersAsync();
+
+                    expect( state.channelQueue[ 1 ]).toHaveLength( 0 );
+                    expect( mockAudioServiceNoteOff ).toHaveBeenCalledWith( playingEvent );
+                    expect( state.jamChannelFlushIndex ).toEqual( -1 );
                 });
             });
         });

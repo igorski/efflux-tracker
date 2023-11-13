@@ -47,7 +47,7 @@ describe( "Event resize action", () => {
         event4 = EventFactory.create( channelIndex, "G", 3, ACTION_NOTE_ON ); // from 7
 
         pattern.channels[ channelIndex ] = [
-            event1, event2, null, null, event3, null, null, event4
+            event1, event2, 0, 0, event3, 0, 0, event4
         ];
     });
 
@@ -61,9 +61,9 @@ describe( "Event resize action", () => {
 
         ResizeEvent( store, patternIndex, channelIndex, step, newLength );
 
-        // original order was: [ event1, event2, null, null, event3, null, null, event4 ]
+        // original order was: [ event1, event2, 0, 0, event3, 0, 0, event4 ]
         expect( pattern.channels[ channelIndex ]).toEqual([
-            event1, null, NOTE_OFF_EVENT, null, event3, null, null, event4
+            event1, 0, NOTE_OFF_EVENT, 0, event3, 0, 0, event4
         ]);
     });
 
@@ -73,9 +73,9 @@ describe( "Event resize action", () => {
 
         ResizeEvent( store, patternIndex, channelIndex, step, newLength );
 
-        // original order was: [ event1, event2, null, null, event3, null, null, event4 ]
+        // original order was: [ event1, event2, 0, 0, event3, 0, 0, event4 ]
         expect( pattern.channels[ channelIndex ]).toEqual([
-            event1, event2, null, null, event3, NOTE_OFF_EVENT, null, event4
+            event1, event2, 0, 0, event3, NOTE_OFF_EVENT, 0, event4
         ]);
     });
 
@@ -85,9 +85,9 @@ describe( "Event resize action", () => {
 
         ResizeEvent( store, patternIndex, channelIndex, step, newLength );
 
-        // original order was: [ event1, event2, null, null, event3, null, null, event4 ]
+        // original order was: [ event1, event2, 0, 0, event3, 0, 0, event4 ]
         expect( pattern.channels[ channelIndex ]).toEqual([
-            event1, null, null, event2, event3, null, null, event4
+            event1, 0, 0, event2, event3, 0, 0, event4
         ]);
     });
 
@@ -110,7 +110,7 @@ describe( "Event resize action", () => {
         undo();
 
         expect( pattern.channels[ channelIndex ]).toEqual([
-            event1, event2, null, null, event3, null, null, event4
+            event1, event2, 0, 0, event3, 0, 0, event4
         ]);
         expect( commitSpy ).toHaveBeenCalledWith( "invalidateChannelCache", { song });
     });

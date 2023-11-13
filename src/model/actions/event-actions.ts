@@ -21,9 +21,11 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue from "vue";
+import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import { type EffluxSong } from "@/model/types/song";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
+import type { EffluxState } from "@/store";
 import EventUtil from "@/utils/event-util";
 
 export function createNoteOffEvent( channelIndex: number ): EffluxAudioEvent {
@@ -31,14 +33,27 @@ export function createNoteOffEvent( channelIndex: number ): EffluxAudioEvent {
 }
 
 /**
- * Inserting an event is a two-step process.
+ * Inserting an event is a two-step process:
  * 
- * 1. It needs to calculate its position in relating to the pattern its going to be injected in (so the sequencer
- * can enqueue it properly when reading the pattern channels).
- * 2. It needs to be inserted into the correct pattern channel so it becomes part of the song.
+ * 1. It needs to be inserted into the correct pattern channel so it becomes part of the song.
+ *
+ * 2. It needs to calculate its position in relation to the pattern (so the sequencer can enqueue it properly
+ * when reading the events in the patterns channels). 
  */
 export function insertEvent( event: EffluxAudioEvent, song: EffluxSong, patternIndex: number, channelIndex: number, step: number ): void {
     const pattern = song.patterns[ patternIndex ];
     EventUtil.setPosition( event, pattern, step, song.meta.tempo );
     Vue.set( pattern.channels[ channelIndex ], step, event );
+}
+
+/**
+ * Making changes to the contents of a pattern while the sequencer is running
+ * requires invalidation of caches when applicable (for instance, when looping the pattern that
+ * is being changed, the cache needs to be updated to reflect the new contents).
+ */
+export function invalidateCache( store: Store<EffluxState>, song: EffluxSong, channelIndex: number ): void {
+    if ( song.type === EffluxSongType.JAM ) {
+        store.commit( "flushJamChannel", channelIndex );
+    }
+    store.commit( "invalidateChannelCache", { song });
 }

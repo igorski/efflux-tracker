@@ -25,8 +25,9 @@ import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
+import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { createNoteOffEvent, insertEvent } from "./event-actions";
+import { createNoteOffEvent, insertEvent, invalidateCache } from "./event-actions";
 
 export default function( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number, newLength: number ): IUndoRedoState {
     const song = store.state.song.activeSong;
@@ -48,14 +49,14 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
     function act(): void {
         const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
         for ( let i = step + 1; i <= eventEnd; ++i ) {
-            Vue.set( channel, i, null );
+            EventUtil.clearEvent( song, patternIndex, channelIndex, i );
         }
         // when event (after resizing) is not directly followed by another, we add a
         // note off event so we maintain the intended event duration
         if ( nextIndex < lastAvailableSlot && !channel[ nextIndex ] ) {
             insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
         }
-        store.commit( "invalidateChannelCache", { song });
+        invalidateCache( store, song, channelIndex );
     }
     act();
 
@@ -63,7 +64,7 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
         undo(): void {
             // clone() is necessary to avoid conflicts when stepping the history state back and forth
             Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
-            store.commit( "invalidateChannelCache", { song });
+            invalidateCache( store, song, channelIndex );
         },
         redo: act,
     };

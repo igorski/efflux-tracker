@@ -27,7 +27,7 @@ import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_OFF } 
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
-import { insertEvent, createNoteOffEvent } from "./event-actions";
+import { insertEvent, createNoteOffEvent, invalidateCache } from "./event-actions";
 
 type IUpdateHandler = ( advanceStep?: boolean ) => void;
 
@@ -101,7 +101,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         if ( addNoteOff ) {
             insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, step + 1 );
         }
-        store.commit( "invalidateChannelCache", { song });
+        invalidateCache( store, song, channelIndex );
      
         if ( optEventData?.newEvent === true ) {
 
@@ -140,12 +140,12 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             // restore existing event if it was present during addition
             if ( existingEvent ) {
                 const restoredEvent = deserialize( existingEvent );
-                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
+                insertEvent( restoredEvent, song, patternIndex, channelIndex, step );
             }
             if ( addNoteOff ) {
                 EventUtil.clearEvent( song, patternIndex, channelIndex, step + 1 );
             }
-            store.commit( "invalidateChannelCache", { song });
+            invalidateCache( store, song, channelIndex );
             updateHandler();
         },
         redo: act

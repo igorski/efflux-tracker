@@ -47,7 +47,7 @@ describe( "Event move action", () => {
         event4 = EventFactory.create( channelIndex, "G", 3, ACTION_NOTE_ON ); // from 7
 
         pattern.channels[ channelIndex ] = [
-            event1, null, event2, null, event3, null, null, event4
+            event1, 0, event2, 0, event3, 0, 0, event4
         ];
     });
 
@@ -114,9 +114,9 @@ describe( "Event move action", () => {
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
  
             // original order was:
-            // [ event1, null, event2, null, event3, null, null, event4 ]
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
-                NOTE_OFF_EVENT, null, event2, null, event3, event1, null, event4
+                NOTE_OFF_EVENT, 0, event2, 0, event3, event1, 0, event4
             ]);
         });
 
@@ -127,9 +127,9 @@ describe( "Event move action", () => {
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
  
             // original order was:
-            // [ event1, null, event2, null, event3, null, null, event4 ]
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
-                NOTE_OFF_EVENT, null, event2, null, event1, null, NOTE_OFF_EVENT, event4
+                NOTE_OFF_EVENT, 0, event2, 0, event1, 0, NOTE_OFF_EVENT, event4
             ]);
         });
 
@@ -140,16 +140,16 @@ describe( "Event move action", () => {
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
             // original order was:
-            // [ event1, null, event2, null, event3, null, null, event4 ]
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
-                NOTE_OFF_EVENT, null, event2, null, event3, null, event1, null
+                NOTE_OFF_EVENT, 0, event2, 0, event3, 0, event1, 0
             ]);
         });
 
         it( "should maintain its length and erase any existing overlapping notes with a short duration", () => {
             // we will shorten the duration of event3 to only last for a single step
             pattern.channels[ channelIndex ] = [
-                event1, null, event2, null, event3, NOTE_OFF_EVENT, null, event4
+                event1, 0, event2, 0, event3, NOTE_OFF_EVENT, 0, event4
             ];
             const oldStep = pattern.channels[ channelIndex ].indexOf( event1 );
             const newStep = 3;
@@ -157,7 +157,7 @@ describe( "Event move action", () => {
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
             expect( pattern.channels[ channelIndex ]).toEqual([
-                NOTE_OFF_EVENT, null, event2, event1, null, NOTE_OFF_EVENT, null, event4
+                NOTE_OFF_EVENT, 0, event2, event1, 0, NOTE_OFF_EVENT, 0, event4
             ]);
         });
 
@@ -168,9 +168,9 @@ describe( "Event move action", () => {
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
             // original order was:
-            // [ event1, null, event2, null, event3, null, null, event4 ]
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
-                event1, null, event2, event3, null, null, NOTE_OFF_EVENT, event4
+                event1, 0, event2, event3, 0, 0, NOTE_OFF_EVENT, event4
             ]);
         });
 
@@ -181,9 +181,9 @@ describe( "Event move action", () => {
             MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
 
             // original order was:
-            // [ event1, null, event2, null, event3, null, null, event4 ]
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
-                event1, null, NOTE_OFF_EVENT, event2, null, event3, null, event4
+                event1, 0, NOTE_OFF_EVENT, event2, 0, event3, 0, event4
             ]);
         });
     });
@@ -198,7 +198,7 @@ describe( "Event move action", () => {
         undo();
 
         expect( pattern.channels[ channelIndex ]).toEqual([
-            event1, null, event2, null, event3, null, null, event4
+            event1, 0, event2, 0, event3, 0, 0, event4
         ]);
         expect( commitSpy ).toHaveBeenCalledWith( "invalidateChannelCache", { song });
     });

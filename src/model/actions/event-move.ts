@@ -26,9 +26,9 @@ import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
-import { getNextEvent } from "@/utils/event-util";
+import EventUtil, { getNextEvent } from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { createNoteOffEvent, insertEvent } from "./event-actions";
+import { createNoteOffEvent, insertEvent, invalidateCache } from "./event-actions";
 
 export default function( store: Store<EffluxState>,
     patternIndex: number, channelIndex: number,
@@ -73,9 +73,9 @@ export default function( store: Store<EffluxState>,
                 // in case the new range of the event contains noteOn actions for longer events, we
                 // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
                 if ( nextStep < channel.length && channel[ i ]?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
-                    Vue.set( channel, nextStep, channel[ i ]);
+                    insertEvent( channel[ i ], song, patternIndex, channelIndex, nextStep );
                 }
-                Vue.set( channel, i, null );
+                EventUtil.clearEvent( song, patternIndex, channelIndex, i );
             }
         }
 
@@ -84,7 +84,7 @@ export default function( store: Store<EffluxState>,
         if ( nextIndex < lastAvailableSlot && !channel[ nextIndex ] ) {
             insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
         }
-        store.commit( "invalidateChannelCache", { song });
+        invalidateCache( store, song, channelIndex );
     }
     act(); // perform action
 
@@ -92,7 +92,7 @@ export default function( store: Store<EffluxState>,
         undo(): void {
             // clone() is necessary to avoid conflicts when stepping the history state back and forth
             Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
-            store.commit( "invalidateChannelCache", { song });
+            invalidateCache( store, song, channelIndex );
         },
         redo: act
     };
