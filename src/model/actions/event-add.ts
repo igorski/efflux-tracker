@@ -22,20 +22,28 @@
  */
 import Vue from "vue";
 import type { Store } from "vuex";
-import EventFactory from "@/model/factories/event-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
+import { insertEvent, createNoteOffEvent } from "./event-actions";
 
 type IUpdateHandler = ( advanceStep?: boolean ) => void;
+
+type OptEventData = Partial<{
+    patternIndex: number,
+    channelIndex: number,
+    step: number,
+    advanceOnAddition: boolean,
+    newEvent: true,
+}>;
 
 /**
  * adds a single EffluxAudioEvent into a pattern
  */
 export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
-    optEventData: any, updateHandler: IUpdateHandler ): IUndoRedoState {
+    optEventData: OptEventData, updateHandler: IUpdateHandler ): IUndoRedoState {
 
     const { state } = store;
     const song  = state.song.activeSong;
@@ -91,7 +99,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         }
         Vue.set( channel, step, event );
         if ( addNoteOff ) {
-            Vue.set( channel, step + 1, EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF ));
+            insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, step + 1 );
         }
         store.commit( "invalidateChannelCache", { song });
      
@@ -133,11 +141,11 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             if ( existingEvent ) {
                 const restoredEvent = deserialize( existingEvent );
                 Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step, restoredEvent );
-                store.commit( "invalidateChannelCache", { song });
             }
             if ( addNoteOff ) {
-                Vue.set( song.patterns[ patternIndex ].channels[ channelIndex ], step + 1, 0 );
+                EventUtil.clearEvent( song, patternIndex, channelIndex, step + 1 );
             }
+            store.commit( "invalidateChannelCache", { song });
             updateHandler();
         },
         redo: act

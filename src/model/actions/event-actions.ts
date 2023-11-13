@@ -30,6 +30,13 @@ export function createNoteOffEvent( channelIndex: number ): EffluxAudioEvent {
     return EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF );
 }
 
+/**
+ * Inserting an event is a two-step process.
+ * 
+ * 1. It needs to calculate its position in relating to the pattern its going to be injected in (so the sequencer
+ * can enqueue it properly when reading the pattern channels).
+ * 2. It needs to be inserted into the correct pattern channel so it becomes part of the song.
+ */
 export function insertEvent( event: EffluxAudioEvent, song: EffluxSong, patternIndex: number, channelIndex: number, step: number ): void {
     const pattern = song.patterns[ patternIndex ];
     EventUtil.setPosition( event, pattern, step, song.meta.tempo );
