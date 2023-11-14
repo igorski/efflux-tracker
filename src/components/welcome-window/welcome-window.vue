@@ -81,11 +81,9 @@
 <script lang="ts">
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
-import Config from "@/config";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
-import SongFactory from "@/model/factories/song-factory";
 import { EffluxSongType } from "@/model/types/song";
 import { PROPERTIES } from "@/store/modules/settings-module";
 
