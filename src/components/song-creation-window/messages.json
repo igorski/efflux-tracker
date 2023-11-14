@@ -3,7 +3,7 @@
         "createNew": "Create new song",
         "tracker": "Tracker",
         "jamSession": "Jam session",
-        "trackerExpl": "Maximum control over the structure of a song with effects automation and pattern organising, but comes with a larger learning curve.",
-        "jamSessionExpl": "A more intuitive graphical interface allowing for fast creation and sequencing of loops. Works well in a live jamming environment."
+        "trackerExpl": "Maximum control over the structure of a song with effects automation and multichannel patterns, but comes with a steeper learning curve.",
+        "jamSessionExpl": "A more intuitive graphical interface allowing for fast creation and sequencing of loops. Works well as a live jamming environment."
     }
 }

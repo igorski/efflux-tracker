@@ -53,15 +53,15 @@ export default function( store: Store<EffluxState>,
     const newEvent = { ...orgEvent, ...optProps };
 
     const nextEvent = getNextEvent( song, orgEvent, channelIndex, patternIndex );
-    let eventLength = 1; // length in pattern steps
-
+    let eventLength = channel.length - oldStep; // length in pattern steps, defaults to continue until the end of the pattern...
+    // ...unless its followed by another event
     if ( nextEvent ) {
         const nextEventStep = channel.indexOf( nextEvent.event );
         eventLength = nextEventStep - oldStep;
     }
 
-    const eventEnd = ( newStep + eventLength ) - 1; // last step index of the events new range
-    const nextIndex = eventEnd + 1; // index of the first event following the moved event
+    const eventEnd  = Math.min( lastAvailableSlot, ( newStep + eventLength ) - 1 ); // last step index of the events new range
+    const nextIndex = eventEnd + 1; // index of the first slot following the moved event
 
     function act(): void {
         insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, oldStep );
@@ -81,7 +81,7 @@ export default function( store: Store<EffluxState>,
 
         // when event (after repositioning) is not directly followed by another, we add a
         // note off event so we maintain the original event duration
-        if ( nextIndex < lastAvailableSlot && !channel[ nextIndex ] ) {
+        if ( nextIndex <= lastAvailableSlot && !channel[ nextIndex ] ) {
             insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
         }
         invalidateCache( store, song, channelIndex );

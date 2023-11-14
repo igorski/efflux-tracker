@@ -1,10 +1,11 @@
 import { describe, vi, it, expect, beforeEach, afterEach } from "vitest";
 import MoveEvent from "@/model/actions/event-move";
+import { createNoteOffEvent } from "@/model/actions/event-actions";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -28,7 +29,7 @@ describe( "Event move action", () => {
     let song: EffluxSong;
     let pattern: EffluxPattern;
 
-    const NOTE_OFF_EVENT = EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF );
+    const NOTE_OFF_EVENT = createNoteOffEvent();
 
     let event1: EffluxAudioEvent;
     let event2: EffluxAudioEvent;
@@ -161,6 +162,21 @@ describe( "Event move action", () => {
             ]);
         });
 
+        it( "should maintain its length when its the last event and is moved backwards", () => {
+            // we will shorten the duration of event3 to only last for two steps, and we remove the last event
+            pattern.channels[ channelIndex ] = [
+                event1, 0, event2, 0, 0, 0, event3, 0
+            ];
+            const oldStep = pattern.channels[ channelIndex ].indexOf( event3 );
+            const newStep = oldStep - 2;
+    
+            MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+            expect( pattern.channels[ channelIndex ]).toEqual([
+                event1, 0, event2, 0, event3, 0, NOTE_OFF_EVENT, 0
+            ]);
+        });
+
         it( "should maintain its length and cut the length of any existing overlapping (long duration) notes, when moving back", () => {
             const oldStep = pattern.channels[ channelIndex ].indexOf( event3 );
             const newStep = oldStep - 1;
@@ -184,6 +200,33 @@ describe( "Event move action", () => {
             // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( pattern.channels[ channelIndex ]).toEqual([
                 event1, 0, NOTE_OFF_EVENT, event2, 0, event3, 0, event4
+            ]);
+        });
+
+        it( "should maintain its length when its the last event in the pattern and is moved forward", () => {
+            pattern.channels[ channelIndex ] = [
+                event1, 0, event2, event3, 0, NOTE_OFF_EVENT, 0, 0
+            ]
+            const oldStep = pattern.channels[ channelIndex ].indexOf( event3 );
+            const newStep = 5;
+    
+            MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+            expect( pattern.channels[ channelIndex ]).toEqual([
+                event1, 0, event2, NOTE_OFF_EVENT, 0, event3, 0, NOTE_OFF_EVENT
+            ]);
+        });
+
+        it( "should cut its length when its new position has less free slots available than the events current total duration", () => {
+            const oldStep = pattern.channels[ channelIndex ].indexOf( event3 );
+            const newStep = 6;
+    
+            MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+            // original order was:
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
+            expect( pattern.channels[ channelIndex ]).toEqual([
+                event1, 0, event2, 0, NOTE_OFF_EVENT, 0, event3, 0
             ]);
         });
     });
