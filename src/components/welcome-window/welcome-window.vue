@@ -134,6 +134,7 @@ export default {
             this.createSong( EffluxSongType.JAM ).then( song => {
                 this.openSong( song );
                 this.close();
+                this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
             });
         },
         close(): void {
