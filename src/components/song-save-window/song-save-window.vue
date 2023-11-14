@@ -24,26 +24,32 @@
     <div class="song-save-window">
         <div class="header">
             <h2 v-t="'title'"></h2>
-            <button class="close-button"
-                    @click="$emit('close')"
+            <button
+                type="button"
+                class="close-button"
+                @click="close()"
             >x</button>
         </div>
         <hr class="divider" />
         <div class="meta-editor">
-            <input type="text"
-                   v-model="title"
-                   ref="titleInput"
-                   :placeholder="$t('songTitle')"
-                   @focus="handleFocusIn"
-                   @blur="handleFocusOut"
-                   @keyup.enter="save"
+            <input
+                type="text"
+                v-model="title"
+                ref="titleInput"
+                :placeholder="$t('songTitle')"
+                @focus="handleFocusIn"
+                @blur="handleFocusOut"
+                @keyup.enter="save"
+                @keyup.esc="close"
             />
-            <input type="text"
-                   v-model="author"
-                   :placeholder="$t('songAuthor')"
-                   @focus="handleFocusIn"
-                   @blur="handleFocusOut"
-                   @keyup.enter="save"
+            <input
+                type="text"
+                v-model="author"
+                :placeholder="$t('songAuthor')"
+                @focus="handleFocusIn"
+                @blur="handleFocusOut"
+                @keyup.enter="save"
+                @keyup.esc="close"
             />
             <div v-if="dropboxConnected" class="dropbox-form">
                 <div class="wrapper input footer">
@@ -155,11 +161,14 @@ export default {
                     // TODO would that occur at this point ?
                 }
                 this.unsetLoading( "save" );
-                this.$emit( "close" );
+                this.close();
             } catch ( e ) {
                 // error popup will have been triggered by validator
             }
             this.isSaving = false;
+        },
+        close(): void {
+            this.$emit( "close" );
         },
     },
 }

@@ -36,7 +36,7 @@
                         @click="setPlaying( !isPlaying )"
                     ></button>
                 </li>
-                <li>
+                <li v-if="!jamMode">
                     <button
                          id="loopBTN"
                          type="button"
@@ -309,13 +309,13 @@ export default {
         blurPatternInput(): void {
             this.$refs.currentPatternInput?.blur();
         },
-        handlePatternInput( type: string, keyCode: number, event: KeyboardEvent ): void {
+        handlePatternInput( type: string, keyCode: number, event: KeyboardEvent ): boolean {
             if ( type !== "up" ) {
-                return;
+                return true; // always block when focused
             }
             switch ( keyCode ) {
                 default:
-                    return;
+                    return false;
                 case 13: // enter
                     this.blurPatternInput();
                     break;
@@ -329,6 +329,7 @@ export default {
                     break;
             }
             event.preventDefault();
+            return true;
         },
         async handleTempoInputShow(): Promise<void> {
             this.showTempoInput = true;

@@ -90,20 +90,23 @@ export default {
         ...mapMutations([
             "closeDialog",
         ]),
-        handleKey( type: string, keyCode: number/*, event: KeyboardEvent */ ): void {
+        handleKey( type: string, keyCode: number/*, event: KeyboardEvent */ ): boolean {
             switch ( keyCode ) {
                 default:
                     break;
                 case 13:
-                    return this.handleConfirm();
+                    this.handleConfirm();
+                    return true;
                 case 27:
-                    return this.handleCancel();
+                    this.handleCancel();
+                    return true;
             }
+            return false;
         },
         handleConfirm(): void {
-            if ( typeof this.confirmHandler === "function" )
+            if ( typeof this.confirmHandler === "function" ) {
                 this.confirmHandler();
-
+            }
             this.close();
         },
         handleCancel(): void {

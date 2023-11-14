@@ -36,7 +36,7 @@ import InstrumentSelectionHandler from "./keyboard/instrument-selection-handler"
 import ModuleParamHandler from "./keyboard/module-param-handler";
 import ModuleValueHandler from "./keyboard/module-value-handler";
 
-type ListenerRef = ( type: string, keyCode: number, event: KeyboardEvent ) => void;
+type ListenerRef = ( type: string, keyCode: number, event: KeyboardEvent ) => boolean;
 
 let store: Store<EffluxState>;
 let state: EffluxState;
@@ -98,9 +98,9 @@ const KeyboardService =
         return shiftDown === true;
     },
     /**
-     * attach a listener to receive updates whenever a key
-     * has been released. listenerRef is a function
-     * which receives three arguments:
+     * attach a listener to receive updates whenever a key has been released.
+     * when the listener returns true, it will be blocking all default
+     * handling behaviour defined inside this service, acting as an override.
      *
      * the listener is usually a Vue component
      */
@@ -153,8 +153,9 @@ function handleKeyDown( event: KeyboardEvent ): void {
     const { keyCode } = event;
 
     if ( typeof listener === "function" ) {
-        listener( "down", keyCode, event );
-        return;
+        if ( listener( "down", keyCode, event )) {
+            return;
+        }
     }
 
     // prevent defaults when using the arrows, space (prevents page jumps) and backspace (navigate back in history)
@@ -164,8 +165,9 @@ function handleKeyDown( event: KeyboardEvent ): void {
     }
     const hasOption = KeyboardService.hasOption( event );
     shiftDown = !!event.shiftKey;
+    const hasModifier = hasOption || shiftDown || event.altKey
 
-    if ( !hasOption && !shiftDown ) {
+    if ( !hasModifier ) {
         handleInputForMode( keyCode );
     }
 
@@ -237,14 +239,6 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 39: // right
 
             if ( store.getters.jamMode ) {
-                if ( hasOption ) {
-                    const maxPattern = activeSong.patterns.length - 1;
-                    for ( let i = 0, l = activeSong.patterns[ 0 ].channels.length; i < l; ++i ) {
-                        const patternIndex = Math.min( maxPattern, store.state.sequencer.jam[ i ].nextPatternIndex + 1 );
-                        store.commit( "setJamChannelPosition", { instrumentIndex: i, patternIndex });
-                    }
-                    break;
-                }
                 maxStep = activeSong.patterns[ store.getters.activePatternIndex ].steps - 1;
                 targetStep = editor.selectedStep + 1;
                 store.commit( "setSelectedStep", targetStep <= maxStep ? targetStep : 0 );
@@ -284,14 +278,6 @@ function handleKeyDown( event: KeyboardEvent ): void {
         case 37: // left
 
             if ( store.getters.jamMode ) {
-                if ( hasOption ) {
-                    const maxPattern = activeSong.patterns.length - 1;
-                    for ( let i = 0, l = activeSong.patterns[ 0 ].channels.length; i < l; ++i ) {
-                        const patternIndex = Math.max( 0, store.state.sequencer.jam[ i ].nextPatternIndex - 1 );
-                        store.commit( "setJamChannelPosition", { instrumentIndex: i, patternIndex });
-                    }
-                    break;
-                }
                 targetStep = editor.selectedStep - 1;
                 store.commit( "setSelectedStep", targetStep >= 0 ? targetStep : activeSong.patterns[ store.getters.activePatternIndex ].steps - 1 );
                 break;
@@ -408,7 +394,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
             break;
 
         case 76: // L
-            if ( hasOption ) {
+            if ( hasOption && !event.altKey ) {
                 store.commit( "setLooping", !sequencer.looping );
                 preventDefault( event ); // location bar
             }
@@ -436,7 +422,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
             break;
 
         case 83: // S
-            if ( hasOption ) {
+            if ( hasOption && !event.altKey ) {
                 const { meta } = activeSong;
                 if ( meta.title && meta.author ) {
                     store.dispatch( "saveSong", activeSong );
@@ -474,11 +460,11 @@ function handleKeyDown( event: KeyboardEvent ): void {
             break;
 
         case 189: // +
-            store.commit( "setHigherKeyboardOctave", Math.max( editor.higherKeyboardOctave - 1, 1 ));
+            !hasModifier && store.commit( "setHigherKeyboardOctave", Math.max( editor.higherKeyboardOctave - 1, 1 ));
             break;
 
         case 187: // -
-            store.commit( "setHigherKeyboardOctave", Math.min( editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE ));
+            !hasModifier && store.commit( "setHigherKeyboardOctave", Math.min( editor.higherKeyboardOctave + 1, Config.MAX_OCTAVE ));
             break;
 
         case 219: // [
@@ -511,12 +497,12 @@ function handleKeyUp( aEvent: KeyboardEvent ): void {
     }
 
     if ( !suspended ) {
+        let handleNotes = mode === MODES.NOTE_INPUT;
         if ( typeof listener === "function" ) {
-            listener( "up", aEvent.keyCode, aEvent );
-        } else if ( !KeyboardService.hasOption( aEvent ) && !aEvent.shiftKey ) {
-            if ( mode === MODES.NOTE_INPUT ) {
-                NoteInputHandler.createNoteOffEvent( aEvent.keyCode );
-            }
+            handleNotes = !listener( "up", aEvent.keyCode, aEvent ) && handleNotes;
+        }
+        if ( handleNotes && !KeyboardService.hasOption( aEvent ) && !aEvent.shiftKey ) {
+            NoteInputHandler.createNoteOffEvent( aEvent.keyCode );
         }
     }
 }

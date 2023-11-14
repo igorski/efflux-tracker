@@ -113,15 +113,17 @@ export default {
         ]),
         handleKeyboardInput( type, keyCode ) {
             if ( type !== "down" ) {
-                return;
+                return false;
             }
             switch ( keyCode ) {
                 default:
-                    break;
+                    return false;
                 case 27: // escape
-                    return this.handleClose();
+                    this.handleClose();
+                    break;
                 case 13: // enter
-                    return this.handleConfirm();
+                    this.handleConfirm();
+                    break;
                 case 49:
                     this.octave = "1";
                     break;
@@ -183,6 +185,7 @@ export default {
                     this.note = "B";
                     break;
             }
+            return true;
         },
         handleClose() {
             this.$emit( "close" );
