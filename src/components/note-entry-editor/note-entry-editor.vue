@@ -341,6 +341,7 @@ $largeWidth: 700px;
     @include mobile() {
         z-index: 10;
         padding: $spacing-small $spacing-medium;
+        width: 100% !important;
     }
 
     &.large {

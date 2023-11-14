@@ -263,7 +263,7 @@ export default {
          */
         handleKey( type, keyCode/*, event*/ ) {
             if ( type !== "down" ) {
-                return;
+                return true; // always block
             }
             switch ( keyCode ) {
                 // modules and parameters
@@ -312,6 +312,7 @@ export default {
                     lastValueChar = num;
                     break;
             }
+            return true;
         },
         handleSubmit() {
             const pattern = this.activeSong.patterns[ this.patternIndex ],
@@ -344,7 +345,7 @@ export default {
             this.handleClose();
         },
         handleHelp() {
-            window.open( ManualURLs.PARAM_ENTRY_HELP, "_blank" );
+            window.open( ManualURLs.PARAM_ENTRY, "_blank" );
         },
     },
 };

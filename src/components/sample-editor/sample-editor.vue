@@ -226,6 +226,7 @@
 
 <script lang="ts">
 import AudioEncoder from "audio-encoder";
+import debounce from "lodash.debounce";
 import { ToggleButton } from "vue-js-toggle-button";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
@@ -238,7 +239,6 @@ import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
-import { debounce } from "@/utils/debounce";
 import { sliceBuffer } from "@/utils/sample-util";
 import { mapTransients } from "@/utils/transient-detector";
 
@@ -433,7 +433,7 @@ export default {
             "updateSampleProps",
         ]),
         openHelp(): void {
-            window.open( ManualURLs.SAMPLE_EDITOR_HELP, "_blank" );
+            window.open( ManualURLs.SAMPLE_EDITOR, "_blank" );
         },
         deleteSample(): void {
             this.openDialog({

@@ -29,7 +29,7 @@
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
             <span>&#9776;</span>
         </div>
-        <h1 v-t="'title'"></h1>
+        <h1 v-t="'title'" class="menu__title"></h1>
         <section class="inline">
             <ul class="menu-list">
                 <li>
@@ -40,7 +40,7 @@
                                 v-t="'new'"
                                 type="button"
                                 class="menu-list__button"
-                                @click="handleReset()"
+                                @click="resetSong()"
                             ></button>
                         </li>
                         <!-- note the use of data-attributes to expose these links for external -->
@@ -108,7 +108,7 @@
                                 @click="handleTransposeClick()"
                             ></button>
                         </li>
-                        <li>
+                        <li v-if="!jamMode">
                             <button
                                 v-t="'insertChord'"
                                 type="button"
@@ -162,17 +162,6 @@
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleMixerClick()"
-                            ></button>
-                        </li>
-                        <li>
-                            <hr class="divider" />
-                        </li>
-                        <li>
-                            <button
-                                v-t="'jamMode'"
-                                type="button"
-                                class="menu-list__button"
-                                @click="openJamMode()"
                             ></button>
                         </li>
                     </ul>
@@ -252,6 +241,7 @@ export default {
         ]),
         ...mapGetters([
             "activeSong",
+            "jamMode",
             "getInstruments",
             "isPlaying",
             "totalSaved",
@@ -291,11 +281,10 @@ export default {
             "unsetLoading",
         ]),
         ...mapActions([
-            "createSong",
             "exportSong",
             "exportSongForShare",
+            "resetSong",
             "saveSong",
-            "openSong",
         ]),
         handleMouseOver(): void {
             this.setHelpTopic("menu");
@@ -348,15 +337,6 @@ export default {
         handleOptimizeClick(): void {
             this.openModal( ModalWindows.OPTIMIZATION_WINDOW );
         },
-        handleReset(): void {
-            this.openDialog({
-                type: "confirm",
-                message: this.$t("warningSongReset"),
-                confirm: () => {
-                    this.createSong().then( song => this.openSong( song ));
-                },
-            });
-        },
         handleSettings(): void {
             this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
@@ -391,9 +371,6 @@ export default {
         handleMixerClick(): void {
             this.openModal( ModalWindows.MIXER );
         },
-        openJamMode(): void {
-            this.openModal( ModalWindows.JAM_MODE );
-        },
     }
 };
 </script>
@@ -408,6 +385,10 @@ export default {
     padding: 0 $spacing-medium $spacing-small;
     width: 100%;
     @include boxSize();
+
+    &__title {
+        @include toolFont();
+    }
 }
 
 .menu-list__button,

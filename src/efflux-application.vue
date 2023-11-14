@@ -41,7 +41,7 @@
                 <transport />
             </header>
             <!-- actual application -->
-            <div class="container">
+            <div v-if="!jamMode" class="container">
                 <div
                     ref="properties"
                     class="application-properties"
@@ -50,7 +50,12 @@
                     <pattern-editor />
                 </div>
             </div>
-            <div class="container">
+            <div
+                class="container"
+                :class="{
+                    'jam-mode': jamMode
+                }"
+            >
                 <div
                     ref="editor"
                     class="application-editor"
@@ -58,11 +63,11 @@
                         'has-help-panel'          : displayHelp,
                         'settings-mode'           : mobileMode === 'settings',
                         'settings-mode--expanded' : mobileMode === 'settings' && useOrders,
-                        'note-entry-mode'         : showNoteEntry
+                        'note-entry-mode'         : showNoteEntry,
                     }"
                 >
                     <track-editor />
-                    <timeline-editor v-if="timelineMode" />
+                    <jam-mode-editor v-if="jamMode" />
                     <pattern-track-list v-else />
                     <help-section v-if="displayHelp" />
                 </div>
@@ -114,15 +119,15 @@ import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
 import Loader from "@/components/loader.vue";
-import ModalWindows from "@/definitions/modal-windows";
-import { JAM_MODE } from "@/definitions/url-params";
 import ApplicationMenu from "@/components/application-menu/application-menu.vue";
 import Notifications from "@/components/notifications.vue";
+import ModalWindows from "@/definitions/modal-windows";
+import { JAM_MODE } from "@/definitions/url-params";
+import SampleFactory from "@/model/factories/sample-factory";
+import { type EffluxSong, EffluxSongType} from "@/model/types/song";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
-import SampleFactory from "@/model/factories/sample-factory";
-import type { EffluxSong } from "@/model/types/song";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
 import store from "@/store";
@@ -170,7 +175,7 @@ export default {
         NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        TimelineEditor: () => asyncComponent( "tl", () => import( "@/components/timeline-editor/timeline-editor.vue" )),
+        JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
         TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
@@ -198,7 +203,7 @@ export default {
             "displayWelcome",
             "hasChanges",
             "isLoading",
-            "timelineMode",
+            "jamMode",
             "useOrders",
         ]),
         activeModal(): null | (() => IAsyncComponent) {
@@ -206,6 +211,9 @@ export default {
             switch ( this.modal ) {
                 default:
                     return null;
+                case ModalWindows.SONG_CREATION_WINDOW:
+                    loadFn = () => import( "@/components/song-creation-window/song-creation-window.vue" );
+                    break;
                 case ModalWindows.ADVANCED_PATTERN_EDITOR:
                     loadFn = () => import( "@/components/advanced-pattern-editor/advanced-pattern-editor.vue" );
                     break;
@@ -254,8 +262,11 @@ export default {
                 case ModalWindows.CHORD_GENERATOR_WINDOW:
                     loadFn = () => import( "@/components/chord-generator-window/chord-generator-window.vue" );
                     break;
-                case ModalWindows.JAM_MODE:
-                    loadFn = () => import( "@/components/jam/jam.vue" );
+                case ModalWindows.JAM_MODE_INSTRUMENT_EDITOR:
+                    loadFn = () => import( "@/components/jam-mode-instrument-editor/jam-mode-instrument-editor.vue" );
+                    break;
+                case ModalWindows.JAM_MODE_PIANO_ROLL:
+                    loadFn = () => import( "@/components/jam-mode-editor/components/piano-roll/piano-roll.vue" );
                     break;
                 case ModalWindows.PATTERN_MANAGER:
                     loadFn = () => import( "@/components/pattern-manager/pattern-manager.vue" );
@@ -297,6 +308,7 @@ export default {
                 return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
             }
             this.publishMessage( PubSubMessages.SONG_LOADED );
+            this.$nextTick( this.calculateDimensions );
 
             if ( !song.meta.title ) {
                 return;
@@ -329,7 +341,8 @@ export default {
 
         // prepare model
 
-        this.openSong( await this.createSong());
+        const urlParams = new URLSearchParams( window.location.search );
+        this.openSong( await this.createSong( urlParams.has( JAM_MODE ) ? EffluxSongType.JAM : EffluxSongType.TRACKER ));
         await this.prepareSequencer( this.$store );
         await this.setupServices( i18n );
         this.addListeners();
@@ -386,21 +399,32 @@ export default {
             }
         };
 
-        window.addEventListener( "paste", event => {
-            loadFiles( readClipboardFiles( event?.clipboardData ));
-        }, false );
+        // browser event we listen to during the application lifetime
+        const handlers: Record<string, ( event: Event ) => void> = {
+            paste: event => {
+                loadFiles( readClipboardFiles(( event as ClipboardEvent )?.clipboardData ));
+            },
+            dragover: event => {
+                event.stopPropagation();
+                event.preventDefault();
+                ( event as DragEvent ).dataTransfer!.dropEffect = "copy";
+            },
+            drop: event => {
+                loadFiles( readDroppedFiles(( event as DragEvent ).dataTransfer ));
+                event.preventDefault();
+                event.stopPropagation();
+            },
+            focus: event => {
+                this.setApplicationFocused( true );
+            },
+            blur: event => {
+                this.setApplicationFocused( false );
+            },
+        };
 
-        window.addEventListener( "dragover", event => {
-            event.stopPropagation();
-            event.preventDefault();
-            event.dataTransfer.dropEffect = "copy";
-        }, false );
-
-        window.addEventListener( "drop", event => {
-            loadFiles( readDroppedFiles( event?.dataTransfer ));
-            event.preventDefault();
-            event.stopPropagation();
-        }, false );
+        Object.entries( handlers ).forEach(([ event, handler ]) => {
+            window.addEventListener( event, handler, false );
+        });
 
         // show confirmation message on page reload
 
@@ -424,7 +448,6 @@ export default {
         await this.$nextTick();
         this.handleReady();
 
-        const urlParams = new URLSearchParams( window.location.search );
         if ( urlParams.has( JAM_MODE )) {
             this.openModal( ModalWindows.JAM_MODE );
         }
@@ -435,6 +458,7 @@ export default {
             "cachePatternNames",
             "gotoPattern",
             "setAmountOfSteps",
+            "setApplicationFocused",
             "setBlindActive",
             "setCurrentSample",
             "setPlaying",
@@ -476,21 +500,25 @@ export default {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });
             this.calculateDimensions();
         },
+        /**
+         * due to the nature of the table display of the pattern editors track list
+         * we need JavaScript to calculate to correct dimensions of the overflowed track list
+         */
         calculateDimensions(): void {
-            /**
-             * due to the nature of the table display of the pattern editors track list
-             * we need JavaScript to calculate to correct dimensions of the overflowed track list
-             */
-
-            // synchronize center section width with properties section width
-
-            this.centerWidth = `${this.$refs.properties.offsetWidth}px`;
+            if ( this.$refs.properties ) {
+                // synchronize center section width with properties section width
+                this.centerWidth = `${this.$refs.properties.offsetWidth}px`;
+            } else {
+                this.centerWidth = "100%";
+            }
 
             // note we do not bind a :style property onto the element inside the template as it
             // interferes with keyboard interactions done within (offsets keep jumping to center) !!
 
-            this.$refs.editor.style.width = this.centerWidth;
-        }
+            if ( this.$refs.editor ) {
+                this.$refs.editor.style.width = this.centerWidth;
+            }
+        },
     }
 };
 </script>

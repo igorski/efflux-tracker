@@ -97,15 +97,19 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapMutations } from "vuex";
 import { EQ_LOW, EQ_MID, EQ_HIGH, applyParamChange } from "@/definitions/param-ids";
 import ModalWindows from "@/definitions/modal-windows";
+import muteChannel from "@/model/actions/channel-mute";
+import soloChannel from "@/model/actions/channel-solo";
+import { type Instrument } from "@/model/types/instrument";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import AudioService, { applyModule } from "@/services/audio-service";
 import { supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
 import { supports } from "@/services/audio/webaudio-helper";
 import { clone } from "@/utils/object-util";
+import { getInstrumentName } from "@/utils/string-util";
 import EqControl from "./eq-control.vue";
 
 export default {
@@ -131,23 +135,17 @@ export default {
         ...mapState({
             activeSong: state => state.song.activeSong,
         }),
-        instrument() {
+        instrument(): Instrument {
             return this.activeSong.instruments[ this.instrumentIndex ];
         },
-        name() {
-            const { name, presetName } = this.instrument;
-            if ( !name.startsWith( "Instrument ")) {
-                // instrument has a non-default name set
-                return name;
-            }
-            // instrument has preset, use its name
-            return ( presetName || name || "" ).replace( "FACTORY ", "" );
+        name(): string {
+            return getInstrumentName( this.instrument );
         },
         volume: {
-            get() {
+            get(): number {
                 return this.instrument.volume;
             },
-            set( value ) {
+            set( value: number ): void {
                 const store = this.$store;
                 const instrumentIndex = this.instrumentIndex;
                 const wasMuted = this.instrument.muted;
@@ -164,97 +162,30 @@ export default {
             }
         },
         muted: {
-            get() {
+            get(): boolean {
                 return !!this.instrument.muted;
             },
-            set( value ) {
-                const instrumentIndex = this.instrumentIndex;
-                const store    = this.$store;
-                const wasMuted = !!this.instrument.muted;
-                const wasSolod = this.instrument.solo;
-                const volume   = this.instrument.volume;
-                const hadExistingSolo = this.hasSolo(); // implying another instrument was solod
-
-                this.update( "muted", value, newValue => {
-                    let targetVolume = newValue ? 0 : volume;
-                    const isUndo = newValue === wasMuted;
-                    if ( newValue ) {
-                        if ( wasSolod ) {
-                            // activating mute always unsolos instrument
-                            store.commit( "updateInstrument", { instrumentIndex, prop: "solo", value: false });
-                        }
-                    } else if ( hadExistingSolo && isUndo ) {
-                        targetVolume = 0;
-                    }
-                    AudioService.adjustInstrumentVolume( instrumentIndex, targetVolume );
-                });
+            set( value: boolean ): void {
+                enqueueState( `param_${this.instrumentIndex}_muted`,
+                    muteChannel( this.$store, this.instrumentIndex, value )
+                );
             }
         },
         solo: {
-            get() {
+            get(): boolean {
                 return !!this.instrument.solo;
             },
-            set( value ) {
-                const store = this.$store;
-                const instrumentIndex = this.instrumentIndex;
-                const { instruments } = this.activeSong;
-                const volume   = this.instrument.volume;
-                const wasSolod = this.instrument.solo;
-                const wasMuted = this.muted;
-
-                const instrumentStates = instruments.reduce(( acc, instrument, index ) => {
-                    acc[ index ] = {
-                        muted : instrument.muted,
-                        solo  : instrument.solo
-                    };
-                    return acc;
-                }, []);
-                // whether another instrument also has solo mode activated
-                const hadExistingSolo = instrumentStates.some(({ solo }, index ) => index !== instrumentIndex && !!solo );
-
-                this.update( "solo", value, newValue => {
-                    const isUndo = newValue === wasSolod;
-                    // update volumes of all other instruments
-                    instruments.forEach(( instrument, index ) => {
-                        if ( index === instrumentIndex ) {
-                            return;
-                        }
-                        const oldState = instrumentStates[ index ];
-                        let volume = 0;
-                        if ( !oldState.muted ) {
-                            if ( newValue ) {
-                                volume = oldState.solo ? instrument.volume : 0;
-                            } else {
-                                volume = oldState.solo || !hadExistingSolo ? instrument.volume : 0;
-                            }
-                        }
-                        if ( isUndo ) {
-                            store.commit( "updateInstrument", { instrumentIndex: index, prop: "solo", value: oldState.solo });
-                        }
-                        AudioService.adjustInstrumentVolume( index, volume );
-                    });
-                    // update volume of this instrument
-                    if ( newValue ) {
-                        if ( wasMuted ) {
-                            // activating solo always unmutes instrument
-                            store.commit( "updateInstrument", { instrumentIndex, prop: "muted", value: false });
-                        }
-                        // as multiple channels can enable solo, force volume on for this channel
-                        AudioService.adjustInstrumentVolume( instrumentIndex, volume );
-                    } else {
-                        if ( wasMuted ) {
-                            store.commit( "updateInstrument", { instrumentIndex, prop: "muted", value: true });
-                        }
-                        AudioService.adjustInstrumentVolume( instrumentIndex, wasMuted || hadExistingSolo ? 0 : volume );
-                    }
-                });
+            set( value: boolean ): void {
+                enqueueState( `param_${this.instrumentIndex}_solo`,
+                    soloChannel( this.$store, this.instrumentIndex, value )
+                );
             }
         },
         panning: {
-            get() {
+            get(): number {
                 return this.instrument.panning;
             },
-            set( value ) {
+            set( value: number ): void {
                 const index = this.instrumentIndex;
                 this.update( "panning", value, newValue => {
                     AudioService.adjustInstrumentPanning( index, newValue );
@@ -263,42 +194,42 @@ export default {
         },
         /* EQ */
         eqEnabled: {
-            get() {
+            get(): boolean {
                 return this.instrument.eq.enabled;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.update( "eq", { ...this.instrument.eq, enabled: value });
             }
         },
         eqLow: {
-            get() {
+            get(): number {
                 return this.instrument.eq.lowGain;
             },
-            set( value ) {
+            set( value: number ): void {
                 this.updateParamChange( EQ_LOW, value, this.eqLow );
             }
         },
         eqMid: {
-            get() {
+            get(): number {
                 return this.instrument.eq.midGain;
             },
-            set( value ) {
+            set( value: number ): void {
                 this.updateParamChange( EQ_MID, value, this.eqMid );
             }
         },
         eqHigh: {
-            get() {
+            get(): number {
                 return this.instrument.eq.highGain;
             },
-            set( value ) {
+            set( value: number ): void {
                 this.updateParamChange( EQ_HIGH, value, this.eqHigh );
             }
         },
-        performAnalysis() {
+        performAnalysis(): boolean {
             return supportsAnalysis( this.analyser );
         },
     },
-    created() {
+    created(): void {
         this.supportsPanning = supports( "panning" );
 
         if ( !this.performAnalysis ) {
@@ -316,7 +247,7 @@ export default {
         };
         renderLoop();
     },
-    destroyed() {
+    destroyed(): void {
         cancelAnimationFrame( this.renderCycle );
     },
     methods: {
@@ -325,18 +256,18 @@ export default {
             "setSelectedInstrument",
             "updateInstrument",
         ]),
-        openInstrumentEditor() {
+        openInstrumentEditor(): void {
             this.setSelectedInstrument( this.instrumentIndex );
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
-        hasSolo() {
+        hasSolo(): boolean {
             // whether one or more of the other channels in the songs instrument list has solo enabled
             return this.activeSong.instruments.find(( instrument, index ) => index !== this.instrumentIndex && instrument.solo );
         },
-        resetPan() {
+        resetPan(): void {
             this.panning = 0;
         },
-        update( prop, value, optChangeHandler ) {
+        update( prop: string, value: any, optChangeHandler: ( value: any ) => void ): void {
             const store    = this.$store;
             const orgValue = clone( this.instrument[ prop ] );
             const instrumentIndex = this.instrumentIndex;
@@ -361,7 +292,7 @@ export default {
                 redo: commit
             });
         },
-        updateParamChange( paramId, value, orgValue ) {
+        updateParamChange( paramId: string, value: number, orgValue: number ): void {
             const store = this.$store;
             const instrumentIndex = this.instrumentIndex;
             const commit = () => {

@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
+import Config from "@/config";
 import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
-import type { Sample } from "@/model/types/sample";
+import { EffluxSongType } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
 import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 import { createSample } from "../../mocks";
@@ -17,10 +18,27 @@ vi.mock( "@/model/serializers/sample-serializer", () => ({
 }));
 
 describe( "Song factory", () => {
-    it( "should be able to create a Song", () => {
-        const song = SongFactory.create( 6 );
-        expect( song.instruments ).toHaveLength( 6 );
-        expect( SongValidator.isValid( song )).toBe( true );
+    describe( "when constructing a new Song instance", () => {
+        it( "should by default create a valid Song with the default instrument amount", () => {
+            const song = SongFactory.create();
+            expect( song.instruments ).toHaveLength( Config.INSTRUMENT_AMOUNT );
+            expect( SongValidator.isValid( song )).toBe( true );
+        });
+
+        it( "should allow creation of Songs with custom instrument amounts", () => {
+            const song = SongFactory.create( 6 );
+            expect( song.instruments ).toHaveLength( 6 );
+        });
+
+        it( "should by default create a tracker-type Song", () => {
+            const song = SongFactory.create();
+            expect( song.type ).toEqual( EffluxSongType.TRACKER );
+        });
+
+        it( "should allow creation of jam session-type Songs", () => {
+            const song = SongFactory.create( 6, EffluxSongType.JAM );
+            expect( song.type ).toEqual( EffluxSongType.JAM );
+        });
     });
 
     describe( "when assembling and disassembling a Song structure", () => {
@@ -51,7 +69,7 @@ describe( "Song factory", () => {
         });
 
         it( "should be able to serialize a Song without loss of data", async () => {
-            const song = SongFactory.create( 8 );
+            const song = SongFactory.create( 4, EffluxSongType.JAM );
 
             const xtk = await serialize( song );
             expect( await SongFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( song );

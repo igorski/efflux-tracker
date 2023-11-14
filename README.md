@@ -54,14 +54,15 @@ Additional folders:
 
 ## Application actors
 
-The Vuex store is defined in _./src/store/_ and its submodules in the _./src/store/modules/_-folder. Each part of
-the application has its own module, these are:
+The data store is defined in _./src/store/_ and its submodules in the _./src/store/modules/_-folder. Each part of
+the application has its own module, these being:
 
  * _editor-module_ used to keep track of user interactions when editing patterns
  * _history-module_ used to keep track of song mutation history to provide undo/redo functionality
  * _instrument-module_ provides a store to save, load and edit instruments presets
  * _midi-module_ used to link MIDI hardware to the application (currently Google Chrome only)
  * _selection-module_ used to keep track of selections made in the pattern editor
+ * _sequencer-module_ used to manage playback related properties of the tracker
  * _settings-module_ used to maintain persistent configurations
  * _song-module_ provides a store to save, load and edit songs
 
@@ -202,7 +203,7 @@ the _.spec_-suffix, e.g. _functions.js_ will have a test file _functions.spec.js
 
 ## Roadmap
 
-Efflux is considered complete, though every now and then new features are added.
+Efflux is considered complete, but you can expect incremental major/minor version bumps as new features are added every now and then. 
 
-Future considerations for the code are migrating the Vue 2 code to Vue 3. To facilitate this, first the Vuex
-modules must be migrated to Pinia. There is no rush as Vue 2 is more than performant enough.
+A consideration for the codebase is migrating from Vue 2 to Vue 3 (to facilitate this, first the Vuex
+modules must be migrated to Pinia). For the time being the focus is on developing new features rather than on this migration as the end user doesn't care about these things, yo.

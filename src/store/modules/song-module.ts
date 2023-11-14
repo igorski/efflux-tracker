@@ -20,26 +20,25 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { ActionContext, Commit, Dispatch, Module } from "vuex";
+import type { ActionContext, Commit, Dispatch, Module, Store } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
-import SongFactory from "@/model/factories/song-factory";
-import createAction from "@/model/factories/action-factory";
-import Actions from "@/definitions/actions";
+import PatternFactory from  "@/model/factories/pattern-factory";
+import SongFactory, { FACTORY_VERSION } from "@/model/factories/song-factory";
 import { uploadBlob, getCurrentFolder } from "@/services/dropbox-service";
 import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages from "@/services/pubsub/messages";
-import { FACTORY_VERSION } from "@/model/factories/song-factory";
 import SongValidator from "@/model/validators/song-validator";
+import addEvent from "@/model/actions/event-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
-import type { EffluxSong, StoredEffluxSongDescriptor, EffluxSongOrigin } from "@/model/types/song";
+import { type EffluxSong, type StoredEffluxSongDescriptor, type EffluxSongOrigin, EffluxSongType } from "@/model/types/song";
 import StorageUtil from "@/utils/storage-util";
 import { saveAsFile } from "@/utils/file-util";
 import { indexToName } from "@/utils/pattern-name-util";
@@ -76,6 +75,7 @@ const SongModule: Module<SongState, any> = {
             return state.songs.find(( song: StoredEffluxSongDescriptor ) => song.id === id ) || null;
         },
         hasChanges  : ( state: SongState, getters: any ): boolean => state.statesOnSave < getters.totalSaved,
+        jamMode : ( state: SongState ): boolean => state.activeSong?.type === EffluxSongType.JAM,
     },
     mutations: {
         setSongs( state: SongState, songs: EffluxSong[] ): void {
@@ -132,12 +132,10 @@ const SongModule: Module<SongState, any> = {
          */
         // @ts-expect-error 'state' is declared but its value is never read.
         addEventAtPosition( state: SongState, { event, store, optData, optStoreInUndoRedo = true } :
-            { event: EffluxAudioEvent, store: ActionContext<EffluxState, any>, optData?: any, optStoreInUndoRedo?: boolean }): void {
-            const undoRedoAction = createAction( Actions.ADD_EVENT, {
-                store,
-                event,
-                optEventData:  optData,
-                updateHandler: ( optHighlightActiveStep?: boolean ) => {
+            { event: EffluxAudioEvent, store: Store<EffluxState>, optData?: any, optStoreInUndoRedo?: boolean }): void {
+                const undoRedoAction = addEvent(
+                store, event, optData,
+                ( optHighlightActiveStep?: boolean ) => {
 
                     if ( optStoreInUndoRedo && optHighlightActiveStep === true ) {
                         // move to the next step in the pattern (unless executed from undo/redo)
@@ -150,13 +148,13 @@ const SongModule: Module<SongState, any> = {
                         store.commit( "clearSelection" );
                     }
                 }
-            });
+            );
             if ( optStoreInUndoRedo ) {
                 store.commit( "saveState", undoRedoAction );
             }
         },
         updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
-            Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value);
+            Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value );
         },
         updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
             Vue.set( state.activeSong.instruments[ instrumentIndex ], prop, value );
@@ -237,16 +235,23 @@ const SongModule: Module<SongState, any> = {
                 }
             });
         },
-        createSong(): Promise<EffluxSong> {
-            return new Promise( resolve => {
-                resolve( SongFactory.create( Config.INSTRUMENT_AMOUNT ));
-            });
+        // @ts-expect-error 'context' is declared but its value is never read.
+        async createSong( context: ActionContext<SongState, any>, type = EffluxSongType.TRACKER ): Promise<EffluxSong> {
+            const song = SongFactory.create( Config.INSTRUMENT_AMOUNT, type );
+            if ( type === EffluxSongType.JAM ) {
+                for ( let i = 1; i < Config.JAM_MODE_PATTERN_AMOUNT; ++i ) {
+                    song.patterns.push( PatternFactory.create());
+                    song.order.push( i );
+                }
+            }
+            return song;
         },
         openSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): void {
             commit( "flushSamples" );
             commit( "setActiveSong", song );
             commit( "setSamples", song.samples );
             commit( "setStatesOnSave", 0 );
+            commit( "resetJamChannels" );
             dispatch( "cacheSongSamples", song.samples );
         },
         saveSongInLS({ state, getters, commit, dispatch } :
@@ -431,6 +436,15 @@ const SongModule: Module<SongState, any> = {
                 await dispatch( "saveSongInLS", song );
             }
         },
+        resetSong({ getters, commit }: { getters: any, commit: Commit }): void {
+            commit( "openDialog", {
+                type: "confirm",
+                message: getters.t( "warnings.songReset" ),
+                confirm: () => {
+                    commit( "openModal", ModalWindows.SONG_CREATION_WINDOW );
+                },
+            });
+        },
     }
 };
 export default SongModule;
@@ -439,6 +453,7 @@ export default SongModule;
 
 const getDescriptorForSong = ( song: EffluxSong ): StoredEffluxSongDescriptor => ({
     id: song.id,
+    type: song.type,
     meta: { ...song.meta }
 });
 

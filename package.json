@@ -1,6 +1,6 @@
 {
   "name": "efflux-tracker",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "private": true,
   "description": "Application providing tracker based music creation within the web browser",
   "author": "Igor Zinken",
@@ -33,6 +33,7 @@
     "extendable-media-recorder": "^6.5.10",
     "extendable-media-recorder-wav-encoder": "^7.0.62",
     "jsdom": "^21.1.1",
+    "lodash.debounce": "^4.0.8",
     "lz-string": "^1.4.4",
     "midi-writer-js": "^2.0.1",
     "mpg123-decoder": "^0.3.2",

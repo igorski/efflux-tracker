@@ -7,7 +7,14 @@ import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audi
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxSong } from "@/model/types/song";
-import EventUtil, { areEventsEqual, getEventLength, getPrevEvent, getNextEvent, calculateMeasureLength } from "@/utils/event-util";
+import EventUtil, {
+    areEventsEqual,
+    getEventLength,
+    getPrevEvent,
+    getNextEvent,
+    calculateMeasureLength,
+    calculateJamChannelEventLengths
+} from "@/utils/event-util";
 
 describe( "EventUtil", () => {
     let song: EffluxSong;
@@ -601,6 +608,31 @@ describe( "EventUtil", () => {
             
             expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 4 );
         });
+    });
+
+    it( "should be able to calculate the lengths of all events within a single jam channel pattern", () => {
+        const pattern = song.patterns[ 0 ];
+
+        const event1 = createAndInsertEvent( 0, song, 0, 0 );
+        const event2 = createAndInsertEvent( 1, song, 0 ,0, ACTION_NOTE_OFF );
+        const event3 = createAndInsertEvent( 2, song, 0, 0 );
+        const event4 = createAndInsertEvent( 3, song, 0, 0, ACTION_IDLE );
+        const event5 = createAndInsertEvent( 5, song, 0, 0, ACTION_NOTE_OFF );
+        const event6 = createAndInsertEvent( 7, song, 0, 0 );
+        const event7 = createAndInsertEvent( 15, song, 0, 0 );
+
+        calculateJamChannelEventLengths( pattern.channels[ 0 ], song.meta.tempo );
+
+        // duration in seconds for single pattern step
+        const STEP_IN_SEC = calculateMeasureLength( song.meta.tempo ) / pattern.steps;
+        
+        expect( event1.seq.length ).toEqual( STEP_IN_SEC ); // single step because killed in step 2 by noteOff
+        expect( event2.seq.length ).toEqual( STEP_IN_SEC ); // single step because noteOff
+        expect( event3.seq.length ).toEqual( 3 * STEP_IN_SEC ); // lasts from step 2 to 5
+        expect( event4.seq.length ).toEqual( STEP_IN_SEC ); // single step because idle
+        expect( event5.seq.length ).toEqual( STEP_IN_SEC ); // single step because note off
+        expect( event6.seq.length ).toEqual( 8 * STEP_IN_SEC ); // lasts from step 7 to 15
+        expect( event7.seq.length ).toEqual( STEP_IN_SEC ); // single step because last in pattern
     });
 });
 

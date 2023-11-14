@@ -20,20 +20,20 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import type { Module, Store } from "vuex";
+import type { Module, Store, Commit } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
 import LinkedList from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
 import { createTimer } from "@/services/audio/webaudio-helper";
 import Metronome from "@/services/audio/metronome";
-import type { EffluxState } from "@/store";
-import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { EffluxChannel } from "@/model/types/channel";
-import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxSong } from "@/model/types/song";
-import { getEventLength, calculateMeasureLength } from "@/utils/event-util";
+import { type EffluxState } from "@/store";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, } from "@/model/types/audio-event";
+import { type EffluxChannel } from "@/model/types/channel";
+import { type EffluxPattern } from "@/model/types/pattern";
+import { type JamChannelSequencerProps } from "@/model/types/jam";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
+import { getEventLength, calculateMeasureLength, calculateJamChannelEventLengths } from "@/utils/event-util";
 import SequencerWorker from "@/workers/sequencer.worker?worker&inline";
 
 export interface SequencerState {
@@ -53,6 +53,9 @@ export interface SequencerState {
     currentStep: number;
     nextNoteTime: number;
     channels?: EffluxChannel[];
+    // only used when song is of EffluxSongType.JAM
+    jam: JamChannelSequencerProps[];
+    jamChannelFlushIndex: number;
 };
 
 export const createSequencerState = ( props?: Partial<SequencerState> ): SequencerState => ({
@@ -72,6 +75,8 @@ export const createSequencerState = ( props?: Partial<SequencerState> ): Sequenc
     currentStep           : 0,
     nextNoteTime          : 0,
     channels              : undefined,
+    jam                   : new Array( Config.INSTRUMENT_AMOUNT ),
+    jamChannelFlushIndex  : -1,
     ...props
 });
 
@@ -88,7 +93,7 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
     const activeSong = store.state.song.activeSong;
     const { action, seq } = event;
 
-    seq.playing      = true; // prevents retriggering of same event
+    seq.playing      = true; // prevents retriggering of same event during its playback
     seq.startMeasure = startMeasure;
 
     // calculate the total duration for the events optional module parameter
@@ -180,6 +185,24 @@ function freeHandler( state: SequencerState, node: OscillatorNode ): void {
     }
 }
 
+function haltPlaybackForChannel( state: SequencerState, channelIndex: number ): void {
+    const list = state.channelQueue[ channelIndex ];
+    let playingNote = list.tail;
+    while ( playingNote ) {
+        const nextNote = playingNote.previous;
+        dequeueEvent( state, playingNote.data, 0 );
+        playingNote.data.seq.playing = false;
+        playingNote.remove();
+        playingNote = nextNote;
+    }
+    const channel = state.channels![ channelIndex ];
+    for ( const event of channel ) {
+        if ( event ) {
+            event.seq.playing = false;
+        }
+    }
+}
+
 function collect( store: Store<EffluxState> ): void {
     const state: SequencerState = store.state.sequencer;
     const audioContext: BaseAudioContext = getAudioContext();
@@ -248,17 +271,38 @@ function step( store: Store<EffluxState> ): void {
     state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
 
     // advance the beat number, wrap to zero when start of next bar is enqueued
-
     const currentStep = state.currentStep + 1;
     if ( currentStep === state.stepPrecision ) {
         store.commit( "setCurrentStep", 0 );
+
+        if ( activeSong.type === EffluxSongType.JAM ) {
+            let switchedPatterns = false;
+            for ( const channel of state.jam ) {
+                if ( channel.activePatternIndex !== channel.nextPatternIndex ) {
+                    channel.activePatternIndex = channel.nextPatternIndex;
+                    switchedPatterns = true;
+                }
+            }
+            if ( switchedPatterns ) {
+                cacheActivePatternChannels( state, activeSong );
+                for ( let i = 0, l = state.channels.length; i < l; ++i ) {
+                    if ( state.channels[ i ].filter( Boolean ).length === 0 ) {
+                        haltPlaybackForChannel( state, i ); // halt playback of existing notes in channel when new pattern is empty
+                    }
+                }
+            }
+            if ( state.jamChannelFlushIndex >= 0 ) {
+                haltPlaybackForChannel( state, state.jamChannelFlushIndex );
+                state.jamChannelFlushIndex = -1;
+            }
+        }
 
         let sync = true;
         const nextOrderIndex = state.activeOrderIndex + 1;
         const maxOrderIndex  = activeSong.order.length - 1;
     
-        // advance/update the measure only when the Sequencer isn't looping
-        if ( !state.looping ) {
+        // for non-JAM songs, advance/update the measure only when the Sequencer isn't looping
+        if ( !state.looping && activeSong.type !== EffluxSongType.JAM ) {
             if ( nextOrderIndex > maxOrderIndex ) {
                 // last measure reached, jump back to first
                 store.commit( "gotoPattern", { orderIndex: 0, song: activeSong });
@@ -303,12 +347,29 @@ function syncPositionToSequencerUpdate( state: SequencerState, activeSong: Efflu
 
 function cacheActivePatternChannels( state: SequencerState, activeSong: EffluxSong ): void {
     const { activeOrderIndex, activePatternIndex } = state;
-    state.channels = activeSong.patterns[ activePatternIndex ].channels;
+    const isJam = activeSong.type === EffluxSongType.JAM;
 
-    for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
-        for ( const event of state.channels![ channelIndex ] ) {
-            if ( event ) {
-                event.seq.length = getEventLength( event, channelIndex, activeOrderIndex, activeSong );
+    if ( isJam ) {
+        // a jam song allows each individual channel to be playing back at a different pattern index
+        const channels: EffluxChannel[] = [];
+        for ( let channelIndex = 0, cl = state.jam.length; channelIndex < cl; ++channelIndex ) {
+            const { activePatternIndex } = state.jam[ channelIndex ];
+            channels.push( activeSong.patterns[ activePatternIndex ].channels[ channelIndex ]);
+        }
+        state.channels = channels;
+
+        for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
+            calculateJamChannelEventLengths( state.channels![ channelIndex ], activeSong.meta.tempo );
+        }
+    }
+    else {
+        state.channels = activeSong.patterns[ activePatternIndex ].channels;
+
+        for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
+            for ( const event of state.channels![ channelIndex ] ) {
+                if ( event ) {
+                    event.seq.length = getEventLength( event, channelIndex, activeOrderIndex, activeSong );
+                }
             }
         }
     }
@@ -501,6 +562,28 @@ const SequencerModule: Module<SequencerState, any> = {
                 Vue.set( pattern, "steps", steps );
             });
         },
+        setJamChannelLock( state: SequencerState, { instrumentIndex, locked } : { instrumentIndex: number, locked: boolean }): void {
+            Vue.set( state.jam, instrumentIndex, { ...state.jam[ instrumentIndex ], locked });
+        },
+        setJamChannelPosition( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
+            if ( state.jam[ instrumentIndex ].locked ) {
+                return;
+            }
+            const nextPatternIndex = patternIndex;
+            let { activePatternIndex } = state.jam[ instrumentIndex ];
+            if ( !state.playing ) {
+                activePatternIndex = nextPatternIndex;
+            }
+            Vue.set( state.jam, instrumentIndex, { activePatternIndex, nextPatternIndex });
+        },
+        resetJamChannels( state: SequencerState ): void {
+            for ( let i = 0; i < state.jam.length; ++i ) {
+                state.jam[ i ] = { activePatternIndex: 0, nextPatternIndex: 0, locked: false };
+            }
+        },
+        flushJamChannel( state: SequencerState, channelIndex: number ): void {
+            state.jamChannelFlushIndex = channelIndex;
+        },
         // @ts-expect-error 'state' is declared but its value is never read.
         setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
             Metronome.enabled.value = !!enabled;
@@ -515,8 +598,10 @@ const SequencerModule: Module<SequencerState, any> = {
         setPosition,
     },
     actions: {
-        prepareSequencer({ state }: { state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
+        prepareSequencer({ commit, state }: { commit: Commit, state: SequencerState }, rootStore: Store<EffluxState> ): Promise<void> {
             return new Promise( resolve => {
+                commit( "resetJamChannels" );
+
                 // create LinkedLists to store all currently playing events for all channels
 
                 for ( let i = 0; i < state.channelQueue.length; ++i ) {

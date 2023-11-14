@@ -34,8 +34,6 @@
 </template>
 
 <script lang="ts">
-import { mapMutations } from "vuex";
-import APPLICATION_MODE from "@/definitions/application-modes";
 import InstrumentEditor from "@/components/instrument-editor/instrument-editor.vue";
 import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor.vue";
 
@@ -44,15 +42,8 @@ export default {
         InstrumentEditor,
         NoteEntryEditor,
     },
-    created() {
-        this.setApplicationMode( APPLICATION_MODE.JAM_MODE );
-    },
     methods: {
-        ...mapMutations([
-            "setApplicationMode",
-        ]),
-        handleClose() {
-            this.setApplicationMode( APPLICATION_MODE.TRACKER );
+        handleClose(): void {
             this.$emit( "close" );
         },
     }

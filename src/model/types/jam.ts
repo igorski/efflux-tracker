@@ -20,8 +20,15 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-enum APPLICATION_MODE {
-    TRACKER = 0,
-    JAM_MODE,
+import { type EffluxChannel } from "./channel";
+
+export type JamChannel = {
+    index: number;
+    patterns: EffluxChannel[]
 };
-export default APPLICATION_MODE;
+
+export type JamChannelSequencerProps = {
+    activePatternIndex: number;
+    nextPatternIndex: number;
+    locked: boolean;
+};

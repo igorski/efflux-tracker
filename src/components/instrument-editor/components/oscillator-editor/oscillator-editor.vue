@@ -1,25 +1,25 @@
 /**
-* The MIT License (MIT)
-*
-* Igor Zinken 2016-2023 - https://www.igorski.nl
-*
-* Permission is hereby granted, free of charge, to any person obtaining a copy of
-* this software and associated documentation files (the "Software"), to deal in
-* the Software without restriction, including without limitation the rights to
-* use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
-* the Software, and to permit persons to whom the Software is furnished to do so,
-* subject to the following conditions:
-*
-* The above copyright notice and this permission notice shall be included in all
-* copies or substantial portions of the Software.
-*
-* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
-* FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
-* COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
-* IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-* CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-*/
+ * The MIT License (MIT)
+ *
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 <template>
     <section class="instrument-oscillator-editor">
         <!-- waveform selection -->
@@ -42,23 +42,14 @@
                 sync
             />
         </div>
-        <!-- waveform displays -->
-        <div v-if="isSampler" class="waveform-container">
-            <sample-display
-                :sample="selectedSample"
-                :color="instrumentColor"
-                width="740"
-                height="200"
-                class="waveform-canvas"
-            />
-            <button
-                v-t="'editSample'"
-                type="button"
-                class="waveform-container__action-button"
-                @click="openSampleEditor()"
-            ></button>
-        </div>
-        <div v-show="!isSampler" class="waveform-container" ref="canvasContainer"><!-- x --></div>
+        <!-- waveform display -->
+        <waveform-display
+            class="waveform-container"
+            :enabled="oscillatorEnabled"
+            :instrument-index="instrumentIndex"
+            :oscillator-index="oscillatorIndex"
+            @invalidate="invalidate()"
+        />
         <!-- oscillator tuning and volume -->
         <div class="tuning-editor instrument-parameters">
             <h2 v-t="'oscillatorTuning'"></h2>
@@ -158,80 +149,63 @@
         </div>
     </section>
 </template>
-<script>
-import { mapState, mapGetters, mapMutations } from "vuex";
-import { canvas } from "zcanvas";
+
+<script lang="ts">
+import { mapGetters } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
-import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
-import ModalWindows from "@/definitions/modal-windows";
-import AudioService, { applyModules, getAnalysers } from "@/services/audio-service";
-import PubSubService from "@/services/pubsub-service";
-import Messages from "@/services/pubsub/messages";
-import { supportsAnalysis } from "@/services/audio/analyser";
+import AudioService from "@/services/audio-service";
 import { enqueueState } from "@/model/factories/history-state-factory";
-import InstrumentFactory from "@/model/factories/instrument-factory";
-import SampleFactory from "@/model/factories/sample-factory";
+import type { InstrumentOscillator } from "@/model/types/instrument";
+import type { Sample } from "@/model/types/sample";
 import SelectBox from "@/components/forms/select-box.vue";
-import SampleDisplay from "@/components/sample-display/sample-display.vue";
-import { easeIn } from "@/utils/easing";
+import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import { clone } from "@/utils/object-util";
-import WaveTableDisplay from "../wavetable-display";
 import messages from "./messages.json";
 
 const TUNING_PROPERTIES = [ "detune", "octaveShift", "fineShift" ];
 
-// see colors.scss
-const INSTRUMENT_COLORS = [
-    "#b25050", "#b28050", "#a9b250", "#60b250", "#50b292", "#5071b2", "#8850b2", "#FF813D"
-];
-
 export default {
     i18n: { messages },
     components: {
-        SampleDisplay,
         SelectBox,
         ToggleButton,
+        WaveformDisplay,
     },
     props: {
-        oscillatorIndex: {
-            type: Number,
-            required: true,
-        },
         instrumentIndex: {
             type: Number,
             required: true,
         },
-        instrumentRef: {
-            type: Object,
+        oscillatorIndex: {
+            type: Number,
             required: true,
         },
     },
     data: () => ({
         activeEnvelopeTab: 0,
-        canvas: null,
-        wtDisplay: null,
-        performAnalysis: false,
     }),
     computed: {
-        ...mapState([
-            "windowSize",
-        ]),
         ...mapGetters([
             "activeSong",
             "samples",
         ]),
-        oscillator() {
-            return this.instrumentRef.oscillators[ this.oscillatorIndex ];
+        oscillator(): InstrumentOscillator {
+            return this.activeSong.instruments[ this.instrumentIndex ].oscillators[ this.oscillatorIndex ];
+        },
+        isSampler(): boolean {
+            return this.oscillator.waveform === OscillatorTypes.SAMPLE;
         },
         // generic oscillator properties
         oscillatorEnabled: {
-            get() { return this.oscillator.enabled; },
-            set( value ) { this.update( "enabled", value ); }
+            get(): boolean { return this.oscillator.enabled; },
+            set( value: boolean ): void { this.update( "enabled", value ); }
         },
         oscillatorWaveform: {
-            get() { return this.oscillator.waveform; },
-            set( value ) {
+            get(): boolean {
+                return this.oscillator.waveform;
+            },
+            set( value: OscillatorTypes ): void {
                 this.update( "waveform", value );
                 if ( value === OscillatorTypes.SAMPLE && !this.oscillator.sample ) {
                     this.selectedSampleName = this.samples?.length ? this.samples[ 0 ].name : "";
@@ -239,61 +213,61 @@ export default {
             }
         },
         oscillatorVolume: {
-            get() { return this.oscillator.volume; },
-            set( value ) { this.update( "volume", value ); }
+            get(): number { return this.oscillator.volume; },
+            set( value: number ): void { this.update( "volume", value ); }
         },
         // oscillator tuning
         oscillatorDetune: {
-            get() { return this.oscillator.detune; },
-            set( value ) { this.update( "detune", value ); }
+            get(): number { return this.oscillator.detune; },
+            set( value: number ) { this.update( "detune", value ); }
         },
         oscillatorOctaveShift: {
-            get() { return this.oscillator.octaveShift; },
-            set( value ) { this.update( "octaveShift", value ); }
+            get(): number { return this.oscillator.octaveShift; },
+            set( value: number ): void { this.update( "octaveShift", value ); }
         },
         oscillatorFineShift: {
-            get() { return this.oscillator.fineShift; },
-            set( value ) { this.update( "fineShift", value ); }
+            get(): number { return this.oscillator.fineShift; },
+            set( value: number ): void { this.update( "fineShift", value ); }
         },
         // oscillator amplitude envelopes
         amplitudeAttack: {
-            get() { return this.oscillator.adsr.attack; },
-            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, attack: value }); }
+            get(): number { return this.oscillator.adsr.attack; },
+            set( value: number ): void { this.update( "adsr", { ...this.oscillator.adsr, attack: value }); }
         },
         amplitudeDecay: {
-            get() { return this.oscillator.adsr.decay; },
-            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, decay: value }); }
+            get(): number { return this.oscillator.adsr.decay; },
+            set( value: number ): void { this.update( "adsr", { ...this.oscillator.adsr, decay: value }); }
         },
         amplitudeSustain: {
-            get() { return this.oscillator.adsr.sustain; },
-            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, sustain: value }); }
+            get(): number { return this.oscillator.adsr.sustain; },
+            set( value: number ): void { this.update( "adsr", { ...this.oscillator.adsr, sustain: value }); }
         },
         amplitudeRelease: {
-            get() { return this.oscillator.adsr.release; },
-            set( value ) { this.update( "adsr", { ...this.oscillator.adsr, release: value }); }
+            get(): number { return this.oscillator.adsr.release; },
+            set( value: number ): void { this.update( "adsr", { ...this.oscillator.adsr, release: value }); }
         },
         // oscillator pitch envelopes
         pitchRange: {
-            get() { return this.oscillator.pitch.range; },
-            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, range: value }); }
+            get(): number { return this.oscillator.pitch.range; },
+            set( value: number ): void { this.update( "pitch", { ...this.oscillator.pitch, range: value }); }
         },
         pitchAttack: {
-            get() { return this.oscillator.pitch.attack; },
-            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, attack: value }); }
+            get(): number { return this.oscillator.pitch.attack; },
+            set( value: number ): void { this.update( "pitch", { ...this.oscillator.pitch, attack: value }); }
         },
         pitchDecay: {
-            get() { return this.oscillator.pitch.decay; },
-            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, decay: value }); }
+            get(): number { return this.oscillator.pitch.decay; },
+            set( value: number ): void { this.update( "pitch", { ...this.oscillator.pitch, decay: value }); }
         },
         pitchSustain: {
-            get() { return this.oscillator.pitch.sustain; },
-            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, sustain: value }); }
+            get(): number { return this.oscillator.pitch.sustain; },
+            set( value: number ): void { this.update( "pitch", { ...this.oscillator.pitch, sustain: value }); }
         },
         pitchRelease: {
-            get() { return this.oscillator.pitch.release; },
-            set( value ) { this.update( "pitch", { ...this.oscillator.pitch, release: value }); }
+            get(): number { return this.oscillator.pitch.release; },
+            set( value: number ): void { this.update( "pitch", { ...this.oscillator.pitch, release: value }); }
         },
-        availableWaveforms() {
+        availableWaveforms(): { label: string, value: OscillatorTypes }[] {
             return [
                 { label: this.$t( "sawtooth" ), value: OscillatorTypes.SAW },
                 { label: this.$t( "sine" ),     value: OscillatorTypes.SINE },
@@ -305,114 +279,28 @@ export default {
                 { label: this.$t( "sample" ),   value: OscillatorTypes.SAMPLE }
             ];
         },
-        isSampler() {
-            return this.oscillator.waveform === OscillatorTypes.SAMPLE;
-        },
-        availableSamples() {
+        availableSamples(): Sample[] {
             return this.samples.map(({ name }) => ({ label: name, value: name }));
         },
         selectedSampleName: {
-            get() {
+            get(): string {
                 return this.oscillator.sample;
             },
-            set( name ) {
+            set( name: string ): void {
                 this.update( "sample", name );
             }
         },
-        selectedSample() {
-            const sample = this.samples.find(({ name }) => name === this.selectedSampleName );
-            if ( !sample ) {
-                return null;
-            }
-            return {
-                ...sample,
-                buffer: SampleFactory.getBuffer( sample, AudioService.getAudioContext() )
-            };
-        },
-        instrumentColor() {
-            return INSTRUMENT_COLORS[ this.instrumentIndex ];
-        },
-    },
-    watch: {
-        windowSize: {
-            immediate: true,
-            handler({ width, height }) {
-                if ( this.canvas ) {
-                    this.resizeWaveTableDraw(width, height);
-                }
-            },
-        },
-        oscillatorEnabled: {
-            immediate: true,
-            handler( enabled ) {
-                if ( this.canvas ) {
-                    this.canvas.setBackgroundColor( enabled ? "#000" : "#333" );
-                    this.wtDisplay.setEnabled( enabled );
-                }
-            }
-        },
-        oscillatorWaveform() { this.renderWaveform(); },
-        oscillatorIndex() { this.renderWaveform(); },
-        instrumentRef() { this.renderWaveform(); },
-        instrumentIndex() {
-            this.wtDisplay.setColor( this.instrumentColor );
-            this.canvas.invalidate();
-            this.handleAnalysis();
-        },
-        performAnalysis( value ) {
-            if ( value ) {
-                // connect the AnalyserNodes to the all instrument channels
-                applyModules( this.activeSong, true );
-                this.renderOscilloscope();
-            }
-        },
-    },
-    mounted() {
-        this.canvas = new canvas({ width: Config.WAVE_TABLE_SIZE, height: 200, fps: 60 });
-        this.canvas.setBackgroundColor( "#000000" );
-        this.canvas.insertInPage( this.$refs.canvasContainer );
-        this.canvas.getElement().className = "waveform-canvas";
-
-        this.wtDisplay = new WaveTableDisplay(
-            this.canvas.getWidth(),
-            this.canvas.getHeight(),
-            this.handleWaveformUpdate,
-            this.oscillatorEnabled,
-            this.instrumentColor
-        );
-        this.canvas.addChild( this.wtDisplay );
-        this.resizeWaveTableDraw();
-        this.renderWaveform();
-
-        // we can only perform analysis once the audioContext is unlocked
-        if ( AudioService.initialized ) {
-            this.handleAnalysis();
-        } else {
-            this.token = PubSubService.subscribe( Messages.AUDIO_CONTEXT_READY, this.handleAnalysis.bind( this ));
-        }
-    },
-    beforeDestroy() {
-        if ( this.performAnalysis ) {
-            applyModules( this.activeSong, false );
-        }
-        if ( this.token ) {
-            PubSubService.unsubscribe( this.token );
-        }
-        this.canvas.dispose();
     },
     methods: {
-        ...mapMutations([
-            "openModal",
-            "setCurrentSample",
-        ]),
-        update( prop, value ) {
+        update( prop: string, value: any ): void {
             const store     = this.$store;
             const component = this;
             const { oscillatorIndex, instrumentIndex } = this;
             const orgValue = clone( this.oscillator?.[ prop ] || "" );
 
-            const applyUpdate = () => {
+            const applyUpdate = (): void => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
+               
                 if ( TUNING_PROPERTIES.includes( prop )) {
                     AudioService.updateOscillator( "tuning", instrumentIndex, oscillatorIndex, oscillator );
                 } else if ( prop === "volume" ) {
@@ -424,185 +312,35 @@ export default {
                     AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
                 }
             };
-            const commit = () => {
-                store.commit( "updateOscillator", {
-                    instrumentIndex, oscillatorIndex, prop, value
-                });
+            const commit = (): void => {
+                store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop, value });
                 applyUpdate();
             };
             commit();
             this.invalidate();
 
             enqueueState( `osc_${instrumentIndex}_${oscillatorIndex}_${prop}`, {
-                undo() {
-                    store.commit( "updateOscillator", {
-                        instrumentIndex, oscillatorIndex, prop, value: orgValue
-                    });
+                undo(): void {
+                    store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop, value: orgValue });
                     applyUpdate();
                 },
                 redo: commit,
             });
         },
-        handleOscillatorEnabledChange() {
+        handleOscillatorEnabledChange(): void {
             this.cacheOscillator();
             this.invalidate();
         },
-        resizeWaveTableDraw( width = window.innerWidth ) {
-            const ideal       = Config.WAVE_TABLE_SIZE; // equal to the length of the wave table
-            const targetWidth = ( width < ideal ) ? width * 0.9: ideal;
-
-            if ( this.canvas.getWidth() !== targetWidth ) {
-                this.canvas.setDimensions( targetWidth, 200 );
-                this.wtDisplay._bounds.width = targetWidth;
-            }
-        },
-        // invoked when drawing inside the WaveTableDisplay renderer
-        handleWaveformUpdate( table ) {
-            const orgTable    = clone( this.oscillator.table );
-            const orgWaveform = this.oscillator.waveform;
-
-            const store = this.$store;
-            const { oscillatorIndex, instrumentIndex } = this;
-
-            const commit = () => {
-                const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
-                oscillator.table    = table;
-                oscillator.waveform = OscillatorTypes.CUSTOM;
-                AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
-            };
-            commit();
-
-            // when drawing, force the oscillator type to transition to custom
-            // and activate the oscillator (to make changes instantly audible)
-
-            if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
-                this.update( "waveform", OscillatorTypes.CUSTOM );
-            } else {
-                if ( !this.oscillator.enabled ) {
-                    this.update( "enabled", true );
-                }
-            }
-            this.invalidate();
-            const component = this;
-
-            enqueueState( `wtable_${instrumentIndex}_${oscillatorIndex}`, {
-                undo() {
-                    const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
-                    oscillator.table    = orgTable;
-                    oscillator.waveform = orgWaveform;
-                    AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
-                    !component._destroyed && component.renderWaveform();
-                },
-                redo: () => {
-                    commit();
-                    !component._destroyed && component.renderWaveform();
-                }
-            }, 5000 ); // longer timeout as a lot of events can fire while drawing the waveform
-        },
-        // render the current oscillators waveform into the WaveTableDisplay renderer
-        // (is a zCanvas sprite and not part of the Vue component render cycle)
-        renderWaveform() {
-            if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
-                this.wtDisplay.generateAndSetTable( this.oscillator.waveform );
-            } else {
-                // note we use a clone as the table references can be updated
-                // by stepping through the state history
-                this.wtDisplay.setTable( clone( InstrumentFactory.getTableForOscillator( this.oscillator )));
-            }
-        },
-        // on audio output, render the current instruments audio
-        // as an oscilloscope into the waveform display
-        renderOscilloscope() {
-            const width  = this.canvas.getWidth();
-            const height = this.canvas.getHeight();
-            this.canvas.setAnimatable( true );
-
-            const { frequencyBinCount } = getAnalysers()[ 0 ];
-            const sampleBuffer = new Uint8Array( frequencyBinCount );
-            const bufferSize = sampleBuffer.length;
-            const sampleSize = width * ( 1 / frequencyBinCount );
-
-            const HALF_HEIGHT   = height / 2;
-            const CEIL          = 128;
-            const FADE_IN_DELAY = 20;
-            const FADE_IN_TIME  = 60;
-            let fadeDelay       = FADE_IN_DELAY;
-            let fadeSamples     = FADE_IN_TIME;
-
-            const { wtDisplay } = this;
-
-            wtDisplay.setExternalDraw( ctx => {
-                // when drawing inside the waveform editor, always render the shape
-                if ( wtDisplay.isDragging ) {
-                    ctx.globalAlpha = 1;
-                    fadeDelay   = FADE_IN_DELAY;
-                    fadeSamples = FADE_IN_TIME;
-                    return false;
-                }
-                getAnalysers()[ this.instrumentIndex ].getByteTimeDomainData( sampleBuffer );
-
-                const isPlaying = sampleBuffer.some( value => value !== CEIL );
-                ctx.fillRect( 0, 0, width, height );
-
-                wtDisplay.syncStyles( ctx );
-
-                if ( isPlaying ) {
-                    fadeSamples = 0;
-                    fadeDelay   = 0;
-                    ctx.globalAlpha = 1;
-                    ctx.beginPath();
-                    ctx.moveTo( 0, ( sampleBuffer[ 0 ] / CEIL ) * HALF_HEIGHT );
-
-                    for ( let x = 0, i = 1; i < bufferSize; ++i, x += sampleSize ) {
-                        const v = sampleBuffer[ i ] / CEIL;
-                        const y = v * HALF_HEIGHT;
-                        ctx.lineTo( x, y );
-                    }
-                    ctx.lineTo( width, HALF_HEIGHT );
-                    ctx.stroke();
-
-                    return true;
-                } else {
-                    if ( ++fadeDelay >= FADE_IN_DELAY ) {
-                        if ( fadeSamples < FADE_IN_TIME ) {
-                            ++fadeSamples;
-                            ctx.globalAlpha = easeIn( fadeSamples, FADE_IN_TIME );
-                        }
-                    } else {
-                        ctx.globalAlpha = 0;
-                    }
-                }
-                return false;
-            });
-        },
         // propagate the changes to the AudioService
-        cacheOscillator() {
+        cacheOscillator(): void {
             AudioService.updateOscillator( "waveform", this.instrumentIndex, this.oscillatorIndex, this.oscillator );
         },
-        openSampleEditor() {
-            const name = this.oscillator.sample;
-            if ( name ) {
-                this.setCurrentSample( this.samples.find( sample => sample.name === name ));
-            }
-            this.openModal( ModalWindows.SAMPLE_EDITOR );
-        },
-        handleAnalysis() {
-            this.performAnalysis = supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );
-        },
-        invalidate() {
+        invalidate(): void {
             this.$emit( "invalidate" );
         },
     }
 };
 </script>
-
-<style lang="scss">
-@import "@/styles/_variables";
-// global because zCanvas injection is outside of component scope
-.waveform-canvas {
-    border-radius: $spacing-small;
-}
-</style>
 
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
@@ -635,17 +373,6 @@ export default {
 .waveform-enable {
     float: right;
     margin-top: $spacing-xsmall;
-}
-
-.waveform-container {
-    position: relative;
-    margin: $spacing-xsmall 0 $spacing-medium;
-
-    &__action-button {
-        position: absolute;
-        right: 0;
-        bottom: $spacing-medium;
-    }
 }
 
 .oscillator-waveforms {

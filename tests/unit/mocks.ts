@@ -1,6 +1,5 @@
 import { vi } from "vitest";
 import type { Store } from "vuex";
-import APPLICATION_MODE from "@/definitions/application-modes";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import { createEditorState } from "@/store/modules/editor-module";
@@ -64,7 +63,7 @@ export const createState = ( props?: Partial<EffluxState> ): EffluxState => ({
     mobileMode: null,
     dropboxConnected: false,
     mediaConnected: false,
-    applicationMode: APPLICATION_MODE.TRACKER,
+    applicationFocused: true,
     editor: createEditorState(),
     history: createHistoryState(),
     instrument: createInstrumentState(),

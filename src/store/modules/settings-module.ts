@@ -23,6 +23,7 @@
 import type { Commit, Dispatch, Module } from "vuex";
 import Vue from "vue";
 import Config from "@/config";
+import { EffluxSongType } from "@/model/types/song";
 import StorageUtil from "@/utils/storage-util";
 
 export interface SettingsState {
@@ -40,7 +41,6 @@ export enum PROPERTIES {
     DISPLAY_HELP    = "dh",
     DISPLAY_WELCOME = "dw",
     USE_ORDERS      = "po",
-    TIMELINE_MODE   = "tl"
 };
 
 /* internal methods */
@@ -58,17 +58,21 @@ const persistState = ( state: SettingsState ): void => {
 const SettingsModule: Module<SettingsState, any> = {
     state: (): SettingsState => createSettingsState(),
     getters: {
-        displayHelp    : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_HELP ] !== false,
+        displayHelp : ( state: SettingsState, rootGetters: any ) => {
+            return state._settings[ PROPERTIES.DISPLAY_HELP ] !== false && rootGetters.activeSong.type !== EffluxSongType.JAM;
+        },
         displayWelcome : ( state: SettingsState ) => state._settings[ PROPERTIES.DISPLAY_WELCOME ] !== false,
         followPlayback : ( state: SettingsState ) => state._settings[ PROPERTIES.FOLLOW_PLAYBACK ] === true,
-        timelineMode   : ( state: SettingsState ) => state._settings[ PROPERTIES.TIMELINE_MODE ] === true,
         paramFormat    : ( state: SettingsState ) => state._settings[ PROPERTIES.INPUT_FORMAT ] || "hex",
-        useOrders      : ( state: SettingsState, rootGetters: any ) => {
+        useOrders : ( state: SettingsState, rootGetters: any ) => {
+            const { activeSong } = rootGetters;
+            if ( activeSong.type === EffluxSongType.JAM ) {
+                return false;
+            }
             const setting = state._settings[ PROPERTIES.USE_ORDERS ] !== false;
             if ( setting ) {
                 return true;
             }
-            const { activeSong } = rootGetters;
             return activeSong.patterns.length !== activeSong.order.length;
         },
     },

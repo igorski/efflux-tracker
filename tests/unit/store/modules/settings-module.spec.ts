@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import Config from "@/config";
-import type { EffluxSong } from "@/model/types/song";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import settingsModule, { createSettingsState, PROPERTIES } from "@/store/modules/settings-module";
 import type { SettingsState } from "@/store/modules/settings-module";
 
@@ -25,14 +25,32 @@ describe( "Vuex settings module", () => {
     });
 
     describe( "getters", () => {
-        it( "should by default display the help section", () => {
-            const state = createSettingsState();
-            expect( getters.displayHelp( state )).toBe( true );
-        });
+        const rootGetters = {
+            activeSong: {
+                type: EffluxSongType.TRACKER,
+            } as Partial<EffluxSong>,
+        };
 
-        it( "should return the saved value for displaying the help section", () => {
-            const state = createSettingsState({ _settings: { [ PROPERTIES.DISPLAY_HELP ]: false } });
-            expect( getters.displayHelp( state )).toBe( false );
+        describe( "when querying whether the help section should be displayed", () => {
+            it( "should by default display the help section", () => {
+                const state = createSettingsState();
+                expect( getters.displayHelp( state, rootGetters )).toBe( true );
+            });
+
+            it( "should return the saved value for displaying the help section", () => {
+                const state = createSettingsState({ _settings: { [ PROPERTIES.DISPLAY_HELP ]: false } });
+                expect( getters.displayHelp( state, rootGetters )).toBe( false );
+            });
+
+            it( "should return false, regardless of the saved value when the active song is of the JAM type", () => {
+                const rootGetters = {
+                    activeSong: {
+                        type: EffluxSongType.JAM,
+                    } as Partial<EffluxSong>,
+                };
+                const state = createSettingsState({ _settings: { [ PROPERTIES.DISPLAY_HELP ]: true } });
+                expect( getters.displayHelp( state, rootGetters )).toBe( false );
+            });
         });
 
         it( "should by default display the welcome screen", () => {
@@ -55,16 +73,6 @@ describe( "Vuex settings module", () => {
             expect( getters.followPlayback( state )).toBe( true );
         });
 
-        it( "should by default not display the timeline mode", () => {
-            const state = createSettingsState();
-            expect( getters.timelineMode( state )).toBe( false );
-        });
-
-        it( "should return the saved value for following playback", () => {
-            const state = createSettingsState({ _settings: { [ PROPERTIES.TIMELINE_MODE ]: true } });
-            expect( getters.timelineMode( state )).toBe( true );
-        });
-
         it( "should by default have hexadecimal as the default parameter input format", () => {
             const state = createSettingsState();
             expect( getters.paramFormat( state )).toBe( "hex" );
@@ -75,16 +83,17 @@ describe( "Vuex settings module", () => {
             expect( getters.paramFormat( state )).toBe( "pct" );
         });
 
-        describe( "and retrieving whether orders can be used", () => {
+        describe( "when querying whether orders can be used", () => {
             it( "should return the saved value", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: true } });
-                expect( getters.useOrders( state )).toBe( true );
+                expect( getters.useOrders( state, rootGetters )).toBe( true );
             });
 
             it( "should return the saved value when false as true when the currently active song uses orders", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: false } });
                 const rootGetters = {
                     activeSong: {
+                        type: EffluxSongType.TRACKER,
                         patterns: [[], []],
                         order: [0, 1, 1, 0]
                     } as Partial<EffluxSong>,
@@ -96,10 +105,21 @@ describe( "Vuex settings module", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: false } });
                 const rootGetters = {
                     activeSong: {
+                        type: EffluxSongType.TRACKER,
                         patterns: [[], []],
                         order: [0, 1]
                     } as Partial<EffluxSong>,
                 };
+                expect( getters.useOrders( state, rootGetters )).toBe( false );
+            });
+
+            it( "should return false, regardless of the saved value when the active song is of the JAM type", () => {
+                const rootGetters = {
+                    activeSong: {
+                        type: EffluxSongType.JAM,
+                    } as Partial<EffluxSong>,
+                };
+                const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: true } });
                 expect( getters.useOrders( state, rootGetters )).toBe( false );
             });
         });

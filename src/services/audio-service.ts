@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
@@ -231,7 +230,7 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
             event.id = null;  // generates a new id below
         }
         if ( !event.id ) {
-            Vue.set( event, "id", ( ++UNIQUE_EVENT_ID ));
+            event.id = ++UNIQUE_EVENT_ID;
         }
 
         // console.info(`NOTE ON for ${event.id} (${event.note}${event.octave}) @ ${startTimeInSeconds}s`);
@@ -330,9 +329,6 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
             if ( oscillatorVO.waveform !== OscillatorTypes.PWM ) {
                 generatorNode.connect( oscillatorNode );
             }
-            // start playback
-
-            startOscillation( generatorNode, startTimeInSeconds );
 
             voices[ oscillatorIndex ] = /** @type {EventVoice} */ ({
                 generator: generatorNode,
@@ -342,6 +338,13 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
                 outputNode: adsrNode,
                 gliding: false
             });
+
+            // start playback and attach listener to track playback end
+            // (we attach the listener directly instead of inside the noteOff-handler as very short, non-looped
+            // AudioBufferSources can finish their playback before the sequencer can request the noteOff)
+
+            startOscillation( generatorNode, startTimeInSeconds );
+            returnVoiceNodesToPoolOnPlaybackEnd( modules, oscillatorIndex, voices[ oscillatorIndex ], instrument.index, event.id );
         });
         playingEventVoices[ instrument.index ][ event.id ] = voices;
     }
@@ -377,7 +380,7 @@ export const noteOff = ( event: EffluxAudioEvent, startTimeInSeconds = audioCont
     }
     // console.info(`NOTE OFF for ${event.id} ( ${event.note}${event.octave} @ ${startTimeInSeconds}s`);
 
-    voiceList.forEach(( voice, oscillatorIndex ) => {
+    voiceList.forEach(( voice /*, oscillatorIndex */ ) => {
         if ( !voice ) {
             return;
         }
@@ -385,7 +388,6 @@ export const noteOff = ( event: EffluxAudioEvent, startTimeInSeconds = audioCont
         ADSR.applyAmpRelease  ( voice.vo, voice.outputNode, startTimeInSeconds );
         ADSR.applyPitchRelease( voice.vo, voice.generator,  startTimeInSeconds );
 
-        returnVoiceNodesToPoolOnPlaybackEnd( instrumentModulesList[ instrumentIndex ], oscillatorIndex, voice, instrumentIndex, eventId );
         stopOscillation( voice.generator, startTimeInSeconds + voice.vo.adsr.release );
     });
 };
@@ -473,8 +475,7 @@ const AudioService =
                     adjustEventWaveForms( events, oscillatorIndex,
                         createTableFromCustomGraph( instrumentIndex, oscillatorIndex, oscillator.table as number[] )
                     );
-                }
-                else {
+                } else {
                     // @ts-expect-error cannot use string to index pool type
                     adjustEventWaveForms( events, oscillatorIndex, pool[ oscillator.waveform ] );
                 }
@@ -521,7 +522,7 @@ function createModules(): void {
     // create new modules for each possible instrument
     instrumentModulesList = new Array( Config.INSTRUMENT_AMOUNT );
 
-    for (let i = 0; i < instrumentModulesList.length; ++i ) {
+    for ( let i = 0; i < instrumentModulesList.length; ++i ) {
         const instrumentModules = instrumentModulesList[ i ] = {
             panner    : createStereoPanner( audioContext ),
             overdrive : ModuleFactory.createOverdrive( audioContext ),

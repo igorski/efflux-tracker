@@ -3,7 +3,7 @@
         "title": "Welcome",
         "introductionFirstTime": "If this is your first time using Efflux, why not take some inspiration? By default, Efflux comes with several demo songs and instruments showing off just what it can do.",
         "introductionHelp": "If you're feeling daunted using a tracker or want to delve right into the good stuff like tutorials, keyboard shortcuts and MIDI control:",
-        "openDemo": "Open a demo song",
+        "openSong": "Open a song",
         "tweakInstrument": "Tweak an instrument",
         "openHelp": "Read the online help",
         "jamMode": "Jam mode",

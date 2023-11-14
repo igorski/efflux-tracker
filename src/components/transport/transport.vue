@@ -36,7 +36,7 @@
                         @click="setPlaying( !isPlaying )"
                     ></button>
                 </li>
-                <li>
+                <li v-if="!jamMode">
                     <button
                          id="loopBTN"
                          type="button"
@@ -63,7 +63,7 @@
                         @click="setMetronomeEnabled( !isMetronomeEnabled )"
                     ></button>
                 </li>
-                <li>
+                <li v-if="!jamMode">
                     <button
                         type="button"
                         class="icon-settings"
@@ -72,35 +72,37 @@
                     ></button>
                 </li>
                 <li class="section-divider"><!-- x --></li>
-                <li>
-                    <button
-                        type="button"
-                        class="pattern-back"
-                        :title="$t('previousPattern')"
-                        @click="gotoPreviousPattern( activeSong )"
-                    >&lt;&lt;</button>
-                </li>
-                <li class="current-pattern">
-                    <input
-                        class="current"
-                        ref="currentPatternInput"
-                        v-model.number="currentOrderIndex"
-                        maxlength="3"
-                        @focus="focusPatternInput( true )"
-                        @blur="focusPatternInput( false )"
-                    />
-                    <span class="divider">/</span>
-                    <span class="total">{{ activeSong.order.length.toString() }}</span>
-                </li>
-                <li>
-                    <button
-                        type="button"
-                        class="pattern-next"
-                        :title="$t('nextPattern')"
-                        @click="gotoNextPattern( activeSong )"
-                    >&gt;&gt;</button>
-                </li>
-                <li class="section-divider"><!-- x --></li>
+                <template v-if="!jamMode">
+                    <li>
+                        <button
+                            type="button"
+                            class="pattern-back"
+                            :title="$t('previousPattern')"
+                            @click="gotoPreviousPattern( activeSong )"
+                        >&lt;&lt;</button>
+                    </li>
+                    <li class="current-pattern">
+                        <input
+                            class="current"
+                            ref="currentPatternInput"
+                            v-model.number="currentOrderIndex"
+                            maxlength="3"
+                            @focus="focusPatternInput( true )"
+                            @blur="focusPatternInput( false )"
+                        />
+                        <span class="divider">/</span>
+                        <span class="total">{{ activeSong.order.length.toString() }}</span>
+                    </li>
+                    <li>
+                        <button
+                            type="button"
+                            class="pattern-next"
+                            :title="$t('nextPattern')"
+                            @click="gotoNextPattern( activeSong )"
+                        >&gt;&gt;</button>
+                    </li>
+                    <li class="section-divider"><!-- x --></li>
+                </template>
             </ul>
             <ul class="transport-controls__tempo wrapper input range">
                 <li>
@@ -137,7 +139,7 @@
                 <li class="transport-controls__tempo-divider section-divider"><!-- x --></li>
             </ul>
             <pattern-order-list
-                v-if="useOrders"
+                v-if="!jamMode && useOrders"
             />
         </div>
     </section>
@@ -177,6 +179,7 @@ export default {
             "isLooping",
             "isRecording",
             "isMetronomeEnabled",
+            "jamMode",
             "amountOfSteps",
             "useOrders",
         ]),
@@ -306,13 +309,13 @@ export default {
         blurPatternInput(): void {
             this.$refs.currentPatternInput?.blur();
         },
-        handlePatternInput( type: string, keyCode: number, event: KeyboardEvent ): void {
+        handlePatternInput( type: string, keyCode: number, event: KeyboardEvent ): boolean {
             if ( type !== "up" ) {
-                return;
+                return true; // always block when focused
             }
             switch ( keyCode ) {
                 default:
-                    return;
+                    return false;
                 case 13: // enter
                     this.blurPatternInput();
                     break;
@@ -326,6 +329,7 @@ export default {
                     break;
             }
             event.preventDefault();
+            return true;
         },
         async handleTempoInputShow(): Promise<void> {
             this.showTempoInput = true;
@@ -365,17 +369,15 @@ export default {
 }
 
 .transport-controls {
+    display: flex;
+    align-items: center;
     @include titleFont();
     border: none;
     border-radius: 0;
     margin: 0 auto;
     min-width: 100%;
     max-width: $ideal-width;
-
-    @include large() {
-        display: flex;
-        align-items: center;
-    }
+    min-height: 44px;
 
     &__buttons,
     &__tempo {
@@ -582,6 +584,7 @@ export default {
     .settings-mode {
         display: flex;
         flex-direction: column;
+        align-items: normal;
 
         .transport-controls__tempo {
             display: inline-block;

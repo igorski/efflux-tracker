@@ -35,7 +35,7 @@ export type InstrumentVoiceList = InstrumentVoice[];
  */
 export type InstrumentModules = {
     analyser: AnalyserNode;
-    panner: StereoPannerNode;
+    panner?: StereoPannerNode;
     overdrive: OverdriveModule;
     eq: EqModule;
     filter: FilterModule;

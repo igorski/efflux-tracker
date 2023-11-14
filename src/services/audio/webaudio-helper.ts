@@ -155,10 +155,10 @@ export const createGainNode = ( context: BaseAudioContext ): GainNode => {
  * At the moment of writing, StereoPannerNode is not supported
  * in Safari, so this can return null!
  */
-export const createStereoPanner = ( context: BaseAudioContext ): StereoPannerNode | null  => {
+export const createStereoPanner = ( context: BaseAudioContext ): StereoPannerNode | undefined  => {
     // last minute checks on feature support
     if ( typeof context.createStereoPanner !== "function" ) {
-        return null;
+        return;
     }
     return context.createStereoPanner();
 };

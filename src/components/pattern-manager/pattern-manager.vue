@@ -174,7 +174,7 @@ export default {
             "pastePatternsIntoSong",
         ]),
         openHelp(): void {
-            window.open( ManualURLs.PATTERN_MANAGER_HELP, "_blank" );
+            window.open( ManualURLs.PATTERN_MANAGER, "_blank" );
         },
         handleCreateNew(): void {
             this.saveState( addPattern( this.$store, true ));

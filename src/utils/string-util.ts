@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2022 - https://www.igorski.nl
+ * Igor Zinken 2020-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,10 +21,21 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
+import type { Instrument } from "@/model/types/instrument";
 
 export const truncate = ( str = "", maxLength = 100 ): string =>
     str.length > maxLength ? `${str.substr( 0, maxLength )}...` : str;
 
 export const toFileName = ( str: string, extension = PROJECT_FILE_EXTENSION ): string => {
     return `${str.replace( /([^a-z0-9 ]+)/gi, "-" ).split( " " ).join( "_" )}${extension}`;
+};
+
+export const getInstrumentName = ( instrument: Instrument ): string => {
+    const { name, presetName } = instrument;
+    if ( !name.startsWith( "Instrument ")) {
+        // instrument has a non-default name set
+        return name;
+    }
+    // instrument uses preset, use its name
+    return ( presetName || name || "" ).replace( "FACTORY ", "" );
 };

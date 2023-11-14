@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -273,16 +273,10 @@ const InstrumentFactory =
      * @param {number=} size optional WaveTable size, defaults to Config value
      * @return {Array<number>}
      */
-    getTableForOscillator( oscillator: InstrumentOscillator, size?: number ): number[] | number {
-        if ( !oscillator.table ) {
-            if ( typeof size !== "number" ) {
-                size = Config.WAVE_TABLE_SIZE;
-            }
+    getTableForOscillator( oscillator: InstrumentOscillator, size = Config.WAVE_TABLE_SIZE ): number[] | number {
+        if ( !oscillator.table || size !== ( oscillator.table as number[] ).length ) {
             oscillator.table = new Array( size );
-
-            while ( size-- ) {
-                oscillator.table[ size ] = 0;
-            }
+            oscillator.table.fill( 0 );
         }
         return oscillator.table;
     },

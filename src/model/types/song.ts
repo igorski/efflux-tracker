@@ -25,6 +25,11 @@ import type { EffluxPattern } from "./pattern";
 import type { Instrument } from "./instrument";
 import type { Sample } from "@/model/types/sample";
 
+export enum EffluxSongType {
+    TRACKER = 0,
+    JAM
+};
+
 export type EffluxSongMeta = {
     title: string;
     author: string;
@@ -49,9 +54,11 @@ export type EffluxSong = {
     order: EffluxPatternOrder;
     samples: Sample[];
     origin?: EffluxSongOrigin;
+    type: EffluxSongType
 };
 
 export type StoredEffluxSongDescriptor = {
     id: string;
+    type: EffluxSongType;
     meta: EffluxSongMeta;
 };

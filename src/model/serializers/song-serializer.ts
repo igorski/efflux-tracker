@@ -32,6 +32,7 @@ import { serialize as serializeSamples } from "./sample-serializer";
  */
 export const SONG_ID         = "si";
 export const SONG_VERSION_ID = "sv";
+export const SONG_TYPE       = "st";
 export const META_OBJECT     = "m";
 export const META_TITLE      = "t";
 export const META_AUTHOR     = "a";
@@ -50,6 +51,7 @@ export const serialize = async ( song: EffluxSong ): Promise<XTK> => {
 
     xtk[ SONG_ID ]         = song.id;
     xtk[ SONG_VERSION_ID ] = song.version;
+    xtk[ SONG_TYPE ]       = song.type;
     xtk[ META_OBJECT ]     = serializeMeta( song );
 
     serializeInstruments( xtk, song.instruments );

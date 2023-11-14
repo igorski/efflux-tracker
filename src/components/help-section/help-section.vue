@@ -65,7 +65,7 @@
             <template v-if="helpTopic === 'pattern'">
                 <h4>Pattern properties</h4>
                 <p>
-                    Your composition can contain up to 255 patterns. To speed up proceedings, you can
+                    Your composition may contain up to 255 patterns. To speed up proceedings, you can
                     copy a pattern (this copies both channels), and paste them into another pattern (pasting does
                     not clear existing pattern content, only overwrite overlapping notes).
                 </p>

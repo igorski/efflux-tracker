@@ -1,7 +1,5 @@
 /* main application layout (scoped styling in root component) */
 
-@use "sass:math";
-
 @import "_mixins";
 @import "_scrollbars";
 
@@ -39,12 +37,25 @@
 .application-editor {
     @include flex();
     position: absolute;
-    top: 134px; /* menu + song meta */
+    top: 134px; /* menu + pattern editor */
     bottom: $footer-height;
     overflow: hidden;
 
     &.note-entry-mode {
         bottom: $note-entry-editor-height !important;
+    }
+}
+
+.container.jam-mode {
+    .application-editor {
+        top: 86px; /* no pattern editor */
+    }
+
+    @include large() {
+        .application-editor,
+        .note-entry-editor {
+            max-width: 1310px;
+        }
     }
 }
 
@@ -95,7 +106,7 @@
 
     .application-editor {
         left: 50%;
-        margin-left: math.div( -$ideal-width, 2 );
+        transform: translateX(-50%);
     }
 }
 
@@ -187,9 +198,6 @@
 
 @media screen and (min-width: $app-width) and (max-width: $ideal-width) {
     .application-editor {
-        left: auto;
-        margin-left: 0;
-
         &.has-help-panel {
             .pattern-track-list,
             .timeline-editor {
@@ -206,13 +214,5 @@
     .pattern-track-list,
     .timeline-editor {
         width: 97%;
-    }
-}
-
-/* DESKTOP wide screen */
-
-@include ideal() {
-    .application-editor {
-        margin-left: math.div( -( $ideal-width - $spacing-xlarge ), 2 );
     }
 }

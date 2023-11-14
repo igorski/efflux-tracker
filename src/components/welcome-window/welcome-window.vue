@@ -27,7 +27,7 @@
             <button
                 type="button"
                 class="close-button"
-                @click="$emit('close')"
+                @click="close()"
             >x</button>
         </div>
         <hr class="divider" />
@@ -35,8 +35,8 @@
             <p v-t="'introductionFirstTime'"></p>
             <button
                 type="button"
-                v-t="'openDemo'"
-                @click="openDemo()"
+                v-t="'openSong'"
+                @click="openSavedSong()"
             ></button>
             <button
                 type="button"
@@ -52,7 +52,7 @@
             <button
                 type="button"
                 v-t="'jamMode'"
-                @click="openJamMode()"
+                @click="createJamSong()"
             ></button>
         </div>
         <div class="pane logo">
@@ -78,12 +78,13 @@
     </div>
 </template>
 
-<script>
-import { mapGetters, mapMutations } from "vuex";
+<script lang="ts">
+import { mapGetters, mapMutations, mapActions } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
+import { EffluxSongType } from "@/model/types/song";
 import { PROPERTIES } from "@/store/modules/settings-module";
 
 import messages from "./messages.json";
@@ -99,10 +100,10 @@ export default {
             "displayWelcome",
         ]),
         showOnStartup: {
-            get() {
+            get(): boolean {
                 return this.displayWelcome;
             },
-            set( value ) {
+            set( value: boolean ): void {
                 this.saveSetting(
                     { name: PROPERTIES.DISPLAY_WELCOME, value }
                 );
@@ -114,17 +115,28 @@ export default {
             "openModal",
             "saveSetting",
         ]),
-        openDemo() {
+        ...mapActions([
+            "createSong",
+            "openSong",
+        ]),
+        openSavedSong(): void {
             this.openModal( ModalWindows.SONG_BROWSER );
         },
-        openHelp() {
+        openHelp(): void {
             window.open( ManualURLs.ONLINE_MANUAL );
         },
-        openInstrumentEditor() {
+        openInstrumentEditor(): void {
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
-        openJamMode() {
-            this.openModal( ModalWindows.JAM_MODE );
+        createJamSong(): void {
+            this.createSong( EffluxSongType.JAM ).then( song => {
+                this.openSong( song );
+                this.close();
+                this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
+            });
+        },
+        close(): void {
+            this.$emit( "close" );
         },
     }
 };
