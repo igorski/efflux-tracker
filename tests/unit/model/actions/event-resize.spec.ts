@@ -3,6 +3,7 @@ import ResizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
+import { createNoteOffEvent } from "@/model/actions/event-actions";
 import type { EffluxPattern } from "@/model/types/pattern";
 import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
@@ -28,7 +29,7 @@ describe( "Event resize action", () => {
     let song: EffluxSong;
     let pattern: EffluxPattern;
 
-    const NOTE_OFF_EVENT = EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF );
+    const NOTE_OFF_EVENT = createNoteOffEvent();
 
     let event1: EffluxAudioEvent;
     let event2: EffluxAudioEvent;
@@ -76,6 +77,18 @@ describe( "Event resize action", () => {
         // original order was: [ event1, event2, 0, 0, event3, 0, 0, event4 ]
         expect( pattern.channels[ channelIndex ]).toEqual([
             event1, event2, 0, 0, event3, NOTE_OFF_EVENT, 0, event4
+        ]);
+    });
+
+    it( "should be able to contract its length when it occupies the last slot in the pattern", () => {
+        pattern.channels[ channelIndex ] = [ event1, event2, 0, 0, event3, 0, event4, 0 ];
+        const step = pattern.channels[ channelIndex ].indexOf( event4 );
+        const newLength = 1;
+
+        ResizeEvent( store, patternIndex, channelIndex, step, newLength );
+
+        expect( pattern.channels[ channelIndex ]).toEqual([
+            event1, event2, 0, 0, event3, 0, event4, NOTE_OFF_EVENT
         ]);
     });
 

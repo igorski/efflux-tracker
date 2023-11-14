@@ -53,7 +53,7 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
         }
         // when event (after resizing) is not directly followed by another, we add a
         // note off event so we maintain the intended event duration
-        if ( nextIndex < lastAvailableSlot && !channel[ nextIndex ] ) {
+        if ( nextIndex <= lastAvailableSlot && !channel[ nextIndex ] ) {
             insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
         }
         invalidateCache( store, song, channelIndex );

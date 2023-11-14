@@ -108,7 +108,7 @@
                                 @click="handleTransposeClick()"
                             ></button>
                         </li>
-                        <li>
+                        <li v-if="!jamMode">
                             <button
                                 v-t="'insertChord'"
                                 type="button"
@@ -241,6 +241,7 @@ export default {
         ]),
         ...mapGetters([
             "activeSong",
+            "jamMode",
             "getInstruments",
             "isPlaying",
             "totalSaved",
