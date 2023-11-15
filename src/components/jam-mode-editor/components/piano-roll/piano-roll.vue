@@ -72,6 +72,7 @@
                         :octave="row.octave"
                         :events="row.events"
                         :columns="columnAmount"
+                        :selected-step="selectedStep"
                         :playing-step="playingStep"
                         :scroll-into-view="focusedRow === index"
                         class="piano-roll__table-row"
@@ -84,6 +85,10 @@
                         @note:resize="handleNoteResize( row, $event )"
                     />
                 </tbody>
+                <div
+                    class="piano-roll__sequencer-position"
+                    :style="sequencerPositionStyle"
+                ></div>
             </table>
         </section>
     </div>
@@ -102,6 +107,7 @@ import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/
 import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import { getInstrumentName } from "@/utils/string-util";
@@ -131,12 +137,14 @@ export default {
     computed: {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,
+            selectedStep       : state => state.editor.selectedStep,
             currentStep        : state => state.sequencer.currentStep,
             jam                : state => state.sequencer.jam,
             stepPrecision      : state => state.sequencer.stepPrecision,
         }),
         ...mapGetters([
             "activeSong",
+            "isPlaying",
         ]),
         activePatternIndex(): number {
             return this.jam[ this.selectedInstrument ].activePatternIndex;
@@ -185,9 +193,32 @@ export default {
 
             return Math.floor( this.currentStep / diff ) % stepsInPattern;
         },
+        sequencerPositionStyle(): Record<string, string> {
+            const stepsInPattern = this.pattern.steps;
+            const diff = this.stepPrecision / stepsInPattern;
+
+            const playingStep = Math.floor( this.currentStep / diff ) % stepsInPattern;
+            let targetPct = Math.round( this.seqPosMult * 100 );
+            let speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 ) * this.seqPosMult;
+            
+            // wrap back to beginning
+            if ( !this.isPlaying || ( playingStep === 0 && this.lastStep !== 0 )) {
+                targetPct = 0;
+                speed = 0;
+            }
+
+            this.lastStep = playingStep;
+
+            return {
+                "left" : `${targetPct}%`,
+                "transition-duration": `${speed}s`,
+            };
+        },
     },
     created(): void {
         this.maxPatternIndex = this.activeSong.patterns.length - 1;
+        this.seqPosMult = ( this.pattern.steps - 1 ) / this.pattern.steps;
+        this.lastStep = 0;
     },
     mounted(): void {
         // on mount, scroll the first row with content centrally into the view
@@ -312,8 +343,20 @@ $ideal-width: 840px;
         height: 600px;
     }
 
+    @include mobile() {
+        position: fixed;
+        top: 0;// $menu-height + $transport-height !important;
+        margin: 0 !important;
+        height: 100%;
+    }
+
     .header__title {
         margin-left: $spacing-medium !important;
+        visibility: hidden;
+
+        @media screen and ( min-width: $mobile-width ) {
+            visibility: visible;
+        }
     }
 
     .header__actions button {
@@ -329,6 +372,7 @@ $ideal-width: 840px;
         min-width: 100%;
         display: table-cell;
         border-collapse: collapse;
+        position: relative;
 
         &-row {
             &--sharp {
@@ -336,6 +380,16 @@ $ideal-width: 840px;
                 border-color: $color-pattern-odd;
             }
         }
+    }
+
+    &__sequencer-position {
+        position: absolute;
+        top: 0;
+        width: 2px;
+        height: 100%;
+        margin-left: 27px; // after note labels
+        background-color: #FFF;
+        transition: left 0.1s linear;
     }
 }
 </style>

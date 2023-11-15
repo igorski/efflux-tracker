@@ -145,19 +145,19 @@ export default {
             const diff = this.stepPrecision / stepsInPattern;
 
             const playingStep = Math.floor( this.currentStep / diff ) % stepsInPattern;
-            let targetStep = stepsInPattern;
+            let targetPct = 100;
             let speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 );
             
             // wrap back to beginning
             if ( !this.isPlaying || ( playingStep === 0 && this.lastStep !== 0 )) {
-                targetStep = 0;
+                targetPct = 0;
                 speed = 0;
             }
 
             this.lastStep = playingStep;
 
             return {
-                "left" : `${targetStep * this.entryWidth}%`,
+                "left" : `${targetPct}%`,
                 "transition-duration": `${speed}s`,
             };
         },

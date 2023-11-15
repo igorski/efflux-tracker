@@ -30,7 +30,8 @@
             :key="`column_${column.index}`"
             class="piano-roll-row__column"
             :class="{
-                'piano-roll-row__column--playing': playingStep === column.index,
+                'piano-roll-row__column--selected' : selectedStep === column.index,
+                'piano-roll-row__column--line'     : column.line,
             }"
             @click="handleEmptySlotClick( column )"
             @drop="handleDrop( $event, column )"
@@ -42,6 +43,9 @@
                 v-if="column.event"
                 ref="event"
                 class="piano-roll-row__column-content"
+                :class="{
+                    'piano-roll-row__column-content--playing': playingStep >= column.index && playingStep <= column.index + column.colspan,
+                }"
                 role="button"
                 :style="{ width: column.width }"
                 draggable
@@ -78,6 +82,7 @@ type FormattedColumn = {
     index: number;
     width: string;
     colspan: number;
+    line: boolean;
 };
 
 function serializeData( dragStartX: number, note: string, octave: number, event: PianoRollEvent ): string {
@@ -117,6 +122,10 @@ export default {
             type: Array, // PianoRollEvent[]
             required: true,
         },
+        selectedStep: {
+            type: Number,
+            required: true,
+        },
         playingStep: {
             type: Number,
             required: true,
@@ -137,7 +146,7 @@ export default {
                 const width   = `${NOTE_WIDTH * event?.length}px`;
                 const colspan = event?.length ?? 1;
 
-                out.push({ index, event, width, colspan });
+                out.push({ index, event, width, colspan, line: ( index > 0 && index % 4 === 0 ) });
 
                 index += colspan;
             }
@@ -232,17 +241,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/typography";
 @import "@/styles/_variables";
+@import "@/styles/_mixins";
+@import "@/styles/typography";
+
+$name-width: 25px;
+$column-width: 48px;
 
 .piano-roll-row {
     background-color: $color-pattern-even;
-
+ 
     &__name {
         @include toolFont();
         background-color: $color-editor-background;
         border: 0;
-        width: 25px;
+        width: $name-width;
+
+        @include mobile() {
+            position: sticky; // always in view
+            z-index: 1;
+            left: 0;
+        }
     }
     
     &__column {
@@ -250,29 +269,37 @@ export default {
         content: "---";
         height: 24px;
         // see NOTE_WIDTH, this min & max looks weird (why not use width: 48px?) but necessary due to table-cell rendering
-        min-width: 48px;
-        max-width: 48px;
+        min-width: $column-width;
+        max-width: $column-width;
         box-sizing: border-box;
         border: 1px solid $color-pattern-odd;
-        border-top-color: #000;
+        border-right: none;
+        border-top: none;
+        border-bottom: none;
 
         &:hover {
             background-color: $color-3;
             color: #000;
         }
 
-        &--playing {
-            background-color: $color-4;
-            // opacity: 0.5;
+        &--selected {
+            background-color: rgba(48,48,48,0.5);
+        }
+
+        &--line {
+            border-left: 1px solid $color-editor-background;
         }
 
         &-content {
             cursor: move;
             position: relative;
             background-color: $color-2;
-            // border: 2px solid $color-5;
             height: 20px;
             box-sizing: border-box;
+
+            &--playing {
+                background-color: $color-1;
+            }
         }
 
         &-size-handle {
