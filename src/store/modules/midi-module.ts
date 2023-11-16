@@ -20,9 +20,19 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Module } from "vuex";
+import type { Module, ActionContext } from "vuex";
 import { zMIDI } from "zmidi";
 import type { ModuleParamDef } from "@/definitions/automatable-parameters";
+import StorageUtil from "@/utils/storage-util";
+
+export const PAIRING_STORAGE_KEY = "Efflux_MidiPairing_";
+
+export type MIDIPairingPreset = {
+    id: number;
+    title: string; // TODO: UUID ?
+    device: string;
+    pairings: { ccid: string, param: PairableParam }[];
+};
 
 type MIDIDevice = {
     title: string;
@@ -55,11 +65,30 @@ export const createMidiState = ( props?: Partial<MIDIState> ): MIDIState => ({
     ...props
 });
 
+async function retrievePresets(): Promise<MIDIPairingPreset[]> {
+    try {
+        const serializedItems = await StorageUtil.getItem( PAIRING_STORAGE_KEY );
+        if ( !serializedItems ) {
+            return [];
+        }
+        return JSON.parse( serializedItems );
+    } catch {
+        return [];
+    }
+}
+
+function persistPresets( data: MIDIPairingPreset[] = []): Promise<void> {
+    return StorageUtil.setItem( PAIRING_STORAGE_KEY, JSON.stringify( data ));
+}
+
 const MIDIModule: Module<MIDIState, any> = {
     state: (): MIDIState => createMidiState(),
     getters: {
         hasMidiSupport( state: MIDIState ): boolean {
             return state.midiSupported;
+        },
+        hasPairings( state: MIDIState ): boolean {
+            return state.pairings.size > 0;
         },
     },
     mutations: {
@@ -90,6 +119,39 @@ const MIDIModule: Module<MIDIState, any> = {
         clearPairings( state: MIDIState ): void {
             state.pairings.clear();
         },
-    }
+        pairFromPreset( state: MIDIState, preset: MIDIPairingPreset ): void {
+            state.pairings.clear();
+            preset.pairings.forEach(({ ccid, param }) => {
+                state.pairings.set( ccid, param );
+            });
+        },
+    },
+    actions: {
+        loadPairings(): Promise<MIDIPairingPreset[]> {
+            StorageUtil.init();
+            return retrievePresets();
+        },
+        async savePairing( context: ActionContext<MIDIState, any>, presetName: string ): Promise<void> {
+            const { state } = context;
+            const pairings = await retrievePresets();
+            const preset: MIDIPairingPreset = {
+                id: pairings.length + 1,
+                title: presetName,
+                device: state.midiDeviceList.find( device => device.value === state.midiPortNumber )!.title,
+                pairings: [ ...state.pairings ].map(([ ccid, param ]) => ({ ccid, param })),
+            };
+            return persistPresets([ ...pairings, preset ]);
+        },
+        // @ts-expect-error context is unused
+        async deletePairing( context: ActionContext<MIDIState, any>, pairing: MIDIPairingPreset ): Promise<void> {
+            const pairings = await retrievePresets();
+            const index = pairings.findIndex( comparePairing => comparePairing.id === pairing.id );
+            if ( index === -1 ) {
+                return;
+            }
+            pairings.splice( index, 1 );
+            return persistPresets( pairings );
+        },
+    },
 };
 export default MIDIModule;

@@ -81,9 +81,16 @@
                 <legend v-t="'midiSetup'"></legend>
                 <div class="pane">
                     <button
+                        v-if="!midiConnected"
                         v-t="'midiConnectToAPI'"
+                        type="button"
                         @click="connectMidiDevices"
-                        :disabled="midiConnected"
+                    ></button>
+                    <button
+                        v-else
+                        v-t="'manageMidiPresets'"
+                        type="button"
+                        @click="openMIDIPresetManager"
                     ></button>
                     <div class="wrapper select">
                         <label v-t="'deviceSelectLabel'" class="padded-label"></label>
@@ -111,6 +118,7 @@ import { mapState, mapGetters, mapMutations } from "vuex";
 import { zMIDI } from "zmidi";
 import { ToggleButton } from "vue-js-toggle-button";
 import SelectBox from "@/components/forms/select-box.vue";
+import ModalWindows from "@/definitions/modal-windows";
 import MIDIService from "@/services/midi-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import { PROPERTIES } from "@/store/modules/settings-module";
@@ -234,6 +242,7 @@ export default {
             "showNotification",
             "createMidiDeviceList",
             "setMidiPortNumber",
+            "openModal",
             "publishMessage",
         ]),
         connectMidiDevices(): void {
@@ -262,6 +271,9 @@ export default {
         },
         handleMIDIconnectFailure(): void {
             this.showNotification({ title: this.$t( "error" ), message: this.$t( "midiFailure" ) });
+        },
+        openMIDIPresetManager(): void {
+            this.openModal( ModalWindows.MIDI_PRESET_MANAGER );
         },
     }
 };

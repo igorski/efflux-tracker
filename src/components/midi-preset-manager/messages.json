@@ -1,0 +1,10 @@
+{
+    "en-US": {
+        "midiPresetManager": "MIDI preset manager",
+        "noPresetsAvailable": "There are currently no stored presets available. Once you have created a set of MIDI pairings, you can save them here and recall them later. Once you have paired some instrument parameters to a controller, you can save that pairing in this window.",
+        "deletePreset": "Delete preset",
+        "savePreset": "Save preset",
+        "newPresetName": "New preset name",
+        "confirmPresetDelete": "Are you sure you want to delete preset '{preset}' ? This operation cannot be undone."
+    }
+}

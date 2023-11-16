@@ -253,6 +253,9 @@ export default {
                 case ModalWindows.MIDI_EXPORT_WINDOW:
                     loadFn = () => import( "@/components/midi-export-window/midi-export-window.vue" );
                     break;
+                case ModalWindows.MIDI_PRESET_MANAGER:
+                    loadFn = () => import( "@/components/midi-preset-manager/midi-preset-manager.vue" );
+                    break;
                 case ModalWindows.TRANSPOSITION_EDITOR:
                     loadFn = () => import( "@/components/transposition-editor/transposition-editor.vue" );
                     break;
