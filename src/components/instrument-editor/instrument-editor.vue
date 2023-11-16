@@ -48,7 +48,7 @@
                 <div class="actions">
                     <button
                         v-if="hasMidiSupport"
-                        v-t="midiConnected ? 'assignMidiControl' : 'connectMidi'"
+                        v-t="midiConnected ? ( midiAssignMode ? 'doneAssigning' : 'assignMidiControl' ) : 'connectMidi'"
                         type="button"
                         @click="midiConnected ? setMidiAssignMode( !midiAssignMode ) : openSettingsPanel()"
                     />

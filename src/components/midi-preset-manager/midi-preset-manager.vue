@@ -39,7 +39,7 @@
                     @click="openPreset( preset )"
                 >
                     <span class="title">{{ preset.title }}</span>
-                    <span class="device">{{ preset.device }}</span>
+                    <span class="device">{{ preset.deviceName }}</span>
                     <button
                         type="button"
                         class="action-button"
@@ -60,6 +60,7 @@
                 :disabled="!hasPairings"
                 type="text"
                 class="input-field full"
+                @keyup.enter="savePreset()"
                 @focus="handleFocusIn()"
                 @blur="handleFocusOut()"
             />
@@ -87,19 +88,21 @@ export default {
     }),
     computed: {
         ...mapGetters([
-            "hasPairings",
+            "connectedDevice",
+            "pairings",
         ]),
-        mappedPresets(): MIDIPairingPreset[] {
-            return [];
+        hasPairings(): boolean {
+            return this.pairings.size > 0;
         },
     },
     async created(): Promise<void> {
-        this.presets = await this.loadPairings();
+        await this.loadPresets();
     },
     methods: {
         ...mapMutations([
             "openDialog",
             "pairFromPreset",
+            "showNotification",
             "suspendKeyboardService",
         ]),
         ...mapActions([
@@ -107,16 +110,7 @@ export default {
             "loadPairings",
             "savePairing",
         ]),
-        requestDelete( preset: MIDIPairingPreset ): void {
-            this.openDialog({
-                type: "confirm",
-                message: this.$t( "confirmPresetDelete", { preset: preset.title }),
-                confirm: () => {
-                    this.deletePairing( preset );
-                }
-            });
-        },
-         handleFocusIn() {
+        handleFocusIn() {
             this.suspendKeyboardService( true );
         },
         handleFocusOut() {
@@ -124,9 +118,35 @@ export default {
         },
         openPreset( preset: MIDIPairingPreset ): void {
             this.pairFromPreset( preset );
+            if ( this.connectedDevice?.id !== preset.deviceId ) {
+                this.openDialog({ message: this.$t( "appliedPresetIncompatibleDevice", { device: preset.deviceName })});
+            }
+            this.showNotification({ message: this.$t( "appliedPreset", { preset: preset.title }) });
+            this.close();
         },
-        savePreset(): void {
-            this.savePairing( this.newPresetName );
+        async savePreset(): Promise<void> {
+            const success = await this.savePairing( this.newPresetName );
+            if ( success ) {
+                this.loadPresets();
+                this.showNotification({ message: this.$t( "savedPreset", { preset: this.newPresetName }) }); 
+            }
+        },
+        requestDelete( preset: MIDIPairingPreset ): void {
+            this.openDialog({
+                type: "confirm",
+                message: this.$t( "confirmPresetDelete", { preset: preset.title }),
+                confirm: async (): Promise<void> => {
+                    await this.deletePairing( preset );
+                    this.loadPresets();
+                    this.showNotification({ message: this.$t( "deletedStoredPreset", { preset: preset.title }) });
+                }
+            });
+        },
+        async loadPresets(): Promise<void> {
+            this.presets = await this.loadPairings();
+        },
+        close(): void {
+            this.$emit( "close" );
         },
     },
 };
@@ -136,6 +156,7 @@ export default {
 @use "sass:math";
 
 @import "@/styles/_mixins";
+@import "@/styles/forms";
 @import "@/styles/typography";
 
 $width: 750px;
@@ -213,19 +234,16 @@ $headerFooterHeight: 104px;
             display: inline-block;
         }
 
-        .title {
+        .title,
+        .device {
             flex: 1;
             @include noEvents();
             @include truncate();
-            vertical-align: middle;
-        }
-
-        .device {
-            width: 15%;
         }
 
         .action-button {
             width: #{$spacing-large + $spacing-xsmall};
+            padding: $spacing-xsmall;
             @include ghostButton();
 
             &:hover {

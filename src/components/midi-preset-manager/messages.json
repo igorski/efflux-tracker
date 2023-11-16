@@ -5,6 +5,10 @@
         "deletePreset": "Delete preset",
         "savePreset": "Save preset",
         "newPresetName": "New preset name",
-        "confirmPresetDelete": "Are you sure you want to delete preset '{preset}' ? This operation cannot be undone."
+        "confirmPresetDelete": "Are you sure you want to delete preset '{preset}' ? This operation cannot be undone.",
+        "deletedStoredPreset": "Deleted preset '{preset}'",
+        "savedPreset": "Saved preset '{preset}'",
+        "appliedPreset": "Applied preset '{preset}'",
+        "appliedPresetIncompatibleDevice": "The preset you loaded was created with '${device}', which is currently not the chosen MIDI input in Efflux. Please connect the device and select it as the chosen MIDI input from the settings menu."
     }
 }

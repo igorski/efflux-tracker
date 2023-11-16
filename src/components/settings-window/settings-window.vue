@@ -208,9 +208,9 @@ export default {
             if ( !this.midiDeviceList.length ) {
                 return [{ label: this.$t( "connectDevice" ), value: "-1" }];
             }
-            return this.midiDeviceList.map(({ title, value }) => ({
+            return this.midiDeviceList.map(({ title, port }) => ({
                 label: title,
-                value: value.toString()
+                value: port.toString()
             }));
         },
     },
@@ -266,7 +266,7 @@ export default {
             // when there is no selected port yet, auto select first device
             // as soon as one becomes available
             if ( this.midiPortNumber === -1 && this.midiDeviceList.length > 0 ) {
-                this.setMidiPortNumber( this.midiDeviceList[ 0 ].value );
+                this.setMidiPortNumber( this.midiDeviceList[ 0 ].port );
             }
         },
         handleMIDIconnectFailure(): void {

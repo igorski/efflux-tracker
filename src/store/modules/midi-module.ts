@@ -29,14 +29,16 @@ export const PAIRING_STORAGE_KEY = "Efflux_MidiPairing_";
 
 export type MIDIPairingPreset = {
     id: number;
-    title: string; // TODO: UUID ?
-    device: string;
+    title: string;
+    deviceId: string;
+    deviceName: string;
     pairings: { ccid: string, param: PairableParam }[];
 };
 
 type MIDIDevice = {
+    id: string;
     title: string;
-    value: number;
+    port: number;
 };
 
 type PairableParam = {
@@ -87,9 +89,10 @@ const MIDIModule: Module<MIDIState, any> = {
         hasMidiSupport( state: MIDIState ): boolean {
             return state.midiSupported;
         },
-        hasPairings( state: MIDIState ): boolean {
-            return state.pairings.size > 0;
+        connectedDevice( state: MIDIState ): MIDIDevice | undefined {
+            return state.midiDeviceList.find(({ port }) => port === state.midiPortNumber );
         },
+        pairings: ( state: MIDIState ): Map<string, PairableParam> => state.pairings,
     },
     mutations: {
         setMidiPortNumber( state: MIDIState, value: number ): void {
@@ -98,8 +101,9 @@ const MIDIModule: Module<MIDIState, any> = {
         createMidiDeviceList( state: MIDIState, inputs: WebMidi.MIDIInput[] ): void {
             state.midiConnected  = true;
             state.midiDeviceList = inputs.map(( input, i ) => ({
+                id    : input.id,
                 title : `${input.manufacturer} ${input.name}`,
-                value : i,
+                port  : i,
             }));
         },
         setMidiAssignMode( state: MIDIState, value: boolean ): void {
@@ -107,7 +111,6 @@ const MIDIModule: Module<MIDIState, any> = {
         },
         setPairableParamId( state: MIDIState, pairableParamId: PairableParam ): void {
             state.pairableParamId = pairableParamId;
-            state.midiAssignMode  = false;
         },
         pairControlChangeToController( state: MIDIState, controlChangeId: string ): void {
             state.pairings.set( controlChangeId, state.pairableParamId! );
@@ -131,16 +134,25 @@ const MIDIModule: Module<MIDIState, any> = {
             StorageUtil.init();
             return retrievePresets();
         },
-        async savePairing( context: ActionContext<MIDIState, any>, presetName: string ): Promise<void> {
-            const { state } = context;
+        async savePairing( context: ActionContext<MIDIState, any>, presetName: string ): Promise<boolean> {
+            const { state, getters } = context;
             const pairings = await retrievePresets();
+            const device   = getters.connectedDevice;
+       
+            if ( !device ) {
+                return false;
+            }
+       
             const preset: MIDIPairingPreset = {
                 id: pairings.length + 1,
                 title: presetName,
-                device: state.midiDeviceList.find( device => device.value === state.midiPortNumber )!.title,
+                deviceId: device.id,
+                deviceName: device.title,
                 pairings: [ ...state.pairings ].map(([ ccid, param ]) => ({ ccid, param })),
             };
-            return persistPresets([ ...pairings, preset ]);
+            await persistPresets([ ...pairings, preset ]);
+
+            return true;
         },
         // @ts-expect-error context is unused
         async deletePairing( context: ActionContext<MIDIState, any>, pairing: MIDIPairingPreset ): Promise<void> {

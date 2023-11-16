@@ -33,13 +33,21 @@ describe( "Vuex MIDI module", () => {
             expect( getters.hasMidiSupport( state, mockGetters, mockRootState, mockRootGetters )).toBe( true );
         });
 
-        it( "should know whether at least one pairing has been mapped", () => {
+        it( "should be able to return the currently connected MIDI device from the currently active port number", () => {
+            const state = createMidiState({
+                midiDeviceList: [
+                    { id: "foo", title: "Device 1", port: 3 },
+                    { id: "bar", title: "Device 2", port: 2 },
+                    { id: "baz", title: "Device 3", port: 1 },
+                ],
+                midiPortNumber: 1,
+            });
+            expect( getters.connectedDevice( state )).toEqual( state.midiDeviceList[ 2 ]);
+        });
+
+        it( "should be able to return the pairings Map", () => {
             const state = createMidiState();
-            expect( getters.hasPairings( state )).toBe( false );
-
-            state.pairings.set( "foo", "bar" );
-
-            expect( getters.hasPairings( state )).toBe( true );
+            expect( getters.pairings( state )).toEqual( state.pairings );
         });
     });
 
@@ -53,12 +61,12 @@ describe( "Vuex MIDI module", () => {
         it( "should be able to format a MIDI connection list", () => {
             const state = createMidiState({ midiDeviceList: [] });
             mutations.createMidiDeviceList( state, [
-                { manufacturer: "Acme", name : "foo" },
-                { manufacturer: "Acme", name : "bar" }
+                { id: "abc", manufacturer: "Acme", name : "foo" },
+                { id: "cde", manufacturer: "Acme", name : "bar" }
             ]);
             expect( state.midiDeviceList ).toEqual([
-                { title: "Acme foo", value: 0 },
-                { title: "Acme bar", value: 1 }
+                { id: "abc", title: "Acme foo", port: 0 },
+                { id: "cde", title: "Acme bar", port: 1 }
             ]);
         });
 
@@ -76,7 +84,6 @@ describe( "Vuex MIDI module", () => {
             const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
             mutations.setPairableParamId( state, pairableParamId );
             expect( state.pairableParamId ).toEqual( pairableParamId );
-            expect( state.midiAssignMode ).toBe( false );
         });
 
         it( "should be able to pair a CC change to an enqueued param/instrument mapping", () => {
@@ -183,27 +190,32 @@ describe( "Vuex MIDI module", () => {
             const state = createMidiState({
                 midiPortNumber: 11,
                 midiDeviceList: [
-                    { title: "Yet another MIDI device id", value: 11 }
+                    { id: "abc", title: "Yet another MIDI device id", value: 11 }
                 ],
                 pairings: new Map([[ "5", "quz" ], [ "6", "corge" ]]),
             });
+            const getters = {
+                connectedDevice: state.midiDeviceList[ 0 ],
+            };
             const title = "My newest preset";
            
             // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
-            await actions.savePairing({ state }, title );
+            const result = await actions.savePairing({ state, getters }, title );
 
             expect( mockStorageSetItem ).toHaveBeenCalledWith( PAIRING_STORAGE_KEY, JSON.stringify([
                 ...MOCK_STORED_PRESETS,
                 {
                     id: 3,
                     title,
-                    device: state.midiDeviceList[ 0 ].title,
+                    deviceId: getters.connectedDevice.id,
+                    deviceName: getters.connectedDevice.title,
                     pairings: [
                         { ccid: "5", param: "quz" },
                         { ccid: "6", param: "corge" },
                     ],
                 }
             ]));
+            expect( result ).toBe( true );
         });
 
         it( "should be able to remove an individual pairing from the stored preset list", async () => {
