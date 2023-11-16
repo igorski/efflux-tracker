@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import { MIDINotes, zMIDIEvent } from "zmidi";
-import type { Store, Commit, Module } from "vuex";
+import type { Store, Commit } from "vuex";
 import InstrumentUtil from "../utils/instrument-util";
 import type { EffluxState } from "@/store";
 import type { MIDIState } from "@/store/modules/midi-module";

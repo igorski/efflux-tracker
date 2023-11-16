@@ -3,6 +3,7 @@
     "title": "Instrument editor",
     "connectMidi": "Connect MIDI",
     "assignMidiControl": "Assign MIDI control",
+    "doneAssigning": "Done assigning",
     "instrument": "Instrument {index}",
     "oscillator": "Oscillator {index}",
     "presets": "Presets",
