@@ -9,6 +9,6 @@
         "deletedStoredPreset": "Deleted preset '{preset}'",
         "savedPreset": "Saved preset '{preset}'",
         "appliedPreset": "Applied preset '{preset}'",
-        "appliedPresetIncompatibleDevice": "The preset you loaded was created for '{device}', which is currently not the chosen MIDI input in Efflux. Please connect the device and select it as the chosen MIDI input from the settings menu."
+        "appliedPresetIncompatibleDevice": "The preset you loaded was created for '{device}', which is currently not the chosen MIDI input in Efflux. Please connect the device and select it in the settings menu."
     }
 }
