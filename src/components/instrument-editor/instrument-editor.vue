@@ -96,20 +96,20 @@
         <slot></slot>
         <hr class="divider" />
         <div class="instrument-footer">
-            <!-- current preset -->
             <input
                 v-model="presetName"
-                class="preset-name-input"
+                class="instrument-name-input"
                 type="text"
-                :placeholder="$t('presetName')"
-                @focus="handleFocusIn"
-                @blur="handleFocusOut"
-                @keyup.enter="savePreset"
+                :placeholder="$t('instrumentName')"
+                @focus="handleFocusIn()"
+                @blur="handleFocusOut()"
+                @keyup.enter="handleInputBlur( $event )"
             />
             <button
                 v-t="'savePreset'"
                 type="button"
-                @click="savePreset"
+                @click="savePreset()"
+                class="instrument-preset-save"
             ></button>
         </div>
     </div>
@@ -293,6 +293,9 @@ export default {
         handleFocusOut() {
             this.suspendKeyboardService( false );
         },
+        handleInputBlur( event ) {
+            event.target?.blur?.();
+        },
     }
 };
 </script>
@@ -407,6 +410,8 @@ export default {
 
 .instrument-footer {
     margin: $spacing-small $spacing-medium 0;
+    display: flex;
+    justify-content: space-between;
 
     input {
         width: 100%;
