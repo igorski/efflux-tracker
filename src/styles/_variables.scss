@@ -1,9 +1,5 @@
 /* application variables */
 
-$app-width: 960px;
-$ideal-width: 1600px;
-$mobile-width: 685px; // the threshold below which we start to use the mobile view
-
 $spacing-xxsmall: 2px;
 $spacing-xsmall: 4px;
 $spacing-small: 8px;
@@ -25,5 +21,23 @@ $action-button-top: #{$spacing-medium - $spacing-xsmall};
 $note-entry-editor-height: 150px;
 $note-entry-editor-height-expanded: 220px;
 $sampleWaveformHeight: 200px;
+$track-editor-width: 40px;
+$jam-channel-editor-width: 308px;
+
+$app-width: 960px;
+$mobile-width: 685px; // the threshold below which we start to use the mobile view
+$ideal-width: 1600px;
+$ideal-width-jam-mode: ( $jam-channel-editor-width * 4 ) + $track-editor-width + $spacing-medium; // spacing for scrollbar
+
+// z indices
+$z-notifications: 8;
+$z-loader: 8;
+$z-window: 7;
+$z-overlay: 6;
+$z-blind: 5;
+$z-open-menu: 4;
+$z-header: 3;
+$z-footer: 2;
+$z-keyboard: 1; // above any application-editor UI
 
 @import "colors";

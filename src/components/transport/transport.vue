@@ -24,7 +24,10 @@
     <section class="transport-section">
         <div
             class="transport-controls"
-            :class="{ 'settings-mode': mobileMode === 'settings' }"
+            :class="{
+                'settings-mode': mobileMode === 'settings',
+                'jam-mode': jamMode,
+            }"
         >
             <ul class="transport-controls__buttons">
                 <li>
@@ -378,6 +381,10 @@ export default {
     min-width: 100%;
     max-width: $ideal-width;
     min-height: 44px;
+
+    &.jam-mode {
+        max-width: $ideal-width-jam-mode;
+    }
 
     &__buttons,
     &__tempo {

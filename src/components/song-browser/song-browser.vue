@@ -259,7 +259,7 @@ $headerFooterHeightNoExpl: 102px;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: 2000;
+        z-index: $z-window;
 
         &__explanation {
             display: none;

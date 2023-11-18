@@ -93,7 +93,7 @@ export default {
 
 #notifications {
     position: fixed;
-    z-index: 1000;
+    z-index: $z-notifications;
     top: 45px;
     right: 0;
     width: 33%;

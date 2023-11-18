@@ -209,7 +209,7 @@ $button-height: 26px;
     background-color: #53565c;
 
     @include large() {
-        max-width: 308px;
+        width: $jam-channel-editor-width;
     }
 
     @include mobile() {

@@ -61,6 +61,7 @@ export default {
 
 <style lang="scss" scoped>
 @use "sass:math";
+@import "@/styles/_variables";
 
 $loaderSize: 200px;
 
@@ -75,7 +76,7 @@ $loaderSize: 200px;
     margin-top: math.div( -$loaderSize, 2 );
     border-radius: 24px;
     transform: scale(0.33);
-    z-index: 500;
+    z-index: $z-loader;
 
     &__element {
         position:absolute;

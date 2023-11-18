@@ -339,7 +339,7 @@ $largeWidth: 700px;
     }
 
     @include mobile() {
-        z-index: 10;
+        z-index: $z-keyboard;
         padding: $spacing-small $spacing-medium;
         width: 100% !important;
     }

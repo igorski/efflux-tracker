@@ -276,7 +276,7 @@ $headerFooterHeight: 134px;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: 2000;
+        z-index: $z-window;
 
         .order-list {
             height: calc(100% - #{$headerFooterHeight});

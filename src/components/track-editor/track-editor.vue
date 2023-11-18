@@ -132,21 +132,21 @@ export default {
     background-color: #000;
     vertical-align: top;
     position: relative;
-    min-width: 40px;
+    width: $track-editor-width;
 
     @include mobile() {
         position: fixed; /* keep pattern editor in static position */
         left: 0;
         height: 100%;
-        z-index: 10;
+        z-index: 1;
     }
 
     .controls {
         @include list();
 
         li {
-            width: 40px;
-            height: 40px;
+            width: $track-editor-width;
+            height: $track-editor-width;
             margin: 0 0 1px;
             background-color: #b6b6b6;
             background-repeat: no-repeat;

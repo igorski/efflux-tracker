@@ -16,7 +16,7 @@
     width: 100%;
     position: fixed;
     top: 0;
-    z-index: 200;
+    z-index: $z-header;
     border-bottom: 3px solid #53565d;
     @include boxSize();
 }
@@ -54,7 +54,7 @@
     @include large() {
         .application-editor,
         .note-entry-editor {
-            max-width: 1310px;
+            max-width: $ideal-width-jam-mode;
         }
     }
 }
@@ -66,7 +66,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,.5);
-    z-index: 400; // below overlays (see _variables.scss)
+    z-index: $z-blind;
 }
 
 .application-footer {
@@ -124,7 +124,7 @@
 
     .application-footer {
         padding: 0 $spacing-large;
-        z-index: 11;
+        z-index: $z-footer;
         @include boxSize;
     }
     /* when mobileMode is "settings" we show the tempo control and song editor by expanding these */
@@ -183,14 +183,12 @@
     html {
         overflow: auto;
     }
-
-    .help-section {
-        display: none;
-        width: 0;
-    }
     .application-editor {
-        overflow-x: scroll !important;
+        overflow-x: scroll;
         overflow-y: hidden !important; // body scrolls instead
+    }
+    .jam-mode .application-editor {
+        overflow-x: hidden;
     }
 }
 

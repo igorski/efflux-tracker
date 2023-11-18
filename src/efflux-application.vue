@@ -34,8 +34,9 @@
             </i18n>
         </div>
         <template v-else>
-            <header class="application-header"
-                    :class="{ expanded: menuOpened }"
+            <header
+                class="application-header"
+                :class="{ expanded: menuOpened }"
             >
                 <application-menu />
                 <transport />

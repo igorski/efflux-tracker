@@ -641,7 +641,7 @@ $stepHeight: 32px;
 
     &.active, &:hover {
         border: 2px solid $color-1;
-        z-index: 10;
+        z-index: 1;
     }
 
     &.selected {

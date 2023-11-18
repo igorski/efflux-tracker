@@ -172,6 +172,11 @@ export default {
     overflow-y: auto;
     height: 100%;
 
+    @media screen and (max-width: $app-width ) {
+        display: none;
+        width: 0;
+    }
+
     &__content {
         padding: $spacing-small $spacing-medium;
     }

@@ -23,7 +23,10 @@
 <template>
     <nav
         class="menu"
-        :class="{ opened: menuOpened }"
+        :class="{
+            'opened'  : menuOpened,
+            'jam-mode': jamMode,
+        }"
         @mouseover="handleMouseOver"
     >
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
@@ -495,6 +498,10 @@ h1 {
         max-width: $ideal-width;
         margin: 0 auto;
         padding-left: $spacing-large;
+
+        &.jam-mode {
+            max-width: $ideal-width-jam-mode;
+        }
     }
 
     .menu-list li {
@@ -504,7 +511,7 @@ h1 {
             }
             ul {
                 display: block;
-                z-index: 2;
+                z-index: $z-open-menu;
             }
         }
         ul {
@@ -536,7 +543,7 @@ h1 {
 @include mobile() {
     .menu {
         position: fixed;
-        z-index: 2; // above transport controls
+        z-index: $z-open-menu;
         overflow: hidden;
         width: 100%;
         height: inherit;

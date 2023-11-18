@@ -264,7 +264,7 @@ $headerFooterHeight: 104px;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: 2000;
+        z-index: $z-window;
 
         .pattern-list {
             height: calc(100% - #{$headerFooterHeight});
