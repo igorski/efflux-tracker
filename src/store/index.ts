@@ -49,6 +49,7 @@ export interface EffluxState {
     notifications: INotification[],
     modal: ModalWindows | null, /* string name of modal window to open, see modal-windows.js */
     mobileMode: string | null, /* string name of mobile view state */
+    supportsTouch: boolean;
     dropboxConnected: boolean,
     mediaConnected: boolean,
     applicationFocused: boolean,
@@ -90,6 +91,7 @@ export default
         notifications: [],
         modal: null, /* string name of modal window to open, see modal-windows.js */
         mobileMode: null, /* string name of mobile view state */
+        supportsTouch: false,
         dropboxConnected: false,
         mediaConnected: false,
         applicationFocused: true,
@@ -187,6 +189,9 @@ export default
         },
         setMobileMode( state: EffluxState, mode: string ): void {
             state.mobileMode = mode;
+        },
+        setSupportsTouch( state: EffluxState, value: boolean ): void {
+            state.supportsTouch = value;
         },
         setDropboxConnected( state: EffluxState, value: boolean ): void {
             state.dropboxConnected = value;

@@ -194,6 +194,12 @@ describe( "Application Vuex store root", () => {
             expect( state.mobileMode ).toEqual("foo");
         });
 
+        it( "should be able to set the touch support state", () => {
+            const state = createState({ supportsTouch: false });
+            mutations.setSupportsTouch( state, true );
+            expect( state.supportsTouch ).toEqual( true );
+        });
+
         it( "should be able to set the Dropbox connected state", () => {
             const state = createState({ dropboxConnected: false });
             mutations.setDropboxConnected( state, true );

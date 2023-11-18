@@ -349,7 +349,6 @@ export default {
         this.openSong( await this.createSong( urlParams.has( JAM_MODE ) ? EffluxSongType.JAM : EffluxSongType.TRACKER ));
         await this.prepareSequencer( this.$store );
         await this.setupServices( i18n );
-        this.addListeners();
 
         this.prepared = true;
 
@@ -403,8 +402,16 @@ export default {
             }
         };
 
-        // browser event we listen to during the application lifetime
+        // one time listeners for feature detection
+        const touchHandler = (): void => {
+            this.setSupportsTouch( "true" );
+            window.removeEventListener( "touchstart", touchHandler );
+        };
+        window.addEventListener( "touchstart", touchHandler );
+
+        // browser events we listen to during the entire application lifetime
         const handlers: Record<string, ( event: Event ) => void> = {
+            resize: this.handleResize.bind( this ),
             paste: event => {
                 loadFiles( readClipboardFiles(( event as ClipboardEvent )?.clipboardData ));
             },
@@ -467,6 +474,7 @@ export default {
             "setCurrentSample",
             "setPlaying",
             "setLooping",
+            "setSupportsTouch",
             "setWindowSize",
             "resetEditor",
             "resetHistory",
@@ -490,10 +498,6 @@ export default {
             "loadStoredSongs",
             "createSong",
         ]),
-        addListeners(): void {
-            // no need to dispose as these will be active during application lifetime
-            window.addEventListener( "resize", this.handleResize );
-        },
         handleReady(): void {
             if ( this.displayWelcome ) {
                 this.openModal( ModalWindows.WELCOME_WINDOW );

@@ -84,6 +84,11 @@
                         @note:delete="handleNoteDelete( row, $event )"
                         @note:resize="handleNoteResize( row, $event )"
                     />
+                    <!-- the piano-roll-row touch events are blocked in favour of event creation, add a drag handle here -->
+                    <tr
+                        v-if="supportsTouch"
+                        class="piano-roll__table-drag-handle"
+                    >PAN</tr>
                 </tbody>
                 <div
                     class="piano-roll__sequencer-position"
@@ -141,6 +146,7 @@ export default {
             currentStep        : state => state.sequencer.currentStep,
             jam                : state => state.sequencer.jam,
             stepPrecision      : state => state.sequencer.stepPrecision,
+            supportsTouch      : state => state.supportsTouch,
         }),
         ...mapGetters([
             "activeSong",
@@ -381,6 +387,22 @@ $ideal-width: 840px;
                 background-color: $color-pattern-odd;
                 border-color: $color-pattern-odd;
             }
+        }
+
+        &-drag-handle {
+            position: fixed;
+            border-radius: 50%;
+            border: 2px solid #666;
+            width: 64px;
+            height: 64px;
+            right: $spacing-large + $spacing-small;
+            bottom: $spacing-large * 2;
+            @include toolFont();
+            @include noSelect();
+            background-color: $color-form-background;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
     }
 
