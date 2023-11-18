@@ -93,7 +93,7 @@
                         @click="openMIDIPresetManager"
                     ></button>
                     <div class="wrapper select">
-                        <label v-t="'deviceSelectLabel'" class="padded-label"></label>
+                        <label v-t="'deviceSelectLabel'" class="midi-select-label"></label>
                         <select-box
                             v-model="portNumber"
                             :options="midiDeviceOptions"
@@ -302,6 +302,11 @@ $height: 575px;
     .label {
         min-width: 225px;
         display: inline-block;
+    }
+
+    .midi-select-label {
+        @include toolFont();
+        padding: $spacing-small 0;
     }
 
     @include componentIdeal( $width, $height ) {

@@ -73,7 +73,7 @@
                         :events="row.events"
                         :columns="columnAmount"
                         :selected-step="selectedStep"
-                        :playing-step="playingStep"
+                        :playing-step="isPlaying ? playingStep : -1"
                         :scroll-into-view="focusedRow === index"
                         class="piano-roll__table-row"
                         :class="{
@@ -276,6 +276,7 @@ export default {
                 event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
                 store : this.$store,
                 optData: {
+                    advanceOnAddition : false,
                     patternIndex : this.activePatternIndex,
                     channelIndex : this.selectedInstrument,
                     step,

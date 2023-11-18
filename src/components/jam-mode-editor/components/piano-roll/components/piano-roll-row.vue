@@ -28,16 +28,17 @@
         <td
             v-for="(column) in formattedColumns"
             :key="`column_${column.index}`"
-            class="piano-roll-row__column"
+            :colspan="column.colspan"
             :class="{
                 'piano-roll-row__column--selected' : selectedStep === column.index,
                 'piano-roll-row__column--line'     : column.line,
+                'piano-roll-row__column--dragging' : resizing && column.index >= dragRange.min && column.index <= dragRange.max,
             }"
             @click="handleEmptySlotClick( column )"
-            @drop="handleDrop( $event, column )"
-            @dragover.prevent
+            @drop="handleDrop( $event )"
+            @dragover.prevent="handleDragOver( $event )"
             @dragenter.prevent
-            :colspan="column.colspan"
+            class="piano-roll-row__column"
         >
             <div
                 v-if="column.event"
@@ -54,6 +55,7 @@
                 @touchstart="handleTouchStart( $event, column )"
                 @touchcancel="handleTouchEnd( $event )"
                 @touchend="handleTouchEnd( $event )"
+                @touchmove="handleTouchMove( $event )"
             >
                 <div
                     class="piano-roll-row__column-size-handle"
@@ -137,6 +139,10 @@ export default {
     },
     data: () => ({
         resizing: false,
+        dragRange: {
+            min: 0,
+            max: 0,
+        },
     }),
     computed: {
         formattedColumns(): FormattedColumn[] {
@@ -181,8 +187,18 @@ export default {
                 serializeData( dragEvent.clientX, this.note, this.octave, this.getEventForIndex( column.index ))
             );
             this.resizing = isResize;
+
+            this.dragStartX    = dragEvent.clientX;
+            this.dragRange.min = column.index + ( column.colspan - 1 );
+            this.dragRange.max = this.dragRange.min;
         },
-        handleDrop( dragEvent: DragEvent, column: FormattedColumn ): void {
+        handleDragOver( dragEvent: DragEvent ): void {
+            if ( !this.resizing ) {
+                return;
+            }
+            this.calcDragRange( dragEvent.clientX );
+        },
+        handleDrop( dragEvent: DragEvent ): void {
             const payload = deserialiseData( dragEvent.dataTransfer?.getData( "event" ));
             if ( payload ) {
                 const delta = dragEvent.clientX - payload.dragStartX;
@@ -195,6 +211,12 @@ export default {
                 }
             }
             this.resizing = false;
+        },
+        calcDragRange( currentX: number ): void {
+            const delta = currentX - this.dragStartX;
+            const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
+
+            this.dragRange.max = this.dragRange.min + moved;
         },
         /**
          * Overrides for touch screens. As the drag events don't exist there, we create a synthetic
@@ -235,6 +257,13 @@ export default {
                 clientY: touch.clientY,
                 dataTransfer,
             }));
+        },
+        handleTouchMove( event: TouchEvent ): void {
+            if ( !this.resizing ) {
+                return;
+            }
+            const [ touch ] = event.touches;
+            touch && this.calcDragRange( touch.pageX );
         },
     }
 };
@@ -288,6 +317,11 @@ $column-width: 48px;
 
         &--line {
             border-left: 1px solid $color-editor-background;
+        }
+
+        &--dragging {
+            background-color: $color-4;
+            border-color: $color-4;
         }
 
         &-content {

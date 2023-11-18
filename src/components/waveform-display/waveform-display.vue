@@ -331,12 +331,12 @@ export default {
                 }
                 getAnalysers()[ this.instrumentIndex ].getByteTimeDomainData( sampleBuffer );
 
-                const isPlaying = sampleBuffer.some( value => value !== CEIL );
+                const hasSignal = sampleBuffer.some( value => value !== CEIL );
                 ctx.fillRect( 0, 0, width, height );
 
                 wfRenderer.syncStyles( ctx );
 
-                if ( isPlaying ) {
+                if ( hasSignal ) {
                     fadeSamples = 0;
                     fadeDelay   = 0;
                     ctx.globalAlpha = 1;

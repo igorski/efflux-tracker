@@ -27,7 +27,7 @@
             <button
                 type="button"
                 class="close-button"
-                @click="$emit('close')"
+                @click="close()"
             >x</button>
         </div>
         <hr class="divider" />
