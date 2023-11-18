@@ -271,7 +271,7 @@ export default {
                 redo: act
             });
         },
-        handleNoteAdd( row: PianoRollRow, step: number ): void {
+        handleNoteAdd( row: PianoRollRow, { step, length } : { step: number, length: number }): void {
             this.addEventAtPosition({
                 event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
                 store : this.$store,
@@ -279,6 +279,7 @@ export default {
                     advanceOnAddition : false,
                     patternIndex : this.activePatternIndex,
                     channelIndex : this.selectedInstrument,
+                    length,
                     step,
                 }
             });

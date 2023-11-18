@@ -163,6 +163,7 @@ describe( "Event add action", () => {
     
             AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
     
+            // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
                 event1, 0, event2, 0, event3, event, NOTE_OFF_EVENT, event4
             ]);
@@ -184,9 +185,34 @@ describe( "Event add action", () => {
     
             AddEvent( store, event, { patternIndex, channelIndex, step: 3 }, vi.fn() );
     
+            // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
                 event1, 0, event2, event, event3, 0, 0, event4
             ]);
+        });
+
+        describe( "and the requested length is larger than 1 step", () => {
+            it( "should cut the length of any existing (long duration) notes the new event would overlap", () => {
+                const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
+
+                AddEvent( store, event, { patternIndex, channelIndex, step: 3, length: 2 }, vi.fn() );
+        
+                // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
+                expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
+                    event1, 0, event2, event, 0, event3, 0, event4
+                ]);
+            });
+
+            it( "should be able to revert the changes, restoring all original contents", () => {
+                const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
+        
+                const { undo } = AddEvent( store, event, { patternIndex, channelIndex, step: 3, length: 2 }, vi.fn() );
+                undo();
+        
+                expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
+                    event1, 0, event2, 0, event3, 0, 0, event4
+                ]);
+            });
         });
     });
 });

@@ -104,6 +104,18 @@ describe( "Event resize action", () => {
         ]);
     });
 
+    it( "should maintain its length and cut the length of any existing (long duration) notes the new length would overlap", () => {
+        const step = pattern.channels[ channelIndex ].indexOf( event2 );
+        const newLength = 4;
+
+        ResizeEvent( store, patternIndex, channelIndex, step, newLength );
+
+        // original order was: [ event1, event2, 0, 0, event3, 0, 0, event4 ]
+        expect( pattern.channels[ channelIndex ]).toEqual([
+            event1, event2, 0, 0, 0, event3, 0, event4
+        ]);
+    });
+
     it( "should request an invalidation of the channel cache", () => {
         const commitSpy = vi.spyOn( store, "commit" );
 

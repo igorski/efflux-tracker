@@ -32,12 +32,13 @@
             :class="{
                 'piano-roll-row__column--selected' : selectedStep === column.index,
                 'piano-roll-row__column--line'     : column.line,
-                'piano-roll-row__column--dragging' : resizing && column.index >= dragRange.min && column.index <= dragRange.max,
+                'piano-roll-row__column--dragging' : rangeDragging && column.index >= dragRange.min && column.index <= dragRange.max,
             }"
-            @click="handleEmptySlotClick( column )"
             @drop="handleDrop( $event )"
             @dragover.prevent="handleDragOver( $event )"
+            @pointerdown="handleDown( $event, column )"
             @dragenter.prevent
+            @touchstart.prevent
             class="piano-roll-row__column"
         >
             <div
@@ -86,6 +87,8 @@ type FormattedColumn = {
     colspan: number;
     line: boolean;
 };
+
+type DragListener = { element: Element, type: string, handler: ( event: Event ) => void };
 
 function serializeData( dragStartX: number, note: string, octave: number, event: PianoRollEvent ): string {
     return JSON.stringify({ note, octave, step: event.step, length: event.length, dragStartX });
@@ -138,7 +141,9 @@ export default {
         },
     },
     data: () => ({
-        resizing: false,
+        // range dragging values are set to draw the delta between drag start and current/end drag position
+        // when either resizing existing events or creating new longer duration events in a single click+drag motion
+        rangeDragging: false,
         dragRange: {
             min: 0,
             max: 0,
@@ -166,12 +171,15 @@ export default {
             }
         }
     },
+    created(): void {
+        this.dragListeners = [] as DragListener[];
+    },
+    beforeDestroy(): void {
+        this.removeListeners();
+    },
     methods: {
         getEventForIndex( index: number ): PianoRollEvent | undefined {
             return this.events.find( event => event.step === index );
-        },
-        handleEmptySlotClick( column: FormattedColumn ): void {
-            this.$emit( "note:add", column.index );
         },
         handleNoteDelete( column: FormattedColumn ): void {
             this.$emit( "note:delete", this.getEventForIndex( column.index ));
@@ -186,14 +194,14 @@ export default {
             dragEvent.dataTransfer.setData( "event",
                 serializeData( dragEvent.clientX, this.note, this.octave, this.getEventForIndex( column.index ))
             );
-            this.resizing = isResize;
+            this.rangeDragging = isResize;
 
             this.dragStartX    = dragEvent.clientX;
             this.dragRange.min = column.index + ( column.colspan - 1 );
             this.dragRange.max = this.dragRange.min;
         },
         handleDragOver( dragEvent: DragEvent ): void {
-            if ( !this.resizing ) {
+            if ( !this.rangeDragging ) {
                 return;
             }
             this.calcDragRange( dragEvent.clientX );
@@ -204,19 +212,55 @@ export default {
                 const delta = dragEvent.clientX - payload.dragStartX;
                 const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
             
-                if ( this.resizing ) {
+                if ( this.rangeDragging ) {
                     this.$emit( "note:resize", { payload, newLength: Math.max( 1, payload.length + moved ) });
                 } else {
                     this.$emit( "note:move", { payload, newStep: payload.step + moved });
                 }
             }
-            this.resizing = false;
+            this.rangeDragging = false;
+        },
+        handleDown( event: PointerEvent, column: FormattedColumn ): void {
+            if ( column.event ) {
+                return; // an event already exists at this position, click+drag creation not supported
+            }
+            this.rangeDragging = true;
+            this.dragStartX    = event.clientX;
+            this.dragRange.min = column.index + ( column.colspan - 1 );
+            this.dragRange.max = this.dragRange.min;
+
+            this.dragListeners.push({ element: window, type: "mousemove", handler: this.handleMove.bind( this ) });
+            this.dragListeners.push({ element: window, type: "mouseup", handler: this.handleUp.bind( this ) });
+            this.dragListeners.push({ element: window, type: "touchmove", handler: this.handleTouchMove.bind( this ) });
+            this.dragListeners.push({ element: event.target, type: "touchcancel", handler: this.handleUp.bind( this ) });
+            this.dragListeners.push({ element: event.target, type: "touchend", handler: this.handleUp.bind( this ) });
+         
+            for ( const entry of this.dragListeners ) {
+                entry.element.addEventListener( entry.type, entry.handler );
+            }
+        },
+        handleUp( event: Event ): void {
+            this.rangeDragging = false;
+            this.$emit( "note:add", {
+                step: this.dragRange.min,
+                length: Math.max( 1, ( this.dragRange.max - this.dragRange.min ) + 1 )
+            });
+            this.removeListeners();
+        },
+        handleMove( event: MouseEvent ): void {
+            this.calcDragRange( event.clientX );
         },
         calcDragRange( currentX: number ): void {
             const delta = currentX - this.dragStartX;
             const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
 
             this.dragRange.max = this.dragRange.min + moved;
+        },
+        removeListeners(): void {
+            for ( const entry of this.dragListeners ) {
+                entry.element.removeEventListener( entry.type, entry.handler );
+            }
+            this.dragListeners.length = 0;
         },
         /**
          * Overrides for touch screens. As the drag events don't exist there, we create a synthetic
@@ -249,9 +293,9 @@ export default {
             }
             event.preventDefault(); // prevents table scroll
 
-            // when resizing the target is the .piano_roll-row__column element that captures the drop
+            // when range dragging, the target is the ".piano_roll-row__column"-element that captures the drop
             // otherwise we need get the Element at the provided coordinates from the DOM (to allow dragging across rows)
-            const target = this.resizing ? event.target?.parentNode?.parentNode : document.elementFromPoint( touch.pageX, touch.pageY );
+            const target = this.rangeDragging ? event.target?.parentNode?.parentNode : document.elementFromPoint( touch.pageX, touch.pageY );
             target?.dispatchEvent( new DragEvent( "drop", {
                 clientX: touch.clientX,
                 clientY: touch.clientY,
@@ -259,7 +303,7 @@ export default {
             }));
         },
         handleTouchMove( event: TouchEvent ): void {
-            if ( !this.resizing ) {
+            if ( !this.rangeDragging ) {
                 return;
             }
             const [ touch ] = event.touches;

@@ -32,7 +32,7 @@ import FixturesLoader from "@/services/fixtures-loader";
 import SongAssemblyService from "@/services/song-assembly-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import SongValidator from "@/model/validators/song-validator";
-import addEvent from "@/model/actions/event-add";
+import addEvent, { type OptEventData } from "@/model/actions/event-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -132,7 +132,7 @@ const SongModule: Module<SongState, any> = {
          */
         // @ts-expect-error 'state' is declared but its value is never read.
         addEventAtPosition( state: SongState, { event, store, optData, optStoreInUndoRedo = true } :
-            { event: EffluxAudioEvent, store: Store<EffluxState>, optData?: any, optStoreInUndoRedo?: boolean }): void {
+            { event: EffluxAudioEvent, store: Store<EffluxState>, optData?: OptEventData, optStoreInUndoRedo?: boolean }): void {
                 const undoRedoAction = addEvent(
                 store, event, optData,
                 ( optHighlightActiveStep?: boolean ) => {

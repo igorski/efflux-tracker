@@ -23,18 +23,20 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
+import { clone } from "@/utils/object-util";
 import { insertEvent, createNoteOffEvent, invalidateCache } from "./event-actions";
 
 type IUpdateHandler = ( advanceStep?: boolean ) => void;
 
-type OptEventData = Partial<{
+export type OptEventData = Partial<{
     patternIndex: number,
     channelIndex: number,
     step: number,
+    length: number;
     advanceOnAddition: boolean,
     newEvent: true,
 }>;
@@ -52,32 +54,28 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
     // active instrument and pattern for event (can be different to currently visible pattern
     // e.g. undo/redo action performed when viewing another pattern)
 
-    let patternIndex = store.getters.activePatternIndex,
-        channelIndex = state.editor.selectedInstrument,
-        step         = state.editor.selectedStep;
+
+    const patternIndex = optEventData?.patternIndex ?? store.getters.activePatternIndex;
+    const channelIndex = optEventData?.channelIndex ?? state.editor.selectedInstrument;
+    const step = optEventData?.step ?? state.editor.selectedStep;
 
     // currently active instrument and pattern (e.g. visible on screen)
 
-    let advanceStepOnAddition = true;
-
-    // if options Object was given, use those values instead of current sequencer values
-
-    if ( optEventData ) {
-        patternIndex = ( typeof optEventData.patternIndex === "number" ) ? optEventData.patternIndex : patternIndex;
-        channelIndex = ( typeof optEventData.channelIndex === "number" ) ? optEventData.channelIndex : channelIndex;
-        step         = ( typeof optEventData.step         === "number" ) ? optEventData.step         : step;
+    const length = optEventData?.length ?? 1;
+    let advanceStepOnAddition = optEventData?.advanceOnAddition ?? true;
     
-        if ( typeof optEventData.advanceOnAddition === "boolean" ) {
-            advanceStepOnAddition = optEventData.advanceOnAddition;
-        }
-    }
     // if there is an existing event, cache it for undo-purpose (see add())
     let existingEvent: EffluxAudioEvent;
     let existingEventMp: EffluxAudioEventModuleParams;
 
+    const eventEnd = ( step + length ) - 1; // last step index of the events range
+    const nextIndex = eventEnd + 1; // index of the first event following the created event
+
+    const orgContent = ( length > 1 ) ? clone( song.patterns[ patternIndex ].channels[ channelIndex ] ) : undefined;
+
     // if the event should be short (single step) in duration (e.g. in jam mode), ensure its followed by another
     // event otherwise we add a note off instruction to kill its playback on the next step
-    const addNoteOff = isJam && !song.patterns[ patternIndex ].channels[ channelIndex ][ step + 1 ];
+    const addNoteOff = isJam && !song.patterns[ patternIndex ].channels[ channelIndex ][ nextIndex ];
 
     function act(): void {
         const pattern = song.patterns[ patternIndex ],
@@ -98,8 +96,22 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
         Vue.set( channel, step, event );
-        if ( addNoteOff ) {
-            insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, step + 1 );
+
+        if ( length > 1 ) {
+            for ( let i = step + 1; i <= eventEnd; ++i ) {
+                const nextStep = i + 1;
+                // in case the range of the created event already contains noteOn actions for long events, we
+                // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
+                if ( nextStep < channel.length && channel[ i ]?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
+                    insertEvent( channel[ i ], song, patternIndex, channelIndex, nextStep );
+                }
+                EventUtil.clearEvent( song, patternIndex, channelIndex, i );
+            }
+        }
+
+        // when event is not directly followed by another, we add a note off event to maintain multi-step duration
+        if ( addNoteOff && nextIndex <= channel.length - 1 && !channel[ nextIndex ] ) {
+            insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
         }
         invalidateCache( store, song, channelIndex );
      
@@ -131,19 +143,24 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
 
     return {
         undo(): void {
-            EventUtil.clearEvent(
-                song,
-                patternIndex,
-                channelIndex,
-                step,
-            );
-            // restore existing event if it was present during addition
-            if ( existingEvent ) {
-                const restoredEvent = deserialize( existingEvent );
-                insertEvent( restoredEvent, song, patternIndex, channelIndex, step );
-            }
-            if ( addNoteOff ) {
-                EventUtil.clearEvent( song, patternIndex, channelIndex, step + 1 );
+            if ( length > 1 ) {
+                // clone() is necessary to avoid conflicts when stepping the history state back and forth
+                Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
+            } else {
+                EventUtil.clearEvent(
+                    song,
+                    patternIndex,
+                    channelIndex,
+                    step,
+                );
+                // restore existing event if it was present during addition
+                if ( existingEvent ) {
+                    const restoredEvent = deserialize( existingEvent );
+                    insertEvent( restoredEvent, song, patternIndex, channelIndex, step );
+                }
+                if ( addNoteOff ) {
+                    EventUtil.clearEvent( song, patternIndex, channelIndex, step + 1 );
+                }
             }
             invalidateCache( store, song, channelIndex );
             updateHandler();
