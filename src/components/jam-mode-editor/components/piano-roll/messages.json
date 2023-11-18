@@ -5,6 +5,8 @@
         "paste": "Paste",
         "previousPattern": "Previous pattern",
         "nextPattern": "Next pattern",
-        "help": "Help"
+        "help": "Help",
+        "draw": "Draw",
+        "pan": "Pan"
     }
 }

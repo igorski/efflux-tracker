@@ -36,9 +36,9 @@
             }"
             @drop="handleDrop( $event )"
             @dragover.prevent="handleDragOver( $event )"
-            @pointerdown="handleDown( $event, column )"
+            @pointerdown="handleDrawStart( $event, column )"
             @dragenter.prevent
-            @touchstart.prevent
+            @touchstart="handlePanStart( $event )"
             class="piano-roll-row__column"
         >
             <div
@@ -135,6 +135,10 @@ export default {
             type: Number,
             required: true,
         },
+        editMode: {
+            type: Boolean,
+            default: true,
+        },
         scrollIntoView: {
             type: Boolean,
             default: false,
@@ -182,10 +186,13 @@ export default {
             return this.events.find( event => event.step === index );
         },
         handleNoteDelete( column: FormattedColumn ): void {
+            if ( !this.editMode ) {
+                return;
+            }
             this.$emit( "note:delete", this.getEventForIndex( column.index ));
         },
         handleDragStart( dragEvent: DragEvent, column: FormattedColumn, isResize: boolean ): void {
-            if ( !dragEvent.dataTransfer ) {
+            if ( !this.editMode || !dragEvent.dataTransfer ) {
                 return;
             }
             if ( !isResize ) {
@@ -220,8 +227,8 @@ export default {
             }
             this.rangeDragging = false;
         },
-        handleDown( event: PointerEvent, column: FormattedColumn ): void {
-            if ( column.event ) {
+        handleDrawStart( event: PointerEvent, column: FormattedColumn ): void {
+            if ( !this.editMode || column.event ) {
                 return; // an event already exists at this position, click+drag creation not supported
             }
             this.rangeDragging = true;
@@ -230,16 +237,16 @@ export default {
             this.dragRange.max = this.dragRange.min;
 
             this.dragListeners.push({ element: window, type: "mousemove", handler: this.handleMove.bind( this ) });
-            this.dragListeners.push({ element: window, type: "mouseup", handler: this.handleUp.bind( this ) });
+            this.dragListeners.push({ element: window, type: "mouseup", handler: this.handleDrawEnd.bind( this ) });
             this.dragListeners.push({ element: window, type: "touchmove", handler: this.handleTouchMove.bind( this ) });
-            this.dragListeners.push({ element: event.target, type: "touchcancel", handler: this.handleUp.bind( this ) });
-            this.dragListeners.push({ element: event.target, type: "touchend", handler: this.handleUp.bind( this ) });
+            this.dragListeners.push({ element: event.target, type: "touchcancel", handler: this.handleDrawEnd.bind( this ) });
+            this.dragListeners.push({ element: event.target, type: "touchend", handler: this.handleDrawEnd.bind( this ) });
          
             for ( const entry of this.dragListeners ) {
                 entry.element.addEventListener( entry.type, entry.handler );
             }
         },
-        handleUp( event: Event ): void {
+        handleDrawEnd( event: Event ): void {
             this.rangeDragging = false;
             this.$emit( "note:add", {
                 step: this.dragRange.min,
@@ -255,6 +262,11 @@ export default {
             const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
 
             this.dragRange.max = this.dragRange.min + moved;
+        },
+        handlePanStart( event: TouchEvent ): void {
+            if ( this.editMode ) {
+                event.preventDefault();
+            }
         },
         removeListeners(): void {
             for ( const entry of this.dragListeners ) {

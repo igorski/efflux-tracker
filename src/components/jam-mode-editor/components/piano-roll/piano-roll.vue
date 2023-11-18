@@ -74,6 +74,7 @@
                         :columns="columnAmount"
                         :selected-step="selectedStep"
                         :playing-step="isPlaying ? playingStep : -1"
+                        :edit-mode="!isPanMode"
                         :scroll-into-view="focusedRow === index"
                         class="piano-roll__table-row"
                         :class="{
@@ -84,11 +85,13 @@
                         @note:delete="handleNoteDelete( row, $event )"
                         @note:resize="handleNoteResize( row, $event )"
                     />
-                    <!-- the piano-roll-row touch events are blocked in favour of event creation, add a drag handle here -->
-                    <tr
+                    <button
                         v-if="supportsTouch"
-                        class="piano-roll__table-drag-handle"
-                    >PAN</tr>
+                        :title="isPanMode ? 'draw' : 'pan'"
+                        type="button"
+                        class="piano-roll__table-touch-mode-toggle"
+                        @click="toggleTouchMode()"
+                    ><img v-if="isPanMode" src="@/assets/icons/icon-pencil.svg" /><img v-else src="@/assets/icons/icon-drag.svg" /></button>
                 </tbody>
                 <div
                     class="piano-roll__sequencer-position"
@@ -130,6 +133,12 @@ type PianoRollRow = {
     events: PianoRollEvent[];
 };
 
+// we can't draw and pan at the same time on small screens, force user to select interaction type
+enum TouchMode {
+    PAN = 0,
+    DRAW
+};
+
 export default {
     i18n: { messages },
     components: {
@@ -138,6 +147,7 @@ export default {
     data: () => ({
         patternCopy: null,
         focusedRow: 0,
+        touchMode: TouchMode.DRAW,
     }),
     computed: {
         ...mapState({
@@ -219,6 +229,9 @@ export default {
                 "left" : `${targetPct}%`,
                 "transition-duration": `${speed}s`,
             };
+        },
+        isPanMode(): boolean {
+            return this.supportsTouch && this.touchMode === TouchMode.PAN;
         },
     },
     created(): void {
@@ -319,6 +332,9 @@ export default {
             const { activePatternIndex, selectedInstrument } = this;
             this.saveState( resizeEvent( this.$store, activePatternIndex, selectedInstrument, payload.step, newLength ));
         },
+        toggleTouchMode(): void {
+            this.touchMode = this.touchMode === TouchMode.PAN ? TouchMode.DRAW : TouchMode.PAN;
+        },
         handleHelp(): void {
             window.open( ManualURLs.PATTERN_JAM_SESSION );
         },
@@ -389,20 +405,22 @@ $ideal-width: 840px;
             }
         }
 
-        &-drag-handle {
-            position: fixed;
-            border-radius: 50%;
-            border: 2px solid #666;
-            width: 64px;
-            height: 64px;
-            right: $spacing-large + $spacing-small;
-            bottom: $spacing-large * 2;
+        &-touch-mode-toggle {
+            @include button();
             @include toolFont();
             @include noSelect();
-            background-color: $color-form-background;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            background-color: $color-4;
+            border-radius: 50%;
+            width: 54px;
+            height: 54px;
+            position: fixed;
+            right: $spacing-large;
+            bottom: $spacing-large * 2;
+
+            &:focus {
+                background-color: $color-4;
+                outline: none;
+            }
         }
     }
 
