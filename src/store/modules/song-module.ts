@@ -390,12 +390,7 @@ const SongModule: Module<SongState, any> = {
             return await SongAssemblyService.disassemble( song );
         },
         async openSharedSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, serializedSong: string | any ): Promise<void> {
-            let song;
-            if ( serializedSong.version ) { // legacy non-serialized shares
-                song = SongValidator.transformLegacy( serializedSong );
-            } else { // new serialized version
-                song = await SongAssemblyService.assemble( serializedSong );
-            }
+            const song = await SongAssemblyService.assemble( serializedSong );
             if ( song ) {
                 await dispatch( "openSong", song );
                 commit( "openModal", ModalWindows.WELCOME_SHARED_SONG );

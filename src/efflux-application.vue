@@ -359,8 +359,6 @@ export default {
             return;
         }
 
-        this.publishMessage( PubSubMessages.EFFLUX_READY );
-
         // if File content is dragged or pasted into the application, parse and load supported files within
         const loadFiles = async ({ instruments, patterns, projects, sounds }) => {
             for ( const instrument of instruments ) {
@@ -459,11 +457,10 @@ export default {
                 };
             }
         }
-        await this.$nextTick();
-        this.handleReady();
+        await this.handleReady();
 
         if ( urlParams.has( JAM_MODE )) {
-            this.openModal( ModalWindows.JAM_MODE );
+            this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
         }
     },
     methods: {
@@ -501,11 +498,10 @@ export default {
             "loadStoredSongs",
             "createSong",
         ]),
-        handleReady(): void {
-            if ( this.displayWelcome ) {
-                this.openModal( ModalWindows.WELCOME_WINDOW );
-            }
-            this.$nextTick( this.calculateDimensions );
+        async handleReady(): Promise<void> {
+            this.openModal( this.displayWelcome ? ModalWindows.WELCOME_WINDOW : ModalWindows.SONG_CREATION_WINDOW );
+            await this.$nextTick( this.calculateDimensions );
+            this.publishMessage( PubSubMessages.EFFLUX_READY );
         },
         handleResize(): void {
             this.setWindowSize({ width: window.innerWidth, height: window.innerHeight });

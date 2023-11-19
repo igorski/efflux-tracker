@@ -37,23 +37,17 @@ export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> 
         xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 
         const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
+        let song: EffluxSong;
 
         // first check if XTK had been saved after having been serialized
 
         if ( typeof xtkVersion === "number" ) {
-
-            const song = await SongFactory.deserialize( xtk, xtkVersion );
-
-            // perform transformation on legacy songs
-            SongValidator.transformLegacy( song );
-
-            return song;
-        }
-        else {
+            song = await SongFactory.deserialize( xtk, xtkVersion );
+        } else {
             // no assembly present on the XTK, assume legacy Song (is Object)
             // note we invoke the SongFactory to ensure all newer properties
             // of the newer XTK format are defined.
-            return {
+            song = {
                 ...SongFactory.create(),
                 ...xtk,
                 // deliberate as it can be undefined for ancient XTK's
@@ -61,6 +55,11 @@ export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> 
                 version: xtk.version
             };
         }
+
+        // perform transformation on legacy songs
+        SongValidator.transformLegacy( song );
+
+        return song;
     }
     catch ( e ) {
         return null;
