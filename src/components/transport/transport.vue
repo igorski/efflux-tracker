@@ -390,8 +390,8 @@ export default {
     &__tempo {
         @include list();
         padding-left: $spacing-medium;
-        display: inline-block;
-        vertical-align: middle;
+        display: flex;
+        align-items: center;
 
         li {
             display: inline;
@@ -526,12 +526,6 @@ export default {
             @include toolFont();
             cursor: pointer;
         }
-
-        &-divider {
-            // yes we're hacking here
-            position: relative;
-            top: -10px;
-        }
     }
 
     #songTempo {
@@ -552,14 +546,16 @@ export default {
 @media screen and ( min-width: $app-width ) {
     .transport-controls {
         .section-divider {
-            padding: 0 $spacing-medium $spacing-xsmall;
+            padding: 0 $spacing-medium;
+            margin: 0;
+            height: $transport-height;
 
             &:before {
                 position: absolute;
                 z-index: 1;
                 content: "";
                 border-left: 1px solid #666;
-                height: $transport-height;
+                height: inherit;
             }
         }
     }
@@ -585,6 +581,10 @@ export default {
 
         &__buttons button.icon-settings {
             display: inline;
+        }
+
+        &.jam-mode .transport-controls__tempo {
+            display: initial;
         }
     }
 

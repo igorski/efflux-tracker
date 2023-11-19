@@ -62,8 +62,8 @@
                     class="application-editor"
                     :class="{
                         'has-help-panel'          : displayHelp,
-                        'settings-mode'           : mobileMode === 'settings',
-                        'settings-mode--expanded' : mobileMode === 'settings' && useOrders,
+                        'settings-mode'           : isMobileSettingsMode,
+                        'settings-mode--expanded' : isMobileSettingsMode && useOrders,
                         'note-entry-mode'         : showNoteEntry,
                     }"
                 >
@@ -283,6 +283,9 @@ export default {
                     break;
             }
             return () => asyncComponent( "mw", loadFn );
+        },
+        isMobileSettingsMode(): boolean {
+            return !this.jamMode && this.mobileMode === "settings";
         },
     },
     watch: {

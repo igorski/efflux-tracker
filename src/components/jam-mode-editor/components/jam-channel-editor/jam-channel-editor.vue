@@ -244,8 +244,10 @@ $button-height: 26px;
         }
 
         &-ghost-button {
-            padding: $spacing-small ( $spacing-small + $spacing-xsmall );
+            padding: 0;
             margin: 0;
+            width: 24px;
+            height: 24px;
             background: transparent;
             border-radius: 50%;
 
