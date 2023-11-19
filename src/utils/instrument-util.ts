@@ -25,15 +25,15 @@ import type { ModuleParamDef } from "@/definitions/automatable-parameters";
 import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 import { noteOn, noteOff } from "@/services/audio-service";
 import type { PartialPitch } from "@/services/audio/pitch";
+import type { OptEventData } from "@/model/actions/event-add";
 import EventFactory from "@/model/factories/event-factory";
-import EventUtil from "./event-util";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
-import { getPrevEvent } from "@/utils/event-util";
+import EventUtil, { getPrevEvent } from "@/utils/event-util";
 import type { EffluxState } from "@/store";
 
 const RECORD_THRESHOLD = 50;
@@ -194,7 +194,7 @@ export default
 
         if ( record ) {
             // if recording is activated, record the event into the song before playback
-            recordEventIntoSong( audioEvent, store );
+            recordEventIntoSong( audioEvent, store, true );
             // because depending on the previous note in the track list, the instrument could have changed !!
             instrument = store.getters.activeSong.instruments[ audioEvent.instrument ];
         }
@@ -251,9 +251,9 @@ function pitchToUniqueId( pitch: PartialPitch ): string {
     return `${pitch.note}${pitch.octave}`;
 }
 
-function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxState>, markAsRecording = true ): void {
+function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxState>, markAsRecording: boolean ): void {
     const { state, getters, commit } = store;
-    const optData: any = { newEvent: true };
+    const optData: OptEventData = { newEvent: true };
     const isNoteOff = audioEvent.action === ACTION_NOTE_OFF;
     const isParamChange = audioEvent.action === ACTION_IDLE;
 
@@ -264,7 +264,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     if (( now - lastAddition ) < RECORD_THRESHOLD ) return;
 
     const { playing } = state.sequencer;
-    const { activePatternIndex, activeOrderIndex, amountOfSteps } = getters;
+    const { activeOrderIndex, amountOfSteps, jamMode } = getters;
 
     // if the sequencer isn't playing, noteOff events must be added explicitly
     // (this noteOff event is the result of a key release)
@@ -273,10 +273,12 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     }
 
     const song         = state.song.activeSong;
-    const pattern      = song.patterns[ activePatternIndex ];
     const channelIndex = state.editor.selectedInstrument;
-    const channel      = pattern.channels[ channelIndex ];
-    const step         = playing ? Math.round( state.sequencer.currentStep / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
+    const activePatternIndex = jamMode ? state.sequencer.jam[ channelIndex ].activePatternIndex : getters.activePatternIndex;
+    
+    const pattern  = song.patterns[ activePatternIndex ];
+    const channel  = pattern.channels[ channelIndex ];
+    const step     = playing ? Math.round( state.sequencer.currentStep / 64 * amountOfSteps ) % amountOfSteps : state.editor.selectedStep;
 
     // check if the intended target position of the recording already contains an event
 
@@ -308,17 +310,16 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
             if ( prevInCurrentPattern && prevInCurrentPattern.action === ACTION_NOTE_OFF ) return;
         }
 
-        // sequencer is playing, add event at current step
-
-        optData.patternIndex      = activePatternIndex;
-        optData.channelIndex      = channelIndex;
-        optData.step              = step;
-        optData.advanceOnAddition = false; // don't advanced selected step during playback
         audioEvent.recording = markAsRecording && !isParamChange;
     }
-    commit( "addEventAtPosition", { store, event: audioEvent, optData });
-    commit( "invalidateChannelCache", { song });
 
+    optData.patternIndex      = activePatternIndex;
+    optData.channelIndex      = channelIndex;
+    optData.step              = step;
+    optData.advanceOnAddition = !playing; // don't advanced selected step during playback
+
+    commit( "addEventAtPosition", { store, event: audioEvent, optData });
+   
     lastAddition = now;
 
     // unset recording state of previous event
