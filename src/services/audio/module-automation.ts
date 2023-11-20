@@ -29,7 +29,7 @@ import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from "./webaud
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument } from "@/model/types/instrument";
-import type { InstrumentModules, InstrumentVoice } from "@/model/types/instrument-modules";
+import type { InstrumentModules } from "@/model/types/instrument-modules";
 
 const filterTypes = [ "off", "sine", "square", "sawtooth", "triangle" ];
 

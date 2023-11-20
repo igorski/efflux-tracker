@@ -99,13 +99,14 @@
 
 <script lang="ts">
 import { mapState, mapMutations } from "vuex";
-import { EQ_LOW, EQ_MID, EQ_HIGH, applyParamChange } from "@/definitions/param-ids";
+import { EQ_LOW, EQ_MID, EQ_HIGH } from "@/definitions/param-ids";
 import ModalWindows from "@/definitions/modal-windows";
 import muteChannel from "@/model/actions/channel-mute";
 import soloChannel from "@/model/actions/channel-solo";
 import { type Instrument } from "@/model/types/instrument";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import AudioService, { applyModule } from "@/services/audio-service";
+import { applyParamChange } from "@/services/audio/param-controller";
 import { supportsAnalysis, getAmplitude } from "@/services/audio/analyser";
 import { supports } from "@/services/audio/webaudio-helper";
 import { clone } from "@/utils/object-util";

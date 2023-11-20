@@ -22,7 +22,6 @@
  */
 import type { Store } from "vuex";
 import type { ModuleParamDef } from "@/definitions/automatable-parameters";
-import { getParamRange, applyParamChange } from "@/definitions/param-ids";
 import { noteOn, noteOff } from "@/services/audio-service";
 import type { PartialPitch } from "@/services/audio/pitch";
 import type { OptEventData } from "@/model/actions/event-add";
@@ -32,7 +31,9 @@ import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audi
 import type { EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
+import { getParamRange, applyParamChange } from "@/services/audio/param-controller";
 import { isOscillatorNode, isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
+import type { OptDataProp } from "@/services/midi-service";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
 import type { EffluxState } from "@/store";
 
@@ -229,12 +230,13 @@ export default
      * handle a module parameter change for an instrument module
      * note: record defines whether to record the param change into given instruments pattern list
      */
-    onParamControlChange( paramId: ModuleParamDef, value: number, instrumentIndex: number, store: Store<EffluxState>, record = false ): void {
+    onParamControlChange( paramId: ModuleParamDef, value: number, instrumentIndex: number, store: Store<EffluxState>, optData?: OptDataProp ): void {
         const { min, max } = getParamRange( paramId );
+        const record = store.state.sequencer.recording;
         applyParamChange(
             paramId,
             min + ( max - min ) * value,
-            instrumentIndex, store
+            instrumentIndex, store, optData
         );
         if ( record ) {
             const audioEvent = EventFactory.create( instrumentIndex );

@@ -78,23 +78,23 @@ describe( "Vuex MIDI module", () => {
 
         it( "should be able to enqueue a param/instrument mapping to be paired with a CC change", () => {
             const state = createMidiState({
-                pairableParamId : null,
-                midiAssignMode  : true
+                pairingProps   : null,
+                midiAssignMode : true
             });
-            const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
-            mutations.setPairableParamId( state, pairableParamId );
-            expect( state.pairableParamId ).toEqual( pairableParamId );
+            const pairingProps = { paramId: "bar", instrumentIndex: 2, optData: 1 };
+            mutations.setPairingProps( state, pairingProps );
+            expect( state.pairingProps ).toEqual( pairingProps );
         });
 
         it( "should be able to pair a CC change to an enqueued param/instrument mapping", () => {
-            const pairableParamId = { paramId: "bar", instrumentIndex: 2 };
+            const pairingProps = { paramId: "bar", instrumentIndex: 2, optData: 1 };
             const state = createMidiState({
-                pairableParamId,
+                pairingProps,
             });
             mutations.pairControlChangeToController( state, "foo" );
             expect( state.pairings.has( "foo" )).toBe( true );
-            expect( state.pairings.get( "foo" )).toEqual( pairableParamId );
-            expect( state.pairableParamId ).toBeNull();
+            expect( state.pairings.get( "foo" )).toEqual( pairingProps );
+            expect( state.pairingProps ).toBeNull();
         });
 
         it( "should be able to unpair an existing control change", () => {
@@ -123,8 +123,8 @@ describe( "Vuex MIDI module", () => {
                 title: "My preset",
                 device: "Some MIDI device id",
                 pairings: [
-                    { ccid: "1", param: "baz" },
-                    { ccid: "2", param: "qux" },
+                    { ccid: "1", param: { paramId: "foo", instrumentIndex: 1, optData: 2 } },
+                    { ccid: "2", param: { paramId: "bar", instrumentIndex: 2 } },
                 ],
             };
 
@@ -145,8 +145,8 @@ describe( "Vuex MIDI module", () => {
 
                 mutations.pairFromPreset( state, preset );
 
-                expect( state.pairings.get( "1" )).toEqual( "baz" );
-                expect( state.pairings.get( "2" )).toEqual( "qux" );
+                expect( state.pairings.get( "1" )).toEqual({ paramId: "foo", instrumentIndex: 1, optData: 2 });
+                expect( state.pairings.get( "2" )).toEqual({ paramId: "bar", instrumentIndex: 2 });
             });
         });
     });
@@ -158,16 +158,16 @@ describe( "Vuex MIDI module", () => {
                 title: "My preset",
                 device: "Some MIDI device id",
                 pairings: [
-                    { ccid: "1", param: "foo" },
-                    { ccid: "2", param: "bar" },
+                    { ccid: "1", param: { paramId: "foo" }},
+                    { ccid: "2", param: { paramId: "bar" }},
                 ],
             }, {
                 id: 2,
                 title: "My other preset",
                 device: "Some other MIDI device id",
                 pairings: [
-                    { ccid: "3", param: "baz" },
-                    { ccid: "4", param: "qux" },
+                    { ccid: "3", param: { paramId: "baz" }},
+                    { ccid: "4", param: { paramId: "qux" }},
                 ],
             },
         ];
@@ -192,7 +192,7 @@ describe( "Vuex MIDI module", () => {
                 midiDeviceList: [
                     { id: "abc", title: "Yet another MIDI device id", value: 11 }
                 ],
-                pairings: new Map([[ "5", "quz" ], [ "6", "corge" ]]),
+                pairings: new Map([[ "5", { paramId: "quz" }], [ "6", { paramId: "corge" }]]),
             });
             const getters = {
                 connectedDevice: state.midiDeviceList[ 0 ],
@@ -210,8 +210,8 @@ describe( "Vuex MIDI module", () => {
                     deviceId: getters.connectedDevice.id,
                     deviceName: getters.connectedDevice.title,
                     pairings: [
-                        { ccid: "5", param: "quz" },
-                        { ccid: "6", param: "corge" },
+                        { ccid: "5", param: { paramId: "quz" }},
+                        { ccid: "6", param: { paramId: "corge" }},
                     ],
                 }
             ]));

@@ -35,7 +35,7 @@ import { processVoiceLists } from "./audio/audio-util";
 import ADSR from "./audio/adsr-module";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
-import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
+import type { Instrument, InstrumentOscillator, OscillatorProp } from "@/model/types/instrument";
 import type { InstrumentModules, InstrumentVoice, InstrumentVoiceList } from "@/model/types/instrument-modules";
 import { PlaybackType } from "@/model/types/sample";
 import type { EffluxSong } from "@/model/types/song";
@@ -461,11 +461,11 @@ const AudioService =
             AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
         });
     },
-    updateOscillator( property: string, instrumentIndex: number, oscillatorIndex: number, oscillator: InstrumentOscillator ): void {
+    updateOscillator( property: OscillatorProp | "tuning", instrumentIndex: number, oscillatorIndex: number, oscillator: InstrumentOscillator ): void {
         // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
         if ( import.meta.env.MODE !== "production" ) {
-            if ( !/waveform|tuning|volume/.test( property )) {
-                throw new Error(`cannot update unsupported oscillator property ${property}`);
+            if ( !/waveform|tuning|volume/.test( property.toString() )) {
+                throw new Error(`cannot update unsupported oscillator property ${property.toString()}`);
             }
         }
         const events = Object.values( playingEventVoices[ instrumentIndex ]) as EventVoiceList[];
@@ -505,6 +505,7 @@ export const getAnalysers = (): AnalyserNode[] => {
 export const applyModule = ( type: string, instrumentIndex: number, props: any ): void => {
     ModuleFactory.applyConfiguration( type, instrumentModulesList[ instrumentIndex ], props, masterBus );
 };
+
 /* internal methods */
 
 function setupRouting(): void {

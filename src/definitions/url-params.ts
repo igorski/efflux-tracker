@@ -21,4 +21,4 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 export const JAM_MODE: string = "jam";
-export const DEEPLINKED_SONG: string = "song";
+export const DEEPLINKED_SONG: string = "song"; // used by external integrations communicating over PubSub

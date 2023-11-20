@@ -53,29 +53,33 @@
         <!-- oscillator tuning and volume -->
         <div class="tuning-editor instrument-parameters">
             <h2 v-t="'oscillatorTuning'"></h2>
-            <div class="wrapper input range padded">
-                <label v-t="'detuneLabel'" for="detune"></label>
-                <input v-model.number="oscillatorDetune"
-                       type="range" id="detune" min="-50" max="50" step=".1" value="0" />
-            </div>
-            <div class="wrapper input range">
-                <label v-t="'octaveShiftLabel'" for="octaveShift"></label>
-                <input v-model.number="oscillatorOctaveShift"
-                       type="range" id="octaveShift" min="-2" max="2" step="1" value="0"
-                       :disabled="oscillator.waveform === 'NOISE'" />
-            </div>
-            <div class="wrapper input range">
-                <label v-t="'fineShiftLabel'" for="fineShift"></label>
-                <input v-model.number="oscillatorFineShift"
-                       type="range" id="fineShift" min="-7" max="7" step="1" value="0"
-                       :disabled="oscillator.waveform === 'NOISE'" />
-            </div>
-            <div class="wrapper input range">
-                <label v-t="'volumeLabel'" for="volume"></label>
-                <input type="range"
-                       v-model.number="oscillatorVolume"
-                       id="volume" min="0" max="1" step=".01" value="0" />
-            </div>
+            <assignable-range-control
+                v-model.number="oscillatorDetune"
+                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_DETUNE"
+                :opt-data="oscillatorIndex"
+                :label="$t('detuneLabel')"
+                class="padded"
+            />
+            <assignable-range-control
+                v-model.number="oscillatorOctaveShift"
+                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_OCT_SHIFT"
+                :opt-data="oscillatorIndex"
+                :label="$t('octaveShiftLabel')"
+                :disabled="oscillator.waveform === 'NOISE'"
+            />
+            <assignable-range-control
+                v-model.number="oscillatorFineShift"
+                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_FINE_SHIFT"
+                :opt-data="oscillatorIndex"
+                :label="$t('fineShiftLabel')"
+                :disabled="oscillator.waveform === 'NOISE'"
+            />
+            <assignable-range-control
+                v-model.number="oscillatorVolume"
+                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_VOLUME"
+                :opt-data="oscillatorIndex"
+                :label="$t('volumeLabel')"
+            />
         </div>
         <!-- envelopes -->
         <div class="envelope-editor instrument-parameters">
@@ -94,57 +98,67 @@
                 class="tabbed-content adsr-editor"
                 :class="{ active: activeEnvelopeTab === 0 }"
             >
-                <div class="wrapper input range">
-                    <label v-t="'attack'" for="attack"></label>
-                    <input v-model.number="amplitudeAttack"
-                           type="range" id="attack" min="0" max="1" step=".01" value="0" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'decay'" for="decay"></label>
-                    <input v-model.number="amplitudeDecay"
-                           type="range" id="decay" min="0" max="1" step=".01" value="0" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'sustain'" for="sustain"></label>
-                    <input v-model.number="amplitudeSustain"
-                           type="range" id="sustain" min="0" max="1" step=".01" value=".75" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'release'" for="release"></label>
-                    <input v-model.number="amplitudeRelease"
-                           type="range" id="release" min="0" max="1" step=".01" value="0" />
-                </div>
+                <assignable-range-control
+                    v-model.number="amplitudeAttack"
+                    :param-id="MIDI_ASSIGNABLE.ADSR_ATTACK"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('attack')"
+                />
+                <assignable-range-control
+                    v-model.number="amplitudeDecay"
+                    :param-id="MIDI_ASSIGNABLE.ADSR_DECAY"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('decay')"
+                />
+                <assignable-range-control
+                    v-model.number="amplitudeSustain"
+                    :param-id="MIDI_ASSIGNABLE.ADSR_SUSTAIN"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('sustain')"
+                />
+                <assignable-range-control
+                    v-model.number="amplitudeRelease"
+                    :param-id="MIDI_ASSIGNABLE.ADSR_RELEASE"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('release')"
+                />
             </div>
             <!-- pitch envelope -->
             <div
                 class="tabbed-content adsr-editor"
                 :class="{ active: activeEnvelopeTab === 1 }"
             >
-                <div class="wrapper input range pitch-range">
-                    <label v-t="'range'" for="pitchRange"></label>
-                    <input v-model.number="pitchRange"
-                           type="range" id="pitchRange" min="-24" max="24" step="1" value="0" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'attack'" for="pitchAttack"></label>
-                    <input v-model.number="pitchAttack"
-                           type="range" id="pitchAttack" min="0" max="1" step=".01" value="0" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'decay'" for="pitchDecay"></label>
-                    <input v-model.number="pitchDecay"
-                           type="range" id="pitchDecay" min="0" max="1" step=".01" value="1" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'sustain'" for="pitchSustain"></label>
-                    <input v-model.number="pitchSustain"
-                           type="range" id="pitchSustain" min="0" max="1" step=".01" value=".75" />
-                </div>
-                <div class="wrapper input range">
-                    <label v-t="'release'" for="pitchRelease"></label>
-                    <input v-model.number="pitchRelease"
-                           type="range" id="pitchRelease" min="0" max="1" step=".01" value="0" />
-                </div>
+                <assignable-range-control
+                    v-model.number="pitchRange"
+                    :param-id="MIDI_ASSIGNABLE.PITCH_RANGE"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('range')"
+                    class="pitch-range"
+                />
+                <assignable-range-control
+                    v-model.number="pitchAttack"
+                    :param-id="MIDI_ASSIGNABLE.PITCH_ATTACK"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('attack')"
+                />
+                <assignable-range-control
+                    v-model.number="pitchDecay"
+                    :param-id="MIDI_ASSIGNABLE.PITCH_DECAY"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('decay')"
+                />
+                <assignable-range-control
+                    v-model.number="pitchSustain"
+                    :param-id="MIDI_ASSIGNABLE.PITCH_SUSTAIN"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('sustain')"
+                />
+                <assignable-range-control
+                    v-model.number="pitchRelease"
+                    :param-id="MIDI_ASSIGNABLE.PITCH_RELEASE"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('release')"
+                />
             </div>
         </div>
     </section>
@@ -153,17 +167,17 @@
 <script lang="ts">
 import { mapGetters } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
+import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
+import SelectBox from "@/components/forms/select-box.vue";
+import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import AudioService from "@/services/audio-service";
+import { MIDI_ASSIGNABLE, TUNING_PROPERTIES } from "@/services/audio/param-controller";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
-import SelectBox from "@/components/forms/select-box.vue";
-import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import { clone } from "@/utils/object-util";
 import messages from "./messages.json";
-
-const TUNING_PROPERTIES = [ "detune", "octaveShift", "fineShift" ];
 
 export default {
     i18n: { messages },
@@ -172,6 +186,7 @@ export default {
         ToggleButton,
         WaveformDisplay,
     },
+    mixins: [ ControllerEditor ],
     props: {
         instrumentIndex: {
             type: Number,
@@ -290,6 +305,9 @@ export default {
                 this.update( "sample", name );
             }
         },
+    },
+    created(): void {
+        this.MIDI_ASSIGNABLE = MIDI_ASSIGNABLE;
     },
     methods: {
         update( prop: string, value: any ): void {

@@ -71,6 +71,8 @@ export type Instrument = {
     }
 };
 
+export type InstrumentProp = keyof Instrument;
+
 export type InstrumentAmplitudeEnvelopes = {
     attack : number;
     decay  : number;
@@ -112,6 +114,8 @@ export type InstrumentOscillator = {
     adsr        : InstrumentAmplitudeEnvelopes,
     pitch?      : InstrumentPitchEnvelopes;
 };
+
+export type OscillatorProp = keyof InstrumentOscillator;
 
 export type InstrumentOscillatorSerialized = Omit<InstrumentOscillator, "sample"> & { sample: XTKSample };
 export type InstrumentSerialized = Omit<Instrument, "oscillators"> & { oscillators: InstrumentOscillatorSerialized[] };

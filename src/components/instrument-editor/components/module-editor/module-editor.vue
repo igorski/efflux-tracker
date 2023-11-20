@@ -191,8 +191,8 @@ import ControllerEditor from "@/components/instrument-editor/mixins/controller-e
 import { IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH } from "@/definitions/layout";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import SelectBox from "@/components/forms/select-box.vue";
-import { MIDI_ASSIGNABLE, applyParamChange } from "@/definitions/param-ids";
 import { applyModule } from "@/services/audio-service";
+import { MIDI_ASSIGNABLE, applyParamChange } from "@/services/audio/param-controller";
 import { clone } from "@/utils/object-util";
 import messages from "./messages.json";
 

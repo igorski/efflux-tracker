@@ -22,7 +22,7 @@
  */
 import type { Module, ActionContext } from "vuex";
 import { zMIDI } from "zmidi";
-import type { ModuleParamDef } from "@/definitions/automatable-parameters";
+import type { PairableParam } from "@/services/midi-service";
 import StorageUtil from "@/utils/storage-util";
 
 export const PAIRING_STORAGE_KEY = "Efflux_MidiPairing_";
@@ -41,18 +41,13 @@ type MIDIDevice = {
     port: number;
 };
 
-type PairableParam = {
-    paramId: ModuleParamDef;
-    instrumentIndex: number;
-};
-
 export interface MIDIState {
     midiSupported: boolean; // whether we can use MIDI
     midiConnected: boolean; // whether zMIDI has established a MIDI API connection
     midiPortNumber: number; // MIDI port that we have subscribed to receive events from
     midiDeviceList: MIDIDevice[], // list of connected MIDI devices
     midiAssignMode: boolean; // when true, assignable-range-control activate pairing mode
-    pairableParamId: PairableParam | null; // when set, the next incoming CC change will map to this param-instrument pair
+    pairingProps: Partial<PairableParam> | null; // when set, the next incoming CC change will map to this param-instrument pair
     pairings: Map<string, PairableParam>; // list of existing CC changes mapped to param-instrument pairs
 };
 
@@ -62,7 +57,7 @@ export const createMidiState = ( props?: Partial<MIDIState> ): MIDIState => ({
     midiPortNumber: -1,
     midiDeviceList: [],
     midiAssignMode: false,
-    pairableParamId: null,
+    pairingProps: null,
     pairings: new Map(),
     ...props
 });
@@ -109,12 +104,12 @@ const MIDIModule: Module<MIDIState, any> = {
         setMidiAssignMode( state: MIDIState, value: boolean ): void {
             state.midiAssignMode = value;
         },
-        setPairableParamId( state: MIDIState, pairableParamId: PairableParam ): void {
-            state.pairableParamId = pairableParamId;
+        setPairingProps( state: MIDIState, pairingProps: Partial<PairableParam> ): void {
+            state.pairingProps = pairingProps;
         },
         pairControlChangeToController( state: MIDIState, controlChangeId: string ): void {
-            state.pairings.set( controlChangeId, state.pairableParamId! );
-            state.pairableParamId = null;
+            state.pairings.set( controlChangeId, state.pairingProps as PairableParam );
+            state.pairingProps = null;
         },
         unpairControlChange( state: MIDIState, controlChangeId: string ): void {
             state.pairings.delete( controlChangeId );

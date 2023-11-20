@@ -35,7 +35,7 @@
             <template v-if="presets.length > 0">
                 <li
                     v-for="preset in presets"
-                    :key="`preset_${preset.id}`"
+                    :key="`preset_${preset.id}_${preset.title}`"
                     @click="openPreset( preset )"
                 >
                     <span class="title">{{ preset.title }}</span>

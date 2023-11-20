@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -33,10 +33,11 @@
             :min="min"
             :max="max"
             :step="step"
+            :disabled="disabled"
             @input="$emit( 'input', $event.target.value )"
         />
         <div
-            v-if="linkable"
+            v-if="linkable && !disabled"
             class="hit-area"
             @click="setAsPairable()"
         />
@@ -54,9 +55,10 @@
    </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapMutations } from "vuex";
-import { getParamRange } from "@/definitions/param-ids";
+import { getParamRange } from "@/services/audio/param-controller";
+import { type PairableParam  } from "@/services/midi-service";
 import messages from "./messages.json";
 
 export default {
@@ -66,6 +68,10 @@ export default {
             type: String,
             required: true,
         },
+        optData: {
+            type: [ String, Number, undefined ],
+            required: false,
+        },
         value: {
             type: Number,
             required: true,
@@ -73,6 +79,10 @@ export default {
         label: {
             type: String,
             required: true,
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
     data: () => ({
@@ -83,25 +93,25 @@ export default {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,
             midiAssignMode     : state => state.midi.midiAssignMode,
-            pairableParamId    : state => state.midi.pairableParamId,
+            pairingProps       : state => state.midi.pairingProps,
             pairings           : state => state.midi.pairings,
         }),
-        linkable() {
+        linkable(): boolean {
             return !this.paired && ( this.linking || this.midiAssignMode );
         },
     },
     watch: {
-        pairableParamId( value ) {
+        pairingProps( value: Partial<PairableParam> ): void {
             if ( !value ) {
                 this.linking = false;
                 this.checkPairing();
             }
         },
-        selectedInstrument() {
+        selectedInstrument(): void {
             this.checkPairing();
-        }
+        },
     },
-    created() {
+    created(): void {
         const { min, max, step } = getParamRange( this.paramId );
         this.min  = min;
         this.max  = max;
@@ -110,21 +120,22 @@ export default {
     },
     methods: {
         ...mapMutations([
-            "setPairableParamId",
+            "setPairingProps",
             "unpairControlChange",
         ]),
-        checkPairing() {
+        checkPairing(): void {
             this.paired = Object.values([ ...this.pairings ])
                               .some(([, { paramId, instrumentIndex }]) => paramId === this.paramId && instrumentIndex === this.selectedInstrument );
         },
-        setAsPairable() {
-            this.setPairableParamId({
+        setAsPairable(): void {
+            this.setPairingProps({
                 paramId         : this.paramId,
-                instrumentIndex : this.selectedInstrument
+                instrumentIndex : this.selectedInstrument,
+                optData         : this.optData,
             });
             this.linking = true;
         },
-        unlink() {
+        unlink(): void {
             const pair = Object.values([ ...this.pairings ])
                               .find(([, { paramId, instrumentIndex }]) => paramId === this.paramId && instrumentIndex === this.selectedInstrument );
 
@@ -132,7 +143,7 @@ export default {
                 this.unpairControlChange( pair[ 0 ] );
                 this.checkPairing();
             }
-        }
+        },
     },
 };
 </script>

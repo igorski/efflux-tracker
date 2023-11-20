@@ -22,9 +22,18 @@
  */
 import { MIDINotes, zMIDIEvent } from "zmidi";
 import type { Store, Commit } from "vuex";
-import InstrumentUtil from "../utils/instrument-util";
+import type { ModuleParamDef } from "@/definitions/automatable-parameters";
 import type { EffluxState } from "@/store";
 import type { MIDIState } from "@/store/modules/midi-module";
+import InstrumentUtil from "@/utils/instrument-util";
+
+export type OptDataProp = number | string;
+
+export type PairableParam = {
+    paramId: ModuleParamDef;
+    instrumentIndex: number;
+    optData?: OptDataProp;
+};
 
 const MIDI_TO_PERCENTILE = 1 / 127; // scale MIDI 0-127 range to percentile
 
@@ -68,14 +77,14 @@ export default {
                 switch ( number ) {
                     default:
                         const controlId = `${channel}_${number}`;
-                        if ( midi.pairableParamId ) {
+                        if ( midi.pairingProps ) {
                             commit( "pairControlChangeToController", controlId );
                         } else {
                             const pairing = midi.pairings.get( controlId );
                             if ( pairing ) {
                                 InstrumentUtil.onParamControlChange(
                                     pairing.paramId, value * MIDI_TO_PERCENTILE,
-                                    pairing.instrumentIndex, store, state.sequencer.recording
+                                    pairing.instrumentIndex, store, pairing.optData
                                 );
                             }
                         }
