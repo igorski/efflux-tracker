@@ -123,7 +123,7 @@ import Loader from "@/components/loader.vue";
 import ApplicationMenu from "@/components/application-menu/application-menu.vue";
 import Notifications from "@/components/notifications.vue";
 import ModalWindows from "@/definitions/modal-windows";
-import { JAM_MODE } from "@/definitions/url-params";
+import { JAM_MODE, DEEPLINKED_SONG } from "@/definitions/url-params";
 import SampleFactory from "@/model/factories/sample-factory";
 import { type EffluxSong, EffluxSongType} from "@/model/types/song";
 import { loadSample } from "@/services/audio/sample-loader";
@@ -458,7 +458,7 @@ export default {
                 };
             }
         }
-        await this.handleReady();
+        await this.handleReady( !urlParams.has( DEEPLINKED_SONG ));
 
         if ( urlParams.has( JAM_MODE )) {
             this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
@@ -499,10 +499,11 @@ export default {
             "loadStoredSongs",
             "createSong",
         ]),
-        async handleReady(): Promise<void> {
-            this.openModal( this.displayWelcome ? ModalWindows.WELCOME_WINDOW : ModalWindows.SONG_CREATION_WINDOW );
+        async handleReady( showLandingModal = false ): Promise<void> {
+            if ( showLandingModal ) {
+                this.openModal( this.displayWelcome ? ModalWindows.WELCOME_WINDOW : ModalWindows.SONG_CREATION_WINDOW );
+            }
             await this.$nextTick();
-            this.calculateDimensions();
             this.publishMessage( PubSubMessages.EFFLUX_READY );
         },
         handleResize(): void {
