@@ -301,7 +301,7 @@ export default {
             if ( AudioService.initialized ) {
                 AudioService.reset();
                 AudioService.cacheCustomTables( song.instruments );
-                AudioService.applyModules( song );
+                AudioService.applyModules( song, this.jamMode );
             }
             this.resetEditor();
             this.resetHistory();
@@ -311,11 +311,12 @@ export default {
             this.setLooping( false );
             this.clearSelection();
 
+            this.$nextTick().then(() => this.calculateDimensions() );
+
             if ( this.useOrders && song.version < 4 && song.order.length === song.patterns.length ) {
                 return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
             }
             this.publishMessage( PubSubMessages.SONG_LOADED );
-            this.$nextTick( this.calculateDimensions );
 
             if ( !song.meta.title ) {
                 return;
@@ -330,7 +331,7 @@ export default {
          */
         selectedSlot(): void {
             this.syncKeyboard();
-        }
+        },
     },
     async created(): Promise<void> {
 
@@ -500,7 +501,8 @@ export default {
         ]),
         async handleReady(): Promise<void> {
             this.openModal( this.displayWelcome ? ModalWindows.WELCOME_WINDOW : ModalWindows.SONG_CREATION_WINDOW );
-            await this.$nextTick( this.calculateDimensions );
+            await this.$nextTick();
+            this.calculateDimensions();
             this.publishMessage( PubSubMessages.EFFLUX_READY );
         },
         handleResize(): void {
