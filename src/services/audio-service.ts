@@ -331,9 +331,9 @@ export const noteOn = ( event: EffluxAudioEvent, instrument: Instrument,
             }
 
             voices[ oscillatorIndex ] = /** @type {EventVoice} */ ({
+                frequency,
                 generator: generatorNode,
                 vo: oscillatorVO,
-                frequency: frequency,
                 gain: oscillatorNode,
                 outputNode: adsrNode,
                 gliding: false

@@ -53,24 +53,21 @@ let lastAddition = 0;
  */
 export const tuneToOscillator = ( frequency: number, oscillator: InstrumentOscillator ): number => {
     // tune event frequency to oscillator tuning
-    const tmpFreq = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
-    let outFreq = tmpFreq;
+    let out = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
 
     if ( oscillator.octaveShift !== 0 ) {
         if ( oscillator.octaveShift < 0 ) {
-            outFreq = tmpFreq / Math.abs( oscillator.octaveShift * 2 );
+            out /= Math.abs( oscillator.octaveShift * 2 );
         } else {
-            outFreq += ( tmpFreq * Math.abs( oscillator.octaveShift * 2 ) - 1 );
+            out *= Math.abs( oscillator.octaveShift * 2 );
         }
     }
-    const fineShift = ( tmpFreq / 12 * Math.abs( oscillator.fineShift ));
 
-    if ( oscillator.fineShift < 0 ) {
-        outFreq -= fineShift;
-    } else {
-        outFreq += fineShift;
+    const { fineShift } = oscillator;
+    if ( fineShift === 0 ) {
+        return out;
     }
-    return outFreq;
+    return out *= (( fineShift > 0 ) ? Math.pow( 1.05946, fineShift ) : Math.pow( 0.94387, -fineShift ));
 };
 
 /**
