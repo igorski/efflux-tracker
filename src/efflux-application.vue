@@ -504,6 +504,7 @@ export default {
                 this.openModal( this.displayWelcome ? ModalWindows.WELCOME_WINDOW : ModalWindows.SONG_CREATION_WINDOW );
             }
             await this.$nextTick();
+            this.calculateDimensions();
             this.publishMessage( PubSubMessages.EFFLUX_READY );
         },
         handleResize(): void {

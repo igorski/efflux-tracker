@@ -92,7 +92,7 @@
                     'jam-channel-editor__patterns-button--queued'   : index === nextPatternIndex && nextPatternIndex !== activePatternIndex,
                     'jam-channel-editor__patterns-button--disabled' : jamProps.locked,
                 }"
-                @click="handlePatternClick( index )"
+                @click.stop="handlePatternClick( index )"
             >
                 {{ index + 1 }}
             </div>
