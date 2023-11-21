@@ -443,7 +443,7 @@ const AudioService =
     toggleRecordingState(): void {
         recordOutput = !recordOutput;
         if ( recordOutput && outputRecorderRef ) {
-            if ( !recorder) {
+            if ( !recorder ) {
                 recorder = new ( outputRecorderRef )( compressor, {
                     callback : handleRecordingComplete
                 });

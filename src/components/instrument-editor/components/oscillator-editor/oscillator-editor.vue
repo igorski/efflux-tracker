@@ -133,7 +133,6 @@
                     :param-id="MIDI_ASSIGNABLE.PITCH_RANGE"
                     :opt-data="oscillatorIndex"
                     :label="$t('range')"
-                    class="pitch-range"
                 />
                 <assignable-range-control
                     v-model.number="pitchAttack"
@@ -422,20 +421,6 @@ export default {
     @media screen and ( min-width: $ideal-instrument-editor-width ) {
         .adsr-editor {
             padding-bottom: 0;
-        }
-
-        .pitch-range {
-            width: 85% !important;
-            position: absolute;
-            right: -175px;
-            top: 234px;
-            transform: rotate(-90deg);
-            transform-origin: 0;
-
-            label {
-                text-align: right;
-                margin-right: $spacing-xsmall;
-            }
         }
     }
 }

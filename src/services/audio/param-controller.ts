@@ -120,7 +120,6 @@ export const applyParamChange = ( paramId: string, paramValue: number, instrumen
                 AudioService.updateOscillator( "volume", instrumentIndex, oscillatorIndex, oscillator  );
             }
         }
-        console.info('setting value', value );
         store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop, value });
     } else {
         const [ prop, paramKey ] = getModulePropKeysByParamId( paramId )!;
