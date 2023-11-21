@@ -419,6 +419,7 @@ $actionsHeight: 50px;
         transform: translate(-50%, -50%);
     }
 
+    .component__content,
     .content__wrapper {
         height: 100%;
     }
