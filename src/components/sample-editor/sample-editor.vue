@@ -574,10 +574,11 @@ export default {
         /* other */
         sliceBufferForRange(): AudioBuffer | null {
             return sliceBuffer(
-                getAudioContext(), this.sample.buffer,
+                this.sample.buffer,
                 rangeToPosition( this.sampleStart, this.sample.buffer.duration ),
-                rangeToPosition( this.sampleEnd,   this.sample.buffer.duration )
-            )
+                rangeToPosition( this.sampleEnd,   this.sample.buffer.duration ),
+                getAudioContext(),
+            );
         },
         trimSample(): void {
             this.isBusy = true;

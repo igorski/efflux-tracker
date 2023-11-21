@@ -30,8 +30,11 @@ import Pitch from "@/services/audio/pitch";
  * Returns null when an invalid range was requested.
  * 
  * Begin and end values are provided in seconds (relative to buffer.duration)
+ * 
+ * NOTE: AudioContext can be optional here as for creating buffers we don't require
+ * an unlocked AudioContext.
  */
-export const sliceBuffer = ( audioContext: BaseAudioContext, buffer: AudioBuffer, begin: number, end: number ): AudioBuffer | null => {
+export const sliceBuffer = ( buffer: AudioBuffer, begin: number, end: number, audioContext: BaseAudioContext = new window.AudioContext() ): AudioBuffer | null => {
     const { duration, numberOfChannels, sampleRate } = buffer;
 
     if ( begin < 0 || end > duration ) {

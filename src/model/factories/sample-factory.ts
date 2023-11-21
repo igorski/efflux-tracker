@@ -67,7 +67,7 @@ const SampleFactory = {
         if ( rangeStart === 0 && rangeEnd === sample.buffer.duration ) {
             return sample.buffer;
         }
-        return sliceBuffer( audioContext, sample.buffer, rangeStart, rangeEnd );
+        return sliceBuffer( sample.buffer, rangeStart, rangeEnd, audioContext );
     },
 
     /**
