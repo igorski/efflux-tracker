@@ -93,7 +93,6 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
     const activeSong = store.state.song.activeSong;
     const { action, seq } = event;
 
-    seq.playing      = true; // prevents retriggering of same event during its playback
     seq.startMeasure = startMeasure;
 
     // calculate the total duration for the events optional module parameter
@@ -104,9 +103,6 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
 
     seq.mpLength = eventPattern ? calculateMeasureLength( activeSong.meta.tempo, beatAmount ) / eventPattern.steps : 0;
 
-    // play back the event by rendering its audio through the AudioService
-    noteOn( event, activeSong.instruments[ event.instrument ], store.getters.sampleCache, nextNoteTime );
-
     // dequeue preceding events
 
     const isNoteOn = action === ACTION_NOTE_ON;
@@ -115,7 +111,7 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
     if ( action !== ACTION_IDLE ) {
 
         // all non-module parameter change events kill previously playing notes
-        let playingNote = queue.tail;
+        let playingNote = queue.head;
 
         // when looping and this is the only note in the channel (notes are enqueued last first, see reverse collect loop)
         // not sure what the logic here was : this causes the first note in a looped measure to be cut short
@@ -127,13 +123,19 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
         }
         */
         while ( playingNote ) {
-            if ( playingNote.data.id !== event.id ) {
-                dequeueEvent( sequencer, playingNote.data, nextNoteTime );
+            if ( playingNote.data.id === event.id ) {
+                return; // should not happen, but can occur on stepping model states in the UI
             }
+            dequeueEvent( sequencer, playingNote.data, nextNoteTime );
             playingNote.remove();
-            playingNote = queue.tail;
+            playingNote = queue.head;
         }
     }
+
+    seq.playing = true; // prevents retriggering of same event during its playback
+ 
+    // play back the event by rendering its audio through the AudioService
+    noteOn( event, activeSong.instruments[ event.instrument ], store.getters.sampleCache, nextNoteTime );
 
     // noteOn events are pushed in a queue to be dequeued when a new noteOn/noteOff
     // event is enqueued for this events channel. Non-noteOn events are immediately

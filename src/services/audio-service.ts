@@ -80,6 +80,8 @@ let pool: {
 };
 let UNIQUE_EVENT_ID = 0;
 
+const POOL_GAIN_NODES = false; // engine stability test
+
 /**
  * Prepares the environment to create pools for oscillators, wave tables and instruments.
  * optExternalEventCallback is an optional callback to invoke for EXTERNAL_EVENT automations
@@ -543,13 +545,7 @@ function createModules(): void {
             // allow multiple channels to target the same voice at fast repeating (yet sustaining) intervals
             const mult = 2;
             for ( let k = 0; k < Config.INSTRUMENT_AMOUNT * mult; ++k ) {
-                const nodes = {
-                    oscillatorNode: createGainNode( audioContext ),
-                    adsrNode: createGainNode( audioContext )
-                };
-                nodes.oscillatorNode.connect( nodes.adsrNode );
-                nodes.adsrNode.connect( instrumentModules.output );
-                instrumentModules.voices[ j ].push( nodes );
+                instrumentModules.voices[ j ].push( createVoiceGainStructure( instrumentModules.output ));
             }
         }
         applyRouting( instrumentModules, masterBus );
@@ -583,25 +579,45 @@ function returnVoiceNodesToPoolOnPlaybackEnd( instrumentModules: InstrumentModul
             delete playingEventVoices[ instrumentIndex ][ eventId ];
         }
 
-        // return the gain nodes for the instrument voice back to the pool
-        instrumentModules.voices[ oscillatorIndex ].push({
-            oscillatorNode: eventVoice.gain,
-            adsrNode: eventVoice.outputNode
-        });
+        eventVoice.gain.gain.cancelScheduledValues( 0 );
+        eventVoice.outputNode.gain.cancelScheduledValues( 0 );
+
+        if ( POOL_GAIN_NODES ) {
+            // return the gain nodes for the instrument voice back to the pool
+            instrumentModules.voices[ oscillatorIndex ].push({
+                oscillatorNode: eventVoice.gain,
+                adsrNode: eventVoice.outputNode
+            });
+            return;
+        }
+
+        // pooling of gain nodes disabled. Technically this increases work for the garbage collector, but this
+        // brings the benefit of a more stable engine as it ensures all scheduled parameters are discarded, providing
+        // a clean reset for the next use (otherwise over time / under CPU stress ADSR changes would not restore properly)
+        // this can be tested by looping a 16th note hi-hat noise (w/ slight release) pattern for a while
+        
+        eventVoice.gain.disconnect();
+        eventVoice.outputNode.disconnect();
+
+        instrumentModules.voices[ oscillatorIndex ].push( createVoiceGainStructure( instrumentModules.output ));
     };
 }
 
 /**
- * create a periodicWaveTable (which can be used with a OscillatorNode for playback)
- * from an Array of custom drawn points
- *
- * @param {number} instrumentIndex index of the instrument within the pool
- * @param {number} oscillatorIndex index of the oscillator within the instrument
- * @param {Array<number>} table list of points
- * @return {PeriodicWave} the created WaveTable
+ * create a periodicWaveTable (which can be used with a OscillatorNode for playback) from a table of draw points.
  */
 function createTableFromCustomGraph( instrumentIndex: number, oscillatorIndex: number, table: number[] ): PeriodicWave {
     return pool.CUSTOM[ instrumentIndex ][ oscillatorIndex ] = createWaveTableFromGraph( audioContext, table );
+}
+
+function createVoiceGainStructure( output: AudioNode ): InstrumentVoice {
+    const oscillatorNode = createGainNode( audioContext );
+    const adsrNode = createGainNode( audioContext );
+    
+    oscillatorNode.connect( adsrNode );
+    adsrNode.connect( output );
+
+    return { oscillatorNode, adsrNode };
 }
 
 function handleRecordingComplete( blob: Blob ): void {

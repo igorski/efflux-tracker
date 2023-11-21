@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,6 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import OscillatorTypes from "@/definitions/oscillator-types";
 import type { InstrumentOscillator, InstrumentAmplitudeEnvelopes, InstrumentPitchEnvelopes } from "@/model/types/instrument";
 import { isAudioBufferSourceNode } from "@/services/audio/webaudio-helper";
 
@@ -44,8 +45,8 @@ export default
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case "SINE":
-            case "TRIANGLE":
+            case OscillatorTypes.SINE:
+            case OscillatorTypes.TRIANGLE:
                 attack = ( ADSR.attack === 0 ) ? 0.002 : ADSR.attack;
                 break;
         }
@@ -72,15 +73,15 @@ export default
             // these pop! give them some subtle fade curves
             // if no custom attack has been defined
 
-            case "SINE":
-            case "TRIANGLE":
+            case OscillatorTypes.SINE:
+            case OscillatorTypes.TRIANGLE:
                 release = ( ADSR.release === 0 ) ? 0.002 : ADSR.release;
                 break;
         }
         envelope = output.gain;
 
         envelope.cancelScheduledValues  ( startTimeInSeconds );
-        envelope.setValueAtTime         ( envelope.value, startTimeInSeconds );
+        envelope.setValueAtTime         ( envelope.value, /* ADSR.sustain, */ startTimeInSeconds );
         envelope.linearRampToValueAtTime( 0.0, startTimeInSeconds + release );
     },
     /**
