@@ -22,28 +22,36 @@
  */
 <template>
     <div class="inline-block">
-        <template v-if="!authenticated">
-            <button
-                v-if="authUrl"
-                v-t="'loginToDropbox'"
-                type="button"
-                class="button dropbox-button"
-                @click="login()"
-            ></button>
-        </template>
-        <template v-if="authenticated || awaitingConnection">
-            <button
-                v-t="authenticated ? 'importFromDropbox' : 'connectingToDropbox'"
-                type="button"
-                class="button dropbox-button"
-                :disabled="awaitingConnection"
-                @click="openFileBrowser()"
-            ></button>
+        <button
+            v-if="asMenuButton"
+            type="button"
+            class="menu-button"
+            @click="authenticated ? openFileBrowser() : login()"
+        >{{ buttonTitle }}</button>
+        <template v-else>
+            <template v-if="!authenticated">
+                <button
+                    v-if="authUrl"
+                    v-t="'loginToDropbox'"
+                    type="button"
+                    class="button dropbox-button"
+                    @click="login()"
+                ></button>
+            </template>
+            <template v-if="authenticated || awaitingConnection">
+                <button
+                    v-t="authenticated ? 'importFromDropbox' : 'connectingToDropbox'"
+                    type="button"
+                    class="button dropbox-button"
+                    :disabled="awaitingConnection"
+                    @click="openFileBrowser()"
+                ></button>
+            </template>
         </template>
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapMutations } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import {
@@ -55,6 +63,16 @@ let loginWindow, boundHandler;
 
 export default {
     i18n: { messages },
+    props: {
+        asMenuButton: {
+            type: Boolean,
+            default: false,
+        },
+        buttonTitle: {
+            type: String,
+            default: "Dropbox",
+        },
+    },
     data: () => ({
         authenticated: false,
         loading: false,
@@ -64,11 +82,11 @@ export default {
         ...mapState([
             "dropboxConnected",
         ]),
-        awaitingConnection() {
+        awaitingConnection(): boolean {
             return !this.authenticated && !this.authUrl;
         },
     },
-    async created() {
+    async created(): Promise<void> {
         this.loading = true;
 
         // note we wrap the authentication check inside a global loading state as Dropbox
@@ -105,12 +123,12 @@ export default {
             "setLoading",
             "unsetLoading",
         ]),
-        login() {
+        login(): void {
             loginWindow  = window.open( this.authUrl );
             boundHandler = this.messageHandler.bind( this );
             window.addEventListener( "message", boundHandler );
         },
-        messageHandler({ data }) {
+        messageHandler({ data }): void {
             if ( data?.accessToken ) {
                 registerAccessToken( data.accessToken );
                 window.removeEventListener( "message", boundHandler );
@@ -121,10 +139,10 @@ export default {
                 this.openFileBrowser();
             }
         },
-        openFileBrowser() {
+        openFileBrowser(): void {
             this.openModal( ModalWindows.DROPBOX_FILE_SELECTOR );
         },
-        showConnectionMessage() {
+        showConnectionMessage(): void {
             this.showNotification({ message: this.$t( "connectedToDropbox" ) });
         },
     },
@@ -132,6 +150,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/forms";
+@import "@/styles/_mixins";
 @import "@/styles/thirdparty";
+
+.menu-button {
+    @include menuButton();
+}
 </style>

@@ -66,7 +66,7 @@ describe( "SampleFactory", () => {
             mockFn = vi.fn(() => mockSlicedBuffer );
 
             expect( SampleFactory.getBuffer( sample, mockAudioContext )).toEqual( mockSlicedBuffer );
-            expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioContext, mockAudioBuffer, sample.rangeStart, sample.rangeEnd );
+            expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioBuffer, sample.rangeStart, sample.rangeEnd, mockAudioContext );
         });
 
         it( "should return a sliced buffer for the optionally provided range", () => {
@@ -76,7 +76,7 @@ describe( "SampleFactory", () => {
             mockFn = vi.fn(() => mockSlicedBuffer );
 
             expect( SampleFactory.getBuffer( sample, mockAudioContext, 100, 400 )).toEqual( mockSlicedBuffer );
-            expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioContext, mockAudioBuffer, 100, 400 );
+            expect( mockFn ).toHaveBeenCalledWith( "sliceBuffer", mockAudioBuffer, 100, 400, mockAudioContext );
         });
     });
 

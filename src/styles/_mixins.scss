@@ -137,6 +137,24 @@
     }
 }
 
+@mixin menuButton {
+    @include titleFont();
+    cursor: pointer;
+    background: none;
+    border: none;
+    color: #b6b6b6;
+    padding: 0;
+    font-size: 100%;
+
+    &:hover {
+        color: #FFF;
+
+        @include mobile() {
+            color: #000;
+        }
+    }
+}
+
 .button {
     @include button();
 }

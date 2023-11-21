@@ -59,6 +59,20 @@
                         </li>
                         <li>
                             <button
+                                v-if="!dropboxLoaded"
+                                v-t="'openFromDropbox'"
+                                type="button"
+                                class="menu-list__button"
+                                @click="dropboxLoaded = true"
+                            ></button>
+                            <component
+                                :is="cloudImportType"
+                                :button-title="$t('openFromDropbox')"
+                                as-menu-button
+                            />
+                        </li>
+                        <li>
+                            <button
                                 v-t="'save'"
                                 type="button"
                                 class="menu-list__button"
@@ -222,6 +236,7 @@
 </template>
 
 <script lang="ts">
+import { type Component } from "vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
@@ -236,6 +251,7 @@ export default {
     i18n: { messages },
     data: () => ({
         isFullscreen: false,
+        dropboxLoaded: false,
     }),
     computed: {
         ...mapState([
@@ -249,8 +265,20 @@ export default {
             "isPlaying",
             "totalSaved",
         ]),
-        recordingButtonText() {
+        recordingButtonText(): string {
             return this.isPlaying && AudioService.isRecording() ? this.$t( "stopRecording" ) : this.$t( "recordOutput" );
+        },
+        /**
+         * Cloud import are loaded at runtime to omit packaging
+         * third party SDK within the core bundle.
+         */
+        cloudImportType(): (() => Promise<Component> ) | null {
+            switch ( this.dropboxLoaded ) {
+                default:
+                    return null;
+                case true:
+                    return () => import( "@/components/dropbox-connector/dropbox-connector.vue" );
+            }
         },
     },
     watch: {
@@ -396,21 +424,7 @@ export default {
 
 .menu-list__button,
 .menu-list__title {
-    @include titleFont();
-    cursor: pointer;
-    background: none;
-    border: none;
-    color: #b6b6b6;
-    padding: 0;
-    font-size: 100%;
-
-    &:hover {
-        color: #FFF;
-
-        @include mobile() {
-            color: #000;
-        }
-    }
+    @include menuButton();
 }
 
 .toggle {
