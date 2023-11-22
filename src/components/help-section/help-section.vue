@@ -44,8 +44,10 @@
             <template v-if="helpTopic === 'menu'">
                 <h4>Song save</h4>
                 <p>
-                    You can save your work so you can revisit it at a later date. Songs are saved in your browsers local storage, so
-                    are only available to the browser it was saved in.
+                    You can save your work so you can revisit it at a later date. Songs are either saved in your browsers local storage
+                    <i>(making them available only to the browser they were saved in)</i> or alternatively stored in your Dropbox account, making
+                    it accessible on all the devices you have linked to your Dropbox. Storing it in a shared folder allows you
+                    to collaborate with a friend.
                 </p>
                 <h4>Import / export</h4>
                 <p>
@@ -53,12 +55,18 @@
                     a song on your Android phone, export the song and import it on your desktop computer to continue your work on
                     a larger screen.
                 </p>
+                <p>
+                    Additionally, you can export your song as MIDI, which can be imported in a DAW for further
+                    production or used to control hardware instruments.
+                </p>
                 <h4>Output recording</h4>
                 <p>
-                    It is possible to record the output of efflux live as a WAV file. By selecting this option, the recording of
-                    the audio output is enabled (recording will start immediately if the sequencer was playing, or will start as soon
-                    as the sequencer is started). Once the sequencer is stopped, the recording will be saved and downloaded onto
-                    your device.
+                    You can also record the live output of Efflux as a WAV file. By selecting this option, the recording of
+                    the audio output is enabled <i>(recording will start immediately if the sequencer was playing, or will start as soon
+                    as the sequencer is started)</i>.
+                </p>
+                <p>
+                    Once the sequencer is stopped, the recording will be saved and downloaded onto your device.
                 </p>
             </template>
             <!-- topic "pattern" -->
@@ -110,7 +118,7 @@
                 </p>
                 <h4>Undo / redo</h4>
                 <p>
-                    efflux stores 99 states in its internal history. You can use <strong>ctrl + Z</strong> to undo and
+                    Efflux stores 99 states in its internal history. You can use <strong>ctrl + Z</strong> to undo and
                     <strong>ctrl + shift + Z</strong> to redo a state.
                 </p>
                 <p>
@@ -163,7 +171,6 @@ export default {
 
 .help-section {
     @include editorComponent();
-    @include inlineFlex();
     border-right: none;
     border-bottom: none;
     border-radius: 0;
@@ -178,7 +185,7 @@ export default {
     }
 
     &__content {
-        padding: $spacing-small $spacing-medium;
+        padding: $spacing-small $spacing-medium 0;
     }
 
     h4 {
