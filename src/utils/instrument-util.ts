@@ -52,22 +52,22 @@ let lastAddition = 0;
  * tune given frequency to given oscillators tuning (in Hz)
  */
 export const tuneToOscillator = ( frequency: number, oscillator: InstrumentOscillator ): number => {
-    // tune event frequency to oscillator tuning
-    let out = frequency + ( frequency / 1200 * oscillator.detune ); // 1200 cents == octave
+    const { detune, octaveShift, fineShift } = oscillator;
 
-    if ( oscillator.octaveShift !== 0 ) {
-        if ( oscillator.octaveShift < 0 ) {
-            out /= Math.abs( oscillator.octaveShift * 2 );
+    // tune event frequency to oscillator tuning
+    let value = frequency + ( frequency / 1200 * detune ); // 1200 cents == octave
+
+    if ( octaveShift !== 0 ) {
+        if ( octaveShift < 0 ) {
+            value /= Math.abs( octaveShift * 2 );
         } else {
-            out *= Math.abs( oscillator.octaveShift * 2 );
+            value *= ( octaveShift * 2 );
         }
     }
-
-    const { fineShift } = oscillator;
-    if ( fineShift === 0 ) {
-        return out;
+    if ( fineShift !== 0 ) {
+        value = applyFineshift( value, fineShift );
     }
-    return out *= (( fineShift > 0 ) ? Math.pow( 1.05946, fineShift ) : Math.pow( 0.94387, -fineShift ));
+    return value;
 };
 
 /**
@@ -76,6 +76,22 @@ export const tuneToOscillator = ( frequency: number, oscillator: InstrumentOscil
  */
 export const tuneBufferPlaybackRate = ( node: AudioBufferSourceNode, oscillator: InstrumentOscillator ): void => {
     node.playbackRate.value = 1 + ( oscillator.detune / 50 );
+    /* // the below makes buffers perfectly pitchable, but for legacy purposes we omit this (use REPITCHED playback type instead)
+    const { detune, octaveShift, fineShift } = oscillator;
+    let value = 1 + (( 1 / detune ) / 12 ); // 12 == octave
+
+    if ( octaveShift !== 0 ) {
+        if ( octaveShift < 0 ) {
+            value /= ( Math.abs( octaveShift ) + 1 );
+        } else {
+            value *= ( octaveShift + 1 );
+        }
+    }
+    if ( fineShift !== 0 ) {
+        value = applyFineshift( value, fineShift );
+    }
+    node.playbackRate.value = value;
+    */
 };
 
 /**
@@ -94,9 +110,30 @@ export const tuneSamplePitch = ( node: AudioBufferSourceNode, frequency: number,
     const value = intervalToCents( sample.pitch.frequency, frequency );
     node.detune.value = value;
     */
-    const value = ( frequency / sample.pitch.frequency ) + ( oscillator.detune / 50 );
+    // first calculate the playback scale needed to convert the samples source frequency to the desired target frequency
+    const scaledFrequency = frequency / sample.pitch.frequency;
+
+    const { detune, octaveShift, fineShift } = oscillator;
+
+    let value = scaledFrequency + ( scaledFrequency / 1200 * detune ); // 1200 cents == octave
+
+    if ( octaveShift !== 0 ) {
+        if ( octaveShift < 0 ) {
+            value /= ( Math.abs( octaveShift ) + 1 );
+        } else {
+            value *= ( octaveShift + 1 );
+        }
+    }
+
+    if ( fineShift !== 0 ) {
+        value = applyFineshift( value, fineShift );
+    }
     node.playbackRate.value = value;
 };
+
+function applyFineshift( frequency: number, fineShift: number ): number {
+    return frequency *= (( fineShift > 0 ) ? Math.pow( 1.05946, fineShift ) : Math.pow( 0.94387, -fineShift ));
+}
 
 /**
  * alter the frequency of currently playing events to match changes

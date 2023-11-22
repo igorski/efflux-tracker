@@ -66,14 +66,14 @@
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_OCT_SHIFT"
                     :opt-data="oscillatorIndex"
                     :label="$t('octaveShiftLabel')"
-                    :disabled="oscillator.waveform === 'NOISE'"
+                    :disabled="!supportsExtendedPitch"
                 />
                 <assignable-range-control
                     v-model.number="oscillatorFineShift"
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_FINE_SHIFT"
                     :opt-data="oscillatorIndex"
                     :label="$t('fineShiftLabel')"
-                    :disabled="oscillator.waveform === 'NOISE'"
+                    :disabled="!supportsExtendedPitch"
                 />
                 <assignable-range-control
                     v-model.number="oscillatorVolume"
@@ -175,8 +175,8 @@ import OscillatorTypes from "@/definitions/oscillator-types";
 import AudioService from "@/services/audio-service";
 import { MIDI_ASSIGNABLE, TUNING_PROPERTIES } from "@/services/audio/param-controller";
 import { enqueueState } from "@/model/factories/history-state-factory";
-import type { InstrumentOscillator } from "@/model/types/instrument";
-import type { Sample } from "@/model/types/sample";
+import { type InstrumentOscillator } from "@/model/types/instrument";
+import { type Sample, PlaybackType } from "@/model/types/sample";
 import { clone } from "@/utils/object-util";
 import messages from "./messages.json";
 
@@ -305,6 +305,18 @@ export default {
             set( name: string ): void {
                 this.update( "sample", name );
             }
+        },
+        supportsExtendedPitch(): boolean {
+            if ( this.oscillator.waveform === OscillatorTypes.NOISE ) {
+                return false;
+            }
+            if ( this.isSampler ) {
+                const sample = this.samples.find( sample => sample.name === this.selectedSampleName );
+                if ( sample?.type !== PlaybackType.REPITCHED ) {
+                    return false;
+                }
+            }
+            return true;
         },
     },
     created(): void {
