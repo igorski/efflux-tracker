@@ -260,6 +260,7 @@ $button-height: 26px;
             padding: $spacing-xsmall $spacing-small;
             background-color: $color-1;
             margin-right: 0;
+            border-radius: 50%;
         }
     }
 

@@ -88,6 +88,10 @@ export default {
     created(): void {
         this.keyboardListener = this.handleKey.bind( this );
         this.attachKeyboardListener();
+
+        if ( this.$store.state.windowSize.height > 900 ) {
+            this.$store.commit( "setShowNoteEntry", true );
+        }
     },
     beforeDestroy(): void {
         KeyboardService.setListener( null );

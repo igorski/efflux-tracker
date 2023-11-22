@@ -76,12 +76,14 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { ToggleButton } from "vue-js-toggle-button";
 import Config from "@/config";
 import EventUtil from "@/utils/event-util";
 import EventFactory from "@/model/factories/event-factory";
+import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { type EffluxChannel } from "@/model/types/channel";
 import EventValidator from "@/model/validators/event-validator";
 import FormListItem from "@/components/forms/form-list-item.vue";
 import Pitch from "@/services/audio/pitch";
@@ -89,6 +91,13 @@ import NoteInputHandler from "@/services/keyboard/note-input-handler";
 import InstrumentUtil from "@/utils/instrument-util";
 import messages from "./messages.json";
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+
+type MappedNoteData = {
+    name: string;
+    sharp: boolean;
+    key: string;
+    higher: boolean;
+};
 
 export default {
     i18n: { messages },
@@ -118,14 +127,14 @@ export default {
             "isRecording",
         ]),
         octave: {
-            get() {
+            get(): number {
                 return this.higherKeyboardOctave;
             },
-            set( value ) {
+            set( value: number ): void {
                 this.setHigherKeyboardOctave( value );
             }
         },
-        mappedNotes() {
+        mappedNotes(): MappedNoteData[] {
             // create a 1.5 octave scale
             return [ ...Pitch.OCTAVE_SCALE, ...Pitch.OCTAVE_SCALE.slice( 0, 5 )].map(( name, index ) => {
                 const isHigherOctave = index > 11;
@@ -138,52 +147,56 @@ export default {
             });
         },
         instrumentSelectValue: {
-            get() {
+            get(): string {
                 return this.instrument.toString();
             },
-            set( value ) {
+            set( value: string ): void {
                 this.instrument = parseFloat( value );
             }
         },
-        instrumentOptions() {
+        instrumentOptions(): { label: string, value: string }[] {
             const out = [];
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
                 out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
         },
-        currentChannel() {
+        currentChannel(): EffluxChannel {
             const pattern = this.activeSong.patterns[ this.activePatternIndex ];
             return pattern.channels[ this.selectedInstrument ];
         },
         /* optionally existing event at the current editor position */
-        currentEvent() {
+        currentEvent(): EffluxAudioEvent | undefined {
             return this.currentChannel[ this.selectedStep ];
         },
     },
     watch: {
-        activePatternIndex() {
+        activePatternIndex(): void {
             this.syncWithExisting();
         },
-        selectedInstrument() {
+        selectedInstrument(): void {
             this.syncWithExisting();
         },
-        selectedStep() {
+        selectedStep(): void {
             this.syncWithExisting();
         },
         higherKeyboardOctave: {
             immediate: true,
-            handler( value ) {
+            handler( value: number ): void {
                 if ( !this.currentEvent ) {
                     this.octave = value;
                 }
             }
         }
     },
-    created() {
+    created(): void {
         NoteInputHandler.registerHandler( this.handleKeyboardEntry.bind( this ));
+        const { width, height } = this.$store.state.windowSize;
+        if ( width > 900 && height > 900 ) {
+            this.largeView = true;
+        }
     },
-    beforeDestroy() {
+    beforeDestroy(): void {
         NoteInputHandler.unregisterHandler();
         this.killAllNotes();
     },
@@ -194,7 +207,7 @@ export default {
             "setHigherKeyboardOctave",
             "setSelectedStep",
         ]),
-        syncWithExisting() {
+        syncWithExisting(): void {
             // by default take the previously declared events instrument as the target instrument for the new event
             // otherwise take the active instrument as the target instrument
 
@@ -209,22 +222,22 @@ export default {
                 this.octave = this.currentEvent.octave || this.higherKeyboardOctave;
             }
         },
-        handleOctaveInput() {
+        handleOctaveInput(): void {
             // in record mode, when there is an event at the current position, update it with the new octave
             if ( this.currentEvent && this.isRecording ) {
                 this.addNoteToPattern( this.currentEvent.note );
             }
         },
-        addNoteToPattern( note, stayAtCurrentStep = false ) {
+        addNoteToPattern( note: string, stayAtCurrentStep = false ): void {
             const eventData = {
                 instrument: this.instrument,
                 octave: this.octave,
                 note
             };
+
             if ( !EventValidator.hasContent( eventData )) {
                 return;
             }
-
             let event = this.currentEvent;
             const isNewEvent = !event;
 
@@ -246,14 +259,14 @@ export default {
                 this.setSelectedStep( step );
             }
         },
-        killAllNotes() {
+        killAllNotes(): void {
             this.playingNotes.forEach( playingNote => {
                 InstrumentUtil.onKeyUp( playingNote, this.$store );
             });
             this.playingNotes.splice( 0 );
             this.isKeyDown = false;
         },
-        keyDown({ name, higher }, event ) {
+        keyDown({ name, higher }: { name: string, higher: boolean }, event: PointerEvent ): void {
             event.preventDefault(); // prevents touchstart firing mousedown in succession
             event.pointerId && event.target.releasePointerCapture( event.pointerId );
             const noteEvent = { note: name, octave: higher ? this.octave + 1 : this.octave };
@@ -264,7 +277,7 @@ export default {
             this.playingNotes.push( noteEvent );
             this.isKeyDown = true;
         },
-        keyUp({ name }, event, unsetDownState = true ) {
+        keyUp({ name }: { name: string }, event: PointerEvent, unsetDownState = true ): void {
             event.preventDefault();
             // we find the event that is currently playing for this key by its note (and not
             // by the current octave, as during sequencer playback the octave might have been
@@ -287,7 +300,7 @@ export default {
          * keyboard to play notes. This can be used to highlight the currently
          * playing notes in the keyboard UI.
          */
-        handleKeyboardEntry( type, audioEvent ) {
+        handleKeyboardEntry( type: string, audioEvent: EffluxAudioEvent ): void {
             const id = `${audioEvent.note}${audioEvent.octave}`;
             if ( type === "on" && !this.keyboardNotes.includes( id )) {
                 this.keyboardNotes.push( id );
@@ -299,14 +312,14 @@ export default {
                 }
             }
         },
-        displayAsActive( noteData ) {
+        displayAsActive( noteData: MappedNoteData ): boolean {
             const octave = noteData.higher ? this.octave + 1 : this.octave;
             const id = `${noteData.name}${octave}`;
             if ( this.keyboardNotes.includes( id )) {
                 return true;
             }
             return noteData.name === this.note && !noteData.higher;
-        }
+        },
     }
 };
 </script>
