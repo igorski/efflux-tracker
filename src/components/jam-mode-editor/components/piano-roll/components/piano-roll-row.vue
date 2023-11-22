@@ -248,9 +248,13 @@ export default {
         },
         handleDrawEnd( event: Event ): void {
             this.rangeDragging = false;
+            const length = Math.min(
+                Math.max( 1, ( this.dragRange.max - this.dragRange.min ) + 1 ),
+                this.columns - this.dragRange.min,
+            );
             this.$emit( "note:add", {
                 step: this.dragRange.min,
-                length: Math.max( 1, ( this.dragRange.max - this.dragRange.min ) + 1 )
+                length,
             });
             this.removeListeners();
         },

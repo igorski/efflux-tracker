@@ -63,7 +63,7 @@ export default {
 @use "sass:math";
 @import "@/styles/_variables";
 
-$loaderSize: 200px;
+$loaderSize: 225px;
 
 .loader {
     position: fixed;
@@ -74,14 +74,14 @@ $loaderSize: 200px;
     height: $loaderSize;
     margin-left: math.div( -$loaderSize, 2 );
     margin-top: math.div( -$loaderSize, 2 );
-    border-radius: 24px;
+    border-bottom: $spacing-medium solid $color-editor-background;
     transform: scale(0.33);
     z-index: $z-loader;
 
     &__element {
         position:absolute;
-        top: 80px;
-        left: 93px;
+        top: 94px;
+        left: 105px;
         width: 14px;
         height: 40px;
         background: #FFE23D;
