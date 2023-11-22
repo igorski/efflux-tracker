@@ -50,116 +50,118 @@
             :oscillator-index="oscillatorIndex"
             @invalidate="invalidate()"
         />
-        <!-- oscillator tuning and volume -->
-        <div class="tuning-editor instrument-parameters">
-            <h2 v-t="'oscillatorTuning'"></h2>
-            <assignable-range-control
-                v-model.number="oscillatorDetune"
-                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_DETUNE"
-                :opt-data="oscillatorIndex"
-                :label="$t('detuneLabel')"
-                class="padded"
-            />
-            <assignable-range-control
-                v-model.number="oscillatorOctaveShift"
-                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_OCT_SHIFT"
-                :opt-data="oscillatorIndex"
-                :label="$t('octaveShiftLabel')"
-                :disabled="oscillator.waveform === 'NOISE'"
-            />
-            <assignable-range-control
-                v-model.number="oscillatorFineShift"
-                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_FINE_SHIFT"
-                :opt-data="oscillatorIndex"
-                :label="$t('fineShiftLabel')"
-                :disabled="oscillator.waveform === 'NOISE'"
-            />
-            <assignable-range-control
-                v-model.number="oscillatorVolume"
-                :param-id="MIDI_ASSIGNABLE.OSCILLATOR_VOLUME"
-                :opt-data="oscillatorIndex"
-                :label="$t('volumeLabel')"
-            />
-        </div>
-        <!-- envelopes -->
-        <div class="envelope-editor instrument-parameters">
-            <ul class="tab-list">
-                <li v-t="'amplitudeEnvelope'"
+        <section class="oscillator-props">
+            <!-- oscillator tuning and volume -->
+            <div class="tuning-editor instrument-parameters">
+                <h2 v-t="'oscillatorTuning'"></h2>
+                <assignable-range-control
+                    v-model.number="oscillatorDetune"
+                    :param-id="MIDI_ASSIGNABLE.OSCILLATOR_DETUNE"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('detuneLabel')"
+                    class="padded"
+                />
+                <assignable-range-control
+                    v-model.number="oscillatorOctaveShift"
+                    :param-id="MIDI_ASSIGNABLE.OSCILLATOR_OCT_SHIFT"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('octaveShiftLabel')"
+                    :disabled="oscillator.waveform === 'NOISE'"
+                />
+                <assignable-range-control
+                    v-model.number="oscillatorFineShift"
+                    :param-id="MIDI_ASSIGNABLE.OSCILLATOR_FINE_SHIFT"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('fineShiftLabel')"
+                    :disabled="oscillator.waveform === 'NOISE'"
+                />
+                <assignable-range-control
+                    v-model.number="oscillatorVolume"
+                    :param-id="MIDI_ASSIGNABLE.OSCILLATOR_VOLUME"
+                    :opt-data="oscillatorIndex"
+                    :label="$t('volumeLabel')"
+                />
+            </div>
+            <!-- envelopes -->
+            <div class="envelope-editor instrument-parameters">
+                <ul class="tab-list">
+                    <li v-t="'amplitudeEnvelope'"
+                        :class="{ active: activeEnvelopeTab === 0 }"
+                        @click="activeEnvelopeTab = 0">
+                    </li>
+                    <li v-t="'pitchEnvelope'"
+                        :class="{ active: activeEnvelopeTab === 1 }"
+                        @click="activeEnvelopeTab = 1">
+                    </li>
+                </ul>
+                <!-- amplitude envelope -->
+                <div
+                    class="tabbed-content adsr-editor"
                     :class="{ active: activeEnvelopeTab === 0 }"
-                    @click="activeEnvelopeTab = 0">
-                </li>
-                <li v-t="'pitchEnvelope'"
+                >
+                    <assignable-range-control
+                        v-model.number="amplitudeAttack"
+                        :param-id="MIDI_ASSIGNABLE.ADSR_ATTACK"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('attack')"
+                    />
+                    <assignable-range-control
+                        v-model.number="amplitudeDecay"
+                        :param-id="MIDI_ASSIGNABLE.ADSR_DECAY"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('decay')"
+                    />
+                    <assignable-range-control
+                        v-model.number="amplitudeSustain"
+                        :param-id="MIDI_ASSIGNABLE.ADSR_SUSTAIN"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('sustain')"
+                    />
+                    <assignable-range-control
+                        v-model.number="amplitudeRelease"
+                        :param-id="MIDI_ASSIGNABLE.ADSR_RELEASE"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('release')"
+                    />
+                </div>
+                <!-- pitch envelope -->
+                <div
+                    class="tabbed-content adsr-editor"
                     :class="{ active: activeEnvelopeTab === 1 }"
-                    @click="activeEnvelopeTab = 1">
-                </li>
-            </ul>
-            <!-- amplitude envelope -->
-            <div
-                class="tabbed-content adsr-editor"
-                :class="{ active: activeEnvelopeTab === 0 }"
-            >
-                <assignable-range-control
-                    v-model.number="amplitudeAttack"
-                    :param-id="MIDI_ASSIGNABLE.ADSR_ATTACK"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('attack')"
-                />
-                <assignable-range-control
-                    v-model.number="amplitudeDecay"
-                    :param-id="MIDI_ASSIGNABLE.ADSR_DECAY"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('decay')"
-                />
-                <assignable-range-control
-                    v-model.number="amplitudeSustain"
-                    :param-id="MIDI_ASSIGNABLE.ADSR_SUSTAIN"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('sustain')"
-                />
-                <assignable-range-control
-                    v-model.number="amplitudeRelease"
-                    :param-id="MIDI_ASSIGNABLE.ADSR_RELEASE"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('release')"
-                />
+                >
+                    <assignable-range-control
+                        v-model.number="pitchRange"
+                        :param-id="MIDI_ASSIGNABLE.PITCH_RANGE"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('range')"
+                    />
+                    <assignable-range-control
+                        v-model.number="pitchAttack"
+                        :param-id="MIDI_ASSIGNABLE.PITCH_ATTACK"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('attack')"
+                    />
+                    <assignable-range-control
+                        v-model.number="pitchDecay"
+                        :param-id="MIDI_ASSIGNABLE.PITCH_DECAY"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('decay')"
+                    />
+                    <assignable-range-control
+                        v-model.number="pitchSustain"
+                        :param-id="MIDI_ASSIGNABLE.PITCH_SUSTAIN"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('sustain')"
+                    />
+                    <assignable-range-control
+                        v-model.number="pitchRelease"
+                        :param-id="MIDI_ASSIGNABLE.PITCH_RELEASE"
+                        :opt-data="oscillatorIndex"
+                        :label="$t('release')"
+                    />
+                </div>
             </div>
-            <!-- pitch envelope -->
-            <div
-                class="tabbed-content adsr-editor"
-                :class="{ active: activeEnvelopeTab === 1 }"
-            >
-                <assignable-range-control
-                    v-model.number="pitchRange"
-                    :param-id="MIDI_ASSIGNABLE.PITCH_RANGE"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('range')"
-                />
-                <assignable-range-control
-                    v-model.number="pitchAttack"
-                    :param-id="MIDI_ASSIGNABLE.PITCH_ATTACK"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('attack')"
-                />
-                <assignable-range-control
-                    v-model.number="pitchDecay"
-                    :param-id="MIDI_ASSIGNABLE.PITCH_DECAY"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('decay')"
-                />
-                <assignable-range-control
-                    v-model.number="pitchSustain"
-                    :param-id="MIDI_ASSIGNABLE.PITCH_SUSTAIN"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('sustain')"
-                />
-                <assignable-range-control
-                    v-model.number="pitchRelease"
-                    :param-id="MIDI_ASSIGNABLE.PITCH_RELEASE"
-                    :opt-data="oscillatorIndex"
-                    :label="$t('release')"
-                />
-            </div>
-        </div>
+        </section>
     </section>
 </template>
 
@@ -394,6 +396,12 @@ export default {
 
 .oscillator-waveforms {
     padding: $spacing-xsmall 0 $spacing-medium;
+}
+
+.oscillator-props {
+    @include large() {
+        display: flex;
+    }
 }
 
 .tuning-editor {

@@ -66,7 +66,7 @@ export default {
 }
 
 .jam-divider {
-    margin-top: 0;
+    margin-top: 0 !important;
 }
 
 .jam-note-editor {

@@ -34,6 +34,13 @@
     }
 }
 
+// everything matching the ideal height for the component
+@mixin minHeight( $height ) {
+    @media screen and ( min-height: $height ) {
+        @content;
+    }
+}
+
 // everything below the ideal width for the component
 @mixin minWidthFallback( $width ) {
     @media screen and ( max-width: $width ) {

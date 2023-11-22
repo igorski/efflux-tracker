@@ -261,6 +261,10 @@ $button-height: 26px;
             background-color: $color-1;
             margin-right: 0;
             border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
         }
     }
 

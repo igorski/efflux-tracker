@@ -338,7 +338,7 @@ $largeWidth: 700px;
     transform: translateX( -50% );
     background-color: $color-editor-background;
     height: $note-entry-editor-height;
-    padding: $spacing-small $spacing-large;
+    padding: $spacing-small $spacing-large 0;
     border-top: 2px solid $color-background;
 
     @include large() {
