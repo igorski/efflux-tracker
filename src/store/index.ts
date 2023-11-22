@@ -34,7 +34,7 @@ type IDialogWindow = {
     hideActions?: boolean;
 };
 
-type INotification = {
+export type INotification = {
     title?: string;
     message?: string;
 };

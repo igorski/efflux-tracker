@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2021 - https://www.igorski.nl
+* Igor Zinken 2021-2023 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,14 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-import AssignableRangeControl from "@/components/forms/assignable-range-control/assignable-range-control.vue";
+// @ts-expect-error typechecker cannot resolve Vue files, Vite does it fine
+import AssignableRangeControl from "@/components/forms/assignable-control-input/assignable-range-control.vue";
+// @ts-expect-error typechecker cannot resolve Vue files, Vite does it fine
+import AssignableToggleControl from "@/components/forms/assignable-control-input/assignable-toggle-control.vue";
 
 export default {
     components: {
-        AssignableRangeControl
+        AssignableRangeControl,
+        AssignableToggleControl,
     },
 };

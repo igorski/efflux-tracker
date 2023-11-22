@@ -46,10 +46,10 @@
             >
                 <fieldset id="eqEditor" class="instrument-parameters">
                     <legend v-t="'eqLegend'"></legend>
-                    <toggle-button
+                    <assignable-toggle-control
                         v-model="eqEnabled"
+                        :param-id="MIDI_ASSIGNABLE.EQ_ENABLED"
                         class="enable-selector"
-                        sync
                     />
                     <assignable-range-control
                         v-model.number="eqLow"
@@ -70,10 +70,10 @@
 
                 <fieldset id="filterEditor" class="instrument-parameters">
                     <legend v-t="'filterLegend'"></legend>
-                    <toggle-button
+                    <assignable-toggle-control
                         v-model="filterEnabled"
+                        :param-id="MIDI_ASSIGNABLE.FILTER_ENABLED"
                         class="enable-selector"
-                        sync
                     />
                     <assignable-range-control
                         v-model.number="filterFrequency"
@@ -113,10 +113,10 @@
             >
                 <fieldset id="odEditor" class="instrument-parameters">
                     <legend v-t="'odLegend'"></legend>
-                    <toggle-button
+                    <assignable-toggle-control
                         v-model="odEnabled"
+                        :param-id="MIDI_ASSIGNABLE.OD_ENABLED"
                         class="enable-selector"
-                        sync
                     />
                     <assignable-range-control
                         v-model.number="odDrive"
@@ -142,10 +142,10 @@
 
                 <fieldset id="delayEditor" class="instrument-parameters">
                     <legend v-t="'delayLegend'"></legend>
-                    <toggle-button
+                    <assignable-toggle-control
                         v-model="delayEnabled"
+                        :param-id="MIDI_ASSIGNABLE.DELAY_ENABLED"
                         class="enable-selector"
-                        sync
                     />
                     <!-- not sure if this offers any flexibility -->
                     <select v-if="false" v-model.number="delayType">
@@ -186,7 +186,6 @@
 
 <script>
 import { mapState } from "vuex";
-import { ToggleButton } from "vue-js-toggle-button";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import { IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH } from "@/definitions/layout";
 import { enqueueState } from "@/model/factories/history-state-factory";
@@ -200,7 +199,6 @@ export default {
     i18n: { messages },
     components: {
         SelectBox,
-        ToggleButton,
     },
     mixins: [
         ControllerEditor

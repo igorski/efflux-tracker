@@ -36,6 +36,13 @@ export const TUNING_PROPERTIES = [
     ParamIds.OSCILLATOR_FINE_SHIFT
 ];
 
+const BOOLEAN_PROPERTIES = [
+    ParamIds.DELAY_ENABLED,
+    ParamIds.EQ_ENABLED,
+    ParamIds.FILTER_ENABLED,
+    ParamIds.OD_ENABLED,
+];
+
 export const getParamRange = ( paramId: string ): { min: number, max: number, step: number } => {
     let min  = 0;
     let max  = 1;
@@ -111,7 +118,7 @@ export const applyParamChange = ( paramId: string, paramValue: number, instrumen
         if ( paramKey ) {
             value = { ...instrumentRef.oscillators[ oscillatorIndex ][ prop ], [ paramKey ]: paramValue };
         } else {
-            value = paramValue;
+            value = BOOLEAN_PROPERTIES.includes( paramId ) ? paramValue > 0.5 : paramValue;
             const oscillator = instrumentRef.oscillators[ oscillatorIndex ];
 
             if ( TUNING_PROPERTIES.includes( prop as OscillatorProp )) {
@@ -123,7 +130,8 @@ export const applyParamChange = ( paramId: string, paramValue: number, instrumen
         store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop, value });
     } else {
         const [ prop, paramKey ] = getModulePropKeysByParamId( paramId )!;
-        value = { ...instrumentRef[ prop ], [ paramKey ]: paramValue };
+        const transformedValue = BOOLEAN_PROPERTIES.includes( paramId ) ? paramValue > 0.5 : paramValue;
+        value = { ...instrumentRef[ prop ], [ paramKey ]: transformedValue };
         store.commit( "updateInstrument", { instrumentIndex, prop, value });
         applyModule( prop, instrumentIndex, value );
     }
@@ -145,21 +153,25 @@ function getModulePropKeysByParamId( paramId: string ): [ InstrumentProp, string
         }
         break;
         // Delay
+        case ParamIds.DELAY_ENABLED  : return [ DELAY, "enabled" ];
         case ParamIds.DELAY_TIME     : return [ DELAY, "time" ];
         case ParamIds.DELAY_FEEDBACK : return [ DELAY, "feedback" ];
         case ParamIds.DELAY_DRY      : return [ DELAY, "dry" ];
         case ParamIds.DELAY_CUTOFF   : return [ DELAY, "cutoff" ];
         case ParamIds.DELAY_OFFSET   : return [ DELAY, "offset" ];
         // EQ
-        case ParamIds.EQ_LOW  : return [ EQ, "lowGain" ];
-        case ParamIds.EQ_MID  : return [ EQ, "midGain" ];
-        case ParamIds.EQ_HIGH : return [ EQ, "highGain" ];
+        case ParamIds.EQ_ENABLED : return [ EQ, "enabled" ];
+        case ParamIds.EQ_LOW     : return [ EQ, "lowGain" ];
+        case ParamIds.EQ_MID     : return [ EQ, "midGain" ];
+        case ParamIds.EQ_HIGH    : return [ EQ, "highGain" ];
         // Filter
+        case ParamIds.FILTER_ENABLED   : return [ FILTER, "enabled" ];
         case ParamIds.FILTER_FREQ      : return [ FILTER, "frequency" ];
         case ParamIds.FILTER_Q         : return [ FILTER, "q" ];
         case ParamIds.FILTER_LFO_SPEED : return [ FILTER, "speed" ];
         case ParamIds.FILTER_LFO_DEPTH : return [ FILTER, "depth" ];
         // Overdrive
+        case ParamIds.OD_ENABLED  : return [ OD, "enabled" ];
         case ParamIds.OD_COLOR    : return [ OD, "color" ];
         case ParamIds.OD_DRIVE    : return [ OD, "drive" ];
         case ParamIds.OD_PRE_BAND : return [ OD, "preBand" ];
@@ -180,20 +192,20 @@ function getEnvelopePropsByParamId( paramId: string ): [ OscillatorProp, string?
         }
         break;
         // ADSR envelopes
-        case ParamIds.ADSR_ATTACK: return [ ADSR, "attack" ];
-        case ParamIds.ADSR_DECAY: return [ ADSR, "decay" ];
-        case ParamIds.ADSR_SUSTAIN: return [ ADSR, "sustain" ];
-        case ParamIds.ADSR_RELEASE: return [ ADSR, "release" ];
+        case ParamIds.ADSR_ATTACK   : return [ ADSR, "attack" ];
+        case ParamIds.ADSR_DECAY    : return [ ADSR, "decay" ];
+        case ParamIds.ADSR_SUSTAIN  : return [ ADSR, "sustain" ];
+        case ParamIds.ADSR_RELEASE  : return [ ADSR, "release" ];
         // pitch envelopes
-        case ParamIds.PITCH_ATTACK: return [ PITCH, "attack" ];
-        case ParamIds.PITCH_DECAY: return [ PITCH, "decay" ];
-        case ParamIds.PITCH_SUSTAIN: return [ PITCH, "sustain" ];
-        case ParamIds.PITCH_RELEASE: return [ PITCH, "release" ];
-        case ParamIds.PITCH_RANGE: return [ PITCH, "range" ];
+        case ParamIds.PITCH_ATTACK  : return [ PITCH, "attack" ];
+        case ParamIds.PITCH_DECAY   : return [ PITCH, "decay" ];
+        case ParamIds.PITCH_SUSTAIN : return [ PITCH, "sustain" ];
+        case ParamIds.PITCH_RELEASE : return [ PITCH, "release" ];
+        case ParamIds.PITCH_RANGE   : return [ PITCH, "range" ];
         // tuning
-        case ParamIds.OSCILLATOR_DETUNE: return [ "detune" ];
-        case ParamIds.OSCILLATOR_OCT_SHIFT: return [ "octaveShift" ];
-        case ParamIds.OSCILLATOR_FINE_SHIFT: return [ "fineShift" ];
+        case ParamIds.OSCILLATOR_DETUNE     : return [ "detune" ];
+        case ParamIds.OSCILLATOR_OCT_SHIFT  : return [ "octaveShift" ];
+        case ParamIds.OSCILLATOR_FINE_SHIFT : return [ "fineShift" ];
         // volume
         case ParamIds.OSCILLATOR_VOLUME: return [ "volume" ];
     }
