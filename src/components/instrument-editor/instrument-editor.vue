@@ -37,14 +37,6 @@
             </section>
             <!-- header UI -->
             <section class="header">
-                <button
-                    class="help-button"
-                    @click="openHelp"
-                >?</button>
-                <button
-                    class="close-button"
-                    @click="$emit('close')"
-                >x</button>
                 <div class="actions">
                     <button
                         v-if="hasMidiSupport"
@@ -59,6 +51,16 @@
                         class="instrument-selector"
                     />
                 </div>
+                <button
+                    type="button"
+                    class="help-button"
+                    @click="openHelp"
+                >?</button>
+                <button
+                    type="button"
+                    class="close-button"
+                    @click="$emit('close')"
+                >x</button>
             </section>
         </div>
         <hr class="divider" />
@@ -313,13 +315,18 @@ export default {
     position: absolute;
     top: 0;
     margin-top: 0;
+    padding: 0;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 
+    @include large() {
+        padding: $spacing-small;
+    }
+
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $ideal-instrument-editor-width )  {
+    @media screen and ( min-width: $ideal-instrument-editor-width ) {
         left: 50%;
         width: $ideal-instrument-editor-width;
         margin-left: math.div( -$ideal-instrument-editor-width, 2 );
@@ -327,31 +334,57 @@ export default {
 
     @media screen and ( min-height: $ideal-instrument-editor-height ) {
         top: 50%;
-        margin-top: math.div( -$ideal-instrument-editor-height, 2 );
         height: $ideal-instrument-editor-height;
+        margin-top: math.div( -$ideal-instrument-editor-height, 2 );
     }
 
     &--maximized {
-        @media screen and ( min-width: $ideal-maximized-instrument-editor-width )  {
+        @media screen and ( min-width: $ideal-maximized-instrument-editor-width ) {
             left: 50%;
             width: $ideal-maximized-instrument-editor-width !important;
             margin-left: math.div( -$ideal-maximized-instrument-editor-width, 2 ) !important;
         }
 
-        @media screen and ( min-height: $ideal-maximized-instrument-editor-height )  {
+        @media screen and ( min-height: $ideal-maximized-instrument-editor-height ) {
             top: 50%;
             height: $ideal-maximized-instrument-editor-height;
             margin-top: math.div( -$ideal-maximized-instrument-editor-height, 2 ) !important;
         }
     }
+
+    .header {
+        width: auto;
+
+        .close-button {
+            right: 0;
+        }
+
+        .help-button {
+            right: 40px;
+        }
+
+        .actions {
+            right: 90px;
+        }
+    }
 }
 
 .instrument-header {
-    position: relative;
+    @include large() {
+        display: flex;
+        justify-content: space-between;
 
-    .header {
-        .help-button, .close-button, .actions {
-            top: 0 !important;
+        .header {
+            display: flex;
+
+            .help-button,
+            .close-button,
+            .actions {
+                position: initial;
+            }
+            .actions {
+                margin-right: $spacing-small;
+            }
         }
     }
 }
@@ -360,6 +393,10 @@ export default {
     position: relative;
     @include verticalScrollOnMobile();
     padding-bottom: $spacing-small;
+
+    @include mobile() {
+        padding: 0 $spacing-small $spacing-small;
+    }
 }
 
 .preset-title {
@@ -378,12 +415,11 @@ export default {
 
 .instrument-presets {
     @include boxSize();
-    padding-left: $spacing-medium;
 
     @include mobile() {
         border-top: 1px dashed #666;
-        padding-top: $spacing-medium;
-        margin-top: $spacing-xlarge;
+        padding-top: $spacing-small + $spacing-xsmall;
+        margin-top: ( $spacing-xlarge - $spacing-small );
     }
 }
 
@@ -422,9 +458,15 @@ export default {
     }
 
     @include mobile() {
+        margin-top: 0;
+
         button {
-            margin-top: $spacing-small;
+            margin: $spacing-small 0;
             width: 100%;
+        }
+
+        input {
+            margin: $spacing-small $spacing-small $spacing-small 0;
         }
     }
 }

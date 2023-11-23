@@ -430,7 +430,15 @@ export default {
 
 .envelope-editor {
     position: relative;
-    margin-top: -$spacing-medium;
+
+    @include large() {
+        margin-top: -$spacing-medium;
+    }
+    
+    @include mobile() {
+        border: 0;
+        padding: 0;
+    }
 
     .tabbed-content {
         padding: $spacing-medium $spacing-medium;

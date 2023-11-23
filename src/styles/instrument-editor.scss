@@ -6,6 +6,10 @@
     width: 45%;
     margin-right: $spacing-medium;
 
+    @include mobile() {
+        padding: $spacing-medium;
+    }
+
     @media screen and ( max-width: $ideal-instrument-editor-width ) {
         @include boxSize();
         padding: $spacing-large;

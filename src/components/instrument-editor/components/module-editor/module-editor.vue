@@ -511,6 +511,11 @@ $large-height: 800px;
     vertical-align: top;
     @include boxSize();
 
+    @include mobile() {
+        width: 100%;
+        padding: 0;
+    }
+
     .modules-tabs {
         margin: 0;
     }
@@ -539,7 +544,10 @@ $large-height: 800px;
         display: inline-block;
         vertical-align: top;
         width: 100%;
-        margin-top: -$spacing-large;
+
+        @include large() {
+            margin-top: -$spacing-large;
+        }
 
         @include minHeight( $large-height ) {
             margin-top: $spacing-small;
@@ -578,16 +586,6 @@ $large-height: 800px;
                 max-width: 250px;
             }
         }
-    }
-}
-
-/* mobile */
-
-@media screen and ( max-width: $ideal-instrument-editor-width ) {
-    .module-editor {
-        width: 100%;
-        padding: 0;
-        margin-top: $spacing-xlarge;
     }
 }
 </style>
