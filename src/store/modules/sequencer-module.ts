@@ -163,7 +163,7 @@ function dequeueEvent( state: SequencerState, event: EffluxAudioEvent, time: num
     const clock = createTimer( getAudioContext(), time, () => {
         event.seq.playing = false;
 
-        noteOff( event );
+        event.id && noteOff( event );
         freeHandler( state, clock ); // clear reference to this timed event
     });
 

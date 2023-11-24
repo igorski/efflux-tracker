@@ -392,7 +392,7 @@ export default {
 .instrument-modules {
     position: relative;
     @include verticalScrollOnMobile();
-    padding-bottom: $spacing-small;
+    padding: 0 $spacing-small $spacing-small;
 
     @include mobile() {
         padding: 0 $spacing-small $spacing-small;

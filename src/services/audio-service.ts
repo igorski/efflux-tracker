@@ -576,7 +576,13 @@ function returnVoiceNodesToPoolOnPlaybackEnd( instrumentModules: InstrumentModul
         // as otherwise the voices aren't always returned to the pool on Safari/iOS
 
         if ( eventId !== -1 ) {
-            delete playingEventVoices[ instrumentIndex ][ eventId ];
+            const map = playingEventVoices[ instrumentIndex ][ eventId ];
+            if ( map ) {
+                map[ oscillatorIndex ] = undefined;
+                if ( Object.values( map ).filter( Boolean ).length === 0 ) {
+                    delete playingEventVoices[ instrumentIndex ][ eventId ];
+                }
+            }
         }
 
         eventVoice.gain.gain.cancelScheduledValues( 0 );
