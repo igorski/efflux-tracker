@@ -731,6 +731,7 @@ describe( "Vuex sequencer module", () => {
                     // ensure channel 1 has had an event enqueued
                     expect( state.channelQueue[ 1 ]).toHaveLength( 1 );
                     const playingEvent = state.channelQueue[ 1 ].head.data;
+                    playingEvent.id = 1;
                  
                     // adjust the sequencer properties so next collect phase marks the end of the current measure
                     state.nextNoteTime  = 0;
@@ -759,6 +760,7 @@ describe( "Vuex sequencer module", () => {
                     // ensure channel 1 has had an event enqueued
                     expect( state.channelQueue[ 1 ]).toHaveLength( 1 );
                     const playingEvent = state.channelQueue[ 1 ].head.data;
+                    playingEvent.id = 1;
                  
                     // adjust the sequencer properties so next collect phase marks the end of the current measure
                     state.nextNoteTime  = 0;
