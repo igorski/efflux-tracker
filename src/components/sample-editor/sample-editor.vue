@@ -55,7 +55,7 @@
                     @blur="handleNameInputBlur()"
                     @keyup.enter="handleNameInputBlur()"
                 />
-                <span>{{ $t( "sampleName", { name: sample.name }) }}</span>
+                <span v-else>{{ $t( "sampleName", { name: sample.name }) }}</span>
                 <button
                     type="button"
                     :title="$t('editName')"
@@ -647,7 +647,8 @@ export default {
             this.suspendKeyboardService( false );
             let name = this.$refs.nameInput.value;
             if ( name ) {
-                this.sample.name = await this.updateSampleProps({ ...this.sample, name }).name;
+                const updatedSample = await this.updateSampleProps({ ...this.sample, name });
+                this.sample.name = updatedSample.name;
             }
         },
     }
