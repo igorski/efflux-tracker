@@ -1,7 +1,7 @@
 {
 	"id": 0,
 	"name": "Instrument 1",
-    "presetName": "FACTORY keys sign of the tines",
+    "presetName": "FACTORY keys sine of the tines",
 	"volume": 0.34,
 	"delay": {
 		"enabled": false,
