@@ -84,7 +84,7 @@
                                 class="entry__delete-button"
                                 :title="$t('delete')"
                                 @click="handleDeleteClick( node )"
-                            >x</button>
+                            >&times;</button>
                         </div>
                     </template>
                 </div>
@@ -499,14 +499,16 @@ $actionsHeight: 50px;
         display: none;
         position: absolute;
         cursor: pointer;
-        top: -$spacing-small;
-        right: -#{$spacing-medium + $spacing-small};
+        top: $spacing-xsmall;
+        right: -$spacing-xsmall;
         background-color: $color-2;
         color: #000;
         width: $spacing-large;
         height: $spacing-large;
         border: none;
-        border-radius: 50%;
+        font-size: 200%;
+        padding: 0;
+        line-height: 0;
     }
 
     &:hover {
