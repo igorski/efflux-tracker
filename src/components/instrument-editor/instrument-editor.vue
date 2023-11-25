@@ -342,14 +342,22 @@ export default {
         @media screen and ( min-width: $ideal-maximized-instrument-editor-width ) {
             left: 50%;
             width: $ideal-maximized-instrument-editor-width !important;
-            margin-left: math.div( -$ideal-maximized-instrument-editor-width, 2 ) !important;
+            margin-left: math.div( -$ideal-maximized-instrument-editor-width, 2 );
         }
 
         @media screen and ( min-height: $ideal-maximized-instrument-editor-height ) {
             top: 50%;
             height: $ideal-maximized-instrument-editor-height;
-            margin-top: math.div( -$ideal-maximized-instrument-editor-height, 2 ) !important;
+            margin-top: math.div( -$ideal-maximized-instrument-editor-height, 2 );
         }
+    }
+
+    /* mobile */
+
+    @include mobile() {
+        height: 100%;
+        top: 0;
+        margin: 0;
     }
 
     .header {
