@@ -112,7 +112,7 @@ export default {
         @include boxSize();
         display: block;
         position: relative;
-        padding: $spacing-small $spacing-large;
+        padding: $spacing-small ($spacing-small + $spacing-medium);
         margin-bottom: $spacing-small;
         right: -500px;
         background-color: $color-editor-background;
@@ -132,12 +132,13 @@ export default {
         }
 
         &__title {
-            color: $color-1;
+            @include toolFont();
+            color: #FFF;
             margin: 0;
         }
 
         &__message {
-            font-size: 95%;
+            color: #b6b6b6;
             margin: $spacing-xsmall 0;
         }
     }

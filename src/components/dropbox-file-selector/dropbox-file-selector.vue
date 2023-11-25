@@ -28,7 +28,7 @@
                 type="button"
                 class="close-button"
                 @click="closeModal()"
-            >&#215;</button>
+            >&times;</button>
         </div>
         <hr class="divider" />
         <div class="component__content">
@@ -404,6 +404,12 @@ $actionsHeight: 50px;
 
     .header {
         padding: $spacing-small $spacing-large 0;
+    }
+
+    .close-button {
+        font-size: 175% !important;
+        padding: $spacing-medium $spacing-small !important;
+        line-height: 0;
     }
 
     .divider {

@@ -75,11 +75,15 @@ describe( "Vuex editor module", () => {
         it( "should be able to reset the editor", () => {
             const state = createEditorState({
                 selectedInstrument: 7,
-                selectedStep: 16
-            } );
-            mutations.resetEditor(state);
+                selectedStep: 16,
+                selectedSlot: 2,
+            });
+
+            mutations.resetEditor( state );
+
             expect( state.selectedInstrument ).toEqual( 0 );
             expect( state.selectedStep ).toEqual( 0 );
+            expect( state.selectedSlot ).toEqual( -1 );
         });
     });
 });

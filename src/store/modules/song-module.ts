@@ -407,17 +407,19 @@ const SongModule: Module<SongState, any> = {
         },
         loadSong({ getters, commit, dispatch }: { getters: any, commit: Commit, dispatch: Dispatch },
             { file, origin = "local" }: { file: string, origin?: EffluxSongOrigin }): Promise<EffluxSong> {
+            commit( "setPlaying", false );
             return new Promise( async ( resolve, reject ): Promise<void> => {
+                commit( "setLoading", "SMLS" );
                 const song = SongValidator.transformLegacy( await parseXTK( file ));
                 if ( SongValidator.isValid( song )) {
                     song.origin = origin;
                     dispatch( "openSong", song );
                     resolve( song );
-                }
-                else {
+                } else {
                     commit( "showError", getters.t( "errors.songImport", { extension: PROJECT_FILE_EXTENSION }));
                     reject();
                 }
+                commit( "unsetLoading", "SMLS" );
             });
         },
         async saveSong({ commit, dispatch }: { commit: Commit, dispatch: Dispatch }, song: EffluxSong ): Promise<void> {

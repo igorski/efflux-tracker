@@ -99,6 +99,7 @@ const EditorModule: Module<EditorState, any> = {
         resetEditor( state: EditorState ): void {
             state.selectedInstrument = 0;
             state.selectedStep       = 0;
+            state.selectedSlot       = -1;
         },
     },
     actions: {
