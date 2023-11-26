@@ -59,12 +59,6 @@ export default {
     height: 100%;
 }
 
-.jam-instrument-editor {
-    padding: $spacing-small 0;
-    border: none;
-    border-radius: 0;
-}
-
 .jam-divider {
     margin-top: 0 !important;
 }

@@ -320,6 +320,14 @@ export default {
     display: flex;
     flex-direction: column;
 
+    .divider {
+        margin-top: $spacing-small;
+
+        &--small {
+            margin-top: 0;
+        }
+    }
+
     @include large() {
         padding: $spacing-small;
     }
@@ -426,7 +434,7 @@ export default {
 
     @include mobile() {
         border-top: 1px dashed #666;
-        padding-top: $spacing-small + $spacing-xsmall;
+        padding-top: $spacing-small;
         margin-top: ( $spacing-xlarge - $spacing-small );
     }
 }
@@ -485,9 +493,5 @@ export default {
 
 .preset-selector {
     width: 204px;
-}
-
-.divider--small {
-    margin-top: 0 !important;
 }
 </style>
