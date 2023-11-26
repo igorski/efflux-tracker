@@ -23,6 +23,7 @@
 import SongValidator from "@/model/validators/song-validator";
 import SongFactory from "@/model/factories/song-factory";
 import { serialize } from "@/model/serializers/song-serializer";
+import { type EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
 
 export const ASSEMBLER_VERSION = 8;
@@ -54,8 +55,9 @@ export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> 
                 // this will make the SongValidator inject the missing properties
                 version: xtk.version
             };
+            // @ts-expect-error p is never read. We perform this action as order did not exist yet
+            song.order = song.patterns.map(( p: EffluxPattern, index: number ) => index );
         }
-
         // perform transformation on legacy songs
         SongValidator.transformLegacy( song );
 

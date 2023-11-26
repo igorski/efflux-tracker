@@ -93,6 +93,16 @@ export default
             }
         });
 
+        for ( const pattern of song.patterns ) {
+            for ( const channel of pattern.channels ) {
+                channel.forEach(( event, eventIndex ) => {
+                    if ( !event ) {
+                        channel[ eventIndex ] = 0; // only EffluxAudioEvent or 0 are allowed, legacy songs used null
+                    }
+                });
+            }
+        }
+
         if ( !Array.isArray( song.samples )) {
             song.samples = [];
         }
