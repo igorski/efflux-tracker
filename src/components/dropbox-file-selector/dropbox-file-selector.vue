@@ -507,14 +507,18 @@ $actionsHeight: 50px;
         cursor: pointer;
         top: $spacing-xsmall;
         right: -$spacing-xsmall;
-        background-color: $color-2;
+        background-color: $color-1;
         color: #000;
         width: $spacing-large;
         height: $spacing-large;
-        border: none;
+        border: 2px solid #000;
         font-size: 200%;
         padding: 0;
         line-height: 0;
+
+        &:hover {
+            background-color: $color-2;
+        }
     }
 
     &:hover {

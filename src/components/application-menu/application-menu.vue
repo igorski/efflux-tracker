@@ -425,6 +425,7 @@ export default {
 .menu-list__button,
 .menu-list__title {
     @include menuButton();
+    font-size: 95%;
 }
 
 .toggle {
@@ -459,7 +460,8 @@ h1 {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    @include boxSize;
+    @include boxSize();
+    font-size: 95%;
 
     li {
         display: inline-block;
@@ -500,6 +502,11 @@ h1 {
 
         .divider {
             @include divider();
+            margin-top: $spacing-xsmall;
+
+            @include mobile() {
+                display: none;
+            }
         }
     }
 }
@@ -565,12 +572,15 @@ h1 {
         left: 0;
 
         &.opened {
-            position: absolute;
-            overflow-y: auto;
+            position: fixed;
+
             .menu-list {
                 left: 0;
                 display: block;
                 height: inherit;
+                overflow-x: hidden;
+                overflow-y: auto;
+                height: calc(100% - $menu-height);
             }
         }
 
@@ -643,7 +653,13 @@ h1 {
             display: none;
 
             &__title {
-                display: none;
+                margin: 0;
+                padding: 0;
+            }
+
+            ul {
+                padding: $spacing-small 0;
+                border-bottom: 1px dashed #666;
             }
         }
     }
