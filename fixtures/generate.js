@@ -7,8 +7,17 @@ const songDir       = `${currentDir}/songs`;
 
 function mergeFiles( inputDir, outputFilename ) {
     const jsonArray = fs.readdirSync( inputDir ).reduce(( acc, file ) => {
-        const data = fs.readFileSync( `${inputDir}/${file}`, "utf8" );
-        acc.push( JSON.parse( data ));
+        const [ name, ext ] = file.split( "." );
+        if ( ext !== "json" ) {
+            return acc;
+        }
+        try {
+            const data = fs.readFileSync( `${inputDir}/${file}`, "utf8" );
+            acc.push( JSON.parse( data ));
+        } catch ( e ) {
+            console.error( `Error "${e?.message}" occurred for file "${file}"` );
+            return acc;
+        }
         return acc;
     }, []);
 
