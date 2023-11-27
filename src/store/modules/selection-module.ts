@@ -184,7 +184,6 @@ const deleteSelection = ( state: SelectionState,
                     channelIndex,
                     sIndex,
                 );
-                // @ts-expect-error we allow '0' as a falsy value to specify an empty event within the channel
                 pattern.channels[ channelIndex ][ sIndex ] = 0;
             }
         }

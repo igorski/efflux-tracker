@@ -87,8 +87,8 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         // (but take its module parameter automation when existing for non-off events)
 
         if ( channel[ step ]) {
-            existingEvent   = serialize( channel[ step ]);
-            existingEventMp = serialize( channel[ step ].mp );
+            existingEvent   = serialize( channel[ step ] as EffluxAudioEvent );
+            existingEventMp = serialize(( channel[ step ] as EffluxAudioEvent ).mp );
 
             if ( event.action !== ACTION_NOTE_OFF && !event.mp && existingEventMp ) {
                 Vue.set( event, "mp", deserialize( existingEventMp ));
@@ -102,8 +102,8 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
                 const nextStep = i + 1;
                 // in case the range of the created event already contains noteOn actions for long events, we
                 // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
-                if ( nextStep < channel.length && channel[ i ]?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
-                    insertEvent( channel[ i ], song, patternIndex, channelIndex, nextStep );
+                if ( nextStep < channel.length && ( channel[ i ] as EffluxAudioEvent )?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
+                    insertEvent( channel[ i ] as EffluxAudioEvent, song, patternIndex, channelIndex, nextStep );
                 }
                 EventUtil.clearEvent( song, patternIndex, channelIndex, i );
             }

@@ -543,7 +543,6 @@ const SequencerModule: Module<SequencerState, any> = {
 
                 // ensure that the Array contains non-empty values
                 for ( i = 0; i < steps; ++i ) {
-                    // @ts-expect-error using 0 as falsy value to specify this channel slot is empty
                     transformed[ i ] = 0;
                 }
 

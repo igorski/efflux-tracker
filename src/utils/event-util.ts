@@ -24,7 +24,7 @@ import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent, type EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import type { EffluxChannel } from "@/model/types/channel";
+import type { EffluxChannel, EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxState } from "@/store";
 import type { EffluxSong } from "@/model/types/song";
@@ -111,7 +111,7 @@ const EventUtil =
     glideModuleParams( song: EffluxSong, orderIndex: number, channelIndex: number, eventIndex: number ): EffluxAudioEvent[] | null {
         const firstPattern       = song.patterns[ song.order[ orderIndex ]];
         const firstPatternEvents = firstPattern.channels[ channelIndex ];
-        const firstEvent         = firstPatternEvents[ eventIndex ];
+        const firstEvent         = firstPatternEvents[ eventIndex ] as EffluxAudioEvent;
         const firstParam         = firstEvent.mp;
 
         let secondEvent: EffluxAudioEvent;
@@ -154,7 +154,7 @@ const EventUtil =
         let eventFound = false;
         const events: EffluxAudioEvent[] = [];
 
-        const addOrUpdateEvent = ( evt: EffluxAudioEvent, pattern: EffluxPattern, channel: EffluxChannel, eventIndex: number ): EffluxAudioEvent => {
+        const addOrUpdateEvent = ( evt: EffluxChannelEntry, pattern: EffluxPattern, channel: EffluxChannel, eventIndex: number ): EffluxAudioEvent => {
             if ( typeof evt !== "object" ) {
                 // event didn't exist... create it, insert into the channel
                 evt = EventFactory.create( firstEvent.instrument );
@@ -292,7 +292,7 @@ export function getEventLength( event: EffluxAudioEvent, channelIndex: number, o
         const channel = song.patterns[ song.order[ compareOrderIndex ]].channels[ channelIndex ];
 
         for ( let compareStep = 0, jl = channel.length; compareStep < jl; ++compareStep ) {
-            const compareEvent: EffluxAudioEvent = channel[ compareStep ];
+            const compareEvent: EffluxChannelEntry = channel[ compareStep ];
 
             if ( !compareEvent ) {
                 continue;
@@ -352,7 +352,7 @@ export function getPrevEvent( song: EffluxSong, event: EffluxAudioEvent, channel
         const channel = song.patterns[ song.order[ compareOrderIndex ]].channels[ channelIndex ];
 
         for ( let compareStep = channel.length; compareStep >= 0; --compareStep ) {
-            const compareEvent: EffluxAudioEvent = channel[ compareStep ];
+            const compareEvent: EffluxChannelEntry = channel[ compareStep ];
 
             if ( !compareEvent ) {
                 continue;
@@ -377,7 +377,7 @@ export function getNextEvent( song: EffluxSong, event: EffluxAudioEvent, channel
         const channel = song.patterns[ song.order[ compareOrderIndex ]].channels[ channelIndex ];
 
         for ( let compareStep = 0, jl = channel.length; compareStep < jl; ++compareStep ) {
-            const compareEvent: EffluxAudioEvent = channel[ compareStep ];
+            const compareEvent: EffluxChannelEntry = channel[ compareStep ];
 
             if ( !compareEvent ) {
                 continue;

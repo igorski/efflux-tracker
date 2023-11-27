@@ -29,6 +29,7 @@ import type { EffluxState } from "@/store";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import { createNoteOffEvent, insertEvent, invalidateCache } from "./event-actions";
+import { EffluxAudioEvent } from "../types/audio-event";
 
 export default function( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number, newLength: number ): IUndoRedoState {
     const song = store.state.song.activeSong;
@@ -53,8 +54,8 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
             const nextStep = i + 1;
             // in case the new range of the event contains noteOn actions for longer events, we
             // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
-            if ( nextStep < channel.length && channel[ i ]?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
-                insertEvent( channel[ i ], song, patternIndex, channelIndex, nextStep );
+            if ( nextStep < channel.length && ( channel[ i ] as EffluxAudioEvent )?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
+                insertEvent( channel[ i ] as EffluxAudioEvent, song, patternIndex, channelIndex, nextStep );
             }
             EventUtil.clearEvent( song, patternIndex, channelIndex, i );
         }

@@ -22,7 +22,10 @@
  */
 import type { EffluxAudioEvent } from "./audio-event";
 
+export type EffluxChannelEntry = EffluxAudioEvent | 0;
+
 /**
- * A channel is basically a list of audio events
+ * A channel is basically a list of audio events, when
+ * a slot is empty, its value is represented as 0.
  */
-export type EffluxChannel = EffluxAudioEvent[];
+export type EffluxChannel = EffluxChannelEntry[];

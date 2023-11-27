@@ -227,5 +227,5 @@ function getEventForPosition( createIfNotExisting: boolean ): EffluxAudioEvent {
             }
         });
     }
-    return event;
+    return event as EffluxAudioEvent;
 }

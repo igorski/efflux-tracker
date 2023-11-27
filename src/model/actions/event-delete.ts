@@ -22,11 +22,11 @@
  */
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { type EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxState } from "@/store";
 import EventUtil from "@/utils/event-util";
 
-export default function( store: Store<EffluxState>, event?: EffluxAudioEvent ): IUndoRedoState {
+export default function( store: Store<EffluxState>, event?: EffluxChannelEntry ): IUndoRedoState {
     const song               = store.state.song.activeSong,
           activePattern      = store.getters.activePatternIndex,
           selectedInstrument = store.state.editor.selectedInstrument,

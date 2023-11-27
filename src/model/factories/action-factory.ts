@@ -108,9 +108,10 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
 
             if ( channel[ step ]) {
                 existingEvents[ index ] = serialize( channel[ step ]);
+                const stepEntry = channel[ step ] as EffluxAudioEvent;
 
-                if ( event.action !== ACTION_NOTE_OFF && !event.mp && channel[ step ].mp ) {
-                    Vue.set( event, "mp", clone( channel[ step ].mp ));
+                if ( event.action !== ACTION_NOTE_OFF && !event.mp && stepEntry.mp ) {
+                    Vue.set( event, "mp", clone( stepEntry.mp ));
                 }
                 EventUtil.clearEvent( song, patternIndex, targetIndex, step );
             }
