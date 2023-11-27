@@ -445,6 +445,12 @@ export default {
         flex-direction: column;
         vertical-align: top;
         width: calc(100% - 550px);
+
+        @include minWidthFallback( $ideal-instrument-editor-width ) {
+            @include boxSize();
+            width: 100%;
+            padding: 0 $spacing-medium 0 0;
+        }
     }
 }
 

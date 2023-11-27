@@ -470,10 +470,9 @@ $largeWidth: 700px;
     @include list();
     @include toolFont();
     text-transform: uppercase;
-    display: inline-block;
+    display: flex;
 
     li {
-        display: inline-block;
         border: 2px solid #666;
         padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
         margin: $spacing-xsmall $spacing-small 0 0;

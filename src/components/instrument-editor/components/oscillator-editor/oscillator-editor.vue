@@ -431,7 +431,7 @@ export default {
 .envelope-editor {
     position: relative;
 
-    @include large() {
+    @include minWidth( $ideal-instrument-editor-width ) {
         margin-top: -$spacing-medium;
     }
     

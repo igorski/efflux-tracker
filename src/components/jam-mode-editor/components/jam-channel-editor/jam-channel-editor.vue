@@ -202,8 +202,7 @@ $button-height: 26px;
 .jam-channel-editor {
     position: relative;
     display: inline-block;
-    border: 2px solid #666;
-    border-radius: $spacing-small;
+    border: 2px solid $color-form-background; // color matches editor background
     padding: 0 $spacing-medium $spacing-small;
     box-sizing: border-box;
     background-color: #53565c;

@@ -535,9 +535,18 @@ $large-height: 800px;
     }
 
     .tabbed-content {
+        @include boxSize();
+
         border: 1px solid grey;
         padding: $spacing-medium;
-        @include boxSize();
+
+        &.active {
+            @include large() {
+                @include minWidthFallback( $ideal-instrument-editor-width ) {
+                    display: flex;
+                }
+            }
+        }
     }
 
     .module-list {
@@ -580,6 +589,8 @@ $large-height: 800px;
             .tabbed-content {
                 border: 0;
                 display: flex;
+
+                padding: $spacing-medium 0 0 0;
             }
 
             .instrument-parameters {

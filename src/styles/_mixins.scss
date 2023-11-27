@@ -24,6 +24,22 @@
     }
 }
 
+/* 2. layout mixins */
+
+@mixin portrait() {
+    @media screen and ( orientation: portrait ) {
+        @content;
+    }
+}
+
+@mixin landscape() {
+    @media screen and ( orientation: landscape ) {
+        @content;
+    }
+}
+
+/* 3. specific dimensions breakoff points */
+
 // components (such as modal windows) that have an ideal width x height size
 // can specify styles at the cutoff points using the following mixins:
 
