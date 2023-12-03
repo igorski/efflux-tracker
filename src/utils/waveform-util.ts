@@ -25,11 +25,11 @@
  * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
  * of provided width and height
  */
-export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150 ): HTMLCanvasElement => {
+export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150, scale = 1 ): HTMLCanvasElement => {
     const canvas  = document.createElement( "canvas" );
     const ctx     = canvas.getContext( "2d" )!;
-    canvas.width  = width;
-    canvas.height = height;
+    canvas.width  = width  * scale;
+    canvas.height = height * scale;
 
     ctx.fillStyle = color;
 
