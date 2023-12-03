@@ -44,10 +44,10 @@
             <template v-if="helpTopic === 'menu'">
                 <h4>Song save</h4>
                 <p>
-                    You can save your work so you can revisit it at a later date. Songs are either saved in your browsers local storage
+                    You can save your work allowing you to continue at a later date. Songs are either saved in your browsers local storage
                     <i>(making them available only to the browser they were saved in)</i> or alternatively stored in your Dropbox account, making
-                    it accessible on all the devices you have linked to your Dropbox. Storing it in a shared folder allows you
-                    to collaborate with a friend.
+                    it accessible on all the devices you have linked to your Dropbox (storing it in a shared folder also allows you to
+                    more easily collaborate with a friend).
                 </p>
                 <h4>Import / export</h4>
                 <p>
@@ -186,6 +186,7 @@ export default {
 
     &__content {
         padding: $spacing-small $spacing-medium 0;
+        line-height: 2;
     }
 
     h4 {

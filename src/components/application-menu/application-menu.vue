@@ -521,7 +521,8 @@ h1 {
         padding-left: $spacing-large;
 
         &.jam-mode {
-            max-width: $ideal-width-jam-mode;
+            min-width: auto;
+            max-width: $ideal-menu-width-jam-mode;
         }
     }
 

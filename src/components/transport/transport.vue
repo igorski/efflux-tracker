@@ -383,7 +383,8 @@ export default {
     min-height: 44px;
 
     &.jam-mode {
-        max-width: $ideal-width-jam-mode;
+        min-width: auto;
+        max-width: $ideal-menu-width-jam-mode;
     }
 
     &__buttons,
@@ -398,12 +399,6 @@ export default {
             margin: $spacing-small 0;
             padding: 0;
             font-weight: bold;
-
-            @include large() {
-                &:first-child {
-                    padding-left: $spacing-xsmall;
-                }
-            }
         }
     }
 

@@ -28,6 +28,7 @@ $app-width: 960px;
 $mobile-width: 685px; // the threshold below which we start to use the mobile view
 $ideal-width: 1600px;
 $ideal-width-jam-mode: ( $jam-channel-editor-width * 4 ) + $track-editor-width + $spacing-medium; // spacing for scrollbar
+$ideal-menu-width-jam-mode: ( $ideal-width-jam-mode + $spacing-xlarge );
 
 // z indices
 $z-notifications: 8;
