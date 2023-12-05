@@ -44,5 +44,7 @@ export default
     SONG_IMPORTED            : "B:SI",
     SONG_EXPORTED            : "B:SE",
     INSTRUMENT_EDITOR_OPENED : "B:IE",
-    MIDI_CONNECTED           : "B:MC"
+    MIDI_CONNECTED           : "B:MC",
+    TRACKER_SESSION_CREATED  : "B:TS",
+    JAM_SESSION_CREATED      : "B:JS",
 };

@@ -58,6 +58,7 @@
 <script lang="ts">
 import { mapMutations, mapActions } from "vuex";
 import { EffluxSongType } from "@/model/types/song";
+import PubSubMessages from "@/services/pubsub/messages";
 import messages from "./messages.json";
 
 export default {
@@ -67,6 +68,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "publishMessage",
             "setPlaying",
         ]),
         ...mapActions([
@@ -84,6 +86,7 @@ export default {
         },
         createAndClose( type: EffluxSongType ): void {
             this.createSong( type ).then( song => {
+                this.publishMessage( type === EffluxSongType.JAM ? PubSubMessages.JAM_SESSION_CREATED : PubSubMessages.TRACKER_SESSION_CREATED );
                 this.openSong( song );
                 this.close();
             });
