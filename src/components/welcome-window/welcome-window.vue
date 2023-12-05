@@ -43,16 +43,19 @@
                 v-t="'tweakInstrument'"
                 @click="openInstrumentEditor()"
             ></button>
-            <p v-t="'introductionHelp'"></p>
+            <i18n path="introductionHelp" tag="p">
+                <span class="emphasis">{{ $t('jamMode') }}</span>
+            </i18n>
+            <button
+                type="button"
+                class="button--secondary"
+                v-t="'jamMode'"
+                @click="createJamSong()"
+            ></button>
             <button
                 type="button"
                 v-t="'openHelp'"
                 @click="openHelp()"
-            ></button>
-            <button
-                type="button"
-                v-t="'jamMode'"
-                @click="createJamSong()"
             ></button>
         </div>
         <div class="pane logo">
@@ -85,6 +88,7 @@ import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import { EffluxSongType } from "@/model/types/song";
+import PubSubMessages from "@/services/pubsub/messages";
 import { PROPERTIES } from "@/store/modules/settings-module";
 
 import messages from "./messages.json";
@@ -113,6 +117,7 @@ export default {
     methods: {
         ...mapMutations([
             "openModal",
+            "publishMessage",
             "saveSetting",
         ]),
         ...mapActions([
@@ -126,10 +131,12 @@ export default {
             window.open( ManualURLs.ONLINE_MANUAL );
         },
         openInstrumentEditor(): void {
-            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
+            this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
+           // this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         createJamSong(): void {
             this.createSong( EffluxSongType.JAM ).then( song => {
+                this.publishMessage( PubSubMessages.JAM_SESSION_CREATED );
                 this.openSong( song );
                 this.close();
                 this.openModal( ModalWindows.JAM_MODE_INSTRUMENT_EDITOR );
@@ -149,7 +156,7 @@ export default {
 @import "@/styles/forms";
 
 $width: 550px;
-$height: 453px;
+$height: 474px;
 
 .welcome {
     @include editorComponent();
@@ -198,6 +205,21 @@ $height: 453px;
 
     img {
         width: 100%;
+    }
+
+    .emphasis {
+        font-weight: bold;
+        font-style: italic;
+        text-transform: lowercase;
+        color: #FFF;
+    }
+
+    .button--secondary {
+        background-color: $color-4;
+
+        &:hover {
+            background-color: #FFF;
+        }
     }
 }
 

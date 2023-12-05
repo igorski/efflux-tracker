@@ -1,8 +1,8 @@
 {
     "en-US": {
         "title": "Welcome",
-        "introductionFirstTime": "If this is your first time using Efflux, why not take some inspiration? By default, Efflux comes with several demo songs and instruments showing off just what it can do.",
-        "introductionHelp": "If you're feeling daunted using a tracker or want to delve right into the good stuff like tutorials, keyboard shortcuts and MIDI control:",
+        "introductionFirstTime": "If this is your first time using Efflux, why not draw some inspiration? By default, Efflux ships with several demo songs and instruments showing off just what it can do.",
+        "introductionHelp": "If you're feeling daunted using a tracker, you can dive straight into the good stuff creating loops inside the {0}. You can also read the tutorials on shortcuts and MIDI control.",
         "openSong": "Open a song",
         "tweakInstrument": "Tweak an instrument",
         "openHelp": "Read the online help",
