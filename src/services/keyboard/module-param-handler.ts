@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import Actions from "@/definitions/actions";
 import EventFactory from "@/model/factories/event-factory";
@@ -79,7 +78,7 @@ const ModuleParamHandler =
         );
 
         if ( createEvent ) {
-            Vue.set( event, "mp", mp );
+            event["mp"] = mp;
         } else {
             // a previously existed event will register the mp change in state history
             // (a newly created event is added to state history through its addition to the song)

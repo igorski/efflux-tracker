@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent, ACTION_NOTE_OFF } from "@/model/types/audio-event";
@@ -43,7 +42,7 @@ export function createNoteOffEvent( channelIndex: number ): EffluxAudioEvent {
 export function insertEvent( event: EffluxAudioEvent, song: EffluxSong, patternIndex: number, channelIndex: number, step: number ): void {
     const pattern = song.patterns[ patternIndex ];
     EventUtil.setPosition( event, pattern, step, song.meta.tempo );
-    Vue.set( pattern.channels[ channelIndex ], step, event );
+    pattern.channels[ channelIndex ][step] = event;
 }
 
 /**

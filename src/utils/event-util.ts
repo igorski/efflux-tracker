@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent, type EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
@@ -47,7 +46,7 @@ const EventUtil =
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
       
-        Vue.set( event.seq, "startMeasureOffset", eventOffset );
+        event.seq["startMeasureOffset"] = eventOffset;
     },
     /**
      * clears the AudioEvent at requested step position in
@@ -57,7 +56,7 @@ const EventUtil =
         const pattern = song.patterns[ patternIndex ];
         const channel = pattern.channels[ channelIndex ];
 
-        Vue.set( channel, step, 0 );
+        channel[step] = 0;
     },
     /**
      * Brute force way to remove an event from a song
@@ -146,8 +145,8 @@ const EventUtil =
 
         // ensure events glide their module parameter change
 
-        Vue.set( firstParam,  "glide", true );
-        Vue.set( secondParam, "glide", true );
+        firstParam["glide"] = true;
+        secondParam["glide"] = true;
 
         // find distance (in steps) between these two events
         // TODO: keep patterns' optional resolution differences in mind
@@ -158,14 +157,14 @@ const EventUtil =
             if ( typeof evt !== "object" ) {
                 // event didn't exist... create it, insert into the channel
                 evt = EventFactory.create( firstEvent.instrument );
-                Vue.set( channel, eventIndex, evt );
+                channel[eventIndex] = evt;
                 EventUtil.setPosition( evt, pattern, eventIndex, song.meta.tempo );
             }
-            Vue.set( evt, "mp", {
+            evt["mp"] = {
                 module: firstEvent.mp.module,
                 value: 0,
                 glide: true
-            });
+            };
             return evt;
         };
 
@@ -196,7 +195,7 @@ const EventUtil =
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event: EffluxAudioEvent, index: number ): void => {
                 const mp = event.mp;
-                Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment));
+                mp["value"] = firstParam.value + (( index + 1 ) * increment);
             });
         }
         else {
@@ -204,7 +203,7 @@ const EventUtil =
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event: EffluxAudioEvent, index: number ): void => {
                 const mp = event.mp;
-                Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment ));
+                mp["value"] = firstParam.value + (( index + 1 ) * increment );
             });
         }
         return events;
@@ -242,7 +241,7 @@ const EventUtil =
                         if ( event.note === "" ) {
                             EventUtil.clearEventByReference( song, event );
                         } else {
-                            Vue.set( event, "mp", null );
+                            event["mp"] = null;
                         }
                     });
                 },

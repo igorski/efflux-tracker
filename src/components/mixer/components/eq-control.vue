@@ -38,6 +38,7 @@
 import KnobControl from "vue-knob-control";
 
 export default {
+    emits: ["input"],
     components: {
         KnobControl
     },

@@ -93,7 +93,7 @@ export default {
             this.$store.commit( "setShowNoteEntry", true );
         }
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         KeyboardService.setListener( null );
     },
     methods: {

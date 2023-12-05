@@ -239,7 +239,7 @@ export default {
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
         this.publishMessage( PubSubMessages.INSTRUMENT_EDITOR_OPENED );
     },
-    destroyed() {
+    unmounted() {
         this.setMidiAssignMode( false );
     },
     methods: {

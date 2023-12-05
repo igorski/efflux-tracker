@@ -57,6 +57,7 @@ import { applyModules } from "@/services/audio-service";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     computed: {
         ...mapGetters([
@@ -77,7 +78,7 @@ export default {
         };
         window.addEventListener( "keydown", this.keydownHandler );
     },
-    beforeDestroy() {
+    beforeUnmount() {
         window.removeEventListener( "keydown", this.keydownHandler );
     },
     methods: {

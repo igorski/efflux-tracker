@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import Config from "@/config";
 import type { EffluxState } from "@/store";
@@ -50,7 +49,7 @@ export default {
             if ( event ) {
                 // note we subtract 1 as we store the instrument by index in the model, but
                 // visualize it starting from 1 as humans love that.
-                Vue.set( event, "instrument", keyCode - ONE );
+                event["instrument"] = keyCode - ONE;
             }
         }
     }

@@ -61,6 +61,7 @@ import { EffluxSongType } from "@/model/types/song";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     created(): void {
         this.setPlaying( false );

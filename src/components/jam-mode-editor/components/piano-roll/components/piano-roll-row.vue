@@ -110,6 +110,7 @@ let dataTransfer: DataTransfer;
  * the DOM API allows for easy pointer event manipulation and the result is performant enough.
  */
 export default {
+    emits: ["note:delete", "note:resize", "note:move", "note:add"],
     props: {
         note: {
             type: String,
@@ -178,7 +179,7 @@ export default {
     created(): void {
         this.dragListeners = [] as DragListener[];
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.removeListeners();
     },
     methods: {

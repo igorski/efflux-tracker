@@ -81,6 +81,7 @@ import { type MIDIPairingPreset } from "@/store/modules/midi-module";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     data: () => ({
         newPresetName: "",

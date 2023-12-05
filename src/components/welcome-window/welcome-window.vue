@@ -90,6 +90,7 @@ import { PROPERTIES } from "@/store/modules/settings-module";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     components: {
         FileLoader,

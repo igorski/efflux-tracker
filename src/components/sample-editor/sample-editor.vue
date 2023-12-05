@@ -412,7 +412,7 @@ export default {
         }
         this.debouncedSlice = debounce( this.sliceSample.bind( this ), 50 );
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.stopPlayback();
     },
     methods: {
