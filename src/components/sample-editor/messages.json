@@ -24,6 +24,7 @@
         "lowpassFreq": "LPF Freq",
         "deleteConfirmDescr": "Deleting a sample is permanent. Any instruments using the sample will become silent.",
         "saveChanges": "Save changes",
+        "toNewInstrument": "To new instrument",
         "pleaseWait": "Please wait...",
         "analysingPitch": "Analysing pitch",
         "trimmingSample": "Trimming sample",

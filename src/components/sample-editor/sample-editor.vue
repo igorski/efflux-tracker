@@ -89,6 +89,13 @@
                     class="sample-display__range"
                     :style="rangeStyle"
                 ></div>
+                <button
+                    type="button"
+                    class="sample-display__delete"
+                    :title="'delete'"
+                    :disabled="isBusy"
+                    @click="deleteSample()"
+                >&times;</button>
             </div>
             <hr class="divider" />
             <section class="sample-control-list">
@@ -195,10 +202,10 @@
                     @click="commitChanges()"
                 ></button>
                 <button
-                    v-t="'delete'"
+                    v-t="'toNewInstrument'"
                     type="button"
                     :disabled="!sample || isBusy"
-                    @click="deleteSample()"
+                    @click="commitAndCreateInstrument()"
                 ></button>
                 <button
                     v-if="canTrim"
@@ -228,12 +235,17 @@
 import AudioEncoder from "audio-encoder";
 import debounce from "lodash.debounce";
 import { ToggleButton } from "vue-js-toggle-button";
-import { mapGetters, mapMutations, mapActions } from "vuex";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
+import Actions from "@/definitions/actions";
 import ManualURLs from "@/definitions/manual-urls";
+import ModalWindows from "@/definitions/modal-windows";
+import OscillatorTypes from "@/definitions/oscillator-types";
 import SampleDisplay from "@/components/sample-display/sample-display.vue";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder.vue";
 import SelectBox from "@/components/forms/select-box.vue";
+import createAction from "@/model/factories/action-factory";
+import InstrumentFactory from "@/model/factories/instrument-factory";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
@@ -243,6 +255,8 @@ import { sliceBuffer } from "@/utils/sample-util";
 import { mapTransients } from "@/utils/transient-detector";
 
 import messages from "./messages.json";
+
+const PITCH_ANALYSIS_WINDOW_SIZE = 2000; // amount of milliseconds we analyse audio for dominant pitch
 
 const MP3_PAD_START   = 1057; // samples added at the beginning of an MP3 encoded file
 const rangeToPosition = ( rangeValue, length ) => length * ( rangeValue / 100 );
@@ -278,6 +292,9 @@ export default {
         sampleEnd   : 100
     }),
     computed: {
+        ...mapState({
+            selectedInstrument: state => state.editor.selectedInstrument,
+        }),
         ...mapGetters([
             "activeSong",
             "currentSample",
@@ -420,6 +437,7 @@ export default {
             "cacheSample",
             "closeDialog",
             "openDialog",
+            "openModal",
             "removeSample",
             "removeSampleFromCache",
             "setBlindActive",
@@ -442,7 +460,9 @@ export default {
                 confirm : () => {
                     this.removeSampleFromCache( this.sample );
                     this.removeSample( this.sample );
-                    this.setCurrentSample( this.samples[ 0 ]);
+                    if ( this.samples.length ) {
+                        this.setCurrentSample( this.samples[ 0 ]);
+                    }
                 }
             });
         },
@@ -470,7 +490,7 @@ export default {
             this.isPlaying = false;
         },
         /* saving sample, after performing pitch analysis, when required */
-        commitChanges(): void {
+        async commitChanges(): Promise<Sample> {
             const sample = {
                 ...this.sample,
                 rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
@@ -501,39 +521,43 @@ export default {
             this.pitches = [];
             this.startPlayback( true );
 
-            this.pitchAnalyser  = createAnalyser( this.playbackNode, getAudioContext() );
-            this.pitchFn        = this.detectCurrentPitch.bind( this );
+            this.pitchAnalyser = createAnalyser( this.playbackNode, getAudioContext() );
+            this.pitchFn       = this.detectCurrentPitch.bind( this );
             this.detectCurrentPitch();
 
-            setTimeout(() => {
-                this.stopPlayback();
+            return new Promise( resolve => {
+                setTimeout(() => {
+                    this.stopPlayback();
 
-                window.cancelAnimationFrame( this.pitchRaf );
-                this.pitchAnalyser?.disconnect();
-                this.pitchAnalyser = null;
+                    window.cancelAnimationFrame( this.pitchRaf );
+                    this.pitchAnalyser?.disconnect();
+                    this.pitchAnalyser = null;
 
-                // get the most occurring frequency from the signal
-                // TODO: should we round the frequencies here ?
-                const mode = arr => arr.sort(( a, b ) =>
-                    arr.filter( v => v === a ).length -
-                    arr.filter( v => v === b ).length
-                ).pop();
+                    // get the most occurring frequency from the signal
+                    // TODO: should we round the frequencies here ?
+                    const mode = arr => arr.sort(( a, b ) =>
+                        arr.filter( v => v === a ).length -
+                        arr.filter( v => v === b ).length
+                    ).pop();
 
-                const frequency = mode( this.pitches );
-                const { note, octave, cents } = getPitchByFrequency( frequency );
-                this.pitches.length = 0;
+                    const frequency = mode( this.pitches );
+                    const { note, octave, cents } = getPitchByFrequency( frequency );
+                    this.pitches.length = 0;
 
-                sample.pitch = { frequency, note, octave, cents };
-                
-                this.hasPitch = true;
-                this.updateSongSample( sample );
-                this.cacheSample( sample );
-                this.closeDialog();
-                this.showNotification({
-                    message : this.$t( "savedDominantPitch", { note, octave } )
-                });
-                this.isBusy = false;
-            }, 2000 );
+                    sample.pitch = { frequency, note, octave, cents };
+                    
+                    this.hasPitch = true;
+                    this.updateSongSample( sample );
+                    this.cacheSample( sample );
+                    this.closeDialog();
+                    this.showNotification({
+                        message : this.$t( "savedDominantPitch", { note, octave } )
+                    });
+                    this.isBusy = false;
+
+                    resolve( sample );
+                }, PITCH_ANALYSIS_WINDOW_SIZE );
+            });
         },
         detectCurrentPitch(): void {
             const pitch = detectPitch( this.pitchAnalyser, getAudioContext() );
@@ -635,6 +659,19 @@ export default {
                 this.startPlayback();
             }
             this.hasPitch = false; // pitch must be recalculated
+        },
+        async commitAndCreateInstrument(): Promise<void> {
+            const sample = await this.commitChanges();
+            
+            const instrument = InstrumentFactory.create( this.selectedInstrument, sample.name );
+            instrument.oscillators[ 0 ].waveform = OscillatorTypes.SAMPLE;
+            instrument.oscillators[ 0 ].sample = sample.name;
+
+            createAction( Actions.REPLACE_INSTRUMENT, {
+                store: this.$store,
+                instrument,
+            });
+            this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         async handleNameInputShow(): Promise<void> {
             this.showNameInput = true;
@@ -835,6 +872,23 @@ $width: 760px;
         border-right: 2px solid $color-1;
         background-color: $color-2;
         mix-blend-mode: difference;
+    }
+
+    &__delete {
+        position: absolute;
+        top: $spacing-small;
+        right: $spacing-xxsmall;
+        font-size: 200%;
+        padding: 0 $spacing-small;
+        outline: 2px solid #666;
+        background-color: #000;
+        color: #b6b6b6;
+
+        &:hover {
+            background-color: $color-2;
+            outline-color: #000;
+            color: #000;
+        }
     }
 }
 </style>
