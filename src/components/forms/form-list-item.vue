@@ -30,6 +30,7 @@
 
 <script>
 export default {
+    emits: ["input"],
     props: {
         // the bound v-model
         value: {

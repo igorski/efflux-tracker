@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Store } from "vuex";
+import type { Store, createStore } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import type { Instrument } from "@/model/types/instrument";
 import AudioService from "@/services/audio-service";

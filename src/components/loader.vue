@@ -53,7 +53,7 @@ export default {
             this.show = true;
         }, DELAY );
     },
-    beforeDestroy() {
+    beforeUnmount() {
         window.clearTimeout( this.to );
     }
 };

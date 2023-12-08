@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { Commit, Dispatch, Module } from "vuex";
-import Vue from "vue";
 import Config from "@/config";
 import { EffluxSongType } from "@/model/types/song";
 import StorageUtil from "@/utils/storage-util";
@@ -78,7 +77,7 @@ const SettingsModule: Module<SettingsState, any> = {
     },
     mutations: {
         saveSetting( state: SettingsState, { name, value }: { name: string, value: any }): void {
-            Vue.set( state._settings, name, value );
+            state._settings[name] = value;
             persistState( state );
         },
         setStoredSettings( state: SettingsState, settings: any ): void {

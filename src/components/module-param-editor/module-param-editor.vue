@@ -174,6 +174,7 @@ const DEFAULT_MODULE = VOLUME;
 let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     components: {
         FormListItem,
@@ -225,7 +226,7 @@ export default {
 
         this.supportsPanning = supports("panning");
     },
-    beforeDestroy() {
+    beforeUnmount() {
         KeyboardService.reset();
     },
     methods: {

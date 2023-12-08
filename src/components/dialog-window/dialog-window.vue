@@ -83,7 +83,7 @@ export default {
     created(): void {
         KeyboardService.setListener( this.handleKey.bind( this ));
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         KeyboardService.reset();
     },
     methods: {

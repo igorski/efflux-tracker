@@ -196,7 +196,7 @@ export default {
         //     this.largeView = true;
         // }
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         NoteInputHandler.unregisterHandler();
         this.killAllNotes();
     },

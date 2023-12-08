@@ -42,6 +42,7 @@ import "vue-select/dist/vue-select.css";
 import { createPopper } from '@popperjs/core'
 
 export default {
+    emits: ["input"],
     props: {
         value: {
             type: [ String, Number ],

@@ -1,8 +1,5 @@
-import Vue from "vue";
+import * as Vue from "vue";
 import Efflux from "./efflux-application.vue";
 
-Vue.config.productionTip = false;
-
-new Vue({
-    render: h => h( Efflux )
-}).$mount( "#app" );
+const app = Vue.createApp(Efflux);
+app.mount("#app");

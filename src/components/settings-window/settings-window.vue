@@ -231,7 +231,7 @@ export default {
             });
         },
     },
-    destroyed(): void {
+    unmounted(): void {
         if ( this.changeListener ) {
             zMIDI.removeChangeListener( this.changeListener );
         }

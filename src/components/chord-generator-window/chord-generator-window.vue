@@ -74,6 +74,7 @@ import SelectBox from "@/components/forms/select-box.vue";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     components: {
         SelectBox,
@@ -104,7 +105,7 @@ export default {
     created() {
         KeyboardService.setListener( this.handleKeyboardInput.bind( this ));
     },
-    beforeDestroy() {
+    beforeUnmount() {
         KeyboardService.setListener( null );
     },
     methods: {

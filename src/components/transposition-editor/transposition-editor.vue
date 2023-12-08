@@ -79,6 +79,7 @@ import createAction from "@/model/factories/action-factory";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     data: () => ({
         firstPattern : 1,
@@ -119,7 +120,7 @@ export default {
             this.$refs.semitoneInput.focus();
         });
     },
-    beforeDestroy() {
+    beforeUnmount() {
         this.suspendKeyboardService( false );
     },
     methods: {
