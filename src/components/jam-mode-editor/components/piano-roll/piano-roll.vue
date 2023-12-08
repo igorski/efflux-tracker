@@ -43,13 +43,19 @@
                 <button
                     type="button"
                     :title="$t('previousPattern')"
-                    :disabled="activePatternIndex === 0"
+                    :disabled="nextPatternIndex === 0"
+                    :class="{
+                        'pattern--queued': nextPatternIndex < activePatternIndex,
+                    }"
                     @click="gotoPreviousPattern()"
                 >&lt;</button>
                 <button
                     type="button"
                     :title="$t('nextPattern')"
-                    :disabled="activePatternIndex === maxPatternIndex"
+                    :disabled="nextPatternIndex === maxPatternIndex"
+                    :class="{
+                        'pattern--queued': nextPatternIndex > activePatternIndex,
+                    }"
                     @click="gotoNextPattern()"
                 >></button>
                 <button
@@ -187,6 +193,9 @@ export default {
         activePatternIndex(): number {
             return this.jam[ this.selectedInstrument ].activePatternIndex;
         },
+        nextPatternIndex(): number {
+            return this.jam[ this.selectedInstrument ].nextPatternIndex;
+        },
         instrument(): Instrument {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
@@ -298,10 +307,10 @@ export default {
             "saveState",
         ]),
         gotoPreviousPattern(): void {
-            this.setJamChannelPosition({ instrumentIndex: this.selectedInstrument, patternIndex: this.activePatternIndex - 1 });
+            this.setJamChannelPosition({ instrumentIndex: this.selectedInstrument, patternIndex: this.nextPatternIndex - 1 });
         },
         gotoNextPattern(): void {
-            this.setJamChannelPosition({ instrumentIndex: this.selectedInstrument, patternIndex: this.activePatternIndex + 1 });
+            this.setJamChannelPosition({ instrumentIndex: this.selectedInstrument, patternIndex: this.nextPatternIndex + 1 });
         },
         handlePatternCopy(): void {
             this.patternCopy = clone( this.pattern.channels[ this.selectedInstrument ] );
@@ -410,6 +419,7 @@ export default {
 @use "sass:math";
 
 @import "@/styles/_mixins";
+@import "@/styles/animation";
 @import "@/styles/transporter";
 
 $ideal-width: 840px;
@@ -483,6 +493,12 @@ $ideal-width: 840px;
 
                 &:hover {
                     color: #666;
+                }
+
+                &.pattern--queued {
+                    @include animationBlink( .5s );
+                    background-color: $color-4;
+                    color: #000;
                 }
             }
         }
