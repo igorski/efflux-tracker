@@ -125,7 +125,7 @@ export default {
         },
         events: {
             type: Array, // PianoRollEvent[]
-            required: true,
+            default: () => ([]),
         },
         selectedStep: {
             type: Number,
@@ -155,7 +155,7 @@ export default {
     }),
     computed: {
         formattedColumns(): FormattedColumn[] {
-            const out = [];
+            const out: FormattedColumn[] = [];
             for ( let index = 0; index < this.columns; ) {
                 const event   = this.getEventForIndex( index );
                 const width   = `${NOTE_WIDTH * event?.length}px`;

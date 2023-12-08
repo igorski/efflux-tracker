@@ -89,7 +89,7 @@
                         :key="`${row.note}_${row.octave}`"
                         :note="row.note"
                         :octave="row.octave"
-                        :events="row.events"
+                        :events="rowEvents[ row.key ]"
                         :columns="columnAmount"
                         :selected-step="selectedStep"
                         :playing-step="isPlaying ? playingStep : -1"
@@ -148,10 +148,10 @@ export type PianoRollEvent = {
     length: number;
 };
 
-type PianoRollRow = {
+type PianoRollRowDef = {
     note: string;
     octave: number;
-    events: PianoRollEvent[];
+    key: string;
 };
 
 // we can't draw and pan at the same time on small screens, force user to select interaction type
@@ -199,28 +199,29 @@ export default {
         patternEvents(): EffluxAudioEvent[] {
             return this.pattern.channels[ this.selectedInstrument ];
         },
-        rows(): PianoRollRow[] {
-            const out: PianoRollRow[] = [];
-            for ( let octave = 1; octave <= Config.MAX_OCTAVE; ++octave ) {
-                for ( const note of Pitch.OCTAVE_SCALE ) {
-                    const events: PianoRollEvent[] = this.patternEvents.map(( event, index ) => {
-                        if ( event?.note === note && event?.octave === octave ) {
-                            let length = 1;
-                            for ( let i = index + 1, l = this.patternEvents.length; i < l; ++i ) {
-                                if ( this.patternEvents[ i ]) {
-                                    break;
-                                }
-                                ++length;
-                            }
-                            return { event, length, step: index };
-                        }
-                        return undefined;
-                    }).filter( Boolean );
+        rowEvents(): Record<string, PianoRollEvent[]> {
+            const output: Record<string, PianoRollEvent[]> = {};
+            const { patternEvents } = this;
 
-                    out.push({ note, octave, events });
+            for ( let i = 0, l = patternEvents.length; i < l; ++i ) {
+                const event = patternEvents[ i ];
+                if ( event?.action !== ACTION_NOTE_ON ) {
+                    continue;
                 }
+                const key = `${event.note}${event.octave}`;
+                let length = 1;
+                for ( let j = i + 1, l = this.patternEvents.length; j < l; ++j ) {
+                    if ( this.patternEvents[ j ]) {
+                        break;
+                    }
+                    ++length;
+                }
+                if ( !output[ key ]) {
+                    output[ key ] = [];
+                }
+                output[ key ].push({ event, length, step: i });
             }
-            return out.reverse();
+            return output;
         },
         columnAmount(): number {
             return this.pattern.steps;
@@ -260,16 +261,25 @@ export default {
         this.maxPatternIndex = this.activeSong.patterns.length - 1;
         this.seqPosMult = ( this.pattern.steps - 1 ) / this.pattern.steps;
         this.lastStep = 0;
+
+        const rows: PianoRollRowDef[] = [];
+        for ( let octave = 1; octave <= Config.MAX_OCTAVE; ++octave ) {
+            for ( const note of Pitch.OCTAVE_SCALE ) {
+                const key = `${note}${octave}`;
+                rows.push({ note, octave, key });
+            }
+        }
+        this.rows = rows.reverse();
   
         NoteInputHandler.registerHandler( this.handleKeyboardEntry.bind( this ));
     },
     mounted(): void {
         // on mount, scroll the first row with content centrally into the view
         let i = this.rows.length;
-        this.focusedRow = this.rows.findIndex( row => row.note === "C" && row.octave === 3 );
+        this.focusedRow = this.rows.findIndex( row => row.key === "C3" );
         while ( i-- ) {
             const row = this.rows[ i ];
-            if ( row.events.length ) {
+            if ( this.rowEvents[ row.key ]?.length ) {
                 this.focusedRow = i;
                 break;
             }
@@ -319,7 +329,7 @@ export default {
                 redo: act
             });
         },
-        handleNoteAdd( row: PianoRollRow, { step, length } : { step: number, length: number }): void {
+        handleNoteAdd( row: PianoRollRowDef, { step, length } : { step: number, length: number }): void {
             this.addEventAtPosition({
                 event : EventFactory.create( this.selectedInstrument, row.note, row.octave, ACTION_NOTE_ON ),
                 store : this.$store,
@@ -332,7 +342,7 @@ export default {
                 }
             });
         },
-        handleNoteMove( row: PianoRollRow, { payload, newStep } : { payload: SerializedRowEvent, newStep: number }): void {
+        handleNoteMove( row: PianoRollRowDef, { payload, newStep } : { payload: SerializedRowEvent, newStep: number }): void {
             this.saveState( moveEvent( this.$store,
                 this.activePatternIndex,
                 this.selectedInstrument,
@@ -341,7 +351,7 @@ export default {
                 { note: row.note, octave: row.octave }
             ));
         },
-        handleNoteDelete( row: PianoRollRow, event: PianoRollEvent ): void {
+        handleNoteDelete( row: PianoRollRowDef, event: PianoRollEvent ): void {
             const { activePatternIndex, selectedInstrument } = this;
             const act = (): void => {
                 const pattern = this.activeSong.patterns[ activePatternIndex ];
@@ -357,7 +367,7 @@ export default {
                 redo: act,
             });
         },
-        handleNoteResize( row: PianoRollRow, { payload, newLength } : { payload: SerializedRowEvent, newLength: number }): void {
+        handleNoteResize( row: PianoRollRowDef, { payload, newLength } : { payload: SerializedRowEvent, newLength: number }): void {
             const { activePatternIndex, selectedInstrument } = this;
             this.saveState( resizeEvent( this.$store, activePatternIndex, selectedInstrument, payload.step, newLength ));
         },
@@ -382,7 +392,8 @@ export default {
                 return;
             }
             this.$nextTick(() => {
-                const idx  = this.rows.findIndex( row => row.note === audioEvent.note && row.octave === audioEvent.octave );
+                const key = `${audioEvent.note}${audioEvent.octave}`;
+                const idx  = this.rows.findIndex( row => row.key === key );
                 const rows = this.$el.querySelectorAll( ".piano-roll__table-row" );
                 const element = rows[ idx ];
 
