@@ -163,4 +163,14 @@ export default {
     height: 24px;
     @include truncate();
 }
+
+.vs__dropdown-menu {
+    overflow-x: hidden;
+
+    li {
+        @include truncate();
+        padding-left: $spacing-small;
+        padding-right: $spacing-small;
+    }
+}
 </style>
