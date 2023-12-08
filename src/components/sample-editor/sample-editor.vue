@@ -202,7 +202,7 @@
                     @click="commitChanges()"
                 ></button>
                 <button
-                    v-t="'toNewInstrument'"
+                    v-t="'createInstrument'"
                     type="button"
                     :disabled="!sample || isBusy"
                     @click="commitAndCreateInstrument()"
@@ -502,11 +502,11 @@ export default {
             };
             // if no pitch changes need to be calculated (e.g. isn't repitched type or already has pitch)
             if ( sample.type !== PlaybackType.REPITCHED || this.hasPitch ) {
-                this.updateSampleProps( sample );
+                const updatedSample = await this.updateSampleProps( sample );
                 this.showNotification({
-                    message : this.$t( "savedChanges", { sample: sample.name })
+                    message : this.$t( "savedChanges", { sample: updatedSample.name })
                 });
-                return;
+                return updatedSample;
             }
             this.isBusy = true;
             this.stopPlayback();

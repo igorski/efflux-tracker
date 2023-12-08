@@ -219,7 +219,7 @@ export default {
                 }
                 const key = `${event.note}${event.octave}`;
                 let length = 1;
-                for ( let j = i + 1, l = this.patternEvents.length; j < l; ++j ) {
+                for ( let j = i + 1; j < l; ++j ) {
                     if ( this.patternEvents[ j ]) {
                         break;
                     }
