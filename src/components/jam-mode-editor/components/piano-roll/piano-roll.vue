@@ -23,6 +23,21 @@
 <template>
     <div class="piano-roll">
         <section class="header">
+            <div class="header__controls">
+                <button
+                    id="playBTN"
+                    type="button"
+                    :title="$t( isPlaying ? 'stop' : 'play' )"
+                    :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
+                    @click="setPlaying( !isPlaying )"
+                ></button>
+                <button
+                    id="recordBTN"
+                    type="button"
+                    :title="$t('recordInput')"
+                    @click="setRecording( !isRecording )"
+                ><i class="record-icon" :class="{ active: isRecording }"></i></button>
+            </div>
             <h2 class="header__title">{{ title }}</h2>
             <div class="header__actions">
                 <button
@@ -48,12 +63,13 @@
                     :disabled="!patternCopy"
                     @click="handlePatternPaste()"
                 ></button>
-                <button
-                    type="button"
-                    :title="$t('help')"
-                    @click="handleHelp()"
-                >?</button>
             </div>
+            <button
+                type="button"
+                class="help-button"
+                :title="$t('help')"
+                @click="handleHelp()"
+            >?</button>
             <button
                 type="button"
                 class="close-button"
@@ -62,7 +78,10 @@
             >x</button>
         </section>
         <hr class="divider" />
-        <section class="piano-roll__body">
+        <section
+            ref="rollList"
+            class="piano-roll__body"
+        >
             <table class="piano-roll__table">
                 <tbody>
                     <piano-roll-row
@@ -115,7 +134,9 @@ import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/
 import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
+import NoteInputHandler from "@/services/keyboard/note-input-handler";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
+import { isElementVisible } from "@/utils/dom-util";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import { getInstrumentName } from "@/utils/string-util";
@@ -161,6 +182,7 @@ export default {
         ...mapGetters([
             "activeSong",
             "isPlaying",
+            "isRecording",
         ]),
         activePatternIndex(): number {
             return this.jam[ this.selectedInstrument ].activePatternIndex;
@@ -169,7 +191,7 @@ export default {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
         title(): string {
-            return `${getInstrumentName( this.instrument )} - ${this.activePatternIndex + 1}`;
+            return `${getInstrumentName( this.instrument )} - ${this.$t( "pattern" )} #${this.activePatternIndex + 1}`;
         },
         pattern(): Pattern {
             return this.activeSong.patterns[ this.activePatternIndex ];
@@ -238,6 +260,8 @@ export default {
         this.maxPatternIndex = this.activeSong.patterns.length - 1;
         this.seqPosMult = ( this.pattern.steps - 1 ) / this.pattern.steps;
         this.lastStep = 0;
+  
+        NoteInputHandler.registerHandler( this.handleKeyboardEntry.bind( this ));
     },
     mounted(): void {
         // on mount, scroll the first row with content centrally into the view
@@ -252,10 +276,15 @@ export default {
         }
         // console.info( `Focusing on row #${this.focusedRow}`, this.rows[ this.focusedRow ]);
     },
+    beforeDestroy(): void {
+        NoteInputHandler.unregisterHandler();
+    },
     methods: {
         ...mapMutations([
             "addEventAtPosition",
             "setJamChannelPosition",
+            "setPlaying",
+            "setRecording",
             "saveState",
         ]),
         gotoPreviousPattern(): void {
@@ -338,6 +367,30 @@ export default {
         handleHelp(): void {
             window.open( ManualURLs.PATTERN_JAM_SESSION );
         },
+        /**
+         * Invoked whenever the user is using the keys of the computer
+         * keyboard to play notes. This can be used to scroll to the currently
+         * entered notes in the keyboard UI when recording.
+         */
+         handleKeyboardEntry( type: string, audioEvent: EffluxAudioEvent ): void {
+            if ( !this.isRecording || type !== "on" ) {
+                return;
+            }
+            // for the first added event we want to ensure that it is visible
+            const eventAmount = this.patternEvents.filter( event => event?.action === ACTION_NOTE_ON ).length;
+            if ( eventAmount > 1 ) {
+                return;
+            }
+            this.$nextTick(() => {
+                const idx  = this.rows.findIndex( row => row.note === audioEvent.note && row.octave === audioEvent.octave );
+                const rows = this.$el.querySelectorAll( ".piano-roll__table-row" );
+                const element = rows[ idx ];
+
+                if ( element && !isElementVisible( element, this.$refs.rollList )) {
+                    this.focusedRow = idx;
+                }
+            });
+         },
     },
 };
 </script>
@@ -346,6 +399,7 @@ export default {
 @use "sass:math";
 
 @import "@/styles/_mixins";
+@import "@/styles/transporter";
 
 $ideal-width: 840px;
 
@@ -374,17 +428,53 @@ $ideal-width: 840px;
         height: 100%;
     }
 
-    .header__title {
-        margin-left: $spacing-medium !important;
-        visibility: hidden;
+    .header {
+        display: flex;
+        align-items: center;
+        padding-top: $spacing-xsmall;
+        margin-bottom: -$spacing-xsmall;
+        
+        &__title {
+            margin: 0 0 0 $spacing-medium !important;
+            visibility: hidden;
 
-        @media screen and ( min-width: $mobile-width ) {
-            visibility: visible;
+            @media screen and ( min-width: $mobile-width ) {
+                visibility: visible;
+            }
         }
-    }
 
-    .header__actions button {
-        @include button();
+        &__controls {
+            button {
+                @include sequencerButtons();
+
+                &#recordBTN {
+                    padding: 0 0 0 $spacing-xsmall;
+
+                    @include mobile() {
+                        display: none;
+                    }
+                }
+            }
+            @include large() {
+                padding-right: $spacing-small + $spacing-xsmall;
+                border-right: 1px dashed $color-border;
+            }
+        }
+
+        &__actions {
+            margin-right: ( $spacing-large + $spacing-medium ); // make up for help button
+
+            button {
+                @include button();
+                background-color: transparent;//$color-5;
+                outline: 2px solid #666;
+                color: #b6b6b6;
+
+                &:hover {
+                    color: #666;
+                }
+            }
+        }
     }
 
     &__body {

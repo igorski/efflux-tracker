@@ -390,7 +390,7 @@ export default {
     &__buttons,
     &__tempo {
         @include list();
-        padding-left: $spacing-medium;
+        padding-left: $spacing-small * 2;
         display: flex;
         align-items: center;
 
@@ -433,42 +433,14 @@ export default {
         }
 
         button {
-            @include ghostButton();
-            margin: 0;
-            padding: 0;
+            @include sequencerButtons();
 
-            &:hover {
-                color: #FFF;
+            &#loopBTN:before {
+                margin-left: $spacing-xxsmall;
             }
 
-            /* play button */
-            &#playBTN:before {
-                margin-right: 0;
-                @include mobile() {
-                    margin: 0;
-                }
-            }
-
-            /* record button */
             &#recordBTN {
-                padding: 0 0 0 10px;
-
-                .record-icon {
-                    display: block;
-                    width: 18px;
-                    height: 18px;
-                    background-color: #d00e57;
-                    border-radius: 50%;
-
-                    &.active,
-                    &:hover {
-                        background-color: #FFF;
-                    }
-
-                    &.disabled {
-                        display: none;
-                    }
-                }
+                padding-left: $spacing-xsmall;
             }
 
             /* pattern jump buttons */

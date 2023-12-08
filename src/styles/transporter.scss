@@ -26,7 +26,7 @@
 
     /* Animation center compensation - margins should be symmetric */
     /* remove if not needed */
-    margin-left: 7px;
+    margin-left: $spacing-xsmall;
 
     /* you can be more comfortable with increased icons size */
     /* font-size: 120%; */
@@ -43,4 +43,42 @@
 
 [class^="icon-"].active {
     color: #FFF;
+}
+
+@mixin sequencerButtons() {
+    @include ghostButton();
+    margin: 0;
+    padding: 0;
+
+    &:hover {
+        color: #FFF;
+    }
+
+    &#playBTN:before {
+        margin-right: 0;
+        @include mobile() {
+            margin: 0;
+        }
+    }
+
+    &#recordBTN {
+        height: $spacing-large;
+        
+        .record-icon {
+            display: block;
+            width: 18px;
+            height: 18px;
+            background-color: #d00e57;
+            border-radius: 50%;
+
+            &.active,
+            &:hover {
+                background-color: #FFF;
+            }
+
+            &.disabled {
+                display: none;
+            }
+        }
+    }
 }

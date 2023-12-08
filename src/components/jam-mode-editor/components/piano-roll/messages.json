@@ -5,8 +5,12 @@
         "paste": "Paste",
         "previousPattern": "Previous pattern",
         "nextPattern": "Next pattern",
+        "pattern": "Pattern",
         "help": "Help",
         "draw": "Draw",
-        "pan": "Pan"
+        "pan": "Pan",
+        "stop": "Stop",
+        "play": "Play",
+        "recordInput": "Record input"
     }
 }
