@@ -22,48 +22,62 @@
 */
 <template>
     <section
-        id="trackEditor"
+        id="editorActions"
         ref="container"
     >
-        <ul class="controls">
-            <li
-                class="undo"
+        <div class="action__controls">
+            <button
+                type="button"
+                class="action__controls-button undo"
                 :class="{ disabled: !canUndo }"
+                :title="$t('undo')"
                 @click="navigateHistory('undo')"
-            ></li>
-            <li
-                class="redo"
+            ></button>
+            <button
+                type="button"
+                class="action__controls-button redo"
                 :class="{ disabled: !canRedo }"
+                :title="$t('redo')"
                 @click="navigateHistory('redo')"
-            ></li>
-            <li
-                class="add-on"
+            ></button>
+            <button
+                type="button"
+                class="action__controls-button add-on"
                 :class="{ active: showNoteEntry }"
-                @click="addNoteOn"
-            ></li>
-            <li
-                class="add-off"
-                @click="addNoteOnOff"
-            ></li>
-            <li
-                class="remove-note"
-                @click="deleteNote"
-            ></li>
+                :title="$t('openKeyboard')"
+                @click="openKeyboard()"
+            ></button>
+            <button
+                type="button"
+                class="action__controls-button add-off"
+                :title="$t('addNoteOff')"
+                @click="addNoteOnOff()"
+            ></button>
+            <button
+                type="button"
+                class="action__controls-button remove-note"
+                :title="$t('removeInstruction')"
+                @click="deleteNote()"
+            ></button>
             <template v-if="!jamMode">
-                <li
-                    class="module-params"
-                    @click="editModuleParams"
-                ></li>
-                <li
-                    class="module-glide"
-                    @click="glideParams"
-                ></li>
+                <button
+                    type="button"
+                    class="action__controls-button module-params"
+                    :title="$t('editModuleParams')"
+                    @click="editModuleParams()"
+                ></button>
+                <button
+                    type="button"
+                    class="action__controls-button module-glide"
+                    :title="$t('glideModuleParams')"
+                    @click="glideParams()"
+                ></button>
             </template>
-        </ul>
+        </div>
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
@@ -71,7 +85,10 @@ import deleteEvent from "@/model/actions/event-delete";
 import EventFactory from "@/model/factories/event-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 
+import messages from "./messages.json";
+
 export default {
+    i18n: { messages },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -97,27 +114,27 @@ export default {
             "undo",
             "redo"
         ]),
-        addNoteOn() {
+        openKeyboard(): void {
             this.setShowNoteEntry( !this.showNoteEntry );
         },
-        addNoteOnOff(){
+        addNoteOnOff():void {
             const offEvent = EventFactory.create();
             offEvent.action = ACTION_NOTE_OFF;
             this.addEventAtPosition({ event: offEvent, store: this.$store });
         },
-        deleteNote() {
+        deleteNote(): void {
             this.saveState( deleteEvent( this.$store ));
         },
-        editModuleParams() {
+        editModuleParams(): void {
             this.openModal( ModalWindows.MODULE_PARAM_EDITOR );
         },
-        glideParams() {
+        glideParams(): void {
             glideParameterAutomations(
                 this.activeSong, this.selectedStep, this.activeOrderIndex,
                 this.selectedInstrument, this.$store,
             );
         },
-        async navigateHistory( action = "undo" ) {
+        async navigateHistory( action = "undo" ): Promise<void> {
             await this.$store.dispatch( action );
         },
     }
@@ -127,7 +144,7 @@ export default {
 <style lang="scss" scoped>
 @import "@/styles/_mixins";
 
-#trackEditor {
+#editorActions {
     @include inlineFlex();
     background-color: #000;
     vertical-align: top;
@@ -140,61 +157,56 @@ export default {
         height: 100%;
         z-index: 1;
     }
+}
 
-    .controls {
-        @include list();
+.action__controls {
+    display: flex;
+    flex-direction: column;
 
-        li {
-            width: $track-editor-width;
-            height: $track-editor-width;
-            margin: 0 0 1px;
-            background-color: #b6b6b6;
-            background-repeat: no-repeat;
-            background-position: 50%;
-            background-size: 50%;
-            cursor: pointer;
+    &-button {
+        width: $track-editor-width;
+        height: $track-editor-width;
+        margin: 0 0 1px;
+        background-color: #b6b6b6;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-size: 50%;
+        border: none;
+        cursor: pointer;
 
-            &.add-on {
-                background-image: url('../../assets/icons/icon-note-add.png');
-            }
-            &.add-off {
-                background-image: url('../../assets/icons/icon-note-mute.png');
-            }
-            &.remove-note {
-                background-image: url('../../assets/icons/icon-note-delete.png');
-            }
-            &.module-params {
-                background-image: url('../../assets/icons/icon-module-params.png');
-            }
-            &.module-glide {
-                background-image: url('../../assets/icons/icon-module-glide.png');
-            }
-            &.undo {
-                background-image: url('../../assets/icons/icon-undo.png');
-            }
-            &.redo {
-                background-image: url('../../assets/icons/icon-redo.png');
-            }
-
-            &.active {
-                background-color: $color-1;
-            }
-
-            &:hover {
-                background-color: $color-5;
-            }
-
-            &.disabled {
-                opacity: .25;
-                @include noEvents();
-            }
+        &.add-on {
+            background-image: url('../../assets/icons/icon-note-add.png');
         }
-    }
+        &.add-off {
+            background-image: url('../../assets/icons/icon-note-mute.png');
+        }
+        &.remove-note {
+            background-image: url('../../assets/icons/icon-note-delete.png');
+        }
+        &.module-params {
+            background-image: url('../../assets/icons/icon-module-params.png');
+        }
+        &.module-glide {
+            background-image: url('../../assets/icons/icon-module-glide.png');
+        }
+        &.undo {
+            background-image: url('../../assets/icons/icon-undo.png');
+        }
+        &.redo {
+            background-image: url('../../assets/icons/icon-redo.png');
+        }
 
-    &.fixed {
-        .controls {
-            position: fixed;
-            top: $menu-height;
+        &.active {
+            background-color: $color-1;
+        }
+
+        &:hover {
+            background-color: $color-5;
+        }
+
+        &.disabled {
+            opacity: .25;
+            @include noEvents();
         }
     }
 }

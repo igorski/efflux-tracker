@@ -1,0 +1,11 @@
+{
+    "en-US": {
+        "undo": "Undo last action",
+        "redo": "Redo next action",
+        "openKeyboard": "Open note input keyboard",
+        "addNoteOff": "Add note off",
+        "removeInstruction": "Remove instruction",
+        "editModuleParams": "Automate module parameters",
+        "glideModuleParams": "Glide module parameter automations"
+    }
+}

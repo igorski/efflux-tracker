@@ -67,7 +67,7 @@
                         'note-entry-mode'         : showNoteEntry,
                     }"
                 >
-                    <track-editor />
+                    <editor-actions />
                     <jam-mode-editor v-if="jamMode" />
                     <pattern-track-list v-else />
                     <help-section v-if="displayHelp" />
@@ -177,7 +177,7 @@ export default {
         PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
         PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
         JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
-        TrackEditor: () => asyncComponent( "te", () => import( "@/components/track-editor/track-editor.vue" )),
+        EditorActions: () => asyncComponent( "ea", () => import( "@/components/editor-actions/editor-actions.vue" )),
         Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
     data: () => ({
