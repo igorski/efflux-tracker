@@ -66,10 +66,10 @@
 <script>
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
+import glideParameterAutomations from "@/model/actions/event-param-glide";
 import deleteEvent from "@/model/actions/event-delete";
 import EventFactory from "@/model/factories/event-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import EventUtil from "@/utils/event-util";
 
 export default {
     computed: {
@@ -112,7 +112,7 @@ export default {
             this.openModal( ModalWindows.MODULE_PARAM_EDITOR );
         },
         glideParams() {
-            EventUtil.glideParameterAutomations(
+            glideParameterAutomations(
                 this.activeSong, this.selectedStep, this.activeOrderIndex,
                 this.selectedInstrument, this.$store,
             );

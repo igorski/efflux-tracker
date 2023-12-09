@@ -21,12 +21,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue from "vue";
-import type { Store } from "vuex";
-import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, type EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxChannel, EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxState } from "@/store";
 import type { EffluxSong } from "@/model/types/song";
 
 const NOTE_EVENTS = [ ACTION_NOTE_ON, ACTION_NOTE_OFF ];
@@ -98,160 +95,6 @@ const EventUtil =
         }
         return null;
     },
-    /**
-     * create a smooth glide for the module parameter changes from
-     * one slot to another
-     *
-     * @param {EffluxSong} song
-     * @param {number} orderIndex
-     * @param {number} channelIndex
-     * @param {number} eventIndex
-     * @return {Array<EffluxAudioEvent>|null} created audio events
-     */
-    glideModuleParams( song: EffluxSong, orderIndex: number, channelIndex: number, eventIndex: number ): EffluxAudioEvent[] | null {
-        const firstPattern       = song.patterns[ song.order[ orderIndex ]];
-        const firstPatternEvents = firstPattern.channels[ channelIndex ];
-        const firstEvent         = firstPatternEvents[ eventIndex ] as EffluxAudioEvent;
-        const firstParam         = firstEvent.mp;
-
-        let secondEvent: EffluxAudioEvent;
-        let secondParam: EffluxAudioEventModuleParams;
-        let compareEvent = getNextEvent( song, firstEvent, channelIndex, orderIndex );
-
-        while ( compareEvent ) {
-
-            secondEvent = compareEvent.event;
-            secondParam = secondEvent.mp;
-
-            // ignore events without a module parameter change
-
-            if ( secondParam ) {
-
-                // if new event has a module parameter change for the
-                // same module, we have found our second event
-
-                if ( secondParam.module === firstParam.module ) {
-                    break;
-                } else {
-                    return null;
-                }
-            }
-            // keep iterating through the list
-            compareEvent = getNextEvent( song, compareEvent.event, channelIndex, compareEvent.orderIndex );
-        }
-
-        if ( !secondParam ) {
-            return null;
-        }
-
-        // ensure events glide their module parameter change
-
-        Vue.set( firstParam,  "glide", true );
-        Vue.set( secondParam, "glide", true );
-
-        // find distance (in steps) between these two events
-        // TODO: keep patterns' optional resolution differences in mind
-        let eventFound = false;
-        const events: EffluxAudioEvent[] = [];
-
-        const addOrUpdateEvent = ( evt: EffluxChannelEntry, pattern: EffluxPattern, channel: EffluxChannel, eventIndex: number ): EffluxAudioEvent => {
-            if ( typeof evt !== "object" ) {
-                // event didn't exist... create it, insert into the channel
-                evt = EventFactory.create( firstEvent.instrument );
-                Vue.set( channel, eventIndex, evt );
-                EventUtil.setPosition( evt, pattern, eventIndex, song.meta.tempo );
-            }
-            Vue.set( evt, "mp", {
-                module: firstEvent.mp.module,
-                value: 0,
-                glide: true
-            });
-            return evt;
-        };
-
-        for ( let i = orderIndex; i < song.order.length; ++i ) {
-            const pattern = song.patterns[ song.order[ i ]];
-            const channel = pattern.channels[ channelIndex ];
-
-            for ( let j = 0; j < channel.length; ++j ) {
-                let event = channel[ j ];
-
-                if ( event === firstEvent ) {
-                    eventFound = true;
-                }
-                else if ( event === secondEvent ) {
-                    break;
-                }
-                else if ( eventFound ) {
-                    event = addOrUpdateEvent( event, pattern, channel, j );
-                    events.push( event );
-                }
-            }
-        }
-        const steps = events.length + 1;
-        let increment = 1;
-
-        if ( secondParam.value > firstParam.value ) {
-            // gliding value up
-            increment = ( secondParam.value - firstParam.value ) / steps;
-            events.forEach(( event: EffluxAudioEvent, index: number ): void => {
-                const mp = event.mp;
-                Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment));
-            });
-        }
-        else {
-            // gliding value down
-            increment = ( secondParam.value - firstParam.value ) / steps;
-            events.forEach(( event: EffluxAudioEvent, index: number ): void => {
-                const mp = event.mp;
-                Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment ));
-            });
-        }
-        return events;
-    },
-    /**
-     * glide the values between the event previous from the given step to the next event after
-     * the given step (this creates a smooth gradual glide lasting for the amount of steps in
-     * between the start- and endpoints described above)
-     *
-     * TODO: can we refactor this to not require us to pass the store?? (to-Vue-migration leftover)
-     *
-     * @param {EffluxSong} song
-     * @param {number} step
-     * @param {number} orderIndex
-     * @param {number} channelIndex
-     * @param {Object} store the root Vuex store
-     */
-    glideParameterAutomations( song: EffluxSong, step: number, orderIndex: number, channelIndex: number, store: Store<EffluxState> ): void {
-        const channelEvents = song.patterns[ orderIndex ].channels[ channelIndex ];
-        const event = EventUtil.getFirstEventBeforeStep(
-            channelEvents, step, compareEvent => !!compareEvent.mp
-        );
-        let createdEvents: EffluxAudioEvent[] | null = null;
-        const addFn = (): void => {
-            const eventIndex = channelEvents.indexOf(event);
-            createdEvents = EventUtil.glideModuleParams( song, orderIndex, channelIndex, eventIndex );
-        };
-        if ( event ) {
-            addFn();
-        }
-        if ( createdEvents ) {
-            store.commit( "saveState", {
-                undo: () => {
-                    createdEvents!.forEach(( event: EffluxAudioEvent ): void => {
-                        if ( event.note === "" ) {
-                            EventUtil.clearEventByReference( song, event );
-                        } else {
-                            Vue.set( event, "mp", null );
-                        }
-                    });
-                },
-                redo: addFn
-            });
-        } else {
-            store.commit( "showError", store.getters.t( "errors.paramGlide" ));
-        }
-    },
 };
 export default EventUtil;
 
@@ -316,7 +159,7 @@ export function getEventLength( event: EffluxAudioEvent, channelIndex: number, o
     }
     const remainingMeasures = song.order.length - orderIndex;
     return ( measureLength - event.seq.startMeasureOffset ) * remainingMeasures;
-};
+}
 
 export function calculateJamChannelEventLengths( channel: EffluxChannel, tempo: number ): void {
     const { length } = channel;

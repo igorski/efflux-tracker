@@ -4,7 +4,6 @@ import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxSong } from "@/model/types/song";
 import EventUtil, {
@@ -15,6 +14,7 @@ import EventUtil, {
     calculateMeasureLength,
     calculateJamChannelEventLengths
 } from "@/utils/event-util";
+import { createAndInsertEvent } from "../helpers";
 
 describe( "EventUtil", () => {
     let song: EffluxSong;
@@ -108,130 +108,6 @@ describe( "EventUtil", () => {
             expect(event1).toEqual( EventUtil.getFirstEventBeforeStep( channelEvents, 2, ( compareEvent ) => {
                 return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 0 ];
             }));
-        });
-    });
-
-    describe("module parameter gliding", () => {
-        it( "should not be able to glide when there are no 2 events defined", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const eventIndex = 0;
-
-            const event = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
-
-            expect(success).toBe(null); // expected glide to have failed as only one event was available
-            expect(event.mp).toEqual(undefined); // expected no module parameter change to be set
-        });
-
-        it( "should not be able to glide when there are no 2 events with module parameter changes defined", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const eventIndex = 0;
-
-            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
-            const event2 = createAndInsertEvent( eventIndex + 5, song, patternIndex, channelIndex );
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
-
-            expect(success).toBeNull(); // expected glide to have failed as no module parameter changes were available
-            expect(event1.mp).toEqual(undefined); // expected no module parameter change to be set
-            expect(event2.mp).toEqual(undefined); // expected no module parameter change to be set
-        });
-
-        it( "should not be able to glide when there are no 2 events with the same module parameter changes defined", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const eventIndex = 0;
-            const event2Index = eventIndex + 5;
-
-            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
-            const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
-
-            event1.mp = {
-                module: "foo",
-                value: 0,
-                glide: false
-            };
-
-            event2.mp = {
-                module: "bar",
-                value: 1,
-                glide: false
-            };
-
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
-
-            expect(success).toBe(null); // expected glide to have failed as no same module parameter changes were available
-        });
-
-        it( "should be able to glide up when there are 2 events with the same module parameter changes defined", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const eventIndex = 0;
-            const event2Index = eventIndex + 4;
-
-            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
-            const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
-
-            event1.mp = {
-                module: "foo",
-                value: 0,
-                glide: false
-            };
-
-            event2.mp = {
-                module: "foo",
-                value: 1,
-                glide: false
-            };
-
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
-
-            expect(Array.isArray(success)).toBe(true); // expected glide to have completed as the same module parameter changes were available
-
-            const events = song.patterns[ patternIndex ].channels[ channelIndex ];
-            const expectedValues = [ 0, .25, .5, .75, 1 ];
-            for ( let i = eventIndex, e = 0; i < event2Index; ++i, ++e ) {
-                const event = events[ i ];
-                expect(typeof event).toBe("object");
-                expect(event.mp.glide).toBe(true); // expected event module parameter change to be set to glide
-                expect(expectedValues[ e ].toFixed(2)).toEqual(event.mp.value.toFixed(2));
-            }
-        });
-
-        it( "should be able to glide down when there are 2 events with the same module parameter changes defined", () => {
-            const patternIndex = 0;
-            const channelIndex = 0;
-            const eventIndex = 0;
-            const event2Index = eventIndex + 4;
-
-            const event1 = createAndInsertEvent( eventIndex, song, patternIndex, channelIndex );
-            const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
-
-            event1.mp = {
-                module: "foo",
-                value: 0.75,
-                glide: false
-            };
-
-            event2.mp = {
-                module: "foo",
-                value: 0.25,
-                glide: false
-            };
-
-            const success = EventUtil.glideModuleParams( song, patternIndex, channelIndex, eventIndex );
-
-            expect(Array.isArray(success)).toBe(true); // expected glide to have completed as the same module parameter changes were available
-
-            const events = song.patterns[ patternIndex ].channels[ channelIndex ];
-            const expectedValues = [ 0.75, 0.625, 0.5, 0.375, 0.25 ];
-            for ( let i = eventIndex, e = 0; i < event2Index; ++i, ++e ) {
-                const event = events[ i ];
-                expect(typeof event).toBe("object");
-                expect(event.mp.glide).toBe(true); // expected event module parameter change to be set to glide
-                expect(event.mp.value.toFixed(2)).toEqual(expectedValues[ e ].toFixed(2));
-            }
         });
     });
 
@@ -635,16 +511,3 @@ describe( "EventUtil", () => {
         expect( event7.seq.length ).toEqual( STEP_IN_SEC ); // single step because last in pattern
     });
 });
-
-/* internal methods */
-
-function createAndInsertEvent( step: number, song: EffluxSong, patternIndex: number, channelIndex: number, action = ACTION_NOTE_ON ): EffluxAudioEvent {
-    const event = EventFactory.create( channelIndex, "C", 3, action );
-    const pattern = song.patterns[ patternIndex ];
-
-    pattern.channels[ channelIndex ][ step ] = event;
-
-    EventUtil.setPosition( event, pattern, step, song.meta.tempo );
-
-    return event;
-}

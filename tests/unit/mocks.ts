@@ -78,7 +78,9 @@ export const createState = ( props?: Partial<EffluxState> ): EffluxState => ({
 
 export const createMockStore = ( props?: Partial<EffluxState> ): Store<EffluxState> => ({
     state: createState( props ),
-    getters: {},
+    getters: {
+        t: vi.fn(), // vue-i18n
+    },
     commit: vi.fn(),
     dispatch: vi.fn(),
 }) as unknown as Store<EffluxState>;

@@ -27,7 +27,7 @@ import ModalWindows from "@/definitions/modal-windows";
 import EventFactory from "@/model/factories/event-factory";
 import createAction from "@/model/factories/action-factory";
 import deleteEvent from "@/model/actions/event-delete";
-import EventUtil from "@/utils/event-util";
+import glideParameterAutomations from "@/model/actions/event-param-glide";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
 import { PROPERTIES } from "@/store/modules/settings-module";
@@ -379,7 +379,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
 
         case 71: // G
             if ( hasOption ) {
-                EventUtil.glideParameterAutomations(
+                glideParameterAutomations(
                     activeSong, editor.selectedStep, store.getters.activeOrderIndex,
                     editor.selectedInstrument, store
                 );
