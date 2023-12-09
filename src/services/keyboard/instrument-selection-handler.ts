@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2021 - https://www.igorski.nl
+ * Igor Zinken 2017-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -23,6 +23,7 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import Config from "@/config";
+import { type EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
 
 let store: Store<EffluxState>;
@@ -45,13 +46,27 @@ export default {
         if ( keyCode >= ONE && keyCode <= MAX_ACCEPTED_KEYCODE ) {
             const event = state.song.activeSong
                             .patterns[ store.getters.activePatternIndex ]
-                            .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ];
+                            .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ] as EffluxAudioEvent;
 
-            if ( event ) {
-                // note we subtract 1 as we store the instrument by index in the model, but
-                // visualize it starting from 1 as humans love that.
-                Vue.set( event, "instrument", keyCode - ONE );
+            if ( !event ) {
+                return;
             }
+            // note we subtract 1 as we store the instrument by index in the model, but
+            // visualize it starting from 1 as humans love that.
+            const newInstrumentIndex = keyCode - ONE;
+            const oldInstrumentIndex = event.instrument;
+
+            function act(): void {
+                Vue.set( event, "instrument", newInstrumentIndex );
+            }
+            act();
+
+            store.commit( "saveState", {
+                undo: () => {
+                    Vue.set( event, "instrument", oldInstrumentIndex );
+                },
+                redo: act
+            });
         }
     }
 };

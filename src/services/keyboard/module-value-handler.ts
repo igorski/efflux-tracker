@@ -134,8 +134,6 @@ function getPreviousEventWithModuleAutomation( step: number ): EffluxAudioEvent 
     return prevEvent;
 }
 
-// TODO: duplicated from ModuleParamHandler...
-
 function getEventForPosition( createIfNotExisting: boolean ): EffluxAudioEvent {
     let event = state.song.activeSong
                     .patterns[ store.getters.activePatternIndex ]
