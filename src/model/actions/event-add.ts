@@ -23,7 +23,7 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
@@ -73,9 +73,11 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
 
     const orgContent = ( length > 1 ) ? clone( song.patterns[ patternIndex ].channels[ channelIndex ] ) : undefined;
 
+    const isParamAutomationOnly = !!event.mp && ( event.action === ACTION_IDLE || existingEvent );
+
     // if the event should be short (single step) in duration (e.g. in jam mode), ensure its followed by another
     // event otherwise we add a note off instruction to kill its playback on the next step
-    const addNoteOff = isJam && !song.patterns[ patternIndex ].channels[ channelIndex ][ nextIndex ];
+    const addNoteOff = ( isJam && !isParamAutomationOnly ) && !song.patterns[ patternIndex ].channels[ channelIndex ][ nextIndex ];
 
     function act(): void {
         const pattern = song.patterns[ patternIndex ],
@@ -138,6 +140,8 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         }
         updateHandler( advanceStepOnAddition );
         advanceStepOnAddition = false;
+console.info(song.patterns[patternIndex].channels[channelIndex][1])
+        console.info(song.patterns[patternIndex].channels[channelIndex].map( e=> !!e ? e.note ? e.note + e.octave : "OFF"+e.action : 0).join(','), isParamAutomationOnly, event.mp, !!existingEvent)
     }
     act(); // perform action
 

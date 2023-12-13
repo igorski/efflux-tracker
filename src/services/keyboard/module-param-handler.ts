@@ -22,9 +22,8 @@
  */
 import Vue from "vue";
 import type { Store } from "vuex";
-import Actions from "@/definitions/actions";
 import EventFactory from "@/model/factories/event-factory";
-import createAction from "@/model/factories/action-factory";
+import addEventParamAutomation from "@/model/actions/event-param-automation-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
 
@@ -83,9 +82,11 @@ const ModuleParamHandler =
         } else {
             // a previously existed event will register the mp change in state history
             // (a newly created event is added to state history through its addition to the song)
-            store.commit( "saveState", createAction(
-                Actions.ADD_MODULE_AUTOMATION, { event, mp }
-            ));
+            store.commit( "saveState",
+                addEventParamAutomation( store, store.getters.activePatternIndex,
+                    state.editor.selectedInstrument, state.editor.selectedStep, mp
+                )
+            );
         }
     },
     selectModuleByKeyAction( keyCode: number, currentParam: ModuleParamDef = selectedParam ): ModuleParamDef {

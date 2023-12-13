@@ -334,9 +334,6 @@ export default {
 @import "@/styles/_mixins";
 @import "@/styles/typography";
 
-$name-width: 25px;
-$column-width: 48px;
-
 .piano-roll-row {
     background-color: $color-pattern-even;
  
@@ -344,7 +341,7 @@ $column-width: 48px;
         @include toolFont();
         background-color: $color-editor-background;
         border: 0;
-        width: $name-width;
+        width: $piano-roll-name-width;
 
         @include mobile() {
             position: sticky; // always in view
@@ -358,8 +355,8 @@ $column-width: 48px;
         content: "---";
         height: 24px;
         // see NOTE_WIDTH, this min & max looks weird (why not use width: 48px?) but necessary due to table-cell rendering
-        min-width: $column-width;
-        max-width: $column-width;
+        min-width: $piano-roll-column-width;
+        max-width: $piano-roll-column-width;
         box-sizing: border-box;
         border: 1px solid $color-pattern-odd;
         border-right: none;

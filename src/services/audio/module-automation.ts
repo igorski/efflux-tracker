@@ -315,7 +315,7 @@ function applyExternalEvent( audioContext: BaseAudioContext, event: EffluxAudioE
  *                  be EventVoiceList which shouldn't cancel previously scheduled changes upon repeated invocation)
  */
 function scheduleParameterChange( param: AudioParam, value: number, startTimeInSeconds: number,
-    durationInSeconds?: number, doGlide?: boolean, data?: any ): void {
+    durationInSeconds: number, doGlide?: boolean, data?: any ): void {
 
     if ( !doGlide || ( data && !data.gliding )) {
         param.cancelScheduledValues( startTimeInSeconds );

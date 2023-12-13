@@ -87,6 +87,7 @@
         <section
             ref="rollList"
             class="piano-roll__body"
+            :class="{ 'piano-roll__body--minimised': true }"
         >
             <table class="piano-roll__table">
                 <tbody>
@@ -124,6 +125,11 @@
                 ></div>
             </table>
         </section>
+        <automation-lane
+            :events="patternEvents"
+            :selected-instrument="selectedInstrument"
+            :active-pattern-index="activePatternIndex"
+        />
     </div>
 </template>
 
@@ -131,12 +137,13 @@
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import ManualURLs from "@/definitions/manual-urls";
-import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row.vue";
+import AutomationLane from "./components/automation-lane/automation-lane.vue";
+import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row/piano-roll-row.vue";
 import { invalidateCache } from "@/model/actions/event-actions";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
@@ -169,6 +176,7 @@ enum TouchMode {
 export default {
     i18n: { messages },
     components: {
+        AutomationLane,
         PianoRollRow,
     },
     data: () => ({
@@ -220,7 +228,8 @@ export default {
                 const key = `${event.note}${event.octave}`;
                 let length = 1;
                 for ( let j = i + 1; j < l; ++j ) {
-                    if ( this.patternEvents[ j ]) {
+                    const compareEvent = this.patternEvents[ j ];
+                    if ( compareEvent?.action === ACTION_NOTE_ON || compareEvent?.action === ACTION_NOTE_OFF ) {
                         break;
                     }
                     ++length;
@@ -507,6 +516,10 @@ $ideal-width: 840px;
     &__body {
         height: calc(100% - 60px); // 60px being header height
         overflow-y: auto;
+
+        &--minimised {
+            height: calc(100% - (60px + $piano-roll-automation-lane-height));
+        }
     }
 
     &__table {
