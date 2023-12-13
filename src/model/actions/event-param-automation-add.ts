@@ -23,7 +23,8 @@
 import Vue from "vue";
 import { type Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, type EffluxAudioEventModuleParams } from "@/model/types/audio-event";
+import { type EffluxChannelEntry } from "@/model/types/channel";
 import { type EffluxState } from "@/store";
 
 export default function addEventParamAutomation( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number, mp: EffluxAudioEventModuleParams ): IUndoRedoState {
@@ -41,7 +42,7 @@ export default function addEventParamAutomation( store: Store<EffluxState>, patt
 
     return {
         undo(): void {
-            const event = getEvent( store, patternIndex, channelIndex, step );
+            const event = getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent;
             if ( existingAutomation ) {
                 Vue.set( event, "mp", { ...existingAutomation });
             } else {
@@ -54,6 +55,6 @@ export default function addEventParamAutomation( store: Store<EffluxState>, patt
 
 /* internal methods */
 
-function getEvent( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number ): EffluxAudioEvent | undefined {
-    return store.getters.activeSong.patterns[ patternIndex ].channels[ channelIndex ][ step ];
+function getEvent( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number ): EffluxChannelEntry {
+    return store.state.song.activeSong.patterns[ patternIndex ].channels[ channelIndex ][ step ];
 }

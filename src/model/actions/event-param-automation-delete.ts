@@ -22,8 +22,9 @@
  */
 import Vue from "vue";
 import { type Store } from "vuex";
-import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import { type IUndoRedoState } from "@/model/factories/history-state-factory";
+import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { type EffluxChannelEntry } from "@/model/types/channel";
 import { type EffluxState } from "@/store";
 
 export default function deleteEventParamAutomation( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number ): IUndoRedoState {
@@ -34,13 +35,16 @@ export default function deleteEventParamAutomation( store: Store<EffluxState>, p
     const existingAutomation = existingEvent.mp ? { ...existingEvent.mp } : undefined;
     
     const act = (): void => {
-        Vue.delete( getEvent( store, patternIndex, channelIndex, step ), "mp" );
+        Vue.delete( getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent, "mp" );
     };
     act(); // perform action
 
     return {
         undo(): void {
-            Vue.set( getEvent( store, patternIndex, channelIndex, step ), "mp", { ...existingAutomation });
+            Vue.set(
+                getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent,
+                "mp", { ...existingAutomation }
+            );
         },
         redo: act
     };
@@ -48,6 +52,6 @@ export default function deleteEventParamAutomation( store: Store<EffluxState>, p
 
 /* internal methods */
 
-function getEvent( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number ): EffluxAudioEvent | undefined {
-    return store.getters.activeSong.patterns[ patternIndex ].channels[ channelIndex ][ step ];
+function getEvent( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number ): EffluxChannelEntry {
+    return store.state.song.activeSong.patterns[ patternIndex ].channels[ channelIndex ][ step ];
 }
