@@ -48,9 +48,6 @@ import {
 
 export * from "./param-ids";
 
-export type ModuleParamDef = string; // any entry of the automatable-parameters lists defined above (e.g. a param-id)
-export type ModuleDef = ModuleParamDef[];
-
 // though we also allow automation of parameters beyond the instrument modeules:
 
 export const PAN_LEFT   = "panLeft";
@@ -63,6 +60,20 @@ export const VOLUME     = "volume";
 // to any listening applications (see Tiny player)
 
 export const EXTERNAL_EVENT = "XE";
+
+// parameters for the instruments persist, parameters for events are unique and do not persist between events
+// as such these values will always default back to the below values when a new event is triggered without
+// having an automation for these
+
+export const NON_PERSISTED_PARAMS = new Map([
+    [ VOLUME, 100 ], // volume is always at 100 per triggered note (unless note has mp on start or on tail)
+    // pitch is always 0 per triggered note (unless note has pitch automation on start or on tail)
+    [ PITCH_UP, 0 ],
+    [ PITCH_DOWN, 0 ]
+]);
+
+export type ModuleParamDef = string; // any entry of the automatable-parameters lists defined above (e.g. a param-id)
+export type ModuleDef = ModuleParamDef[];
 
 // here we have the parameters grouped by their first letter. This is used by the keyboard
 // handlers to map single or double characters quickly to the appropriate parameter

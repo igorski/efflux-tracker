@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2023 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,15 +21,16 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from "@/config";
-import { rangeToIndex } from "@/utils/array-util";
-import { toHex } from "@/utils/number-util";
-import { processVoiceLists } from "./audio-util";
-import { applyRouting } from "./module-router";
+import { type ModuleParamDef, NON_PERSISTED_PARAMS } from "@/definitions/automatable-parameters";
 import { createTimer, isOscillatorNode, isAudioBufferSourceNode } from "./webaudio-helper";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EventVoice, EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument } from "@/model/types/instrument";
 import type { InstrumentModules } from "@/model/types/instrument-modules";
+import { rangeToIndex } from "@/utils/array-util";
+import { toHex } from "@/utils/number-util";
+import { processVoiceLists } from "./audio-util";
+import { applyRouting } from "./module-router";
 
 const filterTypes = [ "off", "sine", "square", "sawtooth", "triangle" ];
 
@@ -54,6 +55,7 @@ export const applyModuleParamChange = ( audioContext: BaseAudioContext, audioEve
     startTimeInSeconds: number, output: AudioNode, optEventCallback?: ExternalEventCallback ) => {
     const { value, module } = audioEvent.mp;
 
+    // @todo should all enabled states here determine whether the node is actually connected ?
     switch ( module ) {
         // gain effects
         case VOLUME:
@@ -134,6 +136,96 @@ export const applyModuleParamChange = ( audioContext: BaseAudioContext, audioEve
             applyExternalEvent( audioContext, audioEvent, startTimeInSeconds, optEventCallback );
             break;
     }
+};
+
+/**
+ * Retrieve the current value for givin param from the instruments current state
+ */
+export const getCurrentValueForParam = ( modules: InstrumentModules, instrument: Instrument, param: ModuleParamDef ): number => {
+    if ( NON_PERSISTED_PARAMS.has( param )) {
+        return NON_PERSISTED_PARAMS.get( param );
+    }
+    const { delay, eq, filter, overdrive, panner } = modules;
+    let value: number;
+    
+    switch ( param ) {
+        default:
+            return 0;
+
+        // equalizer effects
+        case EQ_ENABLED:
+            return eq.eqEnabled ? 100 : 0;
+        case EQ_LOW:
+            ({ value } = eq.lowGain.gain );
+            break;
+        case EQ_MID:
+            ({ value } = eq.midGain.gain );
+            break;
+        case EQ_HIGH:
+            ({ value } = eq.highGain.gain );
+            break;
+
+        // overdrive effects
+        case OD_ENABLED:
+            return overdrive.overdriveEnabled ? 100 : 0;
+        case OD_DRIVE:
+            value = overdrive.overdrive.drive;
+            break;
+        case OD_PRE_BAND:
+            value = overdrive.overdrive.preBand;
+            break;
+        case OD_COLOR:
+            value = overdrive.overdrive.color / Config.MAX_FILTER_FREQ;
+            break;
+        case OD_POST_CUT:
+            value = overdrive.overdrive.postCut / Config.MAX_FILTER_FREQ;
+            break;
+
+        // panning effects
+        case PAN_LEFT:
+            value = -panner.pan.value;
+            break;
+        case PAN_RIGHT:
+            ({ value } = panner.pan );
+            break;
+
+        // filter effects
+        case FILTER_ENABLED:
+            return filter.filterEnabled ? 100 : 0;
+        case FILTER_LFO_ENABLED:
+            return instrument.filter.lfoType === "off" ? 0 : 100;
+        case FILTER_FREQ:
+            value = filter.filter.frequency.value / Config.MAX_FILTER_FREQ;
+            break;
+        case FILTER_Q:
+            value = filter.filter.Q.value / Config.MAX_FILTER_Q;
+            break;
+        case FILTER_LFO_SPEED:
+            value = filter.lfo.frequency.value / Config.MAX_FILTER_LFO_SPEED;
+            break;
+        case FILTER_LFO_DEPTH:
+            value = ( filter.lfoAmp.gain.value / Config.MAX_FILTER_LFO_DEPTH ) * 100 / filter.filter.frequency.value;
+            break;
+
+        // delay effects
+        case DELAY_ENABLED:
+            return delay.delayEnabled ? 100 : 0;
+        case DELAY_TIME:
+            value = delay.delay.delay;
+            break;
+        case DELAY_FEEDBACK:
+            value = delay.delay.feedback;
+            break;
+        case DELAY_DRY:
+            value = delay.delay.dry;
+            break;
+        case DELAY_CUTOFF:
+            value = delay.delay.cutoff / Config.MAX_DELAY_CUTOFF;
+        case DELAY_OFFSET:
+            value = delay.delay.offset - Config.MIN_DELAY_OFFSET;
+            break;
+    }
+    return value * 100;
 };
 
 /* internal methods */

@@ -72,12 +72,13 @@ import {
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
     FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
     PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
-    VOLUME
+    VOLUME, NON_PERSISTED_PARAMS,
 } from "@/definitions/automatable-parameters";
 import addEventParamAutomation from "@/model/actions/event-param-automation-add";
 import deleteEventParamAutomation from "@/model/actions/event-param-automation-delete";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { getCurrentModuleParamValue } from "@/services/audio-service";
 import KeyboardService from "@/services/keyboard-service";
 import messages from "./messages.json";
 
@@ -144,7 +145,8 @@ export default {
                     return { value: lastKnownValue.toFixed( 2 ), height: `${lastKnownValue}%`, hasInstruction: false };
                 }
                 const { value } = event.mp;
-                lastKnownValue = value;
+                lastKnownValue = NON_PERSISTED_PARAMS.has( selectedModule ) ? NON_PERSISTED_PARAMS.get( selectedModule ) : value;
+
                 return { value: value.toFixed( 2 ), height: `${value}%`, hasInstruction: true };
             });
         },
@@ -274,8 +276,7 @@ export default {
             if ( event?.mp?.module === this.selectedModule ) {
                 return event.mp.value;
             }
-            // TODO if no event exists, get from current instrument state!
-            return 0;
+            return getCurrentModuleParamValue( this.activeSong.instruments[ this.selectedInstrument ], this.selectedModule );
         },
     },
 };
