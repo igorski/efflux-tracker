@@ -1,8 +1,10 @@
 import { describe, vi, it, expect, beforeEach, afterEach } from "vitest";
-import { createNoteOffEvent, insertEvent, invalidateCache } from "@/model/actions/event-actions";
+import { PITCH_UP } from "@/definitions/automatable-parameters";
+import { createNoteOffEvent, insertEvent, invalidateCache, nonExistentOrAutomationOnly } from "@/model/actions/event-actions";
+import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import {  ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -74,6 +76,43 @@ describe( "Event actions", () => {
             invalidateCache( store, song, 2 );
 
             expect( commitSpy ).toHaveBeenCalledWith( "flushJamChannel", 2 );
+        });
+    });
+
+    describe( "when determining whether given event is non-existent or describes a parameter automation only", () => {
+        const MODULE_PARAM = {
+            module: PITCH_UP,
+            value: 77,
+            glide: true,
+        };
+
+        it( "should return true when passing a 0 step value", () => {
+            expect( nonExistentOrAutomationOnly( 0 )).toBe( true );
+        });
+
+        it( "should return true when passing an undefined reference", () => {
+            expect( nonExistentOrAutomationOnly( undefined )).toBe( true );
+        });
+
+        it( "should return true when passing a parameter automation-only event", () => {
+            const event = EventFactory.create( 0, "", 0, ACTION_IDLE );
+            event.mp = { ...MODULE_PARAM };
+
+            expect( nonExistentOrAutomationOnly( event )).toBe( true );
+        });
+
+        it( "should return false for a noteOn event", () => {
+            const event = EventFactory.create( 0, "C", 3, ACTION_NOTE_ON );
+            event.mp = { ...MODULE_PARAM };
+
+            expect( nonExistentOrAutomationOnly( event )).toBe( false );
+        });
+
+        it( "should return false for a noteOff event", () => {
+            const event = createNoteOffEvent();
+            event.mp = { ...MODULE_PARAM };
+
+            expect( nonExistentOrAutomationOnly( event )).toBe( false );
         });
     });
 });

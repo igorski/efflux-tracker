@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { D_MODULES } from "@/definitions/automatable-parameters";
+import { PITCH_UP } from "@/definitions/automatable-parameters";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
@@ -36,41 +36,78 @@ describe( "EventUtil", () => {
 
         EventUtil.setPosition( audioEvent, pattern, pattern.steps / 2, song.meta.tempo, expectedLength );
 
-        expect(audioEvent.seq.startMeasureOffset).toEqual(expectedStartMeasureOffset);
+        expect( audioEvent.seq.startMeasureOffset ).toEqual( expectedStartMeasureOffset );
     });
 
-    it( "should be able to clear the AudioEvent content for any requested step position", () => {
-        const patternIndex = 0;
-        const pattern = song.patterns[ patternIndex ];
+    describe( "when requesting to clear and AudioEvent", () => {
+        it( "should be able to clear the AudioEvent for any requested step position", () => {
+            const patternIndex = 0;
+            const pattern = song.patterns[ patternIndex ];
 
-        // generate some note content
+            // generate some note content
 
-        const pchannel1 = pattern.channels[ 0 ];
-        const pchannel2 = pattern.channels[ 1 ];
+            const pchannel1 = pattern.channels[ 0 ];
+            const pchannel2 = pattern.channels[ 1 ];
 
-        // create some AudioEvents
+            // create some AudioEvents
 
-        const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, "E", 2, 1 );
-        const expected2 = pchannel1[ 1 ] = EventFactory.create( 1, "F", 3, 1 );
-        const expected3 = pchannel2[ 0 ] = EventFactory.create( 1, "F#",4, 1 );
-        const expected4 = pchannel2[ 1 ] = EventFactory.create( 1, "G", 5, 1 );
+            const expected1 = pchannel1[ 0 ] = EventFactory.create( 1, "E", 2, ACTION_NOTE_ON );
+            const expected2 = pchannel1[ 1 ] = EventFactory.create( 1, "F", 3, ACTION_NOTE_ON );
+            const expected3 = pchannel2[ 0 ] = EventFactory.create( 1, "F#",4, ACTION_NOTE_ON );
+            const expected4 = pchannel2[ 1 ] = EventFactory.create( 1, "G", 5, ACTION_NOTE_ON );
 
-        // start clearing individual events and asserting the results
+            // start clearing individual events and asserting the results
 
-        EventUtil.clearEvent( song, patternIndex, 0, 0 );
+            EventUtil.clearEvent( song, patternIndex, 0, 0 );
 
-        expect(expected1).not.toEqual(pchannel1[ 0 ]);
-        expect(0).toEqual(pchannel1[ 0 ]); // event should now be 0
+            expect( expected1 ).not.toEqual( pchannel1[ 0 ]);
+            expect( 0 ).toEqual( pchannel1[ 0 ]); // event should now be 0
 
-        EventUtil.clearEvent( song, patternIndex, 1, 0 );
+            EventUtil.clearEvent( song, patternIndex, 1, 0 );
 
-        expect(expected3).not.toEqual(pchannel2[ 0 ]);
-        expect(0).toEqual(pchannel2[ 0 ]); // event should now be 0
+            expect( expected3 ).not.toEqual( pchannel2[ 0 ]);
+            expect( 0 ).toEqual( pchannel2[ 0 ]); // event should now be 0
 
-        // assert remaining events are still existent
+            // assert remaining events are still existent
 
-        expect(expected2).toEqual(pchannel1[ 1 ]);
-        expect(expected4).toEqual(pchannel2[ 1 ]);
+            expect( expected2 ).toEqual( pchannel1[ 1 ]);
+            expect( expected4 ).toEqual( pchannel2[ 1 ]);
+        });
+
+        describe( "and requesting to keep the event if it has a parameter automation", () => {
+            const patternIndex = 0;
+            const channelIndex = 0;
+            const step = 2;
+
+            it( "should clear the audio event when it has no parameter automation", () => {
+                const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+                channel[ step ] = EventFactory.create( 1, "E", 2, ACTION_NOTE_ON );
+
+                EventUtil.clearEvent( song, patternIndex, channelIndex, step, true );
+
+                expect( channel[ step ]).toEqual( 0 );
+            });
+
+            it( "should change the events action and keep the parameter automation when automation existed", () => {
+                const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+                const event = EventFactory.create( 1, "E", 2, ACTION_NOTE_ON );
+                event.mp = {
+                    module: PITCH_UP,
+                    value: 77,
+                    glide: false,
+                };
+                channel[ step ] = event;
+
+                EventUtil.clearEvent( song, patternIndex, channelIndex, step, true );
+
+                expect( channel[ step ]).toEqual({
+                    ...event,
+                    action: ACTION_IDLE,
+                    note: "",
+                    octave: 0,
+                });
+            });
+        });
     });
 
     describe("calculating previous and next events for any given event", () => {
@@ -99,14 +136,14 @@ describe( "EventUtil", () => {
             const event2 = EventFactory.create();
             const event3 = EventFactory.create();
 
-            event1.mp = { value: 0.5, glide: false, module: D_MODULES[ 0 ] };
+            event1.mp = { value: 0.5, glide: false, module: PITCH_UP };
 
             channelEvents.push( event1 ); // step 0
             channelEvents.push( event2 ); // step 1
             channelEvents.push( event3 ); // step 2
 
             expect(event1).toEqual( EventUtil.getFirstEventBeforeStep( channelEvents, 2, ( compareEvent ) => {
-                return compareEvent.mp && compareEvent.mp.module === D_MODULES[ 0 ];
+                return compareEvent.mp && compareEvent.mp.module === PITCH_UP;
             }));
         });
     });

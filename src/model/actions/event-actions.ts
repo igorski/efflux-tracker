@@ -23,7 +23,8 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxChannelEntry } from "@/model/types/channel";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil from "@/utils/event-util";
@@ -56,4 +57,14 @@ export function invalidateCache( store: Store<EffluxState>, song: EffluxSong, ch
         store.commit( "flushJamChannel", channelIndex );
     }
     store.commit( "invalidateChannelCache", { song });
+}
+
+/**
+ * Tests whether given event is non-existent or consists only of an parameter automation
+ */
+export function nonExistentOrAutomationOnly( event?: EffluxChannelEntry ): boolean {
+    if ( !event ) {
+        return true;
+    }
+    return !!event.mp && event.action === ACTION_IDLE;
 }

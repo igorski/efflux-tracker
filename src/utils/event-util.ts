@@ -50,11 +50,25 @@ const EventUtil =
      * clears the AudioEvent at requested step position in
      * the given channel for the given pattern
      */
-    clearEvent( song: EffluxSong, patternIndex: number, channelIndex: number, step: number ): void {
+    clearEvent( song: EffluxSong, patternIndex: number, channelIndex: number, step: number, keepAutomation = false ): void {
         const pattern = song.patterns[ patternIndex ];
         const channel = pattern.channels[ channelIndex ];
 
-        Vue.set( channel, step, 0 );
+        if ( !channel[ step ]) {
+            return;
+        }
+        const event = channel[ step ] as EffluxAudioEvent;
+
+        if ( keepAutomation && !!event.mp ) {
+            Vue.set( channel, step, {
+                ...event,
+                action: ACTION_IDLE,
+                note: "",
+                octave: 0,
+            });
+        } else {
+            Vue.set( channel, step, 0 );
+        }
     },
     /**
      * Brute force way to remove an event from a song

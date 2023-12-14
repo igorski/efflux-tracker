@@ -170,14 +170,46 @@ describe( "Event add action", () => {
             ]);
         });
 
+        it( "should maintain the existing module automation that optionally existed at the noteOff step", () => {
+            const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+
+            const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
+            mpEvent.mp = {
+                module: PITCH_UP,
+                value: 50,
+                glide: true,
+            };
+            channel[ 6 ] = mpEvent;
+    
+            AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
+    
+            // original content was [ event1, 0, event2, 0, event3, 0, mpEvent, event4 ]
+            expect( channel ).toEqual([
+                event1, 0, event2, 0, event3, event, expect.any( Object ), event4
+            ]);
+
+            expect( channel[ 6 ]).toEqual({
+                ...NOTE_OFF_EVENT,
+                mp: mpEvent.mp,
+            });
+        });
+
         it( "should be able to revert the changes, also removing the created noteOff event", () => {
             const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
+            mpEvent.mp = {
+                module: PITCH_UP,
+                value: 50,
+                glide: true,
+            };
+            song.patterns[ patternIndex ].channels[ channelIndex ][ 6 ] = mpEvent;
     
             const { undo } = AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
             undo();
     
-            expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
-                event1, 0, event2, 0, event3, 0, 0, event4
+            expect( song.patterns[ patternIndex ].channels[ channelIndex ] ).toEqual([
+                event1, 0, event2, 0, event3, 0, mpEvent, event4
             ]);
         });
 
@@ -192,7 +224,7 @@ describe( "Event add action", () => {
             ]);
         });
 
-        it( "should note add a noteOff event when the added event contains no instruction other than a parameter automation", () => {
+        it( "should not add a noteOff event when the added event contains no instruction other than a parameter automation", () => {
             const event = EventFactory.create( channelIndex, "", 1, ACTION_IDLE );
             event.mp = {
                 module: PITCH_UP,
@@ -228,6 +260,55 @@ describe( "Event add action", () => {
                 expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
                     event1, 0, event2, 0, event3, 0, 0, event4
                 ]);
+            });
+
+            describe( "and the overlapping range has existing events with parameter automations", () => {
+                beforeEach(() => {
+                    event3.mp = {
+                        module: PITCH_UP,
+                        value: 77,
+                        glide: false,
+                    };
+                });
+                
+                it( "should keep the existing parameter events but remove their note on/off actions", () => {
+                    const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
+
+                    AddEvent( store, event, { patternIndex, channelIndex, step: 3, length: 2 }, vi.fn() );
+                    
+                    const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+                 
+                    // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
+                    expect( channel).toEqual([
+                        event1, 0, event2, event, expect.any( Object ), expect.any( Object ) /* event3 */, 0, event4
+                    ]);
+
+                    const mpEvent = channel[ 4 ]; // the remaining mp that was defined in the original event3
+                    const shortenedEvent = channel[ 5 ]; // is event3 pushed forwards, but stripped of mp
+
+                    expect( mpEvent ).toEqual({
+                        ...event3,
+                        action: ACTION_IDLE,
+                        note: "",
+                        octave: 0,
+                    });
+
+                    expect( shortenedEvent ).toEqual({
+                        ...event3,
+                        mp: undefined,
+                    });
+                });
+
+                it( "should be able to revert the changes, restoring all automations to their original owners", () => {
+                    const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
+
+                    const { undo } = AddEvent( store, event, { patternIndex, channelIndex, step: 3, length: 2 }, vi.fn() );
+                    undo();
+            
+                    expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
+                        event1, 0, event2, 0, event3, 0, 0, event4
+                    ]);
+                });
             });
         });
     });
