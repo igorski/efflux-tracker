@@ -140,8 +140,6 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         }
         updateHandler( advanceStepOnAddition );
         advanceStepOnAddition = false;
-console.info(song.patterns[patternIndex].channels[channelIndex][1])
-        console.info(song.patterns[patternIndex].channels[channelIndex].map( e=> !!e ? e.note ? e.note + e.octave : "OFF"+e.action : 0).join(','), isParamAutomationOnly, event.mp, !!existingEvent)
     }
     act(); // perform action
 

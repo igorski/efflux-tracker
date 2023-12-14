@@ -1,9 +1,10 @@
 import { describe, vi, it, expect, beforeEach, afterEach } from "vitest";
+import { PITCH_UP } from "@/definitions/automatable-parameters";
 import AddEvent from "@/model/actions/event-add";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -188,6 +189,21 @@ describe( "Event add action", () => {
             // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
             expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
                 event1, 0, event2, event, event3, 0, 0, event4
+            ]);
+        });
+
+        it( "should note add a noteOff event when the added event contains no instruction other than a parameter automation", () => {
+            const event = EventFactory.create( channelIndex, "", 1, ACTION_IDLE );
+            event.mp = {
+                module: PITCH_UP,
+                value: 77,
+                glide: false,
+            };
+            AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
+    
+            // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
+            expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
+                event1, 0, event2, 0, event3, event, 0, event4
             ]);
         });
 
