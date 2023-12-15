@@ -23,12 +23,15 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { insertEvent, createNoteOffEvent, invalidateCache, nonExistentOrAutomationOnly } from "./event-actions";
+import {
+    insertEvent, invalidateCache,
+    nonExistentOrAutomationOnly, moveEventToNextSlotIfFree, insertNoteOff
+} from "./event-actions";
 
 type IUpdateHandler = ( advanceStep?: boolean ) => void;
 
@@ -102,27 +105,15 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
 
         if ( length > 1 ) {
             for ( let i = step + 1; i <= eventEnd; ++i ) {
-                const nextStep = i + 1;
                 // in case the range of the created event already contains noteOn actions for long events, we
                 // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
-                if ( nextStep < channel.length && ( channel[ i ] as EffluxAudioEvent )?.action === ACTION_NOTE_ON && nonExistentOrAutomationOnly( channel[ nextStep ] )) {
-                    const noteOnEvent = {
-                        ...( channel[ i ] as EffluxAudioEvent ),
-                        mp: ( channel[ nextStep ] as EffluxAudioEvent )?.mp ?? undefined, // take optional mp of next event
-                    };
-                    insertEvent( noteOnEvent, song, patternIndex, channelIndex, nextStep );
-                }
-                EventUtil.clearEvent( song, patternIndex, channelIndex, i, isJam );
+                moveEventToNextSlotIfFree( song, patternIndex, channelIndex, i, isJam );
             }
         }
 
         // when event is not directly followed by another, we add a note off event to maintain multi-step duration
         if ( addNoteOff && nextIndex <= channel.length - 1 && nonExistentOrAutomationOnly( channel[ nextIndex ] )) {
-            const offEvent = createNoteOffEvent( channelIndex );
-            if ( isJam && ( channel[ nextIndex ] as EffluxAudioEvent )?.mp ) {
-                offEvent.mp = { ...( channel[ nextIndex ] as EffluxAudioEvent ).mp }; // keep automation though!
-            }
-            insertEvent( offEvent, song, patternIndex, channelIndex, nextIndex );
+            insertNoteOff( song, patternIndex, channelIndex, nextIndex, isJam );
         }
         invalidateCache( store, song, channelIndex );
      

@@ -33,8 +33,12 @@ export default
      * @param {string=} note optional note
      * @param {number=} octave optional octave
      * @param {number=} action optional action, @see audio-event.ts
+     * @param {ModuleParameterChange=} mp optional module parameter automation
      */
-    create( instrument: number = 0, note: string = "", octave: number = 0, action: number = ACTION_IDLE ): EffluxAudioEvent
+    create(
+        instrument: number = 0, note: string = "", octave: number = 0,
+        action: number = ACTION_IDLE, mp?: ModuleParameterChange
+    ): EffluxAudioEvent
     {
         return {
             instrument,
@@ -48,7 +52,8 @@ export default
                 startMeasureOffset : 0,
                 length             : 0,
                 mpLength           : 0
-            }
+            },
+            mp,
         };
     },
 
