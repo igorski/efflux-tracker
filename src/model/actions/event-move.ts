@@ -23,7 +23,7 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import { getNextEvent } from "@/utils/event-util";
@@ -56,14 +56,16 @@ export default function( store: Store<EffluxState>,
     const newEvent = { ...orgEvent, ...optProps };
     const orgMp    = orgEvent.mp ? { ...orgEvent.mp } : undefined;
 
-    const nextEvent = getNextEvent( song, orgEvent, channelIndex, patternIndex );
+    // @ts-expect-error first argument unused
+    const nextEvent = getNextEvent( song, orgEvent, channelIndex, patternIndex, ( evt, compareEvent ) => {
+        return nonExistentOrAutomationOnly( compareEvent );
+    });
     let eventLength = channel.length - oldStep; // length in pattern steps, defaults to continue until the end of the pattern...
     // ...unless its followed by another event
     if ( nextEvent ) {
         const nextEventStep = channel.indexOf( nextEvent.event );
         eventLength = nextEventStep - oldStep;
     }
-
     const eventEnd  = Math.min( lastAvailableSlot, ( newStep + eventLength ) - 1 ); // last step index of the events new range
     const nextIndex = eventEnd + 1; // index of the first slot following the moved event
 
@@ -72,7 +74,7 @@ export default function( store: Store<EffluxState>,
 
         insertEvent({
             ...createNoteOffEvent( channelIndex ),
-            mp: orgMp,
+            mp: orgMp ? { ...orgMp } : undefined,
         }, song, patternIndex, channelIndex, oldStep );
 
         insertEvent({

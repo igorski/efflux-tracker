@@ -342,13 +342,12 @@ describe( "Event move action", () => {
             });
 
             it( "should keep the existing parameter automation events but remove their note on/off actions", () => {
-                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-                const mp = {
+                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
                     module: PITCH_UP,
                     value: 50,
                     glide: true,
-                };
-                mpEvent.mp = { ...mp };
+                });
+                const mp = { ...mpEvent.mp };
                 pattern.channels[ channelIndex ][ 5 ] = mpEvent;
 
                 const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
@@ -372,14 +371,36 @@ describe( "Event move action", () => {
                 });
             });
 
+            it( "should maintain its length, ignoring parameter automation only events as cutoff points", () => {
+                const eventMp1 = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+                    module: PITCH_UP, value: 25, glide: false,
+                });
+                pattern.channels[ channelIndex ][ 3 ] = eventMp1;
+
+                const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
+                const newStep = 3;
+        
+                MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+                // original order was:
+                // [ event1, 0, event2, eventMp1, event3, 0, 0, event4 ]
+                expect( pattern.channels[ channelIndex ]).toEqual([
+                    event1, 0, NOTE_OFF_EVENT,
+                    { ...event2, mp: eventMp1.mp } /* event2 merged with automation of eventMp1 */,
+                    { ...EventFactory.create(), mp: event3.mp }, /* parameter automation for mp at event3's old position */
+                    { ...event3, mp: undefined }, /* shortened event3 in its new position, now without parameter automation */
+                    0,
+                    event4
+                ]);
+            });
+
             it( "should be able to revert the changes, restoring all automations to their original owners", () => {
-                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-                const mp = {
+                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
                     module: PITCH_UP,
                     value: 50,
                     glide: true,
-                };
-                mpEvent.mp = { ...mp };
+                });
+                const mp = { ...mpEvent.mp };
                 pattern.channels[ channelIndex ][ 5 ] = mpEvent;
 
                 const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
