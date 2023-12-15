@@ -1,11 +1,12 @@
 import { describe, vi, it, expect, beforeEach, afterEach } from "vitest";
+import { PITCH_UP } from "@/definitions/automatable-parameters";
 import MoveEvent from "@/model/actions/event-move";
 import { createNoteOffEvent } from "@/model/actions/event-actions";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { type EffluxAudioEvent, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -83,6 +84,50 @@ describe( "Event move action", () => {
         expect( pattern.channels[ channelIndex ][ oldStep ]).toEqual( NOTE_OFF_EVENT );
     });
 
+    it( "should move the events optional module automation to the noteOff step", () => {
+        const oldStep  = pattern.channels[ channelIndex ].indexOf( event3 );
+        const newStep  = oldStep + 1;
+  
+        const mp = {
+            module: PITCH_UP,
+            value: 50,
+            glide: true,
+        };
+        event3.mp = { ...mp };
+
+        MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+        expect( pattern.channels[ channelIndex ][ oldStep ]).toEqual({
+            ...NOTE_OFF_EVENT,
+            mp,
+        });
+        expect( pattern.channels[ channelIndex ][ newStep ]).toEqual({
+            ...event3,
+            mp: undefined,
+        });
+    });
+
+    it( "should move the optional module automation optionally present at the new step to the moved event", () => {
+        const oldStep  = pattern.channels[ channelIndex ].indexOf( event3 );
+        const newStep  = oldStep + 1;
+  
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
+        const mp = {
+            module: PITCH_UP,
+            value: 50,
+            glide: true,
+        };
+        mpEvent.mp = { ...mp };
+        pattern.channels[ channelIndex ][ newStep ] = mpEvent;
+
+        MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+
+        expect( pattern.channels[ channelIndex ][ newStep ]).toEqual({
+            ...event3,
+            mp,
+        });
+    });
+
     it( "should be able to update the note properties of a moved event, when provided", () => {
         const oldStep  = pattern.channels[ channelIndex ].indexOf( event1 );
         const newStep  = oldStep + 1;
@@ -132,6 +177,33 @@ describe( "Event move action", () => {
             expect( pattern.channels[ channelIndex ]).toEqual([
                 NOTE_OFF_EVENT, 0, event2, 0, event1, 0, NOTE_OFF_EVENT, event4
             ]);
+        });
+
+        it( "should maintain its length and take the optionally present automation-only instruction following the event", () => {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
+            const mp = {
+                module: PITCH_UP,
+                value: 50,
+                glide: true,
+            };
+            mpEvent.mp = { ...mp };
+            pattern.channels[ channelIndex ][ 6 ] = mpEvent;
+
+            const oldStep = pattern.channels[ channelIndex ].indexOf( event1 );
+            const newStep = 4;
+    
+            MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+ 
+            // original order was:
+            // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
+            expect( pattern.channels[ channelIndex ]).toEqual([
+                NOTE_OFF_EVENT, 0, event2, 0, event1, 0, expect.any( Object ), event4
+            ]);
+
+            expect( pattern.channels[ channelIndex ][ 6 ]).toEqual({
+                ...NOTE_OFF_EVENT,
+                mp
+            });
         });
 
         it( "should maintain its length when its the last event in the pattern", () => {
@@ -228,6 +300,98 @@ describe( "Event move action", () => {
             expect( pattern.channels[ channelIndex ]).toEqual([
                 event1, 0, event2, 0, NOTE_OFF_EVENT, 0, event3, 0
             ]);
+        });
+
+        describe( "and the overlapping range has existing events with parameter automations", () => {
+            beforeEach(() => {
+                event3.mp = {
+                    module: PITCH_UP,
+                    value: 77,
+                    glide: false,
+                };
+            });
+            
+            it( "should keep the existing parameter automation events but remove their note on/off actions", () => {
+                const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
+                const newStep = 3;
+        
+                MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+                    
+                const channel = pattern.channels[ channelIndex ];
+
+                // original order was:
+                // [ event1, 0, event2, 0, event3, 0, 0, event4 ]
+                expect( pattern.channels[ channelIndex ]).toEqual([
+                    event1, 0, NOTE_OFF_EVENT, event2, expect.any( Object ), expect.any( Object ) /* event3 */, 0, event4
+                ]);
+
+                const newEvent3 = channel[ 4 ]; // contains the remaining mp that was defined in the original event3
+                const shortenedEvent3 = channel[ 5 ]; // is event3 pushed forwards, but shortened and stripped of mp
+
+                expect( newEvent3 ).toEqual({
+                    ...event3,
+                    action: ACTION_IDLE,
+                    note: "",
+                    octave: 0,
+                });
+
+                expect( shortenedEvent3 ).toEqual({
+                    ...event3,
+                    mp: undefined,
+                });
+            });
+
+            it( "should keep the existing parameter automation events but remove their note on/off actions", () => {
+                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
+                const mp = {
+                    module: PITCH_UP,
+                    value: 50,
+                    glide: true,
+                };
+                mpEvent.mp = { ...mp };
+                pattern.channels[ channelIndex ][ 5 ] = mpEvent;
+
+                const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
+                const newStep = 3;
+        
+                MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+                    
+                const channel = pattern.channels[ channelIndex ];
+
+                // original order was:
+                // [ event1, 0, event2, 0, event3, mpEvent, 0, event4 ]
+                expect( pattern.channels[ channelIndex ]).toEqual([
+                    event1, 0, NOTE_OFF_EVENT, event2, expect.any( Object ), expect.any( Object ) /* event3 */, 0, event4
+                ]);
+
+                const shortenedEvent3 = channel[ 5 ]; // is event3 pushed forwards, but stripped of mp
+
+                expect( shortenedEvent3 ).toEqual({
+                    ...event3,
+                    mp,
+                });
+            });
+
+            it( "should be able to revert the changes, restoring all automations to their original owners", () => {
+                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
+                const mp = {
+                    module: PITCH_UP,
+                    value: 50,
+                    glide: true,
+                };
+                mpEvent.mp = { ...mp };
+                pattern.channels[ channelIndex ][ 5 ] = mpEvent;
+
+                const oldStep = pattern.channels[ channelIndex ].indexOf( event2 );
+                const newStep = 3;
+        
+                const { undo } = MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
+                undo();
+        
+                expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
+                    event1, 0, event2, 0, event3, mpEvent, 0, event4
+                ]);
+            });
         });
     });
 

@@ -82,7 +82,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
 
     function act(): void {
         const pattern = song.patterns[ patternIndex ],
-              channel = pattern.channels[ channelIndex ];
+              channel = pattern.channels[ channelIndex ]; // get latest refs!
 
         EventUtil.setPosition( event, pattern, step, song.meta.tempo );
 

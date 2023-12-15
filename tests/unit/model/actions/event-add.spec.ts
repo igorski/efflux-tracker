@@ -271,7 +271,7 @@ describe( "Event add action", () => {
                     };
                 });
                 
-                it( "should keep the existing parameter events but remove their note on/off actions", () => {
+                it( "should keep the existing parameter automation events but remove their note on/off actions", () => {
                     const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
 
                     AddEvent( store, event, { patternIndex, channelIndex, step: 3, length: 2 }, vi.fn() );
