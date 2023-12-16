@@ -27,12 +27,12 @@ describe( "Channel automation clear action", () => {
             value: 100,
             glide: true
         });
-        event2 = EventFactory.create( channelIndex, "C", 3, ACTION_NOTE_OFF, {
+        event2 = EventFactory.create( channelIndex, "", 0, ACTION_NOTE_OFF, {
             module: PITCH_DOWN,
             value: 77,
             glide: true
         });
-        event3 = EventFactory.create( channelIndex, "C", 3, ACTION_AUTO_ONLY, {
+        event3 = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
             module: PITCH_UP,
             value: 50,
             glide: false,
