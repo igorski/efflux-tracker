@@ -100,7 +100,8 @@ function deserialiseData( serialized?: string ): SerializedRowEvent | undefined 
     } catch {}
 }
 
-const NOTE_WIDTH = 48;
+export const NOTE_WIDTH = 48; // @see $piano-roll-column-width
+
 let lastTouchStart = 0;
 let dataTransfer: DataTransfer;
 
