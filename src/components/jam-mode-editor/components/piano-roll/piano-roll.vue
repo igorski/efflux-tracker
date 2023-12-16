@@ -498,14 +498,7 @@ $ideal-width: 840px;
             margin-right: ( $spacing-large + $spacing-medium ); // make up for help button
 
             button {
-                @include button();
-                background-color: transparent;//$color-5;
-                outline: 2px solid #666;
-                color: #b6b6b6;
-
-                &:hover {
-                    color: #666;
-                }
+                @include toolButton();
 
                 &.pattern--queued {
                     @include animationBlink( .5s );

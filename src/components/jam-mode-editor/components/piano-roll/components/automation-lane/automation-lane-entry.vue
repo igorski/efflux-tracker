@@ -72,7 +72,7 @@ export default {
             default: false,
         },
         displayValue: {
-            type: String,
+            type: [ String, Number ],
             default: "0.00",
         },
         value: {

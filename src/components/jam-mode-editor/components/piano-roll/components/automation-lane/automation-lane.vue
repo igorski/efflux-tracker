@@ -315,16 +315,7 @@ export default {
     }
 
     &__toggle {
-        @include button();
-        background-color: transparent;//$color-5;
-        border-radius: $spacing-xsmall;
-        padding: $spacing-xsmall $spacing-medium;
-        outline: 2px solid #666;
-        color: #b6b6b6;
-
-        &:hover {
-            color: #666;
-        }
+        @include toolButton( true );
         margin-right: ($spacing-large - $spacing-small);
     }
 
