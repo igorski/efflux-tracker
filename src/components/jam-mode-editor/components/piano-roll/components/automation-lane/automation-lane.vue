@@ -41,24 +41,25 @@
                 @click="$emit('toggle')"
             ></button>
         </div>
-        <template v-if="!collapsed">
-            <section class="automation-lane__list">
-                <automation-lane-entry
-                    v-for="(automation, index) in formattedAutomations"
-                    v-model.number="focusedStepValue"
-                    :key="`automation_${index}`"
-                    :has-instruction="automation.hasInstruction"
-                    :height="automation.height"
-                    :is-editing="editingStep === index"
-                    :display-value="automation.value"
-                    class="automation-lane__list-entry"
-                    @create="createEvent( index, $event )"
-                    @delete="deleteEvent( index )"
-                    @focus="focusStepEditor( index )"
-                    @blur="blurStepEditor()"
-                />
-            </section>
-        </template>
+        <section
+            v-if="!collapsed"
+            class="automation-lane__list"
+        >
+            <automation-lane-entry
+                v-for="(automation, index) in formattedAutomations"
+                v-model.number="focusedStepValue"
+                :key="`automation_${index}`"
+                :has-instruction="automation.hasInstruction"
+                :height="automation.height"
+                :is-editing="editingStep === index"
+                :display-value="automation.value"
+                class="automation-lane__list-entry"
+                @create="createEvent( index, $event )"
+                @delete="deleteEvent( index )"
+                @focus="focusStepEditor( index )"
+                @blur="blurStepEditor()"
+            />
+        </section>
     </div>
 </template>
 

@@ -141,7 +141,7 @@ import Config from "@/config";
 import ManualURLs from "@/definitions/manual-urls";
 import AutomationLane from "./components/automation-lane/automation-lane.vue";
 import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row/piano-roll-row.vue";
-import { invalidateCache } from "@/model/actions/event-actions";
+import { invalidateCache, nonExistentOrAutomationOnly } from "@/model/actions/event-actions";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
@@ -231,8 +231,7 @@ export default {
                 const key = `${event.note}${event.octave}`;
                 let length = 1;
                 for ( let j = i + 1; j < l; ++j ) {
-                    const compareEvent = this.patternEvents[ j ];
-                    if ( compareEvent?.action === ACTION_NOTE_ON || compareEvent?.action === ACTION_NOTE_OFF ) {
+                    if ( !nonExistentOrAutomationOnly( this.patternEvents[ j ] )) {
                         break;
                     }
                     ++length;
@@ -510,7 +509,7 @@ $ideal-width: 840px;
     }
 
     &__body {
-        height: calc(100% - 60px);
+        height: calc(100% - 60px); // 60px being header height
         overflow-y: auto;
         
         @include large() {

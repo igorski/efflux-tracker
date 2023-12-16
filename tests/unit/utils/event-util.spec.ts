@@ -90,12 +90,11 @@ describe( "EventUtil", () => {
 
             it( "should change the events action and keep the parameter automation when automation existed", () => {
                 const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
-                const event = EventFactory.create( 1, "E", 2, ACTION_NOTE_ON );
-                event.mp = {
+                const event = EventFactory.create( 1, "E", 2, ACTION_NOTE_ON, {
                     module: PITCH_UP,
                     value: 77,
                     glide: false,
-                };
+                });
                 channel[ step ] = event;
 
                 EventUtil.clearEvent( song, patternIndex, channelIndex, step, true );

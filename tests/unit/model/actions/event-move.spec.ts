@@ -111,13 +111,12 @@ describe( "Event move action", () => {
         const oldStep  = pattern.channels[ channelIndex ].indexOf( event3 );
         const newStep  = oldStep + 1;
   
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-        const mp = {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
             module: PITCH_UP,
             value: 50,
             glide: true,
-        };
-        mpEvent.mp = { ...mp };
+        });
+        const mp = { ...mpEvent.mp };
         pattern.channels[ channelIndex ][ newStep ] = mpEvent;
 
         MoveEvent( store, patternIndex, channelIndex, oldStep, newStep );
@@ -180,13 +179,12 @@ describe( "Event move action", () => {
         });
 
         it( "should maintain its length and take the optionally present automation-only instruction following the event", () => {
-            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-            const mp = {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
                 module: PITCH_UP,
                 value: 50,
                 glide: true,
-            };
-            mpEvent.mp = { ...mp };
+            });
+            const mp = { ...mpEvent.mp };
             pattern.channels[ channelIndex ][ 6 ] = mpEvent;
 
             const oldStep = pattern.channels[ channelIndex ].indexOf( event1 );

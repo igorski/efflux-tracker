@@ -93,15 +93,13 @@ describe( "Event actions", () => {
         });
 
         it( "should return true when passing a parameter automation-only event", () => {
-            const event = EventFactory.create( 0, "", 0, ACTION_IDLE );
-            event.mp = { ...MODULE_PARAM };
+            const event = EventFactory.create( 0, "", 0, ACTION_IDLE, { ...MODULE_PARAM });
 
             expect( nonExistentOrAutomationOnly( event )).toBe( true );
         });
 
         it( "should return false for a noteOn event", () => {
-            const event = EventFactory.create( 0, "C", 3, ACTION_NOTE_ON );
-            event.mp = { ...MODULE_PARAM };
+            const event = EventFactory.create( 0, "C", 3, ACTION_NOTE_ON, { ...MODULE_PARAM });
 
             expect( nonExistentOrAutomationOnly( event )).toBe( false );
         });

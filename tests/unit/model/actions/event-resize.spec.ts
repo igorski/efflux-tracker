@@ -82,13 +82,12 @@ describe( "Event resize action", () => {
     });
 
     it( "should take the optional module automation-only instruction that existed at the events new last slot position", () => {
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-        const mp = {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
             module: PITCH_UP,
             value: 50,
             glide: true,
-        };
-        mpEvent.mp = { ...mp };
+        });
+        const mp = { ...mpEvent.mp };
         pattern.channels[ channelIndex ][ 3 ] = mpEvent;
 
         const step = pattern.channels[ channelIndex ].indexOf( event2 );
@@ -144,13 +143,12 @@ describe( "Event resize action", () => {
     });
 
     it( "should keep the optionally defined module parameter automations that existed in its new range", () => {
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-        const mp = {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
             module: PITCH_UP,
             value: 50,
             glide: true,
-        };
-        mpEvent.mp = { ...mp };
+        });
+        const mp = { ...mpEvent.mp };
         pattern.channels[ channelIndex ][ 5 ] = mpEvent;
 
         const event3mp = {
@@ -202,12 +200,11 @@ describe( "Event resize action", () => {
     });
 
     it( "should restore the original pattern on undo", () => {
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-        mpEvent.mp = {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
             module: PITCH_UP,
             value: 50,
             glide: true,
-        };
+        });
         pattern.channels[ channelIndex ][ 5 ] = mpEvent;
 
         event3.mp = {

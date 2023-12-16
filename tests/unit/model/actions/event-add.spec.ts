@@ -174,12 +174,11 @@ describe( "Event add action", () => {
             const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
 
             const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
-            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-            mpEvent.mp = {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
                 module: PITCH_UP,
                 value: 50,
                 glide: true,
-            };
+            });
             channel[ 6 ] = mpEvent;
     
             AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
@@ -197,12 +196,11 @@ describe( "Event add action", () => {
 
         it( "should be able to revert the changes, also removing the created noteOff event", () => {
             const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
-            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE );
-            mpEvent.mp = {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
                 module: PITCH_UP,
                 value: 50,
                 glide: true,
-            };
+            });
             song.patterns[ patternIndex ].channels[ channelIndex ][ 6 ] = mpEvent;
     
             const { undo } = AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
@@ -225,12 +223,11 @@ describe( "Event add action", () => {
         });
 
         it( "should not add a noteOff event when the added event contains no instruction other than a parameter automation", () => {
-            const event = EventFactory.create( channelIndex, "", 1, ACTION_IDLE );
-            event.mp = {
+            const event = EventFactory.create( channelIndex, "", 1, ACTION_IDLE, {
                 module: PITCH_UP,
                 value: 77,
                 glide: false,
-            };
+            });
             AddEvent( store, event, { patternIndex, channelIndex, step: 5 }, vi.fn() );
     
             // original content was [ event1, 0, event2, 0, event3, 0, 0, event4 ]
