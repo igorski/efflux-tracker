@@ -117,7 +117,7 @@
                         type="button"
                         class="piano-roll__table-touch-mode-toggle"
                         @click="toggleTouchMode()"
-                    ><img v-if="isPanMode" src="@/assets/icons/icon-pencil.svg" /><img v-else src="@/assets/icons/icon-drag.svg" /></button>
+                    ><img v-if="isPanMode" src="@/assets/icons/icon-drag.svg" /><img v-else src="@/assets/icons/icon-pencil.svg" /></button>
                 </tbody>
                 <div
                     class="piano-roll__sequencer-position"
