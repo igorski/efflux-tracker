@@ -23,7 +23,8 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxChannelEntry } from "@/model/types/channel";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil from "@/utils/event-util";
@@ -56,4 +57,52 @@ export function invalidateCache( store: Store<EffluxState>, song: EffluxSong, ch
         store.commit( "flushJamChannel", channelIndex );
     }
     store.commit( "invalidateChannelCache", { song });
+}
+
+/**
+ * Tests whether given event is non-existent or consists only of an parameter automation
+ */
+export function nonExistentOrAutomationOnly( event?: EffluxChannelEntry ): boolean {
+    if ( !event ) {
+        return true;
+    }
+    return !!event.mp && event.action === ACTION_AUTO_ONLY;
+}
+
+/**
+ * Moves an noteOn-event to the next slot within a pattern (when free), managing any existing overlapping automations.
+ * When provided maintainAutomation is true, the optionally defined parameter automations
+ * for the events will remain fixed at their current positions.
+ */
+export function moveEventToNextSlotIfFree( song: EffluxSong, patternIndex: number, channelIndex: number,
+    step: number, maintainAutomation = false ): void
+{
+    const channel  = song.patterns[ patternIndex ].channels[ channelIndex ];
+    const nextStep = step + 1;
+    const isNoteOn = ( channel[ step ] as EffluxAudioEvent )?.action === ACTION_NOTE_ON;
+
+    if ( nextStep < channel.length && isNoteOn && nonExistentOrAutomationOnly( channel[ nextStep ] )) {
+        const noteOnEvent = { ...( channel[ step ] as EffluxAudioEvent )};
+        if ( maintainAutomation ) {
+            // take optional mp of next event and set it to the noteOn event (so mp remains in the same position)
+            const nextHasAutomation = ( channel[ nextStep ] as EffluxAudioEvent )?.mp;
+            noteOnEvent.mp = nextHasAutomation ? { ...( channel[ nextStep ] as EffluxAudioEvent ).mp } : undefined;
+        }
+        insertEvent( noteOnEvent, song, patternIndex, channelIndex, nextStep );
+    }
+    EventUtil.clearEvent( song, patternIndex, channelIndex, step, maintainAutomation );
+}
+
+export function insertNoteOff( song: EffluxSong, patternIndex: number, channelIndex: number,
+    step: number, maintainAutomation = false ): void
+{
+    const channel  = song.patterns[ patternIndex ].channels[ channelIndex ]; 
+    const offEvent = createNoteOffEvent( channelIndex );
+
+    if ( maintainAutomation ) {
+        // take optional mp of next event and set it to the noteOff event (so mp remains in the same position)
+        const nextHasAutomation = ( channel[ step ] as EffluxAudioEvent )?.mp;
+        offEvent.mp = nextHasAutomation ? { ...( channel[ step ] as EffluxAudioEvent ).mp } : undefined;
+    }
+    insertEvent( offEvent, song, patternIndex, channelIndex, step );
 }

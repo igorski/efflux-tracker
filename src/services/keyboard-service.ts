@@ -27,6 +27,7 @@ import ModalWindows from "@/definitions/modal-windows";
 import EventFactory from "@/model/factories/event-factory";
 import createAction from "@/model/factories/action-factory";
 import deleteEvent from "@/model/actions/event-delete";
+import deleteEventParamAutomation from "@/model/actions/event-param-automation-delete";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
@@ -330,7 +331,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
                 store.commit( "closeDialog" );
             } else if ( hasOption ) {
                 store.commit( "setShowNoteEntry", !editor.showNoteEntry );
-            } else {
+            } else if ( !store.getters.jamMode ) {
                 store.commit( "openModal", ModalWindows.MODULE_PARAM_EDITOR );
             }
             break;
@@ -567,7 +568,11 @@ function handleDeleteActionForCurrentMode(): void {
             if ( !event || !event.mp ) {
                 return;
             }
-            store.commit( "saveState", createAction( Actions.DELETE_MODULE_AUTOMATION, { event }));
+            store.commit( "saveState",
+                deleteEventParamAutomation( store, store.getters.activePatternIndex,
+                    state.editor.selectedInstrument, state.editor.selectedStep
+                )
+            );
             break;
     }
 }

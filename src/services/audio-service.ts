@@ -22,11 +22,12 @@
  */
 import type { Store } from "vuex";
 import Config from "@/config";
+import { type ModuleParamDef } from "@/definitions/automatable-parameters";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import ModuleFactory from "@/model/factories/module-factory";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { applyRouting } from "./audio/module-router";
-import { applyModuleParamChange } from "./audio/module-automation";
+import { applyModuleParamChange, getCurrentValueForParam } from "./audio/module-automation";
 import type { ExternalEventCallback } from "./audio/module-automation";
 import type OutputRecorder from "./audio/output-recorder";
 import type WaveTables from "./audio/wave-tables";
@@ -403,6 +404,8 @@ export const isRecording = (): boolean => recordOutput;
 
 let useAnalysers = false;
 export const connectAnalysers = (): boolean => useAnalysers;
+
+export const getCurrentModuleParamValue = ( instrument: Instrument, param: ModuleParamDef ): number => getCurrentValueForParam( instrumentModulesList[ instrument.index ], instrument, param );
 
 const AudioService =
 {

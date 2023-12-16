@@ -25,7 +25,7 @@ import Vue from "vue";
 import { writeToClipboard } from "@/utils/clipboard-util";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { ACTION_IDLE } from "@/model/types/audio-event";
+import { ACTION_AUTO_ONLY } from "@/model/types/audio-event";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxSong } from "@/model/types/song";
@@ -332,7 +332,7 @@ const SelectionModule: Module<SelectionState, any> = {
                         const writeIndex = selectedStep + index;
 
                         if ( writeIndex < targetChannel.length ) {
-                            if ( event && ( event.action !== ACTION_IDLE || event.mp )) {
+                            if ( event && ( event.action !== ACTION_AUTO_ONLY || event.mp )) {
 
                                 const clonedEvent = clone( event ) as EffluxAudioEvent;
                                 clonedEvent.instrument  = cIndex;

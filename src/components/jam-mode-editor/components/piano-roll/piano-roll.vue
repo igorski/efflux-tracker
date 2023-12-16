@@ -87,6 +87,7 @@
         <section
             ref="rollList"
             class="piano-roll__body"
+            :class="{ 'piano-roll__body--collapsed': showAutomation }"
         >
             <table class="piano-roll__table">
                 <tbody>
@@ -116,7 +117,7 @@
                         type="button"
                         class="piano-roll__table-touch-mode-toggle"
                         @click="toggleTouchMode()"
-                    ><img v-if="isPanMode" src="@/assets/icons/icon-pencil.svg" /><img v-else src="@/assets/icons/icon-drag.svg" /></button>
+                    ><img v-if="isPanMode" src="@/assets/icons/icon-drag.svg" /><img v-else src="@/assets/icons/icon-pencil.svg" /></button>
                 </tbody>
                 <div
                     class="piano-roll__sequencer-position"
@@ -124,6 +125,14 @@
                 ></div>
             </table>
         </section>
+        <automation-lane
+            :events="patternEvents"
+            :selected-instrument="selectedInstrument"
+            :active-pattern-index="activePatternIndex"
+            :collapsed="!showAutomation"
+            @toggle="showAutomation = !showAutomation"
+            @clear="clearAutomations()"
+        />
     </div>
 </template>
 
@@ -131,10 +140,12 @@
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import ManualURLs from "@/definitions/manual-urls";
-import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row.vue";
-import { invalidateCache } from "@/model/actions/event-actions";
+import AutomationLane from "./components/automation-lane/automation-lane.vue";
+import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-row/piano-roll-row.vue";
+import { invalidateCache, nonExistentOrAutomationOnly } from "@/model/actions/event-actions";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
+import clearChannelAutomation from "@/model/actions/channel-param-clear";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type Instrument } from "@/model/types/instrument";
@@ -169,12 +180,14 @@ enum TouchMode {
 export default {
     i18n: { messages },
     components: {
+        AutomationLane,
         PianoRollRow,
     },
     data: () => ({
         patternCopy: null,
         focusedRow: 0,
         touchMode: TouchMode.DRAW,
+        showAutomation: false,
     }),
     computed: {
         ...mapState({
@@ -220,7 +233,7 @@ export default {
                 const key = `${event.note}${event.octave}`;
                 let length = 1;
                 for ( let j = i + 1; j < l; ++j ) {
-                    if ( this.patternEvents[ j ]) {
+                    if ( !nonExistentOrAutomationOnly( this.patternEvents[ j ] )) {
                         break;
                     }
                     ++length;
@@ -411,6 +424,9 @@ export default {
                 }
             });
          },
+         clearAutomations(): void {
+            this.saveState( clearChannelAutomation( this.activeSong, this.activePatternIndex, this.selectedInstrument ));
+         },
     },
 };
 </script>
@@ -486,14 +502,7 @@ $ideal-width: 840px;
             margin-right: ( $spacing-large + $spacing-medium ); // make up for help button
 
             button {
-                @include button();
-                background-color: transparent;//$color-5;
-                outline: 2px solid #666;
-                color: #b6b6b6;
-
-                &:hover {
-                    color: #666;
-                }
+                @include toolButton();
 
                 &.pattern--queued {
                     @include animationBlink( .5s );
@@ -507,6 +516,14 @@ $ideal-width: 840px;
     &__body {
         height: calc(100% - 60px); // 60px being header height
         overflow-y: auto;
+        
+        @include large() {
+            height: calc(100% - (60px + ($piano-roll-automation-lane-height-collapsed - $spacing-xxsmall)));
+        }
+
+        &--collapsed {
+            height: calc(100% - (60px + $piano-roll-automation-lane-height));
+        }
     }
 
     &__table {

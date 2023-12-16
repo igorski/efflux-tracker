@@ -33,7 +33,7 @@ import {
     EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE,
     EVENT_MODULE_AUTOMATION, EVENT_MODULE, EVENT_MODULE_VALUE, EVENT_MODULE_GLIDE
 } from "../serializers/pattern-serializer";
-import { ACTION_IDLE } from "../types/audio-event";
+import { ACTION_AUTO_ONLY } from "../types/audio-event";
 
 const PatternFactory =
 {
@@ -204,7 +204,7 @@ const PatternFactory =
 
                 // copy source content into the target channel (only when it has a note action or module parameter automation)
 
-                if ( sourceEvent && ( sourceEvent.action !== ACTION_IDLE || sourceEvent.mp )) {
+                if ( sourceEvent && ( sourceEvent.action !== ACTION_AUTO_ONLY || sourceEvent.mp )) {
                      targetChannel[ i ] = clone( sourceEvent );
                 }
             }

@@ -48,7 +48,7 @@
 <script lang="ts">
 import { mapGetters, mapMutations } from "vuex";
 import OscillatorTypes from "@/definitions/oscillator-types";
-import { ACTION_NOTE_OFF, ACTION_IDLE } from "@/model/types/audio-event";
+import { ACTION_NOTE_OFF, ACTION_AUTO_ONLY } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { InstrumentOscillator, EffluxInstrument } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
@@ -119,7 +119,7 @@ export default {
                         }
 
                         // remove non-op duplicate automations
-                        if ( event.action === ACTION_IDLE && lastEvent?.action === ACTION_IDLE && !!event.mp && !!lastEvent.mp ) {
+                        if ( event.action === ACTION_AUTO_ONLY && lastEvent?.action === ACTION_AUTO_ONLY && !!event.mp && !!lastEvent.mp ) {
                             if ( event.mp.module === lastEvent.mp.module &&
                                  event.mp.value  === lastEvent.mp.value ) {
                                 clear = true;

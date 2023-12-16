@@ -20,27 +20,35 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import { type EffluxChannel } from "@/model/types/channel";
-import { type EffluxPattern } from "@/model/types/pattern";
+import Vue from "vue";
+import { type IUndoRedoState } from "@/model/factories/history-state-factory";
+import { ACTION_AUTO_ONLY } from "@/model/types/audio-event";
+import { type EffluxSong } from "@/model/types/song";
+import { clone } from "@/utils/object-util";
 
-export const listChannel = ( channel: EffluxChannel ): string => {
-    return JSON.stringify(
-        channel.map(( event: EffluxAudioEvent ) => {
+export default function( song: EffluxSong, patternIndex: number, channelIndex: number ): IUndoRedoState {
+    const orgContent = clone( song.patterns[ patternIndex ].channels[ channelIndex ]);
+
+    function act(): void {
+        const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+        for ( let i = 0, l = channel.length; i < l; ++i ) {
+            const event = channel[ i ];
             if ( !event ) {
-                return "empty";
+                continue;
             }
-            if ( event.action === ACTION_AUTO_ONLY && !!event.mp ) {
-                return "mp";
+            if ( event.action === ACTION_AUTO_ONLY ) {
+                Vue.set( channel, i, 0 );
+            } else {
+                Vue.set( event, "mp", undefined );
             }
-            if ( event.action === ACTION_NOTE_OFF ) {
-                return "off";
-            }
-            return `on:${event.note}${event.octave}`;
-        })
-    );
-};
+        }
+    }
+    act(); // perform action
 
-export const listPattern = ( pattern : EffluxPattern ): string => {
-    return pattern.channels.reduce(( acc, channel ) => [ ...acc, listChannel( channel )], [] ).join( "," );
-};
+    return {
+        undo(): void {
+            Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
+        },
+        redo: act
+    };
+}

@@ -23,12 +23,15 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_AUTO_ONLY, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import EventUtil, { getPrevEvent } from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { insertEvent, createNoteOffEvent, invalidateCache } from "./event-actions";
+import {
+    insertEvent, invalidateCache,
+    nonExistentOrAutomationOnly, moveEventToNextSlotIfFree, insertNoteOff
+} from "./event-actions";
 
 type IUpdateHandler = ( advanceStep?: boolean ) => void;
 
@@ -73,13 +76,16 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
 
     const orgContent = ( length > 1 ) ? clone( song.patterns[ patternIndex ].channels[ channelIndex ] ) : undefined;
 
+    const isParamAutomationOnly = !!event.mp && ( event.action === ACTION_AUTO_ONLY || existingEvent );
+
     // if the event should be short (single step) in duration (e.g. in jam mode), ensure its followed by another
     // event otherwise we add a note off instruction to kill its playback on the next step
-    const addNoteOff = isJam && !song.patterns[ patternIndex ].channels[ channelIndex ][ nextIndex ];
+    const nextEvent = song.patterns[ patternIndex ].channels[ channelIndex ][ nextIndex ];
+    const addNoteOff = ( isJam && !isParamAutomationOnly ) && nonExistentOrAutomationOnly( nextEvent );
 
     function act(): void {
         const pattern = song.patterns[ patternIndex ],
-              channel = pattern.channels[ channelIndex ];
+              channel = pattern.channels[ channelIndex ]; // get latest refs!
 
         EventUtil.setPosition( event, pattern, step, song.meta.tempo );
 
@@ -99,19 +105,15 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
 
         if ( length > 1 ) {
             for ( let i = step + 1; i <= eventEnd; ++i ) {
-                const nextStep = i + 1;
                 // in case the range of the created event already contains noteOn actions for long events, we
                 // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
-                if ( nextStep < channel.length && ( channel[ i ] as EffluxAudioEvent )?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
-                    insertEvent( channel[ i ] as EffluxAudioEvent, song, patternIndex, channelIndex, nextStep );
-                }
-                EventUtil.clearEvent( song, patternIndex, channelIndex, i );
+                moveEventToNextSlotIfFree( song, patternIndex, channelIndex, i, isJam );
             }
         }
 
         // when event is not directly followed by another, we add a note off event to maintain multi-step duration
-        if ( addNoteOff && nextIndex <= channel.length - 1 && !channel[ nextIndex ] ) {
-            insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
+        if ( addNoteOff && nextIndex <= channel.length - 1 && nonExistentOrAutomationOnly( channel[ nextIndex ] )) {
+            insertNoteOff( song, patternIndex, channelIndex, nextIndex, isJam );
         }
         invalidateCache( store, song, channelIndex );
      
@@ -159,7 +161,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
                     insertEvent( restoredEvent, song, patternIndex, channelIndex, step );
                 }
                 if ( addNoteOff ) {
-                    EventUtil.clearEvent( song, patternIndex, channelIndex, step + 1 );
+                    EventUtil.clearEvent( song, patternIndex, channelIndex, step + 1, isJam );
                 }
             }
             invalidateCache( store, song, channelIndex );

@@ -26,8 +26,9 @@ import { noteOn, noteOff } from "@/services/audio-service";
 import type { PartialPitch } from "@/services/audio/pitch";
 import type { OptEventData } from "@/model/actions/event-add";
 import EventFactory from "@/model/factories/event-factory";
+import addEventParamAutomation from "@/model/actions/event-param-automation-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
@@ -274,7 +275,7 @@ export default
         );
         if ( record ) {
             const audioEvent = EventFactory.create( instrumentIndex );
-            audioEvent.action = ACTION_IDLE;
+            audioEvent.action = ACTION_AUTO_ONLY;
             audioEvent.mp     = { module: paramId, value: value * 100, glide: false };
             recordEventIntoSong( audioEvent, store, false );
         }
@@ -291,7 +292,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     const { state, getters, commit } = store;
     const optData: OptEventData = { newEvent: true };
     const isNoteOff = audioEvent.action === ACTION_NOTE_OFF;
-    const isParamChange = audioEvent.action === ACTION_IDLE;
+    const isParamChange = audioEvent.action === ACTION_AUTO_ONLY;
 
     // ensure we don't overlap previously recorded notes when
     // frantically playing
@@ -318,19 +319,13 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
 
     // check if the intended target position of the recording already contains an event
 
-    const existingEvent  = channel[ step ];
+    const existingEvent = channel[ step ];
 
     if ( existingEvent ) {
         if ( isNoteOff ) {
             return; // keep existing event as it functions as the kill of the previous event
         }
-        if ( isParamChange ) {
-            // new event is module parameter change, merge with existing event
-            audioEvent.action = existingEvent.action;
-            audioEvent.note   = existingEvent.note;
-            audioEvent.octave = existingEvent.octave;
-        }
-        else if ( existingEvent.mp ) {
+        if ( !isParamChange && existingEvent.mp ) {
             // if a new noteOn-event has no action, while the existing event does,
             // retain the existing events module parameter automation
             audioEvent.mp = { ...existingEvent.mp };
@@ -338,14 +333,13 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     }
 
     if ( playing ) {
-        const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
-
         // do not record repeated note off instructions
-
         if ( isNoteOff ) {
-            if ( prevInCurrentPattern && prevInCurrentPattern.action === ACTION_NOTE_OFF ) return;
+            const prevInCurrentPattern = EventUtil.getFirstEventBeforeStep( channel, step, e => e !== audioEvent );
+            if ( prevInCurrentPattern?.action === ACTION_NOTE_OFF ) {
+                return;
+            }
         }
-
         audioEvent.recording = markAsRecording && !isParamChange;
     }
 
@@ -354,8 +348,19 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     optData.step              = step;
     optData.advanceOnAddition = !playing; // don't advanced selected step during playback
 
-    commit( "addEventAtPosition", { store, event: audioEvent, optData });
-   
+    if ( isParamChange && existingEvent ) {
+        commit( "saveState",
+            addEventParamAutomation( store, activePatternIndex, channelIndex, step, audioEvent.mp )
+        );
+        const maxStep = song.patterns[ activePatternIndex ].steps - 1;
+        const targetStep = step + 1;
+        if ( targetStep <= maxStep ) {
+            store.commit( "setSelectedStep", targetStep );
+        }
+    } else {
+        commit( "addEventAtPosition", { store, event: audioEvent, optData });
+    }
+
     lastAddition = now;
 
     // unset recording state of previous event

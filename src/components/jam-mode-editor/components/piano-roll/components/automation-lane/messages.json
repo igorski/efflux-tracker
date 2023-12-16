@@ -1,0 +1,26 @@
+{
+    "en-US": {
+        "title": "Automation lane",
+        "expand": "Expand",
+        "collapse": "Collapse",
+        "clear": "Clear",
+        "volume": "volume",
+        "panLeft": "pan L",
+        "panRight": "pan R",
+        "pitchUp": "pitch +8ve",
+        "pitchDown": "pitch -8ve",
+        "filterOnOff": "filter on/off",
+        "filterFreq": "filter frequency",
+        "filterQ": "filter Q",
+        "filterLfoOnOff": "filter LFO on/off",
+        "filterLfoSpeed": "filter LFO speed",
+        "filterLfoDepth": "filter LDO depth",
+        "delayOnOff": "delay on/off",
+        "delayTime": "delay time",
+        "delayFeedback": "delay feedback",
+        "delayDry": "delay dry mix",
+        "delayCutoff": "delay cutoff",
+        "delayOffset": "delay offset",
+        "replacedAutomation": "Replaced existing automation for \"{oldParam}\" with \"{newParam}\""
+    }
+}

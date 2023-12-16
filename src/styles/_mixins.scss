@@ -178,6 +178,23 @@
     }
 }
 
+@mixin toolButton( $small: false ) {
+    @include button();
+    background-color: transparent;//$color-5;
+    outline: 2px solid #666;
+    color: #b6b6b6;
+
+    &:hover {
+        color: #666;
+    }
+
+    @if $small {
+        border-radius: $spacing-xsmall;
+        padding: $spacing-xsmall $spacing-medium;
+    }
+}
+
+
 .button {
     @include button();
 }

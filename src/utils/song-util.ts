@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { Track } from "midi-writer-js";
-import { ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import { ACTION_AUTO_ONLY, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
@@ -35,7 +35,7 @@ export const hasContent = ( song: EffluxSong ): boolean => {
     let hasContent = false;
     song.patterns.forEach( pattern => {
         pattern.channels.forEach( channel => {
-            if ( channel.find( event => event && event.action !== ACTION_IDLE )) {
+            if ( channel.find( event => event && event.action !== ACTION_AUTO_ONLY )) {
                 hasContent = true;
             }
         });

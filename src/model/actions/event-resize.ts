@@ -23,13 +23,12 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
-import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { createNoteOffEvent, insertEvent, invalidateCache } from "./event-actions";
-import { EffluxAudioEvent } from "../types/audio-event";
+import {
+    invalidateCache, nonExistentOrAutomationOnly, moveEventToNextSlotIfFree, insertNoteOff
+} from "./event-actions";
 
 export default function( store: Store<EffluxState>, patternIndex: number, channelIndex: number, step: number, newLength: number ): IUndoRedoState {
     const song = store.state.song.activeSong;
@@ -49,20 +48,17 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
     const nextIndex = eventEnd + 1; // index of the first event following the moved event
 
     function act(): void {
-        const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
+        const channel = song.patterns[ patternIndex ].channels[ channelIndex ]; // get latest ref!
+
         for ( let i = step + 1; i <= eventEnd; ++i ) {
-            const nextStep = i + 1;
             // in case the new range of the event contains noteOn actions for longer events, we
             // push the noteOn forwards (and effectively shorten the duration of the subsequent event)
-            if ( nextStep < channel.length && ( channel[ i ] as EffluxAudioEvent )?.action === ACTION_NOTE_ON && !channel[ nextStep ]) {
-                insertEvent( channel[ i ] as EffluxAudioEvent, song, patternIndex, channelIndex, nextStep );
-            }
-            EventUtil.clearEvent( song, patternIndex, channelIndex, i );
+            moveEventToNextSlotIfFree( song, patternIndex, channelIndex, i, true );
         }
         // when event (after resizing) is not directly followed by another, we add a
         // note off event so we maintain the intended event duration
-        if ( nextIndex <= lastAvailableSlot && !channel[ nextIndex ] ) {
-            insertEvent( createNoteOffEvent( channelIndex ), song, patternIndex, channelIndex, nextIndex );
+        if ( nextIndex <= lastAvailableSlot && nonExistentOrAutomationOnly( channel[ nextIndex ] )) {
+            insertNoteOff( song, patternIndex, channelIndex, nextIndex, true );
         }
         invalidateCache( store, song, channelIndex );
     }

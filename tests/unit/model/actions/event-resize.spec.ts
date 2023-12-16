@@ -1,11 +1,12 @@
 import { describe, vi, it, expect, beforeEach, afterEach } from "vitest";
+import { PITCH_UP } from "@/definitions/automatable-parameters";
 import ResizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import { createNoteOffEvent } from "@/model/actions/event-actions";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -80,6 +81,31 @@ describe( "Event resize action", () => {
         ]);
     });
 
+    it( "should take the optional module automation-only instruction that existed at the events new last slot position", () => {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
+            module: PITCH_UP,
+            value: 50,
+            glide: true,
+        });
+        const mp = { ...mpEvent.mp };
+        pattern.channels[ channelIndex ][ 3 ] = mpEvent;
+
+        const step = pattern.channels[ channelIndex ].indexOf( event2 );
+        const newLength = 2;
+
+        ResizeEvent( store, patternIndex, channelIndex, step, newLength );
+
+        // original order was: [ event1, event2, 0, mpEvent, event3, 0, 0, event4 ]
+        expect( pattern.channels[ channelIndex ]).toEqual([
+            event1, event2, 0, expect.any( Object ), event3, 0, 0, event4
+        ]);
+
+        expect( pattern.channels[ channelIndex ][ 3 ]).toEqual({
+            ...NOTE_OFF_EVENT,
+            mp,
+        });
+    });
+
     it( "should be able to contract its length when it occupies the last slot in the pattern", () => {
         pattern.channels[ channelIndex ] = [ event1, event2, 0, 0, event3, 0, event4, 0 ];
         const step = pattern.channels[ channelIndex ].indexOf( event4 );
@@ -116,6 +142,54 @@ describe( "Event resize action", () => {
         ]);
     });
 
+    it( "should keep the optionally defined module parameter automations that existed in its new range", () => {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
+            module: PITCH_UP,
+            value: 50,
+            glide: true,
+        });
+        const mp = { ...mpEvent.mp };
+        pattern.channels[ channelIndex ][ 5 ] = mpEvent;
+
+        const event3mp = {
+            module: PITCH_UP,
+            value: 77,
+            glide: false,
+        };
+        event3.mp = { ...event3mp };
+        
+        const step = pattern.channels[ channelIndex ].indexOf( event2 );
+        const newLength = 5; // will span from 1 - 5 
+
+        ResizeEvent( store, patternIndex, channelIndex, step, newLength );
+
+        // original order was: [ event1, event2, 0, 0, event3, mpEvent, 0, event4 ]
+        expect( pattern.channels[ channelIndex ]).toEqual([
+            event1, event2, 0, 0, expect.any( Object ), expect.any( Object ), expect.any( Object ) /* event3 */, event4
+        ]);
+
+        // expect the original start position of event3 to only contain the parameter automation
+        expect( pattern.channels[ channelIndex ][ 4 ]).toEqual({
+            ...event3,
+            mp: event3mp,
+            action: ACTION_AUTO_ONLY,
+            note: "",
+            octave: 0,
+        });
+
+        // expect the original automation of mpEvent to still be present
+        expect( pattern.channels[ channelIndex ][ 5 ]).toEqual({
+            ...mpEvent,
+            mp,
+        });
+
+        // new position of event3, without its original automation
+        expect( pattern.channels[ channelIndex ][ 6 ]).toEqual({
+            ...event3,
+            mp: undefined,
+        });
+    });
+
     it( "should request an invalidation of the channel cache", () => {
         const commitSpy = vi.spyOn( store, "commit" );
 
@@ -126,16 +200,31 @@ describe( "Event resize action", () => {
     });
 
     it( "should restore the original pattern on undo", () => {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
+            module: PITCH_UP,
+            value: 50,
+            glide: true,
+        });
+        pattern.channels[ channelIndex ][ 5 ] = mpEvent;
+
+        event3.mp = {
+            module: PITCH_UP,
+            value: 77,
+            glide: false,
+        };
+        
         const commitSpy = vi.spyOn( store, "commit" );
-        const step = pattern.channels[ channelIndex ].indexOf( event1 );
-        const newLength = 3;
+        
+        const step = pattern.channels[ channelIndex ].indexOf( event2 );
+        const newLength = 5; // will span from 1 - 5 
 
         const { undo } = ResizeEvent( store, patternIndex, channelIndex, step, newLength );
-
         undo();
 
+        // original order was: [ event1, event2, 0, 0, event3, mpEvent, 0, event4 ]
+
         expect( pattern.channels[ channelIndex ]).toEqual([
-            event1, event2, 0, 0, event3, 0, 0, event4
+            event1, event2, 0, 0, event3, mpEvent, 0, event4
         ]);
         expect( commitSpy ).toHaveBeenCalledWith( "invalidateChannelCache", { song });
     });

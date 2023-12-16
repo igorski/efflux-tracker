@@ -40,10 +40,11 @@ import { invalidateCache } from "./event-actions";
 export default function glideParameterAutomations( song: EffluxSong, step: number, orderIndex: number, channelIndex: number, store: Store<EffluxState> ): void {
     const patternIndex  = song.order[ orderIndex ];
     const channelEvents = song.patterns[ patternIndex ].channels[ channelIndex ];
-    const event = channelEvents[ step ] || EventUtil.getFirstEventBeforeStep(
+    const existingEvent = channelEvents[ step ];
+
+    const event = ( existingEvent && existingEvent.mp ) ? existingEvent : EventUtil.getFirstEventBeforeStep(
         channelEvents, step, compareEvent => !!compareEvent.mp
     );
-
     if ( !event ) {
         return showError( store );
     }

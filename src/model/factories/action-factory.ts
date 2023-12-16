@@ -27,7 +27,7 @@ import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import { type EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
+import { type EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
@@ -48,12 +48,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.DELETE_SELECTION:
             return deleteSelectionAction( data );
-
-        case Actions.ADD_MODULE_AUTOMATION:
-            return addModuleAutomationAction( data );
-
-        case Actions.DELETE_MODULE_AUTOMATION:
-            return deleteModuleAutomationAction( data );
 
         case Actions.CUT_SELECTION:
             return cutSelectionAction( data );
@@ -138,39 +132,6 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                     Vue.set( song.patterns[ patternIndex ].channels[ targetIndex ], step, restoredEvent );
                 }
             });
-        },
-        redo: act
-    };
-}
-
-function addModuleAutomationAction({ event, mp }: { event: EffluxAudioEvent, mp: EffluxAudioEventModuleParams }): IUndoRedoState {
-    const automationData     = serialize( mp );
-    const existingAutomation = serialize( event.mp );
-    const act = () => Vue.set( event, "mp", deserialize( automationData ));
-
-    act(); // perform action
-
-    return {
-        undo(): void {
-            if ( existingAutomation ) {
-                Vue.set( event, "mp", deserialize( existingAutomation ));
-            } else {
-                Vue.delete( event, "mp" );
-            }
-        },
-        redo: act
-    }
-}
-
-function deleteModuleAutomationAction({ event }: { event: EffluxAudioEvent }): IUndoRedoState {
-    const existingAutomation = serialize( event.mp );
-    const act = () => Vue.delete( event, "mp" );
-
-    act(); // perform action
-
-    return {
-        undo(): void {
-            Vue.set( event, "mp", deserialize( existingAutomation ));
         },
         redo: act
     };

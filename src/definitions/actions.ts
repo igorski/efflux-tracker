@@ -28,13 +28,13 @@
  * state history, allowing to undo/redo them at will.
  *
  * @see action-factory, history-state-factory and history-module
+ * 
+ * @todo @deprecated move to individual actions in model/actions folder
  */
 enum Actions
 {
     ADD_EVENTS = 0,
     DELETE_SELECTION,
-    ADD_MODULE_AUTOMATION,
-    DELETE_MODULE_AUTOMATION,
     CUT_SELECTION,
     PASTE_SELECTION,
     TEMPO_CHANGE,

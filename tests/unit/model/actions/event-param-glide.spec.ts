@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import type { Store } from "vuex";
+import { FILTER_FREQ, FILTER_Q } from "@/definitions/automatable-parameters";
 import glideParameterAutomations, { glideModuleParams } from "@/model/actions/event-param-glide";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
@@ -23,7 +24,7 @@ describe( "event parameter glide action", () => {
     function createEvent( step: number, mpValue: number, glide = false ): EffluxAudioEvent {
         const event = createAndInsertEvent( step, song, patternIndex, channelIndex );
         event.mp = {
-            module: "foo",
+            module: FILTER_FREQ,
             value: mpValue,
             glide,
         };
@@ -53,7 +54,7 @@ describe( "event parameter glide action", () => {
         expect( channel ).toEqual([ 0, 0, event, 0, 0, 0, 0, 0 ]);
 
         expect( event.mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: 0,
             glide: false,
         });
@@ -64,19 +65,19 @@ describe( "event parameter glide action", () => {
         const dist = 2;
         const event1 = createEvent( step, 0 );
         const event2 = createEvent( step + dist, 1 );
-        event2.mp.module = "bar";
+        event2.mp.module = FILTER_Q;
         
         glideParameterAutomations( song, step, orderIndex, channelIndex, store );
 
         expect( channel ).toEqual([ 0, 0, event1, 0, event2, 0, 0, 0 ]);
 
         expect( event1.mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: 0,
             glide: false,
         });
         expect( event2.mp ).toEqual({
-            module: "bar",
+            module: FILTER_Q,
             value: 1,
             glide: false,
         });
@@ -100,12 +101,12 @@ describe( "event parameter glide action", () => {
         ]);
 
         expect( channel[ step + 1 ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: startValue + increment,
             glide: true,
         });
         expect( channel[ step + 2 ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: channel[ step + 1 ].mp.value + increment,
             glide: true,
         });
@@ -127,12 +128,12 @@ describe( "event parameter glide action", () => {
         ]);
 
         expect( channel[ step ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: startValue,
             glide: true,
         });
         expect( channel[ step + dist ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: targetValue,
             glide: true,
         });
@@ -155,12 +156,12 @@ describe( "event parameter glide action", () => {
         ]);
 
         expect( channel[ step + 1 ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: 0.22,
             glide: true,
         });
         expect( channel[ step + 2 ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: 0.44,
             glide: true,
         });
@@ -182,12 +183,12 @@ describe( "event parameter glide action", () => {
         ]);
 
         expect( channel[ step + 1 ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: 0.66,
             glide: true,
         });
         expect( channel[ step + 2 ].mp ).toEqual({
-            module: "foo",
+            module: FILTER_FREQ,
             value: 0.44,
             glide: true,
         });
@@ -255,13 +256,13 @@ describe( "event parameter glide action", () => {
             const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
 
             event1.mp = {
-                module: "foo",
+                module: FILTER_FREQ,
                 value: 0,
                 glide: false
             };
 
             event2.mp = {
-                module: "bar",
+                module: FILTER_Q,
                 value: 1,
                 glide: false
             };
@@ -281,13 +282,13 @@ describe( "event parameter glide action", () => {
             const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
 
             event1.mp = {
-                module: "foo",
+                module: FILTER_FREQ,
                 value: 0,
                 glide: false
             };
 
             event2.mp = {
-                module: "foo",
+                module: FILTER_FREQ,
                 value: 1,
                 glide: false
             };
@@ -316,13 +317,13 @@ describe( "event parameter glide action", () => {
             const event2 = createAndInsertEvent( event2Index, song, patternIndex, channelIndex );
 
             event1.mp = {
-                module: "foo",
+                module: FILTER_FREQ,
                 value: 0.75,
                 glide: false
             };
 
             event2.mp = {
-                module: "foo",
+                module: FILTER_FREQ,
                 value: 0.25,
                 glide: false
             };
