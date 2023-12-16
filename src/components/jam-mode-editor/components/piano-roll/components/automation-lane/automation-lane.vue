@@ -34,12 +34,21 @@
                 auto-position
                 narrow
             />
-            <button
-                type="button"
-                v-t="collapsed ? 'expand' : 'collapse'"
-                class="automation-lane__toggle"
-                @click="$emit('toggle')"
-            ></button>
+            <div class="automation-lane__header-actions">
+                <button
+                    v-if="!collapsed"
+                    v-t="'clear'"
+                    type="button"
+                    class="automation-lane__header-button"
+                    @click="$emit('clear')"
+                ></button>
+                <button
+                    v-t="collapsed ? 'expand' : 'collapse'"
+                    type="button"
+                    class="automation-lane__header-button automation-lane__header-button-toggle"
+                    @click="$emit('toggle')"
+                ></button>
+            </div>
         </div>
         <section
             v-if="!collapsed"
@@ -54,6 +63,7 @@
                 :is-editing="editingStep === index"
                 :display-value="automation.value"
                 class="automation-lane__list-entry"
+                @down="handleDrawStart( index, $event )"
                 @create="createEvent( index, $event )"
                 @delete="deleteEvent( index )"
                 @focus="focusStepEditor( index )"
@@ -80,6 +90,7 @@ import { type EffluxAudioEvent } from "@/model/types/audio-event";
 import { getCurrentModuleParamValue } from "@/services/audio-service";
 import KeyboardService from "@/services/keyboard-service";
 import AutomationLaneEntry from "./automation-lane-entry.vue";
+import { type DragListener, NOTE_WIDTH } from "../piano-roll-row/piano-roll-row.vue";
 import messages from "./messages.json";
 
 function inverseNormalise( value: number, max = 100 ): number {
@@ -156,6 +167,11 @@ export default {
             });
         },
     },
+    watch: {
+        selectedModule(): void {
+            this.notified = false;
+        },
+    },
     created(): void {
         for ( const event of this.events ) {
             if ( !event?.mp?.module ) {
@@ -164,6 +180,14 @@ export default {
             this.selectedModule = event.mp.module;
             break;
         }
+        this.dragListeners = [] as DragListener[];
+        this.isDragging  = false;
+        this.dragStartX  = 0;
+        this.dragIndex   = -1;
+        this.lastCreated = -1;
+    },
+    beforeDestroy(): void {
+        this.removeListeners();
     },
     methods: {
         ...mapMutations([
@@ -210,13 +234,13 @@ export default {
             event.preventDefault();
             return true;
         },
-        /* pointer events */
-        createEvent( index: number, event: MouseEvent ): void {
+        createEvent( index: number, event: PointerEvent | TouchEvent ): void {
             if ( !event.target || this.editingStep > -1 ) {
                 return;
             }
+            const y = event.touches ? event.touches[ 0 ].clientY : event.pageY;
             const rect  = ( event.target as HTMLElement ).getBoundingClientRect();
-            const value = inverseNormalise( event.pageY - rect.y, rect.height );
+            const value = inverseNormalise( y - rect.y, rect.height );
 
             this.addOrUpdateAutomation( index, value );
         },
@@ -240,9 +264,10 @@ export default {
             if ( mp ) {
                 if ( mp.module !== this.selectedModule ) {
                     const oldParam = this.availableModules.find(({ value }) => value === mp.module )?.label;
-                    if ( oldParam ) {
+                    if ( oldParam && !this.notified ) {
                         const newParam = this.availableModules.find(({ value }) => value === this.selectedModule ).label;
                         this.showNotification({ message: this.$t( "replacedAutomation", { oldParam, newParam }) });
+                        this.notified = true;
                     }
                     mp.module = this.selectedModule;
                 }
@@ -283,6 +308,51 @@ export default {
             }
             return getCurrentModuleParamValue( this.activeSong.instruments[ this.selectedInstrument ], this.selectedModule );
         },
+        /* pointer events */
+        handleDrawStart( index: number, event: PointerEvent ): void {
+            this.isDragging  = true;
+            this.dragStartX  = event.clientX;
+            this.dragIndex   = index;
+            this.lastCreated = -1;
+
+            this.dragListeners.push({ element: window, type: "mouseup", handler: this.handleDrawEnd.bind( this ) });
+            this.dragListeners.push({ element: window, type: "mousemove", handler: this.handleMouseMove.bind( this ) });
+            this.dragListeners.push({ element: window, type: "touchmove", handler: this.handleTouchMove.bind( this ) });
+            this.dragListeners.push({ element: event.target, type: "touchcancel", handler: this.handleDrawEnd.bind( this ) });
+            this.dragListeners.push({ element: event.target, type: "touchend", handler: this.handleDrawEnd.bind( this ) });
+ 
+            for ( const entry of this.dragListeners ) {
+                entry.element.addEventListener( entry.type, entry.handler );
+            }
+        },
+        handleMouseMove( event: MouseEvent ): void {
+            this.handleDraw( event.clientX, event );
+        },
+        handleTouchMove( event: TouchEvent ): void {
+            const [ touch ] = event.touches;
+            touch && this.handleDraw( touch.pageX, event );
+        },
+        handleDraw( position: number, event: MouseEvent | TouchEvent ): void {
+            const delta = position - this.dragStartX;
+            const moved = Math.round( delta / NOTE_WIDTH ); // amount of slot steps we traversed during drag
+            const index = this.dragIndex + moved; // current step position of the pointer
+
+            if ( this.lastCreated === index ) {
+                return;
+            }
+            this.createEvent( Math.max( 0, Math.min( index, this.events.length - 1 )), event );
+            this.lastCreated = index;
+        },
+        handleDrawEnd(): void {
+            this.isDragging = false;
+            this.removeListeners();
+        },
+        removeListeners(): void {
+            for ( const entry of this.dragListeners ) {
+                entry.element.removeEventListener( entry.type, entry.handler );
+            }
+            this.dragListeners.length = 0;
+        },
     },
 };
 </script>
@@ -315,9 +385,12 @@ export default {
         padding: $spacing-small 0;
     }
 
-    &__toggle {
+    &__header-button {
         @include toolButton( true );
-        margin-right: ($spacing-large - $spacing-small);
+
+        &-toggle {
+            margin-right: ($spacing-large - $spacing-xsmall);
+        }
     }
 
     &__list {

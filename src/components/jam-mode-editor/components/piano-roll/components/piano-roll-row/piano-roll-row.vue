@@ -88,7 +88,7 @@ type FormattedColumn = {
     line: boolean;
 };
 
-type DragListener = { element: Element, type: string, handler: ( event: Event ) => void };
+export type DragListener = { element: Element, type: string, handler: ( event: Event ) => void };
 
 function serializeData( dragStartX: number, note: string, octave: number, event: PianoRollEvent ): string {
     return JSON.stringify({ note, octave, step: event.step, length: event.length, dragStartX });

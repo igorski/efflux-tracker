@@ -3,6 +3,7 @@
         "title": "Automation lane",
         "expand": "Expand",
         "collapse": "Collapse",
+        "clear": "Clear",
         "volume": "volume",
         "panLeft": "pan L",
         "panRight": "pan R",

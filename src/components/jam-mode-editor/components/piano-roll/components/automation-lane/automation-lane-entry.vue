@@ -28,6 +28,7 @@
         }"
         @click.prevent="listeners.create"
         @dblclick.prevent="listeners.delete"
+        @pointerdown="listeners.down"
     >
         <div class="automation-lane__entry-wrapper">
             <div

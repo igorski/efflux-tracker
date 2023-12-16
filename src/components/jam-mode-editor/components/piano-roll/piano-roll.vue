@@ -131,6 +131,7 @@
             :active-pattern-index="activePatternIndex"
             :collapsed="!showAutomation"
             @toggle="showAutomation = !showAutomation"
+            @clear="clearAutomations()"
         />
     </div>
 </template>
@@ -144,6 +145,7 @@ import PianoRollRow, { type SerializedRowEvent } from "./components/piano-roll-r
 import { invalidateCache, nonExistentOrAutomationOnly } from "@/model/actions/event-actions";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
+import clearChannelAutomation from "@/model/actions/channel-param-clear";
 import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type Instrument } from "@/model/types/instrument";
@@ -421,6 +423,9 @@ export default {
                     this.focusedRow = idx;
                 }
             });
+         },
+         clearAutomations(): void {
+            this.saveState( clearChannelAutomation( this.activeSong, this.activePatternIndex, this.selectedInstrument ));
          },
     },
 };
