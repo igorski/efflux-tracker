@@ -34,7 +34,7 @@ export default
     MIN_EQ_GAIN                 : -40.0, // in dB
 
     DEFAULT_FILTER_FREQ         : 880,
-    DEFAULT_FILTER_Q            : 5,
+    DEFAULT_FILTER_Q            : 20,
     MAX_FILTER_FREQ             : 22050, // BiQuad filter max
     MAX_FILTER_Q                : 40,
 
