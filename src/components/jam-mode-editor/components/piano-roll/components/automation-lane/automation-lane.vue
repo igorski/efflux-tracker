@@ -171,15 +171,20 @@ export default {
         selectedModule(): void {
             this.notified = false;
         },
+        collapsed( isCollapsed: boolean ): void {
+            if ( isCollapsed ) {
+                return;
+            }
+            for ( const event of this.events ) {
+                if ( !event?.mp?.module ) {
+                    continue;
+                }
+                this.selectedModule = event.mp.module;
+                break;
+            }
+        },
     },
     created(): void {
-        for ( const event of this.events ) {
-            if ( !event?.mp?.module ) {
-                continue;
-            }
-            this.selectedModule = event.mp.module;
-            break;
-        }
         this.dragListeners = [] as DragListener[];
         this.isDragging  = false;
         this.dragStartX  = 0;
