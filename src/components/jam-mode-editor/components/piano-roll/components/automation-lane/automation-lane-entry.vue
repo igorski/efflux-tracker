@@ -94,7 +94,12 @@ export default {
     &--has-instruction {
         .automation-lane__entry-handle {
             background-color: $color-3;
-            // border-left: 3px solid $color-4;
+        }
+
+        &:hover {
+            .automation-lane__entry-handle {
+                background-color: $color-4;
+            }
         }
     }
 
