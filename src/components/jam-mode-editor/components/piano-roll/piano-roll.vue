@@ -87,7 +87,7 @@
         <section
             ref="rollList"
             class="piano-roll__body"
-            :class="{ 'piano-roll__body--minimised': true }"
+            :class="{ 'piano-roll__body--collapsed': showAutomation }"
         >
             <table class="piano-roll__table">
                 <tbody>
@@ -129,6 +129,8 @@
             :events="patternEvents"
             :selected-instrument="selectedInstrument"
             :active-pattern-index="activePatternIndex"
+            :collapsed="!showAutomation"
+            @toggle="showAutomation = !showAutomation"
         />
     </div>
 </template>
@@ -143,7 +145,7 @@ import { invalidateCache } from "@/model/actions/event-actions";
 import moveEvent from "@/model/actions/event-move";
 import resizeEvent from "@/model/actions/event-resize";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type Instrument } from "@/model/types/instrument";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
@@ -183,6 +185,7 @@ export default {
         patternCopy: null,
         focusedRow: 0,
         touchMode: TouchMode.DRAW,
+        showAutomation: false,
     }),
     computed: {
         ...mapState({
@@ -514,10 +517,14 @@ $ideal-width: 840px;
     }
 
     &__body {
-        height: calc(100% - 60px); // 60px being header height
+        height: calc(100% - 60px);
         overflow-y: auto;
+        
+        @include large() {
+            height: calc(100% - (60px + ($piano-roll-automation-lane-height-collapsed - $spacing-xxsmall)));
+        }
 
-        &--minimised {
+        &--collapsed {
             height: calc(100% - (60px + $piano-roll-automation-lane-height));
         }
     }

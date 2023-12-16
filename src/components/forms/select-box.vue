@@ -31,6 +31,7 @@
             :calculate-position="withPopper"
             v-model="internalValue"
             class="select"
+            :class="{ 'select--narrow': narrow }"
             ref="select"
         />
     </div>
@@ -60,6 +61,10 @@ export default {
             default: false,
         },
         autoPosition: {
+            type: Boolean,
+            default: false,
+        },
+        narrow: {
             type: Boolean,
             default: false,
         },
@@ -171,6 +176,25 @@ export default {
         @include truncate();
         padding-left: $spacing-small;
         padding-right: $spacing-small;
+    }
+}
+
+.select--narrow {
+    .vs__dropdown-toggle {
+        padding: 0;
+    }
+
+    .vs__selected-options {
+        height: 22px;
+    }
+
+    .vs__selected {
+        margin: $spacing-xxsmall $spacing-medium $spacing-xsmall;
+        padding: 0;
+    }
+
+    .vs__open-indicator {
+        transform: scale(0.8);
     }
 }
 </style>

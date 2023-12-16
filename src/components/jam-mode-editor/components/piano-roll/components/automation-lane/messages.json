@@ -1,5 +1,8 @@
 {
     "en-US": {
+        "title": "Automation lane",
+        "expand": "Expand",
+        "collapse": "Collapse",
         "volume": "volume",
         "panLeft": "pan L",
         "panRight": "pan R",

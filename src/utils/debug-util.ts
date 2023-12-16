@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { type EffluxAudioEvent, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxChannel } from "@/model/types/channel";
 import { type EffluxPattern } from "@/model/types/pattern";
 
@@ -29,6 +29,9 @@ export const listChannel = ( channel: EffluxChannel ): string => {
         channel.map(( event: EffluxAudioEvent ) => {
             if ( !event ) {
                 return "empty";
+            }
+            if ( event.action === ACTION_IDLE && !!event.mp ) {
+                return "mp";
             }
             if ( event.action === ACTION_NOTE_OFF ) {
                 return "off";

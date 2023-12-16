@@ -21,46 +21,44 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <div class="automation-lane">
-        <h2>Automation lane</h2>
-        <select-box
-            v-model="selectedModule"
-            :options="availableModules"
-            auto-position
-        />
-        <section class="automation-lane__list">
-            <div
-                v-for="(automation, index) in formattedAutomations"
-                :key="`automation_${index}`"
-                class="automation-lane__list-entry"
-                :class="{
-                    'automation-lane__list-entry--has-instruction': automation.hasInstruction,
-                }"
-                @click.prevent="createEvent( index, $event )"
-                @dblclick.prevent="deleteEvent( index )"
-            >
-                <div
-                    class="automation-lane__list-handle"
-                    :style="{
-                        'height': `${automation.height}`
-                    }"
-                ></div>
-                <input
-                    v-if="editingStep === index"
+    <div
+        class="automation-lane"
+        :class="{ 'automation-lane--expanded': !collapsed }"
+    >
+        <div class="automation-lane__header">
+            <h2 v-t="'title'" class="automation-lane__title"></h2>
+            <select-box
+                v-if="!collapsed"
+                v-model="selectedModule"
+                :options="availableModules"
+                auto-position
+                narrow
+            />
+            <button
+                type="button"
+                v-t="collapsed ? 'expand' : 'collapse'"
+                class="automation-lane__toggle"
+                @click="$emit('toggle')"
+            ></button>
+        </div>
+        <template v-if="!collapsed">
+            <section class="automation-lane__list">
+                <automation-lane-entry
+                    v-for="(automation, index) in formattedAutomations"
                     v-model.number="focusedStepValue"
-                    min="0"
-                    max="100"
-                    ref="automationInput"
-                    class="automation-lane__list-input"
+                    :key="`automation_${index}`"
+                    :has-instruction="automation.hasInstruction"
+                    :height="automation.height"
+                    :is-editing="editingStep === index"
+                    :display-value="automation.value"
+                    class="automation-lane__list-entry"
+                    @create="createEvent( index, $event )"
+                    @delete="deleteEvent( index )"
+                    @focus="focusStepEditor( index )"
                     @blur="blurStepEditor()"
                 />
-                <span
-                    v-else
-                    class="automation-lane__list-value"
-                    @click.stop="focusStepEditor( index )"
-                >{{ automation.value }}</span>
-            </div>
-        </section>
+            </section>
+        </template>
     </div>
 </template>
 
@@ -80,6 +78,7 @@ import EventFactory from "@/model/factories/event-factory";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
 import { getCurrentModuleParamValue } from "@/services/audio-service";
 import KeyboardService from "@/services/keyboard-service";
+import AutomationLaneEntry from "./automation-lane-entry.vue";
 import messages from "./messages.json";
 
 function inverseNormalise( value: number, max = 100 ): number {
@@ -90,6 +89,7 @@ let orgValue: number;
 export default {
     i18n: { messages },
     components: {
+        AutomationLaneEntry,
         SelectBox,
     },
     props: {
@@ -104,6 +104,10 @@ export default {
         activePatternIndex: {
             type: Number,
             required: true,
+        },
+        collapsed: {
+            type: Boolean,
+            default: true,
         },
     },
     data: () => ({
@@ -172,13 +176,13 @@ export default {
             this.editingStep = step;
             this.focusedStepValue = orgValue = this.getValueAtStep( step ).toFixed( 2 );
             await this.$nextTick();
-            this.$refs.automationInput[ 0 ]?.select();
+            this.$refs.automationInput?.select();
         },
         blurStepEditor(): void {
             const step  = this.editingStep;
             const value = this.focusedStepValue;
 
-            this.$refs.automationInput[ 0 ]?.blur();
+            this.$refs.automationInput?.blur();
             KeyboardService.setListener( null );
             this.editingStep = -1;
          
@@ -284,66 +288,54 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
-@import "@/styles/typography";
+@import "@/styles/_mixins";
 
 .automation-lane {
-    height: $piano-roll-automation-lane-height;
+    @include mobile() {
+        display: none;
+    }
+    
+    &--expanded {
+        height: $piano-roll-automation-lane-height;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: space-between;
+        height: $spacing-large;
+        align-items: center;
+        padding: $spacing-small 0;
+        height: $piano-roll-automation-lane-height-collapsed;
+    }
+
+    &__title {
+        @include toolFont();
+        margin: 0 0 0 $piano-roll-name-width;
+        padding: $spacing-small 0;
+    }
+
+    &__toggle {
+        @include button();
+        background-color: transparent;//$color-5;
+        border-radius: $spacing-xsmall;
+        padding: $spacing-xsmall $spacing-medium;
+        outline: 2px solid #666;
+        color: #b6b6b6;
+
+        &:hover {
+            color: #666;
+        }
+        margin-right: ($spacing-large - $spacing-small);
+    }
 
     &__list {
         display: flex;
-        height: inherit;
+        height: calc(100% - ($piano-roll-automation-lane-height-collapsed + $spacing-small));
         margin-left: $piano-roll-name-width;
+    }
 
-        &-entry {
-            position: relative;
-            width: $piano-roll-column-width;
-            background-color: $color-pattern-odd;
-
-            &:nth-child(even) {
-                background-color: $color-pattern-even;
-            }
-
-            &--has-instruction {
-                .automation-lane__list-handle {
-                    border-top-color: $color-5;
-                    background-color: $color-3;
-                }
-            }
-
-            &:hover {
-                .automation-lane__list-value {
-                    display: block;
-                }
-            }
-        }
-
-        &-handle {
-            cursor: pointer;
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            border-top: 3px solid $color-editor-background;
-            box-sizing: border-box;
-        }
-
-        &-value {
-            position: absolute;
-            display: none;
-            bottom: $spacing-xsmall;
-            width: $piano-roll-column-width;
-            @include toolFont();
-            text-align: center;
-            color: #FFF;
-        }
-
-        &-input {
-            position: absolute;
-            bottom: $spacing-xsmall;
-            width: $piano-roll-column-width;
-            @include toolFont();
-            text-align: center;
-            cursor: none;
-        }
+    .vs__selected {
+        background-color: purple !important;
     }
 }
 </style>
