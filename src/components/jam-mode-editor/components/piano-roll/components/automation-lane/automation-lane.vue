@@ -342,6 +342,12 @@ export default {
             }
             this.createEvent( Math.max( 0, Math.min( index, this.events.length - 1 )), event );
             this.lastCreated = index;
+
+            setTimeout(() => {
+                if ( this.lastCreated === index ) {
+                    this.lastCreated = -1;
+                }
+            }, 300 );
         },
         handleDrawEnd(): void {
             this.isDragging = false;

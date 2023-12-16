@@ -86,6 +86,7 @@ export default {
 
 <style lang="scss" scoped>
 @import "@/styles/_variables";
+@import "@/styles/_mixins";
 @import "@/styles/typography";
 
 .automation-lane__entry {
@@ -123,6 +124,7 @@ export default {
     }
 
     &-handle {
+        @include noEvents();
         cursor: pointer;
         position: absolute;
         bottom: 0;
