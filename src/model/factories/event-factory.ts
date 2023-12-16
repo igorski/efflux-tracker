@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { ModuleParamDef } from "@/definitions/automatable-parameters";
-import { type EffluxAudioEvent, ACTION_IDLE } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY } from "@/model/types/audio-event";
 
 export default
 {
@@ -37,7 +37,7 @@ export default
      */
     create(
         instrument: number = 0, note: string = "", octave: number = 0,
-        action: number = ACTION_IDLE, mp?: ModuleParameterChange
+        action: number = ACTION_AUTO_ONLY, mp?: ModuleParameterChange
     ): EffluxAudioEvent
     {
         return {

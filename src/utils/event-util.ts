@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Vue from "vue";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxChannel, EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
@@ -62,7 +62,7 @@ const EventUtil =
         if ( keepAutomation && !!event.mp ) {
             Vue.set( channel, step, {
                 ...event,
-                action: ACTION_IDLE,
+                action: ACTION_AUTO_ONLY,
                 note: "",
                 octave: 0,
             });
@@ -139,7 +139,7 @@ export function getEventLength( event: EffluxAudioEvent, channelIndex: number, o
     const measureLength = calculateMeasureLength( song.meta.tempo );
     const defaultValue  = ( 1 / song.patterns[ song.order[ orderIndex ]].steps ) * measureLength;
     
-    if ( event.action === ACTION_IDLE && !!event.mp ) {
+    if ( event.action === ACTION_AUTO_ONLY && !!event.mp ) {
         return defaultValue; // automation-only events last for a single pattern step
     }
 
@@ -190,7 +190,7 @@ export function calculateJamChannelEventLengths( channel: EffluxChannel, tempo: 
             continue;
         }
         event.seq.length = ( event.action === ACTION_NOTE_ON ) ? ( last - i ) * stepToSecondsMultiplier : stepToSecondsMultiplier;
-        if ( event.action !== ACTION_IDLE ) {
+        if ( event.action !== ACTION_AUTO_ONLY ) {
             last = i;
         }
     }

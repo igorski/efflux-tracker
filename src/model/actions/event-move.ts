@@ -23,7 +23,7 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent, ACTION_IDLE } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import { getNextEvent } from "@/utils/event-util";

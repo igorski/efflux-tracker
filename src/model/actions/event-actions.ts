@@ -23,7 +23,7 @@
 import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxChannelEntry } from "@/model/types/channel";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
@@ -66,7 +66,7 @@ export function nonExistentOrAutomationOnly( event?: EffluxChannelEntry ): boole
     if ( !event ) {
         return true;
     }
-    return !!event.mp && event.action === ACTION_IDLE;
+    return !!event.mp && event.action === ACTION_AUTO_ONLY;
 }
 
 /**

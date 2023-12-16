@@ -6,7 +6,7 @@ import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -111,7 +111,7 @@ describe( "Event move action", () => {
         const oldStep  = pattern.channels[ channelIndex ].indexOf( event3 );
         const newStep  = oldStep + 1;
   
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
             module: PITCH_UP,
             value: 50,
             glide: true,
@@ -179,7 +179,7 @@ describe( "Event move action", () => {
         });
 
         it( "should maintain its length and take the optionally present automation-only instruction following the event", () => {
-            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
                 module: PITCH_UP,
                 value: 50,
                 glide: true,
@@ -328,7 +328,7 @@ describe( "Event move action", () => {
 
                 expect( newEvent3 ).toEqual({
                     ...event3,
-                    action: ACTION_IDLE,
+                    action: ACTION_AUTO_ONLY,
                     note: "",
                     octave: 0,
                 });
@@ -340,7 +340,7 @@ describe( "Event move action", () => {
             });
 
             it( "should keep the existing parameter automation events but remove their note on/off actions", () => {
-                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
                     module: PITCH_UP,
                     value: 50,
                     glide: true,
@@ -370,7 +370,7 @@ describe( "Event move action", () => {
             });
 
             it( "should maintain its length, ignoring parameter automation only events as cutoff points", () => {
-                const eventMp1 = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+                const eventMp1 = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
                     module: PITCH_UP, value: 25, glide: false,
                 });
                 pattern.channels[ channelIndex ][ 3 ] = eventMp1;
@@ -393,7 +393,7 @@ describe( "Event move action", () => {
             });
 
             it( "should be able to revert the changes, restoring all automations to their original owners", () => {
-                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+                const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
                     module: PITCH_UP,
                     value: 50,
                     glide: true,

@@ -28,7 +28,7 @@ import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@
 import { createTimer } from "@/services/audio/webaudio-helper";
 import Metronome from "@/services/audio/metronome";
 import { type EffluxState } from "@/store";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, } from "@/model/types/audio-event";
 import { type EffluxChannel } from "@/model/types/channel";
 import { type EffluxPattern } from "@/model/types/pattern";
 import { type JamChannelSequencerProps } from "@/model/types/jam";
@@ -108,7 +108,7 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
     const isNoteOn = action === ACTION_NOTE_ON;
     const queue    = channelQueue[ eventChannel ];
 
-    if ( action !== ACTION_IDLE ) {
+    if ( action !== ACTION_AUTO_ONLY ) {
 
         // all non-module parameter change events kill previously playing notes
         let playingNote = queue.head;

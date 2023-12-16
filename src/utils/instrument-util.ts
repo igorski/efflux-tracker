@@ -27,7 +27,7 @@ import type { PartialPitch } from "@/services/audio/pitch";
 import type { OptEventData } from "@/model/actions/event-add";
 import EventFactory from "@/model/factories/event-factory";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EventVoiceList } from "@/model/types/event-voice";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
@@ -274,7 +274,7 @@ export default
         );
         if ( record ) {
             const audioEvent = EventFactory.create( instrumentIndex );
-            audioEvent.action = ACTION_IDLE;
+            audioEvent.action = ACTION_AUTO_ONLY;
             audioEvent.mp     = { module: paramId, value: value * 100, glide: false };
             recordEventIntoSong( audioEvent, store, false );
         }
@@ -291,7 +291,7 @@ function recordEventIntoSong( audioEvent: EffluxAudioEvent, store: Store<EffluxS
     const { state, getters, commit } = store;
     const optData: OptEventData = { newEvent: true };
     const isNoteOff = audioEvent.action === ACTION_NOTE_OFF;
-    const isParamChange = audioEvent.action === ACTION_IDLE;
+    const isParamChange = audioEvent.action === ACTION_AUTO_ONLY;
 
     // ensure we don't overlap previously recorded notes when
     // frantically playing

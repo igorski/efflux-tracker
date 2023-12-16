@@ -7,7 +7,7 @@ import {
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import EventUtil from "@/utils/event-util";
 import { createMockStore } from "../../mocks";
@@ -93,7 +93,7 @@ describe( "Event actions", () => {
         });
 
         it( "should return true when passing a parameter automation-only event", () => {
-            const event = EventFactory.create( 0, "", 0, ACTION_IDLE, { ...MODULE_PARAM });
+            const event = EventFactory.create( 0, "", 0, ACTION_AUTO_ONLY, { ...MODULE_PARAM });
 
             expect( nonExistentOrAutomationOnly( event )).toBe( true );
         });
@@ -151,7 +151,7 @@ describe( "Event actions", () => {
                 expect( song.patterns[ patternIndex ].channels[ channelIndex ][ step ]).toEqual({
                     ...EventFactory.create(),
                     seq: expect.any( Object ), // offset calculation is different test (EventUtil.setPosition)
-                    action: ACTION_IDLE,
+                    action: ACTION_AUTO_ONLY,
                     note: "",
                     octave: 0,
                     mp: MODULE_PARAM,
@@ -168,7 +168,7 @@ describe( "Event actions", () => {
             });
 
             it( "should adopt the parameter automation when there is an existing automation-only event at the new slot", () => {
-                const event2 = EventFactory.create( channelIndex, "", 2, ACTION_IDLE, {
+                const event2 = EventFactory.create( channelIndex, "", 2, ACTION_AUTO_ONLY, {
                     module: PITCH_UP,
                     value: 20,
                     glide: false,

@@ -3,7 +3,7 @@ import { PITCH_UP } from "@/definitions/automatable-parameters";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import { ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxSong } from "@/model/types/song";
 import EventUtil, {
@@ -101,7 +101,7 @@ describe( "EventUtil", () => {
 
                 expect( channel[ step ]).toEqual({
                     ...event,
-                    action: ACTION_IDLE,
+                    action: ACTION_AUTO_ONLY,
                     note: "",
                     octave: 0,
                 });
@@ -299,11 +299,11 @@ describe( "EventUtil", () => {
 
             it( "should be able to ignore an event when its matched the predicate of the optionally provided ignore function", () => {
                 const ignoreFn = ( event, compareEvent ) => {
-                    return compareEvent.action === ACTION_IDLE;
+                    return compareEvent.action === ACTION_AUTO_ONLY;
                 };
 
                 const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
-                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex, ACTION_IDLE ); // should be ignored
+                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex, ACTION_AUTO_ONLY ); // should be ignored
                 const event3 = createAndInsertEvent( 2, song, patternIndex, channelIndex ); // expected match
 
                 expect( getNextEvent( song, event, channelIndex, orderIndex, ignoreFn ).event ).toEqual( event3 );
@@ -391,11 +391,11 @@ describe( "EventUtil", () => {
 
             it( "should be able to ignore an event when its matched the predicate of the optionally provided ignore function", () => {
                 const ignoreFn = ( event, compareEvent ) => {
-                    return compareEvent.action === ACTION_IDLE;
+                    return compareEvent.action === ACTION_AUTO_ONLY;
                 };
 
                 const event  = createAndInsertEvent( 2, song, patternIndex, channelIndex );
-                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex, ACTION_IDLE ); // should be ignored
+                const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex, ACTION_AUTO_ONLY ); // should be ignored
                 const event3 = createAndInsertEvent( 0, song, patternIndex, channelIndex ); // expected match
 
                 expect( getPrevEvent( song, event, channelIndex, orderIndex, ignoreFn ).event ).toEqual( event3 );
@@ -462,7 +462,7 @@ describe( "EventUtil", () => {
         });
 
         it( "should always return a single-step duration for an effect parameter modulation-only event", () => {
-            const event = createAndInsertEvent( 0, song, patternIndex, channelIndex, ACTION_IDLE );
+            const event = createAndInsertEvent( 0, song, patternIndex, channelIndex, ACTION_AUTO_ONLY );
             event.mp = {
                 module: "filterQ",
                 value: 1,
@@ -509,7 +509,7 @@ describe( "EventUtil", () => {
 
         it( "should ignore non-noteOn/noteOff events", () => {
             const event  = createAndInsertEvent( 0, song, patternIndex, channelIndex );
-            const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex , ACTION_IDLE ); // closest, but ignored
+            const event2 = createAndInsertEvent( 1, song, patternIndex, channelIndex , ACTION_AUTO_ONLY ); // closest, but ignored
             const event3 = createAndInsertEvent( 2, song, patternIndex, channelIndex, ACTION_NOTE_OFF ); // expected match
             
             expect( getEventLength( event, channelIndex, orderIndex, song )).toEqual( 1 );
@@ -528,7 +528,7 @@ describe( "EventUtil", () => {
         const event1 = createAndInsertEvent( 0, song, 0, 0 );
         const event2 = createAndInsertEvent( 1, song, 0 ,0, ACTION_NOTE_OFF );
         const event3 = createAndInsertEvent( 2, song, 0, 0 );
-        const event4 = createAndInsertEvent( 3, song, 0, 0, ACTION_IDLE );
+        const event4 = createAndInsertEvent( 3, song, 0, 0, ACTION_AUTO_ONLY );
         const event5 = createAndInsertEvent( 5, song, 0, 0, ACTION_NOTE_OFF );
         const event6 = createAndInsertEvent( 7, song, 0, 0 );
         const event7 = createAndInsertEvent( 15, song, 0, 0 );
@@ -541,7 +541,7 @@ describe( "EventUtil", () => {
         expect( event1.seq.length ).toEqual( STEP_IN_SEC ); // single step because killed in step 2 by noteOff
         expect( event2.seq.length ).toEqual( STEP_IN_SEC ); // single step because noteOff
         expect( event3.seq.length ).toEqual( 3 * STEP_IN_SEC ); // lasts from step 2 to 5
-        expect( event4.seq.length ).toEqual( STEP_IN_SEC ); // single step because idle
+        expect( event4.seq.length ).toEqual( STEP_IN_SEC ); // single step because automation only
         expect( event5.seq.length ).toEqual( STEP_IN_SEC ); // single step because note off
         expect( event6.seq.length ).toEqual( 8 * STEP_IN_SEC ); // lasts from step 7 to 15
         expect( event7.seq.length ).toEqual( STEP_IN_SEC ); // single step because last in pattern

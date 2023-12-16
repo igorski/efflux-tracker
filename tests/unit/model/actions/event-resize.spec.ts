@@ -6,7 +6,7 @@ import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import { createNoteOffEvent } from "@/model/actions/event-actions";
 import type { EffluxPattern } from "@/model/types/pattern";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -82,7 +82,7 @@ describe( "Event resize action", () => {
     });
 
     it( "should take the optional module automation-only instruction that existed at the events new last slot position", () => {
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
             module: PITCH_UP,
             value: 50,
             glide: true,
@@ -143,7 +143,7 @@ describe( "Event resize action", () => {
     });
 
     it( "should keep the optionally defined module parameter automations that existed in its new range", () => {
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
             module: PITCH_UP,
             value: 50,
             glide: true,
@@ -172,7 +172,7 @@ describe( "Event resize action", () => {
         expect( pattern.channels[ channelIndex ][ 4 ]).toEqual({
             ...event3,
             mp: event3mp,
-            action: ACTION_IDLE,
+            action: ACTION_AUTO_ONLY,
             note: "",
             octave: 0,
         });
@@ -200,7 +200,7 @@ describe( "Event resize action", () => {
     });
 
     it( "should restore the original pattern on undo", () => {
-        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+        const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
             module: PITCH_UP,
             value: 50,
             glide: true,

@@ -4,7 +4,7 @@ import AddEvent from "@/model/actions/event-add";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
-import { type EffluxAudioEvent, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
@@ -174,7 +174,7 @@ describe( "Event add action", () => {
             const channel = song.patterns[ patternIndex ].channels[ channelIndex ];
 
             const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
-            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
                 module: PITCH_UP,
                 value: 50,
                 glide: true,
@@ -196,7 +196,7 @@ describe( "Event add action", () => {
 
         it( "should be able to revert the changes, also removing the created noteOff event", () => {
             const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
-            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_IDLE, {
+            const mpEvent = EventFactory.create( channelIndex, "", 0, ACTION_AUTO_ONLY, {
                 module: PITCH_UP,
                 value: 50,
                 glide: true,
@@ -223,7 +223,7 @@ describe( "Event add action", () => {
         });
 
         it( "should not add a noteOff event when the added event contains no instruction other than a parameter automation", () => {
-            const event = EventFactory.create( channelIndex, "", 1, ACTION_IDLE, {
+            const event = EventFactory.create( channelIndex, "", 1, ACTION_AUTO_ONLY, {
                 module: PITCH_UP,
                 value: 77,
                 glide: false,
@@ -285,7 +285,7 @@ describe( "Event add action", () => {
 
                     expect( mpEvent ).toEqual({
                         ...event3,
-                        action: ACTION_IDLE,
+                        action: ACTION_AUTO_ONLY,
                         note: "",
                         octave: 0,
                     });

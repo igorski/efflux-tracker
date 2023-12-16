@@ -72,6 +72,6 @@ export type EffluxAudioEventModuleParams = {
 
 // valid actions for event.action
 
-export const ACTION_IDLE      = 0; // no note action / module parameter change event
+export const ACTION_AUTO_ONLY  = 0; // no note action / module parameter change event
 export const ACTION_NOTE_ON   = 1; // start playing note defined using note and octave
 export const ACTION_NOTE_OFF  = 2; // stop playing the note started in a previous event
