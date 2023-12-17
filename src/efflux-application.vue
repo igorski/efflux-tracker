@@ -438,6 +438,11 @@ export default {
         Object.entries( handlers ).forEach(([ event, handler ]) => {
             window.addEventListener( event, handler, false );
         });
+        
+        document.body.addEventListener( "contextmenu", ( e: Event ) => {
+            e.preventDefault(); // prevent right click context menu to open
+            return false;
+        });
 
         // show confirmation message on page reload
 
