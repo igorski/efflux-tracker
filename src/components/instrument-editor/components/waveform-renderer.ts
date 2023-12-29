@@ -20,24 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
+import { Sprite } from "zcanvas";
+import type { IRenderer, StrokeProps, Point } from "zcanvas";
 import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import { bufferToWaveForm } from "@/utils/waveform-util";
 
 type IUpdateHandler = ( table: number[] ) => void;
 
-class WaveformRenderer extends sprite
+let id = 0;
+
+class WaveformRenderer extends Sprite
 {
     private table: number[];
-    private cache: HTMLCanvasElement | undefined;
+    private cached = false;
     private updateHandler: ( table: number[] ) => void;
-    private drawHandler: ( ctx: CanvasRenderingContext2D ) => boolean;
+    private drawHandler: ( ctx: IRenderer ) => boolean;
     private interactionCache: { x: number, y: number };
     private updateRequested: boolean;
     private enabled: boolean;
     private color: string;
-    private strokeStyle: string;
+    public  strokeProps: StrokeProps = { color: "red", size: 5 };
+    private _points: Point[];
 
     constructor( width: number, height: number, updateHandler: IUpdateHandler, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
@@ -51,6 +55,9 @@ class WaveformRenderer extends sprite
         this.updateHandler    = updateHandler;
         this.interactionCache = { x: -1, y: -1 };
         this.updateRequested  = false;
+        this._points          = [];
+
+        this._resourceId + `wfr_${++id}`;
     }
 
     /* public methods */
@@ -64,9 +71,9 @@ class WaveformRenderer extends sprite
      * set a reference to the current WaveTable we're displaying/editing
      */
     setTable( table: number[] ): void {
-        this.cache = undefined;
+        this.cached = false;
         this.table = table;
-        this.canvas?.invalidate(); // force re-render
+        this.invalidate(); // force re-render
     }
 
     /**
@@ -76,9 +83,13 @@ class WaveformRenderer extends sprite
         if ( buffer === undefined ) {
             return;
         }
-        const { width, height } = this.canvas.getElement();
-        this.cache = bufferToWaveForm( buffer, this.color, width, height, window.devicePixelRatio ?? 1 );
-        this.canvas?.invalidate(); // force re-render
+        const { width, height } = this.canvas!.getElement();
+        
+        this.canvas!.loadResource( this._resourceId, bufferToWaveForm( buffer, this.color, width, height, window.devicePixelRatio ?? 1 ))
+            .then(() => {
+                this.cached = true;
+                this.invalidate();
+            });
     }
 
     /**
@@ -138,13 +149,13 @@ class WaveformRenderer extends sprite
     setColor( color: string ): void {
         this.color = color;
         if ( this.enabled ) {
-            this.strokeStyle = color;
+            this.strokeProps.color = color;
         }
     }
 
     setEnabled( enabled: boolean ): void {
         this.enabled = enabled;
-        this.strokeStyle = enabled ? this.color : "#444";
+        this.strokeProps.color = enabled ? this.color : "#444";
     }
 
     /**
@@ -153,33 +164,25 @@ class WaveformRenderer extends sprite
      * rendering (when false, base draw behaviour will be executed afterwards)
      * This can be used for conditional rendering overrides.
      */
-    setExternalDraw( handler: ( ctx: CanvasRenderingContext2D ) => boolean ): void {
+    setExternalDraw( handler: ( renderer: IRenderer ) => boolean ): void {
         this.drawHandler = handler;
-    }
-
-    syncStyles( ctx: CanvasRenderingContext2D ): void {
-        ctx.strokeStyle = this.strokeStyle;
-        ctx.lineWidth   = 5;
     }
 
     /* zCanvas overrides */
 
-    draw( ctx: CanvasRenderingContext2D ): void {
-        if ( this.drawHandler?.( ctx )) {
+    draw( renderer: IRenderer ): void {
+        if ( this.drawHandler?.( renderer )) {
             return;
         }
 
-        if ( this.cache ) {
-            const { width, height } = ctx.canvas;
-            ctx.imageSmoothingEnabled = false;
-            ctx.fillRect( 0, 0, width, height );
-            ctx.drawImage( this.cache, 0, 0, width, height );
+        if ( this.cached ) {
+            const { width, height } = this.canvas;
+            renderer.drawImage( this._resourceId, 0, 0, width, height );
 
             return;
         }
 
-        this.syncStyles( ctx );
-        ctx.beginPath();
+        this._points.length = 0; // TODO pool the Points?
 
         const canvasWidth = this._bounds.width;
 
@@ -188,13 +191,12 @@ class WaveformRenderer extends sprite
             y = this._bounds.top + h,
             ratio = ( l / canvasWidth );
             
-        for ( let i = 0; i < canvasWidth; ++i ) {
-            const tableIndex = Math.round( ratio * i );
+        for ( let x = 0; x < canvasWidth; ++x ) {
+            const tableIndex = Math.round( ratio * x );
             const point = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
-            ctx.lineTo( i, y - ( point * h ));
+            this._points.push({ x, y: y - ( point * h ) });
         }
-        ctx.stroke();
-        ctx.closePath();
+        renderer.drawPath( this._points, "transparent", this.strokeProps );
     }
 
     handleInteraction( aEventX: number, aEventY: number, aEvent: Event ): boolean {

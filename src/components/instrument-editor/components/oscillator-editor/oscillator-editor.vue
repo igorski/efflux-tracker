@@ -49,6 +49,7 @@
             :instrument-index="instrumentIndex"
             :oscillator-index="oscillatorIndex"
             @invalidate="invalidate()"
+            optimize-renderer
         />
         <section class="oscillator-props">
             <!-- oscillator tuning and volume -->
