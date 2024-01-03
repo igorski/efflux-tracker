@@ -41,7 +41,7 @@ class WaveformRenderer extends Sprite
     private enabled: boolean;
     private color: string;
     public  strokeProps: StrokeProps = { color: "red", size: 5 };
-    private _points: Point[];
+    private points: Point[];
 
     constructor( width: number, height: number, updateHandler: IUpdateHandler, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
@@ -55,7 +55,7 @@ class WaveformRenderer extends Sprite
         this.updateHandler    = updateHandler;
         this.interactionCache = { x: -1, y: -1 };
         this.updateRequested  = false;
-        this._points          = [];
+        this.points           = [];
 
         this._resourceId + `wfr_${++id}`;
     }
@@ -182,11 +182,11 @@ class WaveformRenderer extends Sprite
             return;
         }
 
-        if ( this._points.length !== Math.ceil( width )) {
+        if ( this.points.length !== Math.ceil( width )) {
             // pool the Points list to prevent unnecessary garbage collection on excessive allocation
-            this._points.length = Math.ceil( width );
-            for ( let i = 0, l = this._points.length; i < l; ++i ) {
-                this._points[ i ] = this._points[ i ] ?? { x: i, y: 0 };
+            this.points.length = Math.ceil( width );
+            for ( let i = 0, l = this.points.length; i < l; ++i ) {
+                this.points[ i ] = this.points[ i ] ?? { x: i, y: 0 };
             }
         }
         const ratio = ( this.table.length / width );
@@ -196,9 +196,9 @@ class WaveformRenderer extends Sprite
             const tableIndex = Math.round( ratio * i );
             const value = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
             
-            this._points[ i ].y = y - ( value * height );
+            this.points[ i ].y = y - ( value * height );
         }
-        renderer.drawPath( this._points, "transparent", this.strokeProps );
+        renderer.drawPath( this.points, "transparent", this.strokeProps );
     }
 
     override handleInteraction( eventX: number, eventY: number, event: Event ): boolean {
@@ -269,6 +269,12 @@ class WaveformRenderer extends Sprite
             return true;
         }
         return false;
+    }
+
+    override dispose(): void {
+        super.dispose();
+        this.table = undefined;
+        this.points = undefined;
     }
 }
 export default WaveformRenderer;
