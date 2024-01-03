@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -170,65 +170,67 @@ class WaveformRenderer extends Sprite
 
     /* zCanvas overrides */
 
-    draw( renderer: IRenderer ): void {
+    override draw( renderer: IRenderer ): void {
         if ( this.drawHandler?.( renderer )) {
             return;
         }
 
+        const { width, height } = this._bounds;
+   
         if ( this.cached ) {
-            const { width, height } = this.canvas;
             renderer.drawImage( this._resourceId, 0, 0, width, height );
-
             return;
         }
 
-        this._points.length = 0; // TODO pool the Points?
-
-        const canvasWidth = this._bounds.width;
-
-        let h = this._bounds.height,
-            l = this.table.length,
-            y = this._bounds.top + h,
-            ratio = ( l / canvasWidth );
+        if ( this._points.length !== Math.ceil( width )) {
+            // pool the Points list to prevent unnecessary garbage collection on excessive allocation
+            this._points.length = Math.ceil( width );
+            for ( let i = 0, l = this._points.length; i < l; ++i ) {
+                this._points[ i ] = this._points[ i ] ?? { x: i, y: 0 };
+            }
+        }
+        const ratio = ( this.table.length / width );
+        const y = this._bounds.top + height;
             
-        for ( let x = 0; x < canvasWidth; ++x ) {
-            const tableIndex = Math.round( ratio * x );
-            const point = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
-            this._points.push({ x, y: y - ( point * h ) });
+        for ( let i = 0; i < width; ++i ) {
+            const tableIndex = Math.round( ratio * i );
+            const value = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
+            
+            this._points[ i ].y = y - ( value * height );
         }
         renderer.drawPath( this._points, "transparent", this.strokeProps );
     }
 
-    handleInteraction( aEventX: number, aEventY: number, aEvent: Event ): boolean {
+    override handleInteraction( eventX: number, eventY: number, event: Event ): boolean {
         if ( !this._interactive ) {
             return false;
         }
         if ( this.isDragging ) {
-            if ( aEvent.type === "touchend" ||
-                 aEvent.type === "mouseup" ) {
+            if ( event.type === "touchend" ||
+                 event.type === "mouseup" ) {
                 this.isDragging = false;
                 return true;
             }
 
             // translate pointer position to a table value
 
-            let tableIndex = Math.round(( aEventX / this._bounds.width ) * this.table.length );
+            let tableIndex = Math.round(( eventX / this._bounds.width ) * this.table.length );
             tableIndex     = Math.min( this.table.length - 1, tableIndex ); // do not exceed max length
-            let value      = ( 1 - ( aEventY / this._bounds.height ) * 2 );
+            let value      = ( 1 - ( eventY / this._bounds.height ) * 2 );
             this.table[ tableIndex ] = value;
 
             const cache = this.interactionCache;
 
             // these have been observed to be floating point on Chrome for Android
 
-            aEventX = Math.round( aEventX );
-            aEventY = Math.round( aEventY );
+            eventX = Math.round( eventX );
+            eventY = Math.round( eventY );
 
             // smooth the surrounding coordinates to avoid sudden spikes
 
             if ( cache.x > -1 ) {
-                let xDelta    = aEventX - cache.x,
-                    yDelta    = aEventY - cache.y,
+                let xDelta    = eventX - cache.x,
+                    yDelta    = eventY - cache.y,
                     xScale    = xDelta / Math.abs( xDelta ),
                     yScale    = yDelta / Math.abs( xDelta ),
                     increment = 0,
@@ -236,7 +238,7 @@ class WaveformRenderer extends Sprite
                     h         = this._bounds.height,
                     l         = this.table.length;
 
-                while ( cache.x !== aEventX ) {
+                while ( cache.x !== eventX ) {
                     tableIndex = Math.round(( cache.x / w ) * l );
                     tableIndex = Math.min( l - 1, tableIndex ); // do not exceed max length
                     value      = ( 1 - ( Math.floor(( yScale * increment ) + cache.y ) / h ) * 2 );
@@ -245,10 +247,10 @@ class WaveformRenderer extends Sprite
                     ++increment;
                 }
             }
-            cache.x = aEventX;
-            cache.y = aEventY;
+            cache.x = eventX;
+            cache.y = eventY;
 
-            aEvent.preventDefault();
+            event.preventDefault();
 
             // don't hog the CPU by firing the callback instantly
 
@@ -260,8 +262,8 @@ class WaveformRenderer extends Sprite
                 });
             }
         }
-        else if ( aEvent.type === "touchstart" ||
-                  aEvent.type === "mousedown" )
+        else if ( event.type === "touchstart" ||
+                  event.type === "mousedown" )
         {
             this.isDragging = true;
             return true;
