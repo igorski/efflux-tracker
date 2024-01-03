@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { canvas } from "zcanvas";
+import { Canvas, type IRenderer, type Point } from "zcanvas";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import WaveformRenderer from "@/components/instrument-editor/components/waveform-renderer";
@@ -100,6 +100,10 @@ export default {
         renderWaveformOnSilence: {
             type: Boolean,
             default: true,
+        },
+        optimizeRenderer: {
+            type: Boolean,
+            default: false,
         },
     },
     computed: {
@@ -188,7 +192,13 @@ export default {
         },
     },
     mounted(): void {
-        this.canvas = new canvas({ width: this.width, height: this.height, fps: 60 });
+        this.canvas = new Canvas({
+            width: this.width,
+            height: this.height,
+            autoSize: false,
+            optimize: this.optimizeRenderer ? "auto" : "none",
+            fps: 60
+        });
         this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
         this.canvas.getElement().className = "waveform-canvas";
@@ -319,12 +329,18 @@ export default {
             let fadeDelay       = FADE_IN_DELAY;
             let fadeSamples     = FADE_IN_TIME;
 
-            const { wfRenderer } = this;
+            const { wfRenderer }  = this;
+            const points: Point[] = new Array( bufferSize );
+            // pool the Points to prevent garbage collector hit
+            for ( let i = 0; i < points.length; ++i ) {
+                points[ i ] = { x: 0, y: 0 };
+            }
+            const lastPoint = points[ points.length - 1 ];
 
-            wfRenderer.setExternalDraw(( ctx: CanvasRenderingContext2D ) => {
+            wfRenderer.setExternalDraw(( renderer: IRenderer ) => {
                 // when drawing inside the waveform editor, always render the shape
                 if ( wfRenderer.isDragging ) {
-                    ctx.globalAlpha = 1;
+                    renderer.setAlpha( 1 );
                     fadeDelay   = FADE_IN_DELAY;
                     fadeSamples = FADE_IN_TIME;
                     return false;
@@ -332,34 +348,35 @@ export default {
                 getAnalysers()[ this.instrumentIndex ].getByteTimeDomainData( sampleBuffer );
 
                 const hasSignal = sampleBuffer.some( value => value !== CEIL );
-                ctx.fillRect( 0, 0, width, height );
-
-                wfRenderer.syncStyles( ctx );
-
+           
                 if ( hasSignal ) {
                     fadeSamples = 0;
                     fadeDelay   = 0;
-                    ctx.globalAlpha = 1;
-                    ctx.beginPath();
-                    ctx.moveTo( 0, ( sampleBuffer[ 0 ] / CEIL ) * HALF_HEIGHT );
+                    renderer.setAlpha( 1 );
+                    
+                    points[ 0 ].y = ( sampleBuffer[ 0 ] / CEIL ) * HALF_HEIGHT;
 
                     for ( let x = 0, i = 1; i < bufferSize; ++i, x += sampleSize ) {
                         const v = sampleBuffer[ i ] / CEIL;
-                        const y = v * HALF_HEIGHT;
-                        ctx.lineTo( x, y );
+                        const point = points[ i ];
+
+                        point.x = x;
+                        point.y = v * HALF_HEIGHT;
                     }
-                    ctx.lineTo( width, HALF_HEIGHT );
-                    ctx.stroke();
+                    lastPoint.x = width;
+                    lastPoint.y = HALF_HEIGHT;
+
+                    renderer.drawPath( points, "transparent", wfRenderer.strokeProps );
 
                     return true;
                 } else {
                     if ( ++fadeDelay >= FADE_IN_DELAY ) {
                         if ( fadeSamples < FADE_IN_TIME ) {
                             ++fadeSamples;
-                            ctx.globalAlpha = easeIn( fadeSamples, FADE_IN_TIME );
+                            renderer.setAlpha( easeIn( fadeSamples, FADE_IN_TIME ));
                         }
                     } else {
-                        ctx.globalAlpha = 0;
+                        renderer.setAlpha( 0 );
                     }
                 }
                 return !this.renderWaveformOnSilence;

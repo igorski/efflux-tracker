@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,24 +20,28 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { sprite } from "zcanvas";
+import { Sprite } from "zcanvas";
+import type { IRenderer, StrokeProps, Point } from "zcanvas";
 import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import { bufferToWaveForm } from "@/utils/waveform-util";
 
 type IUpdateHandler = ( table: number[] ) => void;
 
-class WaveformRenderer extends sprite
+let id = 0;
+
+class WaveformRenderer extends Sprite
 {
     private table: number[];
-    private cache: HTMLCanvasElement | undefined;
+    private cached = false;
     private updateHandler: ( table: number[] ) => void;
-    private drawHandler: ( ctx: CanvasRenderingContext2D ) => boolean;
+    private drawHandler: ( ctx: IRenderer ) => boolean;
     private interactionCache: { x: number, y: number };
     private updateRequested: boolean;
     private enabled: boolean;
     private color: string;
-    private strokeStyle: string;
+    public  strokeProps: StrokeProps = { color: "red", size: 5 };
+    private points: Point[];
 
     constructor( width: number, height: number, updateHandler: IUpdateHandler, enabled: boolean, color: string ) {
         super({ x: 0, y: 0, width, height });
@@ -51,6 +55,9 @@ class WaveformRenderer extends sprite
         this.updateHandler    = updateHandler;
         this.interactionCache = { x: -1, y: -1 };
         this.updateRequested  = false;
+        this.points           = [];
+
+        this._resourceId + `wfr_${++id}`;
     }
 
     /* public methods */
@@ -64,9 +71,9 @@ class WaveformRenderer extends sprite
      * set a reference to the current WaveTable we're displaying/editing
      */
     setTable( table: number[] ): void {
-        this.cache = undefined;
+        this.cached = false;
         this.table = table;
-        this.canvas?.invalidate(); // force re-render
+        this.invalidate(); // force re-render
     }
 
     /**
@@ -76,9 +83,13 @@ class WaveformRenderer extends sprite
         if ( buffer === undefined ) {
             return;
         }
-        const { width, height } = this.canvas.getElement();
-        this.cache = bufferToWaveForm( buffer, this.color, width, height, window.devicePixelRatio ?? 1 );
-        this.canvas?.invalidate(); // force re-render
+        const { width, height } = this.canvas!.getElement();
+        
+        this.canvas!.loadResource( this._resourceId, bufferToWaveForm( buffer, this.color, width, height, window.devicePixelRatio ?? 1 ))
+            .then(() => {
+                this.cached = true;
+                this.invalidate();
+            });
     }
 
     /**
@@ -138,13 +149,13 @@ class WaveformRenderer extends sprite
     setColor( color: string ): void {
         this.color = color;
         if ( this.enabled ) {
-            this.strokeStyle = color;
+            this.strokeProps.color = color;
         }
     }
 
     setEnabled( enabled: boolean ): void {
         this.enabled = enabled;
-        this.strokeStyle = enabled ? this.color : "#444";
+        this.strokeProps.color = enabled ? this.color : "#444";
     }
 
     /**
@@ -153,80 +164,73 @@ class WaveformRenderer extends sprite
      * rendering (when false, base draw behaviour will be executed afterwards)
      * This can be used for conditional rendering overrides.
      */
-    setExternalDraw( handler: ( ctx: CanvasRenderingContext2D ) => boolean ): void {
+    setExternalDraw( handler: ( renderer: IRenderer ) => boolean ): void {
         this.drawHandler = handler;
-    }
-
-    syncStyles( ctx: CanvasRenderingContext2D ): void {
-        ctx.strokeStyle = this.strokeStyle;
-        ctx.lineWidth   = 5;
     }
 
     /* zCanvas overrides */
 
-    draw( ctx: CanvasRenderingContext2D ): void {
-        if ( this.drawHandler?.( ctx )) {
+    override draw( renderer: IRenderer ): void {
+        if ( this.drawHandler?.( renderer )) {
             return;
         }
 
-        if ( this.cache ) {
-            const { width, height } = ctx.canvas;
-            ctx.imageSmoothingEnabled = false;
-            ctx.fillRect( 0, 0, width, height );
-            ctx.drawImage( this.cache, 0, 0, width, height );
-
+        const { width, height } = this._bounds;
+   
+        if ( this.cached ) {
+            renderer.drawImage( this._resourceId, 0, 0, width, height );
             return;
         }
 
-        this.syncStyles( ctx );
-        ctx.beginPath();
-
-        const canvasWidth = this._bounds.width;
-
-        let h = this._bounds.height,
-            l = this.table.length,
-            y = this._bounds.top + h,
-            ratio = ( l / canvasWidth );
+        if ( this.points.length !== Math.ceil( width )) {
+            // pool the Points list to prevent unnecessary garbage collection on excessive allocation
+            this.points.length = Math.ceil( width );
+            for ( let i = 0, l = this.points.length; i < l; ++i ) {
+                this.points[ i ] = this.points[ i ] ?? { x: i, y: 0 };
+            }
+        }
+        const ratio = ( this.table.length / width );
+        const y = this._bounds.top + height;
             
-        for ( let i = 0; i < canvasWidth; ++i ) {
+        for ( let i = 0; i < width; ++i ) {
             const tableIndex = Math.round( ratio * i );
-            const point = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
-            ctx.lineTo( i, y - ( point * h ));
+            const value = ( this.table[ tableIndex ] + 1 ) * 0.5; // convert from -1 to +1 bipolar range
+            
+            this.points[ i ].y = y - ( value * height );
         }
-        ctx.stroke();
-        ctx.closePath();
+        renderer.drawPath( this.points, "transparent", this.strokeProps );
     }
 
-    handleInteraction( aEventX: number, aEventY: number, aEvent: Event ): boolean {
+    override handleInteraction( eventX: number, eventY: number, event: Event ): boolean {
         if ( !this._interactive ) {
             return false;
         }
         if ( this.isDragging ) {
-            if ( aEvent.type === "touchend" ||
-                 aEvent.type === "mouseup" ) {
+            if ( event.type === "touchend" ||
+                 event.type === "mouseup" ) {
                 this.isDragging = false;
                 return true;
             }
 
             // translate pointer position to a table value
 
-            let tableIndex = Math.round(( aEventX / this._bounds.width ) * this.table.length );
+            let tableIndex = Math.round(( eventX / this._bounds.width ) * this.table.length );
             tableIndex     = Math.min( this.table.length - 1, tableIndex ); // do not exceed max length
-            let value      = ( 1 - ( aEventY / this._bounds.height ) * 2 );
+            let value      = ( 1 - ( eventY / this._bounds.height ) * 2 );
             this.table[ tableIndex ] = value;
 
             const cache = this.interactionCache;
 
             // these have been observed to be floating point on Chrome for Android
 
-            aEventX = Math.round( aEventX );
-            aEventY = Math.round( aEventY );
+            eventX = Math.round( eventX );
+            eventY = Math.round( eventY );
 
             // smooth the surrounding coordinates to avoid sudden spikes
 
             if ( cache.x > -1 ) {
-                let xDelta    = aEventX - cache.x,
-                    yDelta    = aEventY - cache.y,
+                let xDelta    = eventX - cache.x,
+                    yDelta    = eventY - cache.y,
                     xScale    = xDelta / Math.abs( xDelta ),
                     yScale    = yDelta / Math.abs( xDelta ),
                     increment = 0,
@@ -234,7 +238,7 @@ class WaveformRenderer extends sprite
                     h         = this._bounds.height,
                     l         = this.table.length;
 
-                while ( cache.x !== aEventX ) {
+                while ( cache.x !== eventX ) {
                     tableIndex = Math.round(( cache.x / w ) * l );
                     tableIndex = Math.min( l - 1, tableIndex ); // do not exceed max length
                     value      = ( 1 - ( Math.floor(( yScale * increment ) + cache.y ) / h ) * 2 );
@@ -243,10 +247,10 @@ class WaveformRenderer extends sprite
                     ++increment;
                 }
             }
-            cache.x = aEventX;
-            cache.y = aEventY;
+            cache.x = eventX;
+            cache.y = eventY;
 
-            aEvent.preventDefault();
+            event.preventDefault();
 
             // don't hog the CPU by firing the callback instantly
 
@@ -258,13 +262,19 @@ class WaveformRenderer extends sprite
                 });
             }
         }
-        else if ( aEvent.type === "touchstart" ||
-                  aEvent.type === "mousedown" )
+        else if ( event.type === "touchstart" ||
+                  event.type === "mousedown" )
         {
             this.isDragging = true;
             return true;
         }
         return false;
+    }
+
+    override dispose(): void {
+        super.dispose();
+        this.table = undefined;
+        this.points = undefined;
     }
 }
 export default WaveformRenderer;
