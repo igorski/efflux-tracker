@@ -197,9 +197,9 @@ export default {
             height: this.height,
             autoSize: false,
             optimize: this.optimizeRenderer ? "auto" : "none",
+            backgroundColor: "#000",
             fps: 60
         });
-        this.canvas.setBackgroundColor( "#000000" );
         this.canvas.insertInPage( this.$refs.canvasContainer );
         this.canvas.getElement().className = "waveform-canvas";
 
