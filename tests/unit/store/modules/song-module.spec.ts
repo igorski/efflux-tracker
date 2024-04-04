@@ -5,6 +5,7 @@ import songModule, { createSongState } from "@/store/modules/song-module";
 import type { SongState } from "@/store/modules/song-module";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory, { FACTORY_VERSION } from "@/model/factories/song-factory";
+import PubSubMessages from "@/services/pubsub/messages";
 import { type EffluxSong, type EffluxSongMeta, EffluxSongType } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
 import { createSample } from "../../mocks";
@@ -286,6 +287,34 @@ describe( "Vuex song module", () => {
                         resolve();
                     }, 1 );
                 });
+            });
+
+            it( "should broadcast the save event", async () => {
+                commit = vi.fn();
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                const song = await actions.createSong();
+                const state = createSongState({ songs: [], showSaveMessage: false });
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
+
+                expect( commit ).toHaveBeenCalledWith( "publishMessage", PubSubMessages.SONG_SAVED );
+            });
+
+            it( "should not broadcast the save event when saving factory fixtures", async () => {
+                commit = vi.fn();
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                const song = await actions.createSong();
+                song.fixture = true;
+
+                const state = createSongState({ songs: [], showSaveMessage: false });
+
+                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
+
+                expect( commit ).not.toHaveBeenCalledWith( "publishMessage", PubSubMessages.SONG_SAVED );
             });
         });
 

@@ -54,7 +54,8 @@ export type EffluxSong = {
     order: EffluxPatternOrder;
     samples: Sample[];
     origin?: EffluxSongOrigin;
-    type: EffluxSongType
+    type: EffluxSongType;
+    fixture?: boolean; // whether Song was part of factory fixtures
 };
 
 export type StoredEffluxSongDescriptor = {

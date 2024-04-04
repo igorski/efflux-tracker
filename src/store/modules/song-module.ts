@@ -224,7 +224,9 @@ const SongModule: Module<SongState, any> = {
                     if ( Array.isArray( songs )) {
                         commit( "setShowSaveMessage", false );
                         for ( let i = 0; i < songs.length; ++i ) {
-                            await dispatch( "saveSongInLS", await SongAssemblyService.assemble( songs[ i ]));
+                            const song = await SongAssemblyService.assemble( songs[ i ]);
+                            song.fixture = true; // do not track saves for these
+                            await dispatch( "saveSongInLS", song );
                         }
                         commit( "setShowSaveMessage", true );
                     }
@@ -289,7 +291,9 @@ const SongModule: Module<SongState, any> = {
                     return reject();
                 }
                 commit( "setStatesOnSave", getters.totalSaved );
-                commit( "publishMessage", PubSubMessages.SONG_SAVED );
+                if ( !song.fixture ) {
+                    commit( "publishMessage", PubSubMessages.SONG_SAVED );
+                }
                 if ( state.showSaveMessage ) {
                     commit( "showNotification", { message: getters.t( "messages.songSaved", { name: song.meta.title }) });
                 }
