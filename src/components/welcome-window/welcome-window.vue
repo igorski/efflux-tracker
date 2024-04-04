@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2024 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -35,9 +35,11 @@
             <p v-t="'introductionFirstTime'"></p>
             <button
                 type="button"
-                v-t="'openSong'"
+                class="pulse-button"
                 @click="openSavedSong()"
-            ></button>
+            >
+                <span v-t="'openSong'"></span><span class="pulse-button__animation"></span>
+            </button>
             <button
                 type="button"
                 v-t="'tweakInstrument'"
@@ -246,5 +248,41 @@ $height: 474px;
 
 .show-startup {
     margin-left: $spacing-small;
+}
+
+.pulse-button {
+    position: relative;
+
+    &__animation {
+        $animationSize: 24px;
+        
+        position: absolute;
+        top: 50%;
+        left: 0;
+        margin-top: math.div( -$animationSize, 2 );
+        border-radius: $spacing-xsmall;
+        box-shadow: 0 0 0 0 rgba(255, 177, 66, 1);
+        height: $animationSize;
+        width: 100%;
+        transform: scale(1);
+        animation: pulse-animation 2s infinite;
+    }
+}
+
+@keyframes pulse-animation {
+	0% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7);
+	}
+	
+	70% {
+		transform: scale(1);
+		box-shadow: 0 0 0 10px rgba(255, 255, 255, 0);
+	}
+	
+	100% {
+		transform: scale(0.95);
+		box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+	}
 }
 </style>
