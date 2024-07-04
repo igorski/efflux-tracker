@@ -26,7 +26,7 @@
     "@types/webmidi": "^2.0.6",
     "@vitejs/plugin-vue2": "^2.2.0",
     "audio-encoder": "1.0.4",
-    "axios": "^0.24.0",
+    "axios": "^1.7.2",
     "bowser": "^2.11.0",
     "eslint": "^8.36.0",
     "eslint-plugin-vue": "^8.7.1",
