@@ -11,6 +11,7 @@ modular synthesis environment, where the synths are driven by the tracker.
 
 ## Feature list
 
+* Two separate UI's : tracked based input for maximum control and loop based UI for intuitive tinkering
 * Create custom waveforms for multiple synth instruments
 * Load and manipulate audio files into samples
 * Record samples on the fly using your device microphone / inputs
@@ -24,7 +25,7 @@ modular synthesis environment, where the synths are driven by the tracker.
 ### Sounds cool, but I don't want to build from source, I just want to tinker with this!!
 
 Of course, this was made to allow for instant composition, so let's cut the chatter!
-You can use the application right now from  your web browser by visiting [this link](https://www.igorski.nl/experiment/efflux).
+You can use the application right now directly in your web browser by visiting [the Efflux page on igorski.nl](https://www.igorski.nl/application/efflux).
 
 ### The [Issue Tracker](https://github.com/igorski/efflux-tracker/issues?q=is%3Aissue+is%3Aopen+sort%3Aupdated-desc) is your point of contact
 
