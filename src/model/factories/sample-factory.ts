@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -76,6 +76,9 @@ const SampleFactory = {
     deserialize( xtkSample: XTKSample ): Promise<Sample | null> {
         return new Promise( async resolve => {
             try {
+                if ( xtkSample.b.startsWith( "data:application/octet-stream" )) {
+                    throw new Error( "Unrecognised audio file type" );
+                }
                 const source = await base64ToBlob( xtkSample.b );
                 const rate   = xtkSample.sr || getAudioContext().sampleRate;
                 const length = xtkSample.l  || 120;
