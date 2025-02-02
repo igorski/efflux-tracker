@@ -313,7 +313,7 @@ describe( "Vuex sequencer module", () => {
                 }
                 mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
 
-                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 2, nextPatternIndex: 2 });
+                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 2, nextPatternIndex: 2, locked: false });
             });
 
             it( "should enqueue the provided pattern index when the sequencer is playing", () => {
@@ -323,7 +323,7 @@ describe( "Vuex sequencer module", () => {
                 }
                 mutations.setJamChannelPosition( state, { instrumentIndex: 2, patternIndex: 2 });
 
-                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 0, nextPatternIndex: 2 });
+                expect( state.jam[ 2 ]).toEqual({ activePatternIndex: 0, nextPatternIndex: 2, locked: false });
             });
 
             it( "should ignore the request when the current channel is locked", () => {

@@ -40,6 +40,7 @@ export const has = ( object: object, key: string ): boolean => {
 };
 
 export const get = ( object: object, key: string, defaultValue: string | number ): string | number => {
+    // @ts-expect-error TS7053
     return has( object, key ) ? object[ key ] : defaultValue;
 };
 

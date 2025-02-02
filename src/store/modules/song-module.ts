@@ -33,7 +33,7 @@ import PubSubMessages from "@/services/pubsub/messages";
 import SongValidator from "@/model/validators/song-validator";
 import addEvent, { type OptEventData } from "@/model/actions/event-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { Instrument } from "@/model/types/instrument";
+import type { Instrument, InstrumentProp, OscillatorProp } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
@@ -152,10 +152,10 @@ const SongModule: Module<SongState, any> = {
                 store.commit( "saveState", undoRedoAction );
             }
         },
-        updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
+        updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: OscillatorProp, value: never }): void {
             state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ][ prop ] = value;
         },
-        updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
+        updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: InstrumentProp, value: never }): void {
             state.activeSong.instruments[ instrumentIndex ][ prop ] = value;
         },
         replaceInstrument( state: SongState, { instrumentIndex, instrument }: { instrumentIndex: number, instrument: Instrument }): void {

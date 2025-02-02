@@ -3,7 +3,6 @@
     "exclude": [],
     "compilerOptions": {
         "target": "es6",
-        "module": "commonjs",
         "composite": true,
         "baseUrl": ".",
         "esModuleInterop": true,

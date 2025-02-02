@@ -574,7 +574,7 @@ const SequencerModule: Module<SequencerState, any> = {
             if ( !state.playing ) {
                 activePatternIndex = nextPatternIndex;
             }
-            state.jam[ instrumentIndex ] = { activePatternIndex, nextPatternIndex };
+            state.jam[ instrumentIndex ] = { activePatternIndex, nextPatternIndex, locked: false };
         },
         resetJamChannels( state: SequencerState ): void {
             for ( let i = 0; i < state.jam.length; ++i ) {

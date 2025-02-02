@@ -78,7 +78,7 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { ToggleButton } from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
+import ToggleButton from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
 import Config from "@/config";
 import EventUtil from "@/utils/event-util";
 import EventFactory from "@/model/factories/event-factory";

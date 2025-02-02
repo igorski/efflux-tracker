@@ -1,16 +1,16 @@
 {
   "name": "efflux-tracker",
   "version": "3.1.0",
-  "private": true,
+  "type": "module",
   "description": "Application providing tracker based music creation within the web browser",
   "author": "Igor Zinken",
   "scripts": {
-    "dev": "vite --force",
-    "build": "vite build --force",
+    "dev": "vite",
+    "build": "vite build",
     "server": "vite preview",
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "test": "vitest --environment jsdom --no-watch",
-    "tiny": "vite build --force --config ./vite.config.tiny.js",
+    "tiny": "vite build --config ./vite.config.tiny.js",
     "fixtures": "node ./fixtures/generate.js",
     "typecheck": "npx -p typescript tsc -p tsconfig.check.json --noEmit"
   },
