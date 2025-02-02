@@ -37,7 +37,7 @@ Please vote on feature requests by using the Thumbs Up/Down reaction on the firs
 
 ## Project outline
 
-All source code can be found in the _./src_-folder. Efflux is written using [Vue](https://vuejs.org), with the audio engine fully written in TypeScript.
+Efflux is written using [Vue](https://vuejs.org), with the audio engine fully written in TypeScript.
 
  * `src` contains all source code with `main.js` and `efflux-application.vue` being the application entry points
  * `src/components` contains all UI components as Vue files
@@ -49,10 +49,10 @@ All source code can be found in the _./src_-folder. Efflux is written using [Vue
  
 Additional folders:
 
- * _./design_ contains SVG icons that are combined into a webfont (currently done manually through Fontello)
- * _./fixtures_ can be filled with separate JSON files containing Song and Instrument data, these will be concatenated into
+ * `design` contains SVG icons that are combined into a webfont (currently done manually through Fontello)
+ * `fixtures` can be filled with separate JSON files containing Song and Instrument data, these will be concatenated into
    a single file that can be requested via Ajax on the first application start to provide demo content
-   (see _fixtures-loader.js_)
+   (see `fixtures-loader.js`)
 
 ## Application actors
 

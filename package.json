@@ -11,7 +11,7 @@
     "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
     "test": "vitest --environment jsdom --no-watch",
     "tiny": "vite build --config ./vite.config.tiny.js",
-    "fixtures": "node ./fixtures/generate.js",
+    "fixtures": "node ./fixtures/generate.cjs",
     "typecheck": "npx -p typescript tsc -p tsconfig.check.json --noEmit"
   },
   "dependencies": {

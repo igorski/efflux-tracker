@@ -111,7 +111,6 @@
 </template>
 
 <script lang="ts">
-import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations, mapActions, type Store } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
@@ -129,9 +128,6 @@ type WrappedPatternEntry = {
 
 export default {
     i18n: { messages },
-    components: {
-        Draggable,
-    },
     data: () => ({
         showDescriptionInput: -1,
     }),
