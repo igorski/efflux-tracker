@@ -38,7 +38,7 @@ import InstrumentEditor from "@/components/instrument-editor/instrument-editor.v
 import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor.vue";
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     components: {
         InstrumentEditor,
         NoteEntryEditor,

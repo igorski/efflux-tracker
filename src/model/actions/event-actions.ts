@@ -43,7 +43,7 @@ export function createNoteOffEvent( channelIndex: number ): EffluxAudioEvent {
 export function insertEvent( event: EffluxAudioEvent, song: EffluxSong, patternIndex: number, channelIndex: number, step: number ): void {
     const pattern = song.patterns[ patternIndex ];
     EventUtil.setPosition( event, pattern, step, song.meta.tempo );
-    pattern.channels[ channelIndex ][step] = event;
+    pattern.channels[ channelIndex ][ step ] = event;
 }
 
 /**

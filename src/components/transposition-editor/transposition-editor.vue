@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2022 - https://www.igorski.nl
+* Igor Zinken 2022-2025 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -72,14 +72,14 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapMutations } from "vuex";
 import Actions from "@/definitions/actions";
 import createAction from "@/model/factories/action-factory";
 import messages from "./messages.json";
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     data: () => ({
         firstPattern : 1,
@@ -93,12 +93,12 @@ export default {
         ...mapGetters([
             "activeSong",
         ]),
-        maxPattern() {
+        maxPattern(): number {
             return this.activeSong.patterns.length;
         },
     },
     watch: {
-        semitones( value ) {
+        semitones( value: number ): void {
             if ( value < -24 ) {
                 this.semitones = -24;
             } else if ( value > 24 ) {
@@ -106,7 +106,7 @@ export default {
             }
         }
     },
-    created() {
+    created(): void {
         // note we add 1 as we'd like our interface to show more friendly 1 as array start ;)
         this.firstPattern = 1;
         this.lastPattern  = this.activeSong.patterns.length;
@@ -120,7 +120,7 @@ export default {
             this.$refs.semitoneInput.focus();
         });
     },
-    beforeUnmount() {
+    beforeUnmount(): void {
         this.suspendKeyboardService( false );
     },
     methods: {
@@ -128,10 +128,10 @@ export default {
             "saveState",
             "suspendKeyboardService",
         ]),
-        handleClose() {
+        handleClose(): void {
             this.$emit( "close" );
         },
-        handleConfirm() {
+        handleConfirm(): void {
             if ( this.semitones === 0 ) {
                 return this.handleClose();
             }

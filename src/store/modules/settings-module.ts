@@ -77,7 +77,7 @@ const SettingsModule: Module<SettingsState, any> = {
     },
     mutations: {
         saveSetting( state: SettingsState, { name, value }: { name: string, value: any }): void {
-            state._settings[name] = value;
+            state._settings[ name ] = value;
             persistState( state );
         },
         setStoredSettings( state: SettingsState, settings: any ): void {

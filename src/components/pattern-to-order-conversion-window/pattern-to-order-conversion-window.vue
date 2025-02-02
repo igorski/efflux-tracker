@@ -55,7 +55,7 @@ import { convertLegacy } from "@/utils/pattern-order-util";
 import messages from "./messages.json";
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     data: () => ({
         newPatternIndex: 0,

@@ -93,7 +93,7 @@ type WrappedSongEntry = EffluxSong & {
 };
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages, sharedMessages },
     components: {
         FileLoader,

@@ -178,6 +178,7 @@ enum TouchMode {
 };
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         AutomationLane,
@@ -308,7 +309,7 @@ export default {
         }
         // console.info( `Focusing on row #${this.focusedRow}`, this.rows[ this.focusedRow ]);
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         NoteInputHandler.unregisterHandler();
     },
     methods: {
@@ -377,14 +378,14 @@ export default {
             const { activePatternIndex, selectedInstrument } = this;
             const act = (): void => {
                 const pattern = this.activeSong.patterns[ activePatternIndex ];
-                pattern.channels[ selectedInstrument ][event.step] = EventFactory.create( selectedInstrument, "", 0, ACTION_NOTE_OFF );
+                pattern.channels[ selectedInstrument ][ event.step ] = EventFactory.create( selectedInstrument, "", 0, ACTION_NOTE_OFF );
             };
             act();
             this.saveState({
                 undo: (): void => {
                     const pattern = this.activeSong.patterns[ activePatternIndex ];
                     EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.tempo );
-                    pattern.channels[ selectedInstrument ][event.step] = event.event;
+                    pattern.channels[ selectedInstrument ][ event.step ] = event.event;
                 },
                 redo: act,
             });

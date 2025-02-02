@@ -191,7 +191,7 @@ export default {
         this.dragIndex   = -1;
         this.lastCreated = -1;
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.removeListeners();
     },
     methods: {

@@ -558,12 +558,12 @@ const SequencerModule: Module<SequencerState, any> = {
                        transformed[ j ] = channel[ i ];
                     }
                 }
-                pattern.channels[index] = transformed;
-                pattern["steps"] = steps;
+                pattern.channels[ index ] = transformed;
+                pattern.steps = steps;
             });
         },
         setJamChannelLock( state: SequencerState, { instrumentIndex, locked } : { instrumentIndex: number, locked: boolean }): void {
-            state.jam[instrumentIndex] = { ...state.jam[ instrumentIndex ], locked };
+            state.jam[ instrumentIndex ] = { ...state.jam[ instrumentIndex ], locked };
         },
         setJamChannelPosition( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
             if ( state.jam[ instrumentIndex ].locked ) {
@@ -574,7 +574,7 @@ const SequencerModule: Module<SequencerState, any> = {
             if ( !state.playing ) {
                 activePatternIndex = nextPatternIndex;
             }
-            state.jam[instrumentIndex] = { activePatternIndex, nextPatternIndex };
+            state.jam[ instrumentIndex ] = { activePatternIndex, nextPatternIndex };
         },
         resetJamChannels( state: SequencerState ): void {
             for ( let i = 0; i < state.jam.length; ++i ) {

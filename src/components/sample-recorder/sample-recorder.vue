@@ -83,7 +83,7 @@ const C = Math.PI * 180; // 180 == twice the circle R attribute value
 const MAX_DURATION = 10000;
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         SelectBox,

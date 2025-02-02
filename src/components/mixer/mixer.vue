@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2022 - https://www.igorski.nl
+ * Igor Zinken 2020-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -41,13 +41,14 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from "vuex";
 import { applyModules, getAnalysers } from "@/services/audio-service";
 import ChannelStrip from "./components/channel-strip.vue";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         ChannelStrip,
@@ -60,7 +61,7 @@ export default {
             activeSong: state => state.song.activeSong,
         }),
     },
-    created() {
+    created(): void {
         this.analysers = getAnalysers();
 
         if ( !this.analysers.length ) {
@@ -69,7 +70,7 @@ export default {
         // connect the AnalyserNodes to the all instrument channels
         applyModules( this.activeSong, true );
     },
-    unmounted() {
+    unmounted(): void {
         // disconnect the AnalyserNodes
         applyModules( this.activeSong, false );
     },

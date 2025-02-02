@@ -104,11 +104,11 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                 const stepEntry = channel[ step ] as EffluxAudioEvent;
 
                 if ( event.action !== ACTION_NOTE_OFF && !event.mp && stepEntry.mp ) {
-                    event["mp"] = clone( stepEntry.mp );
+                    event.mp = clone( stepEntry.mp );
                 }
                 EventUtil.clearEvent( song, patternIndex, targetIndex, step );
             }
-            channel[step] = event;
+            channel[ step ] = event;
         });
     }
     act(); // perform action
@@ -128,7 +128,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                 const existingEvent: EffluxAudioEvent = existingEvents[ index ];
                 if ( existingEvent ) {
                     const restoredEvent = deserialize( existingEvent );
-                    song.patterns[ patternIndex ].channels[ targetIndex ][step] = restoredEvent;
+                    song.patterns[ patternIndex ].channels[ targetIndex ][ step ] = restoredEvent;
                 }
             });
         },
@@ -136,42 +136,6 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
     };
 }
 
-<<<<<<< HEAD
-=======
-function addModuleAutomationAction({ event, mp }: { event: EffluxAudioEvent, mp: EffluxAudioEventModuleParams }): IUndoRedoState {
-    const automationData     = serialize( mp );
-    const existingAutomation = serialize( event.mp );
-    const act = () => event["mp"] = deserialize( automationData );
-
-    act(); // perform action
-
-    return {
-        undo(): void {
-            if ( existingAutomation ) {
-                event["mp"] = deserialize( existingAutomation );
-            } else {
-                delete event["mp"];
-            }
-        },
-        redo: act
-    };
-}
-
-function deleteModuleAutomationAction({ event }: { event: EffluxAudioEvent }): IUndoRedoState {
-    const existingAutomation = serialize( event.mp );
-    const act = () => delete event["mp"];
-
-    act(); // perform action
-
-    return {
-        undo(): void {
-            event["mp"] = deserialize( existingAutomation );
-        },
-        redo: act
-    };
-}
-
->>>>>>> 85dcdfa (Migrate to Vue 3 draft (#80))
 function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
     const song = store.state.song.activeSong;
     const { selection, editor } = store.state;
@@ -191,7 +155,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
     let cutPattern: EffluxPattern;
     function act(): void {
         if ( cutPattern ) {
-            song.patterns[activePattern] = cutPattern;
+            song.patterns[ activePattern ] = cutPattern;
         }
         else {
             commit( "cutSelection", { song, activePattern });
@@ -205,7 +169,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
     return {
         undo(): void {
             // set the original pattern data back
-            song.patterns[activePattern] = originalPattern;
+            song.patterns[ activePattern ] = originalPattern;
 
             // restore selection model to previous state
             commit( "setMinSelectedStep", selectedMinStep);
@@ -232,7 +196,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
     let cutPattern: EffluxPattern;
     function act(): void {
         if ( cutPattern ) {
-            song.patterns[activePattern] = cutPattern;
+            song.patterns[ activePattern ] = cutPattern;
         } else {
             commit( "deleteSelection", { song, activePattern });
             cutPattern = clonePattern( song, activePattern );
@@ -245,7 +209,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
     return {
         undo(): void {
             // set the original pattern data back
-            song.patterns[activePattern] = originalPattern;
+            song.patterns[ activePattern ] = originalPattern;
 
             // restore selection model to previous state
             commit( "setMinSelectedStep", selectedMinStep);
@@ -274,7 +238,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
     let pastedPattern: EffluxPattern;
     function act(): void {
         if ( pastedPattern ) {
-            song.patterns[activePattern] = pastedPattern;
+            song.patterns[ activePattern ] = pastedPattern;
         } else {
             commit( "pasteSelection", { song, activePattern, selectedInstrument, selectedStep });
             pastedPattern = clonePattern( song, activePattern );
@@ -286,7 +250,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
     return {
         undo(): void {
             // set the original pattern data back
-            song.patterns[activePattern] = originalPattern;
+            song.patterns[ activePattern ] = originalPattern;
 
             // we can safely override the existing selection of the model when undoing an existing paste
             // this means we are returning the model to the state prior to the pasting

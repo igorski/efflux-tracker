@@ -121,7 +121,7 @@ const SongModule: Module<SongState, any> = {
         },
         updateSongSample( state: SongState, sample: Sample ): void {
             const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
-            state.activeSong.samples[index] = sample;
+            state.activeSong.samples[ index ] = sample;
         },
         /**
          * adds given AudioEvent at the currently highlighted position or by optionally defined
@@ -153,24 +153,24 @@ const SongModule: Module<SongState, any> = {
             }
         },
         updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
-            state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ][prop] = value;
+            state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ][ prop ] = value;
         },
         updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
-            state.activeSong.instruments[ instrumentIndex ][prop] = value;
+            state.activeSong.instruments[ instrumentIndex ][ prop ] = value;
         },
         replaceInstrument( state: SongState, { instrumentIndex, instrument }: { instrumentIndex: number, instrument: Instrument }): void {
-            state.activeSong.instruments[instrumentIndex] = instrument;
+            state.activeSong.instruments[ instrumentIndex ] = instrument;
         },
         replacePattern( state: SongState, { patternIndex, pattern }: { patternIndex: number, pattern: EffluxPattern }): void {
-            state.activeSong.patterns[patternIndex] = pattern;
+            state.activeSong.patterns[ patternIndex ] = pattern;
             cachePatternNames( state.activeSong.patterns );
         },
         replacePatterns( state: SongState, patterns: EffluxPattern[] ): void {
             cachePatternNames( patterns );
-            state.activeSong["patterns"] = patterns;
+            state.activeSong.patterns = patterns;
         },
         replacePatternOrder( state: SongState, order: EffluxPatternOrder ): void {
-            state.activeSong["order"] = order;
+            state.activeSong.order = order;
         },
         cachePatternNames( state: SongState ): void {
             cachePatternNames( state.activeSong.patterns );

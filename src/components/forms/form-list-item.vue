@@ -21,31 +21,32 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 <template>
-    <li :class="{ selected: value === optionValue }"
+    <li
+        :class="{ selected: value === optionValue }"
         @click="handleClick"
     >
         <slot></slot>
     </li>
 </template>
 
-<script>
+<script lang="ts">
 export default {
-    emits: ["input"],
+    emits: [ "input" ],
     props: {
         // the bound v-model
         value: {
-            type: [String, Number, Boolean],
+            type: [ String, Number, Boolean ],
             required: true
         },
         // the value represented by this item
         optionValue: {
-            type: [String, Number, Boolean],
+            type: [ String, Number, Boolean ],
             required: true
         }
     },
     methods: {
-        handleClick() {
-            this.$emit('input', this.optionValue);
+        handleClick(): void {
+            this.$emit( "input", this.optionValue );
         }
     }
 };

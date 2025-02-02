@@ -77,7 +77,7 @@ const ModuleParamHandler =
         );
 
         if ( createEvent ) {
-            event["mp"] = mp;
+            event.mp = mp;
         } else {
             // a previously existed event will register the mp change in state history
             // (a newly created event is added to state history through its addition to the song)

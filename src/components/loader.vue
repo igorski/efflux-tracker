@@ -39,7 +39,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 // delay in milliseconds before we show ourselves
 // this to prevent flickering animations when loading completes fast enough
 const DELAY = 250;
@@ -48,14 +48,14 @@ export default {
     data: () => ({
         show: false,
     }),
-    created() {
+    created(): void {
         this.to = window.setTimeout(() => {
             this.show = true;
         }, DELAY );
     },
-    beforeUnmount() {
+    beforeUnmount(): void {
         window.clearTimeout( this.to );
-    }
+    },
 };
 </script>
 

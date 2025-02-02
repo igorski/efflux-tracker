@@ -45,7 +45,7 @@
 
 <script lang="ts">
 export default {
-    emits: ["select", "toggle-edit-mode"],
+    emits: [ "select", "toggle-edit-mode" ],
     props: {
         name: {
             type: String,

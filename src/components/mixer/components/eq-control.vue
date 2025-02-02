@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -34,11 +34,11 @@
     />
 </template>
 
-<script>
+<script lang="ts">
 import KnobControl from "vue-knob-control";
 
 export default {
-    emits: ["input"],
+    emits: [ "input" ],
     components: {
         KnobControl
     },
@@ -51,18 +51,18 @@ export default {
     },
     computed: {
         internalValue: {
-            get() {
+            get(): number {
                 return this.value * 100;
             },
-            set( value ) {
+            set( value: number ): void {
                 this.$emit( "input", value / 100 );
-            }
-        }
+            },
+        },
     },
     methods: {
-        formatValue( value ) {
+        formatValue( value: number ): string {
             return value.toFixed( 0 );
-        }
-    }
+        },
+    },
 };
 </script>

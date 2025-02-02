@@ -250,7 +250,7 @@ export default {
                         while ( i-- ) {
                             event = events[ i ];
                             if ( event ) {
-                                event["recording"] = false;
+                                event.recording = false;
                             }
                         }
                     });

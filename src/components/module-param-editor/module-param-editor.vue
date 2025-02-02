@@ -174,7 +174,7 @@ const DEFAULT_MODULE = VOLUME;
 let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         FormListItem,

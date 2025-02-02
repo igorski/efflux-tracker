@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2022 - https://www.igorski.nl
+ * Igor Zinken 2022-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -60,7 +60,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapMutations } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
@@ -74,7 +74,7 @@ import SelectBox from "@/components/forms/select-box.vue";
 import messages from "./messages.json";
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         SelectBox,
@@ -88,31 +88,31 @@ export default {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,
         }),
-        pitches() {
+        pitches(): { label: string, value: string }[] {
             return Pitch.OCTAVE_SCALE.map( value => ({ label: value, value }));
         },
-        octaves() {
+        octaves(): { label: number, value: string }[] {
             const octaves = [];
             for ( let i = 1; i <= Config.MAX_OCTAVE; ++i ) {
                 octaves.push( i.toString() );
             }
             return octaves.map( value => ({ label: value, value }));
         },
-        chords() {
+        chords(): { label: string, value: string }[] {
             return Object.keys( Chords ).map( label => ({ label, value: label }));
         },
     },
-    created() {
+    created(): void {
         KeyboardService.setListener( this.handleKeyboardInput.bind( this ));
     },
-    beforeUnmount() {
+    beforeUnmount(): void {
         KeyboardService.setListener( null );
     },
     methods: {
         ...mapMutations([
             "saveState",
         ]),
-        handleKeyboardInput( type, keyCode ) {
+        handleKeyboardInput( type: string, keyCode: number ): void {
             if ( type !== "down" ) {
                 return false;
             }
@@ -188,10 +188,10 @@ export default {
             }
             return true;
         },
-        handleClose() {
+        handleClose(): void {
             this.$emit( "close" );
         },
-        handleConfirm() {
+        handleConfirm(): void {
             const rootNoteIndex = Pitch.OCTAVE_SCALE.indexOf( this.note );
             const octave = parseFloat( this.octave );
             const notes = Chords[ this.chord ].map( interval => {

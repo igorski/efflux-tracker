@@ -20,14 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-<<<<<<< HEAD
-import Vue from "vue";
-import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
-=======
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
-import { type EffluxAudioEvent, type EffluxAudioEventModuleParams, ACTION_IDLE, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
->>>>>>> 85dcdfa (Migrate to Vue 3 draft (#80))
+import { type EffluxAudioEvent, type EffluxAudioEventModuleParams, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxChannel, EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
@@ -50,7 +45,7 @@ const EventUtil =
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
       
-        event.seq["startMeasureOffset"] = eventOffset;
+        event.seq.startMeasureOffset = eventOffset;
     },
     /**
      * clears the AudioEvent at requested step position in
@@ -60,25 +55,7 @@ const EventUtil =
         const pattern = song.patterns[ patternIndex ];
         const channel = pattern.channels[ channelIndex ];
 
-<<<<<<< HEAD
-        if ( !channel[ step ]) {
-            return;
-        }
-        const event = channel[ step ] as EffluxAudioEvent;
-
-        if ( keepAutomation && !!event.mp ) {
-            Vue.set( channel, step, {
-                ...event,
-                action: ACTION_AUTO_ONLY,
-                note: "",
-                octave: 0,
-            });
-        } else {
-            Vue.set( channel, step, 0 );
-        }
-=======
-        channel[step] = 0;
->>>>>>> 85dcdfa (Migrate to Vue 3 draft (#80))
+        channel[ step ] = 0;
     },
     /**
      * Brute force way to remove an event from a song
@@ -119,8 +96,6 @@ const EventUtil =
         }
         return null;
     },
-<<<<<<< HEAD
-=======
     /**
      * create a smooth glide for the module parameter changes from
      * one slot to another
@@ -169,8 +144,8 @@ const EventUtil =
 
         // ensure events glide their module parameter change
 
-        firstParam["glide"] = true;
-        secondParam["glide"] = true;
+        firstParam.glide  = true;
+        secondParam.glide = true;
 
         // find distance (in steps) between these two events
         // TODO: keep patterns' optional resolution differences in mind
@@ -184,7 +159,7 @@ const EventUtil =
                 channel[eventIndex] = evt;
                 EventUtil.setPosition( evt, pattern, eventIndex, song.meta.tempo );
             }
-            evt["mp"] = {
+            evt.mp = {
                 module: firstEvent.mp.module,
                 value: 0,
                 glide: true
@@ -219,7 +194,7 @@ const EventUtil =
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event: EffluxAudioEvent, index: number ): void => {
                 const mp = event.mp;
-                mp["value"] = firstParam.value + (( index + 1 ) * increment);
+                mp.value = firstParam.value + (( index + 1 ) * increment);
             });
         }
         else {
@@ -227,7 +202,7 @@ const EventUtil =
             increment = ( secondParam.value - firstParam.value ) / steps;
             events.forEach(( event: EffluxAudioEvent, index: number ): void => {
                 const mp = event.mp;
-                mp["value"] = firstParam.value + (( index + 1 ) * increment );
+                mp.value = firstParam.value + (( index + 1 ) * increment );
             });
         }
         return events;
@@ -265,7 +240,7 @@ const EventUtil =
                         if ( event.note === "" ) {
                             EventUtil.clearEventByReference( song, event );
                         } else {
-                            event["mp"] = null;
+                            event.mp = null;
                         }
                     });
                 },
@@ -275,7 +250,6 @@ const EventUtil =
             store.commit( "showError", store.getters.t( "errors.paramGlide" ));
         }
     },
->>>>>>> 85dcdfa (Migrate to Vue 3 draft (#80))
 };
 export default EventUtil;
 

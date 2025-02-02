@@ -96,11 +96,11 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             existingEventMp = serialize(( channel[ step ] as EffluxAudioEvent ).mp );
 
             if ( event.action !== ACTION_NOTE_OFF && !event.mp && existingEventMp ) {
-                event["mp"] = deserialize( existingEventMp );
+                event.mp = deserialize( existingEventMp );
             }
             EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
-        channel[step] = event;
+        channel[ step ] = event;
 
         if ( length > 1 ) {
             for ( let i = step + 1; i <= eventEnd; ++i ) {
@@ -146,7 +146,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         undo(): void {
             if ( length > 1 ) {
                 // clone() is necessary to avoid conflicts when stepping the history state back and forth
-                song.patterns[ patternIndex ].channels[channelIndex] = clone( orgContent );
+                song.patterns[ patternIndex ].channels[ channelIndex ] = clone( orgContent );
             } else {
                 EventUtil.clearEvent(
                     song,

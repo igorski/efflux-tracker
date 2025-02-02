@@ -47,15 +47,8 @@ export default {
                             .patterns[ store.getters.activePatternIndex ]
                             .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ] as EffluxAudioEvent;
 
-<<<<<<< HEAD
             if ( !event ) {
                 return;
-=======
-            if ( event ) {
-                // note we subtract 1 as we store the instrument by index in the model, but
-                // visualize it starting from 1 as humans love that.
-                event["instrument"] = keyCode - ONE;
->>>>>>> 85dcdfa (Migrate to Vue 3 draft (#80))
             }
             // note we subtract 1 as we store the instrument by index in the model, but
             // visualize it starting from 1 as humans love that.
@@ -63,13 +56,13 @@ export default {
             const oldInstrumentIndex = event.instrument;
 
             function act(): void {
-                Vue.set( event, "instrument", newInstrumentIndex );
+                event.instrument = newInstrumentIndex;
             }
             act();
 
             store.commit( "saveState", {
                 undo: () => {
-                    Vue.set( event, "instrument", oldInstrumentIndex );
+                    event.instrument = oldInstrumentIndex;
                 },
                 redo: act
             });

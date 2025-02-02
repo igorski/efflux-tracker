@@ -92,7 +92,7 @@ import { ToggleButton } from "vue-js-toggle-button";
 import messages from "./messages.json";
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         ToggleButton,

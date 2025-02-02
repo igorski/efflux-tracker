@@ -66,7 +66,7 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
     return {
         undo(): void {
             // clone() is necessary to avoid conflicts when stepping the history state back and forth
-            song.patterns[ patternIndex ].channels[channelIndex] = clone( orgContent );
+            song.patterns[ patternIndex ].channels[ channelIndex ] = clone( orgContent );
             invalidateCache( store, song, channelIndex );
         },
         redo: act,

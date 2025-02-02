@@ -61,7 +61,7 @@ const INSTRUMENT_COLORS = [
 ];
 
 export default {
-    emits: ["invalidate"],
+    emits: [ "invalidate" ],
     components: {
         SampleDisplay,
     },

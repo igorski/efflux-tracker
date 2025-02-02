@@ -78,7 +78,7 @@ import { toFileName } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
-    emits: ["close"],
+    emits: [ "close" ],
     i18n: { messages },
     data: () => ({
         firstOrderIndex : 1,

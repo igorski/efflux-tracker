@@ -24,7 +24,6 @@
     <canvas
         ref="waveformDisplay"
         class="sample-canvas"
-        
     ></canvas>
 </template>
 
