@@ -22,7 +22,7 @@
 */
 <template>
     <li
-        :class="{ selected: value === optionValue }"
+        :class="{ selected: modelValue === optionValue }"
         @click="handleClick"
     >
         <slot></slot>

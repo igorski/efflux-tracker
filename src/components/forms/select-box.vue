@@ -76,7 +76,7 @@ export default {
     computed: {
         internalValue: {
             get(): string | number {
-                return this.options.find(({ value }) => value === this.value );
+                return this.options.find(({ value }) => value === this.modelValue );
             },
             set({ value }: { value: string | number }): void {
                 this.$emit( "update:modelValue", value );

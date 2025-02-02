@@ -34,7 +34,7 @@
             type="checkbox"
             class="v-switch-input"
             :name="name"
-            :checked="value"
+            :checked="modelValue"
             :disabled="disabled"
             tabindex="-1"
             @change.stop="toggle"
@@ -249,7 +249,7 @@
       }
     },
     watch: {
-      value(value) {
+      modelValue(value) {
         if (this.sync) {
           this.toggled = !!value
         }

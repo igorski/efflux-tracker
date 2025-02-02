@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,11 +26,12 @@
         <div v-if="!canLaunch"
              class="container"
         >
-            <h1 v-t="'unsupported.title'"></h1>
-            <p v-t="'unsupported.message'"></p>
+            <h1>{{ $t("unsupported.title") }}</h1>
+            <p>{{ $t("unsupported.message") }}</p>
             <i18n path="unsupported.download">
-                <a v-t="'unsupported.googleChrome'"
-                   href="https://www.google.com/chrome" rel="noopener" target="_blank"></a>
+                <a href="https://www.google.com/chrome" rel="noopener" target="_blank">
+                    {{ $t( "unsupported.googleChrome" ) }}
+                </a>
             </i18n>
         </div>
         <template v-else>
@@ -81,7 +82,7 @@
 
         <div class="application-footer">
             <span>
-                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2023
+                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2025
             </span>
         </div>
 
@@ -112,8 +113,8 @@
 </template>
 
 <script lang="ts">
-import { type Component } from "vue";
-import * as Vuex from "vuex";
+import { type Component, defineAsyncComponent } from "vue";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { createI18n } from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
@@ -130,10 +131,7 @@ import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
-import store from "@/store";
 import messages from "@/messages.json";
-
-const { mapState, mapGetters, mapMutations, mapActions } = Vuex;
 
 // Create VueI18n instance with options
 const i18n = createI18n({
@@ -143,40 +141,39 @@ const i18n = createI18n({
 // wrapper for loading dynamic components with custom loading states
 type IAsyncComponent = { component: Promise<Component>};
 function asyncComponent( key: string, importFn: () => Promise<any> ): IAsyncComponent {
-    return {
-        component: new Promise( async ( resolve, reject ) => {
+    return defineAsyncComponent({
+        loader: async () => {
             Pubsub.publish( PubSubMessages.SET_LOADING_STATE, key );
             try {
                 const component = await importFn();
-                resolve( component );
+                return component;
             } catch ( e ) {
                 // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
                 if ( import.meta.env.MODE !== "production" ) {
                     console.error( e );
                 }
                 reject();
+            } finally {
+                Pubsub.publish( PubSubMessages.UNSET_LOADING_STATE, key );
             }
-            Pubsub.publish( PubSubMessages.UNSET_LOADING_STATE, key );
-        })
-    };
+        }
+    });
 }
 
 export default {
     name: "Efflux",
-    store: Vuex.createStore( store ),
-    i18n,
     components: {
-        DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window.vue" )),
+        DialogWindow: asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window.vue" )),
         ApplicationMenu, // sync as it should be ready when EFFLUX_READY is broadcast over pubsub
-        HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section.vue" )),
+        HelpSection: asyncComponent( "hs", () => import( "@/components/help-section/help-section.vue" )),
         Loader,
         Notifications,
-        NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
-        PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
-        PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
-        EditorActions: () => asyncComponent( "ea", () => import( "@/components/editor-actions/editor-actions.vue" )),
-        Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
+        NoteEntryEditor: asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
+        PatternEditor: asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
+        PatternTrackList: asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
+        JamModeEditor: asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
+        EditorActions: asyncComponent( "ea", () => import( "@/components/editor-actions/editor-actions.vue" )),
+        Transport: asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
     data: () => ({
         prepared: false,
@@ -280,7 +277,7 @@ export default {
                     loadFn = () => import( "@/components/pattern-to-order-conversion-window/pattern-to-order-conversion-window.vue" );
                     break;
             }
-            return () => asyncComponent( "mw", loadFn );
+            return asyncComponent( "mw", loadFn );
         },
         isMobileSettingsMode(): boolean {
             return !this.jamMode && this.mobileMode === "settings";

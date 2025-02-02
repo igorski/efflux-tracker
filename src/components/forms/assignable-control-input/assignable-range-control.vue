@@ -34,7 +34,7 @@
             :max="max"
             :step="step"
             :disabled="disabled"
-            @input="$emit( "update:modelValue", $event.target.value )"
+            @input="$emit( 'update:modelValue', $event.target.value )"
         />
         <div
             v-if="linkable && !disabled"
