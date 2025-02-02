@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import EventFactory from "@/model/factories/event-factory";
 import type { EffluxAudioEvent, EffluxAudioEventModuleParams } from "@/model/types/audio-event";
@@ -62,7 +61,7 @@ export default function glideParameterAutomations( song: EffluxSong, step: numbe
         store.commit( "saveState", {
             undo: () => {
                 // clone() is necessary to avoid conflicts when stepping the history state back and forth
-                Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
+                song.patterns[ patternIndex ].channels[ channelIndex ] = clone( orgContent );
                 invalidateCache( store, song, channelIndex );
             },
             redo: act
@@ -125,8 +124,8 @@ export function glideModuleParams( song: EffluxSong, orderIndex: number, channel
 
     // ensure events glide their module parameter change
 
-    Vue.set( firstParam,  "glide", true );
-    Vue.set( secondParam, "glide", true );
+    firstParam.glide  = true;
+    secondParam.glide = true;
 
     const events = fillEventRange( song, firstEvent, secondEvent, orderIndex, channelIndex );
     const steps  = events.length + 1;
@@ -137,7 +136,7 @@ export function glideModuleParams( song: EffluxSong, orderIndex: number, channel
         increment = ( secondParam.value - firstParam.value ) / steps;
         events.forEach(( event: EffluxAudioEvent, index: number ): void => {
             const mp = event.mp;
-            Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment ));
+            mp.value = firstParam.value + (( index + 1 ) * increment );
         });
     }
     else {
@@ -145,7 +144,7 @@ export function glideModuleParams( song: EffluxSong, orderIndex: number, channel
         increment = ( secondParam.value - firstParam.value ) / steps;
         events.forEach(( event: EffluxAudioEvent, index: number ): void => {
             const mp = event.mp;
-            Vue.set( mp, "value", firstParam.value + (( index + 1 ) * increment ));
+            mp.value = firstParam.value + (( index + 1 ) * increment );
         });
     }
     return events;
@@ -165,14 +164,14 @@ function fillEventRange( song: EffluxSong, firstEvent: EffluxAudioEvent, secondE
         if ( typeof evt !== "object" ) {
             // event didn't exist... create it and insert into the channel
             evt = EventFactory.create( firstEvent.instrument );
-            Vue.set( channel, eventIndex, evt );
+            channel[ eventIndex ] = evt;
             EventUtil.setPosition( evt, pattern, eventIndex, song.meta.tempo );
         }
-        Vue.set( evt, "mp", {
+        evt.mp = {
             module: firstEvent.mp.module,
             value: 0,
             glide: true
-        });
+        };
         return evt;
     };
     
