@@ -31,10 +31,10 @@
 
 <script lang="ts">
 export default {
-    emits: [ "input" ],
+    emits: [ "update:modelValue" ],
     props: {
         // the bound v-model
-        value: {
+        modelValue: {
             type: [ String, Number, Boolean ],
             required: true
         },
@@ -46,7 +46,7 @@ export default {
     },
     methods: {
         handleClick(): void {
-            this.$emit( "input", this.optionValue );
+            this.$emit( "update:modelValue", this.optionValue );
         }
     }
 };

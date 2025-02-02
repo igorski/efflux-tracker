@@ -38,13 +38,13 @@
 import KnobControl from "vue-knob-control";
 
 export default {
-    emits: [ "input" ],
+    emits: [ "update:modelValue" ],
     components: {
         KnobControl
     },
     props: {
         /* value is normalized to 0 - 1 range */
-        value: {
+        modelValue: {
             type: Number,
             required: true,
         },
@@ -55,7 +55,7 @@ export default {
                 return this.value * 100;
             },
             set( value: number ): void {
-                this.$emit( "input", value / 100 );
+                this.$emit( "update:modelValue", value / 100 );
             },
         },
     },

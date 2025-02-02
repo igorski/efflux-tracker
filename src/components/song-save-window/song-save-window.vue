@@ -88,7 +88,7 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { getCurrentFolder, setCurrentFolder } from "@/services/dropbox-service";
-import { ToggleButton } from "vue-js-toggle-button";
+import { ToggleButton } from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
 import messages from "./messages.json";
 
 export default {

@@ -34,7 +34,7 @@
             :max="max"
             :step="step"
             :disabled="disabled"
-            @input="$emit( 'input', $event.target.value )"
+            @input="$emit( "update:modelValue", $event.target.value )"
         />
         <div
             v-if="linkable && !disabled"
@@ -61,6 +61,7 @@ import { getParamRange } from "@/services/audio/param-controller";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "update:modelValue" ],
     i18n: { messages },
     mixins: [ AssignableInput ],
     props: {
@@ -72,7 +73,7 @@ export default {
             type: [ String, Number, undefined ],
             required: false,
         },
-        value: {
+        modelValue: {
             type: Number,
             required: true,
         },

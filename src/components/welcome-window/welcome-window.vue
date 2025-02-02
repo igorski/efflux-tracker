@@ -85,7 +85,7 @@
 
 <script lang="ts">
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { ToggleButton } from "vue-js-toggle-button";
+import { ToggleButton } from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";

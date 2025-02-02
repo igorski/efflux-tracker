@@ -116,7 +116,7 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { zMIDI } from "zmidi";
-import { ToggleButton } from "vue-js-toggle-button";
+import { ToggleButton } from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
 import SelectBox from "@/components/forms/select-box.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import MIDIService from "@/services/midi-service";
