@@ -257,7 +257,7 @@
     },
     data() {
       return {
-        toggled: !!this.value
+        toggled: !!this.modelValue
       }
     },
     methods: {

@@ -27,7 +27,7 @@
             :for="paramId"
         ></label>
         <input
-            :value="value"
+            :value="modelValue"
             :id="paramId"
             type="range"
             :min="min"

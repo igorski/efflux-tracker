@@ -23,9 +23,8 @@
 <template>
     <div class="toggle-control-wrapper">
         <toggle-button
-            :value="value"
+            v-model="internalValue"
             :disabled="disabled"
-            @input="handleChange"
             sync
         />
         <div
@@ -77,11 +76,16 @@ export default {
             default: false,
         },
     },
-    methods: {
-        handleChange( value: boolean ): void {
-            this.$emit( "update:modelValue", value );
+    computed: {
+        internalValue: {
+            get(): Boolean {
+                return this.modelValue;
+            },
+            set( value: Boolean ): void {
+                this.$emit( "update:modelValue", value );
+            },
         },
-    },
+    }
 };
 </script>
 
