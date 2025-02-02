@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent, EffluxAudioEventModuleParams, ACTION_AUTO_ONLY, ACTION_NOTE_OFF } from "@/model/types/audio-event";
@@ -97,11 +96,11 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
             existingEventMp = serialize(( channel[ step ] as EffluxAudioEvent ).mp );
 
             if ( event.action !== ACTION_NOTE_OFF && !event.mp && existingEventMp ) {
-                Vue.set( event, "mp", deserialize( existingEventMp ));
+                event["mp"] = deserialize( existingEventMp );
             }
             EventUtil.clearEvent( song, patternIndex, channelIndex, step );
         }
-        Vue.set( channel, step, event );
+        channel[step] = event;
 
         if ( length > 1 ) {
             for ( let i = step + 1; i <= eventEnd; ++i ) {
@@ -147,7 +146,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         undo(): void {
             if ( length > 1 ) {
                 // clone() is necessary to avoid conflicts when stepping the history state back and forth
-                Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
+                song.patterns[ patternIndex ].channels[channelIndex] = clone( orgContent );
             } else {
                 EventUtil.clearEvent(
                     song,

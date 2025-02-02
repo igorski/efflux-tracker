@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import Config from "@/config";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
@@ -48,8 +47,15 @@ export default {
                             .patterns[ store.getters.activePatternIndex ]
                             .channels[ state.editor.selectedInstrument ][ state.editor.selectedStep ] as EffluxAudioEvent;
 
+<<<<<<< HEAD
             if ( !event ) {
                 return;
+=======
+            if ( event ) {
+                // note we subtract 1 as we store the instrument by index in the model, but
+                // visualize it starting from 1 as humans love that.
+                event["instrument"] = keyCode - ONE;
+>>>>>>> 85dcdfa (Migrate to Vue 3 draft (#80))
             }
             // note we subtract 1 as we store the instrument by index in the model, but
             // visualize it starting from 1 as humans love that.

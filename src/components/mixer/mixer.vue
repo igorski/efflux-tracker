@@ -69,7 +69,7 @@ export default {
         // connect the AnalyserNodes to the all instrument channels
         applyModules( this.activeSong, true );
     },
-    destroyed() {
+    unmounted() {
         // disconnect the AnalyserNodes
         applyModules( this.activeSong, false );
     },

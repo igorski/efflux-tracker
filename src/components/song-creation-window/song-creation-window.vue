@@ -62,6 +62,7 @@ import PubSubMessages from "@/services/pubsub/messages";
 import messages from "./messages.json";
 
 export default {
+    emits: ["close"],
     i18n: { messages },
     created(): void {
         this.setPlaying( false );

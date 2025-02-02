@@ -377,14 +377,14 @@ export default {
             const { activePatternIndex, selectedInstrument } = this;
             const act = (): void => {
                 const pattern = this.activeSong.patterns[ activePatternIndex ];
-                this.$set( pattern.channels[ selectedInstrument ], event.step, EventFactory.create( selectedInstrument, "", 0, ACTION_NOTE_OFF ));
+                pattern.channels[ selectedInstrument ][event.step] = EventFactory.create( selectedInstrument, "", 0, ACTION_NOTE_OFF );
             };
             act();
             this.saveState({
                 undo: (): void => {
                     const pattern = this.activeSong.patterns[ activePatternIndex ];
                     EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.tempo );
-                    this.$set( pattern.channels[ selectedInstrument ], event.step, event.event );
+                    pattern.channels[ selectedInstrument ][event.step] = event.event;
                 },
                 redo: act,
             });

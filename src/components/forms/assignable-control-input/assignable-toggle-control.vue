@@ -53,6 +53,7 @@ import AssignableInput from "./assignable-control-input";
 import messages from "./messages.json";
 
 export default {
+    emits: ["input"],
     i18n: { messages },
     components: {
         ToggleButton

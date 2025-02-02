@@ -113,9 +113,8 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import Vue, { type Component } from "vue";
-import Vuex from "vuex";
-import VueI18n from "vue-i18n";
+import { type Component } from "vue";
+import * as Vuex from "vuex";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
@@ -133,12 +132,10 @@ import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/
 import { deserializePatternFile } from "@/utils/pattern-util";
 import store from "@/store";
 import messages from "@/messages.json";
-
-Vue.use( Vuex );
-Vue.use( VueI18n );
+import { createI18n } from "vue-i18n";
 
 // Create VueI18n instance with options
-const i18n = new VueI18n({
+const i18n = createI18n({
     messages
 });
 
@@ -165,7 +162,7 @@ function asyncComponent( key: string, importFn: () => Promise<any> ): IAsyncComp
 
 export default {
     name: "Efflux",
-    store: new Vuex.Store( store ),
+    store: Vuex.createStore(store),
     i18n,
     components: {
         DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window.vue" )),

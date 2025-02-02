@@ -248,7 +248,7 @@ export default {
         };
         renderLoop();
     },
-    destroyed(): void {
+    unmounted(): void {
         cancelAnimationFrame( this.renderCycle );
     },
     methods: {
