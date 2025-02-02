@@ -1,7 +1,8 @@
 /**
  * MIT License
  *
- * Adapted from Vue 2 code by kramer99
+ * Adapted from Vue 2 code
+ * Copyright (c) 2018 Craig
  * https://github.com/kramer99/vue-knob-control
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
