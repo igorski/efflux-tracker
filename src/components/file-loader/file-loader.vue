@@ -39,7 +39,7 @@
 </template>
 
 <script lang="ts">
-import { type Component } from "vue";
+import { type Component, defineAsyncComponent } from "vue";
 import { mapMutations, mapActions } from "vuex";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
@@ -75,12 +75,14 @@ export default {
          * Cloud import are loaded at runtime to omit packaging
          * third party SDK within the core bundle.
          */
-        cloudImportType(): (() => Promise<Component> ) | null {
+        cloudImportType(): Promise<Component> | null {
             switch ( this.dropbox ) {
                 default:
                     return null;
                 case true:
-                    return () => import( "@/components/dropbox-connector/dropbox-connector.vue" );
+                    return defineAsyncComponent({
+                        loader: () => import( "@/components/dropbox-connector/dropbox-connector.vue" )
+                    });
             }
         },
         acceptedFiles(): string[] {

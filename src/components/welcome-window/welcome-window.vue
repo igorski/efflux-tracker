@@ -45,9 +45,9 @@
                 v-t="'tweakInstrument'"
                 @click="openInstrumentEditor()"
             ></button>
-            <i18n path="introductionHelp" tag="p">
+            <i18n-t keypath="introductionHelp" tag="p">
                 <span class="emphasis">{{ $t('jamMode') }}</span>
-            </i18n>
+            </i18n-t>
             <button
                 type="button"
                 class="button--secondary"

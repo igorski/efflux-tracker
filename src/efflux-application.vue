@@ -28,11 +28,11 @@
         >
             <h1>{{ $t("unsupported.title") }}</h1>
             <p>{{ $t("unsupported.message") }}</p>
-            <i18n path="unsupported.download">
+            <i18n-t keypath="unsupported.download">
                 <a href="https://www.google.com/chrome" rel="noopener" target="_blank">
                     {{ $t( "unsupported.googleChrome" ) }}
                 </a>
-            </i18n>
+            </i18n-t>
         </div>
         <template v-else>
             <header

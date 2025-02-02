@@ -39,13 +39,14 @@ Please vote on feature requests by using the Thumbs Up/Down reaction on the firs
 
 All source code can be found in the _./src_-folder. Efflux is written using [Vue](https://vuejs.org), with the audio engine fully written in TypeScript.
 
- * _./src/_ contains all source code with _main.js_ and _efflux-application.vue_ being the application entry points
- * _./src/assets_ contains all used fonts and images
- * _./src/model_ contains factories and utilities to create and serialize an Efflux song (see _"Efflux song model"_ below)
- * _./src/services_ contains a variety of services used to integrate hardware interaction within the application
- * _./src/workers_ contains all Workers (which will be inlined into the compiled output and loaded as Blobs)
- * _./src/utils_ contains utilities for common operations or to orchestrate batch changes
-
+ * `src` contains all source code with `main.js` and `efflux-application.vue` being the application entry points
+ * `src/components` contains all UI components as Vue files
+ * `src/assets` contains all used fonts and images
+ * `src/model` contains factories and utilities to create and serialize an Efflux song (see _"Efflux song model"_ below)
+ * `src/services` contains a variety of services used to integrate hardware interaction within the application
+ * `src/utils` contains utilities for common operations or to orchestrate batch changes
+ * `src/workers` contains all Workers (which will be inlined into the compiled output and loaded as Blobs)
+ 
 Additional folders:
 
  * _./design_ contains SVG icons that are combined into a webfont (currently done manually through Fontello)
@@ -206,5 +207,4 @@ the _.spec_-suffix, e.g. _functions.js_ will have a test file _functions.spec.js
 
 Efflux is considered complete, but you can expect incremental major/minor version bumps as new features are added every now and then. 
 
-A consideration for the codebase is migrating from Vue 2 to Vue 3 (to facilitate this, first the Vuex
-modules must be migrated to Pinia). For the time being the focus is on developing new features rather than on this migration as the end user doesn't care about these things, yo.
+A consideration for the codebase is migrating from Vuex to Pinia, which was postponed during the Vue 2 to Vue 3 migration. For the time being the focus is on developing new features rather than such migrations (unless compatibility or security issues become a concern) as the end user doesn't care about these things, yo.
