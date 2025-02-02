@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import KnobControl from "vue-knob-control";
+import KnobControl from "@/components/forms/vue-knob-control/KnobControl.vue";
 
 export default {
     emits: [ "update:modelValue" ],
@@ -52,7 +52,7 @@ export default {
     computed: {
         internalValue: {
             get(): number {
-                return this.value * 100;
+                return this.modelValue * 100;
             },
             set( value: number ): void {
                 this.$emit( "update:modelValue", value / 100 );
