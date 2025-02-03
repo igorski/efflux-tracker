@@ -26,8 +26,8 @@
         <div v-if="!canLaunch"
              class="container"
         >
-            <h1>{{ $t("unsupported.title") }}</h1>
-            <p>{{ $t("unsupported.message") }}</p>
+            <h1 v-t="'unsupported.title'"></h1>
+            <p v-t="'unsupported.message'"></p>
             <i18n-t keypath="unsupported.download">
                 <a href="https://www.google.com/chrome" rel="noopener" target="_blank">
                     {{ $t( "unsupported.googleChrome" ) }}
@@ -347,7 +347,7 @@ export default {
         const urlParams = new URLSearchParams( window.location.search );
         this.openSong( await this.createSong( urlParams.has( JAM_MODE ) ? EffluxSongType.JAM : EffluxSongType.TRACKER ));
         await this.prepareSequencer( this.$store );
-        await this.setupServices( i18n );
+        await this.setupServices( this.$t );
 
         this.prepared = true;
 

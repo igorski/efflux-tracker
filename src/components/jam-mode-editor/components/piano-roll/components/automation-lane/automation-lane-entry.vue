@@ -58,7 +58,6 @@
 
 <script>
 export default {
-    functional: true,
     props: {
         height: {
             type: String, // CSS value

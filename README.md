@@ -56,17 +56,17 @@ Additional folders:
 
 ## Application actors
 
-The data store is defined in _./src/store/_ and its submodules in the _./src/store/modules/_-folder. Each part of
+The data store is defined in `src/store` and its submodules in the `src/store/modules`-folder. Each part of
 the application has its own module, these being:
 
- * _editor-module_ used to keep track of user interactions when editing patterns
- * _history-module_ used to keep track of song mutation history to provide undo/redo functionality
- * _instrument-module_ provides a store to save, load and edit instruments presets
- * _midi-module_ used to link MIDI hardware to the application (currently Google Chrome only)
- * _selection-module_ used to keep track of selections made in the pattern editor
- * _sequencer-module_ used to manage playback related properties of the tracker
- * _settings-module_ used to maintain persistent configurations
- * _song-module_ provides a store to save, load and edit songs
+ * `editor-module` used to keep track of user interactions when editing patterns
+ * `history-module` used to keep track of song mutation history to provide undo/redo functionality
+ * `instrument-module` provides a store to save, load and edit instruments presets
+ * `midi-module` used to link MIDI hardware to the application (currently Google Chrome only)
+ * `selection-module` used to keep track of selections made in the pattern editor
+ * `sequencer-module` used to manage playback related properties of the tracker
+ * `settings-module` used to maintain persistent configurations
+ * `song-module` provides a store to save, load and edit songs
 
 ### Efflux song model
 
@@ -91,7 +91,7 @@ As hinted above, a song also has `Instrument`s. There are an equal amount of ins
 (the pattern channels). By default each channel references its own instruments. As the instruments in Efflux are
 synthesizers, each Instrument has a list of `InstrumentOscillator`s which can be individually tuned and configured for playback.
 
-Instruments also reference `InstrumentModules`. Each of these modules is basically an effects processor. Each instrument can have its output routed through multiple processors before its output is mixed into the master channel (by the _AudioService_).
+Instruments also reference `InstrumentModules`. Each of these modules is basically an effects processor. Each instrument can have its output routed through multiple processors before its output is mixed into the master channel (by the `AudioService`).
 
 All model types are generated through their respected _FACTORIES_. The factory should be able to create a new
 instance of the model type, as well as be able to assemble an instance from a _serialized_ version. _SERIALIZERS_ are
@@ -99,13 +99,13 @@ separate files (to minimize file size of the Tiny player that should only be abl
 
 ### Efflux song model and Vuex
 
-In Vuex, the song is stored inside its own Vuex store module _"song-module.js"_. The editors bind directly to this reactive model, but for audio playback, an additional Object structure (e.g. `EffluxAudioEvent.seq`) is used. This separates the _data_ aspect (maintained by the Vuex store mutations) from the _audio rendering_.
+In Vuex, the song is stored inside its own Vuex store module `song-module.ts`. The editors bind directly to this reactive model, but for audio playback, an additional Object structure (e.g. `EffluxAudioEvent.seq`) is used. This separates the _data_ aspect (maintained by the Vuex store mutations) from the _audio rendering_.
 
 The history module provides custom methods for saving and restoring individual actions for specific sections of a song. While Vuex makes it easy to simply save an entire song upon each mutation, this will consume a lot (!) of memory fast. Which brings us to:
 
 #### State history
 
-Mutations can be registered in state history (Vuex _history-module.js_) in order to provide undo and redo
+Mutations can be registered in state history (Vuex `history-module.ts`) in order to provide undo and redo
 of operations. In order to prevent storing a lot of changes of the same property (for instance when dragging a slider), the storage of a new state is deferred through a queue. This is why history states are enqueued by _propertyName_:
 
 When enqueuing a new state while there is an existing one enqueued for the same property name, the first state is updated so its redo will match that of the newest state, the undo remaining unchanged. The second state will not
@@ -148,9 +148,9 @@ update( propertyName: string, newValue: any ): void {
 ### Audio rendering
 
 The synthesizer itself renders its output by use of the Web Audio API's _OscillatorNodes_ and _PeriodicWave_. All of
-this logic is determined by _noteOn_ and _noteOff_ events (similar to the MIDI spec) that is handled by the _AudioService_.
+this logic is determined by _noteOn_ and _noteOff_ events (similar to the MIDI spec) that is handled by the `AudioService`.
 The routing of audio paths, connecting of nodes and effect modules, recording, etc. is handled by the same service, see the
-_./services/audio/_-folder.
+`src/services/audio`-folder.
 
 When in doubt of how the audio output relates to the visual interface, remember that the Vuex song model defines _what it
 should sound like_ (as in: defines the properties of the instruments) while the AudioService takes care of the actual
@@ -190,7 +190,7 @@ A minified and transpiled production build can be created using the following co
 npm run build
 ```
 
-After which the build output is available in the _./dist/_-folder.
+After which the build output is available in the `dist`-folder.
 
 ## Unit testing
 
@@ -200,8 +200,8 @@ Unit tests are run via Jest. You can run the tests by using:
 npm run test
 ```
 
-Unit tests go in the _./tests_-folder. The file name for a unit test should equal the file it is testing, but contain
-the _.spec_-suffix, e.g. _functions.js_ will have a test file _functions.spec.js_.
+Unit tests go in the `tests`-folder. The file name for a unit test should equal the file it is testing, but contain
+the `.spec`-suffix, e.g. `functions.ts` will have a test file `functions.spec.ts`.
 
 ## Roadmap
 
