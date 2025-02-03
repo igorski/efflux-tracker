@@ -52,7 +52,7 @@ Additional folders:
  * `design` contains SVG icons that are combined into a webfont (currently done manually through Fontello)
  * `fixtures` can be filled with separate JSON files containing Song and Instrument data, these will be concatenated into
    a single file that can be requested via Ajax on the first application start to provide demo content
-   (see `fixtures-loader.js`)
+   (see `fixtures-loader.ts`)
 
 ## Application actors
 
