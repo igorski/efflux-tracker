@@ -27,7 +27,7 @@
             maximized
             @close="handleClose()"
         >
-            <hr class="divider jam-divider" />
+            <hr class="jam-divider" />
             <note-entry-editor class="jam-note-editor" />
         </instrument-editor>
     </div>
@@ -61,6 +61,7 @@ export default {
 }
 
 .jam-divider {
+    @include divider();
     margin-top: 0 !important;
 }
 

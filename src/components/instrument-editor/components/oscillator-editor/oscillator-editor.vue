@@ -328,7 +328,7 @@ export default {
             const store     = this.$store;
             const component = this;
             const { oscillatorIndex, instrumentIndex } = this;
-            const orgValue = clone( this.oscillator?.[ prop ] || "" );
+            const orgValue = clone( this.oscillator?.[ prop ] ?? "" );
 
             const applyUpdate = (): void => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
