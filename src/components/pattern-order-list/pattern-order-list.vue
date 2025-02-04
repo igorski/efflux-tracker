@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2023 - https://www.igorski.nl
+* Igor Zinken 2023-2025 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -220,6 +220,24 @@ export default {
         @include button();
         padding: $spacing-xsmall $spacing-small;
         margin: $spacing-small;
+    }
+
+    .pattern-order-entry__context-menu-button {
+        @include toolFont();
+        background: none;
+        border: 0;
+        color: $color-editor-background;
+        width: 100%;
+        cursor: pointer;
+
+        &:hover {
+            color: #FFF;
+        }
+
+        &:disabled {
+            color: #666;
+            cursor: default;
+        }
     }
 }
 </style>

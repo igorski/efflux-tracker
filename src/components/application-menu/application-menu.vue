@@ -236,7 +236,7 @@
 </template>
 
 <script lang="ts">
-import { type Component } from "vue";
+import { type Component, defineAsyncComponent } from "vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
@@ -277,7 +277,9 @@ export default {
                 default:
                     return null;
                 case true:
-                    return () => import( "@/components/dropbox-connector/dropbox-connector.vue" );
+                    return defineAsyncComponent({
+                        loader: () => import( "@/components/dropbox-connector/dropbox-connector.vue" )
+                    });
             }
         },
     },

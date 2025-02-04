@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import Config from "@/config";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
@@ -57,13 +56,13 @@ export default {
             const oldInstrumentIndex = event.instrument;
 
             function act(): void {
-                Vue.set( event, "instrument", newInstrumentIndex );
+                event.instrument = newInstrumentIndex;
             }
             act();
 
             store.commit( "saveState", {
                 undo: () => {
-                    Vue.set( event, "instrument", oldInstrumentIndex );
+                    event.instrument = oldInstrumentIndex;
                 },
                 redo: act
             });

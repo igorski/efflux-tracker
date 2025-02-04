@@ -196,6 +196,7 @@ import { clone } from "@/utils/object-util";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "invalidate" ],
     i18n: { messages },
     components: {
         SelectBox,

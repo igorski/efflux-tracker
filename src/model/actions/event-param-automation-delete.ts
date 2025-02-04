@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import { type Store } from "vuex";
 import { type IUndoRedoState } from "@/model/factories/history-state-factory";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
@@ -35,16 +34,15 @@ export default function deleteEventParamAutomation( store: Store<EffluxState>, p
     const existingAutomation = existingEvent.mp ? { ...existingEvent.mp } : undefined;
     
     const act = (): void => {
-        Vue.delete( getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent, "mp" );
+        const event = getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent;
+        event.mp = undefined;
     };
     act(); // perform action
 
     return {
         undo(): void {
-            Vue.set(
-                getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent,
-                "mp", { ...existingAutomation }
-            );
+            const event = getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent;
+            event.mp = { ...existingAutomation };
         },
         redo: act
     };

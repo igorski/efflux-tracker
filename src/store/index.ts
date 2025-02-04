@@ -1,5 +1,5 @@
 import type { ActionContext } from "vuex";
-import type { IVueI18n } from "vue-i18n";
+import type { VueI18n } from "vue-i18n";
 import editor, { EditorState } from "./modules/editor-module";
 import history, { HistoryState } from "./modules/history-module";
 import instrument, { InstrumentState } from "./modules/instrument-module";
@@ -22,9 +22,10 @@ import Messages from "@/services/pubsub/messages";
 // cheat a little by exposing the vue-i18n translations directly to the
 // store so we can commit translated error/success messages from actions
 
-let i18n: IVueI18n;
-const translate = ( key: string, optArgs?: any ): string => i18n && typeof i18n.t === "function" ? i18n.t( key, optArgs ) as string : key;
-
+let translator: ( key: string, ...opts: unknown[] ) => string;
+const translate = ( key: string, optArgs?: any ): string => {
+    return typeof translator === "function" ? translator?.( key, optArgs ) as string : key;
+}
 type IDialogWindow = {
     type: string;
     title: string;
@@ -209,12 +210,12 @@ export default
          * (audio outputs/inputs, keyboard, etc.) connected to the device
          * the application is running on.
          */
-        setupServices( store: ActionContext<EffluxState, any>, i18nReference: IVueI18n ): Promise<void> {
+        setupServices( store: ActionContext<EffluxState, any>, i18nTranslator: ( key: string, ...opts: unknown[] ) => string ): Promise<void> {
             // cheat a little by giving the services access to the root store.
             // when synthesizing audio we need instant access to song events
             // nextTick()-based reactivity is too large of a latency
             const storeReference = this;
-            i18n = i18nReference;
+            translator = i18nTranslator;
 
             return new Promise( resolve => {
                 // audioContext initialization is async, on user interaction

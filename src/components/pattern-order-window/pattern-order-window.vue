@@ -42,42 +42,42 @@
         </div>
         <hr class="divider" />
         <ul class="order-list">
-            <draggable v-model="entries">
-                <li
-                    v-for="entry in entries"
-                    :key="`entry_${entry.name}_${entry.index}`"
-                    class="order-list__entry"
-                    :class="{
-                        'order-list__entry--active': entry.index === activeOrderIndex
-                    }"
-                    ref="listEntry"
-                >
-                    <span
-                        class="order-list__entry-title"
-                        role="button"
-                        @click.stop="handleSelect( entry )"
-                    >{{ entry.name }} <span class="order-list__entry-title-description">{{ entry.description }}</span>
-                    </span>
-                    <button
-                        type="button"
-                        class="order-list__entry-action-button icon-play"
-                        :title="$t('play')"
-                        @click.stop="handlePlayClick( entry )"
-                    ></button>
-                    <button
-                        type="button"
-                        class="order-list__entry-action-button"
-                        :title="$t('duplicate')"
-                        @click.stop="handleDuplicateClick( entry )"
-                    ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
-                    <button
-                        v-if="canDelete"
-                        type="button"
-                        class="order-list__entry-action-button"
-                        :title="$t('delete')"
-                        @click.stop="handleDeleteClick( entry )"
-                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
-                </li>
+            <draggable v-model="entries" itemKey="index">
+                <template #item="{element}">
+                    <li
+                        class="order-list__entry"
+                        :class="{
+                            'order-list__entry--active': element.index === activeOrderIndex
+                        }"
+                        ref="listEntry"
+                    >
+                        <span
+                            class="order-list__entry-title"
+                            role="button"
+                            @click.stop="handleSelect( element )"
+                        >{{ element.name }} <span class="order-list__entry-title-description">{{ element.description }}</span>
+                        </span>
+                        <button
+                            type="button"
+                            class="order-list__entry-action-button icon-play"
+                            :title="$t('play')"
+                            @click.stop="handlePlayClick( element )"
+                        ></button>
+                        <button
+                            type="button"
+                            class="order-list__entry-action-button"
+                            :title="$t('duplicate')"
+                            @click.stop="handleDuplicateClick( element )"
+                        ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                        <button
+                            v-if="canDelete"
+                            type="button"
+                            class="order-list__entry-action-button"
+                            :title="$t('delete')"
+                            @click.stop="handleDeleteClick( element )"
+                        ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                    </li>
+                </template>
             </draggable>
         </ul>
         <hr class="divider divider--bottom" />

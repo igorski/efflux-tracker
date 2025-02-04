@@ -167,7 +167,7 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import { ToggleButton } from "vue-js-toggle-button";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import SelectBox from "@/components/forms/select-box.vue";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
@@ -181,6 +181,7 @@ import { clone } from "@/utils/object-util";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "invalidate" ],
     i18n: { messages },
     components: {
         SelectBox,
@@ -327,7 +328,7 @@ export default {
             const store     = this.$store;
             const component = this;
             const { oscillatorIndex, instrumentIndex } = this;
-            const orgValue = clone( this.oscillator?.[ prop ] || "" );
+            const orgValue = clone( this.oscillator?.[ prop ] ?? "" );
 
             const applyUpdate = (): void => {
                 const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];

@@ -43,8 +43,9 @@ import "vue-select/dist/vue-select.css";
 import { createPopper } from '@popperjs/core'
 
 export default {
+    emits: [ "update:modelValue" ],
     props: {
-        value: {
+        modelValue: {
             type: [ String, Number ],
             default: null,
         },
@@ -75,10 +76,10 @@ export default {
     computed: {
         internalValue: {
             get(): string | number {
-                return this.options.find(({ value }) => value === this.value );
+                return this.options.find(({ value }) => value === this.modelValue );
             },
             set({ value }: { value: string | number }): void {
-                this.$emit( "input", value );
+                this.$emit( "update:modelValue", value );
                 this.assertSync();
             }
         },

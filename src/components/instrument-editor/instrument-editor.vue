@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2023 - https://www.igorski.nl
+ * Igor Zinken 2019-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -117,7 +117,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Config            from "@/config";
 import Actions           from "@/definitions/actions";
@@ -126,6 +126,7 @@ import ModalWindows      from "@/definitions/modal-windows";
 import PubSubMessages    from "@/services/pubsub/messages";
 import createAction      from "@/model/factories/action-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
+import type { Instrument } from "@/model/types/instrument";
 import { clone }         from "@/utils/object-util";
 import SelectBox         from "@/components/forms/select-box.vue";
 import OscillatorEditor  from "./components/oscillator-editor/oscillator-editor.vue";
@@ -165,10 +166,10 @@ export default {
             "hasMidiSupport",
         ]),
         instrument: {
-            get() {
+            get(): string {
                 return this.selectedInstrument.toString();
             },
-            set( value ) {
+            set( value: string ): void {
                 this.setSelectedInstrument( parseFloat( value )); // allows live keyboard/MIDI playing to use new instrument
                 const instrumentPresetName = this.instrumentRef.presetName;
                 if ( this.presets.find(({ presetName }) => presetName === instrumentPresetName )) {
@@ -179,18 +180,18 @@ export default {
                 this.presetName = instrumentPresetName;
             },
         },
-        instrumentRef() {
+        instrumentRef(): Instrument {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
         presetName: {
-            get() {
+            get(): string {
                 return this.instrumentRef?.presetName;
             },
-            set( presetName ) {
+            set( presetName: string ): void {
                 this.setPresetName({ instrument: this.instrumentRef, presetName });
             },
         },
-        presets() {
+        presets(): Instrument[] {
             const out = [
                 ...this.instruments,
                 { presetName: this.$t( "defaultPresetName" ) }
@@ -201,21 +202,21 @@ export default {
                 return 0;
             });
         },
-        instrumentOptions() {
+        instrumentOptions(): { label: string, value: string }[] {
             const out = [];
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
                 out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
         },
-        presetOptions() {
+        presetOptions(): { label: string, value: string }[] {
             return this.presets
                 .map(({ presetName }) => ({ label: presetName, value: presetName }))
                 .sort(( a, b ) => a.label.toLowerCase().localeCompare( b.label.toLowerCase()));
         },
     },
     watch: {
-        async currentPreset( selectedPresetName ) {
+        async currentPreset( selectedPresetName ): Promise<void> {
             if ( selectedPresetName === EMPTY_PRESET_VALUE || this.instrumentRef.presetName === selectedPresetName ) {
                 return;
             }
@@ -234,12 +235,12 @@ export default {
             });
         },
     },
-    created() {
+    created(): void {
         EMPTY_PRESET_VALUE = this.$t('defaultPresetName');
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
         this.publishMessage( PubSubMessages.INSTRUMENT_EDITOR_OPENED );
     },
-    destroyed() {
+    unmounted(): void {
         this.setMidiAssignMode( false );
     },
     methods: {
@@ -258,18 +259,18 @@ export default {
             "loadInstrumentFromLS",
             "saveInstrumentIntoLS",
         ]),
-        openHelp() {
+        openHelp(): void {
             window.open( ManualURLs.INSTRUMENT_EDITOR, "_blank" );
         },
-        openSettingsPanel() {
+        openSettingsPanel(): void {
             this.openModal( ModalWindows.SETTINGS_WINDOW );
         },
-        invalidatePreset() {
+        invalidatePreset(): void {
             if ( this.presetName && !this.presetName.includes( "*" )) {
                 this.setPresetName({ instrument: this.instrumentRef, presetName: `${this.presetName}*` });
             }
         },
-        savePreset() {
+        savePreset(): void {
             let newPresetName = this.presetName || "";
             if ( newPresetName.trim().length === 0 ) {
                 this.showError( this.$t( "errorNoName" ));
@@ -286,16 +287,16 @@ export default {
          * when typing, we want to suspend the KeyboardController
          * so it doesn't broadcast the typing to its listeners
          */
-        handleFocusIn() {
+        handleFocusIn(): void {
             this.suspendKeyboardService( true );
         },
         /**
          * on focus out, restore the KeyboardControllers broadcasting
          */
-        handleFocusOut() {
+        handleFocusOut(): void {
             this.suspendKeyboardService( false );
         },
-        handleInputBlur( event ) {
+        handleInputBlur( event: Event ): void {
             event.target?.blur?.();
         },
     }

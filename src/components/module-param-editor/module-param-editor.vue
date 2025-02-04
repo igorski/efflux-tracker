@@ -153,7 +153,7 @@
 
 <script>
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { ToggleButton } from "vue-js-toggle-button";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import EventFactory from "@/model/factories/event-factory";
 import KeyboardService from "@/services/keyboard-service";
 import ModuleParamHandler from "@/services/keyboard/module-param-handler";
@@ -174,6 +174,7 @@ const DEFAULT_MODULE = VOLUME;
 let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         FormListItem,
@@ -225,7 +226,7 @@ export default {
 
         this.supportsPanning = supports("panning");
     },
-    beforeDestroy() {
+    beforeUnmount() {
         KeyboardService.reset();
     },
     methods: {

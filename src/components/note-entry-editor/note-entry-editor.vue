@@ -78,7 +78,7 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
-import { ToggleButton } from "vue-js-toggle-button";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import Config from "@/config";
 import EventUtil from "@/utils/event-util";
 import EventFactory from "@/model/factories/event-factory";
@@ -196,7 +196,7 @@ export default {
         //     this.largeView = true;
         // }
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         NoteInputHandler.unregisterHandler();
         this.killAllNotes();
     },

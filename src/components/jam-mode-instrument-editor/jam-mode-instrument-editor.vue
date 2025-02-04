@@ -27,7 +27,7 @@
             maximized
             @close="handleClose()"
         >
-            <hr class="divider jam-divider" />
+            <hr class="jam-divider" />
             <note-entry-editor class="jam-note-editor" />
         </instrument-editor>
     </div>
@@ -38,6 +38,7 @@ import InstrumentEditor from "@/components/instrument-editor/instrument-editor.v
 import NoteEntryEditor from "@/components/note-entry-editor/note-entry-editor.vue";
 
 export default {
+    emits: [ "close" ],
     components: {
         InstrumentEditor,
         NoteEntryEditor,
@@ -60,6 +61,7 @@ export default {
 }
 
 .jam-divider {
+    @include divider();
     margin-top: 0 !important;
 }
 

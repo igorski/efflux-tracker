@@ -21,7 +21,6 @@
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 import type { Module, Store, Commit } from "vuex";
-import Vue from "vue";
 import Config from "@/config";
 import LinkedList from "@/utils/linked-list";
 import { noteOn, noteOff, getAudioContext, isRecording, togglePlayback } from "@/services/audio-service";
@@ -559,12 +558,12 @@ const SequencerModule: Module<SequencerState, any> = {
                        transformed[ j ] = channel[ i ];
                     }
                 }
-                Vue.set( pattern.channels, index, transformed );
-                Vue.set( pattern, "steps", steps );
+                pattern.channels[ index ] = transformed;
+                pattern.steps = steps;
             });
         },
         setJamChannelLock( state: SequencerState, { instrumentIndex, locked } : { instrumentIndex: number, locked: boolean }): void {
-            Vue.set( state.jam, instrumentIndex, { ...state.jam[ instrumentIndex ], locked });
+            state.jam[ instrumentIndex ] = { ...state.jam[ instrumentIndex ], locked };
         },
         setJamChannelPosition( state: SequencerState, { instrumentIndex, patternIndex }: { instrumentIndex: number, patternIndex: number }): void {
             if ( state.jam[ instrumentIndex ].locked ) {
@@ -575,7 +574,7 @@ const SequencerModule: Module<SequencerState, any> = {
             if ( !state.playing ) {
                 activePatternIndex = nextPatternIndex;
             }
-            Vue.set( state.jam, instrumentIndex, { activePatternIndex, nextPatternIndex });
+            state.jam[ instrumentIndex ] = { activePatternIndex, nextPatternIndex, locked: false };
         },
         resetJamChannels( state: SequencerState ): void {
             for ( let i = 0; i < state.jam.length; ++i ) {

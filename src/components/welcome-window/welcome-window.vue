@@ -45,9 +45,9 @@
                 v-t="'tweakInstrument'"
                 @click="openInstrumentEditor()"
             ></button>
-            <i18n path="introductionHelp" tag="p">
+            <i18n-t keypath="introductionHelp" tag="p">
                 <span class="emphasis">{{ $t('jamMode') }}</span>
-            </i18n>
+            </i18n-t>
             <button
                 type="button"
                 class="button--secondary"
@@ -85,7 +85,7 @@
 
 <script lang="ts">
 import { mapGetters, mapMutations, mapActions } from "vuex";
-import { ToggleButton } from "vue-js-toggle-button";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
@@ -96,6 +96,7 @@ import { PROPERTIES } from "@/store/modules/settings-module";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     components: {
         FileLoader,

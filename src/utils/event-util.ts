@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxChannel, EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -44,7 +43,7 @@ const EventUtil =
         const measureLength = calculateMeasureLength( tempo );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
       
-        Vue.set( event.seq, "startMeasureOffset", eventOffset );
+        event.seq.startMeasureOffset = eventOffset;
     },
     /**
      * clears the AudioEvent at requested step position in
@@ -60,14 +59,14 @@ const EventUtil =
         const event = channel[ step ] as EffluxAudioEvent;
 
         if ( keepAutomation && !!event.mp ) {
-            Vue.set( channel, step, {
+            channel[ step ] = {
                 ...event,
                 action: ACTION_AUTO_ONLY,
                 note: "",
                 octave: 0,
-            });
+            }
         } else {
-            Vue.set( channel, step, 0 );
+            channel[ step ] = 0;
         }
     },
     /**

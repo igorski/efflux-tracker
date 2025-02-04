@@ -78,6 +78,7 @@ import { toFileName } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     data: () => ({
         firstOrderIndex : 1,
@@ -109,7 +110,7 @@ export default {
             this.$refs.firstPatternInput.focus();
         });
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.suspendKeyboardService( false );
     },
     methods: {

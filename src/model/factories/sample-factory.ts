@@ -76,9 +76,10 @@ const SampleFactory = {
     deserialize( xtkSample: XTKSample ): Promise<Sample | null> {
         return new Promise( async resolve => {
             try {
-                if ( xtkSample.b.startsWith( "data:application/octet-stream" )) {
-                    throw new Error( "Unrecognised audio file type" );
-                }
+                // apparently this is perfectly valid for microphone recordings
+                // if ( xtkSample.b.startsWith( "data:application/octet-stream" )) {
+                //     throw new Error( "Unrecognised audio file type" );
+                // }
                 const source = await base64ToBlob( xtkSample.b );
                 const rate   = xtkSample.sr || getAudioContext().sampleRate;
                 const length = xtkSample.l  || 120;

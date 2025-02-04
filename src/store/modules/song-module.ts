@@ -21,7 +21,6 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import type { ActionContext, Commit, Dispatch, Module, Store } from "vuex";
-import Vue from "vue";
 import Config from "@/config";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
@@ -34,7 +33,7 @@ import PubSubMessages from "@/services/pubsub/messages";
 import SongValidator from "@/model/validators/song-validator";
 import addEvent, { type OptEventData } from "@/model/actions/event-add";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { Instrument } from "@/model/types/instrument";
+import type { Instrument, InstrumentProp, OscillatorProp } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import type { Sample } from "@/model/types/sample";
@@ -122,7 +121,7 @@ const SongModule: Module<SongState, any> = {
         },
         updateSongSample( state: SongState, sample: Sample ): void {
             const index = state.activeSong.samples.findIndex(({ id }) => id === sample.id );
-            Vue.set( state.activeSong.samples, index, sample );
+            state.activeSong.samples[ index ] = sample;
         },
         /**
          * adds given AudioEvent at the currently highlighted position or by optionally defined
@@ -153,25 +152,25 @@ const SongModule: Module<SongState, any> = {
                 store.commit( "saveState", undoRedoAction );
             }
         },
-        updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: string, value: any }): void {
-            Vue.set( state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ], prop, value );
+        updateOscillator( state: SongState, { instrumentIndex, oscillatorIndex, prop, value } : { instrumentIndex: number, oscillatorIndex: number, prop: OscillatorProp, value: never }): void {
+            state.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ][ prop ] = value;
         },
-        updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: string, value: any }): void {
-            Vue.set( state.activeSong.instruments[ instrumentIndex ], prop, value );
+        updateInstrument( state: SongState, { instrumentIndex, prop, value } : { instrumentIndex: number, prop: InstrumentProp, value: never }): void {
+            state.activeSong.instruments[ instrumentIndex ][ prop ] = value;
         },
         replaceInstrument( state: SongState, { instrumentIndex, instrument }: { instrumentIndex: number, instrument: Instrument }): void {
-            Vue.set( state.activeSong.instruments, instrumentIndex, instrument );
+            state.activeSong.instruments[ instrumentIndex ] = instrument;
         },
         replacePattern( state: SongState, { patternIndex, pattern }: { patternIndex: number, pattern: EffluxPattern }): void {
-            Vue.set( state.activeSong.patterns, patternIndex, pattern );
+            state.activeSong.patterns[ patternIndex ] = pattern;
             cachePatternNames( state.activeSong.patterns );
         },
         replacePatterns( state: SongState, patterns: EffluxPattern[] ): void {
             cachePatternNames( patterns );
-            Vue.set( state.activeSong, "patterns", patterns );
+            state.activeSong.patterns = patterns;
         },
         replacePatternOrder( state: SongState, order: EffluxPatternOrder ): void {
-            Vue.set( state.activeSong, "order", order );
+            state.activeSong.order = order;
         },
         cachePatternNames( state: SongState ): void {
             cachePatternNames( state.activeSong.patterns );

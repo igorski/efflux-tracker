@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store, ActionContext } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
@@ -105,11 +104,11 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                 const stepEntry = channel[ step ] as EffluxAudioEvent;
 
                 if ( event.action !== ACTION_NOTE_OFF && !event.mp && stepEntry.mp ) {
-                    Vue.set( event, "mp", clone( stepEntry.mp ));
+                    event.mp = clone( stepEntry.mp );
                 }
                 EventUtil.clearEvent( song, patternIndex, targetIndex, step );
             }
-            Vue.set( channel, step, event );
+            channel[ step ] = event;
         });
     }
     act(); // perform action
@@ -129,7 +128,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
                 const existingEvent: EffluxAudioEvent = existingEvents[ index ];
                 if ( existingEvent ) {
                     const restoredEvent = deserialize( existingEvent );
-                    Vue.set( song.patterns[ patternIndex ].channels[ targetIndex ], step, restoredEvent );
+                    song.patterns[ patternIndex ].channels[ targetIndex ][ step ] = restoredEvent;
                 }
             });
         },
@@ -156,7 +155,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
     let cutPattern: EffluxPattern;
     function act(): void {
         if ( cutPattern ) {
-            Vue.set( song.patterns, activePattern, cutPattern );
+            song.patterns[ activePattern ] = cutPattern;
         }
         else {
             commit( "cutSelection", { song, activePattern });
@@ -170,7 +169,7 @@ function cutSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedo
     return {
         undo(): void {
             // set the original pattern data back
-            Vue.set( song.patterns, activePattern, originalPattern );
+            song.patterns[ activePattern ] = originalPattern;
 
             // restore selection model to previous state
             commit( "setMinSelectedStep", selectedMinStep);
@@ -197,7 +196,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
     let cutPattern: EffluxPattern;
     function act(): void {
         if ( cutPattern ) {
-            Vue.set( song.patterns, activePattern, cutPattern );
+            song.patterns[ activePattern ] = cutPattern;
         } else {
             commit( "deleteSelection", { song, activePattern });
             cutPattern = clonePattern( song, activePattern );
@@ -210,7 +209,7 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
     return {
         undo(): void {
             // set the original pattern data back
-            Vue.set( song.patterns, activePattern, originalPattern );
+            song.patterns[ activePattern ] = originalPattern;
 
             // restore selection model to previous state
             commit( "setMinSelectedStep", selectedMinStep);
@@ -239,7 +238,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
     let pastedPattern: EffluxPattern;
     function act(): void {
         if ( pastedPattern ) {
-            Vue.set( song.patterns, activePattern, pastedPattern );
+            song.patterns[ activePattern ] = pastedPattern;
         } else {
             commit( "pasteSelection", { song, activePattern, selectedInstrument, selectedStep });
             pastedPattern = clonePattern( song, activePattern );
@@ -251,7 +250,7 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
     return {
         undo(): void {
             // set the original pattern data back
-            Vue.set( song.patterns, activePattern, originalPattern );
+            song.patterns[ activePattern ] = originalPattern;
 
             // we can safely override the existing selection of the model when undoing an existing paste
             // this means we are returning the model to the state prior to the pasting

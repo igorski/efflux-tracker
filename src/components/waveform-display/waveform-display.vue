@@ -61,6 +61,7 @@ const INSTRUMENT_COLORS = [
 ];
 
 export default {
+    emits: [ "invalidate" ],
     components: {
         SampleDisplay,
     },
@@ -222,7 +223,7 @@ export default {
             this.token = PubSubService.subscribe( Messages.AUDIO_CONTEXT_READY, this.handleAnalysis.bind( this ));
         }
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         if ( this.performAnalysis ) {
             this.disconnectAnalyser();
         }

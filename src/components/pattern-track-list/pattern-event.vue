@@ -20,36 +20,36 @@
 * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
-<template functional>
+<template>
     <li
-        :class="[ data.staticClass, {
-            active   : props.active,
-            selected : props.selected,
-            playing  : props.playing
+        :class="[ attrs.class, {
+            active   : active,
+            selected : selected,
+            playing  : playing
         }]"
     >
-        <template v-if="props.event.action">
-            <template v-if="props.event.note">
+        <template v-if="event.action">
+            <template v-if="event.note">
                 <!-- note on event -->
                 <span
-                    v-if="props.event.note"
+                    v-if="event.note"
                     class="note"
-                    :class="{ active: props.selectedSlot === 0 }"
+                    :class="{ active: selectedSlot === 0 }"
                 >
-                    {{ props.event.note }} - {{ props.event.octave }}
+                    {{ event.note }} - {{ event.octave }}
                 </span>
                 <span
                     class="instrument"
-                    :class="{ active: props.selectedSlot === 1 }"
+                    :class="{ active: selectedSlot === 1 }"
                 >
-                    {{ props.event.instrument + 1 }}
+                    {{ event.instrument + 1 }}
                 </span>
             </template>
             <template v-else>
                 <!-- note off event -->
                 <span
                     class="full"
-                    :class="{ active: props.selectedSlot === 0 }"
+                    :class="{ active: selectedSlot === 0 }"
                 >//// OFF ////</span>
             </template>
         </template>
@@ -57,47 +57,47 @@
             <!-- no note event -->
             <span
                 class="note empty"
-               :class="{ active: props.selectedSlot === 0 }"
+               :class="{ active: selectedSlot === 0 }"
             >----</span>
             <span
                 class="instrument"
-                :class="{ active: props.selectedSlot === 1 }"
+                :class="{ active: selectedSlot === 1 }"
             >-</span>
         </template>
         <!-- module parameter instruction -->
-        <template v-if="props.event.mp">
+        <template v-if="event.mp">
             <span
                 class="module-param"
-                :class="{ active: props.selectedSlot === 2 }"
+                :class="{ active: selectedSlot === 2 }"
             >
-                {{ props.formattedParam.param }}
+                {{ formattedParam.param }}
             </span>
             <span
                 class="module-value"
-                :class="{ active: props.selectedSlot === 3 }"
+                :class="{ active: selectedSlot === 3 }"
             >
-                {{ props.formattedParam.value }}
+                {{ formattedParam.value }}
             </span>
         </template>
         <template v-else>
-            <template v-if="!props.event.action">
+            <template v-if="!event.action">
                 <span
                     class="module-param empty"
-                    :class="{ active: props.selectedSlot === 2 }"
+                    :class="{ active: selectedSlot === 2 }"
                 >--</span>
                 <span
                     class="module-value empty"
-                    :class="{ active: props.selectedSlot === 3 }"
+                    :class="{ active: selectedSlot === 3 }"
                 >--</span>
             </template>
-            <template v-else-if="props.event.note">
+            <template v-else-if="event.note">
                 <span
                     class="module-param empty"
-                    :class="{ active: props.selectedSlot === 2 }"
+                    :class="{ active: selectedSlot === 2 }"
                 >--</span>
                 <span
                     class="module-value empty"
-                    :class="{ active: props.selectedSlot === 3 }"
+                    :class="{ active: selectedSlot === 3 }"
                 >--</span>
             </template>
         </template>
@@ -106,7 +106,6 @@
 
 <script>
 export default {
-    functional: true,
     props: {
         event: {
             type: [ Object, Number ],
@@ -136,6 +135,11 @@ export default {
             type: Object,
             default: null
         }
+    },
+    setup( props, { attrs }) {
+        return {
+            attrs,
+        };
     },
 };
 </script>

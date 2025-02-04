@@ -20,7 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import { EffluxSongType } from "@/model/types/song";
@@ -67,7 +66,7 @@ export default function( store: Store<EffluxState>, patternIndex: number, channe
     return {
         undo(): void {
             // clone() is necessary to avoid conflicts when stepping the history state back and forth
-            Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
+            song.patterns[ patternIndex ].channels[ channelIndex ] = clone( orgContent );
             invalidateCache( store, song, channelIndex );
         },
         redo: act,

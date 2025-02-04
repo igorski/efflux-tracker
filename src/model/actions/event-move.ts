@@ -20,10 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import Vue from "vue";
 import type { Store } from "vuex";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import { type EffluxAudioEvent, ACTION_AUTO_ONLY } from "@/model/types/audio-event";
+import { type EffluxAudioEvent } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
 import type { EffluxState } from "@/store";
 import { getNextEvent } from "@/utils/event-util";
@@ -102,7 +101,7 @@ export default function( store: Store<EffluxState>,
     return {
         undo(): void {
             // clone() is necessary to avoid conflicts when stepping the history state back and forth
-            Vue.set( song.patterns[ patternIndex ].channels, channelIndex, clone( orgContent ));
+            song.patterns[ patternIndex ].channels[ channelIndex ] = clone( orgContent );
             invalidateCache( store, song, channelIndex );
         },
         redo: act

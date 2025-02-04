@@ -45,6 +45,7 @@
 
 <script lang="ts">
 export default {
+    emits: [ "select", "toggle-edit-mode" ],
     props: {
         name: {
             type: String,
@@ -112,24 +113,6 @@ $button-height: 26px;
         top: $button-height;
         left: 0;
         padding: 0 $spacing-xxsmall;
-
-        &-button {
-            @include toolFont();
-            background: none;
-            border: 0;
-            color: $color-editor-background;
-            width: 100%;
-            cursor: pointer;
-
-            &:hover {
-                color: #FFF;
-            }
-
-            &:disabled {
-                color: #666;
-                cursor: default;
-            }
-        }
     }
 }
 </style>

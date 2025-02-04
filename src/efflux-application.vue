@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -28,10 +28,11 @@
         >
             <h1 v-t="'unsupported.title'"></h1>
             <p v-t="'unsupported.message'"></p>
-            <i18n path="unsupported.download">
-                <a v-t="'unsupported.googleChrome'"
-                   href="https://www.google.com/chrome" rel="noopener" target="_blank"></a>
-            </i18n>
+            <i18n-t keypath="unsupported.download">
+                <a href="https://www.google.com/chrome" rel="noopener" target="_blank">
+                    {{ $t( "unsupported.googleChrome" ) }}
+                </a>
+            </i18n-t>
         </div>
         <template v-else>
             <header
@@ -81,7 +82,7 @@
 
         <div class="application-footer">
             <span>
-                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2023
+                &copy; <a href="https://www.igorski.nl" rel="noopener" target="_blank">igorski.nl</a> 2025
             </span>
         </div>
 
@@ -112,10 +113,9 @@
 </template>
 
 <script lang="ts">
+import { type Component, defineAsyncComponent } from "vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import Vue, { type Component } from "vue";
-import Vuex from "vuex";
-import VueI18n from "vue-i18n";
+import { createI18n } from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
@@ -131,54 +131,49 @@ import PubSubService from "@/services/pubsub-service";
 import PubSubMessages from "@/services/pubsub/messages";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
-import store from "@/store";
 import messages from "@/messages.json";
 
-Vue.use( Vuex );
-Vue.use( VueI18n );
-
 // Create VueI18n instance with options
-const i18n = new VueI18n({
+const i18n = createI18n({
     messages
 });
 
 // wrapper for loading dynamic components with custom loading states
 type IAsyncComponent = { component: Promise<Component>};
 function asyncComponent( key: string, importFn: () => Promise<any> ): IAsyncComponent {
-    return {
-        component: new Promise( async ( resolve, reject ) => {
+    return defineAsyncComponent({
+        loader: async () => {
             Pubsub.publish( PubSubMessages.SET_LOADING_STATE, key );
             try {
                 const component = await importFn();
-                resolve( component );
+                return component;
             } catch ( e ) {
                 // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
                 if ( import.meta.env.MODE !== "production" ) {
                     console.error( e );
                 }
                 reject();
+            } finally {
+                Pubsub.publish( PubSubMessages.UNSET_LOADING_STATE, key );
             }
-            Pubsub.publish( PubSubMessages.UNSET_LOADING_STATE, key );
-        })
-    };
+        }
+    });
 }
 
 export default {
     name: "Efflux",
-    store: new Vuex.Store( store ),
-    i18n,
     components: {
-        DialogWindow: () => asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window.vue" )),
+        DialogWindow: asyncComponent( "dw", () => import( "@/components/dialog-window/dialog-window.vue" )),
         ApplicationMenu, // sync as it should be ready when EFFLUX_READY is broadcast over pubsub
-        HelpSection: () => asyncComponent( "hs", () => import( "@/components/help-section/help-section.vue" )),
+        HelpSection: asyncComponent( "hs", () => import( "@/components/help-section/help-section.vue" )),
         Loader,
         Notifications,
-        NoteEntryEditor: () => asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
-        PatternEditor: () => asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
-        PatternTrackList: () => asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
-        JamModeEditor: () => asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
-        EditorActions: () => asyncComponent( "ea", () => import( "@/components/editor-actions/editor-actions.vue" )),
-        Transport: () => asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
+        NoteEntryEditor: asyncComponent( "ne", () => import( "@/components/note-entry-editor/note-entry-editor.vue" )),
+        PatternEditor: asyncComponent( "pe", () => import( "@/components/pattern-editor/pattern-editor.vue" )),
+        PatternTrackList: asyncComponent( "ptl", () => import( "@/components/pattern-track-list/pattern-track-list.vue" )),
+        JamModeEditor: asyncComponent( "jm", () => import( "@/components/jam-mode-editor/jam-mode-editor.vue" )),
+        EditorActions: asyncComponent( "ea", () => import( "@/components/editor-actions/editor-actions.vue" )),
+        Transport: asyncComponent( "tp", () => import( "@/components/transport/transport.vue" )),
     },
     data: () => ({
         prepared: false,
@@ -282,7 +277,7 @@ export default {
                     loadFn = () => import( "@/components/pattern-to-order-conversion-window/pattern-to-order-conversion-window.vue" );
                     break;
             }
-            return () => asyncComponent( "mw", loadFn );
+            return asyncComponent( "mw", loadFn );
         },
         isMobileSettingsMode(): boolean {
             return !this.jamMode && this.mobileMode === "settings";
@@ -352,7 +347,7 @@ export default {
         const urlParams = new URLSearchParams( window.location.search );
         this.openSong( await this.createSong( urlParams.has( JAM_MODE ) ? EffluxSongType.JAM : EffluxSongType.TRACKER ));
         await this.prepareSequencer( this.$store );
-        await this.setupServices( i18n );
+        await this.setupServices( this.$t );
 
         this.prepared = true;
 

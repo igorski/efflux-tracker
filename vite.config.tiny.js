@@ -24,7 +24,7 @@ export default defineConfig({
         modules: [ path.resolve( __dirname, "src/tiny-player/tiny_node_modules" ), "node_modules" ],
         alias: {
             "@": path.resolve( __dirname, "src" ),
-            // use a custom, light-weight "fake Vue" (some utilities rely on Vue.set)
+            // stub out Vue
             "vue": path.resolve( __dirname, "src/tiny-player/tiny_node_modules/vue" )
         },
         extensions: [ ".ts", ".js", "..." ],

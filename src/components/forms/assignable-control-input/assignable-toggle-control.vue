@@ -23,9 +23,8 @@
 <template>
     <div class="toggle-control-wrapper">
         <toggle-button
-            :value="value"
+            v-model="internalValue"
             :disabled="disabled"
-            @input="handleChange"
             sync
         />
         <div
@@ -48,11 +47,12 @@
 </template>
 
 <script lang="ts">
-import { ToggleButton } from "vue-js-toggle-button";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import AssignableInput from "./assignable-control-input";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "update:modelValue" ],
     i18n: { messages },
     components: {
         ToggleButton
@@ -67,7 +67,7 @@ export default {
             type: [ String, Number, undefined ],
             required: false,
         },
-        value: {
+        modelValue: {
             type: Boolean,
             required: true,
         },
@@ -76,11 +76,16 @@ export default {
             default: false,
         },
     },
-    methods: {
-        handleChange( value: boolean ): void {
-            this.$emit( "input", value );
+    computed: {
+        internalValue: {
+            get(): Boolean {
+                return this.modelValue;
+            },
+            set( value: Boolean ): void {
+                this.$emit( "update:modelValue", value );
+            },
         },
-    },
+    }
 };
 </script>
 

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021 - https://www.igorski.nl
+ * Igor Zinken 2021-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -34,34 +34,35 @@
     />
 </template>
 
-<script>
-import KnobControl from "vue-knob-control";
+<script lang="ts">
+import KnobControl from "@/components/third-party/vue-knob-control/KnobControl.vue";
 
 export default {
+    emits: [ "update:modelValue" ],
     components: {
         KnobControl
     },
     props: {
         /* value is normalized to 0 - 1 range */
-        value: {
+        modelValue: {
             type: Number,
             required: true,
         },
     },
     computed: {
         internalValue: {
-            get() {
-                return this.value * 100;
+            get(): number {
+                return this.modelValue * 100;
             },
-            set( value ) {
-                this.$emit( "input", value / 100 );
-            }
-        }
+            set( value: number ): void {
+                this.$emit( "update:modelValue", value / 100 );
+            },
+        },
     },
     methods: {
-        formatValue( value ) {
+        formatValue( value: number ): string {
             return value.toFixed( 0 );
-        }
-    }
+        },
+    },
 };
 </script>

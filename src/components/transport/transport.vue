@@ -149,7 +149,6 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
 import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
@@ -251,7 +250,7 @@ export default {
                         while ( i-- ) {
                             event = events[ i ];
                             if ( event ) {
-                                Vue.set( event, "recording", false );
+                                event.recording = false;
                             }
                         }
                     });

@@ -90,6 +90,7 @@ type ClonedPatternDef = {
 };
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     data: () => ({
         firstPattern: 1,
@@ -123,7 +124,7 @@ export default {
             this.$refs.firstPatternInput.focus();
         });
     },
-    beforeDestroy(): void {
+    beforeUnmount(): void {
         this.suspendKeyboardService( false );
     },
     methods: {

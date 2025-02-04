@@ -51,12 +51,13 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { applyModules } from "@/services/audio-service";
 import messages from "./messages.json";
 
 export default {
+    emits: [ "close" ],
     i18n: { messages },
     computed: {
         ...mapGetters([
@@ -66,7 +67,7 @@ export default {
     data: () => ({
         inited: false,
     }),
-    mounted() {
+    mounted(): void {
         this.keydownHandler = async ( e ) => {
             if ( !this.inited ) {
                 await this.setupSong();
@@ -77,7 +78,7 @@ export default {
         };
         window.addEventListener( "keydown", this.keydownHandler );
     },
-    beforeDestroy() {
+    beforeUnmount(): void {
         window.removeEventListener( "keydown", this.keydownHandler );
     },
     methods: {
@@ -87,16 +88,16 @@ export default {
         ...mapActions([
             "cacheSongSamples",
         ]),
-        async handlePlayClick() {
+        async handlePlayClick(): Promise<void> {
             await this.setupSong();
             this.setPlaying( true );
             this.close();
         },
-        async handleCloseClick() {
+        async handleCloseClick(): Promise<void> {
             await this.setupSong();
             this.close();
         },
-        setupSong() {
+        setupSong(): Promise<void> {
             // The song may have preloaded, but the AudioContext is silenced until a
             // user interaction occurs. Call this method after one such interaction
             // so we can cache the song samples (requires active AudioContext) and
@@ -113,9 +114,9 @@ export default {
                 }, 100 );
             });
         },
-        close() {
+        close(): void {
             this.$emit( "close" );
-        }
+        },
     }
 };
 </script>
