@@ -43,7 +43,7 @@
     "undo-manager": "^1.0.5",
     "vite": "^6.0.11",
     "vite-plugin-static-copy": "^2.2.0",
-    "vitest": "^2.0.4",
+    "vitest": "^2.1.9",
     "vue-i18n": "^11.1.0",
     "wa-overdrive": "^0.0.3",
     "zcanvas": "^6.0.2",
