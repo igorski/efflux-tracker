@@ -145,7 +145,7 @@ export default {
 
             prepareEnvironment( audioContext, waveTables, optExternalEventCallback );
             // @ts-expect-error Type 'ActionObject<SequencerState, any>' has no call signatures.
-            actions.prepareSequencer({ state }, rootStore );
+            actions.prepareSequencer({ commit: rootStore.commit, state }, rootStore );
 
             rootStore.state.song.activeSong = activeSong;
 
