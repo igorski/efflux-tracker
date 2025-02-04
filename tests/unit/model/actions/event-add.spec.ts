@@ -130,8 +130,7 @@ describe( "Event add action", () => {
         const event = EventFactory.create( channelIndex, "E", 4, ACTION_NOTE_ON );
 
         const { undo } = AddEvent( store, event, { patternIndex, channelIndex, step: 1 }, updateHandler );
-        vi.restoreAllMocks();
-
+      
         undo();
 
         expect( song.patterns[ patternIndex ].channels[ channelIndex ]).toEqual([
@@ -145,8 +144,7 @@ describe( "Event add action", () => {
         const event = EventFactory.create( 0, "E", 4, ACTION_NOTE_ON );
 
         const { undo } = AddEvent( store, event, { patternIndex: 0, channelIndex: 0, step: 2 }, vi.fn() );
-        vi.restoreAllMocks();
-
+   
         undo();
 
         expect( commitSpy ).toHaveBeenCalledWith( "invalidateChannelCache", { song });
