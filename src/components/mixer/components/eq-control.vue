@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import KnobControl from "@/components/forms/vue-knob-control/KnobControl.vue";
+import KnobControl from "@/components/third-party/vue-knob-control/KnobControl.vue";
 
 export default {
     emits: [ "update:modelValue" ],

@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-import ToggleButton from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import AssignableInput from "./assignable-control-input";
 import messages from "./messages.json";
 

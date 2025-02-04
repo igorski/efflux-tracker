@@ -167,7 +167,7 @@
 
 <script lang="ts">
 import { mapGetters } from "vuex";
-import ToggleButton from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import SelectBox from "@/components/forms/select-box.vue";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";

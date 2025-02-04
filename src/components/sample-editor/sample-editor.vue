@@ -234,7 +234,7 @@
 <script lang="ts">
 import AudioEncoder from "audio-encoder";
 import debounce from "lodash.debounce";
-import ToggleButton from "@/components/forms/vue-js-toggle-button/ToggleButton.vue";
+import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import Actions from "@/definitions/actions";
