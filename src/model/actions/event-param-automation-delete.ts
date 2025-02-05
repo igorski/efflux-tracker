@@ -35,7 +35,7 @@ export default function deleteEventParamAutomation( store: Store<EffluxState>, p
     
     const act = (): void => {
         const event = getEvent( store, patternIndex, channelIndex, step ) as EffluxAudioEvent;
-        event.mp = undefined;
+        delete event.mp;
     };
     act(); // perform action
 

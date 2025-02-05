@@ -47,7 +47,7 @@ export default function addEventParamAutomation( store: Store<EffluxState>, patt
             if ( existingAutomation ) {
                 event.mp = { ...existingAutomation };
             } else {
-                event.mp = undefined;
+                delete event.mp;
             }
         },
         redo: act
