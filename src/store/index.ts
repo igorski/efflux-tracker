@@ -165,7 +165,7 @@ export default
          */
         showNotification( state: EffluxState, notification: INotification ): void {
             const { message = "", title = null } = notification;
-            state.notifications.push({ title: title || translate( "title.success" ), message });
+            state.notifications = [ ...state.notifications, { title: title || translate( "title.success" ), message }];
         },
         clearNotifications( state: EffluxState ): void {
             state.notifications = [];

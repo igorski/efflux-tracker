@@ -82,6 +82,8 @@ export default {
             }
             // trigger 1 sec close animation (see css)
             notificationVO.visible = false;
+            this.$forceUpdate();
+
             window.setTimeout( this.removeNotification.bind( this, notificationVO ), 1000 );
         },
         removeNotification( notificationVO: NotificationVO ): void {
