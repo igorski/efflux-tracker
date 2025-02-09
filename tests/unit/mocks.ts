@@ -17,6 +17,11 @@ export const mockAudioContext: BaseAudioContext = {
     currentTime: 0
 } as BaseAudioContext;
 
+export const setContextCurrentTime = ( context: BaseAudioContext, currentTime = 0 ): void => {
+    // @ts-expect-error read only property in actual implementation
+    context.currentTime = currentTime;
+};
+
 export const mockGainNode: GainNode = {
     gain: {
         cancelScheduledValues: vi.fn(),
@@ -44,7 +49,7 @@ export const createSample = ( sampleName: string, optId?: string, type = Playbac
     rangeStart : 0,
     rangeEnd   : mockAudioBuffer.duration,
     rate       : mockAudioBuffer.sampleRate,
-    length     : mockAudioBuffer.duration,
+    duration   : mockAudioBuffer.duration,
     loop       : true,
     pitch      : null,
     slices     : [],
@@ -61,6 +66,7 @@ export const createState = ( props?: Partial<EffluxState> ): EffluxState => ({
     notifications: [],
     modal: null,
     mobileMode: null,
+    supportsTouch: false,
     dropboxConnected: false,
     mediaConnected: false,
     applicationFocused: true,

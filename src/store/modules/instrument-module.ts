@@ -69,10 +69,9 @@ const InstrumentModule: Module<InstrumentState, any> = {
         setInstruments( state: InstrumentState, instruments: Instrument[] ): void {
             state.instruments = instruments;
         },
-        // @ts-expect-error 'state' is declared but its value is never read.
-        setPresetName( state: InstrumentState, { instrument, presetName }: { instrument: Instrument, presetName: string }): void {
+        setPresetName( _state: InstrumentState, { instrument, presetName }: { instrument: Instrument, presetName: string }): void {
             instrument.presetName = presetName;
-        }
+        },
     },
     actions: {
         loadStoredInstruments({ commit, dispatch } : { commit: Commit, dispatch: Dispatch }): void {

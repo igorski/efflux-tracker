@@ -20,13 +20,14 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { ActionContext } from "vuex";
-import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxPatternOrder } from "@/model/types/pattern-order";
+import { type Store } from "vuex";
+import { type IUndoRedoState } from "@/model/factories/history-state-factory";
+import { type EffluxPattern } from "@/model/types/pattern";
+import { type EffluxPatternOrder } from "@/model/types/pattern-order";
+import { type EffluxState } from "@/store";
 
 // @todo (?) this is only supported when useOrders is false (@see settings-module)
-export default function( store: ActionContext<any, any>, patterns: EffluxPattern[], insertIndex?: number ): IUndoRedoState {
+export default function( store: Store<EffluxState>, patterns: EffluxPattern[], insertIndex?: number ): IUndoRedoState {
     const { getters, commit } = store;
     const { activeSong, activePatternIndex } = getters;
 

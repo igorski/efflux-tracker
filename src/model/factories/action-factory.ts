@@ -20,7 +20,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Store, ActionContext } from "vuex";
+import type { Store } from "vuex";
 import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
@@ -265,8 +265,8 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
     };
 }
 
-function replaceInstrumentAction({ store, instrument }: { store: ActionContext<EffluxState, any>, instrument: Instrument }): void {
-    const instrumentIndex    = ( store.rootState || store.state ).editor.selectedInstrument;
+function replaceInstrumentAction({ store, instrument }: { store: Store<EffluxState>, instrument: Instrument }): void {
+    const instrumentIndex    = store.state.editor.selectedInstrument;
     const existingInstrument = clone( store.getters.activeSong.instruments[ instrumentIndex ]) as Instrument;
     instrument.index = instrumentIndex;
 
@@ -329,7 +329,7 @@ function transpositionAction({ store, semitones, firstPattern, lastPattern, firs
     };
 }
 
-function updatePatternOrder({ store, order }: { store: ActionContext<EffluxState, any>, order: EffluxPatternOrder }): void {
+function updatePatternOrder({ store, order }: { store: Store<EffluxState>, order: EffluxPatternOrder }): void {
     const existingValue = [ ...store.getters.activeSong.order ];
 
     const act = (): void => store.commit( "replacePatternOrder", order );

@@ -52,36 +52,36 @@ describe( "PatternFactory", () => {
 
         // generate some note content
 
-        let p1channel1 = pattern1.channels[0];
-        let p2channel1 = pattern2.channels[0];
+        let p1channel1 = pattern1.channels[ 0 ];
+        let p2channel1 = pattern2.channels[ 0 ];
 
-        const expected1 = p1channel1[0] = EventFactory.create(1, "C#", 4, 1);
-        const expected2 = p1channel1[4] = EventFactory.create(1, "D", 5, 1);
-        const expected3 = p2channel1[2] = EventFactory.create(1, "E", 6, 1);
-        const expected4 = p2channel1[6] = EventFactory.create(1, "F", 7, 1);
+        const expected1 = p1channel1[ 0 ] = EventFactory.create( 1, "C#", 4, 1 );
+        const expected2 = p1channel1[ 4 ] = EventFactory.create( 1, "D", 5, 1 );
+        const expected3 = p2channel1[ 2 ] = EventFactory.create( 1, "E", 6, 1 );
+        const expected4 = p2channel1[ 6 ] = EventFactory.create( 1, "F", 7, 1 );
 
         // merge patterns
 
-        const merged = PatternFactory.mergePatterns(pattern1, pattern2, 0);
+        const merged = PatternFactory.mergePatterns( pattern1, pattern2 );
 
         // assert results
 
         const m1channel1 = merged.channels[0];
 
-        expect(expected1).toEqual(m1channel1[0]);
-        expect(expected2).toEqual(m1channel1[4]);
-        expect(expected3).toEqual(m1channel1[2]);
-        expect(expected4).toEqual(m1channel1[6]);
+        expect( expected1 ).toEqual( m1channel1[ 0 ]);
+        expect( expected2 ).toEqual( m1channel1[ 4 ]);
+        expect( expected3 ).toEqual( m1channel1[ 2 ]);
+        expect( expected4 ).toEqual( m1channel1[ 6 ]);
     });
 
     it( "should be able to merge unequal length patterns when source is larger than target", () => {
-        const pattern1 = PatternFactory.create(16);
-        const pattern2 = PatternFactory.create(32);
+        const pattern1 = PatternFactory.create( 16 );
+        const pattern2 = PatternFactory.create( 32 );
 
         // generate some note content
 
-        let p1channel1 = pattern1.channels[0];
-        let p2channel1 = pattern2.channels[0];
+        let p1channel1 = pattern1.channels[ 0 ];
+        let p2channel1 = pattern2.channels[ 0 ];
 
         const expected1 = p1channel1[0] = EventFactory.create(1, "C#", 4, 1);
         const expected2 = p1channel1[4] = EventFactory.create(1, "D", 5, 1);
@@ -90,36 +90,36 @@ describe( "PatternFactory", () => {
 
         // merge patterns
 
-        const merged = PatternFactory.mergePatterns(pattern1, pattern2, 0);
+        const merged = PatternFactory.mergePatterns( pattern1, pattern2 );
         const m1channel1 = merged.channels[0];
 
         // assert results
 
-        expect(expected1).toEqual(m1channel1[0]);
-        expect(expected2).not.toEqual(m1channel1[4]);
-        expect(expected2).toEqual(m1channel1[8]);
-        expect(expected3).toEqual(m1channel1[15]);
-        expect(expected4).toEqual(m1channel1[29]);
+        expect( expected1 ).toEqual( m1channel1[ 0 ]);
+        expect( expected2 ).not.toEqual( m1channel1[ 4 ]);
+        expect( expected2 ).toEqual( m1channel1[ 8 ]);
+        expect( expected3 ).toEqual( m1channel1[ 15 ]);
+        expect( expected4 ).toEqual( m1channel1[ 29 ]);
     });
 
 
     it( "should be able to merge unequal length patterns when target is larger than the source", () => {
-        const pattern1 = PatternFactory.create(32);
-        const pattern2 = PatternFactory.create(16);
+        const pattern1 = PatternFactory.create( 32 );
+        const pattern2 = PatternFactory.create( 16 );
 
         // generate some note content
 
-        let p1channel1 = pattern1.channels[0];
-        let p2channel1 = pattern2.channels[0];
+        let p1channel1 = pattern1.channels[ 0 ];
+        let p2channel1 = pattern2.channels[ 0 ];
 
-        const expected1 = p1channel1[15] = EventFactory.create(1, "E", 6, 1);
-        const expected2 = p1channel1[29] = EventFactory.create(1, "F", 7, 1);
-        const expected3 = p2channel1[0] = EventFactory.create(1, "C#", 4, 1);
-        const expected4 = p2channel1[4] = EventFactory.create(1, "D", 5, 1);
+        const expected1 = p1channel1[ 15 ] = EventFactory.create( 1, "E", 6, 1 );
+        const expected2 = p1channel1[ 29 ] = EventFactory.create( 1, "F", 7, 1 );
+        const expected3 = p2channel1[ 0 ] = EventFactory.create( 1, "C#", 4, 1 );
+        const expected4 = p2channel1[ 4 ] = EventFactory.create( 1, "D", 5, 1 );
 
         // merge patterns
 
-        const merged = PatternFactory.mergePatterns(pattern1, pattern2, 0);
+        const merged = PatternFactory.mergePatterns( pattern1, pattern2 );
 
         // assert results
 

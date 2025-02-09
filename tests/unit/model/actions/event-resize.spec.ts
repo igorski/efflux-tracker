@@ -11,10 +11,11 @@ import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
 vi.mock( "@/utils/event-util", async () => {
-    const actual = await vi.importActual( "@/utils/event-util" ) as object;
+    const actual = await vi.importActual( "@/utils/event-util" );
     return {
         ...actual,
         default: {
+            // @ts-expect-error Spread types may only be created from object types.
             ...actual.default,
             setPosition: vi.fn(), // by stubbing this we can compare event more easily
         }
@@ -30,7 +31,7 @@ describe( "Event resize action", () => {
     let song: EffluxSong;
     let pattern: EffluxPattern;
 
-    const NOTE_OFF_EVENT = createNoteOffEvent();
+    const NOTE_OFF_EVENT = createNoteOffEvent( channelIndex );
 
     let event1: EffluxAudioEvent;
     let event2: EffluxAudioEvent;

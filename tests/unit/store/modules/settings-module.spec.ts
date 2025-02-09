@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import Config from "@/config";
+import PatternFactory from "@/model/factories/pattern-factory";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import settingsModule, { createSettingsState, PROPERTIES } from "@/store/modules/settings-module";
 import type { SettingsState } from "@/store/modules/settings-module";
@@ -94,7 +95,7 @@ describe( "Vuex settings module", () => {
                 const rootGetters = {
                     activeSong: {
                         type: EffluxSongType.TRACKER,
-                        patterns: [[], []],
+                        patterns: [ PatternFactory.create(), PatternFactory.create() ],
                         order: [0, 1, 1, 0]
                     } as Partial<EffluxSong>,
                 };
@@ -106,7 +107,7 @@ describe( "Vuex settings module", () => {
                 const rootGetters = {
                     activeSong: {
                         type: EffluxSongType.TRACKER,
-                        patterns: [[], []],
+                        patterns: [ PatternFactory.create(), PatternFactory.create() ],
                         order: [0, 1]
                     } as Partial<EffluxSong>,
                 };
@@ -152,7 +153,7 @@ describe( "Vuex settings module", () => {
                 const commit   = vi.fn();
                 const dispatch = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( mockStorageFn ).toHaveBeenCalledWith( "init" );
@@ -165,14 +166,14 @@ describe( "Vuex settings module", () => {
                 const commit   = vi.fn();
                 const dispatch = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).not.toHaveBeenCalledWith( "updateExisting" );
 
                 mockStorageGetItem.mockImplementationOnce(() => Promise.resolve( JSON.stringify( mockSettings )));
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).toHaveBeenCalledWith( "updateExisting" );
@@ -183,14 +184,14 @@ describe( "Vuex settings module", () => {
                 const commit   = vi.fn();
                 const dispatch = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).not.toHaveBeenCalledWith( "setFirstRunDefaults" );
 
                 mockStorageGetItem.mockImplementationOnce(() => Promise.reject());
                 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).toHaveBeenCalledWith( "setFirstRunDefaults" );
@@ -202,7 +203,7 @@ describe( "Vuex settings module", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: "false" } });
                 const commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 actions.updateExisting({ commit, state });
 
                 expect( commit ).not.toHaveBeenCalledWith( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: expect.any( Boolean ) });
@@ -212,7 +213,7 @@ describe( "Vuex settings module", () => {
                 const state = createSettingsState({ _settings: {} });
                 const commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 actions.updateExisting({ commit, state });
 
                 expect( commit ).toHaveBeenCalledWith( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: false });
@@ -223,7 +224,7 @@ describe( "Vuex settings module", () => {
             it( "should save a default USE_ORDERS setting to true", () => {
                 const commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 actions.setFirstRunDefaults({ commit });
 
                 expect( commit ).toHaveBeenCalledWith( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: true });

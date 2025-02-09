@@ -20,10 +20,11 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { ActionContext, Module } from "vuex";
+import type { ActionContext, Module, Store } from "vuex";
 import Config from "@/config";
 import pasteMultiplePatterns from "@/model/actions/pattern-paste-multiple";
-import type { EffluxPattern } from "@/model/types/pattern";
+import { type EffluxPattern } from "@/model/types/pattern";
+import { type EffluxState } from "@/store";
 
 export interface EditorState {
     /**
@@ -106,7 +107,7 @@ const EditorModule: Module<EditorState, any> = {
         async pastePatternsIntoSong( context: ActionContext<EditorState, any>,
             { patterns, insertIndex }: { patterns: EffluxPattern[], insertIndex?: number }): Promise<void> {
             context.commit( "saveState",
-                pasteMultiplePatterns( context, patterns, insertIndex )
+                pasteMultiplePatterns( context as unknown as Store<EffluxState>, patterns, insertIndex )
             );
         }
     }

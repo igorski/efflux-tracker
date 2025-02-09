@@ -126,9 +126,10 @@ describe( "Pattern delete action", () => {
 
         it( "should adjust the current order index when the last pattern was removed", () => {
             const commitSpy = vi.spyOn( store, "commit" );
-            commitSpy.mockImplementation(( fn: string, args: any ) => {
+            commitSpy.mockImplementation(( fn, args ) => {
+                // @ts-expect-error Type 'Payload' is not assignable to type 'string'
                 if ( fn === "replacePatternOrder" ) {
-                    song.order = args;
+                    song.order = args as EffluxPatternOrder;
                  }
             });
 

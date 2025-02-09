@@ -100,14 +100,14 @@ describe( "event parameter glide action", () => {
             0, 0, event1, expect.any( Object ), expect.any( Object ), event2, 0, 0,
         ]);
 
-        expect( channel[ step + 1 ].mp ).toEqual({
+        expect(( channel[ step + 1 ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: startValue + increment,
             glide: true,
         });
-        expect( channel[ step + 2 ].mp ).toEqual({
+        expect(( channel[ step + 2 ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
-            value: channel[ step + 1 ].mp.value + increment,
+            value: ( channel[ step + 1 ] as EffluxAudioEvent ).mp.value + increment,
             glide: true,
         });
     });
@@ -127,12 +127,12 @@ describe( "event parameter glide action", () => {
             0, 0, event1, expect.any( Object ), expect.any( Object ), event2, 0, 0,
         ]);
 
-        expect( channel[ step ].mp ).toEqual({
+        expect(( channel[ step ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: startValue,
             glide: true,
         });
-        expect( channel[ step + dist ].mp ).toEqual({
+        expect(( channel[ step + dist ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: targetValue,
             glide: true,
@@ -155,12 +155,12 @@ describe( "event parameter glide action", () => {
             0, 0, event1, expect.any( Object ), expect.any( Object ), event2, 0, 0,
         ]);
 
-        expect( channel[ step + 1 ].mp ).toEqual({
+        expect(( channel[ step + 1 ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: 0.22,
             glide: true,
         });
-        expect( channel[ step + 2 ].mp ).toEqual({
+        expect(( channel[ step + 2 ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: 0.44,
             glide: true,
@@ -182,12 +182,12 @@ describe( "event parameter glide action", () => {
             0, 0, event1, expect.any( Object ), expect.any( Object ), event2, 0, 0,
         ]);
 
-        expect( channel[ step + 1 ].mp ).toEqual({
+        expect(( channel[ step + 1 ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: 0.66,
             glide: true,
         });
-        expect( channel[ step + 2 ].mp ).toEqual({
+        expect(( channel[ step + 2 ] as EffluxAudioEvent ).mp ).toEqual({
             module: FILTER_FREQ,
             value: 0.44,
             glide: true,
@@ -206,6 +206,7 @@ describe( "event parameter glide action", () => {
         let historyState: IUndoRedoState;
         const commitSpy = vi.spyOn( store, "commit" );
         commitSpy.mockImplementation(( fn, value ) => {
+            // @ts-expect-error types 'Payload' and 'string' have no overlap
             if ( fn === "saveState" ) {
                 historyState = value as IUndoRedoState
             }
@@ -300,7 +301,7 @@ describe( "event parameter glide action", () => {
             const events = song.patterns[ patternIndex ].channels[ channelIndex ];
             const expectedValues = [ 0, .25, .5, .75, 1 ];
             for ( let i = eventIndex, e = 0; i < event2Index; ++i, ++e ) {
-                const event = events[ i ];
+                const event = events[ i ] as EffluxAudioEvent;
                 expect( typeof event ).toBe("object");
                 expect( event.mp.glide ).toBe( true ); // expected event module parameter change to be set to glide
                 expect( expectedValues[ e ].toFixed (2 )).toEqual( event.mp.value.toFixed( 2 ));
@@ -335,7 +336,7 @@ describe( "event parameter glide action", () => {
             const events = song.patterns[ patternIndex ].channels[ channelIndex ];
             const expectedValues = [ 0.75, 0.625, 0.5, 0.375, 0.25 ];
             for ( let i = eventIndex, e = 0; i < event2Index; ++i, ++e ) {
-                const event = events[ i ];
+                const event = events[ i ] as EffluxAudioEvent;
                 expect( typeof event ).toBe( "object" );
                 expect( event.mp.glide ).toBe( true ); // expected event module parameter change to be set to glide
                 expect( event.mp.value.toFixed( 2 )).toEqual( expectedValues[ e ].toFixed( 2 ));
