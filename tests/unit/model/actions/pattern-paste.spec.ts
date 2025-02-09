@@ -55,6 +55,7 @@ describe( "Pattern paste action", () => {
             patternIndex: activePatternIndex,
             pattern: expect.any( Object )
         });
+        // @ts-expect-error roperty 'pattern' does not exist on type 'CommitOptions'
         const { pattern } = commitSpy.mock.calls[ 0 ][ 1 ];
 
         expect( pattern.channels[ 0 ][ 0 ]).toEqual( event1 );

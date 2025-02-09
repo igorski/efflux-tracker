@@ -42,12 +42,12 @@ describe( "Vuex MIDI module", () => {
                 ],
                 midiPortNumber: 1,
             });
-            expect( getters.connectedDevice( state )).toEqual( state.midiDeviceList[ 2 ]);
+            expect( getters.connectedDevice( state, getters, {}, {} )).toEqual( state.midiDeviceList[ 2 ]);
         });
 
         it( "should be able to return the pairings Map", () => {
             const state = createMidiState();
-            expect( getters.pairings( state )).toEqual( state.pairings );
+            expect( getters.pairings( state, getters, {}, {} )).toEqual( state.pairings );
         });
     });
 
@@ -121,7 +121,8 @@ describe( "Vuex MIDI module", () => {
             const preset: MIDIPairingPreset = {
                 id: 1,
                 title: "My preset",
-                device: "Some MIDI device id",
+                deviceId: "Some MIDI device id",
+                deviceName: "Some MIDI device",
                 pairings: [
                     { ccid: "1", param: { paramId: "foo", instrumentIndex: 1, optData: 2 } },
                     { ccid: "2", param: { paramId: "bar", instrumentIndex: 2 } },
@@ -156,18 +157,20 @@ describe( "Vuex MIDI module", () => {
             {
                 id: 1,
                 title: "My preset",
-                device: "Some MIDI device id",
+                deviceId: "Some MIDI device id",
+                deviceName: "Some MIDI device",
                 pairings: [
-                    { ccid: "1", param: { paramId: "foo" }},
-                    { ccid: "2", param: { paramId: "bar" }},
+                    { ccid: "1", param: { paramId: "foo", instrumentIndex: 0  }},
+                    { ccid: "2", param: { paramId: "bar", instrumentIndex: 0  }},
                 ],
             }, {
                 id: 2,
                 title: "My other preset",
-                device: "Some other MIDI device id",
+                deviceId: "Some other MIDI device id",
+                deviceName: "Some other MIDI device",
                 pairings: [
-                    { ccid: "3", param: { paramId: "baz" }},
-                    { ccid: "4", param: { paramId: "qux" }},
+                    { ccid: "3", param: { paramId: "baz", instrumentIndex: 0  }},
+                    { ccid: "4", param: { paramId: "qux", instrumentIndex: 0  }},
                 ],
             },
         ];
@@ -177,7 +180,7 @@ describe( "Vuex MIDI module", () => {
         });
 
         it( "should be able to retrieve the stored presets", async () => {
-            // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             const result = await actions.loadPairings();
 
             expect( mockStorageFn ).toHaveBeenCalledWith( "init" );
@@ -190,16 +193,19 @@ describe( "Vuex MIDI module", () => {
             const state = createMidiState({
                 midiPortNumber: 11,
                 midiDeviceList: [
-                    { id: "abc", title: "Yet another MIDI device id", value: 11 }
+                    { id: "abc", title: "Yet another MIDI device id", port: 11 }
                 ],
-                pairings: new Map([[ "5", { paramId: "quz" }], [ "6", { paramId: "corge" }]]),
+                pairings: new Map([
+                    [ "5", { paramId: "quz",   instrumentIndex: 0  }],
+                    [ "6", { paramId: "corge", instrumentIndex: 0 }]
+                ]),
             });
             const getters = {
                 connectedDevice: state.midiDeviceList[ 0 ],
             };
             const title = "My newest preset";
            
-            // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             const result = await actions.savePairing({ state, getters }, title );
 
             expect( mockStorageSetItem ).toHaveBeenCalledWith( PAIRING_STORAGE_KEY, JSON.stringify([
@@ -210,8 +216,8 @@ describe( "Vuex MIDI module", () => {
                     deviceId: getters.connectedDevice.id,
                     deviceName: getters.connectedDevice.title,
                     pairings: [
-                        { ccid: "5", param: { paramId: "quz" }},
-                        { ccid: "6", param: { paramId: "corge" }},
+                        { ccid: "5", param: { paramId: "quz",   instrumentIndex: 0 }},
+                        { ccid: "6", param: { paramId: "corge", instrumentIndex: 0 }},
                     ],
                 }
             ]));
@@ -219,7 +225,7 @@ describe( "Vuex MIDI module", () => {
         });
 
         it( "should be able to remove an individual pairing from the stored preset list", async () => {
-            // @ts-expect-error Type 'ActionObject<SettingsState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             await actions.deletePairing({}, MOCK_STORED_PRESETS[ 0 ]);
 
             expect( mockStorageSetItem ).toHaveBeenCalledWith(

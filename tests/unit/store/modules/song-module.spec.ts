@@ -184,7 +184,7 @@ describe( "Vuex song module", () => {
             const commit = vi.fn();
             const dispatch = vi.fn();
 
-            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             actions.openSong({ commit, dispatch }, song );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "flushSamples" );
@@ -197,7 +197,7 @@ describe( "Vuex song module", () => {
 
         describe( "when calling the create song action", () => {
             it( "should be able to create songs with unique identifiers", async () => {
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong();
 
                 expect( SongValidator.isValid( song )).toBe( true );
@@ -205,7 +205,7 @@ describe( "Vuex song module", () => {
                 expect( song.order ).toHaveLength( 1 );
 
                 for ( let i = 0; i < 16; ++i ) {
-                    // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                     const compare = await actions.createSong();
                     // songs should have unique identifiers
                     expect( song.id ).not.toEqual( compare.id );
@@ -213,7 +213,7 @@ describe( "Vuex song module", () => {
             });
 
             it( "should automatically create a preset pattern and order list for JAM-type songs", async () => {
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong({}, EffluxSongType.JAM );
                 expect( song.patterns ).toHaveLength( Config.JAM_MODE_PATTERN_AMOUNT );
                 expect( song.order ).toHaveLength( Config.JAM_MODE_PATTERN_AMOUNT );
@@ -231,14 +231,14 @@ describe( "Vuex song module", () => {
             it( "should be able to save songs in storage and show a save message", async () => {
                 commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong();
                 const state = createSongState({
                     songs: [],
                     showSaveMessage: true
                 });
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 // expected songs meta to have been saved into the song list
@@ -254,11 +254,11 @@ describe( "Vuex song module", () => {
             it( "should be able to save songs in storage and suppress the save message when requested", async () => {
                 commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong();
                 const state = createSongState({ songs: [], showSaveMessage: false });
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 expect( commit ).not.toHaveBeenNthCalledWith( 2, "showNotification" );
@@ -267,7 +267,7 @@ describe( "Vuex song module", () => {
             it( "should update the modified timestamp when saving a song", async () => {
                 commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong();
 
                 const state = createSongState({ songs: [ song ] });
@@ -277,7 +277,7 @@ describe( "Vuex song module", () => {
 
                 return new Promise(( resolve ): void => {
                     setTimeout( async (): Promise<void> => {
-                        // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                        // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                         await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                         expect( song.meta.created ).toEqual( org ); // expected creation timestamp to have remained unchanged after saving
@@ -292,11 +292,11 @@ describe( "Vuex song module", () => {
             it( "should broadcast the save event", async () => {
                 commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong();
                 const state = createSongState({ songs: [], showSaveMessage: false });
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 expect( commit ).toHaveBeenCalledWith( "publishMessage", PubSubMessages.SONG_SAVED );
@@ -305,13 +305,13 @@ describe( "Vuex song module", () => {
             it( "should not broadcast the save event when saving factory fixtures", async () => {
                 commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const song = await actions.createSong();
                 song.fixture = true;
 
                 const state = createSongState({ songs: [], showSaveMessage: false });
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSongInLS({ state, getters: mockedGetters, commit, dispatch }, song);
 
                 expect( commit ).not.toHaveBeenCalledWith( "publishMessage", PubSubMessages.SONG_SAVED );
@@ -319,11 +319,11 @@ describe( "Vuex song module", () => {
         });
 
         it( "should be able to delete songs from local storage", async () => {
-            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             const song = await actions.createSong();
             const state = createSongState({ songs: [ song ]});
 
-            // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             await actions.deleteSongFromLS({ state }, { song });
 
             expect(state.songs).toEqual([]);
@@ -335,7 +335,7 @@ describe( "Vuex song module", () => {
                 const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
                 const commit = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.exportSong({ commit }, song );
 
                 expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
@@ -350,7 +350,7 @@ describe( "Vuex song module", () => {
                 const commit = vi.fn();
                 const mockedGetters = { t: vi.fn(), totalSaved: 7 };
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.exportSongToDropbox({ commit, getters: mockedGetters }, { song, folder: "foo" });
 
                 expect( mockFn ).toHaveBeenNthCalledWith( 1, "toXTK", song );
@@ -366,7 +366,7 @@ describe( "Vuex song module", () => {
             it( "should validate the given Song", async () => {
                 const dispatch = vi.fn();
                 const song = createSong({ id: "foo" });
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSong({ dispatch }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 1, "validateSong", song );
             });
@@ -374,7 +374,7 @@ describe( "Vuex song module", () => {
             it( "should save the song in Local Storage when no origin is specified", async () => {
                 const dispatch = vi.fn();
                 const song = createSong({ id: "bar" });
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSong({ dispatch, commit: vi.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "saveSongInLS", song );
             });
@@ -382,7 +382,7 @@ describe( "Vuex song module", () => {
             it( "should save the song in Dropbox when the Dropbox origin is specified", async () => {
                 const dispatch = vi.fn();
                 const song = createSong({ id: "baz", origin: "dropbox" });
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSong({ dispatch, commit: vi.fn() }, song );
                 expect( dispatch ).toHaveBeenNthCalledWith( 2, "exportSongToDropbox", { song, folder: "folder" });
             });
@@ -392,7 +392,7 @@ describe( "Vuex song module", () => {
                 const song = createSong({ id: "baz", origin: "dropbox" });
                 song.version = 1;
 
-                // @ts-expect-error Type 'ActionObject<SongState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveSong({ dispatch, commit: vi.fn() }, song );
                 expect( song.version ).toEqual( FACTORY_VERSION );
             });

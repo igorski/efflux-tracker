@@ -445,8 +445,7 @@ const SequencerModule: Module<SequencerState, any> = {
         isRecording( state: SequencerState ): boolean {
             return state.recording;
         },
-        // @ts-expect-error 'state' is declared but its value is never read.
-        isMetronomeEnabled( state: SequencerState ): boolean {
+        isMetronomeEnabled( _state: SequencerState ): boolean {
             return Metronome.enabled.value;
         },
         activeOrderIndex( state: SequencerState ): number {
@@ -533,8 +532,7 @@ const SequencerModule: Module<SequencerState, any> = {
         setCurrentStep( state: SequencerState, step: number ): void {
             state.currentStep = step;
         },
-        // @ts-expect-error 'state' is declared but its value is never read.
-        setPatternSteps( state: SequencerState, { pattern, steps }: { pattern: EffluxPattern, steps: number }): void {
+        setPatternSteps( _state: SequencerState, { pattern, steps }: { pattern: EffluxPattern, steps: number }): void {
             const oldAmount = pattern.steps;
             pattern.channels.forEach(( channel: EffluxChannel, index: number ): void => {
                 const transformed: EffluxChannel = new Array( steps );
@@ -584,8 +582,7 @@ const SequencerModule: Module<SequencerState, any> = {
         flushJamChannel( state: SequencerState, channelIndex: number ): void {
             state.jamChannelFlushIndex = channelIndex;
         },
-        // @ts-expect-error 'state' is declared but its value is never read.
-        setMetronomeEnabled( state: SequencerState, enabled: boolean ): void {
+        setMetronomeEnabled( _state: SequencerState, enabled: boolean ): void {
             Metronome.enabled.value = !!enabled;
         },
         invalidateChannelCache( state: SequencerState, { song, orderIndex }: { song: EffluxSong, orderIndex?: number }): void {

@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { PlaybackType } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
-import storeModule, { createSampleState } from "@/store/modules/sample-module";
+import storeModule, { createSampleState, type SampleCacheEntry } from "@/store/modules/sample-module";
 import { mockAudioContext, createSample } from "../../mocks";
 
 const { getters, mutations, actions } = storeModule;
@@ -21,6 +21,13 @@ describe( "Vuex sample module", () => {
     afterEach(() => {
         vi.restoreAllMocks();
     });
+
+    function createSampleCacheEntry( name: string ): SampleCacheEntry {
+        return {
+            sample: createSample( name ),
+            slices: [],
+        };
+    }
 
     describe( "getters", () => {
         const mockRootState: EffluxState = {} as EffluxState;
@@ -54,7 +61,10 @@ describe( "Vuex sample module", () => {
 
         it( "should be able to flush the existing sample cache", () => {
             const state = createSampleState({
-                sampleCache: new Map([[ "foo", createSample( "bar" )],[ "baz", createSample( "qux" )]])
+                sampleCache: new Map([
+                    [ "foo", createSampleCacheEntry( "bar" )],
+                    [ "baz", createSampleCacheEntry( "qux" )]
+                ])
             });
             mutations.flushSampleCache( state );
             expect( state.sampleCache.size ).toEqual( 0 );
@@ -63,7 +73,7 @@ describe( "Vuex sample module", () => {
         describe( "when caching an individual samples buffer(s)", () => {
             it( "should be able to cache the buffer for individual samples and add it to the cache Map", () => {
                 const state = createSampleState({
-                    sampleCache: new Map([[ "foo", createSample( "bar" )]])
+                    sampleCache: new Map([[ "foo", createSampleCacheEntry( "bar" )]])
                 });
                 const sample = createSample( "baz" );
 
@@ -79,7 +89,7 @@ describe( "Vuex sample module", () => {
 
             it( "should be able to cache the buffer for the individual slices within a sample of the SLICED type and add it to the same cache Map", () => {
                 const state = createSampleState({
-                    sampleCache: new Map([[ "foo", createSample( "bar" ) ]])
+                    sampleCache: new Map([[ "foo", createSampleCacheEntry( "bar" ) ]])
                 });
                 const slicedSample = createSample( "bar", "baz", PlaybackType.SLICED );
                 slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 3 });
@@ -111,7 +121,7 @@ describe( "Vuex sample module", () => {
 
             it( "should not cache buffers for individual slices when a sample containing slices is not of the SLICED type", () => {
                 const state = createSampleState({
-                    sampleCache: new Map([[ "foo", createSample( "bar" ) ]])
+                    sampleCache: new Map([[ "foo", createSampleCacheEntry( "bar" ) ]])
                 });
                 const slicedSample = createSample( "bar", "baz", PlaybackType.DEFAULT );
                 slicedSample.slices.push({ rangeStart: 0, rangeEnd: slicedSample.buffer.length / 2 });
@@ -128,7 +138,10 @@ describe( "Vuex sample module", () => {
 
         it( "should be able to remove individual samples from the cache", () => {
             const state = createSampleState({
-                sampleCache: new Map([[ "foo", createSample( "bar" )],[ "baz", createSample( "qux" )]])
+                sampleCache: new Map([
+                    [ "foo", createSampleCacheEntry( "bar" )],
+                    [ "baz", createSampleCacheEntry( "qux" )]
+                ])
             } as unknown );
 
             mutations.removeSampleFromCache( state, { name: "baz" });
@@ -142,7 +155,7 @@ describe( "Vuex sample module", () => {
             const commit = vi.fn();
             const samples = [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" )];
 
-            // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             actions.cacheSongSamples({ commit }, samples );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "flushSampleCache" );
@@ -170,7 +183,7 @@ describe( "Vuex sample module", () => {
                 const originalSample = mockedGetters.samples[ 2 ];
                 const newSample = { ...originalSample, type };
 
-                // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "removeSampleFromCache", originalSample );
@@ -187,7 +200,7 @@ describe( "Vuex sample module", () => {
                     const originalSample = mockedGetters.samples[ 0 ];
                     const newSample = { ...originalSample, name: "qux" };
                    
-                    // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                     const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                     expect( commit ).toHaveBeenNthCalledWith( 1, "removeSampleFromCache", originalSample );
@@ -203,7 +216,7 @@ describe( "Vuex sample module", () => {
                     const originalSample = mockedGetters.samples[ 1 ];
                     const newSample = { ...originalSample, name: "qux" };
 
-                    // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                     actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                     expect( commit ).toHaveBeenNthCalledWith( 4, "updateOscillator", {
@@ -220,7 +233,7 @@ describe( "Vuex sample module", () => {
                     const originalSample = mockedGetters.samples[ 0 ];
                     const newSample = { ...originalSample, name: "bar" };
 
-                    // @ts-expect-error Type 'ActionObject<SampleState, any>' has no call signatures.
+                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                     const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
                     
                     expect( updatedSample.name ).toEqual( "bar #2" );

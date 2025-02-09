@@ -129,8 +129,7 @@ const SongModule: Module<SongState, any> = {
          *
          * TODO: can we refactor this to not require us to pass the root store?? (to-Vue-migration leftover)
          */
-        // @ts-expect-error 'state' is declared but its value is never read.
-        addEventAtPosition( state: SongState, { event, store, optData, optStoreInUndoRedo = true } :
+        addEventAtPosition( _state: SongState, { event, store, optData, optStoreInUndoRedo = true } :
             { event: EffluxAudioEvent, store: Store<EffluxState>, optData?: OptEventData, optStoreInUndoRedo?: boolean }): void {
                 const undoRedoAction = addEvent(
                 store, event, optData,
@@ -236,8 +235,7 @@ const SongModule: Module<SongState, any> = {
                 }
             });
         },
-        // @ts-expect-error 'context' is declared but its value is never read.
-        async createSong( context: ActionContext<SongState, any>, type = EffluxSongType.TRACKER ): Promise<EffluxSong> {
+        async createSong( _context: ActionContext<SongState, any>, type = EffluxSongType.TRACKER ): Promise<EffluxSong> {
             const song = SongFactory.create( Config.INSTRUMENT_AMOUNT, type );
             if ( type === EffluxSongType.JAM ) {
                 for ( let i = 1; i < Config.JAM_MODE_PATTERN_AMOUNT; ++i ) {
@@ -323,8 +321,7 @@ const SongModule: Module<SongState, any> = {
                 }
             });
         },
-        // @ts-expect-error 'context' is declared but its value is never read.
-        loadSongFromLS( context: ActionContext<SongState, any>, song: EffluxSong ): Promise<EffluxSong> {
+        loadSongFromLS( _context: ActionContext<SongState, any>, song: EffluxSong ): Promise<EffluxSong> {
             return new Promise( async ( resolve, reject ): Promise<void> => {
                 const storedSong = await StorageUtil.getItem( getStorageKeyForSong( song ));
                 if ( !storedSong ) {

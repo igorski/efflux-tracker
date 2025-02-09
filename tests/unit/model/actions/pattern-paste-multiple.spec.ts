@@ -78,8 +78,9 @@ describe( "Pattern paste (multiple) action", () => {
 
     it( "should keep the order list in sync with the pattern list", () => {
         const commitSpy = vi.spyOn( store, "commit" ).mockImplementation(( fn, args ) => {
+            // @ts-expect-error Type 'Payload' is not assignable to type 'string'
             if ( fn === "replacePatterns" ) {
-                song.patterns = args;
+                song.patterns = args as EffluxPattern[];
             }
         });
 

@@ -149,8 +149,7 @@ const MIDIModule: Module<MIDIState, any> = {
 
             return true;
         },
-        // @ts-expect-error context is unused
-        async deletePairing( context: ActionContext<MIDIState, any>, pairing: MIDIPairingPreset ): Promise<void> {
+        async deletePairing( _context: ActionContext<MIDIState, any>, pairing: MIDIPairingPreset ): Promise<void> {
             const pairings = await retrievePresets();
             const index = pairings.findIndex( comparePairing => comparePairing.id === pairing.id );
             if ( index === -1 ) {

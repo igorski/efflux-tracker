@@ -105,7 +105,7 @@ describe( "Event actions", () => {
         });
 
         it( "should return false for a noteOff event", () => {
-            const event = createNoteOffEvent();
+            const event = createNoteOffEvent( 0 );
             event.mp = { ...MODULE_PARAM };
 
             expect( nonExistentOrAutomationOnly( event )).toBe( false );
@@ -209,7 +209,8 @@ describe( "Event actions", () => {
         it( "should not adopt the module parameter automation of any existing event at the requested step", () => {
             insertNoteOff( song, patternIndex, channelIndex, step, false );
 
-            expect( song.patterns[ patternIndex ].channels[ channelIndex ][ step ].mp ).toBeUndefined();
+            const event = song.patterns[ patternIndex ].channels[ channelIndex ][ step ] as EffluxAudioEvent;
+            expect( event.mp ).toBeUndefined();
         });
 
         it( "should adopt the module parameter automation of any existing event at the requested step, when requested", () => {

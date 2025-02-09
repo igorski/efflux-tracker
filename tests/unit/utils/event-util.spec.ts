@@ -4,6 +4,7 @@ import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import { ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxSong } from "@/model/types/song";
 import EventUtil, {
@@ -30,11 +31,10 @@ describe( "EventUtil", () => {
         song.meta.tempo = 120;
 
         const expectedStartMeasureOffset = 1; // half in measure (measure lasts 2s at 120 BPM)
-        const expectedLength             = .5;
-
+      
         const audioEvent = EventFactory.create();
 
-        EventUtil.setPosition( audioEvent, pattern, pattern.steps / 2, song.meta.tempo, expectedLength );
+        EventUtil.setPosition( audioEvent, pattern, pattern.steps / 2, song.meta.tempo );
 
         expect( audioEvent.seq.startMeasureOffset ).toEqual( expectedStartMeasureOffset );
     });
@@ -224,13 +224,13 @@ describe( "EventUtil", () => {
 
     describe( "when managing the relative position of an event inside a Song", () => {
         const song = SongFactory.create( 2 );
-        const pattern1channels = [
+        const pattern1channels: EffluxChannel[] = [
             [], [],
         ];
-        const pattern2channels = [
+        const pattern2channels: EffluxChannel[] = [
             [], [],
         ];
-        const pattern3channels = [
+        const pattern3channels: EffluxChannel[] = [
             [], [],
         ];
         song.patterns = [
@@ -238,7 +238,9 @@ describe( "EventUtil", () => {
             PatternFactory.create( 4, pattern2channels ),
             PatternFactory.create( 4, pattern3channels ),
         ];
-        let orderIndex, patternIndex, channelIndex;
+        let orderIndex: number;
+        let patternIndex: number;
+        let channelIndex: number;
 
         beforeEach(() => {
             [ pattern1channels, pattern2channels, pattern3channels ].forEach( channelList => {
@@ -298,7 +300,7 @@ describe( "EventUtil", () => {
             });
 
             it( "should be able to ignore an event when its matched the predicate of the optionally provided ignore function", () => {
-                const ignoreFn = ( event, compareEvent ) => {
+                const ignoreFn = ( _event: EffluxAudioEvent, compareEvent: EffluxAudioEvent ) => {
                     return compareEvent.action === ACTION_AUTO_ONLY;
                 };
 
@@ -390,7 +392,7 @@ describe( "EventUtil", () => {
             });
 
             it( "should be able to ignore an event when its matched the predicate of the optionally provided ignore function", () => {
-                const ignoreFn = ( event, compareEvent ) => {
+                const ignoreFn = ( _event: EffluxAudioEvent, compareEvent: EffluxAudioEvent ) => {
                     return compareEvent.action === ACTION_AUTO_ONLY;
                 };
 
@@ -433,13 +435,13 @@ describe( "EventUtil", () => {
     describe( "when calculating the total event duration", () => {
         const song = SongFactory.create( 2 );
         const measureLength = calculateMeasureLength( song.meta.tempo );
-        const pattern1channels = [
+        const pattern1channels: EffluxChannel[] = [
             [], [],
         ];
-        const pattern2channels = [
+        const pattern2channels: EffluxChannel[] = [
             [], [],
         ];
-        const pattern3channels = [
+        const pattern3channels: EffluxChannel[] = [
             [], [],
         ];
         song.patterns = [

@@ -1,5 +1,4 @@
 import type { ActionContext } from "vuex";
-import type { VueI18n } from "vue-i18n";
 import editor, { EditorState } from "./modules/editor-module";
 import history, { HistoryState } from "./modules/history-module";
 import instrument, { InstrumentState } from "./modules/instrument-module";
@@ -98,13 +97,11 @@ export default
         applicationFocused: true,
     }),
     getters: {
-        // @ts-expect-error state is defined, but its value is never read
-        t: ( state: EffluxState ) => ( key: string, optArgs?: any ): string => translate( key, optArgs ),
+        t: ( _state: EffluxState ) => ( key: string, optArgs?: any ): string => translate( key, optArgs ),
         isLoading: ( state: EffluxState ) => state.loadingStates.length > 0,
     },
     mutations: {
-        // @ts-expect-error state is defined, but its value is never read
-        publishMessage( state: EffluxState, message: string ): void {
+        publishMessage( _state: EffluxState, message: string ): void {
             PubSubService.publish( message );
         },
         setMenuOpened( state: EffluxState, value: boolean ): void {
@@ -176,8 +173,7 @@ export default
         syncKeyboard(): void {
             KeyboardService.syncEditorSlot();
         },
-        // @ts-expect-error state is defined, but its value is never read
-        suspendKeyboardService( state: EffluxState, isSuspended: boolean ): void {
+        suspendKeyboardService( _state: EffluxState, isSuspended: boolean ): void {
             KeyboardService.setSuspended( !!isSuspended );
         },
         /**

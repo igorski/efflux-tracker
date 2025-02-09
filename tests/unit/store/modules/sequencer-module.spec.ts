@@ -1,14 +1,15 @@
+import { type Store } from "vuex";
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import EventFactory from "@/model/factories/event-factory";
 import PatternFactory from "@/model/factories/pattern-factory";
 import SongFactory from "@/model/factories/song-factory";
 import { ACTION_NOTE_ON, type EffluxAudioEvent } from "@/model/types/audio-event";
 import { EffluxSongType } from "@/model/types/song";
-import RootStore from "@/store";
+import RootStore, { type EffluxState } from "@/store";
 import SequencerModule, { createSequencerState, type SequencerState } from "@/store/modules/sequencer-module";
 import EventUtil from "@/utils/event-util";
 import LinkedList from "@/utils/linked-list";
-import { mockAudioContext, createMockOscillatorNode } from "../../mocks";
+import { mockAudioContext, setContextCurrentTime, createMockOscillatorNode } from "../../mocks";
 
 const mockSequencerWorker = {
     postMessage: vi.fn(),
@@ -56,7 +57,7 @@ describe( "Vuex sequencer module", () => {
         activeSong.patterns = [
             PatternFactory.create( 16 ), PatternFactory.create( 8 ), PatternFactory.create( 4 ) 
         ];
-        mockAudioContext.currentTime = 0;
+        setContextCurrentTime( mockAudioContext, 0 );
     });
 
     afterEach(() => {
@@ -67,40 +68,41 @@ describe( "Vuex sequencer module", () => {
     describe( "getters", () => {
         it( "should be able to retrieve the active playing state", () => {
             state = createSequencerState({ playing: true });
-            expect( getters.isPlaying( state )).toEqual( true );
+            expect( getters.isPlaying( state, {}, RootStore.state, RootStore.getters )).toEqual( true );
         });
 
         it( "should be able to retrieve the active looping state", () => {
             state = createSequencerState({ looping: true });
-            expect( getters.isLooping( state )).toEqual( true );
+            expect( getters.isLooping( state, {}, RootStore.state, RootStore.getters )).toEqual( true );
         });
 
         it( "should be able to retrieve the active recording state", () => {
             state = createSequencerState({ recording: true });
-            expect( getters.isRecording( state )).toEqual( true );
+            expect( getters.isRecording( state, {}, RootStore.state, RootStore.getters )).toEqual( true );
         });
 
         it( "should be able to retrieve the active order index", () => {
             state = createSequencerState({ activeOrderIndex: 6 });
-            expect( getters.activeOrderIndex( state )).toEqual( 6 );
+            expect( getters.activeOrderIndex( state, {}, RootStore.state, RootStore.getters )).toEqual( 6 );
         });
 
         it( "should be able to retrieve the active pattern index", () => {
             state = createSequencerState({ activePatternIndex: 5 });
-            expect( getters.activePatternIndex( state )).toEqual( 5 );
+            expect( getters.activePatternIndex( state, {}, RootStore.state, RootStore.getters )).toEqual( 5 );
         });
 
         it( "should be able to retrieve the amount of steps for the active pattern", () => {
             state = createSequencerState({ activePatternIndex: 1 });
-            const rootGetters = { activeSong };
+            const mockGetters = { activeSong };
 
-            expect( getters.amountOfSteps( state, rootGetters )).toEqual( 8 );
+            expect( getters.amountOfSteps( state, mockGetters, RootStore.state, RootStore.getters )).toEqual( 8 );
         });
     });
 
     describe( "mutations", () => {
         describe( "when setting the playback state", () => {
             const prepare = async ( state: SequencerState ): Promise<SequencerState> => {
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.prepareSequencer({ state, commit: vi.fn() });
                 return state;
             }
@@ -391,7 +393,7 @@ describe( "Vuex sequencer module", () => {
             });
 
             it( "should default to using the AudioContext currenttime value when no currentTime was provided", () => {
-                mockAudioContext.currentTime = 7;
+                setContextCurrentTime( mockAudioContext, 7 );
                 mutations.setPosition( state, { activeSong, orderIndex: 3 });
 
                 expect( state.nextNoteTime ).toEqual( 7 );
@@ -492,8 +494,8 @@ describe( "Vuex sequencer module", () => {
                 beforeEach(() => {
                     activeSong.type = EffluxSongType.JAM;
                     state.jam = [
-                        { activePatternIndex: 0, nextPatternIndex: 0 },
-                        { activePatternIndex: 1, nextPatternIndex: 1 },
+                        { activePatternIndex: 0, nextPatternIndex: 0, locked: false },
+                        { activePatternIndex: 1, nextPatternIndex: 1, locked: false },
                     ];
                 });
 
@@ -518,7 +520,7 @@ describe( "Vuex sequencer module", () => {
         const patternIndex = activeSong.order[ orderIndex ];
         const measureDuration = ( 60 / activeSong.meta.tempo ) * 4;
 
-        let rootStore;
+        let rootStore: Store<EffluxState>;
         let state: SequencerState;
         let event1: EffluxAudioEvent;
         let event2: EffluxAudioEvent;
@@ -537,21 +539,28 @@ describe( "Vuex sequencer module", () => {
 
         beforeEach( async () => {
             state = createSequencerState({ playing: true, activeOrderIndex: 0 });
-            rootStore = { ...RootStore, commit, getters: {
-                sampleCache: {},
-                get activePatternIndex() {
-                    return getters.activePatternIndex( state );
+            rootStore = {
+                ...RootStore,
+                commit,
+                getters: {
+                    sampleCache: {},
+                    get activePatternIndex() {
+                        return getters.activePatternIndex( state, getters, RootStore.state, RootStore.getters );
+                    }
                 }
-            } };
+            } as unknown as Store<EffluxState>;
             rootStore.state.sequencer = state;
-            rootStore.state.song = { activeSong: { ...activeSong, type: EffluxSongType.TRACKER } };
-
+            rootStore.state.song = {
+                ...rootStore.state.song,
+                activeSong: { ...activeSong, type: EffluxSongType.TRACKER }
+            };
             event1 = createEvent( "C", 7, patternIndex, 0 );
             event2 = createEvent( "D", 1, patternIndex, 1 );
 
             mockGetEventLength.mockImplementation(() => 1 );
             mutations.setPosition( state, { activeSong, orderIndex });
 
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             await actions.prepareSequencer({ state, commit: vi.fn() }, rootStore );
         });
 
@@ -613,7 +622,7 @@ describe( "Vuex sequencer module", () => {
             event3.seq.length = 0.1;
 
             let scheduledOffTime = 0;
-            mockCreateTimer.mockImplementationOnce(( ctx, time, cb ) => {
+            mockCreateTimer.mockImplementationOnce(( _ctx, time, cb ) => {
                 scheduledOffTime = time;
                 setTimeout( cb, time ); // resolves to call noteOff
                 return { disconnect: vi.fn() } as unknown as OscillatorNode
@@ -695,9 +704,9 @@ describe( "Vuex sequencer module", () => {
                 beforeEach(() => {
                     rootStore.state.song.activeSong.type = EffluxSongType.JAM;
                     state.jam = [
-                        { activePatternIndex: 0, nextPatternIndex: 1 },
-                        { activePatternIndex: 1, nextPatternIndex: 1 },
-                        { activePatternIndex: 1, nextPatternIndex: 2 },
+                        { activePatternIndex: 0, nextPatternIndex: 1, locked: false },
+                        { activePatternIndex: 1, nextPatternIndex: 1, locked: false },
+                        { activePatternIndex: 1, nextPatternIndex: 2, locked: false },
                     ];
                     state.stepPrecision = 1; // just so a single collect-step advances pattern
                 });
@@ -706,9 +715,9 @@ describe( "Vuex sequencer module", () => {
                     mockSequencerWorker.onmessage({ data: { cmd: "collect" }});
 
                     expect( state.jam ).toEqual([
-                        { activePatternIndex: 1, nextPatternIndex: 1 },
-                        { activePatternIndex: 1, nextPatternIndex: 1 },
-                        { activePatternIndex: 2, nextPatternIndex: 2 },
+                        { activePatternIndex: 1, nextPatternIndex: 1, locked: false },
+                        { activePatternIndex: 1, nextPatternIndex: 1, locked: false },
+                        { activePatternIndex: 2, nextPatternIndex: 2, locked: false },
                     ]);
                 });
 
@@ -739,7 +748,7 @@ describe( "Vuex sequencer module", () => {
 
                     activeSong.patterns[ 1 ].channels[ 1 ].fill( 0 ); // remove events
                     
-                    mockCreateTimer.mockImplementationOnce(( ctx, time, cb ) => {
+                    mockCreateTimer.mockImplementationOnce(( _ctx, time, cb ) => {
                         setTimeout( cb, time ); // resolves to call noteOff
                         return { disconnect: vi.fn() } as unknown as OscillatorNode
                     });
@@ -768,7 +777,7 @@ describe( "Vuex sequencer module", () => {
                     // enqueue a channel to be flushed
                     state.jamChannelFlushIndex = 1;
 
-                    mockCreateTimer.mockImplementationOnce(( ctx, time, cb ) => {
+                    mockCreateTimer.mockImplementationOnce(( _ctx, time, cb ) => {
                         setTimeout( cb, time ); // resolves to call noteOff
                         return { disconnect: vi.fn() } as unknown as OscillatorNode
                     });

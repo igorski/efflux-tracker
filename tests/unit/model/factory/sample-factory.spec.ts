@@ -247,6 +247,7 @@ describe( "SampleFactory", () => {
                 cents: 12
             },
             sr: 44100,
+            sl: [] as { s: number, e: number }[],
             l: mockAudioBuffer.duration,
             t: PlaybackType.DEFAULT,
         };
@@ -295,6 +296,7 @@ describe( "SampleFactory", () => {
             mockFnFileUtil = vi.fn(() => new Blob() );
             mockFn = vi.fn(() => mockAudioBuffer );
     
+            // @ts-expect-error legacy format no longer matches XTKSample description
             const assembled = await SampleFactory.deserialize( MOCK_LEGACY_SAMPLE );
 
             expect( assembled.type ).toEqual( PlaybackType.DEFAULT );
@@ -306,6 +308,7 @@ describe( "SampleFactory", () => {
             mockFnFileUtil = vi.fn(() => new Blob() );
             mockFn = vi.fn(() => mockAudioBuffer );
     
+            // @ts-expect-error legacy format no longer matches XTKSample description
             const assembled = await SampleFactory.deserialize( serialized );
 
             expect( assembled.type ).toEqual( PlaybackType.REPITCHED );
@@ -316,6 +319,7 @@ describe( "SampleFactory", () => {
             mockFnFileUtil = vi.fn(() => new Blob() );
             mockFn = vi.fn(() => mockAudioBuffer );
     
+            // @ts-expect-error legacy format no longer matches XTKSample description
             const assembled = await SampleFactory.deserialize( MOCK_LEGACY_SAMPLE );
 
             expect( assembled.loop ).toEqual( true );

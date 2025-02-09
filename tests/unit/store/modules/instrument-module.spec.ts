@@ -79,7 +79,7 @@ describe( "Vuex instrument module", () => {
                 let thrown = false;
 
                 try {
-                    // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                     await actions.saveInstrumentIntoLS({ state: createInstrumentState(), getters: {}, dispatch }, invalidInstrument);
                 } catch ( e ) {
                     thrown = true;
@@ -91,7 +91,7 @@ describe( "Vuex instrument module", () => {
             it( "should be able to save instruments in storage", async () => {
                 const state = createInstrumentState();
 
-                // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveInstrumentIntoLS({ state, getters: {}, dispatch }, instrument );
 
                 // expected instruments meta to have been saved into the instruments list
@@ -123,7 +123,7 @@ describe( "Vuex instrument module", () => {
 
                 mockSampleFn = vi.fn();
 
-                // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.saveInstrumentIntoLS({ state: createInstrumentState(), getters: mockedGetters, dispatch }, sampledInstrument );
 
                 expect( mockSampleFn ).toHaveBeenCalledTimes( 2 );
@@ -149,7 +149,7 @@ describe( "Vuex instrument module", () => {
                 const sample1 = createSample( "foo" );
                 const mockedGetters = { samples: [ sample1 ] };
 
-                // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
                 await actions.loadInstrumentFromLS({ getters: mockedGetters, commit }, { presetName: mockStoredInstrument.presetName });
 
                 // assert serialized instrument has been retrieved from storage
@@ -171,7 +171,7 @@ describe( "Vuex instrument module", () => {
         it( "should be able to delete instruments from storage", async () => {
             const state = createInstrumentState({ instruments: [ instrument ] });
 
-            // @ts-expect-error Type 'ActionObject<InstrumentState, any>' has no call signatures.
+            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
             await actions.deleteInstrument({ state }, { instrument });
 
             expect( state.instruments ).toHaveLength( 0 );

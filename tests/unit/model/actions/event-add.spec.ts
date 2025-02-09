@@ -9,10 +9,11 @@ import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { createMockStore } from "../../mocks";
 
 vi.mock( "@/utils/event-util", async () => {
-    const actual = await vi.importActual( "@/utils/event-util" ) as object;
+    const actual = await vi.importActual( "@/utils/event-util" );
     return {
         ...actual,
         default: {
+            // @ts-expect-error Spread types may only be created from object types
             ...actual.default,
             setPosition: vi.fn(), // by stubbing this we can compare event more easily
         }
