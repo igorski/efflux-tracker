@@ -155,7 +155,7 @@ describe( "Vuex sample module", () => {
             const commit = vi.fn();
             const samples = [ createSample( "foo" ), createSample( "bar" ), createSample( "baz" )];
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<SampleState, any>' are callable
             actions.cacheSongSamples({ commit }, samples );
 
             expect( commit ).toHaveBeenNthCalledWith( 1, "flushSampleCache" );
@@ -183,7 +183,7 @@ describe( "Vuex sample module", () => {
                 const originalSample = mockedGetters.samples[ 2 ];
                 const newSample = { ...originalSample, type };
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SampleState, any>' are callable
                 const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                 expect( commit ).toHaveBeenNthCalledWith( 1, "removeSampleFromCache", originalSample );
@@ -200,7 +200,7 @@ describe( "Vuex sample module", () => {
                     const originalSample = mockedGetters.samples[ 0 ];
                     const newSample = { ...originalSample, name: "qux" };
                    
-                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                    // @ts-expect-error Not all constituents of type 'Action<SampleState, any>' are callable
                     const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                     expect( commit ).toHaveBeenNthCalledWith( 1, "removeSampleFromCache", originalSample );
@@ -216,7 +216,7 @@ describe( "Vuex sample module", () => {
                     const originalSample = mockedGetters.samples[ 1 ];
                     const newSample = { ...originalSample, name: "qux" };
 
-                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                    // @ts-expect-error Not all constituents of type 'Action<SampleState, any>' are callable
                     actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
 
                     expect( commit ).toHaveBeenNthCalledWith( 4, "updateOscillator", {
@@ -233,7 +233,7 @@ describe( "Vuex sample module", () => {
                     const originalSample = mockedGetters.samples[ 0 ];
                     const newSample = { ...originalSample, name: "bar" };
 
-                    // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                    // @ts-expect-error Not all constituents of type 'Action<SampleState, any>' are callable
                     const updatedSample = actions.updateSampleProps({ getters: mockedGetters, commit }, newSample );
                     
                     expect( updatedSample.name ).toEqual( "bar #2" );

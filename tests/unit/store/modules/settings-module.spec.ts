@@ -153,7 +153,7 @@ describe( "Vuex settings module", () => {
                 const commit   = vi.fn();
                 const dispatch = vi.fn();
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( mockStorageFn ).toHaveBeenCalledWith( "init" );
@@ -166,14 +166,14 @@ describe( "Vuex settings module", () => {
                 const commit   = vi.fn();
                 const dispatch = vi.fn();
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).not.toHaveBeenCalledWith( "updateExisting" );
 
                 mockStorageGetItem.mockImplementationOnce(() => Promise.resolve( JSON.stringify( mockSettings )));
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).toHaveBeenCalledWith( "updateExisting" );
@@ -184,14 +184,14 @@ describe( "Vuex settings module", () => {
                 const commit   = vi.fn();
                 const dispatch = vi.fn();
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).not.toHaveBeenCalledWith( "setFirstRunDefaults" );
 
                 mockStorageGetItem.mockImplementationOnce(() => Promise.reject());
                 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 await actions.loadStoredSettings({ commit, dispatch });
 
                 expect( dispatch ).toHaveBeenCalledWith( "setFirstRunDefaults" );
@@ -203,7 +203,7 @@ describe( "Vuex settings module", () => {
                 const state = createSettingsState({ _settings: { [ PROPERTIES.USE_ORDERS ]: "false" } });
                 const commit = vi.fn();
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 actions.updateExisting({ commit, state });
 
                 expect( commit ).not.toHaveBeenCalledWith( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: expect.any( Boolean ) });
@@ -213,7 +213,7 @@ describe( "Vuex settings module", () => {
                 const state = createSettingsState({ _settings: {} });
                 const commit = vi.fn();
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 actions.updateExisting({ commit, state });
 
                 expect( commit ).toHaveBeenCalledWith( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: false });
@@ -224,7 +224,7 @@ describe( "Vuex settings module", () => {
             it( "should save a default USE_ORDERS setting to true", () => {
                 const commit = vi.fn();
 
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<SettingsState, any>' are callable
                 actions.setFirstRunDefaults({ commit });
 
                 expect( commit ).toHaveBeenCalledWith( "saveSetting", { name: PROPERTIES.USE_ORDERS, value: true });

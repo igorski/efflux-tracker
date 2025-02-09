@@ -34,7 +34,7 @@ describe( "Vuex history state module", () => {
                 getters.canUndo( state, { canUndo: state.undoManager.hasUndo() }, mockRootState, mockRootGetters )
             ).toBe( true ); // expected undo to be available after addition of action
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
             await actions.undo({ state, commit, getters: { canUndo: state.undoManager.hasUndo() }});
             expect(
                 getters.canUndo( state, { canUndo: state.undoManager.hasUndo() }, mockRootState, mockRootGetters )
@@ -51,13 +51,13 @@ describe( "Vuex history state module", () => {
                 getters.canRedo( state, {}, mockRootState, mockRootGetters )
             ).toBe( false ); // expected no redo to be available after addition of action
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
             await actions.undo({ state, commit, getters: { canUndo: state.undoManager.hasUndo() }});
             expect(
                 getters.canRedo( state, {}, mockRootState, mockRootGetters )
             ).toBe( true ); // expected redo to be available after having undone actions
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
             await actions.redo({ state, commit, getters: { canRedo: state.undoManager.hasRedo() }});
             expect(
                 getters.canRedo( state, {}, mockRootState, mockRootGetters )
@@ -79,7 +79,7 @@ describe( "Vuex history state module", () => {
             }
 
             for ( let i = AMOUNT_OF_STATES - 1; i >= 0; --i ) {
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
                 await actions.undo({ state, commit, getters: { canUndo: state.undoManager.hasUndo() }});
                 expect(
                     getters.amountOfStates( state, {}, mockRootState, mockRootGetters )
@@ -87,7 +87,7 @@ describe( "Vuex history state module", () => {
             }
 
             for ( let i = 0; i < AMOUNT_OF_STATES; ++i ) {
-                // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+                // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
                 await actions.redo({ state, commit, getters: { canRedo: state.undoManager.hasRedo() }});
                 expect(
                     getters.amountOfStates( state, {}, mockRootState, mockRootGetters )
@@ -158,11 +158,11 @@ describe( "Vuex history state module", () => {
             const redo = vi.fn();
             mutations.saveState( state, { undo: noop, redo: redo });
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
             await actions.undo({ state, commit, getters: { canUndo: state.undoManager.hasUndo() }});
             expect( commit ).toHaveBeenNthCalledWith(1, "setHistoryIndex", -1);
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
             await actions.redo({ state, commit, getters: { canRedo: state.undoManager.hasRedo() }});
 
             expect( redo ).toHaveBeenCalled();
@@ -173,7 +173,7 @@ describe( "Vuex history state module", () => {
             const undo = vi.fn();
             mutations.saveState( state, { undo: undo, redo: noop });
 
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<HistoryState, any>' are callable
             await actions.undo({ state, commit, getters: { canUndo: state.undoManager.hasUndo() }});
 
             expect( undo ).toHaveBeenCalled();

@@ -180,7 +180,7 @@ describe( "Vuex MIDI module", () => {
         });
 
         it( "should be able to retrieve the stored presets", async () => {
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<MidiState, any>' are callable
             const result = await actions.loadPairings();
 
             expect( mockStorageFn ).toHaveBeenCalledWith( "init" );
@@ -205,7 +205,7 @@ describe( "Vuex MIDI module", () => {
             };
             const title = "My newest preset";
            
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<MidiState, any>' are callable
             const result = await actions.savePairing({ state, getters }, title );
 
             expect( mockStorageSetItem ).toHaveBeenCalledWith( PAIRING_STORAGE_KEY, JSON.stringify([
@@ -225,7 +225,7 @@ describe( "Vuex MIDI module", () => {
         });
 
         it( "should be able to remove an individual pairing from the stored preset list", async () => {
-            // @ts-expect-error Not all constituents of type 'Action<SequencerState, any>' are callable
+            // @ts-expect-error Not all constituents of type 'Action<MidiState, any>' are callable
             await actions.deletePairing({}, MOCK_STORED_PRESETS[ 0 ]);
 
             expect( mockStorageSetItem ).toHaveBeenCalledWith(
