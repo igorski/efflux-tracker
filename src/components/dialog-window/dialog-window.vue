@@ -123,13 +123,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 .dialog-window {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
-    @include boxSize();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
+    @include mixins.boxSize();
 
     width: auto;
     height: auto;
@@ -140,37 +142,37 @@ export default {
     -webkit-transform: translate(-50%,-50%);
     transform: translate(-50%,-50%);
 
-    padding: $spacing-small $spacing-large;
-    border-radius: $spacing-small;
+    padding: variables.$spacing-small variables.$spacing-large;
+    border-radius: variables.$spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
     h3 {
-        @include toolFont();
-        margin: $spacing-medium 0;
+        @include typography.toolFont();
+        margin: variables.$spacing-medium 0;
         color: #FFF;
         font-size: 125%;
     }
 
     button {
-        @include button();
-        padding: $spacing-medium $spacing-large;
+        @include mixins.button();
+        padding: variables.$spacing-medium variables.$spacing-large;
     }
 
-    @include large() {
+    @include mixins.large() {
         max-width: 400px;
 
         .actions {
-            margin: $spacing-small 0;
+            margin: variables.$spacing-small 0;
             display: flex;
 
             button {
                 flex: 1;
-                margin: 0 $spacing-small 0 0;
+                margin: 0 variables.$spacing-small 0 0;
             }
         }
     }
 
-    @include mobile() {
+    @include mixins.mobile() {
         &.has-actions {
             border-radius: 0;
             width: 100%;
@@ -179,7 +181,7 @@ export default {
             button {
                 display: block;
                 width: 100%;
-                margin-bottom: $spacing-small;
+                margin-bottom: variables.$spacing-small;
             }
         }
     }

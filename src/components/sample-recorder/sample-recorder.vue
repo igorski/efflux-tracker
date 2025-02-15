@@ -250,19 +250,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
 
 .sample-recorder {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
-    @include boxSize();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
+    @include mixins.boxSize();
 
     $width: 300px;
     $height: 325px;
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -270,14 +272,14 @@ export default {
         transform: translate(-50%, -50%);
     }
 
-    @include componentFallback( $width, $height ) {
+    @include mixins.componentFallback( $width, $height ) {
         width: 100%;
         height: 100%;
     }
 }
 
 .header {
-    padding: 0 $spacing-medium;
+    padding: 0 variables.$spacing-medium;
 }
 
 .ui {
@@ -312,7 +314,7 @@ export default {
 
 .input-select {
     width: 200px;
-    margin: $spacing-medium 0 0;
+    margin: variables.$spacing-medium 0 0;
 }
 
 .progress__outline {
@@ -323,7 +325,7 @@ export default {
     transform-origin: center;
 
     &--bar {
-        stroke: $color-2;
+        stroke: colors.$color-2;
     }
 }
 </style>

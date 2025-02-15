@@ -182,14 +182,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
 
 .jam-mode-editor {
     overflow-y: auto;
-    background-color: $color-form-background;
+    background-color: colors.$color-form-background;
 
-    @include mobile() {
-        padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
+    @include mixins.mobile() {
+        padding-left: (variables.$spacing-large + variables.$spacing-medium); /* to make up for fixed position pattern editor */
     }
 }
 </style>

@@ -152,24 +152,25 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/transporter";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/transporter";
 
 $width: 450px;
 $height: 290px;
 
 .optimization-window {
-    @include editorComponent();
-    @include overlay();
-    padding: $spacing-small $spacing-large;
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    padding: variables.$spacing-small variables.$spacing-large;
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
-        margin-bottom: $spacing-medium;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
+        margin-bottom: variables.$spacing-medium;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -178,13 +179,13 @@ $height: 290px;
         margin-top: math.div( -$height, 2 );
     }
 
-    @include componentFallback( $width, $height ) {
-        @include verticalScrollOnMobile();
+    @include mixins.componentFallback( $width, $height ) {
+        @include mixins.verticalScrollOnMobile();
     }
 
     .confirm-button {
         width: 100%;
-        padding: $spacing-medium $spacing-large;
+        padding: variables.$spacing-medium variables.$spacing-large;
     }
 }
 </style>

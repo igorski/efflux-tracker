@@ -100,24 +100,27 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 #notifications {
     position: fixed;
-    z-index: $z-notifications;
+    z-index: variables.$z-notifications;
     top: 45px;
     right: 0;
     width: 33%;
     max-width: 300px;
 
     .notification-window {
-        @include boxSize();
+        @include mixins.boxSize();
         display: block;
         position: relative;
-        padding: $spacing-small ($spacing-small + $spacing-medium);
-        margin-bottom: $spacing-small;
+        padding: variables.$spacing-small (variables.$spacing-small + variables.$spacing-medium);
+        margin-bottom: variables.$spacing-small;
         right: -500px;
-        background-color: $color-editor-background;
+        background-color: colors.$color-editor-background;
         border: 3px solid #28292d;
         color: #FFF;
         transition: 1.0s ease-in-out;
@@ -129,30 +132,30 @@ export default {
         }
 
         &.active {
-            right: $spacing-medium;
-            box-shadow: 0 0 $spacing-small rgba(0,255,255,.35);
+            right: variables.$spacing-medium;
+            box-shadow: 0 0 variables.$spacing-small rgba(0,255,255,.35);
         }
 
         &__title {
-            @include toolFont();
+            @include typography.toolFont();
             color: #FFF;
             margin: 0;
         }
 
         &__message {
             color: #b6b6b6;
-            margin: $spacing-xsmall 0;
+            margin: variables.$spacing-xsmall 0;
         }
     }
 }
 
-@media screen and ( min-width: $app-width ) {
+@media screen and ( min-width: variables.$app-width ) {
     .notification-window {
-        border-radius: $spacing-small;
+        border-radius: variables.$spacing-small;
     }
 }
 
-@include mobile() {
+@include mixins.mobile() {
     #notifications {
         width: 100%;
         max-width: 100%;
@@ -164,7 +167,7 @@ export default {
             left: 0;
             right: auto;
             top: -500px;
-            padding: $spacing-medium;
+            padding: variables.$spacing-medium;
             margin: 0;
 
             &.active {

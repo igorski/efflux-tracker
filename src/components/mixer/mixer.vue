@@ -80,14 +80,15 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
 
 $ideal-mixer-width: 785px;
 $ideal-mixer-height: 460px;
 
 .mixer {
-    @include editorComponent();
-    @include overlay();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
     height: auto;
 
     .divider {
@@ -95,10 +96,10 @@ $ideal-mixer-height: 460px;
     }
 
     .header h2 {
-        margin-left: $spacing-medium;
+        margin-left: variables.$spacing-medium;
     }
 
-    @include componentIdeal( $ideal-mixer-width, $ideal-mixer-height ) {
+    @include mixins.componentIdeal( $ideal-mixer-width, $ideal-mixer-height ) {
         top: 50%;
         left: 50%;
         width: $ideal-mixer-width;
@@ -107,12 +108,12 @@ $ideal-mixer-height: 460px;
         margin-top: math.div( -$ideal-mixer-height, 2 );
     }
 
-    @include componentFallback( $ideal-mixer-width, $ideal-mixer-height ) {
+    @include mixins.componentFallback( $ideal-mixer-width, $ideal-mixer-height ) {
         position: absolute;
         height: 100%;
         top: 0;
         margin-top: 0;
-        @include verticalScrollOnMobile();
+        @include mixins.verticalScrollOnMobile();
     }
 }
 </style>

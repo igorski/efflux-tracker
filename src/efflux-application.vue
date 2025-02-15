@@ -536,10 +536,10 @@ export default {
 
 <style lang="scss">
 /* global styles */
-@import "@/styles/_global";
+@use "@/styles/_global";
 </style>
 
 <style lang="scss" scoped>
 /* component specific styling */
-@import "@/styles/layout";
+@use "@/styles/layout";
 </style>

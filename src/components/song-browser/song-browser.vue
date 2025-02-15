@@ -197,8 +197,10 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 $songBrowserWidth: 750px;
 $songBrowserHeight: 500px;
@@ -206,41 +208,41 @@ $headerFooterHeight: 184px;
 $headerFooterHeightNoExpl: 102px;
 
 .song-browser {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
     overflow-x: hidden;
     overflow-y: auto;
     padding: 0;
 
     .header,
     .footer {
-        padding: $spacing-small $spacing-large 0;
+        padding: variables.$spacing-small variables.$spacing-large 0;
     }
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
         margin-bottom: 0;
     }
 
     .import-button {
-        @include button();
+        @include mixins.button();
         display: inline-block;
     }
 
     .file-loader {
-        margin-top: $spacing-xsmall;
+        margin-top: variables.$spacing-xsmall;
         display: inline-block;
     }
 
     &__explanation-text {
-        padding: $spacing-medium 0 0;
-        @include boxSize();
+        padding: variables.$spacing-medium 0 0;
+        @include mixins.boxSize();
         width: 90%;
     }
 
-    @include componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
+    @include mixins.componentIdeal( $songBrowserWidth, $songBrowserHeight ) {
         width: $songBrowserWidth;
         height: $songBrowserHeight;
         top: 50%;
@@ -253,14 +255,14 @@ $headerFooterHeightNoExpl: 102px;
         }
     }
 
-    @include componentFallback( $songBrowserWidth, $songBrowserHeight ) {
+    @include mixins.componentFallback( $songBrowserWidth, $songBrowserHeight ) {
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: $z-window;
+        z-index: variables.$z-window;
 
         &__explanation {
             display: none;
@@ -273,27 +275,27 @@ $headerFooterHeightNoExpl: 102px;
 }
 
 .song-list {
-    @include list();
+    @include mixins.list();
     width: 100%;
     overflow-y: auto;
 
     li {
-        @include titleFont();
-        @include boxSize();
+        @include typography.titleFont();
+        @include mixins.boxSize();
         display: flex;
         align-items: center;
         width: 100%;
-        padding: $spacing-small $spacing-large;
+        padding: variables.$spacing-small variables.$spacing-large;
         cursor: pointer;
-        background-color: $color-pattern-even;
+        background-color: colors.$color-pattern-even;
 
         .title, .date {
-            @include noEvents();
+            @include mixins.noEvents();
         }
 
         .title {
             flex: 1;
-            @include truncate();
+            @include mixins.truncate();
         }
 
         .type {
@@ -306,20 +308,20 @@ $headerFooterHeightNoExpl: 102px;
 /*
         .date {
             width: 40%;
-            padding-left: $spacing-small;
-            @include boxSize();
+            padding-left: variables.$spacing-small;
+            @include mixins.boxSize();
         }
 */
         .action-button {
-            width: #{$spacing-large + $spacing-xsmall};
-            @include ghostButton();
+            width: #{variables.$spacing-large + variables.$spacing-xsmall};
+            @include mixins.ghostButton();
 
             &:hover {
                 filter: brightness(0) invert(1) !important;
             }
         }
 
-        @include mobile() {
+        @include mixins.mobile() {
             .title {
                 width: 90%;
             }
@@ -330,11 +332,11 @@ $headerFooterHeightNoExpl: 102px;
         }
 
         &:nth-child(odd) {
-            background-color: $color-pattern-odd;
+            background-color: colors.$color-pattern-odd;
         }
 
         &:hover {
-            background-color: $color-5;
+            background-color: colors.$color-5;
             color: #000;
 
             .action-button {

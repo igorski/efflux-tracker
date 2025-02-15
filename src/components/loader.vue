@@ -61,7 +61,9 @@ export default {
 
 <style lang="scss" scoped>
 @use "sass:math";
-@import "@/styles/_variables";
+
+@use "@/styles/_colors";
+@use "@/styles/_variables";
 
 $loaderSize: 225px;
 
@@ -74,18 +76,18 @@ $loaderSize: 225px;
     height: $loaderSize;
     margin-left: math.div( -$loaderSize, 2 );
     margin-top: math.div( -$loaderSize, 2 );
-    border-bottom: $spacing-medium solid $color-editor-background;
+    border-bottom: variables.$spacing-medium solid colors.$color-editor-background;
     transform: scale(0.33);
-    z-index: $z-loader;
+    z-index: variables.$z-loader;
 
     &__element {
-        position:absolute;
+        position: absolute;
         top: 94px;
         left: 105px;
         width: 14px;
         height: 40px;
         background: #FFE23D;
-        border-radius:14px;
+        border-radius: 14px;
     }
 }
 

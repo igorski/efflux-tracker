@@ -212,27 +212,28 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
 
 $width: 450px;
 $height: 300px;
 
 .chord-generator-window {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
-    padding: $spacing-small $spacing-large;
-    border-radius: $spacing-small;
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
+    padding: variables.$spacing-small variables.$spacing-large;
+    border-radius: variables.$spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
-        margin-bottom: $spacing-medium
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
+        margin-bottom: variables.$spacing-medium
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         top: 50%;
         left: 50%;
         width: $width;
@@ -241,8 +242,8 @@ $height: 300px;
         margin-top: math.div( -$height, 2);
     }
 
-    @include componentFallback( $width, $height ) {
-        @include verticalScrollOnMobile();
+    @include mixins.componentFallback( $width, $height ) {
+        @include mixins.verticalScrollOnMobile();
         border-radius: 0;
         width: 100%;
         height: 100%;
@@ -260,7 +261,7 @@ $height: 300px;
         align-items: center;
 
         .chord-select__input {
-            margin-right: $spacing-small;
+            margin-right: variables.$spacing-small;
             width: 60px;
 
             &--large {
@@ -271,7 +272,7 @@ $height: 300px;
 
     .confirm-button {
         width: 100%;
-        padding: $spacing-medium $spacing-large;
+        padding: variables.$spacing-medium variables.$spacing-large;
     }
 }
 </style>

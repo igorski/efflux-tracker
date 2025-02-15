@@ -94,12 +94,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/colors";
-@import "@/styles/_variables";
+@use "@/styles/colors";
+@use "@/styles/_variables";
 
 .sample-canvas {
     width: 100%;
-    height: $sampleWaveformHeight;
+    height: variables.$sample-waveform-height;
     cursor: grab;
     background-color: #000;
 }

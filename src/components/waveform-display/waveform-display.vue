@@ -55,7 +55,7 @@ import PubSubService from "@/services/pubsub-service";
 import Messages from "@/services/pubsub/messages";
 import { easeIn } from "@/utils/easing";
 
-// see colors.scss
+// see _colors.scss
 const INSTRUMENT_COLORS = [
     "#b25050", "#b28050", "#a9b250", "#60b250", "#50b292", "#5071b2", "#8850b2", "#FF813D"
 ];
@@ -396,25 +396,25 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/styles/_variables";
+@use "@/styles/_variables";
 // global because zCanvas injection is outside of component scope
 .waveform-canvas {
-    border-radius: $spacing-small;
+    border-radius: variables.$spacing-small;
 }
 </style>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/forms";
+@use "@/styles/_variables";
+@use "@/styles/forms";
 
 .waveform-container {
     position: relative;
-    margin: $spacing-xsmall 0 $spacing-medium;
+    margin: variables.$spacing-xsmall 0 variables.$spacing-medium;
 
     &__action-button {
         position: absolute;
-        right: $spacing-small;
-        bottom: $spacing-medium;
+        right: variables.$spacing-small;
+        bottom: variables.$spacing-medium;
     }
 }
 </style>

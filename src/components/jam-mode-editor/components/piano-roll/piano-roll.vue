@@ -435,22 +435,25 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/animation";
-@import "@/styles/transporter";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/animation";
+@use "@/styles/transporter";
+@use "@/styles/typography";
 
-$ideal-width: 840px;
+$ideal-width-piano-roll: 840px;
 
 .piano-roll {
-    @include editorComponent();
-    @include overlay();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
 
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $ideal-width )  {
+    @media screen and ( min-width: $ideal-width-piano-roll )  {
         left: 50%;
-        width: $ideal-width;
-        margin-left: math.div( -$ideal-width, 2 );
+        width: $ideal-width-piano-roll;
+        margin-left: math.div( -( $ideal-width-piano-roll ), 2 );
     }
 
     @media screen and ( min-height: 600px ) {
@@ -459,9 +462,9 @@ $ideal-width: 840px;
         height: 600px;
     }
 
-    @include mobile() {
+    @include mixins.mobile() {
         position: fixed;
-        top: 0;// $menu-height + $transport-height !important;
+        top: 0;// variables.$menu-height + variables.$transport-height !important;
         margin: 0 !important;
         height: 100%;
     }
@@ -469,45 +472,45 @@ $ideal-width: 840px;
     .header {
         display: flex;
         align-items: center;
-        padding-top: $spacing-xsmall;
-        margin-bottom: -$spacing-xsmall;
+        padding-top: variables.$spacing-xsmall;
+        margin-bottom: -( variables.$spacing-xsmall );
         
         &__title {
-            margin: 0 0 0 $spacing-medium !important;
+            margin: 0 0 0 variables.$spacing-medium !important;
             visibility: hidden;
 
-            @media screen and ( min-width: $mobile-width ) {
+            @media screen and ( min-width: variables.$mobile-width ) {
                 visibility: visible;
             }
         }
 
         &__controls {
             button {
-                @include sequencerButtons();
+                @include transporter.sequencerButtons();
 
                 &#recordBTN {
-                    padding: 0 0 0 $spacing-xsmall;
+                    padding: 0 0 0 variables.$spacing-xsmall;
 
-                    @include mobile() {
+                    @include mixins.mobile() {
                         display: none;
                     }
                 }
             }
-            @include large() {
-                padding-right: $spacing-small + $spacing-xsmall;
-                border-right: 1px dashed $color-border;
+            @include mixins.large() {
+                padding-right: variables.$spacing-small + variables.$spacing-xsmall;
+                border-right: 1px dashed colors.$color-border;
             }
         }
 
         &__actions {
-            margin-right: ( $spacing-large + $spacing-medium ); // make up for help button
+            margin-right: ( variables.$spacing-large + variables.$spacing-medium ); // make up for help button
 
             button {
-                @include toolButton();
+                @include mixins.toolButton();
 
                 &.pattern--queued {
-                    @include animationBlink( .5s );
-                    background-color: $color-4;
+                    @include animation.animationBlink( .5s );
+                    background-color: colors.$color-4;
                     color: #000;
                 }
             }
@@ -518,12 +521,12 @@ $ideal-width: 840px;
         height: calc(100% - 60px); // 60px being header height
         overflow-y: auto;
         
-        @include large() {
-            height: calc(100% - (60px + ($piano-roll-automation-lane-height-collapsed - $spacing-xxsmall)));
+        @include mixins.large() {
+            height: calc(100% - (60px + (variables.$piano-roll-automation-lane-height-collapsed - variables.$spacing-xxsmall)));
         }
 
         &--collapsed {
-            height: calc(100% - (60px + $piano-roll-automation-lane-height));
+            height: calc(100% - (60px + variables.$piano-roll-automation-lane-height));
         }
     }
 
@@ -535,25 +538,25 @@ $ideal-width: 840px;
 
         &-row {
             &--sharp {
-                background-color: $color-pattern-odd;
-                border-color: $color-pattern-odd;
+                background-color: colors.$color-pattern-odd;
+                border-color: colors.$color-pattern-odd;
             }
         }
 
         &-touch-mode-toggle {
-            @include button();
-            @include toolFont();
-            @include noSelect();
-            background-color: $color-4;
+            @include mixins.button();
+            @include typography.toolFont();
+            @include mixins.noSelect();
+            background-color: colors.$color-4;
             border-radius: 50%;
             width: 54px;
             height: 54px;
             position: fixed;
-            right: $spacing-large;
-            bottom: $spacing-large * 2;
+            right: variables.$spacing-large;
+            bottom: variables.$spacing-large * 2;
 
             &:focus {
-                background-color: $color-4;
+                background-color: colors.$color-4;
                 outline: none;
             }
         }

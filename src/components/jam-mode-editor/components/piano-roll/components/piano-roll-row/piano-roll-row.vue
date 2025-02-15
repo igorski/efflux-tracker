@@ -100,7 +100,7 @@ function deserialiseData( serialized?: string ): SerializedRowEvent | undefined 
     } catch {}
 }
 
-export const NOTE_WIDTH = 48; // @see $piano-roll-column-width
+export const NOTE_WIDTH = 48; // @see variables.$piano-roll-column-width
 
 let lastTouchStart = 0;
 let dataTransfer: DataTransfer;
@@ -332,20 +332,21 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/_mixins";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_variables";
+@use "@/styles/_mixins";
+@use "@/styles/typography";
 
 .piano-roll-row {
-    background-color: $color-pattern-even;
+    background-color: colors.$color-pattern-even;
  
     &__name {
-        @include toolFont();
-        background-color: $color-editor-background;
+        @include typography.toolFont();
+        background-color: colors.$color-editor-background;
         border: 0;
-        width: $piano-roll-name-width;
+        width: variables.$piano-roll-name-width;
 
-        @include mobile() {
+        @include mixins.mobile() {
             position: sticky; // always in view
             z-index: 1;
             left: 0;
@@ -357,16 +358,16 @@ export default {
         content: "---";
         height: 24px;
         // see NOTE_WIDTH, this min & max looks weird (why not use width: 48px?) but necessary due to table-cell rendering
-        min-width: $piano-roll-column-width;
-        max-width: $piano-roll-column-width;
+        min-width: variables.$piano-roll-column-width;
+        max-width: variables.$piano-roll-column-width;
         box-sizing: border-box;
-        border: 1px solid $color-pattern-odd;
+        border: 1px solid colors.$color-pattern-odd;
         border-right: none;
         border-top: none;
         border-bottom: none;
 
         &:hover {
-            background-color: $color-3;
+            background-color: colors.$color-3;
             color: #000;
         }
 
@@ -375,23 +376,23 @@ export default {
         }
 
         &--line {
-            border-left: 1px solid $color-editor-background;
+            border-left: 1px solid colors.$color-editor-background;
         }
 
         &--dragging {
-            background-color: $color-4;
-            border-color: $color-4;
+            background-color: colors.$color-4;
+            border-color: colors.$color-4;
         }
 
         &-content {
             cursor: move;
             position: relative;
-            background-color: $color-2;
+            background-color: colors.$color-2;
             height: 20px;
             box-sizing: border-box;
 
             &--playing {
-                background-color: $color-1;
+                background-color: colors.$color-1;
             }
         }
 
@@ -400,7 +401,7 @@ export default {
             position: absolute;
             right: 0;
             top: 0;
-            background-color: $color-5;
+            background-color: colors.$color-5;
             height: inherit;
             width: 10px;
         }

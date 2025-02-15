@@ -306,13 +306,15 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/tabs";
-@import "@/styles/forms";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/tabs";
+@use "@/styles/typography";
+@use "@/styles/forms";
 
 .instrument-editor {
-    @include editorComponent();
-    @include overlay();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
     position: absolute;
     top: 0;
     margin-top: 0;
@@ -322,48 +324,48 @@ export default {
     flex-direction: column;
 
     .divider {
-        margin-top: $spacing-small;
+        margin-top: variables.$spacing-small;
 
         &--small {
             margin-top: 0;
         }
     }
 
-    @include large() {
-        padding: $spacing-small;
+    @include mixins.large() {
+        padding: variables.$spacing-small;
     }
 
     /* ideal size and above (tablet/desktop) */
 
-    @media screen and ( min-width: $ideal-instrument-editor-width ) {
+    @media screen and ( min-width: variables.$ideal-instrument-editor-width ) {
         left: 50%;
-        width: $ideal-instrument-editor-width;
-        margin-left: math.div( -$ideal-instrument-editor-width, 2 );
+        width: variables.$ideal-instrument-editor-width;
+        margin-left: math.div( -( variables.$ideal-instrument-editor-width ), 2 );
     }
 
-    @media screen and ( min-height: $ideal-instrument-editor-height ) {
+    @media screen and ( min-height: variables.$ideal-instrument-editor-height ) {
         top: 50%;
-        height: $ideal-instrument-editor-height;
-        margin-top: math.div( -$ideal-instrument-editor-height, 2 );
+        height: variables.$ideal-instrument-editor-height;
+        margin-top: math.div( -( variables.$ideal-instrument-editor-height ), 2 );
     }
 
     &--maximized {
-        @media screen and ( min-width: $ideal-maximized-instrument-editor-width ) {
+        @media screen and ( min-width: variables.$ideal-maximized-instrument-editor-width ) {
             left: 50%;
-            width: $ideal-maximized-instrument-editor-width !important;
-            margin-left: math.div( -$ideal-maximized-instrument-editor-width, 2 );
+            width: variables.$ideal-maximized-instrument-editor-width !important;
+            margin-left: math.div( -( variables.$ideal-maximized-instrument-editor-width ), 2 );
         }
 
-        @media screen and ( min-height: $ideal-maximized-instrument-editor-height ) {
+        @media screen and ( min-height: variables.$ideal-maximized-instrument-editor-height ) {
             top: 50%;
-            height: $ideal-maximized-instrument-editor-height;
-            margin-top: math.div( -$ideal-maximized-instrument-editor-height, 2 );
+            height: variables.$ideal-maximized-instrument-editor-height;
+            margin-top: math.div( -( variables.$ideal-maximized-instrument-editor-height ), 2 );
         }
     }
 
     /* mobile */
 
-    @include mobile() {
+    @include mixins.mobile() {
         height: 100%;
         top: 0;
         margin: 0;
@@ -387,7 +389,7 @@ export default {
 }
 
 .instrument-header {
-    @include large() {
+    @include mixins.large() {
         display: flex;
         justify-content: space-between;
 
@@ -400,7 +402,7 @@ export default {
                 position: initial;
             }
             .actions {
-                margin-right: $spacing-small;
+                margin-right: variables.$spacing-small;
             }
         }
     }
@@ -408,49 +410,49 @@ export default {
 
 .instrument-modules {
     position: relative;
-    @include verticalScrollOnMobile();
-    padding: 0 $spacing-small $spacing-small;
+    @include mixins.verticalScrollOnMobile();
+    padding: 0 variables.$spacing-small variables.$spacing-small;
 
-    @include mobile() {
-        padding: 0 $spacing-small $spacing-small;
+    @include mixins.mobile() {
+        padding: 0 variables.$spacing-small variables.$spacing-small;
     }
 }
 
 .preset-title {
-    padding: 0 $spacing-medium 0;
+    padding: 0 variables.$spacing-medium 0;
     color: #FFF;
-    @include toolFont();
+    @include typography.toolFont();
 }
 
 .actions {
     position: absolute;
     display: flex;
     align-items: center;
-    top: $action-button-top;
-    right: #{$spacing-xlarge * 2 - $spacing-xxsmall};
+    top: variables.$action-button-top;
+    right: #{variables.$spacing-xlarge * 2 - variables.$spacing-xxsmall};
 }
 
 .instrument-presets {
-    @include boxSize();
+    @include mixins.boxSize();
 
-    @include mobile() {
+    @include mixins.mobile() {
         border-top: 1px dashed #666;
-        padding-top: $spacing-small;
-        margin-top: ( $spacing-xlarge - $spacing-small );
+        padding-top: variables.$spacing-small;
+        margin-top: ( variables.$spacing-xlarge - variables.$spacing-small );
     }
 }
 
 .module-wrapper {
-    @include large() {
+    @include mixins.large() {
         display: inline-flex;
         flex-direction: column;
         vertical-align: top;
         width: calc(100% - 550px);
 
-        @include minWidthFallback( $ideal-instrument-editor-width ) {
-            @include boxSize();
+        @include mixins.minWidthFallback( variables.$ideal-instrument-editor-width ) {
+            @include mixins.boxSize();
             width: 100%;
-            padding: 0 $spacing-medium 0 0;
+            padding: 0 variables.$spacing-medium 0 0;
         }
     }
 }
@@ -458,38 +460,38 @@ export default {
 .module-editor-container {
     position: relative;
 
-    @media screen and ( min-width: $ideal-instrument-editor-width ) {
-        margin-top: -$spacing-small;
-        padding: 0 $spacing-medium;
+    @media screen and ( min-width: variables.$ideal-instrument-editor-width ) {
+        margin-top: -( variables.$spacing-small );
+        padding: 0 variables.$spacing-medium;
     }
 
     &--maximized {
-        padding-top: $spacing-medium;
+        padding-top: variables.$spacing-medium;
     }
 }
 
 .instrument-footer {
-    margin: $spacing-small $spacing-medium 0;
+    margin: variables.$spacing-small variables.$spacing-medium 0;
     display: flex;
     justify-content: space-between;
 
     input {
         width: 100%;
-        @include large() {
+        @include mixins.large() {
             width: 253px;
         }
     }
 
-    @include mobile() {
+    @include mixins.mobile() {
         margin-top: 0;
 
         button {
-            margin: $spacing-small 0;
+            margin: variables.$spacing-small 0;
             width: 100%;
         }
 
         input {
-            margin: $spacing-small $spacing-small $spacing-small 0;
+            margin: variables.$spacing-small variables.$spacing-small variables.$spacing-small 0;
         }
     }
 }

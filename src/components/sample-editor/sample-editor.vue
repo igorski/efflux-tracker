@@ -693,59 +693,62 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/transporter";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/transporter";
+@use "@/styles/typography";
 
 $width: 760px;
 
 .sample-editor {
-    @include editorComponent();
-    @include overlay();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
     height: auto;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
 
-    @include minWidth( $width ) {
+    @include mixins.minWidth( $width ) {
         width: $width;
     }
 
-    @include minWidthFallback( $width ) {
+    @include mixins.minWidthFallback( $width ) {
         width: 100%;
         height: 100%;
-        @include verticalScrollOnMobile();
+        @include mixins.verticalScrollOnMobile();
     }
 
     .header h2 {
-        padding: 0 $spacing-medium;
+        padding: 0 variables.$spacing-medium;
     }
 
     .actions {
-        @include large() {
+        @include mixins.large() {
             position: absolute;
-            top: $action-button-top;
-            right: #{$spacing-xlarge * 2 - $spacing-xsmall};
+            top: variables.$action-button-top;
+            right: #{variables.$spacing-xlarge * 2 - variables.$spacing-xsmall};
         }
-        @include mobile() {
-            margin: $spacing-small #{$spacing-medium - $spacing-xxsmall};
+        @include mixins.mobile() {
+            margin: variables.$spacing-small #{variables.$spacing-medium - variables.$spacing-xxsmall};
         }
     }
 
     .section-divider {
-        margin-top: $spacing-small;
+        margin-top: variables.$spacing-small;
     }
 
     .footer {
-        @include minWidth( $width ) {
+        @include mixins.minWidth( $width ) {
             display: flex;
             justify-content: space-between;
-            padding: $spacing-small $spacing-medium $spacing-xsmall;
+            padding: variables.$spacing-small variables.$spacing-medium variables.$spacing-xsmall;
         }
 
-        @include minWidthFallback( $width ) {
+        @include mixins.minWidthFallback( $width ) {
             button {
-                margin-top: $spacing-small;
+                margin-top: variables.$spacing-small;
             }
         }
 
@@ -756,22 +759,22 @@ $width: 760px;
 }
 
 .no-samples {
-    height: $sampleWaveformHeight;
-    padding: 0 $spacing-medium;
-    @include boxSize();
+    height: variables.$sample-waveform-height;
+    padding: 0 variables.$spacing-medium;
+    @include mixins.boxSize();
 }
 
 .sample-meta {
-    padding: $spacing-xxsmall $spacing-medium;
-    @include toolFont();
+    padding: variables.$spacing-xxsmall variables.$spacing-medium;
+    @include typography.toolFont();
 
     span {
-        margin-right: $spacing-medium;
+        margin-right: variables.$spacing-medium;
     }
 
     &__edit-button {
-        padding: $spacing-small;
-        margin-right: #{$spacing-small + $spacing-xsmall};
+        padding: variables.$spacing-small;
+        margin-right: #{variables.$spacing-small + variables.$spacing-xsmall};
     }
 }
 
@@ -780,34 +783,34 @@ $width: 760px;
 }
 
 .sample-control-list {
-    @include large() {
+    @include mixins.large() {
         display: flex;
         flex-direction: row;
-        padding: 0 $spacing-medium;
+        padding: 0 variables.$spacing-medium;
         justify-content: space-between;
         align-items: center;
     }
 }
 
 .transport-controls {
-    padding: $spacing-xsmall 0 0 0;
+    padding: variables.$spacing-xsmall 0 0 0;
 
     .transport-controls__button {
         cursor: pointer;
-        background-color: $color-background;
+        background-color: colors.$color-background;
         border: 0;
         padding: 0;
 
         &:hover {
-            background-color: $color-3;
+            background-color: colors.$color-3;
         }
 
         &.active {
-            background-color: $color-2;
+            background-color: colors.$color-2;
         }
 
         i:before {
-            margin: $spacing-xxsmall $spacing-xsmall;
+            margin: variables.$spacing-xxsmall variables.$spacing-xsmall;
         }
     }
 }
@@ -818,7 +821,7 @@ $width: 760px;
 }
 
 .range-control {
-    @include toolFont();
+    @include typography.toolFont();
     display: inline;
 
     label, input {
@@ -833,20 +836,20 @@ $width: 760px;
 }
 
 .toggle-control {
-    @include toolFont();
+    @include typography.toolFont();
     display: inline;
 
     label {
-        margin: 0 $spacing-small 0 $spacing-xxsmall;
+        margin: 0 variables.$spacing-small 0 variables.$spacing-xxsmall;
     }
 }
 
 .playback-type-control {
-    @include toolFont();
+    @include typography.toolFont();
     display: inline;
 
     label {
-        margin: 0 $spacing-medium 0 $spacing-small;
+        margin: 0 variables.$spacing-medium 0 variables.$spacing-small;
     }
 
     &__select {
@@ -855,37 +858,37 @@ $width: 760px;
 }
 
 .progress {
-    @include toolFont();
+    @include typography.toolFont();
 }
 
 .sample-display {
     position: relative;
     width: 100%;
-    height: $sampleWaveformHeight;
+    height: variables.$sample-waveform-height;
 
     &__range {
-        @include noEvents();
+        @include mixins.noEvents();
         position: absolute;
         top: 0;
         height: 100%;
-        border-left: 2px solid $color-1;
-        border-right: 2px solid $color-1;
-        background-color: $color-2;
+        border-left: 2px solid colors.$color-1;
+        border-right: 2px solid colors.$color-1;
+        background-color: colors.$color-2;
         mix-blend-mode: difference;
     }
 
     &__delete {
         position: absolute;
-        top: $spacing-small;
-        right: $spacing-xxsmall;
+        top: variables.$spacing-small;
+        right: variables.$spacing-xxsmall;
         font-size: 200%;
-        padding: 0 $spacing-small;
+        padding: 0 variables.$spacing-small;
         outline: 2px solid #666;
         background-color: #000;
         color: #b6b6b6;
 
         &:hover {
-            background-color: $color-2;
+            background-color: colors.$color-2;
             outline-color: #000;
             color: #000;
         }

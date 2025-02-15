@@ -282,21 +282,23 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 $width: 550px;
 $height: 575px;
 
 .settings {
-    @include editorComponent();
-    @include overlay();
-    padding: $spacing-small $spacing-large;
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    padding: variables.$spacing-small variables.$spacing-large;
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
-        margin-bottom: $spacing-medium;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
+        margin-bottom: variables.$spacing-medium;
     }
 
     .label {
@@ -305,11 +307,11 @@ $height: 575px;
     }
 
     .midi-select-label {
-        @include toolFont();
-        padding: $spacing-small 0;
+        @include typography.toolFont();
+        padding: variables.$spacing-small 0;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -328,8 +330,8 @@ $height: 575px;
         }
     }
 
-    @include componentFallback( $width, $height ) {
-        @include verticalScrollOnMobile();
+    @include mixins.componentFallback( $width, $height ) {
+        @include mixins.verticalScrollOnMobile();
     }
 }
 
@@ -357,6 +359,6 @@ $height: 575px;
 }
 
 .wrapper.toggle {
-    margin: $spacing-small 0;
+    margin: variables.$spacing-small 0;
 }
 </style>

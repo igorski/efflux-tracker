@@ -176,21 +176,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 $width: 450px;
 
 .song-save-window {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
 
     .header h2 {
-        margin-left: $spacing-medium;
+        margin-left: variables.$spacing-medium;
     }
 
-    @include minWidth( $width ) {
+    @include mixins.minWidth( $width ) {
         width: $width;
         height: auto;
         top: 50%;
@@ -198,8 +200,8 @@ $width: 450px;
         transform: translate(-50%, -50%);
     }
 
-    @include minWidthFallback( $width ) {
-        @include verticalScrollOnMobile();
+    @include mixins.minWidthFallback( $width ) {
+        @include mixins.verticalScrollOnMobile();
     }
 }
 
@@ -208,24 +210,24 @@ $width: 450px;
 }
 
 .meta-editor {
-    padding: $spacing-medium;
+    padding: variables.$spacing-medium;
 
     input, button {
         display: block;
         width: 95%;
-        margin: $spacing-small;
+        margin: variables.$spacing-small;
     }
 }
 
 .dropbox-form {
-    padding: $spacing-medium;
+    padding: variables.$spacing-medium;
 }
 
 .dropbox-toggle {
-    margin-left: $spacing-medium;
+    margin-left: variables.$spacing-medium;
 }
 
 .expl {
-    @include smallText();
+    @include typography.smallText();
 }
 </style>

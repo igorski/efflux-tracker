@@ -156,39 +156,41 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 $width: 750px;
 $height: 500px;
 $headerFooterHeight: 104px;
 
 .midi-preset-manager {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
     overflow-x: hidden;
     overflow-y: auto;
     padding: 0;
 
     .header,
     .footer {
-        padding: $spacing-small $spacing-large 0;
+        padding: variables.$spacing-small variables.$spacing-large 0;
     }
 
     .footer {
         display: flex;
-        gap: $spacing-small;
+        gap: variables.$spacing-small;
     }
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
         margin-bottom: 0;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -201,14 +203,14 @@ $headerFooterHeight: 104px;
         }
     }
 
-    @include componentFallback( $width, $height ) {
+    @include mixins.componentFallback( $width, $height ) {
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: $z-window;
+        z-index: variables.$z-window;
 
         .midi-preset-list {
             height: calc(100% - #{$headerFooterHeight});
@@ -217,19 +219,19 @@ $headerFooterHeight: 104px;
 }
 
 .midi-preset-list {
-    @include list();
+    @include mixins.list();
     width: 100%;
     overflow-y: auto;
 
     li {
-        @include titleFont();
-        @include boxSize();
+        @include typography.titleFont();
+        @include mixins.boxSize();
         cursor: pointer;
         display: flex;
         align-items: center;
         width: 100%;
-        padding: $spacing-small $spacing-large;
-        background-color: $color-pattern-even;
+        padding: variables.$spacing-small variables.$spacing-large;
+        background-color: colors.$color-pattern-even;
 
         .title, .device, .action-button {
             display: inline-block;
@@ -238,21 +240,21 @@ $headerFooterHeight: 104px;
         .title,
         .device {
             flex: 1;
-            @include noEvents();
-            @include truncate();
+            @include mixins.noEvents();
+            @include mixins.truncate();
         }
 
         .action-button {
-            width: #{$spacing-large + $spacing-xsmall};
-            padding: $spacing-xsmall;
-            @include ghostButton();
+            width: #{variables.$spacing-large + variables.$spacing-xsmall};
+            padding: variables.$spacing-xsmall;
+            @include mixins.ghostButton();
 
             &:hover {
                 filter: brightness(0) invert(1) !important;
             }
         }
 
-        @include mobile() {
+        @include mixins.mobile() {
             .title {
                 width: 95%;
             }
@@ -262,12 +264,12 @@ $headerFooterHeight: 104px;
         }
 
         &:nth-child(even) {
-            background-color: $color-pattern-odd;
+            background-color: colors.$color-pattern-odd;
             /*color: #FFF;*/
         }
 
         &:hover {
-            background-color: $color-5;
+            background-color: colors.$color-5;
             color: #000;
 
             .action-button {

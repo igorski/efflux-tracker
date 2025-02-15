@@ -325,40 +325,43 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 $largeWidth: 700px;
 
 .note-entry-editor {
-    @include noSelect();
-    @include boxSize();
+    @include mixins.noSelect();
+    @include mixins.boxSize();
     position: absolute;
     bottom: 0;
     left: 50%;
     transform: translateX( -50% );
-    background-color: $color-editor-background;
-    height: $note-entry-editor-height;
-    padding: $spacing-small $spacing-large 0;
-    border-top: 2px solid $color-background;
+    background-color: colors.$color-editor-background;
+    height: variables.$note-entry-editor-height;
+    padding: variables.$spacing-small variables.$spacing-large 0;
+    border-top: 2px solid colors.$color-background;
 
-    @include large() {
+    @include mixins.large() {
         display: flex;
         flex-direction: row;
     }
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin: variables.$spacing-medium 0 variables.$spacing-medium -#{variables.$spacing-large};
     }
 
-    @include mobile() {
-        z-index: $z-keyboard;
-        padding: $spacing-small $spacing-medium;
+    @include mixins.mobile() {
+        z-index: variables.$z-keyboard;
+        padding: variables.$spacing-small variables.$spacing-medium;
         width: 100% !important;
     }
 
     &.large {
-        height: $note-entry-editor-height-expanded;
+        height: variables.$note-entry-editor-height-expanded;
 
         .keyboard {
             width: $largeWidth;
@@ -382,25 +385,25 @@ $largeWidth: 700px;
 .note-entry-editor__octaves {
     vertical-align: top;
 
-    @include mobile() {
+    @include mixins.mobile() {
         display: none;
     }
 }
 
 .title {
-    @include toolFont();
+    @include typography.toolFont();
     margin-top: 0;
 }
 
 .keyboard {
     $keyboardWidth: 425px; // ideal width for 1.5 octaves
-    @include list();
+    @include mixins.list();
     display: inline-block;
     position: relative;
     vertical-align: top;
     width: $keyboardWidth;
-    height: $spacing-xlarge + $spacing-small;
-    margin-bottom: $spacing-small;
+    height: variables.$spacing-xlarge + variables.$spacing-small;
+    margin-bottom: variables.$spacing-small;
 
     &__key {
         display: inline-block;
@@ -410,7 +413,7 @@ $largeWidth: 700px;
         height: 75%;
         background-color: #666;
         vertical-align: top;
-        margin-right: $spacing-small;
+        margin-right: variables.$spacing-small;
 
         &.sharp {
             position: absolute;
@@ -425,12 +428,12 @@ $largeWidth: 700px;
         &-name {
             position: absolute;
             bottom: 0;
-            left: $spacing-xsmall;
-            @include toolFont();
+            left: variables.$spacing-xsmall;
+            @include typography.toolFont();
         }
 
         &.active {
-            background-color: $color-1;
+            background-color: colors.$color-1;
             color: #000;
         }
 
@@ -440,15 +443,15 @@ $largeWidth: 700px;
 
         &:after {
             position: absolute;
-            bottom: $spacing-small;
-            left: $spacing-small;
+            bottom: variables.$spacing-small;
+            left: variables.$spacing-small;
             pointer-events: none;
         }
     }
 
-    @include minWidthFallback( $keyboardWidth ) {
+    @include mixins.minWidthFallback( $keyboardWidth ) {
         width: 100%;
-        margin-left: $spacing-small;
+        margin-left: variables.$spacing-small;
 
         &__key {
             width: 11.111%; // just a single octave
@@ -467,20 +470,20 @@ $largeWidth: 700px;
 }
 
 .octaves {
-    @include list();
-    @include toolFont();
+    @include mixins.list();
+    @include typography.toolFont();
     text-transform: uppercase;
     display: flex;
 
     li {
         border: 2px solid #666;
-        padding: $spacing-small $spacing-medium $spacing-small $spacing-xsmall;
-        margin: $spacing-xsmall $spacing-small 0 0;
-        text-indent: $spacing-small;
+        padding: variables.$spacing-small variables.$spacing-medium variables.$spacing-small variables.$spacing-xsmall;
+        margin: variables.$spacing-xsmall variables.$spacing-small 0 0;
+        text-indent: variables.$spacing-small;
         cursor: pointer;
 
         &.selected {
-            background-color: $color-1;
+            background-color: colors.$color-1;
             color: #000;
         }
 
@@ -493,16 +496,16 @@ $largeWidth: 700px;
 
 .large-view-control {
     position: absolute;
-    top: $spacing-medium;
-    right: $spacing-small;
+    top: variables.$spacing-medium;
+    right: variables.$spacing-small;
 
-    @include minWidthFallback( $largeWidth ) {
+    @include mixins.minWidthFallback( $largeWidth ) {
         display: none;
     }
 
     &__title {
-        @include toolFont();
-        margin-right: $spacing-small;
+        @include typography.toolFont();
+        margin-right: variables.$spacing-small;
     }
 }
 </style>

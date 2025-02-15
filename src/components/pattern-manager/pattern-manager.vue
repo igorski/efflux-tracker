@@ -213,34 +213,36 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/typography";
-@import "@/styles/transporter";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
+@use "@/styles/transporter";
 
 $width: 750px;
 $height: 500px;
 $headerFooterHeight: 104px;
 
 .pattern-manager {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
     overflow-x: hidden;
     overflow-y: auto;
     padding: 0;
 
     .header,
     .footer {
-        padding: $spacing-small $spacing-large 0;
+        padding: variables.$spacing-small variables.$spacing-large 0;
     }
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
         margin-bottom: 0;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -253,14 +255,14 @@ $headerFooterHeight: 104px;
         }
     }
 
-    @include componentFallback( $width, $height ) {
+    @include mixins.componentFallback( $width, $height ) {
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: $z-window;
+        z-index: variables.$z-window;
 
         .pattern-list {
             height: calc(100% - #{$headerFooterHeight});
@@ -270,30 +272,30 @@ $headerFooterHeight: 104px;
 
 
 .pattern-list {
-    @include list();
+    @include mixins.list();
     width: 100%;
     overflow-y: auto;
 
     &__entry {
-        @include titleFont();
-        @include boxSize();
+        @include typography.titleFont();
+        @include mixins.boxSize();
         cursor: pointer;
         display: flex;
         align-items: center;
         width: 100%;
-        padding: $spacing-small $spacing-large;
-        background-color: $color-pattern-even;
+        padding: variables.$spacing-small variables.$spacing-large;
+        background-color: colors.$color-pattern-even;
 
         &-title {
             width: 40px;
             cursor: pointer;
-            @include truncate();
+            @include mixins.truncate();
             vertical-align: middle;
         }
 
         &-description {
             width: calc(100% - 190px);
-            @include truncate();
+            @include mixins.truncate();
             font-style: italic;
         }
 
@@ -306,15 +308,15 @@ $headerFooterHeight: 104px;
         }
 
         &-action-button {
-            width: #{$spacing-large + $spacing-xsmall};
-            @include ghostButton();
+            width: #{variables.$spacing-large + variables.$spacing-xsmall};
+            @include mixins.ghostButton();
 
             &:hover {
                 filter: brightness(0) invert(1) !important;
             }
 
             &.icon-play {
-                margin-right: $spacing-small;
+                margin-right: variables.$spacing-small;
             }
 
             &--dark {
@@ -323,12 +325,12 @@ $headerFooterHeight: 104px;
         }
 
         &:nth-child(even) {
-            background-color: $color-pattern-odd;
+            background-color: colors.$color-pattern-odd;
             /*color: #FFF;*/
         }
 
         &:hover {
-            background-color: $color-3;
+            background-color: colors.$color-3;
             color: #000;
 
             .pattern-list__entry-action-button {
@@ -337,7 +339,7 @@ $headerFooterHeight: 104px;
         }
 
         &--active {
-            background-color: $color-5 !important;
+            background-color: colors.$color-5 !important;
             color: #fff;
 
             .pattern-list__entry-action-button {

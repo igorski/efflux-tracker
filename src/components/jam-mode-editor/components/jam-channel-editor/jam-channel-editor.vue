@@ -190,11 +190,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/_mixins";
-@import "@/styles/animation";
-@import "@/styles/forms";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_variables";
+@use "@/styles/_mixins";
+@use "@/styles/animation";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 $button-width: 32px;
 $button-height: 26px;
@@ -202,22 +203,22 @@ $button-height: 26px;
 .jam-channel-editor {
     position: relative;
     display: inline-block;
-    border: 2px solid $color-form-background; // color matches editor background
-    padding: 0 $spacing-medium $spacing-small;
+    border: 2px solid colors.$color-form-background; // color matches editor background
+    padding: 0 variables.$spacing-medium variables.$spacing-small;
     box-sizing: border-box;
     background-color: #53565c;
 
-    @include large() {
-        width: $jam-channel-editor-width;
+    @include mixins.large() {
+        width: variables.$jam-channel-editor-width;
     }
 
-    @include mobile() {
+    @include mixins.mobile() {
         width: 100%;
     }
 
     &--selected {
         background-color: #b6b6b6;
-        color: $color-form-background;
+        color: colors.$color-form-background;
     }
 
     &__header {
@@ -226,8 +227,8 @@ $button-height: 26px;
         align-items: center;
 
         &-title {
-            @include toolFont();
-            @include truncate();
+            @include typography.toolFont();
+            @include mixins.truncate();
             flex: 1;
         }
 
@@ -237,7 +238,7 @@ $button-height: 26px;
         }
 
         &-icon-button {
-            padding: $spacing-xsmall $spacing-small;
+            padding: variables.$spacing-xsmall variables.$spacing-small;
             background: transparent;
             margin-right: 0;
         }
@@ -251,13 +252,13 @@ $button-height: 26px;
             border-radius: 50%;
 
             &--highlight {
-                background-color: $color-4;
+                background-color: colors.$color-4;
             }
         }
 
         &-button {
-            padding: $spacing-xsmall $spacing-small;
-            background-color: $color-1;
+            padding: variables.$spacing-xsmall variables.$spacing-small;
+            background-color: colors.$color-1;
             margin-right: 0;
             border-radius: 50%;
             width: 30px;
@@ -278,30 +279,30 @@ $button-height: 26px;
             width: $button-width;
             box-sizing: border-box;
             text-align: center;
-            margin: 0 $spacing-xxsmall 0 0;
-            padding: $spacing-xxsmall 0;
-            border: 1px solid $color-border;
+            margin: 0 variables.$spacing-xxsmall 0 0;
+            padding: variables.$spacing-xxsmall 0;
+            border: 1px solid colors.$color-border;
             border-radius: 3px;
-            @include toolFont();
+            @include typography.toolFont();
 
             &:hover {
-                background-color: $color-2;
+                background-color: colors.$color-2;
                 color: #000;
             }
 
             &--queued {
-                @include animationBlink( .5s );
-                background-color: $color-4;
+                @include animation.animationBlink( .5s );
+                background-color: colors.$color-4;
                 color: #000;
             }
 
             &--playing {
-                background-color: $color-5 !important;
+                background-color: colors.$color-5 !important;
                 color: #000 !important;
             }
 
             &--disabled {
-                @include noEvents();
+                @include mixins.noEvents();
                 background-color: #666;
                 color: #333;
             }
@@ -310,10 +311,10 @@ $button-height: 26px;
 }
 
 .waveform-display {
-    margin-bottom: -$spacing-small;
+    margin-bottom: -( variables.$spacing-small );
 }
 
 .piano-roll-display {
-    margin-bottom: $spacing-medium;
+    margin-bottom: variables.$spacing-medium;
 }
 </style>

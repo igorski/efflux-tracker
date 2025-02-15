@@ -1,8 +1,9 @@
-@import "colors.scss";
+@use "_colors";
+@use "_variables";
 
 @mixin globalFont() {
     color: #b7babe;
-    font-size: $spacing-medium;
+    font-size: variables.$spacing-medium;
     font-family: "Helvetica Neue", Helvetica, Verdana, sans-serif;
     line-height: 1.5;
 }
@@ -19,8 +20,10 @@
 
 @mixin smallText() {
     font-size: 85%;
-    padding: $spacing-medium;
-    @include boxSize();
-    border: 1px solid $color-border;
-    border-radius: $spacing-medium;
+    padding: variables.$spacing-medium;
+    border: 1px solid colors.$color-border;
+    border-radius: variables.$spacing-medium;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+       -moz-box-sizing: border-box; /* Firefox, other Gecko */
+            box-sizing: border-box;
 }

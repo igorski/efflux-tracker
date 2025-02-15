@@ -459,7 +459,10 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 $patternWidth: 150px;
 $indicesWidth: 30px;
@@ -469,9 +472,9 @@ $stepHeight: 32px;
 .pattern-track-list-container {
     position: relative;
     overflow: auto;
-    background-color: $color-form-background;
+    background-color: colors.$color-form-background;
 
-    @include ideal() {
+    @include mixins.ideal() {
         overflow-x: hidden; // no need to show scroll
     }
 
@@ -481,9 +484,9 @@ $stepHeight: 32px;
         overflow-y: hidden; // no vertical scrollbar during playback
 
         .pattern li {
-            background-color: $color-pattern-even;
+            background-color: colors.$color-pattern-even;
             border-top-color: #000;
-            border-bottom-color: $color-pattern-odd;
+            border-bottom-color: colors.$color-pattern-odd;
             // the below effectively cancel out selection outlines during playback
             border-left: none;
             border-right: none;
@@ -492,25 +495,25 @@ $stepHeight: 32px;
 }
 
 .pattern-track-list {
-    @include inlineFlex();
-    background-color: $color-editor-background;
+    @include mixins.inlineFlex();
+    background-color: colors.$color-editor-background;
 
     .wrapper {
         width: $fullPatternListWidth;
     }
 
     .indices, .pattern {
-        @include list();
+        @include mixins.list();
         position: relative;
         display: inline-block;
     }
 
-    @include ideal() {
+    @include mixins.ideal() {
         width: $fullPatternListWidth !important;
     }
 
-    @include mobile() {
-        padding-left: ($spacing-large + $spacing-medium); /* to make up for fixed position pattern editor */
+    @include mixins.mobile() {
+        padding-left: (variables.$spacing-large + variables.$spacing-medium); /* to make up for fixed position pattern editor */
     }
 }
 
@@ -523,17 +526,17 @@ $stepHeight: 32px;
 }
 
 .index {
-    @include titleFont();
+    @include typography.titleFont();
     display: block;
     font-weight: bold;
     text-align: center;
     border-top: 2px solid #000;
-    padding: $spacing-xsmall 0;
+    padding: variables.$spacing-xsmall 0;
     border-bottom: 2px solid #323234;
     height: $stepHeight;
-    @include noEvents();
-    @include noSelect();
-    @include boxSize();
+    @include mixins.noEvents();
+    @include mixins.noSelect();
+    @include mixins.boxSize();
 
     &.active {
         color: #FFF;
@@ -546,7 +549,7 @@ $stepHeight: 32px;
 
 .pattern {
     width: $patternWidth;
-    background-color: $color-pattern-even;
+    background-color: colors.$color-pattern-even;
 
     &:before {
         position: absolute;
@@ -563,43 +566,43 @@ $stepHeight: 32px;
 
     &:nth-child(2) {
         .note, .module-value {
-            color: $color-instrument-1;
+            color: colors.$color-instrument-1;
         }
     }
 
     &:nth-child(3) {
         .note, .module-value {
-            color: $color-instrument-2;
+            color: colors.$color-instrument-2;
         }
     }
 
     &:nth-child(4) {
         .note, .module-value {
-            color: $color-instrument-3;
+            color: colors.$color-instrument-3;
         }
     }
 
     &:nth-child(5) {
         .note, .module-value {
-            color: $color-instrument-4;
+            color: colors.$color-instrument-4;
         }
     }
 
     &:nth-child(6) {
         .note, .module-value {
-            color: $color-instrument-5;
+            color: colors.$color-instrument-5;
         }
     }
 
     &:nth-child(7) {
         .note, .module-value {
-            color: $color-instrument-6;
+            color: colors.$color-instrument-6;
         }
     }
 
     &:nth-child(8) {
         .note, .module-value {
-            color: $color-instrument-7;
+            color: colors.$color-instrument-7;
         }
     }
 }
@@ -611,11 +614,11 @@ $stepHeight: 32px;
     border-bottom: 2px solid #000;
     font-weight: bold;
     height: $stepHeight;
-    @include boxSize();
-    //@include animate(background-color, 0.75s); /* animated background highlight during playback */
+    @include mixins.boxSize();
+    //@include mixins.animate(background-color, 0.75s); /* animated background highlight during playback */
 
     span.empty {
-        @include animate(color, 0.25s); /* animated text highlight during playback */
+        @include mixins.animate(color, 0.25s); /* animated text highlight during playback */
     }
 
     &.playing {
@@ -623,31 +626,31 @@ $stepHeight: 32px;
         background-color: rgba(255,255,255,.15) !important;
         span {
             color: #000 !important;
-            background-color: $color-5;
+            background-color: colors.$color-5;
             transition: none;
         }
     }
 
     &:nth-child(odd) {
-        background-color: $color-pattern-odd;
-        border-color: $color-pattern-odd;
+        background-color: colors.$color-pattern-odd;
+        border-color: colors.$color-pattern-odd;
     }
 
     &.spacer {
-        background-color: $color-pattern-even;
+        background-color: colors.$color-pattern-even;
         border-color: #000;
         border-top: transparent;
     }
 
     &.active, &:hover {
-        border: 2px solid $color-1;
+        border: 2px solid colors.$color-1;
         z-index: 1;
     }
 
     &.selected {
         transition: none;
-        background-color: $color-2;
-        border-color: $color-2;
+        background-color: colors.$color-2;
+        border-color: colors.$color-2;
         color: #000 !important;
 
         span {
@@ -658,13 +661,13 @@ $stepHeight: 32px;
 
     span {
         display: inline-block;
-        padding: $spacing-xsmall;
+        padding: variables.$spacing-xsmall;
         white-space: nowrap;
-        @include boxSize();
-        @include noEvents();
+        @include mixins.boxSize();
+        @include mixins.noEvents();
 
         &.active {
-            background-color: $color-1;
+            background-color: colors.$color-1;
             color: #000 !important;
         }
 
@@ -676,7 +679,7 @@ $stepHeight: 32px;
             width: 33%;
             text-transform: uppercase;
             text-align: right;
-            color: $color-instrument-8;
+            color: colors.$color-instrument-8;
 
             &.empty {
                 color: #b6b6b6;
@@ -701,7 +704,7 @@ $stepHeight: 32px;
 
         &.module-value {
             width: 26%;
-            color: $color-instrument-8;
+            color: colors.$color-instrument-8;
         }
     }
 }

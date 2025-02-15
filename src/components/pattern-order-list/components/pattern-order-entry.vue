@@ -77,8 +77,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_variables";
+@use "@/styles/_mixins";
+@use "@/styles/typography";
 
 $button-width: 32px;
 $button-height: 26px;
@@ -89,30 +91,30 @@ $button-height: 26px;
     width: $button-width;
     box-sizing: border-box;
     text-align: center;
-    margin: 0 $spacing-xxsmall 0 0;
-    padding: $spacing-xxsmall 0;
-    border: 1px solid $color-border;
+    margin: 0 variables.$spacing-xxsmall 0 0;
+    padding: variables.$spacing-xxsmall 0;
+    border: 1px solid colors.$color-border;
     border-radius: 3px;
-    @include toolFont();
+    @include typography.toolFont();
 
     &:hover,
     &--has-context-menu {
-        background-color: $color-2;
+        background-color: colors.$color-2;
         color: #000;
     }
 
     &--active {
-        background-color: $color-1;
+        background-color: colors.$color-1;
         color: #000;
     }
 
     &__context-menu {
         position: absolute;
         z-index: 1;
-        background-color: $color-3;
+        background-color: colors.$color-3;
         top: $button-height;
         left: 0;
-        padding: 0 $spacing-xxsmall;
+        padding: 0 variables.$spacing-xxsmall;
     }
 }
 </style>

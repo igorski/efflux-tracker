@@ -194,39 +194,42 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 .pattern-order-list {
     display: flex;
     align-items: center;
 
     &__label {
-        margin-right: $spacing-small;
-        @include toolFont();
+        margin-right: variables.$spacing-small;
+        @include typography.toolFont();
     }
 
     &__navigate-button {
-        @include toolFont();
+        @include typography.toolFont();
         
         &_left {
-            margin-right: $spacing-xsmall;
+            margin-right: variables.$spacing-xsmall;
         }
         &_right {
-            margin-left: $spacing-xxsmall;
+            margin-left: variables.$spacing-xxsmall;
         }
     }
 
     &__edit-button {
-        @include button();
-        padding: $spacing-xsmall $spacing-small;
-        margin: $spacing-small;
+        @include mixins.button();
+        padding: variables.$spacing-xsmall variables.$spacing-small;
+        margin: variables.$spacing-small;
     }
 
     .pattern-order-entry__context-menu-button {
-        @include toolFont();
+        @include typography.toolFont();
         background: none;
         border: 0;
-        color: $color-editor-background;
+        color: colors.$color-editor-background;
         width: 100%;
         cursor: pointer;
 

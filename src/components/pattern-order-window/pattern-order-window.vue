@@ -208,30 +208,32 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/typography";
-@import "@/styles/transporter";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
+@use "@/styles/transporter";
 
 $width: 450px;
 $height: 500px;
 $headerFooterHeight: 134px;
 
 .pattern-order-window {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
     overflow: hidden;
     padding: 0;
 
     .header,
     .footer {
-        padding: $spacing-small $spacing-large 0;
+        padding: variables.$spacing-small variables.$spacing-large 0;
     }
 
     .header {
         &__explanation {
             display: block;
-            padding: $spacing-small 0 0;
+            padding: variables.$spacing-small 0 0;
         }
     }
 
@@ -251,12 +253,12 @@ $headerFooterHeight: 134px;
     }
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
         margin-bottom: 0;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -269,14 +271,14 @@ $headerFooterHeight: 134px;
         }
     }
 
-    @include componentFallback( $width, $height ) {
+    @include mixins.componentFallback( $width, $height ) {
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
         margin: 0;
         border-radius: 0;
-        z-index: $z-window;
+        z-index: variables.$z-window;
 
         .order-list {
             height: calc(100% - #{$headerFooterHeight});
@@ -286,24 +288,24 @@ $headerFooterHeight: 134px;
 
 
 .order-list {
-    @include list();
+    @include mixins.list();
     width: 100%;
     overflow-y: auto;
 
     &__entry {
-        @include titleFont();
-        @include boxSize();
+        @include typography.titleFont();
+        @include mixins.boxSize();
         cursor: grab;
         display: flex;
         align-items: center;
         width: 100%;
-        padding: $spacing-small $spacing-large;
-        background-color: $color-pattern-even;
+        padding: variables.$spacing-small variables.$spacing-large;
+        background-color: colors.$color-pattern-even;
 
         &-title {
             flex: 1;
             cursor: pointer;
-            @include truncate();
+            @include mixins.truncate();
             vertical-align: middle;
 
             &-description {
@@ -312,25 +314,25 @@ $headerFooterHeight: 134px;
         }
 
         &-action-button {
-            width: #{$spacing-large + $spacing-xsmall};
-            @include ghostButton();
+            width: #{variables.$spacing-large + variables.$spacing-xsmall};
+            @include mixins.ghostButton();
 
             &:hover {
                 filter: brightness(0) invert(1) !important;
             }
 
             &.icon-play {
-                margin-right: $spacing-small;
+                margin-right: variables.$spacing-small;
             }
         }
 
         &:nth-child(even) {
-            background-color: $color-pattern-odd;
+            background-color: colors.$color-pattern-odd;
             /*color: #FFF;*/
         }
 
         &:hover {
-            background-color: $color-3;
+            background-color: colors.$color-3;
             color: #000;
 
             .order-list__entry-action-button {
@@ -339,7 +341,7 @@ $headerFooterHeight: 134px;
         }
 
         &--active {
-            background-color: $color-5 !important;
+            background-color: colors.$color-5 !important;
             color: #fff;
 
             .order-list__entry-action-button {
