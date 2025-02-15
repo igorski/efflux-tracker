@@ -155,24 +155,26 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
 
 $width: 550px;
 $height: 474px;
 
 .welcome {
-    @include editorComponent();
-    @include overlay();
-    padding: $spacing-small $spacing-large;
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    padding: variables.$spacing-small variables.$spacing-large;
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin-left: -$spacing-large;
-        margin-bottom: $spacing-medium;
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin-left: -( variables.$spacing-large );
+        margin-bottom: variables.$spacing-medium;
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         width: $width;
         height: $height;
         top: 50%;
@@ -181,16 +183,16 @@ $height: 474px;
         margin-top: math.div( -$height, 2 );
 
         .pane p:first-of-type {
-            margin-top: $spacing-small;
+            margin-top: variables.$spacing-small;
         }
     }
 
-    @include componentFallback( $width, $height ) {
-        @include verticalScrollOnMobile();
+    @include mixins.componentFallback( $width, $height ) {
+        @include mixins.verticalScrollOnMobile();
         .pane button {
             display: block;
             width: 100%;
-            margin-bottom: $spacing-small;
+            margin-bottom: variables.$spacing-small;
         }
     }
 }
@@ -218,7 +220,7 @@ $height: 474px;
     }
 
     .button--secondary {
-        background-color: $color-4;
+        background-color: colors.$color-4;
 
         &:hover {
             background-color: #FFF;
@@ -227,19 +229,19 @@ $height: 474px;
 }
 
 .spaced-buttons {
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         display: flex;
         justify-content: space-between;
     }
 
-    @include componentFallback( $width, $height ) {
+    @include mixins.componentFallback( $width, $height ) {
         .file-loader {
-            margin-top: $spacing-small;
+            margin-top: variables.$spacing-small;
         }
     }
 
     p {
-        margin: $spacing-xsmall 0 0 !important;
+        margin: variables.$spacing-xsmall 0 0 !important;
     }
 }
 
@@ -248,7 +250,7 @@ $height: 474px;
 }
 
 .show-startup {
-    margin-left: $spacing-small;
+    margin-left: variables.$spacing-small;
 }
 
 .pulse-button {
@@ -261,7 +263,7 @@ $height: 474px;
         top: 50%;
         left: 0;
         margin-top: math.div( -$animationSize, 2 );
-        border-radius: $spacing-xsmall;
+        border-radius: variables.$spacing-xsmall;
         box-shadow: 0 0 0 0 rgba(255, 177, 66, 1);
         height: $animationSize;
         width: 100%;

@@ -312,33 +312,36 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 $width: 80px;
 
 .channel-strip {
     width: $width;
     display: inline-block;
-    padding: 0 0 $spacing-medium $spacing-medium;
+    padding: 0 0 variables.$spacing-medium variables.$spacing-medium;
     border-right: 1px solid #666;
     position: relative;
 }
 
 .preset-name {
-    @include toolFont();
-    @include truncate();
+    @include typography.toolFont();
+    @include mixins.truncate();
     cursor: pointer;
-    margin-left: -$spacing-medium;
+    margin-left: -( variables.$spacing-medium );
     font-size: 85%;
     text-align: center;
     height: 1.5em;
-    background-color: $color-2;
+    background-color: colors.$color-2;
     padding: 5px;
     color: #000;
 
     &:hover {
-        background-color: $color-1;
+        background-color: colors.$color-1;
     }
 }
 
@@ -350,8 +353,8 @@ $width: 80px;
 .meter {
     position: relative;
     transform-origin: 0;
-    top: -$spacing-small;
-    margin: 0 $spacing-small 0;
+    top: -( variables.$spacing-small );
+    margin: 0 variables.$spacing-small 0;
     width: 109px;
     height: 22px;
 
@@ -373,7 +376,7 @@ $width: 80px;
 }
 
 .volume-title {
-    margin-left: $spacing-small;
+    margin-left: variables.$spacing-small;
 }
 
 .volume-wrapper {
@@ -390,16 +393,16 @@ $width: 80px;
 .toggle {
     display: inline;
     font-size: 80%;
-    padding: $spacing-xsmall $spacing-small;
-    margin: 0 0 0 $spacing-small;
+    padding: variables.$spacing-xsmall variables.$spacing-small;
+    margin: 0 0 0 variables.$spacing-small;
 
     &.active {
-        background-color: $color-2;
+        background-color: colors.$color-2;
     }
 }
 
 .eq {
-    margin-top: $spacing-medium;
+    margin-top: variables.$spacing-medium;
 
     &__knob {
         display: inline;

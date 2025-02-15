@@ -375,79 +375,80 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/tabs";
-@import "@/styles/instrument-editor";
-@import "@/styles/forms";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/tabs";
+@use "@/styles/instrument-editor";
+@use "@/styles/forms";
 
 .instrument-oscillator-editor {
-    @include boxSize();
+    @include mixins.boxSize();
     position: relative;
-    padding-top: $spacing-large;
+    padding-top: variables.$spacing-large;
 
-    @media screen and ( min-width: $ideal-instrument-editor-width ) {
+    @media screen and ( min-width: variables.$ideal-instrument-editor-width ) {
         display: inline-block;
         width: 550px;
-        padding: ($spacing-large - $spacing-medium);
+        padding: (variables.$spacing-large - variables.$spacing-medium);
         border: 1px solid #666;
         border-top: 1px solid #666;
-        border-bottom-left-radius: $spacing-small;
-        border-bottom-right-radius: $spacing-small;
+        border-bottom-left-radius: variables.$spacing-small;
+        border-bottom-right-radius: variables.$spacing-small;
         border-right-style: dashed;
     }
 }
 
 .waveform-select {
     width: 178px;
-    margin-right: $spacing-small;
+    margin-right: variables.$spacing-small;
 }
 
 .waveform-enable {
     float: right;
-    margin-top: $spacing-xsmall;
+    margin-top: variables.$spacing-xsmall;
 }
 
 .oscillator-waveforms {
-    padding: $spacing-xsmall 0 $spacing-medium;
+    padding: variables.$spacing-xsmall 0 variables.$spacing-medium;
 }
 
 .oscillator-props {
-    @include large() {
+    @include mixins.large() {
         display: flex;
     }
 }
 
 .tuning-editor {
     display: inline-block;
-    padding: 10px $spacing-medium 21px;
-    @include boxSize();
+    padding: 10px variables.$spacing-medium 21px;
+    @include mixins.boxSize();
     border: 1px solid #666;
     min-height: 174px;
 
     .padded {
-        margin-top: $spacing-small;
+        margin-top: variables.$spacing-small;
     }
 }
 
 .envelope-editor {
     position: relative;
 
-    @include minWidth( $ideal-instrument-editor-width ) {
-        margin-top: -$spacing-medium;
+    @include mixins.minWidth( variables.$ideal-instrument-editor-width ) {
+        margin-top: -( variables.$spacing-medium );
     }
     
-    @include mobile() {
+    @include mixins.mobile() {
         border: 0;
         padding: 0;
     }
 
     .tabbed-content {
-        padding: $spacing-medium $spacing-medium;
+        padding: variables.$spacing-medium variables.$spacing-medium;
         border: 1px solid #666;
         min-height: 165px;
     }
 
-    @media screen and ( min-width: $ideal-instrument-editor-width ) {
+    @media screen and ( min-width: variables.$ideal-instrument-editor-width ) {
         .adsr-editor {
             padding-bottom: 0;
         }

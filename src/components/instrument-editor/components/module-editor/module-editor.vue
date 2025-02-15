@@ -491,28 +491,29 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/tabs";
-@import "@/styles/instrument-editor";
-@import "@/styles/forms";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/tabs";
+@use "@/styles/instrument-editor";
+@use "@/styles/forms";
 
 $large-height: 800px;
 
 .select {
     width: 100px;
-    margin: $spacing-medium 0;
+    margin: variables.$spacing-medium 0;
 
     &.first {
         width: 95px;
-        margin-right: $spacing-small;
+        margin-right: variables.$spacing-small;
     }
 }
 
 .module-editor {
     vertical-align: top;
-    @include boxSize();
+    @include mixins.boxSize();
 
-    @include mobile() {
+    @include mixins.mobile() {
         width: 100%;
         padding: 0;
     }
@@ -522,28 +523,28 @@ $large-height: 800px;
     }
 
     .instrument-parameters {
-        @include boxSize();
+        @include mixins.boxSize();
         width: 100%;
-        border-bottom-right-radius: $spacing-medium;
-        padding: $spacing-small 0 $spacing-small $spacing-medium;
-        margin-bottom: $spacing-medium;
+        border-bottom-right-radius: variables.$spacing-medium;
+        padding: variables.$spacing-small 0 variables.$spacing-small variables.$spacing-medium;
+        margin-bottom: variables.$spacing-medium;
     }
 
     .enable-selector {
         position: absolute;
-        margin-top: -$spacing-large;
+        margin-top: -( variables.$spacing-large );
         margin-left: 152px;
     }
 
     .tabbed-content {
-        @include boxSize();
+        @include mixins.boxSize();
 
         border: 1px solid grey;
-        padding: $spacing-medium;
+        padding: variables.$spacing-medium;
 
         &.active {
-            @include large() {
-                @include minWidthFallback( $ideal-instrument-editor-width ) {
+            @include mixins.large() {
+                @include mixins.minWidthFallback( variables.$ideal-instrument-editor-width ) {
                     display: flex;
                 }
             }
@@ -555,23 +556,23 @@ $large-height: 800px;
         vertical-align: top;
         width: 100%;
 
-        @include large() {
-            margin-top: -$spacing-large;
+        @include mixins.large() {
+            margin-top: -( variables.$spacing-large );
         }
 
-        @include minHeight( $large-height ) {
-            margin-top: $spacing-small;
+        @include mixins.minHeight( $large-height ) {
+            margin-top: variables.$spacing-small;
         }
     }
 }
 
 #filterEditor {
-    margin-bottom: $spacing-medium;
+    margin-bottom: variables.$spacing-medium;
 }
 
 /* ideal size and above (tablet/desktop) */
 
-@media screen and ( min-width: $ideal-instrument-editor-width ) {
+@media screen and ( min-width: variables.$ideal-instrument-editor-width ) {
     .module-editor {
         display: inline-block;
 
@@ -584,14 +585,14 @@ $large-height: 800px;
                 display: inline-flex;
                 flex-direction: column;
                 max-width: initial;
-                margin-top: -$spacing-large;
+                margin-top: -( variables.$spacing-large );
             }
 
             .tabbed-content {
                 border: 0;
                 display: flex;
 
-                padding: $spacing-medium 0 0 0;
+                padding: variables.$spacing-medium 0 0 0;
             }
 
             .instrument-parameters {

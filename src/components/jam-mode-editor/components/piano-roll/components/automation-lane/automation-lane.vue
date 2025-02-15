@@ -368,45 +368,46 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/_mixins";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 .automation-lane {
-    @include mobile() {
+    @include mixins.mobile() {
         display: none;
     }
     
     &--expanded {
-        height: $piano-roll-automation-lane-height;
+        height: variables.$piano-roll-automation-lane-height;
     }
 
     &__header {
         display: flex;
         justify-content: space-between;
-        height: $spacing-large;
+        height: variables.$spacing-large;
         align-items: center;
-        padding: $spacing-small 0;
-        height: $piano-roll-automation-lane-height-collapsed;
+        padding: variables.$spacing-small 0;
+        height: variables.$piano-roll-automation-lane-height-collapsed;
     }
 
     &__title {
-        @include toolFont();
-        margin: 0 0 0 $piano-roll-name-width;
-        padding: $spacing-small 0;
+        @include typography.toolFont();
+        margin: 0 0 0 variables.$piano-roll-name-width;
+        padding: variables.$spacing-small 0;
     }
 
     &__header-button {
-        @include toolButton( true );
+        @include mixins.toolButton( true );
 
         &-toggle {
-            margin-right: ($spacing-large - $spacing-xsmall);
+            margin-right: (variables.$spacing-large - variables.$spacing-xsmall);
         }
     }
 
     &__list {
         display: flex;
-        height: calc(100% - ($piano-roll-automation-lane-height-collapsed + $spacing-small));
-        margin-left: $piano-roll-name-width;
+        height: calc(100% - (variables.$piano-roll-automation-lane-height-collapsed + variables.$spacing-small));
+        margin-left: variables.$piano-roll-name-width;
     }
 
     .vs__selected {

@@ -409,25 +409,31 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 .menu {
     color: #b6b6b6;
     display: block;
     margin: 0 auto;
-    padding: 0 $spacing-medium $spacing-small;
+    padding: 0 variables.$spacing-medium variables.$spacing-small;
     width: 100%;
-    @include boxSize();
+    @include mixins.boxSize();
 
     &__title {
-        @include toolFont();
+        @include typography.toolFont();
     }
 }
 
 .menu-list__button,
 .menu-list__title {
-    @include menuButton();
-    font-size: 95%;
+    @include mixins.menuButton();
+
+    & {
+        font-size: 95%;
+    }
 }
 
 .toggle {
@@ -436,15 +442,15 @@ export default {
     cursor: pointer;
     top: 0;
     left: 0;
-    width: $toggle-width;
-    height: $menu-height;
+    width: variables.$toggle-width;
+    height: variables.$menu-height;
 
     span {
         position: absolute;
         top: 50%;
         left: 50%;
-        margin-top: -$spacing-medium;
-        margin-left: -$spacing-medium;
+        margin-top: -( variables.$spacing-medium );
+        margin-left: -( variables.$spacing-medium );
     }
 }
 
@@ -453,7 +459,7 @@ h1 {
     display: inline;
     margin: 0;
     padding: 0;
-    padding-right: $spacing-medium;
+    padding-right: variables.$spacing-medium;
     font-size: 110%;
 }
 
@@ -462,23 +468,23 @@ h1 {
     list-style-type: none;
     padding: 0;
     margin: 0;
-    @include boxSize();
+    @include mixins.boxSize();
     font-size: 95%;
 
     li {
         display: inline-block;
-        padding: 0 $spacing-medium 0 0;
+        padding: 0 variables.$spacing-medium 0 0;
         margin: 0;
 
         a {
             color: #b6b6b6;
             text-decoration: none;
-            padding-bottom: $spacing-large;
+            padding-bottom: variables.$spacing-large;
         }
 
         &:hover,
         &:hover a {
-            color: $color-1;
+            color: colors.$color-1;
             border-bottom: none;
             text-decoration: none;
         }
@@ -495,7 +501,7 @@ h1 {
 
         &.fullscreen-button {
             float: right;
-            margin: 2px $spacing-medium 0 0;
+            margin: 2px variables.$spacing-medium 0 0;
 
             img:hover {
                 filter: brightness(0) invert(1);
@@ -503,10 +509,12 @@ h1 {
         }
 
         .divider {
-            @include divider();
-            margin-top: $spacing-xsmall;
-
-            @include mobile() {
+            @include mixins.divider();
+            
+            & {
+                margin-top: variables.$spacing-xsmall;
+            }
+            @include mixins.mobile() {
                 display: none;
             }
         }
@@ -515,48 +523,48 @@ h1 {
 
 /* tablet / desktop (everything larger than a phone) */
 
-@include large() {
+@include mixins.large() {
     .menu {
         min-width: 100%;
-        max-width: $ideal-width;
+        max-width: variables.$ideal-width;
         margin: 0 auto;
-        padding-left: $spacing-large;
+        padding-left: variables.$spacing-large;
 
         &.jam-mode {
             min-width: auto;
-            max-width: $ideal-menu-width-jam-mode;
+            max-width: variables.$ideal-menu-width-jam-mode;
         }
     }
 
     .menu-list li {
         &:hover, &:focus {
             a {
-                color: $color-1;
+                color: colors.$color-1;
             }
             ul {
                 display: block;
-                z-index: $z-open-menu;
+                z-index: variables.$z-open-menu;
             }
         }
         ul {
             display: none;
             position: absolute;
             box-shadow: 0 0 5px rgba(0,0,0,.5);
-            padding: $spacing-medium;
+            padding: variables.$spacing-medium;
             background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
             background-repeat: repeat-x;
-            @include boxSize;
+            @include mixins.boxSize;
         }
     }
     .menu-list__submenu li {
         display: block;
-        padding: $spacing-xsmall $spacing-medium;
+        padding: variables.$spacing-xsmall variables.$spacing-medium;
     }
 }
 
 /* ideal view */
 
-@include ideal() {
+@include mixins.ideal() {
     .menu {
         min-width: auto;
     }
@@ -564,10 +572,10 @@ h1 {
 
 /* mobile view */
 
-@include mobile() {
+@include mixins.mobile() {
     .menu {
         position: fixed;
-        z-index: $z-open-menu;
+        z-index: variables.$z-open-menu;
         overflow: hidden;
         width: 100%;
         height: inherit;
@@ -583,7 +591,7 @@ h1 {
                 height: inherit;
                 overflow-x: hidden;
                 overflow-y: auto;
-                height: calc(100% - $menu-height);
+                height: calc(100% - variables.$menu-height);
             }
         }
 
@@ -617,16 +625,16 @@ h1 {
             }
 
             li {
-                padding: $spacing-small $spacing-large;
+                padding: variables.$spacing-small variables.$spacing-large;
 
                 .menu-list__submenu li {
-                    padding: $spacing-small 0;
+                    padding: variables.$spacing-small 0;
                 }
 
                 a {
                     display: block;
                     width: 100%;
-                    padding: $spacing-medium $spacing-large;
+                    padding: variables.$spacing-medium variables.$spacing-large;
                     color: #000;
 
                     &:hover {
@@ -639,7 +647,7 @@ h1 {
                     color: #FFF;
                     font-weight: bold;
                     font-style: italic;
-                    background-color: $color-1;
+                    background-color: colors.$color-1;
                 }
 
                 &.fullscreen-button {
@@ -650,7 +658,7 @@ h1 {
 
         .menu-list {
             position: absolute;
-            top: $menu-height;
+            top: variables.$menu-height;
             background-image: linear-gradient(to bottom,#fff 35%,#eee 90%);
             background-repeat: repeat-x;
             display: none;
@@ -661,7 +669,7 @@ h1 {
             }
 
             ul {
-                padding: $spacing-small 0;
+                padding: variables.$spacing-small 0;
                 border-bottom: 1px dashed #666;
             }
         }

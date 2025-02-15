@@ -20,7 +20,7 @@ $ideal-maximized-instrument-editor-height: 820px;
 $action-button-top: #{$spacing-medium - $spacing-xsmall};
 $note-entry-editor-height: 150px;
 $note-entry-editor-height-expanded: 220px;
-$sampleWaveformHeight: 200px;
+$sample-waveform-height: 200px;
 $track-editor-width: 40px;
 $jam-channel-editor-width: 308px;
 $piano-roll-name-width: 25px;
@@ -44,5 +44,3 @@ $z-open-menu: 4;
 $z-header: 3;
 $z-footer: 2;
 $z-keyboard: 1; // above any application-editor UI
-
-@import "colors";

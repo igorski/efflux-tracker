@@ -150,10 +150,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/thirdparty";
+@use "@/styles/_mixins";
+@use "@/styles/thirdparty";
 
 .menu-button {
-    @include menuButton();
+    @include mixins.menuButton();
 }
 </style>

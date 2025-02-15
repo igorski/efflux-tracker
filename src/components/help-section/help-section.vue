@@ -167,10 +167,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
 
 .help-section {
-    @include editorComponent();
+    @include mixins.editorComponent();
     border-right: none;
     border-bottom: none;
     border-radius: 0;
@@ -179,13 +180,13 @@ export default {
     overflow-y: auto;
     height: 100%;
 
-    @media screen and (max-width: $app-width ) {
+    @media screen and (max-width: variables.$app-width ) {
         display: none;
         width: 0;
     }
 
     &__content {
-        padding: $spacing-small $spacing-medium 0;
+        padding: variables.$spacing-small variables.$spacing-medium 0;
         line-height: 2;
     }
 

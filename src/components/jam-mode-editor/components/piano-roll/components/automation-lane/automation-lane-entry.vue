@@ -116,22 +116,23 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/_mixins";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_variables";
+@use "@/styles/_mixins";
+@use "@/styles/typography";
 
 .automation-lane__entry {
     position: relative;
-    width: $piano-roll-column-width;
+    width: variables.$piano-roll-column-width;
 
     &--has-instruction {
         .automation-lane__entry-handle {
-            background-color: $color-3;
+            background-color: colors.$color-3;
         }
 
         &:hover {
             .automation-lane__entry-handle {
-                background-color: $color-4;
+                background-color: colors.$color-4;
             }
         }
     }
@@ -139,12 +140,12 @@ export default {
     .automation-lane__entry-wrapper {
         position: relative;
         height: 80%;
-        background-color: $color-pattern-odd;
+        background-color: colors.$color-pattern-odd;
     }
 
     &:nth-child(even) {
         .automation-lane__entry-wrapper {
-            background-color: $color-pattern-even;
+            background-color: colors.$color-pattern-even;
         }
     }
 
@@ -155,12 +156,12 @@ export default {
     }
 
     &-handle {
-        @include noEvents();
+        @include mixins.noEvents();
         cursor: pointer;
         position: absolute;
         bottom: 0;
         width: 100%;
-        border-top: 3px solid $color-4;
+        border-top: 3px solid colors.$color-4;
         box-sizing: border-box;
     }
 
@@ -168,19 +169,19 @@ export default {
         cursor: pointer;
         position: absolute;
         display: none;
-        bottom: -$spacing-large;
-        width: $piano-roll-column-width;
-        @include toolFont();
+        bottom: -( variables.$spacing-large );
+        width: variables.$piano-roll-column-width;
+        @include typography.toolFont();
         text-align: center;
         color: #FFF;
     }
 
     &-input {
         position: absolute;
-        bottom: -$spacing-large;
+        bottom: -( variables.$spacing-large );
         box-sizing: border-box;
-        width: $piano-roll-column-width;
-        @include toolFont();
+        width: variables.$piano-roll-column-width;
+        @include typography.toolFont();
         text-align: center;
         cursor: none;
     }

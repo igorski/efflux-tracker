@@ -1,26 +1,30 @@
+@use "sass:color";
 @use "sass:math";
 
-@import "_mixins";
+@use "_colors";
+@use "_mixins";
+@use "_variables";
+@use "typography";
 
 /* HTML input element styling */
 
 .padded-label {
-    margin: $spacing-small 0;
+    margin: variables.$spacing-small 0;
 }
 
 input {
-    background-color: $color-form-background;
+    background-color: colors.$color-form-background;
     color: #bfbfbf;
     border: none;
     font-size: 100%;
-    padding: $spacing-small $spacing-medium;
-    margin-right: $spacing-small;
-    @include boxSize();
-    @include toolFont();
+    padding: variables.$spacing-small variables.$spacing-medium;
+    margin-right: variables.$spacing-small;
+    @include mixins.boxSize();
+    @include typography.toolFont();
 }
 
 input[type=range] {
-    padding: $spacing-xsmall $spacing-small;
+    padding: variables.$spacing-xsmall variables.$spacing-small;
 }
 
 .vertical {
@@ -32,40 +36,40 @@ input[type=range] {
 }
 
 button {
-    @include button();
+    @include mixins.button();
 }
 
 fieldset {
     legend {
-        color: $color-1;
-        @include toolFont();
+        color: colors.$color-1;
+        @include typography.toolFont();
     }
     border: 1px solid grey;
-    border-radius: $spacing-small;
-    padding: $spacing-medium $spacing-large;
-    margin-bottom: $spacing-medium;
-    @include boxSize;
+    border-radius: variables.$spacing-small;
+    padding: variables.$spacing-medium variables.$spacing-large;
+    margin-bottom: variables.$spacing-medium;
+    @include mixins.boxSize;
 }
 
 /* specific for range elements, taken from Daniel Sterns post on css-tricks */
 
 $track-color: #333;
-$thumb-color: $color-1;
+$thumb-color: colors.$color-1;
 $thumb-color-disabled: #666;
 
 $thumb-radius: 50%;
-$thumb-height: $spacing-medium;
-$thumb-width: $spacing-medium;
+$thumb-height: variables.$spacing-medium;
+$thumb-width: variables.$spacing-medium;
 $mobile-thumb-height: 40px;
 $mobile-thumb-width: 40px;
 $thumb-shadow-size: 1px;
 $thumb-shadow-blur: 2px;
 $thumb-shadow-color: #111;
 $thumb-border-width: 2px;
-$thumb-border-color: darken($color-1, 5%);
+$thumb-border-color: color.scale(colors.$color-1, $lightness: -5%);
 
 $track-width: 100%;
-$track-height: $spacing-medium;
+$track-height: variables.$spacing-medium;
 $track-shadow-size: 0;
 $track-shadow-blur: 2px;
 $track-shadow-color: #000;
@@ -76,7 +80,7 @@ $track-radius: 5px;
 $contrast: 5%;
 
 @mixin shadow($shadow-size, $shadow-blur, $shadow-color) {
-    box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0 0 $shadow-size lighten($shadow-color, 5%);
+    box-shadow: $shadow-size $shadow-size $shadow-blur $shadow-color, 0 0 $shadow-size color.scale($shadow-color, $lightness: 5%);
 }
 
 @mixin track() {
@@ -120,7 +124,7 @@ input[type=range] {
     }
 
     &:focus::-webkit-slider-runnable-track {
-        background: lighten($track-color, $contrast);
+        background: color.scale($track-color, $lightness: $contrast);
     }
 
     &::-moz-range-track {
@@ -143,7 +147,7 @@ input[type=range] {
     }
 
     &::-ms-fill-lower {
-        background: darken($track-color, $contrast);
+        background: color.scale($track-color, $lightness: -$contrast);
         border: $track-border-width solid $track-border-color;
         border-radius: $track-radius*2;
         @include shadow($track-shadow-size, $track-shadow-blur, $track-shadow-color);
@@ -161,7 +165,7 @@ input[type=range] {
         background: $track-color;
     }
     &:focus::-ms-fill-upper {
-        background: lighten($track-color, $contrast);
+        background: color.scale($track-color, $lightness: $contrast);
     }
 
     // disabled state
@@ -182,7 +186,7 @@ input[type=range] {
     }
 }
 
-@include mobile() {
+@include mixins.mobile() {
     input[type=range] {
         &::-webkit-slider-thumb {
             width: $mobile-thumb-width;

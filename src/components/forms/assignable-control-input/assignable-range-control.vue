@@ -99,9 +99,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/instrument-editor";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/instrument-editor";
+@use "@/styles/typography";
 
 .range-control-wrapper {
     position: relative;
@@ -110,17 +113,17 @@ export default {
 .hit-area {
     cursor: pointer;
     position: absolute;
-    top: -$spacing-xsmall;
-    left: -$spacing-xsmall;
-    width: calc(100% - #{$spacing-small});
-    height: calc(100% - #{$spacing-small});
-    background-color: rgba($color-5, 0.5);
-    border: $spacing-xsmall solid transparent;
-    border-radius: $spacing-small;
+    top: -( variables.$spacing-xsmall );
+    left: -( variables.$spacing-xsmall );
+    width: calc(100% - #{variables.$spacing-small});
+    height: calc(100% - #{variables.$spacing-small});
+    background-color: rgba(colors.$color-5, 0.5);
+    border: variables.$spacing-xsmall solid transparent;
+    border-radius: variables.$spacing-small;
 
     &:hover {
         background-color: transparent;
-        border-color: $color-5;
+        border-color: colors.$color-5;
     }
 }
 
@@ -130,13 +133,13 @@ export default {
     width: 100%;
     text-align: center;
     top: 0;
-    @include toolFont();
+    @include typography.toolFont();
     color: #FFF;
 }
 
 .unlink-button {
     position: absolute;
     right: 0;
-    bottom: $spacing-small;
+    bottom: variables.$spacing-small;
 }
 </style>

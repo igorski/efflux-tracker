@@ -90,9 +90,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/instrument-editor";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/instrument-editor";
+@use "@/styles/typography";
 
 .toggle-control-wrapper {
     position: relative;
@@ -101,17 +104,17 @@ export default {
 .hit-area {
     cursor: pointer;
     position: absolute;
-    top: -$spacing-xsmall;
-    left: -$spacing-xsmall;
-    width: calc(100% - #{$spacing-small});
+    top: -( variables.$spacing-xsmall );
+    left: -( variables.$spacing-xsmall );
+    width: calc(100% - #{variables.$spacing-small});
     height: 100%;
-    background-color: rgba($color-5, 0.5);
-    border: $spacing-xsmall solid transparent;
-    border-radius: $spacing-small;
+    background-color: rgba(colors.$color-5, 0.5);
+    border: variables.$spacing-xsmall solid transparent;
+    border-radius: variables.$spacing-small;
 
     &:hover {
         background-color: transparent;
-        border-color: $color-5;
+        border-color: colors.$color-5;
     }
 }
 
@@ -120,14 +123,14 @@ export default {
     left: -50px;
     width: 150px;
     top: -50px;
-    @include toolFont();
+    @include typography.toolFont();
     color: #FFF;
     z-index: 2;
 }
 
 .unlink-button {
     position: absolute;
-    left: -$spacing-small;
+    left: -( variables.$spacing-small );
     top: 0;
     z-index: 2;
 }

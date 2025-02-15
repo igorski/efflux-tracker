@@ -142,16 +142,18 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
 
 #editorActions {
-    @include inlineFlex();
+    @include mixins.inlineFlex();
     background-color: #000;
     vertical-align: top;
     position: relative;
-    width: $track-editor-width;
+    width: variables.$track-editor-width;
 
-    @include mobile() {
+    @include mixins.mobile() {
         position: fixed; /* keep pattern editor in static position */
         left: 0;
         height: 100%;
@@ -164,8 +166,8 @@ export default {
     flex-direction: column;
 
     &-button {
-        width: $track-editor-width;
-        height: $track-editor-width;
+        width: variables.$track-editor-width;
+        height: variables.$track-editor-width;
         margin: 0 0 1px;
         background-color: #b6b6b6;
         background-repeat: no-repeat;
@@ -197,16 +199,16 @@ export default {
         }
 
         &.active {
-            background-color: $color-1;
+            background-color: colors.$color-1;
         }
 
         &:hover {
-            background-color: $color-5;
+            background-color: colors.$color-5;
         }
 
         &.disabled {
             opacity: .25;
-            @include noEvents();
+            @include mixins.noEvents();
         }
     }
 }

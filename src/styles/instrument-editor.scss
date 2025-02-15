@@ -1,28 +1,32 @@
+@use "_mixins";
+@use "_variables";
+@use "typography";
+
 /* styling for instrument editor components */
 
 .instrument-parameters {
     display: inline-block;
     vertical-align: top;
     width: 45%;
-    margin-right: $spacing-medium;
+    margin-right: variables.$spacing-medium;
 
-    @include mobile() {
-        padding: $spacing-medium;
+    @include mixins.mobile() {
+        padding: variables.$spacing-medium;
     }
 
-    @media screen and ( max-width: $ideal-instrument-editor-width ) {
-        @include boxSize();
-        padding: $spacing-large;
+    @media screen and ( max-width: variables.$ideal-instrument-editor-width ) {
+        @include mixins.boxSize();
+        padding: variables.$spacing-large;
         width: 100%;
         display: block;
-        border-radius: $spacing-small;
+        border-radius: variables.$spacing-small;
         border: 1px solid #666;
-        margin-bottom: $spacing-medium;
+        margin-bottom: variables.$spacing-medium;
     }
 
     h2 {
-        padding: $spacing-medium 0;
-        @include toolFont();
+        padding: variables.$spacing-medium 0;
+        @include typography.toolFont();
         color: #FFF;
     }
 }
@@ -34,7 +38,7 @@
         width: 33%;
         vertical-align: middle;
         display: inline-block;
-        @include toolFont();
+        @include typography.toolFont();
     }
 
     input {

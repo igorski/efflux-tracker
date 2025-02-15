@@ -1,14 +1,17 @@
 /* global styles - may only be added in root component, child components should use scoped styles */
 
-@import "_mixins";
-@import "_utilities";
+@use "_colors";
+@use "_mixins";
+@use "_utilities";
+@use "_variables";
+@use "typography";
 
 /* document styling */
 
 html, body {
     height: 100%;
     min-width: 100%;
-    background-color: $color-background;
+    background-color: colors.$color-background;
     /* everything should fit on a single screen (unless mobile view) */
     overflow: hidden;
     /* disable navigation back/forward swipe on Chrome */
@@ -18,7 +21,7 @@ html, body {
 body {
     margin: 0;
     padding: 0;
-    @include globalFont();
+    @include typography.globalFont();
 }
 
 /* typography */
@@ -42,7 +45,7 @@ body {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    @include titleFont();
+    @include typography.titleFont();
     font-weight: normal;
 }
 
@@ -50,13 +53,13 @@ h2 {
     font-size: 100%;
     font-weight: bold;
     color: #b6babe;
-    padding: $spacing-small $spacing-medium;
+    padding: variables.$spacing-small variables.$spacing-medium;
     display: inline;
 }
 
 h3 {
     font-size: 110%;
-    margin: $spacing-small 0;
+    margin: variables.$spacing-small 0;
 }
 
 p {
@@ -64,16 +67,16 @@ p {
 }
 
 a, a:visited {
-    color: $color-1;
+    color: colors.$color-1;
     text-decoration: underline;
 
     &:hover {
-        color: $color-1;
+        color: colors.$color-1;
         text-decoration: none;
     }
 }
 
-@include mobile() {
+@include mixins.mobile() {
     h1, h2, h3 {
         line-height: 1.25;
     }
@@ -82,7 +85,7 @@ a, a:visited {
 /* shared Vue components */
 
 .vue-js-switch {
-    margin-right: $spacing-small;
+    margin-right: variables.$spacing-small;
 
     .v-switch-core {
         background-color: #666 !important;
@@ -92,7 +95,7 @@ a, a:visited {
     }
     &.toggled {
         .v-switch-core {
-            background-color: $color-1 !important;
+            background-color: colors.$color-1 !important;
         }
         .v-switch-button {
             background-color: #000 !important;

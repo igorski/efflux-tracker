@@ -130,16 +130,19 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/styles/_mixins";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 .select-box-wrapper {
     display: inline-block;
-    @include toolFont();
+    @include typography.toolFont();
 }
 
 .vs__dropdown-toggle {
-    border-radius: $spacing-small;
-    background-color: $color-1;
+    border-radius: variables.$spacing-small;
+    background-color: colors.$color-1;
 }
 .vs--disabled {
     .vs__dropdown-toggle {
@@ -160,23 +163,23 @@ export default {
     top: -9999px;
 }
 .vs__selected {
-    margin: #{$spacing-xsmall + 1} $spacing-xsmall 0;
+    margin: #{variables.$spacing-xsmall + 1} variables.$spacing-xsmall 0;
     font-size: 95%;
-    @include truncate();
+    @include mixins.truncate();
 }
 
 .vs__selected-options {
     height: 24px;
-    @include truncate();
+    @include mixins.truncate();
 }
 
 .vs__dropdown-menu {
     overflow-x: hidden;
 
     li {
-        @include truncate();
-        padding-left: $spacing-small;
-        padding-right: $spacing-small;
+        @include mixins.truncate();
+        padding-left: variables.$spacing-small;
+        padding-right: variables.$spacing-small;
     }
 }
 
@@ -190,7 +193,7 @@ export default {
     }
 
     .vs__selected {
-        margin: $spacing-xxsmall $spacing-medium $spacing-xsmall;
+        margin: variables.$spacing-xxsmall variables.$spacing-medium variables.$spacing-xsmall;
         padding: 0;
     }
 

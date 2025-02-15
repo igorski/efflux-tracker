@@ -387,28 +387,30 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 $headingHeight: 53px;
 $breadcrumbsHeight: 47px;
 $actionsHeight: 50px;
 
 .dropbox-file-modal {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
     overflow: hidden;
     padding: 0;
 
     .header {
-        padding: $spacing-small $spacing-large 0;
+        padding: variables.$spacing-small variables.$spacing-large 0;
     }
 
     .close-button {
         font-size: 175% !important;
-        padding: $spacing-medium $spacing-small !important;
+        padding: variables.$spacing-medium variables.$spacing-small !important;
         line-height: 0;
     }
 
@@ -416,7 +418,7 @@ $actionsHeight: 50px;
         margin-bottom: 0;
     }
 
-    @include large() {
+    @include mixins.large() {
         width: 80%;
         height: 75%;
         max-width: 1280px;
@@ -437,8 +439,8 @@ $actionsHeight: 50px;
 }
 
 .breadcrumbs {
-    padding: $spacing-small 0 $spacing-small $spacing-small;
-    background-color: $color-background;
+    padding: variables.$spacing-small 0 variables.$spacing-small variables.$spacing-small;
+    background-color: colors.$color-background;
 
     &__button {
         display: inline;
@@ -446,7 +448,7 @@ $actionsHeight: 50px;
         cursor: pointer;
         border: none;
         background: none !important;
-        padding-left: $spacing-xsmall;
+        padding-left: variables.$spacing-xsmall;
         padding-right: 0;
         font-size: 100%;
 
@@ -455,7 +457,7 @@ $actionsHeight: 50px;
         }
 
         &:hover {
-            color: $color-1;
+            color: colors.$color-1;
         }
 
         &--active {
@@ -471,14 +473,14 @@ $actionsHeight: 50px;
     height: 128px;
     text-align: center;
     cursor: pointer;
-    @include toolFont();
+    @include typography.toolFont();
 
     .title {
         position: absolute;
-        left: $spacing-small;
-        bottom: $spacing-medium;
+        left: variables.$spacing-small;
+        bottom: variables.$spacing-medium;
         width: 90%;
-        @include truncate();
+        @include mixins.truncate();
     }
 
     &__icon {
@@ -486,17 +488,17 @@ $actionsHeight: 50px;
         height: inherit;
 
         &--folder {
-            background: url("../../assets/icons/icon-folder.png") no-repeat 50% $spacing-large;
+            background: url("../../assets/icons/icon-folder.png") no-repeat 50% variables.$spacing-large;
             background-size: 50%;
         }
 
         &--project {
-            background: url("../../assets/icons/icon-project.svg") no-repeat 50% $spacing-large;
+            background: url("../../assets/icons/icon-project.svg") no-repeat 50% variables.$spacing-large;
             background-size: 50%;
         }
 
         &--audio {
-            background: url("../../assets/icons/icon-audio.png") no-repeat 50% $spacing-large;
+            background: url("../../assets/icons/icon-audio.png") no-repeat 50% variables.$spacing-large;
             background-size: 50%;
         }
     }
@@ -505,25 +507,25 @@ $actionsHeight: 50px;
         display: none;
         position: absolute;
         cursor: pointer;
-        top: $spacing-xsmall;
-        right: -$spacing-xsmall;
-        background-color: $color-1;
+        top: variables.$spacing-xsmall;
+        right: -( variables.$spacing-xsmall );
+        background-color: colors.$color-1;
         color: #000;
-        width: $spacing-large;
-        height: $spacing-large;
+        width: variables.$spacing-large;
+        height: variables.$spacing-large;
         border: 2px solid #000;
         font-size: 200%;
         padding: 0;
         line-height: 0;
 
         &:hover {
-            background-color: $color-2;
+            background-color: colors.$color-2;
         }
     }
 
     &:hover {
         .entry__icon {
-            background-color: $color-1;
+            background-color: colors.$color-1;
             color: #000;
         }
 
@@ -543,12 +545,12 @@ $actionsHeight: 50px;
     text-align: center;
     display: flex;
     box-sizing: border-box;
-    background-color: $color-editor-background;
-    padding: $spacing-xxsmall $spacing-medium;
+    background-color: colors.$color-editor-background;
+    padding: variables.$spacing-xxsmall variables.$spacing-medium;
 
     button {
         flex: 1;
-        margin: $spacing-small;
+        margin: variables.$spacing-small;
     }
 
     &-content {

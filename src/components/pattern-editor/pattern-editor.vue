@@ -200,22 +200,25 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/typography";
 
 .pattern-editor {
     display: inline;
     margin: 0;
-    padding-left: $spacing-small;
+    padding-left: variables.$spacing-small;
 
     &__title {
-        padding: 0 $spacing-small;
-        @include toolFont();
+        padding: 0 variables.$spacing-small;
+        @include typography.toolFont();
     }
 
     &__pattern-name {
-        @include toolFont();
-        margin-right: $spacing-small;
+        @include typography.toolFont();
+        margin-right: variables.$spacing-small;
         color: #fff;
     }
 
@@ -224,25 +227,25 @@ export default {
     }
 
     .inline-list {
-        @include list();
+        @include mixins.list();
         display: inline;
 
         .list-item {
             display: inline;
             cursor: pointer;
 
-            @include large() {
+            @include mixins.large() {
                 vertical-align: middle;
             }
         }
 
         button {
-            margin: 0 0 0 $spacing-xsmall;
+            margin: 0 0 0 variables.$spacing-xsmall;
             background-color: #333;
             color: #b6b6b6;
             border-radius: 0;
             border: 0;
-            @include toolFont();
+            @include typography.toolFont();
 
             &:hover {
                 color: #fff;
@@ -257,41 +260,41 @@ export default {
 
 .pattern-step-select {
     width: 85px;
-    margin: 0 $spacing-xxsmall 0 $spacing-small;
+    margin: 0 variables.$spacing-xxsmall 0 variables.$spacing-small;
 }
 
 .pattern-manager-button {
-    margin-left: $spacing-medium !important;
+    margin-left: variables.$spacing-medium !important;
     color: #FFF !important;
 
     &:hover {
-        color: $color-1 !important;
+        color: colors.$color-1 !important;
     }
 }
 
 /* large views and above */
 
-@media screen and ( min-width: $ideal-pattern-editor-width ) {
+@media screen and ( min-width: variables.$ideal-pattern-editor-width ) {
     .pattern-editor {
-        margin: 0 0 0 $spacing-medium;
+        margin: 0 0 0 variables.$spacing-medium;
 
         h2 {
-            padding: 0 $spacing-medium 0 0;
+            padding: 0 variables.$spacing-medium 0 0;
         }
     }
 }
 
-@include mobile() {
+@include mixins.mobile() {
     .pattern-editor  {
         display: none; /* only visible when settings mode is active */
 
         &.settings-mode {
             display: flex;
             flex-direction: column;
-            padding: 0 $spacing-medium;
+            padding: 0 variables.$spacing-medium;
 
             .inline-list button {
-                margin: 0 $spacing-xsmall $spacing-small 0;
+                margin: 0 variables.$spacing-xsmall variables.$spacing-small 0;
             }
         }
     }
@@ -305,7 +308,7 @@ export default {
 
             .list-item {
                 display: inline-block;
-                margin-bottom: $spacing-small;
+                margin-bottom: variables.$spacing-small;
             }
         }
     }

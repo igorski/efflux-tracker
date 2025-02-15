@@ -52,8 +52,8 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/_variables";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
 
 .jam-container {
     position: relative;
@@ -61,8 +61,11 @@ export default {
 }
 
 .jam-divider {
-    @include divider();
-    margin-top: 0 !important;
+    @include mixins.divider();
+
+    & {
+        margin-top: 0 !important;
+    }
 }
 
 .jam-note-editor {
@@ -72,7 +75,7 @@ export default {
     border: none;
     width: auto;
 
-    @include mobile() {
+    @include mixins.mobile() {
         height: 90px;
     }
 }

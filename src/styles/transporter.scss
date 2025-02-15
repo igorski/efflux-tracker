@@ -1,4 +1,5 @@
-@import "_variables";
+@use "_mixins";
+@use "_variables";
 
 /* transporter button icons */
 
@@ -12,8 +13,8 @@
 
     display: inline-block;
     text-decoration: inherit;
-    width: $spacing-large;
-    margin-right: $spacing-xsmall;
+    width: variables.$spacing-large;
+    margin-right: variables.$spacing-xsmall;
     text-align: center;
     /* opacity: .8; */
 
@@ -22,11 +23,11 @@
     text-transform: none;
 
     /* fix buttons height, for twitter bootstrap */
-    line-height: $spacing-large;
+    line-height: variables.$spacing-large;
 
     /* Animation center compensation - margins should be symmetric */
     /* remove if not needed */
-    margin-left: $spacing-xsmall;
+    margin-left: variables.$spacing-xsmall;
 
     /* you can be more comfortable with increased icons size */
     /* font-size: 120%; */
@@ -46,7 +47,7 @@
 }
 
 @mixin sequencerButtons() {
-    @include ghostButton();
+    @include mixins.ghostButton();
     margin: 0;
     padding: 0;
 
@@ -56,13 +57,13 @@
 
     &#playBTN:before {
         margin-right: 0;
-        @include mobile() {
+        @include mixins.mobile() {
             margin: 0;
         }
     }
 
     &#recordBTN {
-        height: $spacing-large;
+        height: variables.$spacing-large;
         
         .record-icon {
             display: block;

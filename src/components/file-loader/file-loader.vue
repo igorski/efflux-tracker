@@ -141,7 +141,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/thirdparty";
+@use "@/styles/_mixins";
+@use "@/styles/forms";
+@use "@/styles/thirdparty";
 </style>

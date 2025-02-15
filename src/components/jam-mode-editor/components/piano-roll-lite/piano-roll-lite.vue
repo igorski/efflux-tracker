@@ -180,8 +180,9 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_variables";
-@import "@/styles/forms";
+@use "@/styles/_colors";
+@use "@/styles/_variables";
+@use "@/styles/forms";
 
 .piano-roll-lite {
     position: relative;
@@ -193,18 +194,18 @@ export default {
 
     &__note {
         height: 8px;
-        background-color: $color-2;
+        background-color: colors.$color-2;
 
         &--empty {
             background: none !important;
         }
 
         &--selected {
-            background-color: $color-5;
+            background-color: colors.$color-5;
         }
         
         &--active {
-            background-color: $color-3;
+            background-color: colors.$color-3;
         }
     }
 
@@ -225,8 +226,8 @@ export default {
     &__edit-button {
         position: absolute;
         right: 0;
-        bottom: $spacing-small;
-        padding: $spacing-xsmall $spacing-small;
+        bottom: variables.$spacing-small;
+        padding: variables.$spacing-xsmall variables.$spacing-small;
         background-color: #b6b6b6;
     }
 }

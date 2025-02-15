@@ -1,24 +1,26 @@
 /* main application layout (scoped styling in root component) */
 
-@import "_mixins";
-@import "_scrollbars";
+@use "_mixins";
+@use "_scrollbars";
+@use "_variables";
+@use "typography";
 
 #efflux {
-    @include noSelect();
-    @include styledScrollbars();
+    @include mixins.noSelect();
+    @include scrollbars.styledScrollbars();
 }
 
 .application-header {
     box-shadow: 0 0 5px rgba(0,0,0,.5);
     background-image: linear-gradient(to bottom,#282828 35%,#383838 90%);
     background-repeat: repeat-x;
-    padding: $spacing-small 0 0;
+    padding: variables.$spacing-small 0 0;
     width: 100%;
     position: fixed;
     top: 0;
-    z-index: $z-header;
+    z-index: variables.$z-header;
     border-bottom: 3px solid #53565d;
-    @include boxSize();
+    @include mixins.boxSize();
 }
 
 .container {
@@ -27,22 +29,22 @@
 }
 
 .application-properties {
-    @include editorComponent();
-    padding: $spacing-small 0;
+    @include mixins.editorComponent();
+    padding: variables.$spacing-small 0;
     margin: 88px auto 0; /* offset top margin by menu height */
     border-radius: 0;
     border: none;
 }
 
 .application-editor {
-    @include flex();
+    @include mixins.flex();
     position: absolute;
     top: 134px; /* menu + pattern editor */
-    bottom: $footer-height;
+    bottom: variables.$footer-height;
     overflow: hidden;
 
     &.note-entry-mode {
-        bottom: $note-entry-editor-height !important;
+        bottom: variables.$note-entry-editor-height !important;
     }
 }
 
@@ -51,10 +53,10 @@
         top: 86px; /* no pattern editor */
     }
 
-    @include large() {
+    @include mixins.large() {
         .application-editor,
         .note-entry-editor {
-            max-width: $ideal-width-jam-mode;
+            max-width: variables.$ideal-width-jam-mode;
         }
     }
 }
@@ -66,7 +68,7 @@
     width: 100%;
     height: 100%;
     background-color: rgba(0,0,0,.5);
-    z-index: $z-blind;
+    z-index: variables.$z-blind;
 }
 
 .application-footer {
@@ -74,33 +76,33 @@
     bottom: 0;
     background-image: linear-gradient(to bottom,#474747 0,#303030 100%);
     width: 100%;
-    height: $footer-height;
+    height: variables.$footer-height;
     color: #EEE;
-    @include titleFont();
+    @include typography.titleFont();
 
     span {
         width: auto;
         margin: 0 auto;
         text-align: center;
         display: block;
-        margin-top: $spacing-medium;
+        margin-top: variables.$spacing-medium;
     }
 }
 
 /* ideal app width and up */
 
-@media screen and ( min-width: $app-width ) {
+@media screen and ( min-width: variables.$app-width ) {
     .application-footer span {
-        width: $app-width;
+        width: variables.$app-width;
     }
 }
 
 /* standard width: large TABLET/LAPTOP */
 
-@media screen and ( min-width: $app-width ) {
+@media screen and ( min-width: variables.$app-width ) {
     .container {
         width: inherit;
-        max-width: $ideal-width;
+        max-width: variables.$ideal-width;
         padding: 0;
     }
 
@@ -112,20 +114,20 @@
 
 /* PHONE */
 
-@include mobile() {
+@include mixins.mobile() {
     $order-menu-height: 43px; // eventually this should always be present, for now its optional
 
     .application-header {
-        height: $transport-height;
+        height: variables.$transport-height;
         &.expanded {
             height: 100%;
         }
     }
 
     .application-footer {
-        padding: 0 $spacing-large;
-        z-index: $z-footer;
-        @include boxSize;
+        padding: 0 variables.$spacing-large;
+        z-index: variables.$z-footer;
+        @include mixins.boxSize;
     }
     /* when mobileMode is "settings" we show the tempo control and song editor by expanding these */
     .application-properties {
@@ -157,20 +159,20 @@
 
 /* everything LARGER than a PHONE */
 
-@include large() {
+@include mixins.large() {
     .container {
-        padding: 0 $spacing-large;
+        padding: 0 variables.$spacing-large;
         left: auto;
-        @include boxSize();
+        @include mixins.boxSize();
 
         /* menu contains submenu */
 
         &.padded {
-            padding-left: $spacing-large;
-            padding-right: $spacing-large;
+            padding-left: variables.$spacing-large;
+            padding-right: variables.$spacing-large;
 
             &:before, &:after {
-                height: 1 $spacing-large;
+                height: 1 variables.$spacing-large;
             }
         }
     }
@@ -178,7 +180,7 @@
 
 /* TABLET/DESKTOP portrait width (everything smaller than app width) */
 
-@media screen and (max-width: $app-width) {
+@media screen and (max-width: variables.$app-width) {
     // allow scrolling as we can expect the overlays to have scrollable content
     html {
         overflow: auto;
@@ -194,7 +196,7 @@
 
 /* TABLET/DESKTOP medium to large */
 
-@media screen and (min-width: $app-width) and (max-width: $ideal-width) {
+@media screen and (min-width: variables.$app-width) and (max-width: variables.$ideal-width) {
     .application-editor {
         &.has-help-panel {
             .pattern-track-list,

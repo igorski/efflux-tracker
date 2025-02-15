@@ -349,9 +349,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/forms";
-@import "@/styles/transporter";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
+@use "@/styles/transporter";
+@use "@/styles/typography";
 
 /* generated font for all transporter icons */
 
@@ -367,35 +370,35 @@ export default {
 }
 
 .transport-section {
-    background-color: $color-editor-background;
+    background-color: colors.$color-editor-background;
 }
 
 .transport-controls {
     display: flex;
     align-items: center;
-    @include titleFont();
+    @include typography.titleFont();
     border: none;
     border-radius: 0;
     margin: 0 auto;
     min-width: 100%;
-    max-width: $ideal-width;
+    max-width: variables.$ideal-width;
     min-height: 44px;
 
     &.jam-mode {
         min-width: auto;
-        max-width: $ideal-menu-width-jam-mode;
+        max-width: variables.$ideal-menu-width-jam-mode;
     }
 
     &__buttons,
     &__tempo {
-        @include list();
-        padding-left: $spacing-small * 2;
+        @include mixins.list();
+        padding-left: variables.$spacing-small * 2;
         display: flex;
         align-items: center;
 
         li {
             display: inline;
-            margin: $spacing-small 0;
+            margin: variables.$spacing-small 0;
             padding: 0;
             font-weight: bold;
         }
@@ -410,11 +413,11 @@ export default {
                 color: #FFF;
 
                 .current {
-                    width: $spacing-xlarge; /* fits "333" */
-                    height: $spacing-large;
+                    width: variables.$spacing-xlarge; /* fits "333" */
+                    height: variables.$spacing-large;
                     border: 1px solid #999;
                     font-weight: bold;
-                    margin: 0 $spacing-small;
+                    margin: 0 variables.$spacing-small;
                     color: #FFF;
                     background-color: transparent;
                     text-align: center;
@@ -422,30 +425,30 @@ export default {
 
                 .total {
                     background-color: #333;
-                    height: $spacing-large;
+                    height: variables.$spacing-large;
                     text-align: center;
-                    padding: $spacing-small $spacing-medium;
-                    margin: 0 $spacing-small;
-                    @include toolFont();
+                    padding: variables.$spacing-small variables.$spacing-medium;
+                    margin: 0 variables.$spacing-small;
+                    @include typography.toolFont();
                 }
             }
         }
 
         button {
-            @include sequencerButtons();
+            @include transporter.sequencerButtons();
 
             &#loopBTN:before {
-                margin-left: $spacing-xxsmall;
+                margin-left: variables.$spacing-xxsmall;
             }
 
             &#recordBTN {
-                padding-left: $spacing-xsmall;
+                padding-left: variables.$spacing-xsmall;
             }
 
             /* pattern jump buttons */
             &.pattern-next,
             &.pattern-back {
-                @include titleFont();
+                @include typography.titleFont();
             }
 
             &.pattern-next {
@@ -458,9 +461,9 @@ export default {
 
             &.icon-settings {
                 display: none; /* mobile only (see below) */
-                padding: 0 $spacing-small;
+                padding: 0 variables.$spacing-small;
                 &:before {
-                    margin-left: -$spacing-small;
+                    margin-left: -( variables.$spacing-small );
                 }
             }
 
@@ -476,20 +479,20 @@ export default {
         padding: 0;
     
         label {
-            margin-right: $spacing-small;
+            margin-right: variables.$spacing-small;
             display: inline-block;
-            @include toolFont();
+            @include typography.toolFont();
         }
 
         input {
             display: inline-block;
-            margin: 0 $spacing-small 0 0;
+            margin: 0 variables.$spacing-small 0 0;
             vertical-align: middle;
         }
 
         .value {
             display: inline-block;
-            @include toolFont();
+            @include typography.toolFont();
             cursor: pointer;
         }
     }
@@ -501,7 +504,7 @@ export default {
 
 /* ideal view */
 
-@include ideal() {
+@include mixins.ideal() {
     .transport-controls {
         min-width: auto;
     }
@@ -509,12 +512,12 @@ export default {
 
 /* everything above median app size */
 
-@media screen and ( min-width: $app-width ) {
+@media screen and ( min-width: variables.$app-width ) {
     .transport-controls {
         .section-divider {
-            padding: 0 $spacing-medium;
+            padding: 0 variables.$spacing-medium;
             margin: 0;
-            height: $transport-height;
+            height: variables.$transport-height;
 
             &:before {
                 position: absolute;
@@ -527,10 +530,10 @@ export default {
     }
 }
 
-@include mobile() {
+@include mixins.mobile() {
     .transport-controls {
         background-color: inherit;
-        margin-top: ($transport-height - $spacing-small);
+        margin-top: (variables.$transport-height - variables.$spacing-small);
 
         label {
             display: none !important;
@@ -561,13 +564,13 @@ export default {
 
         .transport-controls__tempo {
             display: inline-block;
-            margin: 0 $spacing-small $spacing-small;
-            padding: 0 0 0 $spacing-small;
+            margin: 0 variables.$spacing-small variables.$spacing-small;
+            padding: 0 0 0 variables.$spacing-small;
         }
 
         .pattern-order-list {
             display: inline-flex;
-            margin: 0 $spacing-medium;
+            margin: 0 variables.$spacing-medium;
         }
     }
 }

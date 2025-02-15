@@ -355,18 +355,20 @@ export default {
 <style lang="scss" scoped>
 @use "sass:math";
 
-@import "@/styles/_mixins";
-@import "@/styles/forms";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/forms";
 
 $width: 450px;
 $height: 485px;
 
 .module-param-editor {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
-    padding: $spacing-small $spacing-large;
-    border-radius: $spacing-small;
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
+    padding: variables.$spacing-small variables.$spacing-large;
+    border-radius: variables.$spacing-small;
     box-shadow: 0 0 25px rgba(0,0,0,.5);
 
     .wrapper.range {
@@ -376,11 +378,11 @@ $height: 485px;
         input {
             width: 90%;
             display: inline;
-            margin-left: $spacing-medium;
+            margin-left: variables.$spacing-medium;
         }
     }
 
-    @include componentIdeal( $width, $height ) {
+    @include mixins.componentIdeal( $width, $height ) {
         top: 50%;
         left: 50%;
         width: $width;
@@ -393,20 +395,20 @@ $height: 485px;
         }
     }
 
-    @include componentFallback( $width, $height ) {
+    @include mixins.componentFallback( $width, $height ) {
         border-radius: 0;
         width: 100%;
-        @include verticalScrollOnMobile();
+        @include mixins.verticalScrollOnMobile();
     }
 
     .divider {
-        width: calc(100% + #{$spacing-large * 2});
-        margin: $spacing-medium 0 $spacing-medium -#{$spacing-large};
+        width: calc(100% + #{variables.$spacing-large * 2});
+        margin: variables.$spacing-medium 0 variables.$spacing-medium -#{variables.$spacing-large};
     }
 
     fieldset {
         border: none;
-        padding: $spacing-medium 0;
+        padding: variables.$spacing-medium 0;
     }
 
     #instrument {
@@ -414,36 +416,36 @@ $height: 485px;
     }
 
     #moduleSelect {
-        @include list();
+        @include mixins.list();
         position: relative;
 
         ul {
-            @include list();
-            @include flex();
+            @include mixins.list();
+            @include mixins.flex();
         }
 
         li {
             float: left;
             cursor: pointer;
             position: relative;
-            background-color: $color-2;
+            background-color: colors.$color-2;
             vertical-align: top;
             color: #000;
             font-weight: bold;
-            padding: $spacing-small $spacing-medium;
+            padding: variables.$spacing-small variables.$spacing-medium;
             border-right: 1px solid #000;
             border-bottom: 1px solid #000;
             flex-grow: 1;
             font-size: 80%;
 
             &.selected, &:hover {
-                background-color: $color-1;
+                background-color: colors.$color-1;
             }
 
             &:after {
                 position: absolute;
-                bottom: $spacing-small;
-                left: $spacing-small;
+                bottom: variables.$spacing-small;
+                left: variables.$spacing-small;
                 pointer-events: none;
             }
         }
@@ -457,16 +459,16 @@ $height: 485px;
     }
 
     #moduleInputValue {
-        color: $color-1;
+        color: colors.$color-1;
         font-weight: bold;
         font-style: italic;
         display: inline;
-        margin-left: $spacing-medium;
+        margin-left: variables.$spacing-medium;
     }
 
     .confirm-button {
         width: 100%;
-        padding: $spacing-medium $spacing-large;
+        padding: variables.$spacing-medium variables.$spacing-large;
     }
 }
 </style>

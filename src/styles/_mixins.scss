@@ -1,25 +1,26 @@
-@import "_variables";
-@import "typography";
+@use "_colors";
+@use "_variables";
+@use "typography";
 
 /* 1. responsive breakoff points */
 
 // phones
 @mixin mobile {
-    @media (max-width: #{$mobile-width}) {
+    @media (max-width: #{variables.$mobile-width}) {
         @content;
     }
 }
 
 // anything above phone resolution (e.g. tablet/laptop/desktop)
 @mixin large {
-    @media (min-width: #{$mobile-width}) {
+    @media (min-width: #{variables.$mobile-width}) {
         @content;
     }
 }
 
 // ideal size (shows all eight track lines in editor)
 @mixin ideal {
-    @media (min-width: #{$ideal-width}) {
+    @media (min-width: #{variables.$ideal-width}) {
         @content;
     }
 }
@@ -138,16 +139,16 @@
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
-    background-color: $color-1;
+    background-color: colors.$color-1;
     color: #000;
     font-size: 95%;
     border: 2px solid #333;
     border-radius: 7px;
     border: none;
-    padding: $spacing-small $spacing-medium;
-    margin-right: $spacing-small;
+    padding: variables.$spacing-small variables.$spacing-medium;
+    margin-right: variables.$spacing-small;
     @include boxSize();
-    @include toolFont();
+    @include typography.toolFont();
 
     &:hover {
         background-color: #FFF;
@@ -161,7 +162,7 @@
 }
 
 @mixin menuButton {
-    @include titleFont();
+    @include typography.titleFont();
     cursor: pointer;
     background: none;
     border: none;
@@ -180,7 +181,7 @@
 
 @mixin toolButton( $small: false ) {
     @include button();
-    background-color: transparent;//$color-5;
+    background-color: transparent;//colors.$color-5;
     outline: 2px solid #666;
     color: #b6b6b6;
 
@@ -189,8 +190,8 @@
     }
 
     @if $small {
-        border-radius: $spacing-xsmall;
-        padding: $spacing-xsmall $spacing-medium;
+        border-radius: variables.$spacing-xsmall;
+        padding: variables.$spacing-xsmall variables.$spacing-medium;
     }
 }
 
@@ -204,7 +205,7 @@
     background: transparent;
     border: none;
     vertical-align: middle;
-    @include globalFont();
+    @include typography.globalFont();
 
     &:hover {
         color: #000;
@@ -212,11 +213,11 @@
 }
 
 @mixin editorComponent {
-    padding: $spacing-small;
-    background-color: $color-editor-background;
+    padding: variables.$spacing-small;
+    background-color: colors.$color-editor-background;
     border: 3px solid #28292d;
-    border-radius: $spacing-small;
-    margin-bottom: $spacing-small;
+    border-radius: variables.$spacing-small;
+    margin-bottom: variables.$spacing-small;
     @include boxSize();
 
     .divider {
@@ -225,8 +226,8 @@
 }
 
 @mixin divider() {
-    width: calc(100% + #{$spacing-small * 2 });
-    margin: $spacing-medium 0 $spacing-xsmall -#{$spacing-small};
+    width: calc(100% + #{variables.$spacing-small * 2 });
+    margin: variables.$spacing-medium 0 variables.$spacing-xsmall -#{variables.$spacing-small};
     border: none;
     border-top: 1px dashed #666;
 
@@ -239,7 +240,7 @@
     // mobile first, override in custom inheriting classes
     // what the desktop / tablet views should look like
     position: fixed;
-    z-index: $z-overlay;
+    z-index: variables.$z-overlay;
     top: 0;
     left: 0;
     width: 100%;
@@ -250,31 +251,31 @@
 
         h2 {
             display: block;
-            margin: $spacing-xsmall 0 0;
+            margin: variables.$spacing-xsmall 0 0;
             padding: 0;
-            @include toolFont();
+            @include typography.toolFont();
             font-size: 120%;
         }
 
         .help-button {
             @include button();
             position: absolute;
-            top: $action-button-top;
-            right: ($spacing-large * 2 + $spacing-xsmall);
+            top: variables.$action-button-top;
+            right: (variables.$spacing-large * 2 + variables.$spacing-xsmall);
         }
 
         &__actions {
             position: absolute;
-            top: $action-button-top;
-            right: ($spacing-large * 2 + $spacing-xsmall);
+            top: variables.$action-button-top;
+            right: (variables.$spacing-large * 2 + variables.$spacing-xsmall);
         }
 
         .close-button {
             @include button();
             position: absolute;
-            top: $action-button-top;
-            right: $spacing-large - $spacing-small;
-            background-color: $color-1;
+            top: variables.$action-button-top;
+            right: variables.$spacing-large - variables.$spacing-small;
+            background-color: colors.$color-1;
         }
     }
 }

@@ -97,14 +97,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-@import "@/styles/_mixins";
-@import "@/styles/typography";
+@use "@/styles/_colors";
+@use "@/styles/_mixins";
+@use "@/styles/_variables";
+@use "@/styles/typography";
 
 .song-creation-window {
-    @include editorComponent();
-    @include overlay();
-    @include noSelect();
-    background-image: linear-gradient(to bottom, $color-editor-background 35%, $color-form-background 90%);
+    @include mixins.editorComponent();
+    @include mixins.overlay();
+    @include mixins.noSelect();
+    background-image: linear-gradient(to bottom, colors.$color-editor-background 35%, colors.$color-form-background 90%);
   
     .header {
         display: flex;
@@ -116,9 +118,9 @@ export default {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: $spacing-large;
+        gap: variables.$spacing-large;
  
-        @include large() {
+        @include mixins.large() {
             position: absolute;
             max-width: 600px;
             top: 50%;
@@ -126,11 +128,11 @@ export default {
             transform: translate(-50%, -50%);
         }
 
-        @include mobile() {
+        @include mixins.mobile() {
             flex-direction: column;
             overflow-y: auto;
             height: 85vh;
-            padding: $spacing-medium 0;
+            padding: variables.$spacing-medium 0;
         }
     }
 
@@ -139,37 +141,37 @@ export default {
         text-align: center;
         width: 290px;
         border: 2px solid transparent;
-        border-radius: $spacing-large;
+        border-radius: variables.$spacing-large;
         border-bottom: 6px solid #666;
-        padding: $spacing-large $spacing-medium $spacing-xxsmall;
+        padding: variables.$spacing-large variables.$spacing-medium variables.$spacing-xxsmall;
         box-sizing: border-box;
-        background-color: $color-editor-background;
+        background-color: colors.$color-editor-background;
     
-        @include large() {
-            box-shadow: 0 2px $spacing-large rgba(0,0,0,.25);
+        @include mixins.large() {
+            box-shadow: 0 2px variables.$spacing-large rgba(0,0,0,.25);
         }
 
         &__preview {
-            border-radius: $spacing-medium;
+            border-radius: variables.$spacing-medium;
             border: 4px solid #666;
             height: 200px;
         }
 
         &__title {
-            @include toolFont();
-            color: $color-1;
+            @include typography.toolFont();
+            color: colors.$color-1;
             font-size: 150%;
         }
 
         &__descr {
             line-height: 1.75;
-            background-color: $color-form-background;
-            padding: $spacing-medium;
-            border-radius: $spacing-medium
+            background-color: colors.$color-form-background;
+            padding: variables.$spacing-medium;
+            border-radius: variables.$spacing-medium
         }
 
         &:hover {
-            border-color: $color-3;
+            border-color: colors.$color-3;
         }
     }
 }
