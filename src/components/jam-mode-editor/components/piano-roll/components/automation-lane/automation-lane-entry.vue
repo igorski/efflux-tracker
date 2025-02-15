@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2023 - https://www.igorski.nl
+ * Igor Zinken 2023-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,40 +24,41 @@
     <div
         class="automation-lane__entry"
         :class="{
-            'automation-lane__entry--has-instruction': props.hasInstruction,
+            'automation-lane__entry--has-instruction': hasInstruction,
         }"
-        @click.prevent="listeners.create"
-        @dblclick.prevent="listeners.delete"
-        @pointerdown="listeners.down"
+        @click.prevent="onCreate( $event )"
+        @dblclick.prevent="onDelete()"
+        @pointerdown="onDown( $event )"
     >
         <div class="automation-lane__entry-wrapper">
             <div
                 class="automation-lane__entry-handle"
                 :style="{
-                    'height': props.height
+                    'height': height
                 }"
             ></div>
             <input
-                v-if="props.isEditing"
-                :value="props.value"
+                v-if="isEditing"
+                :value="modelValue"
                 min="0"
                 max="100"
                 ref="automationInput"
                 class="automation-lane__entry-input"
-                @input="listeners.input( $event.target.value )"
-                @blur="listeners.blur()"
+                @change="onInput( $event.target.value )"
+                @blur="onBlur()"
             />
             <span
                 v-else
                 class="automation-lane__entry-value"
-                @click.stop="listeners.focus()"
-            >{{ props.displayValue }}</span>
+                @click.stop="onFocus()"
+            >{{ displayValue }}</span>
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
 export default {
+    emits: [ "update:modelValue", "focus", "blur", "create", "delete", "down" ],
     props: {
         height: {
             type: String, // CSS value
@@ -75,9 +76,40 @@ export default {
             type: [ String, Number ],
             default: "0.00",
         },
-        value: {
+        modelValue: {
             type: [ String, Number ],
             default: 0,
+        },
+    },
+    watch: {
+        isEditing( value: boolean ): void {
+            if ( value ) {
+                this.$nextTick(() => {
+                    this.$refs.automationInput?.select();
+                });
+            }
+        },
+    },
+    methods: {
+        onInput( value: string | number ): void {
+            if ( value !== this.modelValue ) {
+                this.$emit( "update:modelValue", value );
+            }
+        },
+        onCreate( event: Event ): void {
+            this.$emit( "create", event );
+        },
+        onDelete(): void {
+            this.$emit( "delete" );
+        },
+        onDown( event: Event ): void {
+            this.$emit( "down", event );
+        },
+        onFocus(): void {
+            this.$emit( "focus" );
+        },
+        onBlur(): void {
+            this.$emit( "blur" );
         },
     },
 };

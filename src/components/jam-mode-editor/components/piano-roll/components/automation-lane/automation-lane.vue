@@ -98,6 +98,8 @@ function inverseNormalise( value: number, max = 100 ): number {
 }
 let orgValue: number;
 
+const NON_SELECTED_STEP = -1;
+
 export default {
     i18n: { messages },
     components: {
@@ -125,7 +127,7 @@ export default {
     data: () => ({
         selectedModule: PITCH_UP,
         focusedStepValue: 0,
-        editingStep: -1,
+        editingStep: NON_SELECTED_STEP,
     }),
     computed: {
         ...mapGetters([
@@ -201,20 +203,17 @@ export default {
             "showNotification",
         ]),
         /* keyboard events */
-        async focusStepEditor( step: number ): Promise<void> {
+        focusStepEditor( step: number ): void {
             KeyboardService.setListener( this.handleStepInput.bind( this ));
             this.editingStep = step;
             this.focusedStepValue = orgValue = this.getValueAtStep( step ).toFixed( 2 );
-            await this.$nextTick();
-            this.$refs.automationInput?.select();
         },
         blurStepEditor(): void {
             const step  = this.editingStep;
             const value = this.focusedStepValue;
 
-            this.$refs.automationInput?.blur();
             KeyboardService.setListener( null );
-            this.editingStep = -1;
+            this.editingStep = NON_SELECTED_STEP;
          
             if ( isNaN( value )) {
                 return;
@@ -240,7 +239,7 @@ export default {
             return true;
         },
         createEvent( index: number, event: PointerEvent | TouchEvent ): void {
-            if ( !event.target || this.editingStep > -1 ) {
+            if ( !event.target || this.editingStep > NON_SELECTED_STEP ) {
                 return;
             }
             const y = event.touches ? event.touches[ 0 ].clientY : event.pageY;
@@ -250,7 +249,7 @@ export default {
             this.addOrUpdateAutomation( index, value );
         },
         deleteEvent( index: number ): void {
-            if ( this.editingStep > -1 ) {
+            if ( this.editingStep > NON_SELECTED_STEP ) {
                 return;
             }
             this.saveState(
@@ -259,7 +258,7 @@ export default {
         },
         addOrUpdateAutomation( step: number, value: number ): void {
             value = Math.max( 0, Math.min( value, 100 ));
-            if ( value === this.getValueAtStep( step ) ) {
+            if ( value === this.getValueAtStep( step ) || step === NON_SELECTED_STEP ) {
                 return; // no change
             }
             let event = this.getEventAtStep( step );
