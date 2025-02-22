@@ -43,14 +43,13 @@
         >
             <div
                 v-if="column.event"
-                ref="event"
                 class="piano-roll-row__column-content"
                 :class="{
                     'piano-roll-row__column-content--playing': playingStep >= column.index && playingStep <= column.index + column.colspan,
                 }"
                 role="button"
                 :style="{ width: column.width }"
-                draggable
+                draggable="true"
                 @dblclick.stop="handleNoteDelete( column )"
                 @dragstart="handleDragStart( $event, column, false )"
                 @touchstart="handleTouchStart( $event, column )"
@@ -61,7 +60,7 @@
                 <div
                     class="piano-roll-row__column-size-handle"
                     role="button"
-                    draggable
+                    draggable="true"
                     @dragstart.stop="handleDragStart( $event, column, true )"
                 ></div>
             </div>
