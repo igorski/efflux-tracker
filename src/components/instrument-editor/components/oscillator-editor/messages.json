@@ -19,7 +19,6 @@
         "triangle": "Triangle",
         "pwm": "PWM",
         "noise": "Noise",
-        "sample": "Sample",
-        "editSample": "Edit sample"
+        "sample": "Sample"
     }
 }

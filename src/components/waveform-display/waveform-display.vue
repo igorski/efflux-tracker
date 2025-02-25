@@ -55,6 +55,8 @@ import PubSubService from "@/services/pubsub-service";
 import Messages from "@/services/pubsub/messages";
 import { easeIn } from "@/utils/easing";
 
+import messages from "./messages.json";
+
 // see _colors.scss
 const INSTRUMENT_COLORS = [
     "#b25050", "#b28050", "#a9b250", "#60b250", "#50b292", "#5071b2", "#8850b2", "#FF813D"
@@ -62,6 +64,7 @@ const INSTRUMENT_COLORS = [
 
 export default {
     emits: [ "invalidate" ],
+    i18n: { messages },
     components: {
         SampleDisplay,
     },
