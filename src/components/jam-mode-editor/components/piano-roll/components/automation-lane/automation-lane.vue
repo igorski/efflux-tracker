@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2023 - https://www.igorski.nl
+ * Igor Zinken 2023-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -78,8 +78,10 @@ import { mapGetters, mapMutations } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
 import {
     DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
+    EQ_ENABLED, EQ_LOW, EQ_MID, EQ_HIGH,
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
     FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
+    OD_ENABLED, OD_DRIVE, OD_PRE_BAND, OD_COLOR, OD_POST_CUT,
     PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
     VOLUME, NON_PERSISTED_PARAMS,
 } from "@/definitions/automatable-parameters";
@@ -141,12 +143,21 @@ export default {
                 { label: this.$t( "delayCutoff" ),    value: DELAY_CUTOFF },
                 { label: this.$t( "delayTime" ),      value: DELAY_TIME },
                 { label: this.$t( "delayOffset" ),    value: DELAY_OFFSET },
+                { label: this.$t( "eqOnOff" ),        value: EQ_ENABLED },
+                { label: this.$t( "eqLow" ),          value: EQ_LOW },
+                { label: this.$t( "eqMid" ),          value: EQ_MID },
+                { label: this.$t( "eqHigh" ),         value: EQ_HIGH },
                 { label: this.$t( "filterOnOff" ),    value: FILTER_ENABLED },
                 { label: this.$t( "filterFreq" ),     value: FILTER_FREQ },
                 { label: this.$t( "filterQ" ),        value: FILTER_Q },
                 { label: this.$t( "filterLfoOnOff" ), value: FILTER_LFO_ENABLED },
                 { label: this.$t( "filterLfoSpeed" ), value: FILTER_LFO_SPEED },
-                { label: this.$t( "filterLfoDepth" ), value: FILTER_LFO_DEPTH},
+                { label: this.$t( "filterLfoDepth" ), value: FILTER_LFO_DEPTH },
+                { label: this.$t( "odOnOff" ),        value: OD_ENABLED },
+                { label: this.$t( "odDrive" ),        value: OD_DRIVE },
+                { label: this.$t( "odPreBand" ),      value: OD_PRE_BAND },
+                { label: this.$t( "odColor" ),        value: OD_COLOR },
+                { label: this.$t( "odPostCut" ),      value: OD_POST_CUT },
                 { label: this.$t( "panLeft" ),        value: PAN_LEFT },
                 { label: this.$t( "panRight" ),       value: PAN_RIGHT },
                 { label: this.$t( "pitchUp" ),        value: PITCH_UP },

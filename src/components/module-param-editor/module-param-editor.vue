@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2016-2023 - https://www.igorski.nl
+* Igor Zinken 2016-2025 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -29,7 +29,7 @@
         </div>
         <hr class="divider" />
         <ul id="moduleSelect">
-            <ul class="event">
+            <ul>
                 <form-list-item
                     v-t="'volume'"
                     v-model="module"
@@ -58,7 +58,29 @@
                     :option-value="automationParam('pitchDown')"
                 />
             </ul>
-            <ul class="filter">
+            <ul>
+                <form-list-item
+                    v-t="'eqEnabled'"
+                    v-model="module"
+                    :option-value="automationParam('eqEnabled')"
+                />
+                <form-list-item
+                    v-t="'eqLow'"
+                    v-model="module"
+                    :option-value="automationParam('eqLow')"
+                />
+                <form-list-item
+                    v-t="'eqMid'"
+                    v-model="module"
+                    :option-value="automationParam('eqMid')"
+                />
+                <form-list-item
+                    v-t="'eqHigh'"
+                    v-model="module"
+                    :option-value="automationParam('eqHigh')"
+                />
+            </ul>
+            <ul>
                 <form-list-item
                     v-t="'filterOnOff'"
                     v-model="module"
@@ -90,7 +112,34 @@
                     :option-value="automationParam('filterLFODepth')"
                 />
             </ul>
-            <ul class="delay">
+            <ul>
+                <form-list-item
+                    v-t="'odEnabled'"
+                    v-model="module"
+                    :option-value="automationParam('odEnabled')"
+                />
+                <form-list-item
+                    v-t="'odDrive'"
+                    v-model="module"
+                    :option-value="automationParam('odDrive')"
+                />
+                <form-list-item
+                    v-t="'odPreBand'"
+                    v-model="module"
+                    :option-value="automationParam('odPreBand')"
+                />
+                <form-list-item
+                    v-t="'odColor'"
+                    v-model="module"
+                    :option-value="automationParam('odColor')"
+                />
+                <form-list-item
+                    v-t="'odPostCut'"
+                    v-model="module"
+                    :option-value="automationParam('odPostCut')"
+                />
+            </ul>
+            <ul>
                 <form-list-item
                     v-t="'delayOnOff'"
                     v-model="module"
@@ -151,7 +200,7 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState, mapGetters, mapMutations } from "vuex";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import EventFactory from "@/model/factories/event-factory";
@@ -164,8 +213,10 @@ import messages from "./messages.json";
 
 import {
     DELAY_ENABLED, DELAY_FEEDBACK, DELAY_DRY, DELAY_CUTOFF, DELAY_TIME, DELAY_OFFSET,
+    EQ_ENABLED, EQ_LOW, EQ_MID, EQ_HIGH,
     FILTER_ENABLED, FILTER_FREQ, FILTER_Q, FILTER_LFO_ENABLED,
     FILTER_LFO_SPEED, FILTER_LFO_DEPTH,
+    OD_ENABLED, OD_DRIVE, OD_PRE_BAND, OD_COLOR, OD_POST_CUT,
     PAN_LEFT, PAN_RIGHT, PITCH_UP, PITCH_DOWN,
     VOLUME
 } from "@/definitions/automatable-parameters";
@@ -199,12 +250,12 @@ export default {
         ...mapGetters([
             "activePatternIndex",
         ]),
-        valueText() {
+        valueText(): string {
             const value = this.value.toFixed(2);
             return ( this.value < 10 ) ? `0${value}` : value;
         },
     },
-    mounted() {
+    mounted(): void {
         const pattern = this.activeSong.patterns[ this.activePatternIndex ],
               channel = pattern.channels[ this.selectedInstrument ],
               event   = channel[ this.selectedStep ];
@@ -226,18 +277,18 @@ export default {
 
         this.supportsPanning = supports("panning");
     },
-    beforeUnmount() {
+    beforeUnmount(): void {
         KeyboardService.reset();
     },
     methods: {
         ...mapMutations([
             "addEventAtPosition",
         ]),
-        handleClose() {
+        handleClose(): void {
             this.$emit("close");
         },
-        automationParam(key) {
-            switch (key) {
+        automationParam( key:string ): string {
+            switch ( key ) {
                 default:
                     throw new Error(`Param ${key} is not a valid module automation`);
                 case "volume": return VOLUME;
@@ -245,6 +296,10 @@ export default {
                 case "panRight": return PAN_RIGHT;
                 case "pitchUp": return PITCH_UP;
                 case "pitchDown": return PITCH_DOWN;
+                case "eqEnabled": return EQ_ENABLED;
+                case "eqLow": return EQ_LOW;
+                case "eqMid": return EQ_MID;
+                case "eqHigh": return EQ_HIGH;
                 case "filterEnabled": return FILTER_ENABLED;
                 case "filterFreq": return FILTER_FREQ;
                 case "filterQ": return FILTER_Q;
@@ -257,12 +312,17 @@ export default {
                 case "delayDry": return DELAY_DRY;
                 case "delayCutoff": return DELAY_CUTOFF;
                 case "delayOffset": return DELAY_OFFSET;
+                case "odEnabled": return OD_ENABLED;
+                case "odDrive": return OD_DRIVE;
+                case "odPreBand": return OD_PRE_BAND;
+                case "odColor": return OD_COLOR;
+                case "odPostCut": return OD_POST_CUT;
             }
         },
         /**
          * invoked by KeyboardService
          */
-        handleKey( type, keyCode/*, event*/ ) {
+        handleKey( type: string, keyCode: number/*, event*/ ): boolean {
             if ( type !== "down" ) {
                 return true; // always block
             }
@@ -315,7 +375,7 @@ export default {
             }
             return true;
         },
-        handleSubmit() {
+        handleSubmit(): void {
             const pattern = this.activeSong.patterns[ this.patternIndex ],
                   channel = pattern.channels[ this.channelIndex ];
 
@@ -345,7 +405,7 @@ export default {
             });
             this.handleClose();
         },
-        handleHelp() {
+        handleHelp(): void {
             window.open( ManualURLs.PARAM_ENTRY, "_blank" );
         },
     },
@@ -361,7 +421,7 @@ export default {
 @use "@/styles/forms";
 
 $width: 450px;
-$height: 485px;
+$height: 570px;
 
 .module-param-editor {
     @include mixins.editorComponent();
