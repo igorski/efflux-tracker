@@ -84,8 +84,7 @@ class WaveformRenderer extends Sprite
             return;
         }
         const { width, height } = this.canvas!.getElement();
-        
-        this.canvas!.loadResource( this._resourceId, bufferToWaveForm( buffer, this.color, width, height, window.devicePixelRatio ?? 1 ))
+        this.canvas!.loadResource( this._resourceId, bufferToWaveForm( buffer, this.color, width, height ))
             .then(() => {
                 this.cached = true;
                 this.invalidate();
