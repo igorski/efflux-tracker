@@ -568,9 +568,6 @@ export default {
         },
         /* range handling */
         handleDragStart( event: PointerEvent ): void {
-            if ( !this.canTrim ) {
-                return;
-            }
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
