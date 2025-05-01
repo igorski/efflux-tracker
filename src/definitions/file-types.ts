@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2022 - https://www.igorski.nl
+ * Igor Zinken 2020-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,12 +24,13 @@ export const FLAC = "audio/flac";
 export const MPG  = "audio/mpeg";
 export const MP3  = "audio/mp3";
 export const MP4  = "audio/mp4";
+export const M4A  = "audio/x-m4a";
 export const OGG  = "audio/ogg"; // not for Safari, see https://en.wikipedia.org/wiki/HTML5_audio
 export const WAV  = "audio/wav";
 export const WEBM = "audio/webm"; // not for Safari, see https://en.wikipedia.org/wiki/HTML5_audio
 
-export const ACCEPTED_FILE_TYPES       = [ FLAC, MPG, MP3, MP4, OGG, WAV, WEBM ];
-export const ACCEPTED_FILE_EXTENSIONS  = [ ".flac", ".mp3", ".mp4", ".ogg", ".webm", ".wav" ];
+export const ACCEPTED_FILE_TYPES       = [ FLAC, MPG, MP3, MP4, M4A, OGG, WAV, WEBM ];
+export const ACCEPTED_FILE_EXTENSIONS  = [ ".flac", ".mp3", ".mp4", ".m4a", ".ogg", ".webm", ".wav" ];
 export const PATTERN_FILE_EXTENSION    = ".xpt";
 export const PROJECT_FILE_EXTENSION    = ".xtk";
 export const INSTRUMENT_FILE_EXTENSION = ".xit";
