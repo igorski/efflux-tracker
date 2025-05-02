@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,11 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import type { Track } from "midi-writer-js";
+import { type Track } from "midi-writer-js";
+import PatternFactory from "@/model/factories/pattern-factory";
 import { ACTION_AUTO_ONLY, ACTION_NOTE_ON } from "@/model/types/audio-event";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxSong } from "@/model/types/song";
+import { type EffluxAudioEvent } from "@/model/types/audio-event";
+import { type EffluxPattern } from "@/model/types/pattern";
+import { type EffluxSong, EffluxSongType } from "@/model/types/song";
 import { getEventLength } from "@/utils/event-util";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
@@ -155,4 +156,28 @@ export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
         });
     });
     return ( new midiWriter.Writer( midiTracks )).dataUri();
+};
+
+export const convertSongType = ( song: EffluxSong, newType: EffluxSongType ): void => {
+    song.type = newType;
+
+    if ( newType === EffluxSongType.JAM ) {
+        while ( song.patterns.length < 8 ) {
+            song.patterns.push( PatternFactory.create( 16 ));
+        }
+        for ( let i = song.order.length; i < 8; ++i ) {
+            song.order.push( i );
+        }
+    } else if ( newType === EffluxSongType.TRACKER ) {
+        // jam mode patterns have been observed to contain extra content
+        for ( let i = 0; i < song.patterns.length; ++i ) {
+            const pattern = song.patterns[ i ];
+            const { steps } = pattern;
+            for ( const channel of pattern.channels ) {
+                while ( channel.length > steps ) {
+                    channel.pop();
+                }
+            }
+        }
+    }
 };

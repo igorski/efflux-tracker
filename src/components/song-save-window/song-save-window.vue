@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2020-2023 - https://www.igorski.nl
+* Igor Zinken 2020-2025 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -74,6 +74,14 @@
                     <p v-t="'folderExpl'" class="expl"></p>
                 </template>
             </div>
+            <div v-if="canConvert" class="project-type">
+                <label v-t="'projectType'"></label>
+                <select-box
+                    v-model="songType"
+                    :options="songTypes"
+                />
+                <p v-t="'projectTypeExpl'" class="expl"></p>
+            </div>
             <button
                 v-t="'save'"
                 type="button"
@@ -88,19 +96,25 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { getCurrentFolder, setCurrentFolder } from "@/services/dropbox-service";
+import SelectBox from "@/components/forms/select-box.vue";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
+import PatternFactory from "@/model/factories/pattern-factory";
+import { EffluxSongType } from "@/model/types/song";
+import { convertSongType } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
     i18n: { messages },
     components: {
+        SelectBox,
         ToggleButton,
     },
     data: () => ({
         title: "",
         author: "",
         folder: "",
+        songType: EffluxSongType.TRACKER,
         saveInDropbox: false,
         isSaving: false,
     }),
@@ -111,10 +125,20 @@ export default {
         ...mapGetters([
             "activeSong",
         ]),
+        canConvert(): boolean {
+            return this.activeSong.patterns.length <= 8 && this.activeSong.patterns.every(({ steps }) => steps === 16 );
+        },
+        songTypes(): { label: string, value: string }[] {
+            return [
+                { label: this.$t( "tracker" ), value: EffluxSongType.TRACKER },
+                { label: this.$t( "jamMode" ), value: EffluxSongType.JAM },
+            ];
+        },
     },
     mounted(): void {
         this.title  = this.activeSong.meta.title;
         this.author = this.activeSong.meta.author;
+        this.songType = this.activeSong.type;
         this.saveInDropbox = this.dropboxConnected;
 
         this.folder = getCurrentFolder();
@@ -153,6 +177,9 @@ export default {
                 this.setActiveSongTitle( this.title );
                 if ( this.saveInDropbox ) {
                     setCurrentFolder( this.folder );
+                }
+                if ( this.songType !== this.activeSong.type ) {
+                    convertSongType( this.activeSong, this.songType );
                 }
                 this.activeSong.origin = this.saveInDropbox ? "dropbox" : "local";
                 this.setLoading( "save" );
@@ -229,5 +256,14 @@ $width: 450px;
 
 .expl {
     @include typography.smallText();
+}
+
+.project-type {
+    margin: 0 variables.$spacing-medium;
+
+    label {
+        @include typography.toolFont();
+        margin-right: variables.$spacing-medium;
+    }
 }
 </style>

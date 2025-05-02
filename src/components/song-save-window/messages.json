@@ -5,6 +5,10 @@
     "songAuthor": "song author",
     "save": "Save",
     "saveInDropbox": "Save in Dropbox",
+    "projectType": "Project type",
+    "projectTypeExpl": "Projects with a maximum of 8 patterns in 16 step resolution can freely be converted between tracker and jam modes.",
+    "tracker": "Tracker",
+    "jamMode": "Jam mode",
     "folder": "Folder",
     "folderExpl": "You can create a folder structure directly in your Dropbox by typing a new folder name. Nested folders are separated with a slash (/)."
   }
