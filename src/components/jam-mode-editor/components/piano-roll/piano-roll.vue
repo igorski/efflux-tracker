@@ -119,7 +119,7 @@
                         @click="toggleTouchMode()"
                     ><img v-if="isPanMode" src="@/assets/icons/icon-drag.svg" /><img v-else src="@/assets/icons/icon-pencil.svg" /></button>
                 </tbody>
-                <tfooter
+                <tfoot
                     class="piano-roll__sequencer-position"
                     :style="sequencerPositionStyle"
                 />
