@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -251,7 +251,7 @@ import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
 import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
-import { sliceBuffer } from "@/utils/sample-util";
+import { resampleBuffer, sliceBuffer } from "@/utils/sample-util";
 import { mapTransients } from "@/utils/transient-detector";
 
 import messages from "./messages.json";
@@ -347,7 +347,7 @@ export default {
             };
         },
         canTrim(): boolean {
-            return !this.canSlice && this.sample?.buffer?.sampleRate === 44100; // TODO currently only 44.1 kHz supported.
+            return !this.canSlice;
         },
         canSlice(): boolean {
             return this.sample?.type === PlaybackType.SLICED;
@@ -601,7 +601,7 @@ export default {
                 getAudioContext(),
             );
         },
-        trimSample(): void {
+        async trimSample(): Promise<void> {
             this.isBusy = true;
             this.openDialog({
                 title       : this.$t( "pleaseWait" ),
@@ -610,6 +610,9 @@ export default {
             });
             const hadPitch = this.hasPitch; // needs no recalculation after trim
             let buffer = this.sliceBufferForRange();
+            if ( this.sample.buffer.sampleRate !== 44100 ) {
+                buffer = await resampleBuffer( buffer, 44100 ); // AudioEncoder supports max sample rate of 44.1 kHz
+            }
             const duration = buffer.duration;
             AudioEncoder( buffer, 192, progress => {
                 this.encodeProgress = progress;

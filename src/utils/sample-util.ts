@@ -68,6 +68,21 @@ export const getSliceIndexForNote = ( audioEvent: EffluxAudioEvent, sample: Samp
     return idx < max ? idx : undefined;
 };
 
+export const resampleBuffer = async ( buffer: AudioBuffer, sampleRate: number ): Promise<AudioBuffer> => {
+    return new Promise( resolve => {
+        const context = new OfflineAudioContext( buffer.numberOfChannels, buffer.duration * sampleRate, sampleRate );
+        context.oncomplete = ( event: OfflineAudioCompletionEvent ) => {
+            resolve( event.renderedBuffer );
+        };
+        const source  = context.createBufferSource();
+        source.buffer = buffer;
+        source.connect( context.destination );
+
+        source.start();
+        context.startRendering();
+    });
+};
+
 /**
  * Exports given buffer to a WAV file
  */
