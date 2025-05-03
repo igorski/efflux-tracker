@@ -277,6 +277,11 @@ export default {
                 // populate leaf with fetched children
                 leaf.children = ( entries?.map( entry => mapEntry( entry, [], parent )) ?? [] )
                     .sort(( a, b ) => {
+                        if ( a.type === "folder" ) {
+                            return -1;
+                        } else if ( b.type === "folder" ) {
+                            return 1;
+                        }
                         if ( a.type < b.type ) {
                             return 1;
                         } else if ( a.type > b.type ) {
