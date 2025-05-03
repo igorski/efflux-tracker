@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import { mapState } from "vuex";
+import { mapGetters } from "vuex";
 import { applyModules, getAnalysers } from "@/services/audio-service";
 import ChannelStrip from "./components/channel-strip.vue";
 import messages from "./messages.json";
@@ -57,9 +57,10 @@ export default {
         analysers: [],
     }),
     computed: {
-        ...mapState({
-            activeSong: state => state.song.activeSong,
-        }),
+        ...mapGetters([
+            "activeSong",
+            "jamMode",
+        ]),
     },
     created(): void {
         this.analysers = getAnalysers();
@@ -72,7 +73,9 @@ export default {
     },
     unmounted(): void {
         // disconnect the AnalyserNodes
-        applyModules( this.activeSong, false );
+        if ( !this.jamMode ) {
+            applyModules( this.activeSong, false );
+        }
     },
 };
 </script>
