@@ -71,7 +71,7 @@ describe( "Tempo update action", () => {
 
                     expect( mockApplyModules ).toHaveBeenNthCalledWith( 1 + i, "delay", i, newDelayProps );
 
-                    expect( store.commit ).toHaveBeenNthCalledWith( 2 + i, "updateInstrument", {
+                    expect( store.commit ).toHaveBeenNthCalledWith( 1 + i, "updateInstrument", {
                         instrumentIndex: i,
                         prop: "delay",
                         value: newDelayProps,
@@ -92,6 +92,8 @@ describe( "Tempo update action", () => {
 
         it( "should update the position offsets for all the songs events", () => {
             const { undo } = updateTempo( store, 130 );
+
+            song.meta.timing.tempo = 130; // update tempo in song (not updated due to mocked store mutation)
 
             undo();
 
@@ -119,15 +121,16 @@ describe( "Tempo update action", () => {
                 const { undo } = updateTempo( store, 240 );
 
                 song.instruments.forEach( instrument => {
-                    instrument.delay.time /= ( 240 / ORIGINAL_TEMPO ); // update the delay times (not set due to mocked store mutation)
+                    instrument.delay.time /= ( 240 / ORIGINAL_TEMPO ); // update the delay times (not updated due to mocked store mutation)
                 });
+                song.meta.timing.tempo = 240; // update tempo in song (not updated due to mocked store mutation)
                 
                 undo();
 
                 for ( let i = 0; i < originalDelays.length; ++i ) {
                     expect( mockApplyModules ).toHaveBeenNthCalledWith( 1 + AMOUNT_OF_INSTRUMENTS + i, "delay", i, originalDelays[ i ] );
 
-                    expect( store.commit ).toHaveBeenNthCalledWith( 3 + AMOUNT_OF_INSTRUMENTS + i, "updateInstrument", {
+                    expect( store.commit ).toHaveBeenNthCalledWith( 2 + AMOUNT_OF_INSTRUMENTS + i, "updateInstrument", {
                         instrumentIndex: i,
                         prop: "delay",
                         value: originalDelays[ i ],

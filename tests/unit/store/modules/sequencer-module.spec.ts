@@ -7,6 +7,7 @@ import { ACTION_NOTE_ON, type EffluxAudioEvent } from "@/model/types/audio-event
 import { EffluxSongType } from "@/model/types/song";
 import RootStore, { type EffluxState } from "@/store";
 import SequencerModule, { createSequencerState, type SequencerState } from "@/store/modules/sequencer-module";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 import EventUtil from "@/utils/event-util";
 import LinkedList from "@/utils/linked-list";
 import { mockAudioContext, setContextCurrentTime, createMockOscillatorNode } from "../../mocks";
@@ -518,7 +519,7 @@ describe( "Vuex sequencer module", () => {
     describe( "when tracking state updates from the SequencerWorker", () => {
         const orderIndex = 1;
         const patternIndex = activeSong.order[ orderIndex ];
-        const measureDuration = ( 60 / activeSong.meta.timing.tempo ) * activeSong.meta.timing.timeSigNumerator;
+        const measureDuration = getMeasureDurationInSeconds( activeSong.meta.timing );
 
         let rootStore: Store<EffluxState>;
         let state: SequencerState;
