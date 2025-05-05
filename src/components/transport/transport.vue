@@ -166,7 +166,6 @@ export default {
     data: () => ({
         tempOrderIndex: 0,
         patternFocused: false,
-        originalTempo: 0,
         showTempoInput: false,
     }),
     computed: {
@@ -203,8 +202,6 @@ export default {
                 value = Math.max( this.minTempo, Math.min( this.maxTempo, parseFloat( value as string )));
                 
                 enqueueState( "tc", updateTempo( this.$store, value ));
-
-                this.originalTempo = value;
             }
         },
         currentOrderIndex: {
@@ -260,12 +257,6 @@ export default {
                         steps: newSteps
                     });
                 }
-            }
-        },
-        activeSong: {
-            immediate: true,
-            handler(): void {
-                this.originalTempo = this.tempo;
             }
         },
     },
