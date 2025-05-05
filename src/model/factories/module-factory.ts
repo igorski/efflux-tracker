@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2017-2022 - https://www.igorski.nl
+ * Igor Zinken 2017-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,6 +22,7 @@
  */
 import { createGainNode, startOscillation } from "@/services/audio/webaudio-helper";
 import { applyRouting } from "@/services/audio/module-router";
+import { Instrument } from "@/model/types/instrument";
 import type { InstrumentModules } from "@/model/types/instrument-modules";
 import type { EqModule, FilterModule, DelayModule, OverdriveModule } from "@/model/types/audio-modules";
 import Config from "@/config";
@@ -159,7 +160,7 @@ const ModuleFactory = {
      * apply a EQ configuration (see INSTRUMENT in InstrumentFactory)
      * onto a EQ module
      */
-    applyEQConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
+    applyEQConfiguration( modules: InstrumentModules, props: Instrument['eq'], output: AudioNode ): void {
         const { eq } = modules;
 
         eq.eqEnabled           = props.enabled;
@@ -172,7 +173,7 @@ const ModuleFactory = {
     /**
      * apply a Overdrive configuration onto an Overdrive module
      */
-    applyODConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
+    applyODConfiguration( modules: InstrumentModules, props: Instrument['overdrive'], output: AudioNode ): void {
         const { overdrive } = modules;
 
         overdrive.overdriveEnabled  = props.enabled;
@@ -187,7 +188,7 @@ const ModuleFactory = {
      * apply a Filter configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Filter module
      */
-    applyFilterConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
+    applyFilterConfiguration( modules: InstrumentModules, props: Instrument['filter'], output: AudioNode ): void {
         const { filter }    = modules;
         const filterEnabled = ( props.lfoType !== "off" );
 
@@ -197,9 +198,9 @@ const ModuleFactory = {
         filter.lfo.frequency.value    = props.speed;
         filter.lfoAmp.gain.value      = props.depth / 100 * props.frequency;
 
-        if ( filterEnabled )
-            filter.lfo.type = props.lfoType;
-
+        if ( filterEnabled ) {
+            filter.lfo.type = props.lfoType as OscillatorType;
+        }
         filter.filter.type   = props.type;
         filter.filterEnabled = props.enabled;
 
@@ -226,7 +227,7 @@ const ModuleFactory = {
      * apply a Delay configuration (see INSTRUMENT in InstrumentFactory)
      * onto a Delay module
      */
-    applyDelayConfiguration( modules: InstrumentModules, props: any, output: AudioNode ): void {
+    applyDelayConfiguration( modules: InstrumentModules, props: Instrument['delay'], output: AudioNode ): void {
         const { delay } = modules.delay;
 
         delay.type     = props.type;

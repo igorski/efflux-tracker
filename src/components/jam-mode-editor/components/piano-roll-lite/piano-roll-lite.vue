@@ -146,7 +146,7 @@ export default {
 
             const playingStep = Math.floor( this.currentStep / diff ) % stepsInPattern;
             let targetPct = 100;
-            let speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 );
+            let speed = getMeasureDurationInSeconds( this.activeSong.meta.timing );
             
             // wrap back to beginning
             if ( !this.isPlaying || ( playingStep === 0 && this.lastStep !== 0 )) {

@@ -3,7 +3,7 @@ import PatternFactory from "@/model/factories/pattern-factory";
 import PatternOrderFactory from "@/model/factories/pattern-order-factory";
 import { serialize } from "@/model/serializers/pattern-order-serializer";
 import { serialize as serializePatterns } from "@/model/serializers/pattern-serializer";
-import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
+import { XTK_ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 describe( "PatternOrderFactory", () => {
     describe( "serialization", () => {
@@ -12,7 +12,7 @@ describe( "PatternOrderFactory", () => {
             const xtk = {};
 
             serialize( xtk, order );
-            expect( PatternOrderFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( order );
+            expect( PatternOrderFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION )).toEqual( order );
         });
 
         it( "should be able to deserialize a pattern from legacy songs created before orders were supported", () => {

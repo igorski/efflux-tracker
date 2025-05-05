@@ -38,7 +38,7 @@ export const META_TITLE      = "t";
 export const META_AUTHOR     = "a";
 export const META_CREATED    = "c";
 export const META_MODIFIED   = "dm";
-export const META_TEMPO      = "tm";
+export const META_TIMING     = "tm";
 export const SAMPLES         = "smp"
 
 export type XTK = any;
@@ -72,6 +72,6 @@ function serializeMeta( song: EffluxSong ): object {
         [ META_AUTHOR ]   : meta.author,
         [ META_CREATED ]  : meta.created,
         [ META_MODIFIED ] : meta.modified,
-        [ META_TEMPO ]    : meta.tempo
+        [ META_TIMING ]   : meta.timing
     };
 }

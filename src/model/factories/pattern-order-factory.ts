@@ -27,7 +27,7 @@ import { PATTERNS } from "@/model/serializers/pattern-serializer";
 const PatternOrderFactory =
 {
     deserialize( xtk: any, savedXtkVersion: number ): EffluxPatternOrder {
-        // order was only introduced in ASSEMBLER_VERSION 8
+        // order was only introduced in XTK_ASSEMBLER_VERSION 8
         if ( savedXtkVersion < 8 ) {
             // @ts-expect-error 'p' is declared but its value is never read
             return xtk[ PATTERNS ].map(( p: EffluxPattern, index: number ) => index );

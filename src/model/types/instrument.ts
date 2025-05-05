@@ -57,8 +57,8 @@ export type Instrument = {
         q           : number;
         speed       : number;
         depth       : number;
-        type        : string;
-        lfoType     : string;
+        type        : BiquadFilterType;
+        lfoType     : OscillatorType | "off";
     },
     delay : {
         enabled  : boolean;
@@ -68,6 +68,7 @@ export type Instrument = {
         cutoff   : number;
         offset   : number;
         dry      : number;
+        sync     : boolean;
     }
 };
 

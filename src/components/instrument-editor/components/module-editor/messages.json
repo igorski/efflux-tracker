@@ -34,6 +34,7 @@
     "delay2": "Delay 2",
     "delayLegend": "Delay",
     "delayTime": "Delay time",
+    "tempoSync": "Tempo sync",
     "feedback": "Feedback",
     "dryMix": "Dry mix",
     "cutoff": "Cutoff",

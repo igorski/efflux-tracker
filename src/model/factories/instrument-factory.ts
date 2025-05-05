@@ -31,7 +31,7 @@ import {
     INSTRUMENT_PANNING, INSTRUMENT_MUTED, INSTRUMENT_SOLOD,
 
     INSTRUMENT_DELAY, INSTRUMENT_DELAY_ENABLED, INSTRUMENT_DELAY_CUTOFF, INSTRUMENT_DELAY_DRY,
-    INSTRUMENT_DELAY_FEEDBACK, INSTRUMENT_DELAY_OFFSET, INSTRUMENT_DELAY_TIME, INSTRUMENT_DELAY_TYPE,
+    INSTRUMENT_DELAY_FEEDBACK, INSTRUMENT_DELAY_OFFSET, INSTRUMENT_DELAY_TIME, INSTRUMENT_DELAY_TYPE, INSTRUMENT_DELAY_SYNC,
 
     INSTRUMENT_FILTER, INSTRUMENT_FILTER_ENABLED, INSTRUMENT_FILTER_DEPTH, INSTRUMENT_FILTER_FREQUENCY,
     INSTRUMENT_FILTER_LFO_TYPE, INSTRUMENT_FILTER_Q, INSTRUMENT_FILTER_SPEED, INSTRUMENT_FILTER_TYPE,
@@ -88,7 +88,8 @@ const InstrumentFactory =
                 feedback : 0.5,
                 dry      : 1,
                 cutoff   : 880,
-                offset   : 0
+                offset   : 0,
+                sync     : false,
             }
         };
         InstrumentFactory.createOverdrive( instrument );
@@ -131,7 +132,8 @@ const InstrumentFactory =
                     feedback : parseFloat( xtkDelay[ INSTRUMENT_DELAY_FEEDBACK ]),
                     dry      : assertFloat( xtkDelay[ INSTRUMENT_DELAY_DRY ], 1 ), // non existing in legacy versions
                     offset   : parseFloat( xtkDelay[ INSTRUMENT_DELAY_OFFSET ]),
-                    time     : parseFloat( xtkDelay[ INSTRUMENT_DELAY_TIME ])
+                    time     : parseFloat( xtkDelay[ INSTRUMENT_DELAY_TIME ]),
+                    sync     : xtkDelay[ INSTRUMENT_DELAY_SYNC ] ?? false,
                 },
                 filter     : {
                     enabled   : xtkFilter[ INSTRUMENT_FILTER_ENABLED ],
@@ -145,7 +147,7 @@ const InstrumentFactory =
                 oscillators : new Array( xtkInstrument[ INSTRUMENT_OSCILLATORS].length )
             };
 
-            // EQ and OD introduced in ASSEMBLER_VERSION 3
+            // EQ and OD introduced in XTK_ASSEMBLER_VERSION 3
 
             if ( savedXtkVersion >= 3 ) {
                 instruments[ index ].eq = {
@@ -182,7 +184,7 @@ const InstrumentFactory =
                     table       : xtkOscillator[ OSCILLATOR_TABLE ]
                 };
 
-                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in ASSEMBLER_VERSION 2
+                if ( savedXtkVersion >= 2 ) { // pitch envelope was introduced in XTK_ASSEMBLER_VERSION 2
 
                     osc.pitch = {
                         range   : xtkOscillator[ OSCILLATOR_PITCH ][ OSCILLATOR_PITCH_RANGE ],

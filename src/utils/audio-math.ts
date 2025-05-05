@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2020 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,27 +20,22 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { type EffluxTimingMeta } from "@/model/types/song";
+import { roundToNearest } from "@/utils/number-util";
 
  /**
-  * get the duration of a measure (at given time signature and
-  * tempo in BPM) in seconds
-  *
-  * note: beatsPerMeasure amount of beats per measure, when in
-  *       doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
+  * get the duration of a measure (at given time signature and tempo in BPM) in seconds
   */
- export const getMeasureDurationInSeconds = ( bpm: number, beatsPerMeasure = 4 ): number => {
-     return beatsPerMeasure / ( bpm / 60 );
+ export const getMeasureDurationInSeconds = ( timing: EffluxTimingMeta ): number => {
+    const { tempo, timeSigNumerator } = timing;
+    return ( 60 / tempo ) * timeSigNumerator;
  };
 
 /**
- * get the duration of a measure (at given time signature and
- * tempo in BPM) in milliseconds
- *
- * note: beatsPerMeasure amount of beats per measure, when in
- *       doubt, use the upper numeral in a time signature (e.g. the "3" in 3/4)
+ * get the duration of a measure (at given time signature and tempo in BPM) in milliseconds
  */
-export const getMeasureDurationInMs = ( bpm: number, beatsPerMeasure = 4 ): number => {
-    return getMeasureDurationInSeconds( bpm, beatsPerMeasure ) * 1000;
+export const getMeasureDurationInMs = ( timing: EffluxTimingMeta ): number => {
+    return getMeasureDurationInSeconds( timing ) * 1000;
 };
 
 /**
@@ -48,4 +43,23 @@ export const getMeasureDurationInMs = ( bpm: number, beatsPerMeasure = 4 ): numb
  */
 export const msToFrequency = ( milliSeconds: number ): number => {
     return 1000 / milliSeconds;
+};
+
+/**
+ * Returns the amount of samples necessary to hold provided value in seconds at the provided sample rate
+ */
+export const secondsToSamples = ( seconds: number, sampleRate: number ): number => {
+    return Math.round( seconds * sampleRate );
+};
+
+/**
+ * Takes provided interval in seconds and adjusts it to a value
+ * that is in sync with the beat as defined by the provided tempo and time signature
+ * 
+ * @param intervalInSeconds the value in seconds of the interval
+ * @param timing the current timing of the song
+ * @param subdivision the resolution within a beat, e.g. 16 for 16th note, 8 for 8th note, etc.
+ */
+export const syncIntervalWithBeat = ( intervalInSeconds: number, timing: EffluxTimingMeta, subdivision = 16 ): number => {
+    return roundToNearest( intervalInSeconds, getMeasureDurationInSeconds( timing ) / subdivision );
 };

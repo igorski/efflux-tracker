@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -27,22 +27,22 @@ import PatternFactory from "./pattern-factory";
 import SampleFactory from "./sample-factory";
 import {
     SONG_ID, SONG_VERSION_ID, SONG_TYPE, SAMPLES,
-    META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED, META_TEMPO
+    META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED, META_TIMING
 } from "../serializers/song-serializer";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import { type EffluxSong, EffluxSongType } from "@/model/types/song";
+import { type EffluxSong, type EffluxSongMeta, EffluxSongType } from "@/model/types/song";
 import type { Instrument } from "@/model/types/instrument";
 import type { Sample } from "@/model/types/sample";
 import type { XTK } from "@/model/serializers/song-serializer";
 
-export const FACTORY_VERSION = 4;
-export const LEGACY_VERSION  = 1;
+export const FACTORY_VERSION = 5; // internal model version, not the same as XTK version (is serialized version, see song-assembly-service)
+export const LEGACY_VERSION  = 1; // identifies songs saved before latest factory_version, see song-validator.ts
 
 const SongFactory =
 {
     create( amountOfInstruments = Config.INSTRUMENT_AMOUNT, type = EffluxSongType.TRACKER ): EffluxSong {
         const song = {
-            version: FACTORY_VERSION, // allows backwards compatibility when updating Song Object signature
+            version: FACTORY_VERSION,
 
             // unique identifier
 
@@ -55,7 +55,11 @@ const SongFactory =
                 author   : "",
                 created  : Date.now(),
                 modified : Date.now(),
-                tempo    : 120.0
+                timing   : {
+                    tempo : 120.0,
+                    timeSigNumerator : 4,
+                    timeSigDenominator : 4,
+                },
             },
 
             // instruments
@@ -88,34 +92,45 @@ const SongFactory =
     /**
      * deserializes a song Object from an .XTK file
      */
-     async deserialize( xtk: XTK, xtkVersion: number ): Promise<EffluxSong> {
-         const song = SongFactory.create( 0 );
+    async deserialize( xtk: XTK, xtkVersion: number ): Promise<EffluxSong> {
+        const song = SongFactory.create( 0 );
 
-         song.id      = xtk[ SONG_ID ];
-         song.version = xtk[ SONG_VERSION_ID ];
-         song.type    = xtk[ SONG_TYPE ] ?? EffluxSongType.TRACKER;
-         song.meta    = deserializeMeta( xtk[ META_OBJECT ] );
+        song.id      = xtk[ SONG_ID ];
+        song.version = xtk[ SONG_VERSION_ID ];
+        song.type    = xtk[ SONG_TYPE ] ?? EffluxSongType.TRACKER;
+        song.meta    = deserializeMeta( xtk[ META_OBJECT ] );
 
-         song.instruments = InstrumentFactory.deserialize( xtk, xtkVersion );
-         song.patterns    = PatternFactory.deserialize( xtk, xtkVersion, song.meta.tempo );
-         song.order       = PatternOrderFactory.deserialize( xtk, xtkVersion );
+        // prior to XTK_ASSEMBLER_VERSION 9 timing was just numerical tempo value, we
+        // need to fix this upfront before deserializing patterns and events
+        
+        if ( xtkVersion < 9 || typeof song.meta.timing === "number" ) {
+            const tempo = song.meta.timing as unknown as number;
+            song.meta.timing = {
+                tempo,
+                timeSigNumerator: 4,
+                timeSigDenominator: 4,
+            };
+        }
+        song.instruments = InstrumentFactory.deserialize( xtk, xtkVersion );
+        song.patterns    = PatternFactory.deserialize( xtk, xtkVersion, song.meta.timing );
+        song.order       = PatternOrderFactory.deserialize( xtk, xtkVersion );
 
-         const deserializedSamples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.deserialize ));
-         song.samples = deserializedSamples.filter( Boolean );
+        const deserializedSamples = await Promise.all(( xtk[ SAMPLES ] || [] ).map( SampleFactory.deserialize ));
+        song.samples = deserializedSamples.filter( Boolean );
 
-         return song;
-     },
+        return song;
+    },
 };
 export default SongFactory;
 
 /* internal methods */
 
-function deserializeMeta( xtkMeta: any ): any {
+function deserializeMeta( xtkMeta: any ): EffluxSongMeta {
     return {
         title    : xtkMeta[ META_TITLE ],
         author   : xtkMeta[ META_AUTHOR ],
         created  : xtkMeta[ META_CREATED ],
         modified : xtkMeta[ META_MODIFIED ],
-        tempo    : xtkMeta[ META_TEMPO ]
+        timing   : xtkMeta[ META_TIMING ]
     };
 }

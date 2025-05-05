@@ -106,7 +106,7 @@ export const applyModuleParamChange = ( audioContext: BaseAudioContext, audioEve
             break;
 
         case FILTER_LFO_ENABLED:
-            instrument.filter.lfoType = rangeToIndex( filterTypes, value );
+            instrument.filter.lfoType = rangeToIndex( filterTypes, value ) as OscillatorType;
             applyRouting( modules, output );
             break;
 

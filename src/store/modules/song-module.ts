@@ -43,7 +43,7 @@ import { saveAsFile } from "@/utils/file-util";
 import { indexToName } from "@/utils/pattern-name-util";
 import { toFileName } from "@/utils/string-util";
 import { parseXTK, toXTK } from "@/utils/xtk-util";
-import { hasContent, resetPlayState, updateEventOffsets } from "@/utils/song-util";
+import { hasContent, resetPlayState } from "@/utils/song-util";
 import type { EffluxState } from "@/store";
 
 export const SONG_STORAGE_KEY = "Efflux_Song_";
@@ -93,15 +93,7 @@ const SongModule: Module<SongState, any> = {
             state.activeSong.meta.title = title;
         },
         setTempo( state: SongState, value: number | string ): void {
-            const meta     = state.activeSong.meta;
-            const oldTempo = meta.tempo;
-            const newTempo = parseFloat( value as string );
-
-            meta.tempo = newTempo;
-
-            // update existing event offsets by the tempo ratio
-
-            updateEventOffsets( state.activeSong.patterns, ( oldTempo / newTempo ));
+            state.activeSong.meta.timing.tempo = parseFloat( value as string );
         },
         setSamples( state: SongState, samples: Sample[] ): void {
             state.activeSong.samples = samples;

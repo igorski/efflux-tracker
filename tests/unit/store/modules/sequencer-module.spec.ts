@@ -518,7 +518,7 @@ describe( "Vuex sequencer module", () => {
     describe( "when tracking state updates from the SequencerWorker", () => {
         const orderIndex = 1;
         const patternIndex = activeSong.order[ orderIndex ];
-        const measureDuration = ( 60 / activeSong.meta.tempo ) * 4;
+        const measureDuration = ( 60 / activeSong.meta.timing.tempo ) * activeSong.meta.timing.timeSigNumerator;
 
         let rootStore: Store<EffluxState>;
         let state: SequencerState;
@@ -532,7 +532,7 @@ describe( "Vuex sequencer module", () => {
             const pattern = activeSong.patterns[ patternIndex ];
 
             pattern.channels[ channelIndex ][ stepIndex ] = event;
-            EventUtil.setPosition( event, pattern, pattern.channels[ channelIndex ].indexOf( event ), activeSong.meta.tempo );
+            EventUtil.setPosition( event, pattern, pattern.channels[ channelIndex ].indexOf( event ), activeSong.meta.timing );
             
             return event;
         }

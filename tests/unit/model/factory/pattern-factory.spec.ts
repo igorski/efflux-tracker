@@ -5,7 +5,7 @@ import PatternFactory from "@/model/factories/pattern-factory";
 import { serialize } from "@/model/serializers/pattern-serializer";
 import type { EffluxChannel } from "@/model/types/channel";
 import PatternValidator from "@/model/validators/pattern-validator";
-import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
+import { XTK_ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 describe( "PatternFactory", () => {
     it( "should be able to generate a valid pattern", () => {
@@ -140,6 +140,6 @@ describe( "PatternFactory", () => {
         const xtk = {};
 
         serialize( xtk, patterns );
-        expect( PatternFactory.deserialize( xtk, ASSEMBLER_VERSION, 120 )).toEqual( patterns );
+        expect( PatternFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION, { tempo: 120, timeSigNumerator: 4, timeSigDenominator: 4 })).toEqual( patterns );
     });
 });

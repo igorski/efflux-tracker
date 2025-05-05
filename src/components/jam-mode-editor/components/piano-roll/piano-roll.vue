@@ -261,7 +261,7 @@ export default {
 
             const playingStep = Math.floor( this.currentStep / diff ) % stepsInPattern;
             let targetPct = Math.round( this.seqPosMult * 100 );
-            let speed = getMeasureDurationInSeconds( this.activeSong.meta.tempo, 4 ) * this.seqPosMult;
+            let speed = getMeasureDurationInSeconds( this.activeSong.meta.timing ) * this.seqPosMult;
             
             // wrap back to beginning
             if ( !this.isPlaying || ( playingStep === 0 && this.lastStep !== 0 )) {
@@ -384,7 +384,7 @@ export default {
             this.saveState({
                 undo: (): void => {
                     const pattern = this.activeSong.patterns[ activePatternIndex ];
-                    EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.tempo );
+                    EventUtil.setPosition( event.event, pattern, event.step, this.activeSong.meta.timing );
                     pattern.channels[ selectedInstrument ][ event.step ] = event.event;
                 },
                 redo: act,

@@ -9,7 +9,7 @@ export function createAndInsertEvent( step: number, song: EffluxSong, patternInd
 
     pattern.channels[ channelIndex ][ step ] = event;
 
-    EventUtil.setPosition( event, pattern, step, song.meta.tempo );
+    EventUtil.setPosition( event, pattern, step, song.meta.timing );
 
     return event;
 }

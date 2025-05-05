@@ -45,7 +45,7 @@ export default
 
     MAX_DELAY_CUTOFF            : 22050, // BiQuad filter max
     MIN_DELAY_OFFSET            : -0.5,
-    MAX_DELAY_TIME              : 5, // in seconds (180 is max)
+    MAX_DELAY_TIME              : 2, // in seconds (180 is max)
 
     JAM_MODE_PATTERN_AMOUNT     : 8,
 };

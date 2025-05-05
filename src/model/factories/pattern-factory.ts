@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2023 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -21,9 +21,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 import Config from "@/config";
-import type { EffluxAudioEvent } from "@/model/types/audio-event";
+import { ACTION_AUTO_ONLY, type EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
+import { type EffluxTimingMeta } from "@/model/types/song";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import {
@@ -33,7 +34,6 @@ import {
     EVENT_INSTRUMENT, EVENT_NOTE, EVENT_OCTAVE,
     EVENT_MODULE_AUTOMATION, EVENT_MODULE, EVENT_MODULE_VALUE, EVENT_MODULE_GLIDE
 } from "../serializers/pattern-serializer";
-import { ACTION_AUTO_ONLY } from "../types/audio-event";
 
 const PatternFactory =
 {
@@ -55,7 +55,7 @@ const PatternFactory =
     /**
      * deserializes the pattern lists from a .XTK file
      */
-    deserialize( xtk: any, savedXtkVersion: number, tempo: number ): EffluxPattern[] {
+    deserialize( xtk: any, savedXtkVersion: number, timing: EffluxTimingMeta ): EffluxPattern[] {
         const patterns: EffluxPattern[] = new Array( xtk[ PATTERNS ].length );
         let pattern: EffluxPattern;
         let channel: EffluxChannel;
@@ -84,7 +84,7 @@ const PatternFactory =
 
                     if ( xtkEvent ) {
 
-                        // ASSEMBLER_VERSION 4 introduced note and automation pooling
+                        // XTK_ASSEMBLER_VERSION 4 introduced note and automation pooling
                         // to reduce file size, xtkEvent is a stringified reference to pool indices
 
                         if ( savedXtkVersion >= 4 && typeof xtkEvent === "string" ) {
@@ -120,7 +120,7 @@ const PatternFactory =
                             },
                         };
 
-                        EventUtil.setPosition( event, pattern, eIndex, tempo );
+                        EventUtil.setPosition( event, pattern, eIndex, timing );
                         const xtkAutomation = eventData[ EVENT_MODULE_AUTOMATION ];
 
                         if ( xtkAutomation) {

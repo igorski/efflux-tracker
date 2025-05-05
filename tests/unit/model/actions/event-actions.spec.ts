@@ -49,7 +49,7 @@ describe( "Event actions", () => {
 
         insertEvent( event, song, patternIndex, channelIndex, step );
 
-        expect( setPositionSpy ).toHaveBeenCalledWith( event, song.patterns[ patternIndex ], step, song.meta.tempo );
+        expect( setPositionSpy ).toHaveBeenCalledWith( event, song.patterns[ patternIndex ], step, song.meta.timing );
         expect( song.patterns[ patternIndex ].channels[ channelIndex ][ step ]).toEqual( event );
     });
 

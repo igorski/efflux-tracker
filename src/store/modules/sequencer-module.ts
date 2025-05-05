@@ -32,7 +32,8 @@ import { type EffluxChannel } from "@/model/types/channel";
 import { type EffluxPattern } from "@/model/types/pattern";
 import { type JamChannelSequencerProps } from "@/model/types/jam";
 import { type EffluxSong, EffluxSongType } from "@/model/types/song";
-import { getEventLength, calculateMeasureLength, calculateJamChannelEventLengths } from "@/utils/event-util";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
+import { getEventLength, calculateJamChannelEventLengths } from "@/utils/event-util";
 import SequencerWorker from "@/workers/sequencer.worker?worker&inline";
 
 export interface SequencerState {
@@ -88,7 +89,7 @@ let worker: Worker;
  */
 function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, eventChannel: number, startMeasure: number ): void {
     const { sequencer } = store.state;
-    const { beatAmount, nextNoteTime, channelQueue } = sequencer;
+    const { nextNoteTime, channelQueue } = sequencer;
     const activeSong = store.state.song.activeSong;
     const { action, seq } = event;
 
@@ -100,7 +101,7 @@ function enqueueEvent( store: Store<EffluxState>, event: EffluxAudioEvent, event
 
     const eventPattern = activeSong.patterns[ store.getters.activePatternIndex ];
 
-    seq.mpLength = eventPattern ? calculateMeasureLength( activeSong.meta.tempo, beatAmount ) / eventPattern.steps : 0;
+    seq.mpLength = eventPattern ? getMeasureDurationInSeconds( activeSong.meta.timing ) / eventPattern.steps : 0;
 
     // dequeue preceding events
 
@@ -269,7 +270,7 @@ function step( store: Store<EffluxState> ): void {
     const state      = store.state.sequencer;
     
     // Advance current note and time by the given subdivision...
-    state.nextNoteTime += (( 60 / activeSong.meta.tempo ) * 4 ) / state.stepPrecision;
+    state.nextNoteTime += getMeasureDurationInSeconds( activeSong.meta.timing ) / state.stepPrecision;
 
     // advance the beat number, wrap to zero when start of next bar is enqueued
     const currentStep = state.currentStep + 1;
@@ -360,7 +361,7 @@ function cacheActivePatternChannels( state: SequencerState, activeSong: EffluxSo
         state.channels = channels;
 
         for ( let channelIndex = 0, l = state.channels!.length; channelIndex < l; ++channelIndex ) {
-            calculateJamChannelEventLengths( state.channels![ channelIndex ], activeSong.meta.tempo );
+            calculateJamChannelEventLengths( state.channels![ channelIndex ], activeSong.meta.timing );
         }
     }
     else {
@@ -409,7 +410,7 @@ function setPosition( state: SequencerState, { activeSong, orderIndex, currentTi
     }
     state.nextNoteTime          = currentTime!;
     state.measureStartTime      = currentTime!;
-    state.firstMeasureStartTime = currentTime! - ( orderIndex * ( 60.0 / activeSong.meta.tempo * state.beatAmount ));
+    state.firstMeasureStartTime = currentTime! - ( orderIndex * getMeasureDurationInSeconds( activeSong.meta.timing ));
 
     // when going to the first measure after having reached the end of the song, stop playing
     // all currently sounding notes (that were enqueued after the first measure, in case we

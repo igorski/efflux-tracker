@@ -94,7 +94,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
             const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
             const channel = pattern.channels[ targetIndex ];
 
-            EventUtil.setPosition( event, pattern, step, song.meta.tempo );
+            EventUtil.setPosition( event, pattern, step, song.meta.timing );
 
             // remove previous event if one existed at the insertion point
             // (but take its module parameter automation when existing for non-off events)

@@ -3,7 +3,7 @@ import Config from "@/config";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import { serialize } from "@/model/serializers/instrument-serializer";
 import InstrumentValidator from "@/model/validators/instrument-validator";
-import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
+import { XTK_ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 
 describe( "InstrumentFactory", () => {
     it( "should be able to create a valid Instrument", () => {
@@ -80,6 +80,6 @@ describe( "InstrumentFactory", () => {
         const xtk = {};
 
         serialize( xtk, instruments );
-        expect( InstrumentFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( instruments );
+        expect( InstrumentFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION )).toEqual( instruments );
     });
 });

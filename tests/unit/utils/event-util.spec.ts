@@ -7,12 +7,12 @@ import { ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { EffluxChannel } from "@/model/types/channel";
 import type { EffluxSong } from "@/model/types/song";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 import EventUtil, {
     areEventsEqual,
     getEventLength,
     getPrevEvent,
     getNextEvent,
-    calculateMeasureLength,
     calculateJamChannelEventLengths
 } from "@/utils/event-util";
 import { createAndInsertEvent } from "../helpers";
@@ -28,13 +28,13 @@ describe( "EventUtil", () => {
 
     it( "should be able to update the position of a AudioEvent", () => {
         const pattern = song.patterns[ 0 ];
-        song.meta.tempo = 120;
+        song.meta.timing.tempo = 120;
 
         const expectedStartMeasureOffset = 1; // half in measure (measure lasts 2s at 120 BPM)
       
         const audioEvent = EventFactory.create();
 
-        EventUtil.setPosition( audioEvent, pattern, pattern.steps / 2, song.meta.tempo );
+        EventUtil.setPosition( audioEvent, pattern, pattern.steps / 2, song.meta.timing );
 
         expect( audioEvent.seq.startMeasureOffset ).toEqual( expectedStartMeasureOffset );
     });
@@ -434,7 +434,7 @@ describe( "EventUtil", () => {
 
     describe( "when calculating the total event duration", () => {
         const song = SongFactory.create( 2 );
-        const measureLength = calculateMeasureLength( song.meta.tempo );
+        const measureLength = getMeasureDurationInSeconds( song.meta.timing );
         const pattern1channels: EffluxChannel[] = [
             [], [],
         ];
@@ -535,10 +535,10 @@ describe( "EventUtil", () => {
         const event6 = createAndInsertEvent( 7, song, 0, 0 );
         const event7 = createAndInsertEvent( 15, song, 0, 0 );
 
-        calculateJamChannelEventLengths( pattern.channels[ 0 ], song.meta.tempo );
+        calculateJamChannelEventLengths( pattern.channels[ 0 ], song.meta.timing );
 
         // duration in seconds for single pattern step
-        const STEP_IN_SEC = calculateMeasureLength( song.meta.tempo ) / pattern.steps;
+        const STEP_IN_SEC = getMeasureDurationInSeconds( song.meta.timing ) / pattern.steps;
         
         expect( event1.seq.length ).toEqual( STEP_IN_SEC ); // single step because killed in step 2 by noteOff
         expect( event2.seq.length ).toEqual( STEP_IN_SEC ); // single step because noteOff

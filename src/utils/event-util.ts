@@ -23,7 +23,8 @@
 import { type EffluxAudioEvent, ACTION_AUTO_ONLY, ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxChannel, EffluxChannelEntry } from "@/model/types/channel";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxSong } from "@/model/types/song";
+import type { EffluxSong, EffluxTimingMeta } from "@/model/types/song";
+import { getMeasureDurationInSeconds } from "@/utils/audio-math";
 
 const NOTE_EVENTS = [ ACTION_NOTE_ON, ACTION_NOTE_OFF ];
 
@@ -39,8 +40,8 @@ const EventUtil =
      * @param {number} patternStep index of the audioEvent within the pattern
      * @param {number} tempo in BPM of the song
      */
-    setPosition( event: EffluxAudioEvent, pattern: EffluxPattern, patternStep: number, tempo: number ): void {
-        const measureLength = calculateMeasureLength( tempo );
+    setPosition( event: EffluxAudioEvent, pattern: EffluxPattern, patternStep: number, timing: EffluxTimingMeta ): void {
+        const measureLength = getMeasureDurationInSeconds( timing );
         const eventOffset   = ( patternStep / pattern.steps ) * measureLength;
       
         event.seq.startMeasureOffset = eventOffset;
@@ -135,7 +136,7 @@ export function areEventsEqual( event: EffluxAudioEvent, compareEvent: EffluxAud
 }
 
 export function getEventLength( event: EffluxAudioEvent, channelIndex: number, orderIndex: number, song: EffluxSong ): number {
-    const measureLength = calculateMeasureLength( song.meta.tempo );
+    const measureLength = getMeasureDurationInSeconds( song.meta.timing );
     const defaultValue  = ( 1 / song.patterns[ song.order[ orderIndex ]].steps ) * measureLength;
     
     if ( event.action === ACTION_AUTO_ONLY && !!event.mp ) {
@@ -174,9 +175,9 @@ export function getEventLength( event: EffluxAudioEvent, channelIndex: number, o
     return ( measureLength - event.seq.startMeasureOffset ) * remainingMeasures;
 }
 
-export function calculateJamChannelEventLengths( channel: EffluxChannel, tempo: number ): void {
+export function calculateJamChannelEventLengths( channel: EffluxChannel, timing: EffluxTimingMeta ): void {
     const { length } = channel;
-    const measureLength = calculateMeasureLength( tempo );
+    const measureLength = getMeasureDurationInSeconds( timing );
     const stepToSecondsMultiplier = 1 / length * measureLength;
 
     // for jam channels we can afford a single reverse loop to calculate the length of all events in the channel
@@ -249,9 +250,4 @@ export function getNextEvent( song: EffluxSong, event: EffluxAudioEvent, channel
             return { event: compareEvent, orderIndex: compareOrderIndex };
         }
     }
-}
-
-// TODO: the 4 is implying all songs will be in 4/4 time
-export function calculateMeasureLength( tempo: number, beatAmount = 4 ): number {
-    return ( 60 / tempo ) * beatAmount;
 }

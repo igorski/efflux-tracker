@@ -125,6 +125,7 @@ import Notifications from "@/components/notifications.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import { JAM_MODE, DEEPLINKED_SONG } from "@/definitions/url-params";
 import SampleFactory from "@/model/factories/sample-factory";
+import { LEGACY_VERSION } from "@/model/factories/song-factory";
 import { type EffluxSong, EffluxSongType} from "@/model/types/song";
 import { loadSample } from "@/services/audio/sample-loader";
 import PubSubService from "@/services/pubsub-service";
@@ -308,7 +309,7 @@ export default {
 
             this.$nextTick().then(() => this.calculateDimensions() );
 
-            if ( this.useOrders && song.version < 4 && song.order.length === song.patterns.length ) {
+            if ( this.useOrders && ( song.version > LEGACY_VERSION && song.version < 4 ) && song.order.length === song.patterns.length ) {
                 return this.openModal( ModalWindows.PATTERN_TO_ORDER_CONVERSION_WINDOW );
             }
             this.publishMessage( PubSubMessages.SONG_LOADED );
