@@ -47,6 +47,7 @@ export const INSTRUMENT_DELAY_FEEDBACK   = "f";
 export const INSTRUMENT_DELAY_OFFSET     = "o";
 export const INSTRUMENT_DELAY_TIME       = "t";
 export const INSTRUMENT_DELAY_TYPE       = "tp";
+export const INSTRUMENT_DELAY_SYNC       = "ds";
 
 export const INSTRUMENT_FILTER           = "f";
 export const INSTRUMENT_FILTER_ENABLED   = "e";
@@ -139,6 +140,7 @@ export const serialize = ( xtk: any, instruments: Instrument[] ): void => {
         xtkDelay[ INSTRUMENT_DELAY_OFFSET   ] = delay.offset;
         xtkDelay[ INSTRUMENT_DELAY_TIME     ] = delay.time;
         xtkDelay[ INSTRUMENT_DELAY_TYPE     ] = delay.type;
+        xtkDelay[ INSTRUMENT_DELAY_SYNC     ] = delay.sync;
 
         xtkFilter[ INSTRUMENT_FILTER_ENABLED   ] = filter.enabled;
         xtkFilter[ INSTRUMENT_FILTER_DEPTH     ] = filter.depth;

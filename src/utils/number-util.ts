@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2020 - https://www.igorski.nl
+ * Igor Zinken 2019-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -51,4 +51,13 @@ export const isHex = ( value: string ): boolean => {
         return ( `0${converted}` ) === value.toUpperCase();
     }
     return converted === value.toUpperCase();
+};
+
+export const roundToNearest = ( value: number, multipleToRoundTo: number ): number => {
+    const resto = value % multipleToRoundTo;
+
+    if ( resto <= ( multipleToRoundTo / 2 )) {
+        return value - resto;
+    }
+    return value + multipleToRoundTo - resto;
 };

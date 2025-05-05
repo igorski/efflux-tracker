@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2021 - https://www.igorski.nl
+ * Igor Zinken 2016-2025 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -58,11 +58,11 @@ export default
         }
         song.version = LEGACY_VERSION;
         song.instruments.forEach(( instrument: Instrument ): void => {
-            // panning and mute/solo controls added at a later stage
+            // panning and mute/solo controls were added in a later version
 
-            instrument.muted   = false;
-            instrument.solo    = false;
-            instrument.panning = instrument.panning || 0;
+            instrument.muted   = instrument.muted ?? false;
+            instrument.solo    = instrument.solo ?? false;
+            instrument.panning = instrument.panning ?? 0;
 
             // pitch envelope was added in version 2 of SongAssemblyService
 
@@ -95,7 +95,7 @@ export default
 
         for ( const pattern of song.patterns ) {
             for ( const channel of pattern.channels ) {
-                channel.forEach(( event, eventIndex ) => {
+                channel.forEach(( event, eventIndex ): void => {
                     if ( !event ) {
                         channel[ eventIndex ] = 0; // only EffluxAudioEvent or 0 are allowed, legacy songs used null
                     }

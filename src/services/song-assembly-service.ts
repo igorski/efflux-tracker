@@ -26,9 +26,9 @@ import { serialize } from "@/model/serializers/song-serializer";
 import { type EffluxPattern } from "@/model/types/pattern";
 import type { EffluxSong } from "@/model/types/song";
 
-export const ASSEMBLER_VERSION = 8;
+export const XTK_ASSEMBLER_VERSION = 9;
 
-const ASSEMBLER_VERSION_CODE = "av";
+const XTK_ASSEMBLER_VERSION_CODE = "av";
 
 /**
  * assembles a song from an .XTK file
@@ -37,7 +37,7 @@ export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> 
     try {
         xtk = ( typeof xtk === "string" ) ? JSON.parse( xtk ) : xtk;
 
-        const xtkVersion = xtk[ ASSEMBLER_VERSION_CODE ]; // is ASSEMBLER_VERSION used during save
+        const xtkVersion = xtk[ XTK_ASSEMBLER_VERSION_CODE ]; // is XTK_ASSEMBLER_VERSION used during save
         let song: EffluxSong;
 
         // first check if XTK had been saved after having been serialized
@@ -55,8 +55,7 @@ export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> 
                 // this will make the SongValidator inject the missing properties
                 version: xtk.version
             };
-            // @ts-expect-error p is never read. We perform this action as order did not exist yet
-            song.order = song.patterns.map(( p: EffluxPattern, index: number ) => index );
+            song.order = song.patterns.map(( _pattern: EffluxPattern, index: number ) => index );
         }
         // perform transformation on legacy songs
         SongValidator.transformLegacy( song );
@@ -82,7 +81,7 @@ export default
     async disassemble( song: EffluxSong ): Promise<string> {
         const xtk = await serialize( song );
 
-        xtk[ ASSEMBLER_VERSION_CODE ] = ASSEMBLER_VERSION;
+        xtk[ XTK_ASSEMBLER_VERSION_CODE ] = XTK_ASSEMBLER_VERSION;
 
         return JSON.stringify( xtk );
     }

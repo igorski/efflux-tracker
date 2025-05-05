@@ -337,7 +337,7 @@ const SelectionModule: Module<SelectionState, any> = {
                                 clonedEvent.instrument  = cIndex;
                                 clonedEvent.seq.playing = false;
 
-                                EventUtil.setPosition( clonedEvent, targetPattern, writeIndex, song.meta.tempo );
+                                EventUtil.setPosition( clonedEvent, targetPattern, writeIndex, song.meta.timing );
                                 targetChannel[ writeIndex ] = clonedEvent;
                             }
                         }

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import Config from "@/config";
 import SongFactory from "@/model/factories/song-factory";
-import { serialize } from "@/model/serializers/song-serializer";
+import { META_OBJECT, META_TIMING, serialize } from "@/model/serializers/song-serializer";
 import { EffluxSongType } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
-import { ASSEMBLER_VERSION } from "@/services/song-assembly-service";
+import { XTK_ASSEMBLER_VERSION } from "@/services/song-assembly-service";
 import { createSample } from "../../mocks";
 
 let mockFn: ( fnName: string, ...args: any ) => Promise<any>;
@@ -62,7 +62,7 @@ describe( "Song factory", () => {
             const xtk = await serialize( song );
 
             mockFn = vi.fn();
-            const songAssembled = await SongFactory.deserialize( xtk, ASSEMBLER_VERSION );
+            const songAssembled = await SongFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION );
 
             expect( mockFn ).toHaveBeenNthCalledWith( 1, "deserialize", song.samples[ 0 ], 0, song.samples );
             expect( mockFn ).toHaveBeenNthCalledWith( 2, "deserialize", song.samples[ 1 ], 1, song.samples );
@@ -71,8 +71,28 @@ describe( "Song factory", () => {
         it( "should be able to serialize a Song without loss of data", async () => {
             const song = SongFactory.create( 4, EffluxSongType.JAM );
 
+            song.meta.timing.tempo = 130.7;
+            song.meta.timing.timeSigNumerator = 12;
+            song.meta.timing.timeSigDenominator = 8;
+
             const xtk = await serialize( song );
-            expect( await SongFactory.deserialize( xtk, ASSEMBLER_VERSION )).toEqual( song );
+      
+            expect( await SongFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION )).toEqual( song );
+        });
+
+        it( "should be able to deserialize a legacy song without timing structure in the meta data", async () => {
+            const song = SongFactory.create( 4, EffluxSongType.JAM );
+
+            const xtk = await serialize( song );
+            xtk[ META_OBJECT ][ META_TIMING ] = 133.52;
+
+            const deserialized = await SongFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION );
+
+            expect( deserialized.meta.timing ).toEqual({
+                tempo: 133.52,
+                timeSigNumerator: 4,
+                timeSigDenominator: 4,
+            });
         });
     });
 });

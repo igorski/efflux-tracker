@@ -99,7 +99,7 @@ export default class Delay
 
         opts.type     = ~~opts.type   || params.type.defaultValue;
         opts.delay    = opts.delay    || params.delay.defaultValue;
-        opts.feedback = Math.min( 1.0, opts.feedback ) || params.feedback.defaultValue;
+        opts.feedback = Math.min( 1.0, opts.feedback ?? 0 ) || params.feedback.defaultValue;
         opts.cutoff   = opts.cutoff   || params.cutoff.defaultValue;
         opts.dry      = opts.dry      || params.dry.defaultValue;
         opts.offset   = opts.offset   || params.offset.defaultValue;

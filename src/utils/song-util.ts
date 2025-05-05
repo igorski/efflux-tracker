@@ -108,14 +108,15 @@ export const exportAsMIDI = ( midiWriter: any, song: EffluxSong,
     const midiTracks: Track[] = [];
     song.instruments.forEach( instrument => {
         const track = new midiWriter.Track();
-        track.setTempo( song.meta.tempo );
+        const { tempo, timeSigNumerator, timeSigDenominator } = song.meta.timing;
+        track.setTempo( tempo );
         track.addTrackName( instrument.presetName || instrument.name );
-        track.setTimeSignature( 4, 4 );
+        track.setTimeSignature( timeSigNumerator, timeSigDenominator );
         midiTracks.push( track );
     });
 
     // all measures have the same duration (currently...)
-    const measureDuration = getMeasureDurationInSeconds( song.meta.tempo );
+    const measureDuration = getMeasureDurationInSeconds( song.meta.timing );
     // we specify event ranges in ticks (128 ticks == 1 beat)
     const TICKS = ( 128 * 4 ) / measureDuration; // ticks per measure, songs are always in 4/4 time (currently...)
 

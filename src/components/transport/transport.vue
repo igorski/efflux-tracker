@@ -152,6 +152,7 @@
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
 import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
+import { updateTempo } from "@/model/actions/tempo-update";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import KeyboardService from "@/services/keyboard-service";
 import { resetPlayState } from "@/utils/song-util";
@@ -165,7 +166,6 @@ export default {
     data: () => ({
         tempOrderIndex: 0,
         patternFocused: false,
-        originalTempo: 0,
         showTempoInput: false,
     }),
     computed: {
@@ -193,25 +193,15 @@ export default {
         },
         tempo: {
             get(): number {
-                return this.activeSong.meta.tempo;
+                return this.activeSong.meta.timing.tempo;
             },
-            set( value: number ): void {
-                if ( isNaN( value )) {
+            set( value: string | number ): void {
+                if ( isNaN( value as number )) {
                     return;
                 }
-                value = Math.max( this.minTempo, Math.min( this.maxTempo, parseFloat( value )));
-                const { originalTempo } = this;
-                const store = this.$store;
-                const commit = () => store.commit( "setTempo", value );
-                // Actions.TEMPO_CHANGE
-                enqueueState( "tc", {
-                    undo() {
-                        store.commit( "setTempo", originalTempo );
-                    },
-                    redo: commit
-                });
-                commit();
-                this.originalTempo = value;
+                value = Math.max( this.minTempo, Math.min( this.maxTempo, parseFloat( value as string )));
+                
+                enqueueState( "tc", updateTempo( this.$store, value ));
             }
         },
         currentOrderIndex: {
@@ -238,7 +228,7 @@ export default {
                 resetPlayState( this.activeSong.patterns ); // unset playing state of existing events
             }
         },
-        isRecording( recording: boolean, wasRecording?: boolean ): void {
+        isRecording( _isRecording: boolean, wasRecording?: boolean ): void {
             if ( wasRecording ) {
                 // unflag the recorded state of all the events
                 const patterns = this.activeSong.patterns;
@@ -269,12 +259,6 @@ export default {
                 }
             }
         },
-        activeSong: {
-            immediate: true,
-            handler(): void {
-                this.originalTempo = this.tempo;
-            }
-        },
     },
     created(): void {
         this.minTempo = 40;
@@ -289,7 +273,6 @@ export default {
             "setRecording",
             "setCurrentStep",
             "setMetronomeEnabled",
-            "setTempo",
             "setPatternSteps",
             "suspendKeyboardService",
             "gotoPreviousPattern",
@@ -340,7 +323,9 @@ export default {
             this.$refs.tempoInput.focus();
         },
         handleTempoInputBlur(): void {
-            this.tempo = parseFloat( this.$refs.tempoInput.value );
+            if ( this.$refs.tempoInput ) {
+                this.tempo = parseFloat( this.$refs.tempoInput.value );
+            }
             this.showTempoInput = false;
             this.suspendKeyboardService( false );
         }

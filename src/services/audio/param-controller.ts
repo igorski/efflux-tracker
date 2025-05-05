@@ -72,6 +72,7 @@ export const getParamRange = ( paramId: string ): { min: number, max: number, st
             step = 1;
             break;
         case ParamIds.DELAY_TIME:
+            max  = Config.MAX_DELAY_TIME;
             step = 0.001;
             break;
         case ParamIds.DELAY_CUTOFF:

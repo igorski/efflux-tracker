@@ -30,12 +30,18 @@ export enum EffluxSongType {
     JAM
 };
 
+export type EffluxTimingMeta = {
+    tempo: number;
+    timeSigNumerator: number; // the "3" in "3/4"
+    timeSigDenominator: number; // the "4" in "4/4"
+};
+
 export type EffluxSongMeta = {
     title: string;
     author: string;
     created: number;
     modified: number;
-    tempo: number;
+    timing: EffluxTimingMeta;
 };
 
 export type EffluxSongOrigin = "local" | "dropbox" | undefined;

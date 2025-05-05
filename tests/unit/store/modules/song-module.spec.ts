@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MutationTree, ActionTree } from "vuex";
 import Config from "@/config";
 import songModule, { createSongState } from "@/store/modules/song-module";
@@ -16,7 +16,7 @@ const actions: ActionTree<SongState, any> = songModule.actions;
 
 // mocks
 
-let mockFn: ( fnName: string, ...args: any ) => void;
+const mockFn = vi.fn();
 vi.mock( "@/services/dropbox-service", () => ({
     uploadBlob: vi.fn(( ...args ): void => mockFn( "uploadBlob", ...args )),
     getCurrentFolder: vi.fn(() => "folder")
@@ -44,6 +44,10 @@ describe( "Vuex song module", () => {
             ...props
         };
     };
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
 
     describe( "getters", () => {
         it( "should be able to retrieve all the songs", () => {
@@ -96,6 +100,33 @@ describe( "Vuex song module", () => {
             const state = createSongState({ showSaveMessage: false });
             mutations.setShowSaveMessage( state, true );
             expect( state.showSaveMessage ).toBe( true );
+        });
+
+        it( "should be able to update the active songs author meta data", () => {
+            const activeSong = createSong();
+            const state = createSongState({ activeSong });
+
+            mutations.setActiveSongAuthor( state, "John Doe" );
+
+            expect( activeSong.meta.author ).toEqual( "John Doe" );
+        });
+
+        it( "should be able to update the active songs title meta data", () => {
+            const activeSong = createSong();
+            const state = createSongState({ activeSong });
+
+            mutations.setActiveSongTitle( state, "Foo Bar" );
+
+            expect( activeSong.meta.title ).toEqual( "Foo Bar" );
+        });
+
+        it( "should be able to update the active song tempo", () => {
+            const activeSong = createSong();
+            const state = createSongState({ activeSong });
+            
+            mutations.setTempo( state, 130 );
+
+            expect( activeSong.meta.timing.tempo ).toEqual( 130 );
         });
 
         it( "should be able to set the samples", () => {
@@ -331,7 +362,7 @@ describe( "Vuex song module", () => {
 
         describe( "when exporting songs", () => {
             it( "should serialize the Song as an .XTK file and save it as a file when exporting to disk", async () => {
-                mockFn = vi.fn(() => Promise.resolve({}));
+                mockFn.mockResolvedValueOnce({});
                 const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
                 const commit = vi.fn();
 
@@ -346,7 +377,7 @@ describe( "Vuex song module", () => {
             it( "should serialize the Song as an .XTK file and store it remotely when exporting to Dropbox", async () => {
                 const song = createSong({ meta: { title: "foo" } as EffluxSongMeta });
 
-                mockFn = vi.fn(() => Promise.resolve({}));
+                mockFn.mockResolvedValueOnce({});
                 const commit = vi.fn();
                 const mockedGetters = { t: vi.fn(), totalSaved: 7 };
 

@@ -86,7 +86,7 @@ export default function( store: Store<EffluxState>, event: EffluxAudioEvent,
         const pattern = song.patterns[ patternIndex ],
               channel = pattern.channels[ channelIndex ]; // get latest refs!
 
-        EventUtil.setPosition( event, pattern, step, song.meta.tempo );
+        EventUtil.setPosition( event, pattern, step, song.meta.timing );
 
         // remove previous event if one existed at the insertion point
         // (but take its module parameter automation when existing for non-off events)

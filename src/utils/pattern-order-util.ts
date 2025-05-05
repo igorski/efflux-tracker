@@ -110,7 +110,7 @@ export const convertLegacy = ( song: EffluxSong ): EffluxSong => {
                 if ( !event ) {
                     return;
                 }
-                EventUtil.setPosition( event, pattern, eventIndex, song.meta.tempo );
+                EventUtil.setPosition( event, pattern, eventIndex, song.meta.timing );
             });
         });
     });

@@ -165,7 +165,7 @@ function fillEventRange( song: EffluxSong, firstEvent: EffluxAudioEvent, secondE
             // event didn't exist... create it and insert into the channel
             evt = EventFactory.create( firstEvent.instrument );
             channel[ eventIndex ] = evt;
-            EventUtil.setPosition( evt, pattern, eventIndex, song.meta.tempo );
+            EventUtil.setPosition( evt, pattern, eventIndex, song.meta.timing );
         }
         evt.mp = {
             module: firstEvent.mp.module,
