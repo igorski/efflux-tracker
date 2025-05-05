@@ -58,7 +58,7 @@ export default
         }
         song.version = LEGACY_VERSION;
         song.instruments.forEach(( instrument: Instrument ): void => {
-            // panning and mute/solo controls added at a later stage
+            // panning and mute/solo controls were added in a later version
 
             instrument.muted   = instrument.muted ?? false;
             instrument.solo    = instrument.solo ?? false;
