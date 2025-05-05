@@ -27,7 +27,8 @@ import PatternFactory from "./pattern-factory";
 import SampleFactory from "./sample-factory";
 import {
     SONG_ID, SONG_VERSION_ID, SONG_TYPE, SAMPLES,
-    META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED, META_TIMING
+    META_OBJECT, META_TITLE, META_AUTHOR, META_CREATED, META_MODIFIED,
+    META_TIMING, META_TIMING_TEMPO, META_TIMING_TS_NUMERATOR, META_TIMING_TS_DENOMINATOR,
 } from "../serializers/song-serializer";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import { type EffluxSong, type EffluxSongMeta, EffluxSongType } from "@/model/types/song";
@@ -126,11 +127,18 @@ export default SongFactory;
 /* internal methods */
 
 function deserializeMeta( xtkMeta: any ): EffluxSongMeta {
+    const xtkTiming = xtkMeta[ META_TIMING ];
+
     return {
         title    : xtkMeta[ META_TITLE ],
         author   : xtkMeta[ META_AUTHOR ],
         created  : xtkMeta[ META_CREATED ],
         modified : xtkMeta[ META_MODIFIED ],
-        timing   : xtkMeta[ META_TIMING ]
+        // @ts-expect-error EffluxTimingMeta only introduced in XTK_ASSEMBLER_VERSION 9, before timing was numerical tempo value
+        timing   : typeof xtkTiming === "number" ? xtkTiming : {
+            tempo              : xtkTiming[ META_TIMING_TEMPO ],
+            timeSigNumerator   : xtkTiming[ META_TIMING_TS_NUMERATOR ],
+            timeSigDenominator : xtkTiming[ META_TIMING_TS_DENOMINATOR ],
+        }
     };
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import Config from "@/config";
 import SongFactory from "@/model/factories/song-factory";
-import { serialize } from "@/model/serializers/song-serializer";
+import { META_OBJECT, META_TIMING, serialize } from "@/model/serializers/song-serializer";
 import { EffluxSongType } from "@/model/types/song";
 import SongValidator from "@/model/validators/song-validator";
 import { XTK_ASSEMBLER_VERSION } from "@/services/song-assembly-service";
@@ -83,10 +83,9 @@ describe( "Song factory", () => {
         it( "should be able to deserialize a legacy song without timing structure in the meta data", async () => {
             const song = SongFactory.create( 4, EffluxSongType.JAM );
 
-            // @ts-expect-error we are deliberately using a numerical value here to mimic legacy song structure
-            song.meta.timing = 133.52;
-
             const xtk = await serialize( song );
+            xtk[ META_OBJECT ][ META_TIMING ] = 133.52;
+
             const deserialized = await SongFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION );
 
             expect( deserialized.meta.timing ).toEqual({

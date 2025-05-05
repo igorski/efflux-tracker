@@ -30,16 +30,19 @@ import { serialize as serializeSamples } from "./sample-serializer";
  * keys used when serializing Song factory
  * Objects into their JSON representation
  */
-export const SONG_ID         = "si";
-export const SONG_VERSION_ID = "sv";
-export const SONG_TYPE       = "st";
-export const META_OBJECT     = "m";
-export const META_TITLE      = "t";
-export const META_AUTHOR     = "a";
-export const META_CREATED    = "c";
-export const META_MODIFIED   = "dm";
-export const META_TIMING     = "tm";
-export const SAMPLES         = "smp"
+export const SONG_ID                    = "si";
+export const SONG_VERSION_ID            = "sv";
+export const SONG_TYPE                  = "st";
+export const META_OBJECT                = "m";
+export const META_TITLE                 = "t";
+export const META_AUTHOR                = "a";
+export const META_CREATED               = "c";
+export const META_MODIFIED              = "dm";
+export const META_TIMING                = "tm";
+export const META_TIMING_TEMPO          = "tmt";
+export const META_TIMING_TS_NUMERATOR   = "tmn";
+export const META_TIMING_TS_DENOMINATOR = "tmd";
+export const SAMPLES                    = "smp"
 
 export type XTK = any;
 
@@ -66,12 +69,18 @@ export const serialize = async ( song: EffluxSong ): Promise<XTK> => {
 /* internal methods */
 
 function serializeMeta( song: EffluxSong ): object {
-    const { meta } = song;
+    const { meta }   = song;
+    const { timing } = meta;
+
     return {
         [ META_TITLE ]    : meta.title,
         [ META_AUTHOR ]   : meta.author,
         [ META_CREATED ]  : meta.created,
         [ META_MODIFIED ] : meta.modified,
-        [ META_TIMING ]   : meta.timing
+        [ META_TIMING ]   : {
+            [ META_TIMING_TEMPO ]          : timing.tempo,
+            [ META_TIMING_TS_NUMERATOR ]   : timing.timeSigNumerator,
+            [ META_TIMING_TS_DENOMINATOR ] : timing.timeSigDenominator,
+        },
     };
 }

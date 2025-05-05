@@ -161,7 +161,6 @@
                     <div class="wrapper toggle delay-tempo-sync">
                         <label
                             v-t="'tempoSync'"
-                            class=""
                         ></label>
                         <toggle-button
                             v-model="delaySync"
