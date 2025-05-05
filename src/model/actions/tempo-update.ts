@@ -31,24 +31,25 @@ import { updateEventOffsets } from "@/utils/song-util";
 export const updateTempo = ( store: Store<EffluxState>, newTempo: number ): IUndoRedoState => {
     const { activeSong } = store.state.song;
     const { timing } = activeSong.meta;
-    const oldTempo   = timing.tempo;
+
+    const oldTempo = timing.tempo;
 
     const oldDuration = getMeasureDurationInSeconds( timing );
     const newDuration = getMeasureDurationInSeconds({ ...timing, tempo: newTempo });
 
+    // note store update happens last
     const act = (): void => {
+        syncEvents( activeSong, newTempo );
+        syncModules( store, activeSong, newDuration );
         store.commit( "setTempo", newTempo );
-        syncEvents( activeSong, oldTempo, newTempo );
-        syncModules( store, activeSong, oldDuration, newDuration );
     };
     act();
 
     return {
         undo(): void {
+            syncEvents( activeSong, oldTempo );
+            syncModules( store, activeSong, oldDuration );
             store.commit( "setTempo", oldTempo );
-    
-            syncEvents( activeSong, newTempo, oldTempo );
-            syncModules( store, activeSong, newDuration, oldDuration );
         },
         redo: act
     };
@@ -59,22 +60,24 @@ export const updateTempo = ( store: Store<EffluxState>, newTempo: number ): IUnd
 /**
  * Updates existing event offsets by the tempo ratio
  */
-function syncEvents( song: EffluxSong, oldTempo: number, newTempo: number ): void {
-    // update existing event offsets by the tempo ratio
-    updateEventOffsets( song.patterns, ( oldTempo / newTempo ));
+function syncEvents( song: EffluxSong, newTempo: number ): void {
+    const currentTempo = song.meta.timing.tempo;
+    updateEventOffsets( song.patterns, ( currentTempo / newTempo ));
 }
 
 /**
  * Modules that have parameters synced to the beat can adjust the timings
  * to keep the music intervals relative to the updated tempo
  */
-function syncModules( store: Store<EffluxState>, song: EffluxSong, oldDuration: number, newDuration: number ): void {
+function syncModules( store: Store<EffluxState>, song: EffluxSong, newDuration: number ): void {
+    const currentDuration = getMeasureDurationInSeconds( song.meta.timing );
+
     song.instruments.forEach(( instrument, instrumentIndex ) => {
         if ( instrument.delay.sync ) {
-            const prop = "delay";
+            const prop  = "delay";
             const value = {
                 ...instrument.delay,
-                time: instrument.delay.time / oldDuration * newDuration,
+                time: instrument.delay.time / currentDuration * newDuration,
             };
             store.commit( "updateInstrument", { instrumentIndex, prop, value });
             applyModule( prop, instrumentIndex, value );
