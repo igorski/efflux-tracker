@@ -120,7 +120,7 @@ describe( "Vuex song module", () => {
             expect( activeSong.meta.title ).toEqual( "Foo Bar" );
         });
 
-        it( "should be able to update the tempo and update the existing event offsets", () => {
+        it( "should be able to update the active song tempo", () => {
             const activeSong = createSong();
             const state = createSongState({ activeSong });
             
