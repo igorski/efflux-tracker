@@ -45,7 +45,7 @@
     "vite": "^6.3.4",
     "vite-plugin-static-copy": "^2.2.0",
     "vitest": "^3.0.7",
-    "vue-i18n": "^11.1.2",
+    "vue-i18n": "^11.1.10",
     "wa-overdrive": "^0.0.3",
     "zcanvas": "^6.0.2",
     "zmidi": "^1.2.1"
