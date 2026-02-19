@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -42,6 +42,7 @@ export type Sample = SampleRange & {
     pitch: SamplePitch | null;
     slices: SampleRange[];
     type: PlaybackType;
+    optimized: boolean;
     // optional properties used in sample editor
     editProps?: {
         st: number; // slice threshold

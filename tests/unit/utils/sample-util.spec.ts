@@ -1,9 +1,10 @@
 import { describe, it, expect, beforeAll } from "vitest";
+import { MP3, WAV } from "@/definitions/file-types";
 import EventFactory from "@/model/factories/event-factory";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import Pitch from "@/services/audio/pitch";
-import { getSliceIndexForNote } from "@/utils/sample-util";
-import { createSample } from "../mocks";
+import { canOptimize, getSliceIndexForNote } from "@/utils/sample-util";
+import { createSample, createSampleSourceBlob } from "../mocks";
 
 describe( "Sample utility", () => {
     const TOTAL_SLICES = 24;
@@ -47,6 +48,46 @@ describe( "Sample utility", () => {
         it( "should return undefined when exceeding all available slices", () => {
             const index = getSliceIndexForNote( EventFactory.create( 0, "C", 3 ), sample );
             expect( index ).toBeUndefined();
+        });
+    });
+
+    describe( "when determining whether a sample can be optimized", () => {
+        it( "should not optimize a sample with a low bitrate source", () => {
+            const sample = createSample( "foo", "bar", PlaybackType.REPITCHED );
+            sample.source = createSampleSourceBlob( WAV, 96000 );
+
+            expect( canOptimize( sample )).toBe( false );
+        });
+
+        it( "should optimize a sample with a high bitrate source", () => {
+            const sample = createSample( "foo", "bar", PlaybackType.REPITCHED );
+            sample.source = createSampleSourceBlob( WAV, 1024000 );
+
+            expect( canOptimize( sample )).toBe( true );
+        });
+
+        it( "should not optimize a sample that is already optimized", () => {
+            const sample  = createSample( "foo", "bar", PlaybackType.REPITCHED );
+            sample.source = createSampleSourceBlob( WAV, 1024000 );
+            sample.optimized = true;
+
+            expect( canOptimize( sample )).toBe( false );
+        });
+
+        it( "should not optimize a sample that has an MP3 source", () => {
+            const sample = createSample( "foo", "bar", PlaybackType.REPITCHED );
+            sample.source = createSampleSourceBlob( MP3, 1024000 );
+
+            expect( canOptimize( sample )).toBe( false );
+        });
+
+        it( "should optimize a sample that has a custom playback range", () => {
+            const sample = createSample( "foo", "bar", PlaybackType.REPITCHED );
+            sample.optimized = true;
+            sample.source = createSampleSourceBlob( MP3, 1024000 );
+            sample.rangeStart = 0.3;
+
+            expect( canOptimize( sample )).toBe( true );
         });
     });
 });

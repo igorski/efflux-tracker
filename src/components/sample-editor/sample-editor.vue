@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2025 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -232,7 +232,6 @@
 </template>
 
 <script lang="ts">
-import AudioEncoder from "audio-encoder";
 import debounce from "lodash.debounce";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
@@ -249,18 +248,17 @@ import InstrumentFactory from "@/model/factories/instrument-factory";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createAnalyser, detectPitch } from "@/services/audio/analyser";
-import { loadSample } from "@/services/audio/sample-loader";
 import { getPitchByFrequency } from "@/services/audio/pitch";
-import { resampleBuffer, sliceBuffer } from "@/utils/sample-util";
+import { encodeSampleSource } from "@/utils/audio-encode-util";
+import { MP3_PAD_START, sliceBuffer } from "@/utils/sample-util";
 import { mapTransients } from "@/utils/transient-detector";
 
 import messages from "./messages.json";
 
 const PITCH_ANALYSIS_WINDOW_SIZE = 2000; // amount of milliseconds we analyse audio for dominant pitch
 
-const MP3_PAD_START   = 1057; // samples added at the beginning of an MP3 encoded file
-const rangeToPosition = ( rangeValue, length ) => length * ( rangeValue / 100 );
-const secToPctRatio   = ({ duration }) => 100 / duration;
+const rangeToPosition = ( rangeValue: number, length: number ) => length * ( rangeValue / 100 );
+const secToPctRatio   = ({ duration }: { duration: number }) => 100 / duration;
 
 function sanitizeRangeValue( value : number): number {
     return Math.max( 0, Math.min( 100, value ));
@@ -301,7 +299,7 @@ export default {
             "samples",
         ]),
         availableSamples(): { label: string, value: string }[] {
-            return this.samples.map(({ id, name }) => ({ label: name, value: id }));
+            return this.samples.map(({ id, name }: Sample ) => ({ label: name, value: id }));
         },
         availablePlaybackTypes(): { label: string, value: PlaybackType }[] {
             return [
@@ -336,7 +334,7 @@ export default {
             }
             return this.sampleStart !== 0 || this.sampleEnd !== 100;
         },
-        rangeStyle(): { left: string, right: string, width: string } {
+        rangeStyle(): { left: string | number, right: string | number, width: string } {
             if ( this.canSlice ) {
                 return { left: 0, right: 0, width: "100%" };
             }
@@ -392,7 +390,7 @@ export default {
                 }
             },
         },
-        "sample.type"( type: PlaybackType, oldType?: PlaybackType ): void {
+        "sample.type"( type: PlaybackType, _oldType?: PlaybackType ): void {
             if ( type === PlaybackType.SLICED && this.sample.slices.length === 0 ) {
                 this.sliceSample();
             } else {
@@ -500,6 +498,7 @@ export default {
                     sf: this.sliceFreq,
                 },
             };
+            
             // if no pitch changes need to be calculated (e.g. isn't repitched type or already has pitch)
             if ( sample.type !== PlaybackType.REPITCHED || this.hasPitch ) {
                 const updatedSample = await this.updateSampleProps( sample );
@@ -609,43 +608,29 @@ export default {
                 hideActions : true,
             });
             const hadPitch = this.hasPitch; // needs no recalculation after trim
-            let buffer = this.sliceBufferForRange();
-            if ( this.sample.buffer.sampleRate !== 44100 ) {
-                buffer = await resampleBuffer( buffer, 44100 ); // AudioEncoder supports max sample rate of 44.1 kHz
-            }
-            const duration = buffer.duration;
-            AudioEncoder( buffer, 192, progress => {
-                this.encodeProgress = progress;
-            }, async blob => {
-                // we generate the buffer again as the encoded file might
-                // have slightly different sample lengths (otherwise rangeEnd
-                // will not be 100 % upon opening this saved sample once more)
-                buffer = await loadSample( blob, getAudioContext() );
-                // encoded MP3 is expected to have a longer duration than the source https://lame.sourceforge.io/tech-FAQ.txt
-                // we expect 1057 padded samples at the start which we set as the new range start
-                const rangeStart = buffer.duration > duration ? MP3_PAD_START / buffer.sampleRate : 0;
-                const sample = {
-                    ...this.sample,
-                    source     : blob,
-                    buffer,
-                    rangeStart,
-                    // note we keep the original duration for the new range (MP3 also has padded samples at the end)
-                    rangeEnd : Math.min( buffer.duration, rangeStart + duration ),
-                    rate     : buffer.sampleRate,
-                    length   : buffer.duration
-                };
-                this.updateSongSample( sample );
-                const ratio = secToPctRatio( buffer );
-                this.sampleStart = sample.rangeStart * ratio;
-                this.sampleEnd   = sample.rangeEnd * ratio;
-                this.sample      = sample;
+            const buffer   = this.sliceBufferForRange();
 
-                this.$nextTick(() => {
-                    this.hasPitch = hadPitch;
-                });
-                this.closeDialog();
-                this.isBusy = false;
+            // reset ranges when trimming
+            this.sample.rangeStart = 0;
+            this.sample.rangeEnd   = buffer.duration;
+
+            const sample = await encodeSampleSource( getAudioContext(), this.sample, ( progress: number ) => {
+                this.encodeProgress = progress;
+            }, buffer );
+
+            this.updateSongSample( sample );
+            
+            const ratio = secToPctRatio( sample.buffer );
+
+            this.sampleStart = sample.rangeStart * ratio;
+            this.sampleEnd   = sample.rangeEnd   * ratio;
+            this.sample      = sample;
+
+            this.$nextTick(() => {
+                this.hasPitch = hadPitch;
             });
+            this.closeDialog();
+            this.isBusy = false;
         },
         sliceSample(): void {
             this.sample.slices = mapTransients(

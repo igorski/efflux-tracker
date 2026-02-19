@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,10 +20,12 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import { WAV } from "@/definitions/file-types";
+import { MP3, WAV } from "@/definitions/file-types";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
 import type { Sample } from "@/model/types/sample";
 import Pitch from "@/services/audio/pitch";
+
+export const MP3_PAD_START = 1057; // samples added at the beginning of an MP3 encoded file
 
 /**
  * Slices given Buffer for given range into a new Buffer.
@@ -141,4 +143,30 @@ export const bufferToWAV = ( buffer: AudioBuffer ): Blob => {
         offset++;
     }
     return new Blob([ outputBuffer ], { type: WAV });
+};
+
+export const canOptimize = ( sample: Sample ): boolean => {
+    const { duration } = sample.buffer;
+    const hasBinarySource = sample.source instanceof Blob;
+    const isMP3 = hasBinarySource ? ( sample.source as Blob ).type === MP3 : false;
+
+    const zeroStart = isMP3 ? 0.03 : 0; // MP3 files are padded at the start
+
+    if ( sample.rangeStart > zeroStart || sample.rangeEnd < duration ) {
+        return true; // samples with a custom playback range can always be trimmed
+    }
+
+    if ( isMP3 ) {
+        return false; // don't optimize MP3 sources
+    }
+    
+    if ( sample.optimized === true ) {
+        return false; // previously optimized samples should be ignored
+    }
+
+    if ( hasBinarySource ) {
+        const bitRate = (( sample.source as Blob ).size * 8 ) / ( duration * 1000 ); // in kbps
+        return bitRate > 320; // anything above this value we consider optimizable
+    }
+    return false;
 };

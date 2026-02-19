@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -34,6 +34,7 @@ export type XTKSample = {
     l   : number;
     sl  : { s: number, e: number }[];
     t   : number;
+    o   : boolean;
     ep? : string; // optional serialized sample editor properties
 };
 
@@ -53,6 +54,7 @@ export const serialize = async ( sample: Sample ): Promise<XTKSample> => {
         l  : sample.duration,
         sl : sample?.slices.map( slice => ({ s: slice.rangeStart, e: slice.rangeEnd })),
         t  : sample.type,
+        o  : sample.optimized,
         ep : sample.editProps ? JSON.stringify( sample.editProps ) : undefined,
     });
     return new Promise(( resolve, reject ): void => {

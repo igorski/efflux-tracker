@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import type { Store } from "vuex";
+import { MP3 } from "@/definitions/file-types";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import type { EffluxState } from "@/store";
 import { createEditorState } from "@/store/modules/editor-module";
@@ -53,8 +54,13 @@ export const createSample = ( sampleName: string, optId?: string, type = Playbac
     loop       : true,
     pitch      : null,
     slices     : [],
+    optimized  : false,
     type,
 });
+
+export const createSampleSourceBlob = ( type = MP3, size = 512000 ) => {
+    return new Blob([ new Uint8Array( size ) ], { type });
+};
 
 export const createState = ( props?: Partial<EffluxState> ): EffluxState => ({
     menuOpened: false,

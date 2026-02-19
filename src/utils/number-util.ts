@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2019-2025 - https://www.igorski.nl
+ * Igor Zinken 2019-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -60,4 +60,8 @@ export const roundToNearest = ( value: number, multipleToRoundTo: number ): numb
         return value - resto;
     }
     return value + multipleToRoundTo - resto;
+};
+
+export const isEqualFloat = ( value1: number, value2: number, epsilon = 1e-4 ): boolean => {
+    return Math.abs( value1 - value2 ) < epsilon;
 };

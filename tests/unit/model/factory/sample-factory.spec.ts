@@ -7,8 +7,10 @@ import { PlaybackType } from "@/model/types/sample";
 import { mockAudioContext, mockAudioBuffer } from "../../mocks";
 
 let mockFn: ( fnName: string, ...args: any ) => void;
+const mockCanOptimizeFn = vi.fn();
 vi.mock( "@/utils/sample-util", () => ({
     sliceBuffer: vi.fn(( ...args ) => mockFn( "sliceBuffer", ...args )),
+    canOptimize: vi.fn(() => mockCanOptimizeFn()),
 }));
 vi.mock( "@/services/audio/webaudio-helper", () => ({
     createOfflineAudioContext: vi.fn(() => mockAudioContext )
@@ -41,6 +43,7 @@ describe( "SampleFactory", () => {
             pitch: null,
             rate: mockAudioBuffer.sampleRate,
             duration: mockAudioBuffer.duration,
+            optimized: false,
             slices: expect.any( Array ),
             type: PlaybackType.SLICED,
         });
@@ -100,6 +103,7 @@ describe( "SampleFactory", () => {
                 l  : sample.duration,
                 sl : [],
                 t  : sample.type,
+                o  : sample.optimized,
             });
         });
 
@@ -122,6 +126,7 @@ describe( "SampleFactory", () => {
                 l  : mockAudioBuffer.duration,
                 sl : [],
                 t  : sample.type,
+                o  : sample.optimized,
             });
         });
 
@@ -150,6 +155,7 @@ describe( "SampleFactory", () => {
                 l  : mockAudioBuffer.duration,
                 sl : [],
                 t  : PlaybackType.DEFAULT,
+                o  : sample.optimized,
             })
         });
 
@@ -181,6 +187,7 @@ describe( "SampleFactory", () => {
                 l  : mockAudioBuffer.duration,
                 sl : [{ s: 0, e: 1.5 }, { s: 1.5, e: 3 }, { s: 3, e: 10 }],
                 t  : PlaybackType.SLICED,
+                o  : sample.optimized,
             });
         });
     });
@@ -202,6 +209,7 @@ describe( "SampleFactory", () => {
             l: 3.5,
             sl: [{ s: 0, e: 0.5 }, { s: 0.5, e: 2.5 }],
             t: PlaybackType.SLICED,
+            o: false,
         };
         const source = new Blob();
         mockFnFileUtil = vi.fn(() => source );
@@ -230,6 +238,7 @@ describe( "SampleFactory", () => {
                 rangeEnd: 2.5,
             }],
             type: PlaybackType.SLICED,
+            optimized: false,
         });
     });
 
@@ -250,6 +259,7 @@ describe( "SampleFactory", () => {
             sl: [] as { s: number, e: number }[],
             l: mockAudioBuffer.duration,
             t: PlaybackType.DEFAULT,
+            o: false,
         };
         const source = new Blob();
         mockFnFileUtil = vi.fn(() => source );
@@ -272,6 +282,7 @@ describe( "SampleFactory", () => {
             duration: mockAudioBuffer.duration,
             slices: expect.any( Array ),
             type: PlaybackType.DEFAULT,
+            optimized: false,
         });
     });
 
@@ -289,7 +300,8 @@ describe( "SampleFactory", () => {
             },
             r: false,
             sr: 44100,
-            l: mockAudioBuffer.duration
+            l: mockAudioBuffer.duration,
+            o: false,
         };
         
         it( "should appropriately set the DEFAULT PlaybackType", async () => {
@@ -337,5 +349,34 @@ describe( "SampleFactory", () => {
         const assembled = await SampleFactory.deserialize( serializedSample );
 
         expect( assembled.editProps ).toEqual({ st: 0.5, sf: 220 });
+    });
+
+    describe( "when dealing with the optimized flag", () => {
+        it.each([
+            true, false,
+        ])( `should keep the existing "%s"-value when serializing and deserializing`, async ( value: boolean ) => {
+            const sample = SampleFactory.create( new Blob(), mockAudioBuffer, "foo", PlaybackType.SLICED );
+            sample.optimized = value;
+
+            const serializedSample = await serialize( sample );
+            const assembled = await SampleFactory.deserialize( serializedSample );
+
+            expect( assembled.optimized ).toBe( value );
+        });
+
+        it.each([
+            true, false,
+        ])( `should set the appropriate optimized flag to for legacy samples without this value when its optimization status is: "%s"`, async ( value: boolean ) => {
+            mockCanOptimizeFn.mockReturnValueOnce( value );
+
+            const sample = SampleFactory.create( new Blob(), mockAudioBuffer, "foo", PlaybackType.SLICED );
+
+            const serializedSample = await serialize( sample );
+            delete serializedSample.o; // delete optimized flag from serialized sample to mimic legacy type
+
+            const assembled = await SampleFactory.deserialize( serializedSample );
+
+            expect( assembled.optimized ).toBe( !value );
+        });
     });
 });

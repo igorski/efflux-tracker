@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2025 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,7 +25,7 @@ import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
 import { createOfflineAudioContext } from "@/services/audio/webaudio-helper";
 import { loadSample } from "@/services/audio/sample-loader";
-import { sliceBuffer } from "@/utils/sample-util";
+import { canOptimize, sliceBuffer } from "@/utils/sample-util";
 import { base64ToBlob } from "@/utils/file-util";
 
 // only used internally during a session
@@ -49,6 +49,7 @@ const SampleFactory = {
             rate       : buffer.sampleRate,
             duration   : buffer.duration,
             loop       : false,
+            optimized  : false,
             pitch      : null, // @see sample-editor
             slices     : [],
             type,
@@ -122,6 +123,9 @@ const SampleFactory = {
                         sample.editProps = JSON.parse( xtkSample.ep );
                     } catch {}
                 }
+
+                // optimized flag was added later, when missing we query whether the sample can be optimized
+                sample.optimized  = xtkSample.o ?? !canOptimize( sample );
 
                 resolve( sample );
             } catch {
