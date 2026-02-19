@@ -22,7 +22,7 @@
  */
 import { MP3, WAV } from "@/definitions/file-types";
 import type { EffluxAudioEvent } from "@/model/types/audio-event";
-import type { Sample } from "@/model/types/sample";
+import { PlaybackType, type Sample } from "@/model/types/sample";
 import Pitch from "@/services/audio/pitch";
 
 export const MP3_PAD_START = 1057; // samples added at the beginning of an MP3 encoded file
@@ -151,8 +151,9 @@ export const canOptimize = ( sample: Sample ): boolean => {
     const isMP3 = hasBinarySource ? ( sample.source as Blob ).type === MP3 : false;
 
     const zeroStart = isMP3 ? 0.03 : 0; // MP3 files are padded at the start
+    const canTrim = sample.type !== PlaybackType.SLICED;
 
-    if ( sample.rangeStart > zeroStart || sample.rangeEnd < duration ) {
+    if ( canTrim && ( sample.rangeStart > zeroStart || sample.rangeEnd < duration )) {
         return true; // samples with a custom playback range can always be trimmed
     }
 

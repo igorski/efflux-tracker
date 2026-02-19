@@ -89,5 +89,14 @@ describe( "Sample utility", () => {
 
             expect( canOptimize( sample )).toBe( true );
         });
+
+        it( "should not optimize a sample that has a custom playback range when it is of the SLICED playback type", () => {
+            const sample = createSample( "foo", "bar", PlaybackType.SLICED );
+            sample.optimized = true;
+            sample.source = createSampleSourceBlob( MP3, 1024000 );
+            sample.rangeStart = 0.3;
+
+            expect( canOptimize( sample )).toBe( false );
+        });
     });
 });
