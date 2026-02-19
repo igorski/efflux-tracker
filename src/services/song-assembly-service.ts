@@ -51,6 +51,15 @@ export const assemble = async ( xtk: string | any ): Promise<EffluxSong | null> 
             song = {
                 ...SongFactory.create(),
                 ...xtk,
+                meta: {
+                    ...xtk.meta,
+                    // timing will have been a tempo value
+                    timing: {
+                        tempo: xtk.meta.tempo,
+                        timeSigNumerator: 4,
+                        timeSigDenominator: 4,
+                    },
+                },
                 // deliberate as it can be undefined for ancient XTK's
                 // this will make the SongValidator inject the missing properties
                 version: xtk.version
