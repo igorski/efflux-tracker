@@ -78,7 +78,7 @@ describe( "Pattern delete action", () => {
 
             const { undo } = DeletePattern( store );
 
-            vi.restoreAllMocks();
+            vi.clearAllMocks();
 
             undo();
 
@@ -144,7 +144,7 @@ describe( "Pattern delete action", () => {
 
             const { undo } = DeletePattern( store );
 
-            vi.restoreAllMocks();
+            vi.clearAllMocks();
 
             undo();
 

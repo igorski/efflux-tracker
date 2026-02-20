@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2022-2025 - https://www.igorski.nl
+* Igor Zinken 2022-2026 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -74,8 +74,7 @@
 
 <script lang="ts">
 import { mapGetters, mapMutations } from "vuex";
-import Actions from "@/definitions/actions";
-import createAction from "@/model/factories/action-factory";
+import transpose from "@/model/actions/transpose";
 import messages from "./messages.json";
 
 export default {
@@ -145,14 +144,7 @@ export default {
             const lastChannel  = Math.min( maxChannelValue, this.lastChannel - 1 );
 
             this.saveState(
-                createAction( Actions.TRANSPOSE, {
-                    store: this.$store,
-                    semitones: this.semitones,
-                    firstPattern,
-                    lastPattern,
-                    firstChannel,
-                    lastChannel,
-                })
+                transpose( this.$store, this.semitones, firstPattern, lastPattern, firstChannel, lastChannel )
             );
             this.handleClose();
         },

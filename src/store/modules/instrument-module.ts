@@ -22,12 +22,12 @@
  */
 import type { ActionContext, Commit, Dispatch, Module } from "vuex";
 import Config from "@/config";
-import Actions from "@/definitions/actions";
 import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import FixturesLoader from "@/services/fixtures-loader";
 import StorageUtil from "@/utils/storage-util";
-import createAction from "@/model/factories/action-factory";
+import replaceInstrument from "@/model/actions/instrument-replace";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import { createFromSaved } from "@/model/factories/instrument-factory";
 import SampleFactory from "@/model/factories/sample-factory";
 import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
@@ -126,10 +126,7 @@ const InstrumentModule: Module<InstrumentState, any> = {
 
                 if ( InstrumentValidator.isValid( instrumentData )) {
                     const instrument = await assembleInstrumentFromJSON( storeRef, instrumentData );
-                    createAction( Actions.REPLACE_INSTRUMENT, {
-                        store: storeRef,
-                        instrument,
-                    });
+                    enqueueState( `preset_${storeRef.state.editor.selectedInstrument}`, replaceInstrument( storeRef, instrument ));
                 }
             } catch {
                 storeRef.commit( "showError", storeRef.getters.t( "errors.fileLoad" ));

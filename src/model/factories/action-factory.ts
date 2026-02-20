@@ -25,15 +25,10 @@ import Config from "@/config";
 import Actions from "@/definitions/actions";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { ACTION_NOTE_ON, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
-import type { Instrument } from "@/model/types/instrument";
 import type { EffluxPattern } from "@/model/types/pattern";
-import type { EffluxPatternOrder } from "@/model/types/pattern-order";
-import { enqueueState } from "@/model/factories/history-state-factory";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import AudioService, { connectAnalysers } from "@/services/audio-service";
-import { Transpose } from "@/services/audio/pitch";
 import type { EffluxState } from "@/store";
 import { clonePattern } from "@/utils/pattern-util";
 
@@ -53,17 +48,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.PASTE_SELECTION:
             return pasteSelectionAction( data );
-
-        case Actions.REPLACE_INSTRUMENT:
-            replaceInstrumentAction( data );
-            return null;
-
-        case Actions.TRANSPOSE:
-            return transpositionAction( data );
-
-        case Actions.UPDATE_PATTERN_ORDER:
-            updatePatternOrder( data );
-            return null;
     }
 }
 
@@ -115,8 +99,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
 
     return {
         undo(): void {
-            // @ts-expect-error event is declared but never read
-            events.forEach(( event: EffluxAudioEvent, index: number ) => {
+            events.forEach(( _event: EffluxAudioEvent, index: number ) => {
                 const targetIndex = ( channelIndex + index ) % Config.INSTRUMENT_AMOUNT;
                 EventUtil.clearEvent(
                     song,
@@ -263,86 +246,6 @@ function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRe
         },
         redo: act
     };
-}
-
-function replaceInstrumentAction({ store, instrument }: { store: Store<EffluxState>, instrument: Instrument }): void {
-    const instrumentIndex    = store.state.editor.selectedInstrument;
-    const existingInstrument = clone( store.getters.activeSong.instruments[ instrumentIndex ]) as Instrument;
-    instrument.index = instrumentIndex;
-
-    const applyUpdate = ( instrument: Instrument ): void => {
-        store.commit( "setSelectedOscillatorIndex", 0 );
-        AudioService.cacheAllOscillators( instrumentIndex, instrument );
-        AudioService.applyModules( store.getters.activeSong, connectAnalysers() );
-    };
-    const commit = (): void => {
-        store.commit( "replaceInstrument", { instrumentIndex, instrument });
-        applyUpdate( instrument );
-    };
-    commit();
-    enqueueState( `preset_${instrumentIndex}`, {
-        undo(): void {
-            store.commit( "replaceInstrument", { instrumentIndex, instrument: existingInstrument });
-            applyUpdate( existingInstrument );
-        },
-        redo: commit,
-    });
-}
-
-function transpositionAction({ store, semitones, firstPattern, lastPattern, firstChannel, lastChannel } :
-{ store: Store<EffluxState>, semitones: number, firstPattern: number, lastPattern: number, firstChannel: number, lastChannel: number }): IUndoRedoState {
-    const { getters, commit } = store;
-    const songPatterns = getters.activeSong.patterns;
-
-    const transposedPatterns = clone( songPatterns );
-
-    let p = firstPattern;
-    do {
-        const channels = transposedPatterns[ p ].channels;
-        let c = firstChannel;
-        do {
-            channels[ c ].forEach(( event: EffluxAudioEvent ) => {
-                if ( !event || event.action !== ACTION_NOTE_ON ) {
-                    return;
-                }
-                const { note, octave } = Transpose( event.note, event.octave, semitones );
-                event.note = note;
-                event.octave = octave;
-            })
-            ++c;
-        } while ( c <= lastChannel );
-        ++p;
-    } while ( p <= lastPattern );
-
-    function act(): void {
-        commit( "replacePatterns", transposedPatterns );
-        commit( "invalidateChannelCache", { song: getters.activeSong });
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            commit( "replacePatterns", songPatterns );
-            commit( "invalidateChannelCache", { song: getters.activeSong });
-        },
-        redo: act
-    };
-}
-
-function updatePatternOrder({ store, order }: { store: Store<EffluxState>, order: EffluxPatternOrder }): void {
-    const existingValue = [ ...store.getters.activeSong.order ];
-
-    const act = (): void => store.commit( "replacePatternOrder", order );
-    act();
-
-    enqueueState( "songOrder", {
-        undo(): void {
-            store.commit( "replacePatternOrder", existingValue );
-        },
-        redo(): void {
-            act();
-        },
-    });
 }
 
 // when changing states of observables, we need to take heed to always restore

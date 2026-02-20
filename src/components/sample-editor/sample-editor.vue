@@ -236,14 +236,14 @@ import debounce from "lodash.debounce";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
-import Actions from "@/definitions/actions";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import SampleDisplay from "@/components/sample-display/sample-display.vue";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder.vue";
 import SelectBox from "@/components/forms/select-box.vue";
-import createAction from "@/model/factories/action-factory";
+import replaceInstrument from "@/model/actions/instrument-replace";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
@@ -652,10 +652,7 @@ export default {
             instrument.oscillators[ 0 ].waveform = OscillatorTypes.SAMPLE;
             instrument.oscillators[ 0 ].sample = sample.name;
 
-            createAction( Actions.REPLACE_INSTRUMENT, {
-                store: this.$store,
-                instrument,
-            });
+            enqueueState( `preset_${this.selectedInstrument}`, replaceInstrument( this.$store, instrument ));
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         async handleNameInputShow(): Promise<void> {
