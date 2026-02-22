@@ -27,10 +27,8 @@ import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import { type EffluxAudioEvent } from "@/model/types/audio-event";
-import type { EffluxPattern } from "@/model/types/pattern";
 import type { IUndoRedoState } from "@/model/factories/history-state-factory";
 import type { EffluxState } from "@/store";
-import { clonePattern } from "@/utils/pattern-util";
 
 export default function( type: Actions, data: any ): IUndoRedoState | null {
     switch ( type ) {
@@ -39,9 +37,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.ADD_EVENTS:
             return addMultipleEventsAction( data );
-
-        case Actions.DELETE_SELECTION:
-            return deleteSelectionAction( data );
     }
 }
 
@@ -110,46 +105,6 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
             });
         },
         redo: act
-    };
-}
-
-function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
-    const song = store.state.song.activeSong;
-    const { selection } = store.state;
-    const { commit }    = store;
-
-    const activePattern   = store.getters.activePatternIndex;
-    const firstChannel    = selection.firstSelectedChannel;
-    const lastChannel     = selection.lastSelectedChannel;
-    const selectedMinStep = selection.minSelectedStep;
-    const selectedMaxStep = selection.maxSelectedStep;
-
-    const originalPattern = clonePattern( song, activePattern );
-    let cutPattern: EffluxPattern;
-    function act(): void {
-        if ( cutPattern ) {
-            song.patterns[ activePattern ] = cutPattern;
-        } else {
-            commit( "deleteSelection", { song, activePattern });
-            cutPattern = clonePattern( song, activePattern );
-        }
-        commit( "clearSelection" );
-        commit( "invalidateChannelCache", { song });
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            // set the original pattern data back
-            song.patterns[ activePattern ] = originalPattern;
-
-            // restore selection model to previous state
-            commit( "setMinSelectedStep", selectedMinStep);
-            commit( "setMaxSelectedStep", selectedMaxStep);
-            commit( "setSelectionChannelRange", { firstChannel, lastChannel });
-            commit( "invalidateChannelCache", { song });
-       },
-       redo: act
     };
 }
 

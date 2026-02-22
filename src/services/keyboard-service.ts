@@ -22,14 +22,13 @@
  */
 import type { Store } from "vuex";
 import Config from "@/config";
-import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import EventFactory from "@/model/factories/event-factory";
-import createAction from "@/model/factories/action-factory";
 import deleteEvent from "@/model/actions/event-delete";
 import deleteEventParamAutomation from "@/model/actions/event-param-automation-delete";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
 import cutSelection from "@/model/actions/selection-cut";
+import deleteSelection from "@/model/actions/selection-delete";
 import pasteSelection from "@/model/actions/selection-paste";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
@@ -557,7 +556,7 @@ function handleDeleteActionForCurrentMode(): void {
     switch ( mode ) {
         default:
             if ( store.getters.hasSelection ) {
-                store.commit( "saveState", createAction( Actions.DELETE_SELECTION, { store }));
+                store.commit( "saveState", deleteSelection( store ));
             } else {
                 store.commit( "saveState", deleteEvent( store ));
             }

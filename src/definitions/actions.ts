@@ -34,6 +34,5 @@
 enum Actions
 {
     ADD_EVENTS = 0,
-    DELETE_SELECTION,
 };
 export default Actions;
