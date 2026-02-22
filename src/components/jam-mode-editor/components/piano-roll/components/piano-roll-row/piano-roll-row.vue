@@ -34,9 +34,9 @@
                 'piano-roll-row__column--line'     : column.line,
                 'piano-roll-row__column--dragging' : rangeDragging && column.index >= dragRange.min && column.index <= dragRange.max,
             }"
-            @drop="handleDrop( $event )"
+            @drop.passive="handleDrop( $event )"
             @dragover.prevent="handleDragOver( $event )"
-            @pointerdown="handleDrawStart( $event, column )"
+            @pointerdown.passive="handleDrawStart( $event, column )"
             @dragenter.prevent
             @touchstart="handlePanStart( $event )"
             class="piano-roll-row__column"
@@ -50,18 +50,18 @@
                 role="button"
                 :style="{ width: column.width }"
                 draggable="true"
-                @dblclick.stop="handleNoteDelete( column )"
-                @dragstart="handleDragStart( $event, column, false )"
+                @dblclick.passive.stop="handleNoteDelete( column )"
+                @dragstart.passive="handleDragStart( $event, column, false )"
                 @touchstart="handleTouchStart( $event, column )"
                 @touchcancel="handleTouchEnd( $event )"
                 @touchend="handleTouchEnd( $event )"
-                @touchmove="handleTouchMove( $event )"
+                @touchmove.passive="handleTouchMove( $event )"
             >
                 <div
                     class="piano-roll-row__column-size-handle"
                     role="button"
                     draggable="true"
-                    @dragstart.stop="handleDragStart( $event, column, true )"
+                    @dragstart.passive.stop="handleDragStart( $event, column, true )"
                 ></div>
             </div>
         </td>
