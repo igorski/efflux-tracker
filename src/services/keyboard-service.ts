@@ -29,6 +29,7 @@ import createAction from "@/model/factories/action-factory";
 import deleteEvent from "@/model/actions/event-delete";
 import deleteEventParamAutomation from "@/model/actions/event-param-automation-delete";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
+import cutSelection from "@/model/actions/selection-cut";
 import pasteSelection from "@/model/actions/selection-paste";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
@@ -448,7 +449,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
             // cut current selection
 
             if ( hasOption ) {
-                store.commit( "saveState", createAction( Actions.CUT_SELECTION, { store }));
+                store.commit( "saveState", cutSelection( store ));
                 preventDefault( event ); // override browser cut
             }
             break;
