@@ -25,7 +25,8 @@
     "messages": {
       "songSaved": "Song '{name}' saved",
       "recordingSaved": "Recording saved to your download folder",
-      "fileSavedInDropbox": "\"{file}\" saved in Dropbox"
+      "fileSavedInDropbox": "\"{file}\" saved in Dropbox",
+      "instrumentImported": "Instrument loaded successfully"
     },
     "warnings": {
         "songReset": "Are you sure you want to close your current project and start a new one ? You will lose all unsaved changes and undo history.",

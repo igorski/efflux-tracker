@@ -22,31 +22,14 @@
  */
 import type { Store } from "vuex";
 import Config from "@/config";
-import Actions from "@/definitions/actions";
+import type { IUndoRedoState } from "@/model/factories/history-state-factory";
+import { type EffluxAudioEvent, ACTION_NOTE_OFF } from "@/model/types/audio-event";
+import type { EffluxState } from "@/store";
 import EventUtil from "@/utils/event-util";
 import { clone } from "@/utils/object-util";
-import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
-import { type EffluxAudioEvent } from "@/model/types/audio-event";
-import type { IUndoRedoState } from "@/model/factories/history-state-factory";
-import type { EffluxState } from "@/store";
 
-export default function( type: Actions, data: any ): IUndoRedoState | null {
-    switch ( type ) {
-        default:
-            return null;
-
-        case Actions.ADD_EVENTS:
-            return addMultipleEventsAction( data );
-    }
-}
-
-/* internal methods */
-
-/**
- * adds multiple EffluxAudioEvent into a pattern
- */
-function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>, events: EffluxAudioEvent[] }): IUndoRedoState {
-
+export default function addMultipleEvents( store: Store<EffluxState>, events: EffluxAudioEvent[] ): IUndoRedoState
+{
     const { state } = store;
     const song      = state.song.activeSong;
 
@@ -57,7 +40,7 @@ function addMultipleEventsAction({ store, events } : { store: Store<EffluxState>
         channelIndex = state.editor.selectedInstrument,
         step         = state.editor.selectedStep;
 
-    // if there are existing events, cache them for undo-purpose (see add())
+    // if there are existing events, cache them for undo-purpose
 
     const existingEvents: EffluxAudioEvent[] = [];
     function act(): void {

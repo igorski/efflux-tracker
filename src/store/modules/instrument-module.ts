@@ -26,9 +26,7 @@ import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import FixturesLoader from "@/services/fixtures-loader";
 import StorageUtil from "@/utils/storage-util";
-import replaceInstrument from "@/model/actions/instrument-replace";
-import { enqueueState } from "@/model/factories/history-state-factory";
-import { createFromSaved } from "@/model/factories/instrument-factory";
+import InstrumentFactory, { createFromSaved } from "@/model/factories/instrument-factory";
 import SampleFactory from "@/model/factories/sample-factory";
 import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
 import type { Instrument, InstrumentSerialized } from "@/model/types/instrument";
@@ -119,18 +117,21 @@ const InstrumentModule: Module<InstrumentState, any> = {
                }
             );
         },
-        async loadInstrumentFromFile( storeRef: ActionContext<InstrumentState, any>, file: File | Blob ): Promise<void> {
+        async loadInstrumentFromFile( storeRef: ActionContext<InstrumentState, any>, file: File | Blob ): Promise<Instrument | null> {
             try {
                 const fileData = await readTextFromFile( file );
                 const instrumentData = JSON.parse( window.atob( fileData ))[ 0 ]; // always exported in Array
 
                 if ( InstrumentValidator.isValid( instrumentData )) {
                     const instrument = await assembleInstrumentFromJSON( storeRef, instrumentData );
-                    enqueueState( `preset_${storeRef.state.editor.selectedInstrument}`, replaceInstrument( storeRef, instrument ));
+                    InstrumentFactory.createEQ( instrument );
+                    InstrumentFactory.createOverdrive( instrument );
+                    return instrument;
                 }
             } catch {
                 storeRef.commit( "showError", storeRef.getters.t( "errors.fileLoad" ));
             }
+            return null;
         },
         loadInstrumentFromLS({ getters, commit }: { getters: any, commit: Commit },
             instrumentDef: Instrument | InstrumentMeta ): Promise<Instrument> {

@@ -243,7 +243,6 @@ import SampleDisplay from "@/components/sample-display/sample-display.vue";
 import SampleRecorder from "@/components/sample-recorder/sample-recorder.vue";
 import SelectBox from "@/components/forms/select-box.vue";
 import replaceInstrument from "@/model/actions/instrument-replace";
-import { enqueueState } from "@/model/factories/history-state-factory";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import { type Sample, PlaybackType } from "@/model/types/sample";
 import { getAudioContext } from "@/services/audio-service";
@@ -438,6 +437,7 @@ export default {
             "openModal",
             "removeSample",
             "removeSampleFromCache",
+            "saveState",
             "setBlindActive",
             "setCurrentSample",
             "showNotification",
@@ -652,7 +652,7 @@ export default {
             instrument.oscillators[ 0 ].waveform = OscillatorTypes.SAMPLE;
             instrument.oscillators[ 0 ].sample = sample.name;
 
-            enqueueState( `preset_${this.selectedInstrument}`, replaceInstrument( this.$store, instrument ));
+            this.saveState( replaceInstrument( this.$store, instrument ));
             this.openModal( ModalWindows.INSTRUMENT_EDITOR );
         },
         async handleNameInputShow(): Promise<void> {

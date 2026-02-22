@@ -78,7 +78,7 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
-import updatePatternOrder from "@/model/actions/pattern-update-order;
+import updatePatternOrder from "@/model/actions/pattern-update-order";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import PatternOrderUtil from "@/utils/pattern-order-util";

@@ -106,7 +106,7 @@ import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
 import ManualURLs from "@/definitions/manual-urls";
-import updatePatternOrder from "@/model/actions/pattenr-update-order";
+import updatePatternOrder from "@/model/actions/pattern-update-order";
 import { enqueueState } from "@/model/factories/history-state-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import PatternOrderUtil from "@/utils/pattern-order-util";
