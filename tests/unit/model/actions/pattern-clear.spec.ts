@@ -53,7 +53,7 @@ describe( "Pattern clear action", () => {
 
         const { undo } = ClearPattern( store );
 
-        vi.restoreAllMocks();
+        vi.clearAllMocks();
 
         undo();
 

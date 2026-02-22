@@ -13,7 +13,7 @@ vi.mock( "@/utils/song-util", () => ({
 const mockApplyModules = vi.fn();
 vi.mock( "@/services/audio-service", () => ({
     applyModule: vi.fn(( ...args ) => mockApplyModules( ...args )),
-}))
+}));
 
 describe( "Tempo update action", () => {
     const AMOUNT_OF_INSTRUMENTS = 2;

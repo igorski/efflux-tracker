@@ -1,6 +1,4 @@
-# efflux
-
-[![MadeWithVueJs.com shield](https://madewithvuejs.com/storage/repo-shields/1779-shield.svg)](https://madewithvuejs.com/p/efflux-music-tracker/shield-link)
+# Efflux
 
 ## What is it ?
 

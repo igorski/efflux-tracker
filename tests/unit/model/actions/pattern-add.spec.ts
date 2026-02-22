@@ -81,7 +81,7 @@ describe( "Pattern add action", () => {
 
             const { undo } = AddPattern( store );
 
-            vi.restoreAllMocks();
+            vi.clearAllMocks();
 
             // spy as the song.patterns object will not have been updated due to the mocked commits
             const removeSpy = vi.spyOn( PatternUtil, "removePatternAtIndex" ).mockImplementation(() => orgPatterns )
@@ -189,7 +189,7 @@ describe( "Pattern add action", () => {
 
             const { undo } = AddPattern( store );
 
-            vi.restoreAllMocks();
+            vi.clearAllMocks();
 
             undo();
 

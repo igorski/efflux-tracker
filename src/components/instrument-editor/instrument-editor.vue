@@ -120,11 +120,10 @@
 <script lang="ts">
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Config            from "@/config";
-import Actions           from "@/definitions/actions";
 import ManualURLs        from "@/definitions/manual-urls";
 import ModalWindows      from "@/definitions/modal-windows";
 import PubSubMessages    from "@/services/pubsub/messages";
-import createAction      from "@/model/factories/action-factory";
+import replaceInstrument from "@/model/actions/instrument-replace";
 import InstrumentFactory from "@/model/factories/instrument-factory";
 import type { Instrument } from "@/model/types/instrument";
 import { clone }         from "@/utils/object-util";
@@ -229,10 +228,7 @@ export default {
             const newInstrument = InstrumentFactory.loadPreset(
                 instrumentPreset, this.selectedInstrument, this.instrumentRef.name
             );
-            createAction( Actions.REPLACE_INSTRUMENT, {
-                store: this.$store,
-                instrument: newInstrument,
-            });
+            this.saveState( replaceInstrument( this.$store, newInstrument ));
         },
     },
     created(): void {
@@ -245,6 +241,7 @@ export default {
     },
     methods: {
         ...mapMutations([
+            "saveState",
             "setSelectedInstrument",
             "setSelectedOscillatorIndex",
             "suspendKeyboardService",

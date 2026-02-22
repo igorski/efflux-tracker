@@ -20,26 +20,23 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { type Store } from "vuex";
+import { type IUndoRedoState } from "@/model/factories/history-state-factory";
+import { type EffluxPatternOrder} from "@/model/types/pattern-order";
+import { type EffluxState } from "@/store";
 
-/**
- * These define the editor actions that can be invoked from multiple origins
- * (e.g. keyboard-service when dealing with a shortcut, visual editors, mouse
- * actions inside the pattern editor, etc.). These actions can also be added to
- * state history, allowing to undo/redo them at will.
- *
- * @see action-factory, history-state-factory and history-module
- * 
- * @todo @deprecated move to individual actions in model/actions folder
- */
-enum Actions
-{
-    ADD_EVENTS = 0,
-    DELETE_SELECTION,
-    CUT_SELECTION,
-    PASTE_SELECTION,
-    TEMPO_CHANGE,
-    REPLACE_INSTRUMENT,
-    TRANSPOSE,
-    UPDATE_PATTERN_ORDER,
-};
-export default Actions;
+export default function updatePatternOrder( store: Store<EffluxState>, order: EffluxPatternOrder ): IUndoRedoState {
+    const existingValue = [ ...store.state.song.activeSong.order ];
+
+    const act = (): void => store.commit( "replacePatternOrder", order );
+    act();
+
+    return {
+        undo(): void {
+            store.commit( "replacePatternOrder", existingValue );
+        },
+        redo(): void {
+            act();
+        },
+    }
+}

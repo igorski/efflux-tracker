@@ -103,7 +103,7 @@ describe( "Pattern paste (multiple) action", () => {
     
             const { undo } = PatternPasteMultiple( store, patternsToPaste );
     
-            vi.restoreAllMocks();
+            vi.clearAllMocks();
     
             undo();
     
@@ -116,7 +116,7 @@ describe( "Pattern paste (multiple) action", () => {
     
             const { undo } = PatternPasteMultiple( store, patternsToPaste );
     
-            vi.restoreAllMocks();
+            vi.clearAllMocks();
     
             store.getters.activeOrderIndex = orgPatternOrder.length;
             undo();

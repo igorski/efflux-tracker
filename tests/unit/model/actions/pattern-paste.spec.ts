@@ -75,7 +75,7 @@ describe( "Pattern paste action", () => {
 
         const { undo } = PatternPaste( store, patternToPaste );
 
-        vi.restoreAllMocks();
+        vi.clearAllMocks();
 
         undo();
 

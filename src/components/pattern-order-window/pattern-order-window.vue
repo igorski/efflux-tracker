@@ -1,7 +1,7 @@
 /**
 * The MIT License (MIT)
 *
-* Igor Zinken 2023 - https://www.igorski.nl
+* Igor Zinken 2023-2026 - https://www.igorski.nl
 *
 * Permission is hereby granted, free of charge, to any person obtaining a copy of
 * this software and associated documentation files (the "Software"), to deal in
@@ -103,11 +103,11 @@
 
 <script lang="ts">
 import Draggable from "vuedraggable";
-import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
-import Actions from "@/definitions/actions";
 import ManualURLs from "@/definitions/manual-urls";
-import createAction from "@/model/factories/action-factory";
+import updatePatternOrder from "@/model/actions/pattern-update-order";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import PatternOrderUtil from "@/utils/pattern-order-util";
 import messages from "./messages.json";
@@ -149,7 +149,7 @@ export default {
             },
             set( value: WrappedPatternOrderEntry[] ): void {
                 const order = value.map( entry => entry.pattern );
-                createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
+                enqueueState( "songOrder", updatePatternOrder( this.$store, order ));
             }
         },
         patterns(): { label: string, value: number }[] {
@@ -189,17 +189,17 @@ export default {
         handleDuplicateClick( entry: WrappedPatternOrderEntry ): void {
             const newOrder = [ ...this.activeSong.order ];
             const tail = newOrder.splice( entry.index + 1 );
-            createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order: [ ...newOrder, entry.pattern, ...tail ] });
+            enqueueState( "songOrder", updatePatternOrder( this.$store, [ ...newOrder, entry.pattern, ...tail ] ));
         },
         handleDeleteClick( entry: WrappedPatternOrderEntry ): void {
-            createAction( Actions.UPDATE_PATTERN_ORDER, {
-                store: this.$store,
-                order: PatternOrderUtil.removePatternAtIndex( this.activeSong.order, entry.index )
-            });
+            enqueueState( "songOrder", updatePatternOrder(
+                this.$store,
+                PatternOrderUtil.removePatternAtIndex( this.activeSong.order, entry.index )
+            ));
         },
         handleAddClick(): void {
             const order = [ ...this.activeSong.order, this.newPatternIndex ];
-            createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
+            enqueueState( "songOrder", updatePatternOrder( this.$store, order ));
         },
     },
 };

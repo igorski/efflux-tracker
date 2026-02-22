@@ -77,9 +77,9 @@
 
 <script lang="ts">
 import { mapState, mapGetters, mapMutations, type Store } from "vuex";
-import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
-import createAction from "@/model/factories/action-factory";
+import updatePatternOrder from "@/model/actions/pattern-update-order";
+import { enqueueState } from "@/model/factories/history-state-factory";
 import type { EffluxPatternOrder } from "@/model/types/pattern-order";
 import PatternOrderUtil from "@/utils/pattern-order-util";
 import PatternOrderEntry from "./components/pattern-order-entry.vue";
@@ -172,7 +172,7 @@ export default {
             this.editableEntry = -1;
         },
         updateOrder( order: EffluxPatternOrder ): void {
-            createAction( Actions.UPDATE_PATTERN_ORDER, { store: this.$store, order });
+            enqueueState( "songOrder", updatePatternOrder( this.$store, order ));
             if ( this.activeOrderIndex >= order.length ) {
                 this.setActiveOrderIndex( order.length - 1 );
             }

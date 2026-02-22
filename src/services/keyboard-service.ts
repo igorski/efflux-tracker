@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,13 +22,14 @@
  */
 import type { Store } from "vuex";
 import Config from "@/config";
-import Actions from "@/definitions/actions";
 import ModalWindows from "@/definitions/modal-windows";
 import EventFactory from "@/model/factories/event-factory";
-import createAction from "@/model/factories/action-factory";
 import deleteEvent from "@/model/actions/event-delete";
 import deleteEventParamAutomation from "@/model/actions/event-param-automation-delete";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
+import cutSelection from "@/model/actions/selection-cut";
+import deleteSelection from "@/model/actions/selection-delete";
+import pasteSelection from "@/model/actions/selection-paste";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
 import type { EffluxState } from "@/store";
 import { PROPERTIES } from "@/store/modules/settings-module";
@@ -438,7 +439,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
 
             // paste current selection
             if ( hasOption && store.getters.hasCopiedEvents ) {
-                store.commit( "saveState", createAction( Actions.PASTE_SELECTION, { store }));
+                store.commit( "saveState", pasteSelection( store ));
             }
             break;
 
@@ -447,7 +448,7 @@ function handleKeyDown( event: KeyboardEvent ): void {
             // cut current selection
 
             if ( hasOption ) {
-                store.commit( "saveState", createAction( Actions.CUT_SELECTION, { store }));
+                store.commit( "saveState", cutSelection( store ));
                 preventDefault( event ); // override browser cut
             }
             break;
@@ -555,7 +556,7 @@ function handleDeleteActionForCurrentMode(): void {
     switch ( mode ) {
         default:
             if ( store.getters.hasSelection ) {
-                store.commit( "saveState", createAction( Actions.DELETE_SELECTION, { store }));
+                store.commit( "saveState", deleteSelection( store ));
             } else {
                 store.commit( "saveState", deleteEvent( store ));
             }

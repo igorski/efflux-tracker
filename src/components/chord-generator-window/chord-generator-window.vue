@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2022-2025 - https://www.igorski.nl
+ * Igor Zinken 2022-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -63,10 +63,9 @@
 <script lang="ts">
 import { mapState, mapMutations } from "vuex";
 import Config from "@/config";
-import Actions from "@/definitions/actions";
 import Chords from "@/definitions/chords";
-import createAction from "@/model/factories/action-factory";
 import EventFactory from "@/model/factories/event-factory";
+import addMultipleEvents from "@/model/actions/event-add-multiple";
 import { ACTION_NOTE_ON } from "@/model/types/audio-event";
 import KeyboardService from "@/services/keyboard-service";
 import Pitch from "@/services/audio/pitch";
@@ -112,7 +111,7 @@ export default {
         ...mapMutations([
             "saveState",
         ]),
-        handleKeyboardInput( type: string, keyCode: number ): void {
+        handleKeyboardInput( type: string, keyCode: number ): boolean {
             if ( type !== "down" ) {
                 return false;
             }
@@ -197,12 +196,12 @@ export default {
             const notes = Chords[ this.chord ].map( interval => {
                 return Pitch.OCTAVE_SCALE[( rootNoteIndex + interval ) % Pitch.OCTAVE_SCALE.length ];
             });
-            this.saveState( createAction( Actions.ADD_EVENTS, {
-                store  : this.$store,
-                events : notes.map( note => {
+            this.saveState( addMultipleEvents(
+                this.$store,
+                notes.map( note => {
                     return EventFactory.create( this.selectedInstrument, note, octave, ACTION_NOTE_ON )
                 })
-            }));
+            ));
             this.handleClose();
         },
     },

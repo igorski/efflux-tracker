@@ -124,6 +124,7 @@ import ApplicationMenu from "@/components/application-menu/application-menu.vue"
 import Notifications from "@/components/notifications.vue";
 import ModalWindows from "@/definitions/modal-windows";
 import { JAM_MODE, DEEPLINKED_SONG } from "@/definitions/url-params";
+import replaceInstrument from "@/model/actions/instrument-replace";
 import SampleFactory from "@/model/factories/sample-factory";
 import { LEGACY_VERSION } from "@/model/factories/song-factory";
 import { type EffluxSong, EffluxSongType} from "@/model/types/song";
@@ -359,7 +360,11 @@ export default {
         // if File content is dragged or pasted into the application, parse and load supported files within
         const loadFiles = async ({ instruments, patterns, projects, sounds }) => {
             for ( const instrument of instruments ) {
-                this.loadInstrumentFromFile( instrument );
+                const loadedInstrument = await this.loadInstrumentFromFile( instrument );
+                if ( loadedInstrument ) {
+                    this.saveState( replaceInstrument( this.$store, loadedInstrument ));
+                    this.showNotification({ message: this.$t( "messages.instrumentImported" )});
+                }
             }
             for ( const file of patterns ) {
                 const deserializedPatterns = deserializePatternFile( await readTextFromFile( file ));
@@ -483,6 +488,7 @@ export default {
             "openDialog",
             "openModal",
             "closeModal",
+            "saveState",
             "showNotification",
             "syncKeyboard",
             "clearSelection",
