@@ -45,9 +45,6 @@ export default function( type: Actions, data: any ): IUndoRedoState | null {
 
         case Actions.CUT_SELECTION:
             return cutSelectionAction( data );
-
-        case Actions.PASTE_SELECTION:
-            return pasteSelectionAction( data );
     }
 }
 
@@ -201,50 +198,6 @@ function deleteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoR
             commit( "invalidateChannelCache", { song });
        },
        redo: act
-    };
-}
-
-function pasteSelectionAction({ store }: { store: Store<EffluxState> }): IUndoRedoState {
-    const song = store.state.song.activeSong;
-    const { selectedInstrument, selectedStep } = store.state.editor;
-    const activePattern = store.getters.activePatternIndex;
-    const { selection } = store.state;
-    const { commit } = store;
-
-    const originalPattern = clonePattern( song, activePattern );
-
-    const firstChannel    = selection.firstSelectedChannel;
-    const lastChannel     = selection.lastSelectedChannel;
-    const selectedMinStep = selection.minSelectedStep;
-    const selectedMaxStep = selection.maxSelectedStep;
-
-    let pastedPattern: EffluxPattern;
-    function act(): void {
-        if ( pastedPattern ) {
-            song.patterns[ activePattern ] = pastedPattern;
-        } else {
-            commit( "pasteSelection", { song, activePattern, selectedInstrument, selectedStep });
-            pastedPattern = clonePattern( song, activePattern );
-        }
-        commit( "invalidateChannelCache", { song });
-    }
-    act(); // perform action
-
-    return {
-        undo(): void {
-            // set the original pattern data back
-            song.patterns[ activePattern ] = originalPattern;
-
-            // we can safely override the existing selection of the model when undoing an existing paste
-            // this means we are returning the model to the state prior to the pasting
-            // restore selection model to previous state
-
-            commit( "setMinSelectedStep", selectedMinStep );
-            commit( "setMaxSelectedStep", selectedMaxStep );
-            commit( "setSelectionChannelRange", { firstChannel, lastChannel });
-            commit( "invalidateChannelCache", { song });
-        },
-        redo: act
     };
 }
 
