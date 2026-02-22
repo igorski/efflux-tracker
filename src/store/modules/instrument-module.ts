@@ -26,7 +26,7 @@ import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import FixturesLoader from "@/services/fixtures-loader";
 import StorageUtil from "@/utils/storage-util";
-import InstrumentFactory, { upgradeLegacy } from "@/model/factories/instrument-factory";
+import { upgradeLegacy } from "@/model/factories/instrument-factory";
 import SampleFactory from "@/model/factories/sample-factory";
 import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
 import type { Instrument, InstrumentSerialized } from "@/model/types/instrument";
@@ -124,8 +124,6 @@ const InstrumentModule: Module<InstrumentState, any> = {
 
                 if ( InstrumentValidator.isValid( instrumentData )) {
                     const instrument = await assembleInstrumentFromJSON( storeRef, instrumentData );
-                    InstrumentFactory.createEQ( instrument );
-                    InstrumentFactory.createOverdrive( instrument );
                     return instrument;
                 }
             } catch {
