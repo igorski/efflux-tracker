@@ -234,6 +234,7 @@ export default {
             PubSubService.unsubscribe( this.token );
         }
         this.canvas.dispose();
+        this.wfRenderer = null;
     },
     methods: {
         ...mapMutations([
@@ -254,43 +255,51 @@ export default {
         handleWaveformUpdate( table: number[] ): void {
             // destructuring is important here as provided table is a reference which can still be updated
             const orgTable    = this.oscillator.table ? [ ...this.oscillator.table ] : 0;
-            const value       = [ ...table ];
             const orgWaveform = this.oscillator.waveform;
-
+            const orgEnabled  = this.oscillator.enabled;
+            const value = [ ...table ];
+            
             const store = this.$store;
             const { oscillatorIndex, instrumentIndex } = this;
+            const { activeSong } = store.getters;
 
             const commit = (): void => {
-                const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
+                const oscillator = activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
+                
+                // when drawing, force the oscillator type to transition to custom
+                // and activate the oscillator (to make changes instantly audible)
+
+                if ( oscillator.waveform !== OscillatorTypes.CUSTOM ) {
+                    store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "waveform", value: OscillatorTypes.CUSTOM });
+                }
+                if ( !oscillator.enabled ) {
+                    store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "enabled", value: true });
+                }
                 store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "table", value });
                 AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
             };
             commit();
 
-            // when drawing, force the oscillator type to transition to custom
-            // and activate the oscillator (to make changes instantly audible)
-
-            if ( this.oscillator.waveform !== OscillatorTypes.CUSTOM ) {
-                store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "waveform", value: OscillatorTypes.CUSTOM });
-            } else if ( !this.oscillator.enabled ) {
-                store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "enabled", value: true });
-            }
-            this.$emit( "invalidate" );
-            const component = this;
+            const component = this; // grab reference as this can be unmounted when stepping through history
 
             enqueueState( `wtable_${instrumentIndex}_${oscillatorIndex}`, {
                 undo(): void {
-                    const oscillator = store.getters.activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
-                    store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "table", value: orgTable });
                     store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "waveform", value: orgWaveform });
+                    if ( !orgEnabled ) {
+                        store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "enabled", value: false });
+                    }
+                    store.commit( "updateOscillator", { instrumentIndex, oscillatorIndex, prop: "table", value: orgTable });
+                    const oscillator = activeSong.instruments[ instrumentIndex ].oscillators[ oscillatorIndex ];
                     AudioService.updateOscillator( "waveform", instrumentIndex, oscillatorIndex, oscillator );
-                    !component._destroyed && component.renderContent();
+                    component.wfRenderer !== null && component.renderContent();
                 },
                 redo: (): void => {
                     commit();
-                    !component._destroyed && component.renderContent();
+                    component.wfRenderer !== null && component.renderContent();
                 }
-            }, 5000 ); // longer timeout as a lot of events can fire while drawing the waveform
+            }, 2000 ); // longer timeout as a lot of events can fire while drawing the waveform
+
+            this.$emit( "invalidate" );
         },
         handleAnalysis(): void {
             this.performAnalysis = this.showOscilloscope && supportsAnalysis( getAnalysers()[ this.instrumentIndex ] );

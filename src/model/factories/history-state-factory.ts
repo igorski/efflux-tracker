@@ -20,6 +20,9 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+import { type Store } from "vuex";
+import { type EffluxState } from "@/store";
+
 export interface IUndoRedoState {
     undo: () => void;
     redo: () => void;
@@ -29,10 +32,10 @@ export interface IUndoRedoState {
 const stateQueue: Map<string, IUndoRedoState> = new Map();
 const ENQUEUE_TIMEOUT = 1000;
 
-let timeout = 0;
-let store: any;
+let timeout: ReturnType<typeof setTimeout>;
+let store: Store<EffluxState>;
 
-export const initHistory = ( storeReference: any ) => store = storeReference;
+export const initHistory = ( storeReference: Store<EffluxState> ) => store = storeReference;
 
 export const hasQueue = (): boolean => queueLength() > 0;
 
@@ -50,6 +53,10 @@ export const forceProcess = processQueue;
 /**
  * Enqueue a state for addition in the history module. By enqueing, duplicate
  * calls for the same key with new state Objects are merged into a single state.
+ * In practive this mean that the undo() action will always be the action specified
+ * by the first invocation. Every subsequent invocation updates the redo() action.
+ * As such this mechanism allows batching multiple changes for the same key into
+ * a single undo/redo action.
  *
  * @param {string} key unique identifier for this state
  * @param {IUndoRedoState} undoRedoState object with
@@ -74,7 +81,7 @@ export const enqueueState = ( key: string, undoRedoState: IUndoRedoState, optTim
         processQueue();
     }
     stateQueue.set( key, undoRedoState );
-    setTimeout( processQueue, optTimeout );
+    timeout = setTimeout( processQueue, optTimeout );
 };
 
 /* internal methods */
