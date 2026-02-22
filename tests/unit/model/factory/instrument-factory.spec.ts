@@ -1,9 +1,11 @@
 import { describe, it, expect } from "vitest";
 import Config from "@/config";
-import InstrumentFactory from "@/model/factories/instrument-factory";
+import InstrumentFactory, { upgradeLegacy } from "@/model/factories/instrument-factory";
 import { serialize } from "@/model/serializers/instrument-serializer";
+import { type InstrumentOscillator } from "@/model/types/instrument";
 import InstrumentValidator from "@/model/validators/instrument-validator";
 import { XTK_ASSEMBLER_VERSION } from "@/services/song-assembly-service";
+import { clone } from "@/utils/object-util";
 
 describe( "InstrumentFactory", () => {
     it( "should be able to create a valid Instrument", () => {
@@ -81,5 +83,55 @@ describe( "InstrumentFactory", () => {
 
         serialize( xtk, instruments );
         expect( InstrumentFactory.deserialize( xtk, XTK_ASSEMBLER_VERSION )).toEqual( instruments );
+    });
+
+    describe( "when upgrading legacy instruments", () => {
+        it( "should leave a modern instrument unchanged", () => {
+            const instrument = InstrumentFactory.create( 0 );
+
+            instrument.panning = 1;
+            instrument.delay.dry = 0.5;
+            instrument.delay.sync = true;
+
+            const orgPitches = instrument.oscillators.map( oscillator => clone( oscillator.pitch ));
+            const orgDelay = clone( instrument.delay );
+            const orgEQ = clone( instrument.eq );
+            const orgOD = clone( instrument.overdrive );
+
+            upgradeLegacy( instrument );
+
+            expect( instrument.panning ).toEqual( 1 );
+            instrument.oscillators.forEach(( oscillator: InstrumentOscillator, index: number ) => {
+                expect( oscillator.pitch ).toEqual( orgPitches[ index ]);
+            });
+            expect( instrument.delay ).toEqual( orgDelay );
+            expect( instrument.eq ).toEqual( orgEQ );
+            expect( instrument.overdrive ).toEqual( orgOD );
+        });
+
+        it( "should add all later enhancement to a legacy instrument", () => {
+            const instrument = InstrumentFactory.create( 0 );
+
+            delete instrument.panning;
+
+            for ( const oscillator of instrument.oscillators ) {
+                delete oscillator.pitch;
+            }
+            delete instrument.delay.dry;
+            delete instrument.delay.sync;
+            delete instrument.eq;
+            delete instrument.overdrive;
+
+            upgradeLegacy( instrument );
+
+            expect( instrument.panning ).toEqual( 0 );
+            for ( const oscillator of instrument.oscillators ) {
+                expect( oscillator.pitch ).toBeInstanceOf( Object );
+            }
+            expect( instrument.delay.dry ).toEqual( 1 );
+            expect( instrument.delay.sync ).toEqual( false );
+            expect( instrument.eq ).toBeInstanceOf( Object );
+            expect( instrument.overdrive ).toBeInstanceOf( Object );
+        });
     });
 });

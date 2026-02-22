@@ -23,6 +23,7 @@
 import Config from "@/config";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import type { Instrument, InstrumentOscillator } from "@/model/types/instrument";
+import { assertFloat } from "@/utils/number-util";
 import { clone } from "@/utils/object-util";
 
 import {
@@ -133,7 +134,7 @@ const InstrumentFactory =
                     dry      : assertFloat( xtkDelay[ INSTRUMENT_DELAY_DRY ], 1 ), // non existing in legacy versions
                     offset   : parseFloat( xtkDelay[ INSTRUMENT_DELAY_OFFSET ]),
                     time     : parseFloat( xtkDelay[ INSTRUMENT_DELAY_TIME ]),
-                    sync     : xtkDelay[ INSTRUMENT_DELAY_SYNC ] ?? false,
+                    sync     : xtkDelay[ INSTRUMENT_DELAY_SYNC ] ?? false, // non existing in legacy versions
                 },
                 filter     : {
                     enabled   : xtkFilter[ INSTRUMENT_FILTER_ENABLED ],
@@ -287,14 +288,7 @@ const InstrumentFactory =
         newInstrument.index = newInstrumentIndex;
         newInstrument.name  = newInstrumentName;
 
-        // legacy presets have no pitch envelopes, pan, EQ or overdrive, create now
-
-        newInstrument.panning = newInstrument.panning || 0;
-        newInstrument.oscillators.forEach(( oscillator: InstrumentOscillator ) => {
-            InstrumentFactory.createPitchEnvelope( oscillator );
-        });
-        InstrumentFactory.createOverdrive( newInstrument );
-        InstrumentFactory.createEQ( newInstrument );
+        upgradeLegacy( newInstrument );
 
         return newInstrument;
     }
@@ -302,21 +296,25 @@ const InstrumentFactory =
 export default InstrumentFactory;
 
 /**
- * Ensures legacy stored instrument presets
- * contain all features added in later versions
+ * Ensures legacy stored instrument presets contain all features added in later versions
  * TODO saved instruments should be deserialized so they go through InstrumentFactory.create() !
  */
-export const createFromSaved = ( savedInstrument: Instrument ): Instrument => {
-    const instrument = savedInstrument;
-    if ( typeof instrument.delay.dry === "undefined" ) {
-        instrument.delay.dry = 1; // new addition
+export const upgradeLegacy = ( savedInstrument: Instrument ): Instrument => {
+    // pitch envelopes, pan, EQ, overdrive, delay dry mix and sync were added at a later
+    // stage, here we check whether these properties exist, and if not, add them on the fly
+
+    savedInstrument.panning = savedInstrument.panning || 0;
+    savedInstrument.oscillators.forEach(( oscillator: InstrumentOscillator ) => {
+        InstrumentFactory.createPitchEnvelope( oscillator );
+    });
+    InstrumentFactory.createOverdrive( savedInstrument );
+    InstrumentFactory.createEQ( savedInstrument );
+    
+    if ( typeof savedInstrument.delay.dry === "undefined" ) {
+        savedInstrument.delay.dry = 1;
     }
-    return instrument;
+    if ( typeof savedInstrument.delay.sync !== "boolean" ) {
+        savedInstrument.delay.sync = false;
+    }
+    return savedInstrument;
 };
-
-/* internal definitions */
-
-function assertFloat( value: string | number, fallback: number = 0 ): number {
-    const parsedValue: number = parseFloat( value as string );
-    return isNaN( parsedValue ) ? fallback : parsedValue;
-}

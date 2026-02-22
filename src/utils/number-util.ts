@@ -65,3 +65,8 @@ export const roundToNearest = ( value: number, multipleToRoundTo: number ): numb
 export const isEqualFloat = ( value1: number, value2: number, epsilon = 1e-4 ): boolean => {
     return Math.abs( value1 - value2 ) < epsilon;
 };
+
+export const assertFloat = ( value: string | number, fallback: number = 0 ): number => {
+    const parsedValue: number = parseFloat( value as string );
+    return isNaN( parsedValue ) ? fallback : parsedValue;
+};

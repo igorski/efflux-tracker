@@ -63,27 +63,61 @@ export default
             }
         }
 
-        return typeof instrument.index  === "number" &&
-               typeof instrument.name   === "string" &&
-               typeof instrument.volume === "number" &&
-               (
-                   typeof instrument.filter           === "object"  &&
-                   typeof instrument.filter.enabled   === "boolean" &&
-                   typeof instrument.filter.frequency === "number"  &&
-                   typeof instrument.filter.q         === "number"  &&
-                   typeof instrument.filter.speed     === "number"  &&
-                   typeof instrument.filter.depth     === "number"  &&
-                   typeof instrument.filter.type      === "string"  &&
-                   typeof instrument.filter.lfoType   === "string"
-               ) &&
-               (
-                   typeof instrument.delay          === "object"  &&
-                   typeof instrument.delay.enabled  === "boolean" &&
-                   typeof instrument.delay.type     === "number"  &&
-                   typeof instrument.delay.time     === "number"  &&
-                   typeof instrument.delay.feedback === "number"  &&
-                   typeof instrument.delay.cutoff   === "number"  &&
-                   typeof instrument.delay.offset   === "number"
-               );
-    }
+        const validMeta = typeof instrument.index  === "number" &&
+                          typeof instrument.name   === "string" &&
+                          typeof instrument.volume === "number";
+
+        if ( !validMeta ) return false;
+
+        const validFilter = (
+            typeof instrument.filter           === "object"  &&
+            typeof instrument.filter.enabled   === "boolean" &&
+            typeof instrument.filter.frequency === "number"  &&
+            typeof instrument.filter.q         === "number"  &&
+            typeof instrument.filter.speed     === "number"  &&
+            typeof instrument.filter.depth     === "number"  &&
+            typeof instrument.filter.type      === "string"  &&
+            typeof instrument.filter.lfoType   === "string"
+        );
+
+        if ( !validFilter ) return false;
+        
+        const validDelay = (
+            typeof instrument.delay          === "object"  &&
+            typeof instrument.delay.enabled  === "boolean" &&
+            typeof instrument.delay.type     === "number"  &&
+            typeof instrument.delay.time     === "number"  &&
+            typeof instrument.delay.feedback === "number"  &&
+            typeof instrument.delay.cutoff   === "number"  &&
+            typeof instrument.delay.offset   === "number"
+        );
+
+        if ( !validDelay ) return false;
+
+        // EQ and overdrive modules were added at a later stage
+
+        const validEQ = typeof instrument.eq === "undefined" ? true : (
+            typeof instrument.eq          === "object"  &&
+            typeof instrument.eq.enabled  === "boolean" &&
+            typeof instrument.eq.lowGain  === "number"  &&
+            typeof instrument.eq.midGain  === "number"  &&
+            typeof instrument.eq.highGain === "number"
+        );
+
+        if ( !validEQ ) return false
+
+        const validOD = typeof instrument.overdrive === "undefined" ? true : (
+            typeof instrument.overdrive          === "object"  &&
+            typeof instrument.overdrive.enabled  === "boolean" &&
+            typeof instrument.overdrive.preBand  === "number" &&
+            typeof instrument.overdrive.postCut  === "number" &&
+            typeof instrument.overdrive.color    === "number" &&
+            typeof instrument.overdrive.drive    === "number"
+        );
+
+        if ( !validOD ) return false;
+
+        return true;
+    },
+
 };

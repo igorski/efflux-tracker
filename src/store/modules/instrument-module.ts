@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -26,7 +26,7 @@ import { INSTRUMENT_FILE_EXTENSION } from "@/definitions/file-types";
 import OscillatorTypes from "@/definitions/oscillator-types";
 import FixturesLoader from "@/services/fixtures-loader";
 import StorageUtil from "@/utils/storage-util";
-import InstrumentFactory, { createFromSaved } from "@/model/factories/instrument-factory";
+import { upgradeLegacy } from "@/model/factories/instrument-factory";
 import SampleFactory from "@/model/factories/sample-factory";
 import { serialize as serializeSample } from "@/model/serializers/sample-serializer";
 import type { Instrument, InstrumentSerialized } from "@/model/types/instrument";
@@ -124,8 +124,6 @@ const InstrumentModule: Module<InstrumentState, any> = {
 
                 if ( InstrumentValidator.isValid( instrumentData )) {
                     const instrument = await assembleInstrumentFromJSON( storeRef, instrumentData );
-                    InstrumentFactory.createEQ( instrument );
-                    InstrumentFactory.createOverdrive( instrument );
                     return instrument;
                 }
             } catch {
@@ -314,7 +312,7 @@ const serializeInstrument = async ( instrumentToSave: Instrument, songSampleList
 
 const assembleInstrumentFromJSON = async({ getters, commit }: { getters: any, commit: Commit },
     json: Instrument ): Promise<Instrument> => {
-    const instrument = createFromSaved( json );
+    const instrument = upgradeLegacy( json );
     for ( const oscillator of instrument.oscillators ) {
         if ( oscillator.sample && typeof oscillator.sample === "object" ) {
             const sample = await SampleFactory.deserialize( oscillator.sample );
