@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -25,18 +25,19 @@
  * Renders the audio represented by given buffer to a HTMLCanvasDrawable image
  * of provided width and height
  */
-export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 400, height = 150, scale = 1 ): HTMLCanvasElement => {
-    const canvas  = document.createElement( "canvas" );
+export const bufferToWaveForm = (
+    buffer: AudioBuffer, color: string, width = 400, height = 150, canvas?: HTMLCanvasElement
+): HTMLCanvasElement => {
+    canvas = canvas ?? document.createElement( "canvas" );
     const ctx     = canvas.getContext( "2d" )!;
-    canvas.width  = width  * scale;
-    canvas.height = height * scale;
+    canvas.width  = width;
+    canvas.height = height;
 
     ctx.fillStyle = color;
 
-    // @todo: render all channels ? (this is left channel mono currently)
-    const data = buffer.getChannelData( 0 );
-    const step = Math.ceil( data.length / width );
-    const amp  = height / 2;
+    const amp = height / 2;
+    const step = Math.ceil( buffer.length / width );
+    const channelAmount = buffer.numberOfChannels;
 
     for ( let i = 0; i < width; ++i ) {
         const index = i * step;
@@ -44,7 +45,11 @@ export const bufferToWaveForm = ( buffer: AudioBuffer, color: string, width = 40
         let max = -1.0;
         
         for ( let j = 0; j < step; ++j ) {
-            const value = data[ index + j ];
+            let value = 0;
+            for ( let c = 0; c < channelAmount; ++c ) {
+                value += buffer.getChannelData( c )[ index + j ];
+            }
+            value /= channelAmount;
             if ( value < min ) {
                 min = value;
             } else if ( value > max ) {
