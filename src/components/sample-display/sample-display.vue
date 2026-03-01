@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2021-2023 - https://www.igorski.nl
+ * Igor Zinken 2021-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -24,6 +24,8 @@
     <canvas
         ref="waveformDisplay"
         class="sample-canvas"
+        :width="width"
+        :height="height"
     ></canvas>
 </template>
 
@@ -37,29 +39,47 @@ export default {
             type: Object,
             default: null,
         },
+        width: {
+            type: Number,
+            required: true,
+        },
+        height: {
+            type: Number,
+            required: true,
+        },
         color: {
             type: String,
             default: "#FF5900"
+        },
+        offsetLeft: {
+            type: Number,
+            default: 0, // 0 - 1 range
+        },
+        scale: {
+            type: Number,
+            default: 1,
         },
     },
     computed: {
         showSlices(): boolean {
             return this.sample.type === PlaybackType.SLICED && this.sample.slices?.length > 0;
         },
+        contentWidth(): number {
+            return this.width * this.scale;
+        },
     },
     watch: {
         sample: {
             immediate: true,
             async handler( sample: Sample, oldSample?: Sample ): Promise<void> {
-                if ( sample?.buffer !== oldSample?.buffer )
-                {
+                if ( sample?.buffer !== oldSample?.buffer ) {
                     await this.$nextTick(); // wait for component to mount on first run
                     this.render( sample.buffer );
                 }
             }
         },
         "sample.type": {
-            handler( type: PlaybackType ): void {
+            handler( _type: PlaybackType ): void {
                 this.render( this.sample.buffer );
             },
         },
@@ -68,26 +88,51 @@ export default {
                 this.render( this.sample.buffer );
             },
         },
+        scale: {
+            handler(): void {
+                this.render( this.sample.buffer );
+            },
+        },
+        offsetLeft: {
+            handler(): void {
+                this.update();
+            },
+        },
+    },
+    mounted(): void {
+        // pool a canvas for reuse to prevent reallocation overhead
+        this.tempCanvas = document.createElement( "canvas" ) as HTMLCanvasElement;
+    },
+    beforeUnmount(): void {
+        this.tempCanvas.width = this.tempCanvas.height = 1;
+        this.tempCanvas = null;
     },
     methods: {
         render( buffer: AudioBuffer ): void {
-            const canvas = this.$refs.waveformDisplay;
-            const ctx    = canvas.getContext( "2d" );
-            ctx.imageSmoothingEnabled = false;
-
-            const { width, height } = canvas;
-
-            ctx.clearRect( 0, 0, width, height );
-            ctx.drawImage( bufferToWaveForm( buffer, this.color, width, height ), 0, 0, width, height );
+            bufferToWaveForm( buffer, this.color, this.contentWidth, this.height, this.tempCanvas );
 
             if ( this.showSlices ) {
-                const scale = width / buffer.length;
+                const scale = this.contentWidth / buffer.length;
+                const ctx = this.tempCanvas.getContext( "2d" ) as CanvasRenderingContext2D;
+
                 for ( const slice of this.sample.slices ) {
-                    // const sliceWidth = slice.rangeEnd - slice.rangeStart;
+                    const sliceWidth = 0.5 // slice.rangeEnd - slice.rangeStart;
                     ctx.fillStyle = "#FFF";
-                    ctx.fillRect( slice.rangeStart * scale, 0, 0.5, height );
+                    ctx.fillRect( slice.rangeStart * scale, 0, sliceWidth, this.height );
                 }
             }
+            this.update();
+        },
+        update(): void {
+            const canvas = this.$refs.waveformDisplay as HTMLCanvasElement;
+            const ctx    = canvas.getContext( "2d" ) as CanvasRenderingContext2D;
+            ctx.imageSmoothingEnabled = false;
+
+            const { width, height } = this;
+            const offsetLeft = -this.offsetLeft * ( this.contentWidth - width );
+
+            ctx.clearRect( 0, 0, width, height );
+            ctx.drawImage( this.tempCanvas, offsetLeft, 0, this.contentWidth, height );
         },
     }
 };
@@ -102,5 +147,7 @@ export default {
     height: variables.$sample-waveform-height;
     cursor: grab;
     background-color: #000;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
 }
 </style>

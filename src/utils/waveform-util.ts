@@ -64,9 +64,19 @@ export const bufferToWaveForm = (
             }
         }
         const x = i + 0.5;
+        let top = center + ( min * amp );
+        let bottom = center + ( max * amp );
 
-        ctx.moveTo( x, center + ( min * amp ));
-        ctx.lineTo( x, center + ( max * amp ));
+        // near silence should always render a clear line
+        // (subpixel anti aliasing can reduce visibility)
+
+        if ( Math.abs( bottom - top ) < 1 ) {
+            top    = center - 0.5;
+            bottom = center + 0.5;
+        }
+
+        ctx.moveTo( x, top );
+        ctx.lineTo( x, bottom );
     }
     ctx.stroke();
 

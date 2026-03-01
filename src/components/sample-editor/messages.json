@@ -29,6 +29,8 @@
         "analysingPitch": "Analysing pitch",
         "trimmingSample": "Trimming sample",
         "savedDominantPitch": "Changes saved. Analysed dominant pitch to be: {note}{octave}",
-        "savedChanges": "Saved changes to sample \"{sample}\""
+        "savedChanges": "Saved changes to sample \"{sample}\"",
+        "zoomIn": "Zoom in",
+        "zoomOut": "Zoom out"
     }
 }

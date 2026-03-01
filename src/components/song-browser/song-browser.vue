@@ -182,12 +182,13 @@ export default {
             });
         },
         handleSongImport(): void {
+            const message = this.$t( "songImported" ); // component will unmount after import
             openFileBrowser( async fileBrowserEvent => {
                 const file = fileBrowserEvent.target.files?.[ 0 ];
                 if ( !file ) {
                     return;
                 }
-                this.importSong( file ).then(() => this.showNotification({ message: this.$t( "songImported" ) }));
+                this.importSong( file ).then(() => this.showNotification({ message }));
             }, [ PROJECT_FILE_EXTENSION ] );
         },
     }

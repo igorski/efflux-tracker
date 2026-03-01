@@ -72,10 +72,12 @@
             <hr class="divider section-divider" />
             <div class="sample-display">
                 <sample-display
+                    ref="sampleDisplay"    
                     :sample="sample"
-                    ref="sampleDisplay"
-                    width="740"
-                    height="200"
+                    :width="canvasSize.width"
+                    :height="canvasSize.height"
+                    :offset-left="displayOffsetX"
+                    :scale="displayScale"
                     @mousedown="handleDragStart"
                     @touchstart="handleDragStart"
                     @mouseup="handleDragEnd"
@@ -91,11 +93,33 @@
                 ></div>
                 <button
                     type="button"
+                    class="sample-display__zoom-out"
+                    :title="$t('zoomOut')"
+                    :disabled="isBusy || displayScale === MIN_ZOOM"
+                    @click="displayScale /= ZOOM_INCREMENT"
+                ><img src="@/assets/icons/icon-zoom-out.svg" :alt="$t('zoomOut')" /></button>
+                <button
+                    type="button"
+                    class="sample-display__zoom-in"
+                    :title="$t('zoomIn')"
+                    :disabled="isBusy || displayScale === MAX_ZOOM"
+                    @click="displayScale *= ZOOM_INCREMENT"
+                ><img src="@/assets/icons/icon-zoom-in.svg" :alt="$t('zoomIn')" /></button>
+                <button
+                    type="button"
                     class="sample-display__delete"
-                    :title="'delete'"
+                    :title="$t('delete')"
                     :disabled="isBusy"
                     @click="deleteSample()"
                 >&times;</button>
+                <scrollbars
+                    ref="scrollbars"
+                    :content-width="canvasSize.scaledWidth"
+                    :content-height="canvasSize.height"
+                    :viewport-width="canvasSize.width"
+                    :viewport-height="canvasSize.height"
+                    @input="onViewportPan"
+                />
             </div>
             <hr class="divider" />
             <section class="sample-control-list">
@@ -138,8 +162,8 @@
                             name="sampleStart"
                             v-model.number="sampleStart"
                             min="0"
-                            max="100"
-                            step="0.1"
+                            max="1"
+                            step="0.001"
                             :disabled="isBusy"
                         />
                     </div>
@@ -150,8 +174,8 @@
                             name="sampleEnd"
                             v-model.number="sampleEnd"
                             min="0"
-                            max="100"
-                            step="0.1"
+                            max="1"
+                            step="0.001"
                             :disabled="isBusy"
                         />
                     </div>
@@ -233,6 +257,7 @@
 
 <script lang="ts">
 import debounce from "lodash.debounce";
+import { type Size } from "zcanvas";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
@@ -251,16 +276,17 @@ import { getPitchByFrequency } from "@/services/audio/pitch";
 import { encodeSampleSource } from "@/utils/audio-encode-util";
 import { MP3_PAD_START, sliceBuffer } from "@/utils/sample-util";
 import { mapTransients } from "@/utils/transient-detector";
+import Scrollbars from "../scrollbars.vue";
 
 import messages from "./messages.json";
 
 const PITCH_ANALYSIS_WINDOW_SIZE = 2000; // amount of milliseconds we analyse audio for dominant pitch
 
-const rangeToPosition = ( rangeValue: number, length: number ) => length * ( rangeValue / 100 );
-const secToPctRatio   = ({ duration }: { duration: number }) => 100 / duration;
+const rangeToPosition = ( rangeValue: number, length: number ) => length * rangeValue;
+const secToPctRatio   = ({ duration }: { duration: number }) => 1 / duration;
 
-function sanitizeRangeValue( value : number): number {
-    return Math.max( 0, Math.min( 100, value ));
+function sanitizeRangeValue( value: number): number {
+    return Math.max( 0, Math.min( 1, value ));
 }
 
 export default {
@@ -269,6 +295,7 @@ export default {
         FileLoader,
         SampleDisplay,
         SampleRecorder,
+        Scrollbars,
         SelectBox,
         ToggleButton,
     },
@@ -284,9 +311,12 @@ export default {
         hasPitch       : false,
         sliceThreshold : 20,
         sliceFreq      : 1000,
-        // playback range (in percentile range)
+        // playback range (in normalized 0 - 1 range)
         sampleStart : 0,
-        sampleEnd   : 100
+        sampleEnd   : 1,
+        // waveform viewing
+        displayScale  : 1,
+        displayOffsetX: 0.5, // normalized 0 - 1 range
     }),
     computed: {
         ...mapState({
@@ -327,20 +357,42 @@ export default {
             const paddedSamples = MP3_PAD_START / this.sample.buffer.sampleRate;
             if ( this.sampleStart === paddedSamples * secToPctRatio( this.sample.buffer )
                 // guesstimate whether sample end was untouched (MP3 adds end padding as well)
-                 && this.sampleEnd >= 100 - paddedSamples * secToPctRatio( this.sample.buffer ))
+                 && this.sampleEnd >= 1 - paddedSamples * secToPctRatio( this.sample.buffer ))
             {
                 return false;
             }
-            return this.sampleStart !== 0 || this.sampleEnd !== 100;
+            return this.sampleStart !== 0 || this.sampleEnd !== 1;
         },
-        rangeStyle(): { left: string | number, right: string | number, width: string } {
+        canvasSize(): Size & { scaledWidth: number } {
+            return {
+                width: 740,
+                scaledWidth: 740 * this.displayScale,
+                height: 200,
+            };
+        },
+        rangeStyle(): { [ key: string ]:  string | number | undefined } {
             if ( this.canSlice ) {
                 return { left: 0, right: 0, width: "100%" };
             }
+            const { scaledWidth, width } = this.canvasSize;
+
+            const leftOffset = this.displayOffsetX * ( scaledWidth - width );
+            const start = this.sampleStart * scaledWidth;
+            const end   = this.sampleEnd * scaledWidth;
+            
+            const clippedLeft  = Math.max( 0, start - leftOffset );
+            const clippedRight = Math.min( width, end - leftOffset );
+
+            if ( clippedLeft > width || clippedRight < 0 ) {
+                return { display: "none" }; // out of visual bounds
+            }
+            
             return {
-                left  : `${this.sampleStart}%`,
-                right : `${this.sampleEnd}%`,
-                width : `${this.sampleEnd - this.sampleStart}%`
+                left  : `${clippedLeft}px`,
+                right : `${clippedRight}px`,
+                width : `${Math.max( 0, clippedRight - clippedLeft )}px`,
+                borderLeftStyle  : clippedLeft > 0 ? "solid" : undefined,
+                borderRightStyle : clippedRight < width ? "solid" : undefined,
             };
         },
         canTrim(): boolean {
@@ -355,7 +407,7 @@ export default {
                 totalDuration: duration.toFixed( 2 ),
                 sampleRate: this.sample.buffer.sampleRate,
                 amountOfChannels: this.sample.buffer.numberOfChannels,
-                duration: ((( this.sampleEnd - this.sampleStart ) / 100 ) * duration ).toFixed( 2 )
+                duration: (( this.sampleEnd - this.sampleStart ) * duration ).toFixed( 2 )
             };
         },
     },
@@ -393,7 +445,7 @@ export default {
             if ( type === PlaybackType.SLICED && this.sample.slices.length === 0 ) {
                 this.sliceSample();
             } else {
-                this.hasPitch = !!this.sample.pitch;
+                this.hasPitch = !!this.sample?.pitch;
             }
         },
         "sample.loop"( value: boolean ): void {
@@ -403,13 +455,13 @@ export default {
         },
         sampleStart( value: number ): void {
             if ( value > this.sampleEnd ) {
-                this.sampleEnd = Math.min( 100, value + 1 );
+                this.sampleEnd = Math.min( 1, value + 0.01 );
             }
             this.invalidateRange();
         },
         sampleEnd( value: number ): void {
             if ( value < this.sampleStart ) {
-                this.sampleStart = Math.max( 0, value - 1 );
+                this.sampleStart = Math.max( 0, value - 0.01 );
             }
             this.invalidateRange();
         },
@@ -425,6 +477,10 @@ export default {
              this.setCurrentSample( this.samples[ 0 ]);
         }
         this.debouncedSlice = debounce( this.sliceSample.bind( this ), 50 );
+
+        this.MIN_ZOOM = 1;
+        this.MAX_ZOOM = 16;
+        this.ZOOM_INCREMENT = 2;
     },
     beforeUnmount(): void {
         this.stopPlayback();
@@ -491,8 +547,8 @@ export default {
         async commitChanges(): Promise<Sample> {
             const sample = {
                 ...this.sample,
-                rangeStart : ( this.sampleStart / 100 ) * this.sample.buffer.duration,
-                rangeEnd   : ( this.sampleEnd / 100 ) * this.sample.buffer.duration,
+                rangeStart : this.sampleStart * this.sample.buffer.duration,
+                rangeEnd   : this.sampleEnd * this.sample.buffer.duration,
                 editProps: {
                     st: this.sliceThreshold,
                     sf: this.sliceFreq,
@@ -570,13 +626,21 @@ export default {
             const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
             this.isDragging = true;
 
-            const waveformBounds = this.$refs.sampleDisplay.$el.getBoundingClientRect();
+            const { scaledWidth, width } = this.canvasSize;
+            const panOffset   = -( scaledWidth - width ) * this.displayOffsetX;
 
-            this.dragWidth    = waveformBounds.width;
-            this.dragRatio    = this.dragWidth / 100;
-            this.startOffsetX = offsetX;
-            this.dragSS       = this.sampleStart;
-            this.dragSE       = this.sampleEnd;
+            const relX = (
+                ( offsetX / width ) / this.displayScale // 0 -1 of current viewport
+                - panOffset / scaledWidth
+            );
+
+            this.drag = {
+                left    : this.displayOffsetX,
+                offsetX : offsetX,
+                sampleS : this.sampleStart,
+                sampleE : this.sampleEnd,
+                target  : ( !this.canSlice && relX >= this.sampleStart && relX <= this.sampleEnd ) ? "range" : "pan",
+            };
         },
         handleDragEnd(): void {
             this.isDragging = false;
@@ -585,11 +649,17 @@ export default {
             if ( !this.isDragging ) {
                 return;
             }
-            const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
-            const delta = offsetX - this.startOffsetX;
-
-            this.sampleStart = sanitizeRangeValue( this.dragSS + ( delta / this.dragRatio ) );
-            this.sampleEnd   = sanitizeRangeValue( this.dragSE + ( delta / this.dragRatio ) );
+            const isTouch = event.type.startsWith( "touch" );
+            const { left, offsetX, sampleS, sampleE, target } = this.drag;
+            const curX = isTouch ? event.touches[ 0 ].pageX : event.offsetX;
+            const delta = ( curX - offsetX ) / this.canvasSize.scaledWidth;
+            
+            if ( target === "range" || isTouch ) {
+                this.sampleStart = sanitizeRangeValue( sampleS + delta );
+                this.sampleEnd   = sanitizeRangeValue( sampleE + delta );
+            } else if ( target === "pan" ) {
+                this.$refs.scrollbars?.update( left - delta, 0, true );
+            }
         },
         /* other */
         sliceBufferForRange(): AudioBuffer | null {
@@ -669,6 +739,9 @@ export default {
                 const updatedSample = await this.updateSampleProps({ ...this.sample, name });
                 this.sample.name = updatedSample.name;
             }
+        },
+        onViewportPan({ left }: { left: number, top: number }): void {
+            this.displayOffsetX = left;
         },
     }
 };
@@ -853,18 +926,17 @@ $width: 760px;
         position: absolute;
         top: 0;
         height: 100%;
-        border-left: 2px solid colors.$color-1;
-        border-right: 2px solid colors.$color-1;
         background-color: colors.$color-2;
         mix-blend-mode: difference;
+        border-color: colors.$color-1;
+        border-width: 2px;
     }
 
-    &__delete {
+    &__delete,
+    &__zoom-in,
+    &__zoom-out {
         position: absolute;
-        top: variables.$spacing-small;
         right: variables.$spacing-xxsmall;
-        font-size: 200%;
-        padding: 0 variables.$spacing-small;
         outline: 2px solid #666;
         background-color: #000;
         color: #b6b6b6;
@@ -874,6 +946,38 @@ $width: 760px;
             outline-color: #000;
             color: #000;
         }
+    }
+
+    &__delete {
+        top: variables.$spacing-small;
+        font-size: 200%;
+        padding: 0 variables.$spacing-small;
+    }
+
+    &__zoom-in,
+    &__zoom-out {
+        padding: variables.$spacing-xxsmall 0 0 variables.$spacing-xxsmall;
+        width: variables.$spacing-large;
+        height: variables.$spacing-large;
+        overflow: hidden;
+        border-radius: 50%;
+
+        img {
+            width: variables.$spacing-large;
+            height: variables.$spacing-large;
+
+            &:hover {
+                filter: brightness(0) invert(0);
+            }
+        }
+    }
+
+    &__zoom-in {
+        bottom: variables.$spacing-large + variables.$spacing-medium
+    }
+
+    &__zoom-out {
+        bottom: variables.$spacing-small;
     }
 }
 </style>
