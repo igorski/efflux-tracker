@@ -33,21 +33,28 @@ export const bufferToWaveForm = (
     canvas.width  = width;
     canvas.height = height;
 
-    ctx.fillStyle = color;
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = color;
+    ctx.lineJoin = "round";
+    ctx.beginPath();
 
     const amp = height / 2;
-    const step = Math.ceil( buffer.length / width );
+    const center = height / 2;
+    const samplesPerPixel = buffer.length / width;
     const channelAmount = buffer.numberOfChannels;
 
     for ( let i = 0; i < width; ++i ) {
-        const index = i * step;
-        let min = 1.0;
-        let max = -1.0;
+        const start = Math.floor( i * samplesPerPixel );
+        const end   = Math.floor(( i + 1 ) * samplesPerPixel );
+
+        // sample will be in -1 to +1 range
+        let min = 0;
+        let max = 0;
         
-        for ( let j = 0; j < step; ++j ) {
+        for ( let j = start; j < end; ++j ) {
             let value = 0;
             for ( let c = 0; c < channelAmount; ++c ) {
-                value += buffer.getChannelData( c )[ index + j ];
+                value += buffer.getChannelData( c )[ j ];
             }
             value /= channelAmount;
             if ( value < min ) {
@@ -56,7 +63,12 @@ export const bufferToWaveForm = (
                 max = value;
             }
         }
-        ctx.fillRect( i, ( 1 + min ) * amp, 1, Math.max( 1, ( max - min ) * amp ));
+        const x = i + 0.5;
+
+        ctx.moveTo( x, center + ( min * amp ));
+        ctx.lineTo( x, center + ( max * amp ));
     }
+    ctx.stroke();
+
     return canvas;
 };
