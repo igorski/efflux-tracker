@@ -21,7 +21,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 <template>
-    <div>
+    <div @wheel="handleWheel">
         <div
             v-if="canScrollHorizontally"
             ref="horScroll"
@@ -55,6 +55,8 @@ import { type Coordinate } from "zcanvas";
 
 const MOVE_EVENTS = [ "mousemove", "touchmove", "wheel" ];
 const UP_EVENTS   = [ "mouseup", "touchend", "touchcancel" ];
+
+const WHEEL_SPEED = 0.2;
 
 /**
  * Wrapper to get uniform coordinates from a pointer / touch event
@@ -237,6 +239,25 @@ export default {
                 this.positionVerticalHandle();
             }
             this.hasScrolled = true;
+            this.$emit( "input", { left: this.x, top: this.y });
+        },
+        handleWheel( e: WheelEvent ): void {
+            const { deltaX, deltaY } = e;
+            
+            const xMultiplier = ( this.trackWidth  / this.horHandleSize ) / this.scrollWidth;
+            const yMultiplier = ( this.trackHeight / this.verHandleSize ) / this.scrollHeight;
+
+            const xSpeed = deltaX * WHEEL_SPEED * xMultiplier;
+            const ySpeed = deltaY * WHEEL_SPEED * yMultiplier;
+
+            if ( this.hasHorizontalScroll ) {
+                this.x = clamp( this.x + xSpeed );
+                this.positionHorizontalHandle();
+            }
+            if ( this.hasVerticalScroll ) {
+                this.y = clamp( this.y + ySpeed );
+                this.positionVerticalHandle();
+            }
             this.$emit( "input", { left: this.x, top: this.y });
         },
         update( left: number, top: number, emit = false ): void {
