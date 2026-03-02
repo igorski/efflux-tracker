@@ -74,10 +74,10 @@
                 <sample-display
                     ref="sampleDisplay"    
                     :sample="sample"
-                    :width="canvasSize.width"
+                    :width="canvasSize.idealWidth"
                     :height="canvasSize.height"
                     :offset-left="displayOffsetX"
-                    :scale="displayScale"
+                    :scale="displayZoom"
                     @mousedown="handleDragStart"
                     @touchstart="handleDragStart"
                     @mouseup="handleDragEnd"
@@ -95,15 +95,15 @@
                     type="button"
                     class="sample-display__zoom-out"
                     :title="$t('zoomOut')"
-                    :disabled="isBusy || displayScale === MIN_ZOOM"
-                    @click="displayScale /= ZOOM_INCREMENT"
+                    :disabled="isBusy || displayZoom === MIN_ZOOM"
+                    @click="displayZoom /= ZOOM_INCREMENT"
                 ><img src="@/assets/icons/icon-zoom-out.svg" :alt="$t('zoomOut')" /></button>
                 <button
                     type="button"
                     class="sample-display__zoom-in"
                     :title="$t('zoomIn')"
-                    :disabled="isBusy || displayScale === MAX_ZOOM"
-                    @click="displayScale *= ZOOM_INCREMENT"
+                    :disabled="isBusy || displayZoom === MAX_ZOOM"
+                    @click="displayZoom *= ZOOM_INCREMENT"
                 ><img src="@/assets/icons/icon-zoom-in.svg" :alt="$t('zoomIn')" /></button>
                 <button
                     type="button"
@@ -114,7 +114,7 @@
                 >&times;</button>
                 <scrollbars
                     ref="scrollbars"
-                    :content-width="canvasSize.scaledWidth"
+                    :content-width="canvasSize.zoomedWidth"
                     :content-height="canvasSize.height"
                     :viewport-width="canvasSize.width"
                     :viewport-height="canvasSize.height"
@@ -281,6 +281,8 @@ import Scrollbars from "../scrollbars.vue";
 import messages from "./messages.json";
 
 const PITCH_ANALYSIS_WINDOW_SIZE = 2000; // amount of milliseconds we analyse audio for dominant pitch
+const CANVAS_WIDTH = 740;
+const CANVAS_HEIGHT = 200;
 
 const rangeToPosition = ( rangeValue: number, length: number ) => length * rangeValue;
 const secToPctRatio   = ({ duration }: { duration: number }) => 1 / duration;
@@ -315,12 +317,14 @@ export default {
         sampleStart : 0,
         sampleEnd   : 1,
         // waveform viewing
-        displayScale  : 1,
+        canvasWidth : CANVAS_WIDTH,
+        displayZoom : 1,
         displayOffsetX: 0.5, // normalized 0 - 1 range
     }),
     computed: {
         ...mapState({
             selectedInstrument: state => state.editor.selectedInstrument,
+            windowSize: state => state.windowSize,
         }),
         ...mapGetters([
             "activeSong",
@@ -363,22 +367,23 @@ export default {
             }
             return this.sampleStart !== 0 || this.sampleEnd !== 1;
         },
-        canvasSize(): Size & { scaledWidth: number } {
+        canvasSize(): Size & { idealWidth: number, zoomedWidth: number } {
             return {
-                width: 740,
-                scaledWidth: 740 * this.displayScale,
-                height: 200,
+                width: this.canvasWidth, // physical width (scaled by responsive screen design)
+                height: CANVAS_HEIGHT, // fixed and not responsive
+                idealWidth: CANVAS_WIDTH, // physical width ideally matches this (is source width of waveform image)
+                zoomedWidth: this.canvasWidth * this.displayZoom, // zoomed width of waveform image, constrained within viewport of width in size
             };
         },
         rangeStyle(): { [ key: string ]:  string | number | undefined } {
             if ( this.canSlice ) {
                 return { left: 0, right: 0, width: "100%" };
             }
-            const { scaledWidth, width } = this.canvasSize;
+            const { zoomedWidth, width } = this.canvasSize;
 
-            const leftOffset = this.displayOffsetX * ( scaledWidth - width );
-            const start = this.sampleStart * scaledWidth;
-            const end   = this.sampleEnd * scaledWidth;
+            const leftOffset = this.displayOffsetX * ( zoomedWidth - width );
+            const start = this.sampleStart * zoomedWidth;
+            const end   = this.sampleEnd * zoomedWidth;
             
             const clippedLeft  = Math.max( 0, start - leftOffset );
             const clippedRight = Math.min( width, end - leftOffset );
@@ -471,6 +476,16 @@ export default {
         sliceFreq(): void {
             this.debouncedSlice();
         },
+        windowSize: {
+            immediate: true,
+            handler(): void {
+                this.$nextTick(() => {
+                    const displayBounds = this.$refs.sampleDisplay?.$el.getBoundingClientRect();
+                    this.canvasWidth = displayBounds?.width ?? CANVAS_WIDTH;
+                    this.canvasLeft = displayBounds?.left ?? 0;
+                });
+            }
+        },
     },
     created(): void {
         if ( !this.sample && this.samples.length ) {
@@ -481,6 +496,7 @@ export default {
         this.MIN_ZOOM = 1;
         this.MAX_ZOOM = 16;
         this.ZOOM_INCREMENT = 2;
+        this.canvasLeft = 0; // calculated at runtime
     },
     beforeUnmount(): void {
         this.stopPlayback();
@@ -623,15 +639,15 @@ export default {
         },
         /* range handling */
         handleDragStart( event: PointerEvent ): void {
-            const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX : event.offsetX;
+            const offsetX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX - this.canvasLeft : event.offsetX;
             this.isDragging = true;
 
-            const { scaledWidth, width } = this.canvasSize;
-            const panOffset   = -( scaledWidth - width ) * this.displayOffsetX;
+            const { zoomedWidth, width } = this.canvasSize;
+            const panOffset = -( zoomedWidth - width ) * this.displayOffsetX;
 
             const relX = (
-                ( offsetX / width ) / this.displayScale // 0 -1 of current viewport
-                - panOffset / scaledWidth
+                ( offsetX / width ) / this.displayZoom // 0 - 1 position relative to current viewport
+                - panOffset / zoomedWidth
             );
 
             this.drag = {
@@ -649,12 +665,11 @@ export default {
             if ( !this.isDragging ) {
                 return;
             }
-            const isTouch = event.type.startsWith( "touch" );
             const { left, offsetX, sampleS, sampleE, target } = this.drag;
-            const curX = isTouch ? event.touches[ 0 ].pageX : event.offsetX;
-            const delta = ( curX - offsetX ) / this.canvasSize.scaledWidth;
+            const curX = event.type.startsWith( "touch" ) ? event.touches[ 0 ].pageX - this.canvasLeft : event.offsetX;
+            const delta = ( curX - offsetX ) / this.canvasSize.zoomedWidth;
             
-            if ( target === "range" || isTouch ) {
+            if ( target === "range" ) {
                 this.sampleStart = sanitizeRangeValue( sampleS + delta );
                 this.sampleEnd   = sanitizeRangeValue( sampleE + delta );
             } else if ( target === "pan" ) {
