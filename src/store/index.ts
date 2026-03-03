@@ -39,6 +39,8 @@ export type INotification = {
     message?: string;
 };
 
+type MobileMode = "settings" | null;
+
 export interface EffluxState {
     menuOpened: boolean;
     blindActive: boolean;
@@ -48,7 +50,7 @@ export interface EffluxState {
     dialog: IDialogWindow | null,
     notifications: INotification[],
     modal: ModalWindows | null, /* string name of modal window to open, see modal-windows.js */
-    mobileMode: string | null, /* string name of mobile view state */
+    mobileMode: MobileMode, /* string name of mobile view state */
     supportsTouch: boolean;
     dropboxConnected: boolean,
     mediaConnected: boolean,
@@ -184,7 +186,7 @@ export default
         setWindowSize( state: EffluxState, { width, height }: { width: number, height: number }): void {
             state.windowSize = { width, height };
         },
-        setMobileMode( state: EffluxState, mode: string ): void {
+        setMobileMode( state: EffluxState, mode: MobileMode ): void {
             state.mobileMode = mode;
         },
         setSupportsTouch( state: EffluxState, value: boolean ): void {

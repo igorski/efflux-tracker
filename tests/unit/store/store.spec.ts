@@ -190,8 +190,8 @@ describe( "Application Vuex store root", () => {
 
         it( "should be able to set the mobile view mode", () => {
             const state = createState({ mobileMode: null });
-            mutations.setMobileMode( state, "foo" );
-            expect( state.mobileMode ).toEqual("foo");
+            mutations.setMobileMode( state, "settings" );
+            expect( state.mobileMode ).toEqual( "settings" );
         });
 
         it( "should be able to set the touch support state", () => {
