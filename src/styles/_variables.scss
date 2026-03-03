@@ -20,7 +20,9 @@ $ideal-maximized-instrument-editor-height: 820px;
 $action-button-top: #{$spacing-medium - $spacing-xsmall};
 $note-entry-editor-height: 150px;
 $note-entry-editor-height-expanded: 220px;
-$sample-waveform-height: 200px;
+$sample-waveform-width: 960px;
+$sample-waveform-height: 300px;
+$sample-waveform-height-mobile: 175px;
 $track-editor-width: 40px;
 $jam-channel-editor-width: 308px;
 $piano-roll-name-width: 25px;
@@ -29,7 +31,7 @@ $piano-roll-automation-lane-height: 120px;
 $piano-roll-automation-lane-height-collapsed: 22px;
 
 $app-width: 960px;
-$mobile-width: 685px; // the threshold below which we start to use the mobile view
+$mobile-width: 685px; // the threshold below which we start to use the mobile view, also see layout.ts
 $ideal-width: 1600px;
 $ideal-width-jam-mode: ( $jam-channel-editor-width * 4 ) + $track-editor-width + $spacing-medium; // spacing for scrollbar
 $ideal-menu-width-jam-mode: ( $ideal-width-jam-mode + $spacing-xlarge );

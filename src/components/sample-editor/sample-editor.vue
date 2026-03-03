@@ -261,6 +261,7 @@ import { type Size } from "zcanvas";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
+import { isMobile } from "@/definitions/layout";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import OscillatorTypes from "@/definitions/oscillator-types";
@@ -281,8 +282,11 @@ import Scrollbars from "../scrollbars.vue";
 import messages from "./messages.json";
 
 const PITCH_ANALYSIS_WINDOW_SIZE = 2000; // amount of milliseconds we analyse audio for dominant pitch
-const CANVAS_WIDTH = 740;
-const CANVAS_HEIGHT = 200;
+
+// see _variables.scss
+const CANVAS_WIDTH = 960;
+const CANVAS_HEIGHT = 300;
+const CANVAS_HEIGHT_MOBILE = 175;
 
 const rangeToPosition = ( rangeValue: number, length: number ) => length * rangeValue;
 const secToPctRatio   = ({ duration }: { duration: number }) => 1 / duration;
@@ -370,7 +374,7 @@ export default {
         canvasSize(): Size & { idealWidth: number, zoomedWidth: number } {
             return {
                 width: this.canvasWidth, // physical width (scaled by responsive screen design)
-                height: CANVAS_HEIGHT, // fixed and not responsive
+                height: isMobile() ? CANVAS_HEIGHT_MOBILE : CANVAS_HEIGHT, // fixed and not responsive
                 idealWidth: CANVAS_WIDTH, // physical width ideally matches this (is source width of waveform image)
                 zoomedWidth: this.canvasWidth * this.displayZoom, // zoomed width of waveform image, constrained within viewport of width in size
             };
@@ -770,8 +774,6 @@ export default {
 @use "@/styles/transporter";
 @use "@/styles/typography";
 
-$width: 760px;
-
 .sample-editor {
     @include mixins.editorComponent();
     @include mixins.overlay();
@@ -780,11 +782,11 @@ $width: 760px;
     top: 50%;
     transform: translate(-50%, -50%);
 
-    @include mixins.minWidth( $width ) {
-        width: $width;
+    @include mixins.minWidth( variables.$sample-waveform-width ) {
+        width: variables.$sample-waveform-width;
     }
 
-    @include mixins.minWidthFallback( $width ) {
+    @include mixins.minWidthFallback( variables.$sample-waveform-width ) {
         width: 100%;
         height: 100%;
         @include mixins.verticalScrollOnMobile();
@@ -810,13 +812,13 @@ $width: 760px;
     }
 
     .footer {
-        @include mixins.minWidth( $width ) {
+        @include mixins.minWidth( variables.$sample-waveform-width ) {
             display: flex;
             justify-content: space-between;
             padding: variables.$spacing-small variables.$spacing-medium variables.$spacing-xsmall;
         }
 
-        @include mixins.minWidthFallback( $width ) {
+        @include mixins.minWidthFallback( variables.$sample-waveform-width ) {
             button {
                 margin-top: variables.$spacing-small;
             }
@@ -832,6 +834,10 @@ $width: 760px;
     height: variables.$sample-waveform-height;
     padding: 0 variables.$spacing-medium;
     @include mixins.boxSize();
+
+    @include mixins.mobile() {
+        height: variables.$sample-waveform-height-mobile;
+    }
 }
 
 .sample-meta {
@@ -993,6 +999,10 @@ $width: 760px;
 
     &__zoom-out {
         bottom: variables.$spacing-small;
+    }
+
+    @include mixins.mobile() {
+        height: variables.$sample-waveform-height-mobile;
     }
 }
 </style>

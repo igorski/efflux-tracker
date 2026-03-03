@@ -140,6 +140,7 @@ export default {
 
 <style lang="scss" scoped>
 @use "@/styles/colors";
+@use "@/styles/_mixins";
 @use "@/styles/_variables";
 
 .sample-canvas {
@@ -149,5 +150,9 @@ export default {
     background-color: #000;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
+
+    @include mixins.mobile() {
+        height: variables.$sample-waveform-height-mobile;
+    }
 }
 </style>

@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2023 - https://www.igorski.nl
+ * Igor Zinken 2023-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the 'Software'), to deal in
@@ -21,3 +21,5 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 export const IDEAL_MAXIMIZED_INSTRUMENT_EDITOR_WIDTH :number = 1180; // see variables.$ideal-maximized-instrument-editor-width
+
+export const isMobile = () => window.screen.availWidth <= 685; // see _variables.scss
