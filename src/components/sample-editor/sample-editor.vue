@@ -285,7 +285,7 @@ const PITCH_ANALYSIS_WINDOW_SIZE = 2000; // amount of milliseconds we analyse au
 
 // see _variables.scss
 const CANVAS_WIDTH = 960;
-const CANVAS_HEIGHT = 300;
+const CANVAS_HEIGHT = 250;
 const CANVAS_HEIGHT_MOBILE = 175;
 
 const rangeToPosition = ( rangeValue: number, length: number ) => length * rangeValue;
