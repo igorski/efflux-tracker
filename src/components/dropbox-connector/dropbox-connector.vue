@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2020-2022 - https://www.igorski.nl
+ * Igor Zinken 2020-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -58,8 +58,6 @@ import {
     isAuthenticated, requestLogin, registerAccessToken
 } from "@/services/dropbox-service";
 import messages from "./messages.json";
-
-let loginWindow, boundHandler;
 
 export default {
     i18n: { messages },
@@ -124,20 +122,20 @@ export default {
             "unsetLoading",
         ]),
         login(): void {
-            loginWindow  = window.open( this.authUrl );
-            boundHandler = this.messageHandler.bind( this );
-            window.addEventListener( "message", boundHandler );
-        },
-        messageHandler({ data }): void {
-            if ( data?.accessToken ) {
-                registerAccessToken( data.accessToken );
-                window.removeEventListener( "message", boundHandler );
-                loginWindow?.close();
-                loginWindow = null;
-                this.showConnectionMessage();
-                this.authenticated = true;
-                this.openFileBrowser();
-            }
+            const authChannel = new BroadcastChannel( "dropbox_auth" );
+            let loginWindow: Window;
+            authChannel.onmessage = ({ data }: MessageEvent ): void => {
+                if ( data?.accessToken ) {
+                    registerAccessToken( data.accessToken );
+                    this.showConnectionMessage();
+                    this.authenticated = true;
+                    this.openFileBrowser();
+
+                    authChannel.close();
+                    loginWindow.close();
+                }
+            };
+            loginWindow = window.open( this.authUrl )!;
         },
         openFileBrowser(): void {
             this.openModal( ModalWindows.DROPBOX_FILE_SELECTOR );
