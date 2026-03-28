@@ -5,7 +5,8 @@
 
 @mixin styledScrollbars {
     ::-webkit-scrollbar {
-        width: 12px;
+        width: variables.$spacing-small;
+        height: variables.$spacing-small;
     }
 
     ::-webkit-scrollbar-corner {
