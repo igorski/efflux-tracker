@@ -209,7 +209,7 @@ the `.spec`-suffix, e.g. `functions.ts` will have a test file `functions.spec.ts
 docker build -t efflux .
 ```
 
-#### Step 3 : Once the image is built, run the container and bind the ports :
+#### Step 2 : Once the image is built, run the container and bind the ports :
 
 ```bash
 docker run -d -p 5173:5173 --name efflux-container efflux
