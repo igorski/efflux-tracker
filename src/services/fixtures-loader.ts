@@ -1,7 +1,7 @@
 /**
  * The MIT License (MIT)
  *
- * Igor Zinken 2016-2022 - https://www.igorski.nl
+ * Igor Zinken 2016-2026 - https://www.igorski.nl
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -20,8 +20,6 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-import axios from "axios";
-
 type Fixtures = Record<string, any>;
 
 export default
@@ -33,8 +31,11 @@ export default
      */
     load( filename: string ): Promise<any[]> {
         return new Promise(( resolve, reject ): void => {
-            axios.get( `${getBasePath()}fixtures/${filename}` )
-                .then(({ data }: { data: Fixtures }) => {
+            fetch( `${getBasePath()}fixtures/${filename}` )
+                .then( response => {
+                    return response.json();
+                })
+                .then(( data: Fixtures ) => {
                     if ( data ) {
                         // Fixtures are bundled in an map, convert to list
                         resolve(
