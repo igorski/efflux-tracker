@@ -9,6 +9,8 @@ RUN chown node:node /usr/src/app
 # Copy package.json
 COPY --chown=node:node package.json ./
 
+USER node
+
 # Install dependencies
 # NOTE git is needed for lamerjs dependency
 RUN apk add --no-cache git && \
@@ -17,8 +19,6 @@ RUN apk add --no-cache git && \
 
 # Copy the rest of the application code
 COPY --chown=node:node . .
-
-USER node
 
 # Prepare the fixtures
 RUN yarn fixtures
