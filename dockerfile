@@ -18,12 +18,10 @@ COPY --chown=node:node . .
 
 USER node
 
-# Prepare the fixtures
-RUN yarn fixtures
-
 # Expose the port the application will run on
 EXPOSE 5173
 
 # Run the application
+CMD ["yarn", "fixtures"]
 CMD ["yarn", "dev", "--host", "0.0.0.0"]
 
