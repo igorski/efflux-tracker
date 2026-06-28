@@ -11,7 +11,7 @@ COPY package.json ./
 # NOTE git is needed for lamerjs dependency
 RUN apk add --no-cache git && \
     yarn install --ignore-scripts && \
-    RUN apk del git
+    apk del git
 
 # Copy the rest of the application code
 COPY . .
