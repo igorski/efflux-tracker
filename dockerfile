@@ -5,18 +5,16 @@ FROM node:24-alpine
 WORKDIR /usr/src/app
 
 # Copy package.json
-COPY --chown=node:node package.json ./
+COPY package.json ./
 
 # Install dependencies
 # NOTE git is needed for lamerjs dependency
-RUN apk add --no-cache git
-RUN yarn install --ignore-scripts
-RUN apk del git
+RUN apk add --no-cache git && \
+    yarn install --ignore-scripts && \
+    RUN apk del git
 
 # Copy the rest of the application code
-COPY --chown=node:node . .
-
-USER node
+COPY . .
 
 # Prepare the fixtures
 RUN yarn fixtures
