@@ -201,6 +201,22 @@ npm run test
 Unit tests go in the `tests`-folder. The file name for a unit test should equal the file it is testing, but contain
 the `.spec`-suffix, e.g. `functions.ts` will have a test file `functions.spec.ts`.
 
+## Docker based self hosted version
+
+#### Step 1 : Build the image using the provided Dockerfile :
+
+```bash
+docker build -t efflux .
+```
+
+#### Step 3 : Once the image is built, run the container and bind the ports :
+
+```bash
+docker run -d -p 5173:5173 --name efflux-container efflux
+```
+
+Once the container is started, you can access Efflux at `http://localhost:5173`
+
 ## Roadmap
 
 Efflux is considered complete, but you can expect incremental major/minor version bumps as new features are added every now and then. 
