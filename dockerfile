@@ -8,7 +8,10 @@ WORKDIR /usr/src/app
 COPY --chown=node:node package.json ./
 
 # Install dependencies
-RUN yarn install --ignore-scripts
+# NOTE git is needed for lamerjs dependency
+RUN apk add --no-cache git && \
+    yarn install --ignore-scripts && \
+    apk del git
 
 # Copy the rest of the application code
 COPY --chown=node:node . .
