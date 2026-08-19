@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import { type PianoRollEvent } from "../piano-roll.vue";
+import { type PianoRollEvent } from "../../piano-roll.vue";
 
 export type SerializedRowEvent = {
     note: string;
