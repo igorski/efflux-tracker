@@ -1,13 +1,12 @@
-import { defineConfig } from "vite";
+import { defineConfig, normalizePath } from "vite";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 import vue from "@vitejs/plugin-vue";
 import path from "path";
 
 const dirSrc      = `./src`;
-const dirPublic   = `${__dirname}/public`;
-const dirAssets   = `${dirSrc}/assets`;
-const dirFixtures = `${dirSrc}/fixtures`;
-const dest        = `${__dirname}/dist`;
+const dirPublic   = normalizePath( path.resolve( __dirname, "public" ));
+const dirAssets   = normalizePath( path.resolve( __dirname, "src/assets" ));
+const dest        = ".";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,13 +14,12 @@ export default defineConfig({
     plugins: [
         vue(),
         viteStaticCopy({
-            targets: [{
-                src: dirPublic,
-                dest: path.resolve( dest ),
-            }, {
-                src: dirAssets,
-                dest: path.resolve( dest ),
-            }]
+            targets: [
+                {
+                    src: `${dirAssets}/*`,
+                    dest: "assets",
+                },
+            ]
         }),
     ],
     build: {
