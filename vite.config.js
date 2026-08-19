@@ -4,8 +4,8 @@ import vue from "@vitejs/plugin-vue";
 import path from "path";
 
 const dirSrc    = `./src`;
-const dirPublic = normalizePath( path.resolve( __dirname, "public" ));
-const dirAssets = normalizePath( path.resolve( __dirname, "src/assets" ));
+const dirPublic = normalizePath( path.resolve( import.meta.dirname, "public" ));
+const dirAssets = normalizePath( path.resolve( import.meta.dirname, "src/assets" ));
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,7 +15,7 @@ export default defineConfig({
         viteStaticCopy({
             targets: [
                 {
-                    src: `${dirAssets}/*`,
+                    src: `${dirAssets}`,
                     dest: "assets",
                 },
             ]
@@ -26,7 +26,7 @@ export default defineConfig({
     },
     resolve: {
         alias: {
-            "@": path.resolve( __dirname, dirSrc ),
+            "@": path.resolve( import.meta.dirname, dirSrc ),
         },
     },
 });
