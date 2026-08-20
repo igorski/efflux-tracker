@@ -27,7 +27,7 @@
             @close="recordInput = false"
         />
         <div class="header">
-            <h2 v-t="'sampleEditor'"></h2>
+            <h2>{{ $t( "sampleEditor" ) }}</h2>
             <button
                 class="help-button"
                 @click="openHelp()"
@@ -67,7 +67,7 @@
                 <span>{{ $t( "totalDuration", { duration: meta.totalDuration }) }}</span>
                 <span>{{ $t( "sampleRate", { sampleRate: meta.sampleRate }) }}</span>
                 <span>{{ $t( "channelAmount", { amount: meta.amountOfChannels }) }}</span>
-                <span v-if="!isInUse" v-t="'notInUse'"></span>
+                <span v-if="!isInUse">{{ $t( "notInUse" ) }}</span>
             </div>
             <hr class="divider section-divider" />
             <div class="sample-display">
@@ -135,7 +135,7 @@
                         <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
                     </button>
                     <div class="toggle-control">
-                        <label v-t="'loop'"></label>
+                        <label>{{ $t( "loop" ) }}</label>
                         <toggle-button
                             v-model="sample.loop"
                             :disabled="isBusy"
@@ -143,7 +143,7 @@
                         />
                     </div>
                     <div class="playback-type-control">
-                        <label v-t="'playbackType'"></label>
+                        <label>{{ $t( "playbackType" ) }}</label>
                         <select-box
                             v-model="sample.type"
                             :options="availablePlaybackTypes"
@@ -156,7 +156,7 @@
                     class="range-controls"
                 >
                     <div class="range-control">
-                        <label v-t="'sampleStart'"></label>
+                        <label>{{ $t( "sampleStart" ) }}</label>
                         <input
                             type="range"
                             name="sampleStart"
@@ -168,7 +168,7 @@
                         />
                     </div>
                     <div class="range-control">
-                        <label v-t="'sampleEnd'"></label>
+                        <label>{{ $t( "sampleEnd" ) }}</label>
                         <input
                             type="range"
                             name="sampleEnd"
@@ -186,7 +186,7 @@
                     class="slice-controls"
                 >
                     <div class="range-control">
-                        <label v-t="'threshold'"></label>
+                        <label>{{ $t( "threshold" ) }}</label>
                         <input
                             type="range"
                             name="threshold"
@@ -197,7 +197,7 @@
                         />
                     </div>
                     <div class="range-control">
-                        <label v-t="'lowpassFreq'"></label>
+                        <label>{{ $t( "lowpassFreq" ) }}</label>
                         <input
                             type="range"
                             name="lowpassFreq"
@@ -214,30 +214,27 @@
             v-else-if="availableSamples.length === 0"
             class="no-samples"
         >
-            <p v-t="'noSamplesDescr'"></p>
+            <p>{{ $t( "noSamplesDescr" ) }}</p>
         </div>
         <hr class="divider section-divider" />
         <div class="footer">
             <div>
                 <button
-                    v-t="'saveChanges'"
                     type="button"
                     :disabled="!sample || isBusy"
                     @click="commitChanges()"
-                ></button>
+                >{{ $t( "saveChanges" ) }}</button>
                 <button
-                    v-t="'createInstrument'"
                     type="button"
                     :disabled="!sample || isBusy"
                     @click="commitAndCreateInstrument()"
-                ></button>
+                >{{ $t( "createInstrument" ) }}</button>
                 <button
                     v-if="canTrim"
-                    v-t="'trim'"
                     type="button"
                     :disabled="!sample || !hasAltRange || isBusy"
                     @click="trimSample()"
-                ></button>
+                >{{ $t( "trim" ) }}</button>
                 <span
                     v-if="isBusy && encodeProgress"
                     class="progress"
@@ -246,9 +243,8 @@
             <div>
                 <button
                     type="button"
-                    v-t="'record'"
                     @click="recordInput = true"
-                ></button>
+                >{{ $t( "record" ) }}</button>
                 <file-loader file-types="audio" class="file-loader" />
             </div>
         </div>
@@ -257,6 +253,7 @@
 
 <script lang="ts">
 import debounce from "lodash.debounce";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { type Size } from "zcanvas";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
@@ -296,7 +293,6 @@ function sanitizeRangeValue( value: number): number {
 }
 
 export default {
-    i18n: { messages },
     components: {
         FileLoader,
         SampleDisplay,
@@ -325,6 +321,10 @@ export default {
         displayZoom : 1,
         displayOffsetX: 0.5, // normalized 0 - 1 range
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             selectedInstrument: state => state.editor.selectedInstrument,

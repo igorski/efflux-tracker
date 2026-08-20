@@ -32,26 +32,25 @@
             <template v-if="!authenticated">
                 <button
                     v-if="authUrl"
-                    v-t="'loginToDropbox'"
                     type="button"
                     class="button dropbox-button"
                     @click="login()"
-                ></button>
+                >{{ $t( "loginToDropbox" ) }}</button>
             </template>
             <template v-if="authenticated || awaitingConnection">
                 <button
-                    v-t="authenticated ? 'importFromDropbox' : 'connectingToDropbox'"
                     type="button"
                     class="button dropbox-button"
                     :disabled="awaitingConnection"
                     @click="openFileBrowser()"
-                ></button>
+                >{{ $t( authenticated ? "importFromDropbox" : "connectingToDropbox" ) }}</button>
             </template>
         </template>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapMutations } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import {
@@ -60,7 +59,6 @@ import {
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     props: {
         asMenuButton: {
             type: Boolean,
@@ -76,6 +74,10 @@ export default {
         loading: false,
         authUrl: "",
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "dropboxConnected",

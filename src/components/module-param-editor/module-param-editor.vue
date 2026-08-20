@@ -23,7 +23,7 @@
 <template>
     <div class="module-param-editor">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button type="button" class="help-button" @click="handleHelp">?</button>
             <button type="button" class="close-button" @click="handleClose">x</button>
         </div>
@@ -31,157 +31,183 @@
         <ul id="moduleSelect">
             <ul>
                 <form-list-item
-                    v-t="'volume'"
                     v-model="module"
                     :option-value="automationParam('volume')"
-                />
+                >
+                    {{ $t( "volume") }}
+                </form-list-item>
                 <template v-if="supportsPanning">
                     <form-list-item
-                        v-t="'panLeft'"
                         v-model="module"
                         :option-value="automationParam('panLeft')"
-                    />
+                    >
+                        {{ $t( "panLeft") }}
+                    </form-list-item>
                     <form-list-item
-                        v-t="'panRight'"
                         v-model="module"
                         :option-value="automationParam('panRight')"
-                    />
+                    >
+                        {{ $t( "panRight" ) }}
+                    </form-list-item>
                 </template>
                 <form-list-item
-                    v-t="'pitchUp'"
                     v-model="module"
                     :option-value="automationParam('pitchUp')"
-                />
+                >
+                    {{ $t( "pitchUp") }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'pitchDown'"
                     v-model="module"
                     :option-value="automationParam('pitchDown')"
-                />
+                >
+                    {{ $t( "pitchDown") }}
+                </form-list-item>
             </ul>
             <ul>
                 <form-list-item
-                    v-t="'eqEnabled'"
                     v-model="module"
                     :option-value="automationParam('eqEnabled')"
-                />
+                >
+                    {{ $t( "eqEnabled" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'eqLow'"
                     v-model="module"
                     :option-value="automationParam('eqLow')"
-                />
+                >
+                    {{ $t( "eqLow" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'eqMid'"
                     v-model="module"
                     :option-value="automationParam('eqMid')"
-                />
+                >
+                    {{ $t( "eqMid" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'eqHigh'"
                     v-model="module"
                     :option-value="automationParam('eqHigh')"
-                />
+                >
+                    {{ $t( "eqHigh") }}
+                </form-list-item>
             </ul>
             <ul>
                 <form-list-item
-                    v-t="'filterOnOff'"
                     v-model="module"
                     :option-value="automationParam('filterEnabled')"
-                />
+                >
+                    {{ $t( "filterOnOff" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'filterFreq'"
                     v-model="module"
                     :option-value="automationParam('filterFreq')"
-                />
+                >
+                    {{ $t( "filterFreq" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'filterQ'"
                     v-model="module"
                     :option-value="automationParam('filterQ')"
-                />
+                >
+                    {{ $t( "filterQ" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'filterLfoOnOff'"
                     v-model="module"
                     :option-value="automationParam('filterLFOEnabled')"
-                />
+                >
+                    {{ $t( "filterLfoOnOff" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'filterLfoSpeed'"
                     v-model="module"
                     :option-value="automationParam('filterLFOSpeed')"
-                />
+                >
+                    {{ $t( "filterLfoSpeed" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'filterLfoDepth'"
                     v-model="module"
                     :option-value="automationParam('filterLFODepth')"
-                />
+                >
+                    {{ $t( "filterLfoDepth" ) }}
+                </form-list-item>
             </ul>
             <ul>
                 <form-list-item
-                    v-t="'odEnabled'"
                     v-model="module"
                     :option-value="automationParam('odEnabled')"
-                />
+                >
+                    {{ $t( "odEnabled" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'odDrive'"
                     v-model="module"
                     :option-value="automationParam('odDrive')"
-                />
+                >
+                    {{ $t( "odDrive" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'odPreBand'"
                     v-model="module"
                     :option-value="automationParam('odPreBand')"
-                />
+                >
+                    {{ $t( "odPreBand" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'odColor'"
                     v-model="module"
                     :option-value="automationParam('odColor')"
-                />
+                >
+                    {{ $t( "odColor" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'odPostCut'"
                     v-model="module"
                     :option-value="automationParam('odPostCut')"
-                />
+                >
+                    {{ $t( "odPostCut" ) }}
+                </form-list-item>
             </ul>
             <ul>
                 <form-list-item
-                    v-t="'delayOnOff'"
                     v-model="module"
                     :option-value="automationParam('delayEnabled')"
-                />
+                >
+                    {{ $t( "delayOnOff" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'delayTime'"
                     v-model="module"
                     :option-value="automationParam('delayTime')"
-                />
+                >
+                    {{ $t( "delayTime" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'delayFeedback'"
                     v-model="module"
                     :option-value="automationParam('delayFeedback')"
-                />
+                >
+                    {{ $t( "delayFeedback" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'delayDry'"
                     v-model="module"
                     :option-value="automationParam('delayDry')"
-                />
+                >
+                    {{ $t( "delayDry" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'delayCutoff'"
                     v-model="module"
                     :option-value="automationParam('delayCutoff')"
-                />
+                >
+                    {{ $t( "delayCutoff" ) }}
+                </form-list-item>
                 <form-list-item
-                    v-t="'delayOffset'"
                     v-model="module"
                     :option-value="automationParam('delayOffset')"
-                />
+                >
+                    {{ $t( "delayOffset" ) }}
+                </form-list-item>
             </ul>
         </ul>
         <fieldset>
             <div class="wrapper input">
-                <h2 v-t="'useGlide'"></h2>
+                <h2>{{ $t( "useGlide" ) }}</h2>
                 <toggle-button
                     v-model="glide"
                     sync
                 />
             </div>
             <div class="wrapper input range">
-                <label v-t="'parameterValue'" for="moduleValue"></label>
+                <label for="moduleValue">{{ $t( "parameterValue" ) }}</label>
                 <input
                     v-model.number="value"
                     type="range"
@@ -189,18 +215,18 @@
                 />
                 <div id="moduleInputValue" v-html="valueText"></div>
             </div>
-            <p v-t="'fastEditDescr'"></p>
+            <p>{{ $t( "fastEditDescr" ) }}</p>
             <button
-                v-t="'ok'"
                 type="button"
                 class="confirm-button"
                 @click="handleSubmit()"
-            ></button>
+            >{{ $t( "ok" ) }}</button>
         </fieldset>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import EventFactory from "@/model/factories/event-factory";
@@ -226,7 +252,6 @@ let lastValueTypeAction = 0, lastValueChar = 0;
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         FormListItem,
         ToggleButton,
@@ -241,6 +266,10 @@ export default {
         step: 0,
         supportsPanning: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,

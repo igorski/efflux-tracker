@@ -23,7 +23,7 @@
 <template>
     <div class="mixer">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button class="close-button"
                     @click="$emit('close')"
             >x</button>
@@ -42,6 +42,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters } from "vuex";
 import { applyModules, getAnalysers } from "@/services/audio-service";
 import ChannelStrip from "./components/channel-strip.vue";
@@ -49,13 +50,16 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         ChannelStrip,
     },
     data: () => ({
         analysers: [],
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "activeSong",

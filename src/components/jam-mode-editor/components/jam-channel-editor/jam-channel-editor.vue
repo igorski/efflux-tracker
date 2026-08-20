@@ -101,6 +101,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import ModalWindows from "@/definitions/modal-windows";
@@ -114,7 +115,6 @@ import { getInstrumentName } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     components: {
         PianoRollLite,
         WaveformDisplay,
@@ -124,6 +124,10 @@ export default {
             type: Object, /* type JamChannel */
             required: true,
         },
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     computed: {
         ...mapState({

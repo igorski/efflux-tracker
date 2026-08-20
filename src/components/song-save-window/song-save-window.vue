@@ -23,7 +23,7 @@
 <template>
     <div class="song-save-window">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -53,7 +53,7 @@
             />
             <div v-if="dropboxConnected" class="dropbox-form">
                 <div class="wrapper input footer">
-                    <label v-t="'saveInDropbox'"></label>
+                    <label>{{ $t( "saveInDropbox" ) }}</label>
                     <toggle-button
                         v-model="saveInDropbox"
                         class="dropbox-toggle"
@@ -71,41 +71,39 @@
                             @blur="handleFocusOut"
                         />
                     </div>
-                    <p v-t="'folderExpl'" class="expl"></p>
+                    <p class="expl">{{ $t( "folderExpl" ) }}</p>
                 </template>
             </div>
             <div v-if="canConvert" class="project-type">
-                <label v-t="'projectType'"></label>
+                <label>{{ $t( "projectType" ) }}</label>
                 <select-box
                     v-model="songType"
                     :options="songTypes"
                 />
-                <p v-t="'projectTypeExpl'" class="expl"></p>
+                <p class="expl">{{ $t( "projectTypeExpl" ) }}</p>
             </div>
             <button
-                v-t="'save'"
                 type="button"
                 class="save-button"
                 :disabled="!title.length || !author.length || isSaving"
                 @click="save"
-            ></button>
+            >{{ $t( "save" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { getCurrentFolder, setCurrentFolder } from "@/services/dropbox-service";
 import SelectBox from "@/components/forms/select-box.vue";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
-import PatternFactory from "@/model/factories/pattern-factory";
 import { EffluxSongType } from "@/model/types/song";
 import { convertSongType } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         SelectBox,
         ToggleButton,
@@ -118,6 +116,10 @@ export default {
         saveInDropbox: false,
         isSaving: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "dropboxConnected",

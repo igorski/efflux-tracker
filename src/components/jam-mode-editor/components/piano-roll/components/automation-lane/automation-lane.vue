@@ -26,7 +26,7 @@
         :class="{ 'automation-lane--expanded': !collapsed }"
     >
         <div class="automation-lane__header">
-            <h2 v-t="'title'" class="automation-lane__title"></h2>
+            <h2 class="automation-lane__title">{{ $t( "title" ) }}</h2>
             <select-box
                 v-if="!collapsed"
                 v-model="selectedModule"
@@ -37,17 +37,15 @@
             <div class="automation-lane__header-actions">
                 <button
                     v-if="!collapsed"
-                    v-t="'clear'"
                     type="button"
                     class="automation-lane__header-button"
                     @click="$emit('clear')"
-                ></button>
+                >{{ $t( "clear" ) }}</button>
                 <button
-                    v-t="collapsed ? 'expand' : 'collapse'"
                     type="button"
                     class="automation-lane__header-button automation-lane__header-button-toggle"
                     @click="$emit('toggle')"
-                ></button>
+                >{{ $t( collapsed ? "expand" : "collapse" ) }}</button>
             </div>
         </div>
         <section
@@ -74,6 +72,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
 import {
@@ -103,7 +102,6 @@ let orgValue: number;
 const NON_SELECTED_STEP = -1;
 
 export default {
-    i18n: { messages },
     components: {
         AutomationLaneEntry,
         SelectBox,
@@ -131,6 +129,10 @@ export default {
         focusedStepValue: 0,
         editingStep: NON_SELECTED_STEP,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "activeSong",

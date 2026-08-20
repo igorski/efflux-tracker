@@ -32,39 +32,36 @@
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
             <span>&#9776;</span>
         </div>
-        <h1 v-t="'title'" class="menu__title"></h1>
+        <h1 class="menu__title">{{ $t( "title" ) }}</h1>
         <section class="inline">
             <ul class="menu-list">
                 <li>
-                    <a v-t="'file'" class="menu-list__title" @click.prevent=""></a>
+                    <a class="menu-list__title" @click.prevent="">{{ $t( "file" ) }}</a>
                     <ul class="menu-list__submenu">
                         <li>
                             <button
-                                v-t="'new'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="resetSong()"
-                            ></button>
+                            >{{ $t( "new" ) }}</button>
                         </li>
                         <!-- note the use of data-attributes to expose these links for external -->
                         <!-- applications to hook into their behaviour -->
                         <li>
                             <button
-                                v-t="'open'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleLoad()"
                                 data-api-song-load
-                            ></button>
+                            >{{ $t( "open" ) }}</button>
                         </li>
                         <li>
                             <button
                                 v-if="!dropboxLoaded"
-                                v-t="'openFromDropbox'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="dropboxLoaded = true"
-                            ></button>
+                            >{{ $t( "openFromDropbox" ) }}</button>
                             <component
                                 :is="cloudImportType"
                                 :button-title="$t('openFromDropbox')"
@@ -73,124 +70,111 @@
                         </li>
                         <li>
                             <button
-                                v-t="'save'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleSave( true )"
-                            ></button>
+                            >{{ $t( "save" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'saveAs'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleSave( false )"
                                 data-api-song-save
-                            ></button>
+                            >{{ $t( "saveAs" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'exportProject'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleExport()"
-                            ></button>
+                            >{{ $t( "exportProject" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'exportJSON'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleJSONExport()"
-                            ></button>
+                            >{{ $t( "exportJSON" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'exportMidi'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleMidiExport()"
-                            ></button>
+                            >{{ $t( "exportMidi" ) }}</button>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a v-t="'edit'" class="menu-list__title" @click.prevent=""></a>
+                    <a class="menu-list__title" @click.prevent="">{{ $t( "edit" ) }}</a>
                     <ul class="menu-list__submenu">
                         <li>
                             <button
-                                v-t="'transposePitch'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleTransposeClick()"
-                            ></button>
+                            >{{ $t( "transposePitch" ) }}</button>
                         </li>
                         <li v-if="!jamMode">
                             <button
-                                v-t="'insertChord'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleChordClick()"
-                            ></button>
+                            >{{ $t( "insertChord" ) }}</button>
                         </li>
                         <li>
                             <hr class="divider" />
                         </li>
                         <li>
                             <button
-                                v-t="'optimizeResources'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleOptimizeClick()"
-                            ></button>
+                            >{{ $t( "optimizeResources" ) }}</button>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a v-t="'instruments'" class="menu-list__title" @click.prevent=""></a>
+                    <a class="menu-list__title" @click.prevent="">{{ $t( "instruments" ) }}</a>
                     <ul class="menu-list__submenu">
                         <li>
                             <button
-                                v-t="'instrumentEditor'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleInstrumentEditorClick()"
-                            ></button>
+                            >{{ $t( "instrumentEditor" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'managePresets'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleInstrumentBrowserClick()"
-                            ></button>
+                            >{{ $t( "managePresets" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'sampleEditor'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleSampleEditorClick()"
-                            ></button>
+                            >{{ $t( "sampleEditor" ) }}</button>
                         </li>
                         <li>
                             <button
-                                v-t="'mixer'"
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleMixerClick()"
-                            ></button>
+                            >{{ $t( "mixer" ) }}</button>
                         </li>
                     </ul>
                 </li>
                 <li>
                     <button
-                        v-t="'settings'"
                         type="button"
                         class="menu-list__button"
                         @click="handleSettings()"
                         data-api-settings
-                    ></button>
+                    >{{ $t( "settings" ) }}</button>
                 </li>
                 <li>
                     <button
@@ -202,12 +186,11 @@
                 </li>
                 <li>
                     <button
-                        v-t="'helpTutorials'"
                         type="button"
                         class="menu-list__button"
                         @click="handleHelp()"
                         data-api-help
-                    ></button>
+                    >{{ $t( "helpTutorials" ) }}</button>
                 </li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen" class="fullscreen-button">
@@ -237,6 +220,7 @@
 
 <script lang="ts">
 import { type Component, defineAsyncComponent } from "vue";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
@@ -248,11 +232,14 @@ import { toFileName } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     data: () => ({
         isFullscreen: false,
         dropboxLoaded: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "menuOpened",

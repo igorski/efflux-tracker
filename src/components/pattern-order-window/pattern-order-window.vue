@@ -23,7 +23,7 @@
 <template>
     <div class="pattern-order-window">
         <div class="header">
-            <h2 v-t="'patternOrder'"></h2>
+            <h2>{{ $t( "patternOrder" ) }}</h2>
             <button
                 :title="$t('help')"
                 class="help-button"
@@ -36,9 +36,8 @@
                 @click="$emit('close')"
             >x</button>
             <span
-                v-t="'patternExpl'"
                 class="header__explanation"
-            ></span>
+            >{{ $t( "patternExpl" ) }}</span>
         </div>
         <hr class="divider" />
         <ul class="order-list">
@@ -90,18 +89,18 @@
                     class="footer__ui-select-box"
                 />
                 <button
-                    v-t="'addPattern'"
                     :title="$t('addPattern')"
                     type="button"
                     class="button"
                     @click.stop="handleAddClick()"
-                ></button>
+                >{{ $t( "addPattern" ) }}</button>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
@@ -120,7 +119,6 @@ type WrappedPatternOrderEntry = {
 };
 
 export default {
-    i18n: { messages },
     components: {
         Draggable,
         SelectBox,
@@ -128,6 +126,10 @@ export default {
     data: () => ({
         newPatternIndex: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,

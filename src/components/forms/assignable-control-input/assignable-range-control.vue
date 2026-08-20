@@ -43,26 +43,24 @@
         />
         <p
             v-if="linking"
-            v-t="'moveControllerToAssign'"
             class="help-text"
-        ></p>
+        >{{ $t( "moveControllerToAssign" ) }}</p>
         <button
             v-if="midiAssignMode && paired"
-            v-t="'unlink'"
             class="unlink-button"
             @click="unlink()"
-        ></button>
+        >{{ $t( "unlink" ) }}</button>
    </div>
 </template>
 
 <script lang="ts">
-import AssignableInput from "./assignable-control-input";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { getParamRange } from "@/services/audio/param-controller";
+import AssignableInput from "./assignable-control-input";
 import messages from "./messages.json";
 
 export default {
     emits: [ "update:modelValue" ],
-    i18n: { messages },
     mixins: [ AssignableInput ],
     props: {
         paramId: {
@@ -85,6 +83,10 @@ export default {
             type: Boolean,
             default: false,
         },
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     created(): void {
         const { min, max, step } = getParamRange( this.paramId );

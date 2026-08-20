@@ -109,10 +109,7 @@
             </ul>
             <ul class="transport-controls__tempo wrapper input range">
                 <li>
-                    <label
-                        v-t="'tempoLabel'"
-                        for="songTempo"
-                    ></label>
+                    <label for="songTempo">{{ $t( "tempoLabel" ) }}</label>
                     <input
                         type="range"
                         id="songTempo"
@@ -149,6 +146,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Bowser from "bowser";
 import PatternOrderList from "@/components/pattern-order-list/pattern-order-list.vue";
@@ -159,7 +157,6 @@ import { resetPlayState } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     components: {
         PatternOrderList,
     },
@@ -168,6 +165,10 @@ export default {
         patternFocused: false,
         showTempoInput: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,

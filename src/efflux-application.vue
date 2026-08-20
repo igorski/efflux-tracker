@@ -26,8 +26,8 @@
         <div v-if="!canLaunch"
              class="container"
         >
-            <h1 v-t="'unsupported.title'"></h1>
-            <p v-t="'unsupported.message'"></p>
+            <h1>{{ $t( "unsupported.title" ) }}</h1>
+            <p>{{ $t( "unsupported.message" ) }}</p>
             <i18n-t keypath="unsupported.download">
                 <a href="https://www.google.com/chrome" rel="noopener" target="_blank">
                     {{ $t( "unsupported.googleChrome" ) }}
@@ -115,7 +115,7 @@
 <script lang="ts">
 import { type Component, defineAsyncComponent } from "vue";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
-import { createI18n } from "vue-i18n";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import Bowser from "bowser";
 import Pubsub from "pubsub-js";
 import AudioService, { getAudioContext } from "@/services/audio-service";
@@ -134,11 +134,6 @@ import PubSubMessages from "@/services/pubsub/messages";
 import { readClipboardFiles, readDroppedFiles, readTextFromFile } from "@/utils/file-util";
 import { deserializePatternFile } from "@/utils/pattern-util";
 import messages from "@/messages.json";
-
-// Create VueI18n instance with options
-const i18n = createI18n({
-    messages
-});
 
 // wrapper for loading dynamic components with custom loading states
 type IAsyncComponent = { component: Promise<Component>};
@@ -182,6 +177,10 @@ export default {
         canLaunch: true,
         centerWidth: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "menuOpened",

@@ -23,23 +23,22 @@
 <template>
     <div>
         <button
-            v-t="buttonText.local"
             type="button"
             @click="loadFile()"
-        ></button>
+        >{{ $t( "buttonText.local" ) }}</button>
         <button
             v-if="!dropbox"
-            v-t="buttonText.dropbox"
             type="button"
             class="dropbox-button"
             @click="dropbox = true"
-        ></button>
+        >{{ $t( "buttonText.dropbox" ) }}</button>
         <component :is="cloudImportType" />
     </div>
 </template>
 
 <script lang="ts">
 import { type Component, defineAsyncComponent } from "vue";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapMutations, mapActions } from "vuex";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
 import ModalWindows from "@/definitions/modal-windows";
@@ -48,11 +47,9 @@ import { getAudioContext } from "@/services/audio-service";
 import { loadSample } from "@/services/audio/sample-loader";
 import { openFileBrowser } from "@/utils/file-util";
 import { truncate } from "@/utils/string-util";
-
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     props: {
         fileTypes: {
             type: String,
@@ -63,6 +60,10 @@ export default {
     data: () => ({
         dropbox: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         buttonText(): { local: string, dropbox: string } {
             const useImport = this.fileTypes === "audio";

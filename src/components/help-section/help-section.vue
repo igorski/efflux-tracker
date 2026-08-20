@@ -154,14 +154,14 @@
     </section>
 </template>
 
-<script>
+<script lang="ts">
 import { mapState } from "vuex";
 
 export default {
     computed: {
         ...mapState([
             "helpTopic"
-        ])
+        ]),
     },
 };
 </script>

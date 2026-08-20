@@ -27,7 +27,7 @@
         @keyup.esc="handleClose()"
     >
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -38,7 +38,7 @@
         <p>{{ $t( "semitonesExpl", { semitones: 24 }) }}</p>
         <fieldset>
             <div class="wrapper input">
-                <label v-t="'semitones'"></label>
+                <label>{{ $t( "semitones" ) }}</label>
                 <input
                     ref="semitoneInput"
                     v-model.number="semitones"
@@ -50,36 +50,35 @@
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label v-t="'patternRange'"></label>
+                <label>{{ $t( "patternRange" ) }}</label>
                 <input type="number" v-model.number="firstPattern" min="1" :max="maxPattern" />
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern" />
             </div>
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label v-t="'instrumentRange'"></label>
+                <label>{{ $t( "instrumentRange" ) }}</label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel" />
                 <input type="number" min="1" max="8" v-model.number="lastChannel" />
             </div>
         </fieldset>
         <button
-            v-t="'transpose'"
             type="button"
             class="confirm-button"
             @keyup.enter="handleConfirm()"
             @click="handleConfirm()"
-        ></button>
+        >{{ $t( "transpose" ) }}</button>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations } from "vuex";
 import transpose from "@/model/actions/transpose";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     data: () => ({
         firstPattern : 1,
         lastPattern  : 1,
@@ -88,6 +87,10 @@ export default {
         pastePattern : 1,
         semitones    : 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "activeSong",

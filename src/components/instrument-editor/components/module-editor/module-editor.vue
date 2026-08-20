@@ -30,13 +30,17 @@
                 v-if="showTabs"
                 class="modules-tabs tab-list"
             >
-                <li v-t="'filterTitle'"
+                <li
                     :class="{ active: activeModuleTab === 0 }"
-                    @click="activeModuleTab = 0">
+                    @click="activeModuleTab = 0"
+                >
+                    {{ $t( "filterTitle" ) }}
                 </li>
-                <li v-t="'odDelayTitle'"
+                <li
                     :class="{ active: activeModuleTab === 1 }"
-                    @click="activeModuleTab = 1">
+                    @click="activeModuleTab = 1"
+                >
+                    {{ $t( "odDelayTitle" ) }}
                 </li>
             </ul>
 
@@ -45,7 +49,7 @@
                 :class="{ active: !showTabs || activeModuleTab === 0 }"
             >
                 <fieldset id="eqEditor" class="instrument-parameters">
-                    <legend v-t="'eqLegend'"></legend>
+                    <legend>{{ $t( "eqLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="eqEnabled"
                         :param-id="MIDI_ASSIGNABLE.EQ_ENABLED"
@@ -69,7 +73,7 @@
                 </fieldset>
 
                 <fieldset id="filterEditor" class="instrument-parameters">
-                    <legend v-t="'filterLegend'"></legend>
+                    <legend>{{ $t( "filterLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="filterEnabled"
                         :param-id="MIDI_ASSIGNABLE.FILTER_ENABLED"
@@ -112,7 +116,7 @@
                 :class="{ active: !showTabs || activeModuleTab === 1 }"
             >
                 <fieldset id="odEditor" class="instrument-parameters">
-                    <legend v-t="'odLegend'"></legend>
+                    <legend>{{ $t( "odLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="odEnabled"
                         :param-id="MIDI_ASSIGNABLE.OD_ENABLED"
@@ -141,7 +145,7 @@
                 </fieldset>
 
                 <fieldset id="delayEditor" class="instrument-parameters">
-                    <legend v-t="'delayLegend'"></legend>
+                    <legend>{{ $t( "delayLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="delayEnabled"
                         :param-id="MIDI_ASSIGNABLE.DELAY_ENABLED"
@@ -149,9 +153,9 @@
                     />
                     <!-- not sure whether this offers any usable flexibility -->
                     <select v-if="false" v-model.number="delayType">
-                        <option v-t="'delay0'" value="0"></option>
-                        <option v-t="'delay1'" value="1"></option>
-                        <option v-t="'delay2'" value="2"></option>
+                        <option value="0">{{ $t( "delay0" ) }}</option>
+                        <option value="1">{{ $t( "delay1" ) }}</option>
+                        <option value="2">{{ $t( "delay2" ) }}</option>
                     </select>
                     <assignable-range-control
                         v-model.number="delayTime"
@@ -159,9 +163,7 @@
                         :label="$t('delayTime')"
                     />
                     <div class="wrapper toggle delay-tempo-sync">
-                        <label
-                            v-t="'tempoSync'"
-                        ></label>
+                        <label>{{ $t( "tempoSync" ) }}</label>
                         <toggle-button
                             v-model="delaySync"
                             sync
@@ -194,6 +196,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters } from "vuex";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
@@ -208,14 +211,11 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "invalidate" ],
-    i18n: { messages },
     components: {
         SelectBox,
         ToggleButton,
     },
-    mixins: [
-        ControllerEditor
-    ],
+    mixins: [ ControllerEditor ],
     props: {
         instrumentIndex: {
             type: Number,
@@ -233,6 +233,10 @@ export default {
     data: () => ({
         activeModuleTab: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "windowSize",

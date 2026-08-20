@@ -23,7 +23,7 @@
 <template>
     <div class="pattern-manager">
         <div class="header">
-            <h2 v-t="'patternManager'"></h2>
+            <h2>{{ $t( "patternManager" ) }}</h2>
             <button
                 :title="$t('help')"
                 type="button"
@@ -94,24 +94,23 @@
         <hr class="divider divider--bottom" />
         <div class="footer">
             <button
-                v-t="'createNew'"
                 type="button"
                 class="button"
                 @click="handleCreateNew()"
-            ></button>
+            >{{ $t( "createNew" ) }}</button>
             <button
                 v-if="useOrders"
-                v-t="'orderPatterns'"
                 type="button"
                 class="button"
                 @click="handleOrderClick()"
-            ></button>
+            >{{ $t( "orderPatterns" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { mapState, mapGetters, mapMutations, mapActions, type Store } from "vuex";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import addPattern from "@/model/actions/pattern-add";
@@ -127,10 +126,13 @@ type WrappedPatternEntry = {
 };
 
 export default {
-    i18n: { messages },
     data: () => ({
         showDescriptionInput: -1,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,

@@ -23,7 +23,7 @@
 <template>
     <div class="song-creation-window">
         <div class="header">
-            <h2 v-t="'createNew'"></h2>
+            <h2>{{ $t( "createNew" ) }}</h2>
         </div>
         <hr class="divider" />
         <div class="song-creation-window__content">
@@ -36,8 +36,8 @@
                     class="song-creation-window__song-type__preview"
                     src="@/assets/images/snippet_tracker.png"
                 />
-                <h3 v-t="'tracker'" class="song-creation-window__song-type__title"></h3>
-                <p v-t="'trackerExpl'" class="song-creation-window__song-type__descr"></p>
+                <h3 class="song-creation-window__song-type__title">{{ $t( "tracker" ) }}</h3>
+                <p class="song-creation-window__song-type__descr">{{ $t( "trackerExpl" ) }}</p>
             </div>
             <div
                 class="song-creation-window__song-type"
@@ -48,14 +48,15 @@
                     class="song-creation-window__song-type__preview"
                     src="@/assets/images/snippet_jam_mode.png"
                 />
-                <h3 v-t="'jamSession'" class="song-creation-window__song-type__title"></h3>
-                <p v-t="'jamSessionExpl'" class="song-creation-window__song-type__descr"></p>
+                <h3 class="song-creation-window__song-type__title">{{ $t( "jamSession" ) }}</h3>
+                <p class="song-creation-window__song-type__descr">{{ $t( "jamSessionExpl" ) }}</p>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapMutations, mapActions } from "vuex";
 import { EffluxSongType } from "@/model/types/song";
 import PubSubMessages from "@/services/pubsub/messages";
@@ -63,7 +64,10 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     created(): void {
         this.setPlaying( false );
     },

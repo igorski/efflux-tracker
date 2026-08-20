@@ -23,7 +23,7 @@
 <template>
     <div class="welcome">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -32,33 +32,30 @@
         </div>
         <hr class="divider" />
         <div class="pane text">
-            <p v-t="'introductionFirstTime'"></p>
+            <p>{{ $t( "introductionFirstTime" ) }}</p>
             <button
                 type="button"
                 class="pulse-button"
                 @click="openSavedSong()"
             >
-                <span v-t="'openSong'"></span><span class="pulse-button__animation"></span>
+                <span>{{ $t( "openSong" ) }}</span><span class="pulse-button__animation"></span>
             </button>
             <button
                 type="button"
-                v-t="'tweakInstrument'"
                 @click="openInstrumentEditor()"
-            ></button>
+            >{{ $t( "tweakInstrument" ) }}</button>
             <i18n-t keypath="introductionHelp" tag="p">
                 <span class="emphasis">{{ $t('jamMode') }}</span>
             </i18n-t>
             <button
                 type="button"
                 class="button--secondary"
-                v-t="'jamMode'"
                 @click="createJamSong()"
-            ></button>
+            >{{ $t( "jamMode" ) }}</button>
             <button
                 type="button"
-                v-t="'openHelp'"
                 @click="openHelp()"
-            ></button>
+            >{{ $t( "openHelp" ) }}</button>
         </div>
         <div class="pane logo">
             <img
@@ -73,7 +70,7 @@
         </div>
         <hr class="divider" />
         <div class="wrapper input footer">
-            <label v-t="'showOnStartup'"></label>
+            <label>{{ $t( "showOnStartup" ) }}</label>
             <toggle-button
                 v-model="showOnStartup"
                 class="show-startup"
@@ -84,6 +81,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import FileLoader from "@/components/file-loader/file-loader.vue";
@@ -92,15 +90,17 @@ import ModalWindows from "@/definitions/modal-windows";
 import { EffluxSongType } from "@/model/types/song";
 import PubSubMessages from "@/services/pubsub/messages";
 import { PROPERTIES } from "@/store/modules/settings-module";
-
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         FileLoader,
         ToggleButton,
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     computed: {
         ...mapGetters([

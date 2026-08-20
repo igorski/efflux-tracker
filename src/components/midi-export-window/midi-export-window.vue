@@ -26,7 +26,7 @@
         @keyup.esc="handleClose()"
     >
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -36,7 +36,7 @@
         <hr class="divider" />
         <fieldset>
             <div class="wrapper input">
-                <label v-t="'patternRange'"></label>
+                <label>{{ $t( "patternRange" ) }}</label>
                 <input
                     v-model.number="firstOrderIndex"
                     ref="firstPatternInput"
@@ -54,22 +54,22 @@
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label v-t="'instrumentRange'"></label>
+                <label>{{ $t( "instrumentRange" ) }}</label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
         <button
-            v-t="'export'"
             type="button"
             class="confirm-button"
             @keyup.enter="handleConfirm"
             @click="handleConfirm"
-        ></button>
+        >{{ $t( "export" ) }}</button>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations } from "vuex";
 import midiWriter from "midi-writer-js";
 import { saveAsFile } from "@/utils/file-util";
@@ -79,7 +79,6 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     data: () => ({
         firstOrderIndex : 1,
         lastOrderIndex  : 1,
@@ -87,6 +86,10 @@ export default {
         lastChannel     : 8,
         pastePattern    : 1,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "activeSong",

@@ -23,7 +23,7 @@
 <template>
     <div class="optimization-window">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -32,10 +32,10 @@
         </div>
         <hr class="divider" />
         <div class="content">
-            <p v-t="'optimizeExpl'"></p>
+            <p>{{ $t( "optimizeExpl" ) }}</p>
             <fieldset>
                 <div class="toggle-control">
-                    <label v-t="'compress'"></label>
+                    <label>{{ $t( "compress" ) }}</label>
                     <toggle-button
                         v-model="optimizeSamples"
                         sync
@@ -43,11 +43,10 @@
                 </div>
             </fieldset>
             <button
-                v-t="'optimize'"
                 type="button"
                 class="button confirm-button"
                 @click="optimize()"
-            ></button>
+            >{{ $t( "optimize" ) }}</button>
         </div>
         <hr class="divider" />
         <div class="footer"></div>
@@ -55,6 +54,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations } from "vuex";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import OscillatorTypes from "@/definitions/oscillator-types";
@@ -66,18 +66,20 @@ import { getAudioContext } from "@/services/audio-service";
 import { encodeSampleSource } from "@/utils/audio-encode-util";
 import EventUtil from "@/utils/event-util";
 import { canOptimize, sliceBuffer } from "@/utils/sample-util";
-
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         ToggleButton,
     },
     data: () => ({
         optimizeSamples: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "activeSong",

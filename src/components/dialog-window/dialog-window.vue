@@ -32,27 +32,25 @@
             class="actions"
         >
             <button
-                v-t="'ok'"
                 type="button"
                 @click="handleConfirm()"
-            ></button>
+            >{{ $t( "ok" ) }}</button>
             <button
                 v-if="type === 'confirm'"    
-                v-t="'cancel'"
                 type="button"
                 @click="handleCancel()"
-            ></button>
+            >{{ $t( "cancel" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapMutations } from "vuex";
 import KeyboardService from "@/services/keyboard-service";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     props: {
         title: {
             type: String,
@@ -79,6 +77,10 @@ export default {
             type: Boolean,
             default: false,
         },
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     created(): void {
         KeyboardService.setListener( this.handleKey.bind( this ));

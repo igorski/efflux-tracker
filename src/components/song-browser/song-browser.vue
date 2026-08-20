@@ -23,7 +23,7 @@
 <template>
     <div class="song-browser">
         <div class="header">
-            <h2 v-t="'songs'"></h2>
+            <h2>{{ $t( "songs" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -31,7 +31,7 @@
             >x</button>
             <section class="song-browser__explanation">
                 <hr class="divider" />
-                <div v-t="'localSongsExpl'" class="song-browser__explanation-text"></div>
+                <div class="song-browser__explanation-text">{{ $t( "localSongsExpl" ) }}</div>
             </section>
         </div>
         <hr class="divider" />
@@ -66,16 +66,16 @@
                 class="file-loader"
             />
             <button
-                v-t="'importFile'"
                 type="button"
                 class="import-button"
                 @click="handleSongImport()"
-            ></button>
+            >{{ $t( "importFile" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import FileLoader from "@/components/file-loader/file-loader.vue";
 import { PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
@@ -94,9 +94,15 @@ type WrappedSongEntry = EffluxSong & {
 
 export default {
     emits: [ "close" ],
-    i18n: { messages, sharedMessages },
     components: {
         FileLoader,
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t, mergeLocaleMessage } = useI18n({ messages });
+        Object.keys( sharedMessages ).forEach( locale => {
+            mergeLocaleMessage( locale, sharedMessages[ locale ]);
+        });
+        return { t };
     },
     computed: {
         ...mapGetters([

@@ -24,8 +24,7 @@
     <div class="pattern-order-list">
         <label
             class="pattern-order-list__label"
-            v-t="'patternOrder'"
-        ></label>
+        >{{ $t( "patternOrder" ) }}</label>
         <button
             :title="$t('previous')"
             :disabled="!canNavBack"
@@ -46,17 +45,15 @@
             <template v-if="entry.editing">
                 <button
                     type="button"
-                    v-t="'repeat'"
                     class="pattern-order-entry__context-menu-button"
                     @click="repeatPattern( entry )"
-                ></button>
+                >{{ $t( "repeat" ) }}</button>
                 <button
                     type="button"
-                    v-t="'delete'"
                     :disabled="!canDelete"
                     class="pattern-order-entry__context-menu-button"
                     @click="deletePattern( entry )"
-                ></button>
+                >{{ $t( "delete" ) }}</button>
             </template>
         </pattern-order-entry>
         <button
@@ -76,7 +73,8 @@
 </template>
 
 <script lang="ts">
-import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import updatePatternOrder from "@/model/actions/pattern-update-order";
 import { enqueueState } from "@/model/factories/history-state-factory";
@@ -96,7 +94,6 @@ type WrappedPatternOrderEntry = {
 const TOTAL_PER_PAGE = 5;
 
 export default {
-    i18n: { messages },
     components: {
         PatternOrderEntry,
     },
@@ -104,6 +101,10 @@ export default {
         editableEntry: -1,
         offset: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,

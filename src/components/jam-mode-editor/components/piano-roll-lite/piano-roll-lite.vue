@@ -50,12 +50,12 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import { type Pattern } from "@/model/types/pattern";
 import Pitch from "@/services/audio/pitch";
 import { getMeasureDurationInSeconds } from "@/utils/audio-math";
-
 import messages from "./messages.json";
 
 type EventEntry = {
@@ -67,7 +67,6 @@ type EventEntry = {
 };
 
 export default {
-    i18n: { messages },
     props: {
         channel: {
             type: Object, /* type JamChannel */
@@ -81,6 +80,10 @@ export default {
     data: () => ({
         entryWidth: 0, // in pct
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             selectedStep  : state => state.editor.selectedStep,

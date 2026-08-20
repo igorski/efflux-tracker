@@ -26,7 +26,7 @@
         @keyup.esc="handleClose()"
     >
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -35,45 +35,44 @@
         </div>
         <hr class="divider" />
         <fieldset>
-            <legend v-t="'copyRange'"></legend>
+            <legend>{{ $t( "copyRange" ) }}</legend>
             <div class="wrapper input push">
-                <label v-t="'copyPatternRangeLabel'"></label>
+                <label>{{ $t( "copyPatternRangeLabel" ) }}</label>
                 <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
             </div>
             <div class="wrapper input">
-                <label v-t="'copyChannelRangeLabel'"></label>
+                <label>{{ $t( "copyChannelRangeLabel" ) }}</label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
         <fieldset>
-            <legend v-t="'insertClone'"></legend>
+            <legend>{{ $t( "insertClone" ) }}</legend>
             <div class="wrapper input">
-                <label v-t="'insertAfterLabel'"></label>
+                <label>{{ $t( "insertAfterLabel" ) }}</label>
                 <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
             <button
-                v-t="'insertClonedContent'"
                 type="button"
                 class="confirm-button"
                 @keyup.enter="handleInsertClick()"
                 @click="handleInsertClick()"
-            ></button>
+            >{{ $t( "insertClonedContent" ) }}</button>
         </fieldset>
         <fieldset>
-            <legend v-t="'or'"></legend>
+            <legend>{{ $t( "or" ) }}</legend>
             <button
-                v-t="'exportContent'"
                 type="button"
                 class="export-button"
                 @click="handleExportClick()"
-            ></button>
+            >{{ $t( "exportContent" ) }}</button>
         </fieldset>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { PATTERN_FILE_EXTENSION } from "@/definitions/file-types";
 import type { EffluxPattern } from "@/model/types/pattern";
@@ -91,7 +90,6 @@ type ClonedPatternDef = {
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     data: () => ({
         firstPattern: 1,
         lastPattern: 1,
@@ -99,6 +97,10 @@ export default {
         lastChannel: 8,
         pastePattern: 1,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,

@@ -59,16 +59,14 @@
                     @click="gotoNextPattern()"
                 >></button>
                 <button
-                    v-t="'copy'"
                     type="button"
                     @click="handlePatternCopy()"
-                ></button>
+                >{{ $t( "copy" ) }}</button>
                 <button
-                    v-t="'paste'"
                     type="button"
                     :disabled="!patternCopy"
                     @click="handlePatternPaste()"
-                ></button>
+                >{{ $t( "paste" ) }}</button>
             </div>
             <button
                 type="button"
@@ -137,6 +135,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import ManualURLs from "@/definitions/manual-urls";
@@ -179,7 +178,6 @@ enum TouchMode {
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         AutomationLane,
         PianoRollRow,
@@ -190,6 +188,10 @@ export default {
         touchMode: TouchMode.DRAW,
         showAutomation: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,

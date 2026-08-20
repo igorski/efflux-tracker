@@ -78,17 +78,20 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
 import deleteEvent from "@/model/actions/event-delete";
 import EventFactory from "@/model/factories/event-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
-
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,

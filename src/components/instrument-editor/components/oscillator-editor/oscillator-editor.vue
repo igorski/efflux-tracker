@@ -53,7 +53,7 @@
         <section class="oscillator-props">
             <!-- oscillator tuning and volume -->
             <div class="tuning-editor instrument-parameters">
-                <h2 v-t="'oscillatorTuning'"></h2>
+                <h2>{{ $t( "oscillatorTuning" ) }}</h2>
                 <assignable-range-control
                     v-model.number="oscillatorDetune"
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_DETUNE"
@@ -85,13 +85,15 @@
             <!-- envelopes -->
             <div class="envelope-editor instrument-parameters">
                 <ul class="tab-list">
-                    <li v-t="'amplitudeEnvelope'"
+                    <li
                         :class="{ active: activeEnvelopeTab === 0 }"
                         @click="activeEnvelopeTab = 0">
+                        {{ $t( "amplitudeEnvelope" ) }}
                     </li>
-                    <li v-t="'pitchEnvelope'"
+                    <li
                         :class="{ active: activeEnvelopeTab === 1 }"
                         @click="activeEnvelopeTab = 1">
+                        {{ $t( "pitchEnvelope" ) }}
                     </li>
                 </ul>
                 <!-- amplitude envelope -->
@@ -166,6 +168,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters } from "vuex";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
@@ -182,7 +185,6 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "invalidate" ],
-    i18n: { messages },
     components: {
         SelectBox,
         ToggleButton,
@@ -202,6 +204,10 @@ export default {
     data: () => ({
         activeEnvelopeTab: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "activeSong",

@@ -23,7 +23,7 @@
 <template>
     <div class="sample-recorder">
         <div class="header">
-            <h2 v-t="'recordInput'"></h2>
+            <h2>{{ $t( "recordInput" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -52,9 +52,8 @@
                 </svg>
                 <button
                     type="button"
-                    v-t="isRecording ? 'stop' : 'start'"
                     @click="isRecording ? stopRecording() : startRecording()"
-                ></button>
+                >{{ $t( isRecording ? "stop" : "start" ) }}</button>
             </div>
             <select-box
                 v-model="selectedInput"
@@ -66,7 +65,8 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapMutations } from "vuex";
 import { MediaRecorder, register } from "extendable-media-recorder";
 import { connect } from "extendable-media-recorder-wav-encoder";
@@ -84,7 +84,6 @@ const MAX_DURATION = 10000;
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         SelectBox,
     },
@@ -95,16 +94,20 @@ export default {
         isRecording: false,
         performAnalysis: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "mediaConnected",
         ]),
-        availableInputs() {
+        availableInputs(): { label: string, value: string }[] {
             return this.inputs
                 .map(( input, index ) => ({ label: input.label || this.$t( "input" ), value : index.toString() }));
         },
     },
-    async created() {
+    async created(): Promise<void> {
         try {
             // by requesting getUserMedia we trigger permission window
             await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
@@ -122,7 +125,7 @@ export default {
             "setCurrentSample",
             "setMediaConnected",
         ]),
-        async startRecording() {
+        async startRecording(): Promise<void> {
             try {
                 if ( !this.mediaConnected ) {
                     await register( await connect());
@@ -231,18 +234,18 @@ export default {
                 this.handleError();
             }
         },
-        stopRecording() {
+        stopRecording(): void {
             this.isRecording = false;
             if ( this.performAnalysis ) {
                 cancelAnimationFrame( this.renderCycle );
                 this.analyser.disconnect();
             }
         },
-        handleError() {
+        handleError(): void {
             this.openDialog({ type: "error", message: this.$t( "errorNoDeviceAccess" ) });
             this.close();
         },
-        close() {
+        close(): void {
             this.$emit( "close" );
         },
     },

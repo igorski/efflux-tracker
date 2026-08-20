@@ -23,31 +23,30 @@
 <template>
     <div class="pattern-to-order-conversion-window">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ $t( "title" ) }}</h2>
         </div>
         <hr class="divider" />
         <div class="content">
-            <p v-t="'conversionExpl'"></p>
+            <p>{{ $t( "conversionExpl" ) }}</p>
         </div>
         <hr class="divider" />
         <div class="footer">
             <button
-                v-t="'convert'"
                 type="button"
                 class="button"
                 @click="convertPatterns()"
-            ></button>
+            >{{ $t( "convert" ) }}</button>
             <button
-                v-t="'continue'"
                 type="button"
                 class="button"
                 @click="keep()"
-            ></button>
+            >{{ $t( "continue" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapMutations } from "vuex";
 import { FACTORY_VERSION } from "@/model/factories/song-factory";
 import type { EffluxSong } from "@/model/types/song";
@@ -56,10 +55,13 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     data: () => ({
         newPatternIndex: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,

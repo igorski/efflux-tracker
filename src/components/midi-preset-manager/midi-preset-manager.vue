@@ -23,7 +23,7 @@
 <template>
     <div class="midi-preset-manager">
         <div class="header">
-            <h2 v-t="'midiPresetManager'"></h2>
+            <h2>{{ $t( "midiPresetManager" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -49,7 +49,7 @@
                 </li>
             </template>
             <li v-else>
-                <p v-t="'noPresetsAvailable'"></p>
+                <p>{{ $t( "noPresetsAvailable" ) }}</p>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
@@ -65,28 +65,31 @@
                 @blur="handleFocusOut()"
             />
             <button
-                v-t="'savePreset'"
                 type="button"
                 class="button"
                 :disabled="!hasPairings || newPresetName.length === 0"
                 @click="savePreset()"
-            ></button>
+            >{{ $t( "savePreset" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { type MIDIPairingPreset } from "@/store/modules/midi-module";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     data: () => ({
         newPresetName: "",
         presets: [],
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "connectedDevice",

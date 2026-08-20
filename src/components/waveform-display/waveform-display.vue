@@ -28,17 +28,17 @@
         ><!-- x --></div>
         <button
             v-if="isSampler && editable"
-            v-t="'editSample'"
             type="button"
             class="waveform-container__action-button"
             @click="openSampleEditor()"
-        ></button>
+        >{{ $t( "editSample" ) }}</button>
     </div>
 </template>
 
 <script lang="ts">
-import { Canvas, type IRenderer, type Point } from "zcanvas";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
+import { Canvas, type IRenderer, type Point } from "zcanvas";
 import Config from "@/config";
 import WaveformRenderer from "@/components/instrument-editor/components/waveform-renderer";
 import SampleDisplay from "@/components/sample-display/sample-display.vue";
@@ -54,7 +54,6 @@ import { supportsAnalysis } from "@/services/audio/analyser";
 import PubSubService from "@/services/pubsub-service";
 import Messages from "@/services/pubsub/messages";
 import { easeIn } from "@/utils/easing";
-
 import messages from "./messages.json";
 
 // see _colors.scss
@@ -64,7 +63,6 @@ const INSTRUMENT_COLORS = [
 
 export default {
     emits: [ "invalidate" ],
-    i18n: { messages },
     components: {
         SampleDisplay,
     },
@@ -109,6 +107,10 @@ export default {
             type: Boolean,
             default: false,
         },
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     computed: {
         ...mapState({

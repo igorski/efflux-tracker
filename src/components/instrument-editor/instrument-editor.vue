@@ -28,7 +28,7 @@
         <div class="instrument-header">
             <!-- instrument preset list -->
             <section class="instrument-presets">
-                <h2 v-t="'presets'" class="preset-title"></h2>
+                <h2 class="preset-title">{{ $t( "presets" ) }}</h2>
                 <select-box
                     v-model="currentPreset"
                     :options="presetOptions"
@@ -40,10 +40,9 @@
                 <div class="actions">
                     <button
                         v-if="hasMidiSupport"
-                        v-t="midiConnected ? ( midiAssignMode ? 'doneAssigning' : 'assignMidiControl' ) : 'connectMidi'"
                         type="button"
                         @click="midiConnected ? setMidiAssignMode( !midiAssignMode ) : openSettingsPanel()"
-                    />
+                    >{{ $t( midiConnected ? ( midiAssignMode ? "doneAssigning" : "assignMidiControl" ) : "connectMidi" ) }}</button>
                     <!-- selector that switches between available instruments -->
                     <select-box
                         v-model="instrument"
@@ -108,16 +107,16 @@
                 @keyup.enter="handleInputBlur( $event )"
             />
             <button
-                v-t="'savePreset'"
                 type="button"
                 @click="savePreset()"
                 class="instrument-preset-save"
-            ></button>
+            >{{ $t( "savePreset" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Config            from "@/config";
 import ManualURLs        from "@/definitions/manual-urls";
@@ -135,7 +134,6 @@ import messages          from "./messages.json";
 let EMPTY_PRESET_VALUE;
 
 export default {
-    i18n: { messages },
     components: {
         OscillatorEditor,
         ModuleEditor,
@@ -151,6 +149,10 @@ export default {
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
         currentPreset: null,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong              : state => state.song.activeSong,

@@ -23,7 +23,7 @@
 <template>
     <div class="dropbox-file-modal">
         <div class="header">
-            <h2 v-t="'files'" class="header__title"></h2>
+            <h2 class="header__title">{{ $t( "files" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -50,7 +50,7 @@
                 </div>
                 <div v-if="!loading" class="content__folders">
                     <!-- files and folders within current leaf -->
-                    <p v-if="!filesAndFolders.length" v-t="'noAudioFiles'"></p>
+                    <p v-if="!filesAndFolders.length">{{ $t( "noAudioFiles" ) }}</p>
                     <template v-else>
                         <div
                             v-for="node in filesAndFolders"
@@ -105,18 +105,18 @@
                     </div>
                 </div>
                 <button
-                    v-t="'createFolder'"
                     type="button"
                     class="button"
                     :disabled="!newFolderName"
                     @click="handleCreateFolderClick()"
-                ></button>
+                >{{ $t( "createFolder" ) }}</button>
             </div>
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { listFolder, createFolder, downloadFileAsBlob, deleteEntry } from "@/services/dropbox-service";
 import { ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION } from "@/definitions/file-types";
@@ -126,7 +126,6 @@ import { getAudioContext } from "@/services/audio-service";
 import { loadSample } from "@/services/audio/sample-loader";
 import { truncate } from "@/utils/string-util";
 import sharedMessages from "@/messages.json";
-
 import messages from "./messages.json";
 
 // we allow listing of both Efflux projects and all accepted audio types
@@ -136,7 +135,18 @@ const FILE_EXTENSIONS = [ ...ACCEPTED_FILE_EXTENSIONS, PROJECT_FILE_EXTENSION ]
 const RETRIEVAL_LOAD_KEY  = "dbx_r";
 const LAST_DROPBOX_FOLDER = "efx_dropboxDb";
 
-function mapEntry( entry, children = [], parent = null ) {
+type FileNode = {
+    id: string;
+    name: string;
+    type: string; // use by cloud-file-selector, supported types : "folder" | "file" | "bpy";
+    path: string;
+    key?: string; // unique identifier for the storage service
+    children?: FileNode[];
+    parent?: FileNode[];
+};
+
+
+function mapEntry( entry: any, children = [], parent?: FileNode[] ): FileNode {
     let type = entry[ ".tag" ]; // folder/file
     if ( entry.name.endsWith( PROJECT_FILE_EXTENSION )) {
         type = "xtk";
@@ -148,10 +158,10 @@ function mapEntry( entry, children = [], parent = null ) {
         path: entry.path_lower,
         children,
         parent,
-    }
+    };
 }
 
-function findLeafByPath( tree, path ) {
+function findLeafByPath( tree: FileNode, path: string ): FileNode | null {
     let node = tree;
     while ( node ) {
         if ( node.path === path ) {
@@ -165,7 +175,7 @@ function findLeafByPath( tree, path ) {
     return null;
 }
 
-function recurseChildren( node, path ) {
+function recurseChildren( node: FileNode, path: string ): FileNode | null {
     const { children } = node;
     if ( !Array.isArray( children )) {
         return null;
@@ -185,7 +195,6 @@ function recurseChildren( node, path ) {
 }
 
 export default {
-    i18n: { messages, sharedMessages },
     data: () => ({
         tree: {
             type: "folder",
@@ -196,6 +205,13 @@ export default {
         leaf: null,
         newFolderName: "",
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t, mergeLocaleMessage } = useI18n({ messages });
+        Object.keys( sharedMessages ).forEach( locale => {
+            mergeLocaleMessage( locale, sharedMessages[ locale ]);
+        });
+        return { t };
+    },
     computed: {
         ...mapState([
             "loadingStates",
@@ -203,10 +219,10 @@ export default {
         ...mapGetters([
             "hasChanges",
         ]),
-        loading() {
+        loading(): boolean {
             return this.loadingStates.includes( RETRIEVAL_LOAD_KEY );
         },
-        breadcrumbs() {
+        breadcrumbs(): FileNode[] {
             let parent = this.leaf.parent;
             const out = [];
             while ( parent ) {
@@ -215,7 +231,7 @@ export default {
             }
             return out.reverse();
         },
-        filesAndFolders() {
+        filesAndFolders(): FileNode[] {
             return this.leaf.children.filter( entry => {
                 // only show folders and audio files
                 if ( entry.type === "file" ) {
@@ -225,7 +241,7 @@ export default {
             });
         },
     },
-    created() {
+    created(): void {
         let pathToRetrieve = this.tree.path;
         try {
             const { tree, path } = JSON.parse( sessionStorage.getItem( LAST_DROPBOX_FOLDER ));
@@ -257,16 +273,16 @@ export default {
          * when typing, we want to suspend the KeyboardController
          * so it doesn't broadcast the typing to its listeners
          */
-        handleFocusIn() {
+        handleFocusIn(): void {
             this.suspendKeyboardService( true );
         },
         /**
          * on focus out, restore the KeyboardControllers broadcasting
          */
-        handleFocusOut() {
+        handleFocusOut(): void {
             this.suspendKeyboardService( false );
         },
-        async retrieveFiles( path ) {
+        async retrieveFiles( path: string ): Promise<void> {
             this.setLoading( RETRIEVAL_LOAD_KEY );
             try {
                 const entries = await listFolder( path );
@@ -296,7 +312,7 @@ export default {
             }
             this.unsetLoading( RETRIEVAL_LOAD_KEY );
         },
-        async handleNodeClick( node ) {
+        async handleNodeClick( node: FileNode ): Promise<void> {
             this.setLoading( "dbox" );
             switch ( node.type ) {
                 case "folder":
@@ -352,7 +368,7 @@ export default {
             }
             this.unsetLoading( "dbox" );
         },
-        handleDeleteClick({ path }) {
+        handleDeleteClick({ path }: FileNode ): void {
             this.openDialog({
                 type: "confirm",
                 message: this.$t( "deleteEntryWarning", { entry: path }),
@@ -369,7 +385,7 @@ export default {
                 },
             });
         },
-        async handleCreateFolderClick() {
+        async handleCreateFolderClick(): Promise<void> {
             const folder = this.newFolderName;
             try {
                 const result = await createFolder( this.leaf.path, folder );
