@@ -23,21 +23,21 @@
 <template>
     <div class="pattern-order-window">
         <div class="header">
-            <h2>{{ $t( "patternOrder" ) }}</h2>
+            <h2>{{ t( "patternOrder" ) }}</h2>
             <button
-                :title="$t('help')"
+                :title="t('help')"
                 class="help-button"
                 @click="openHelp()"
             >?</button>
             <button
-                :title="$t('close')"
+                :title="t('close')"
                 type="button"
                 class="close-button"
                 @click="$emit('close')"
             >x</button>
             <span
                 class="header__explanation"
-            >{{ $t( "patternExpl" ) }}</span>
+            >{{ t( "patternExpl" ) }}</span>
         </div>
         <hr class="divider" />
         <ul class="order-list">
@@ -59,22 +59,22 @@
                         <button
                             type="button"
                             class="order-list__entry-action-button icon-play"
-                            :title="$t('play')"
+                            :title="t('play')"
                             @click.stop="handlePlayClick( element )"
                         ></button>
                         <button
                             type="button"
                             class="order-list__entry-action-button"
-                            :title="$t('duplicate')"
+                            :title="t('duplicate')"
                             @click.stop="handleDuplicateClick( element )"
-                        ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                        ><img src="@/assets/icons/icon-copy.svg" :alt="t('duplicate')" /></button>
                         <button
                             v-if="canDelete"
                             type="button"
                             class="order-list__entry-action-button"
-                            :title="$t('delete')"
+                            :title="t('delete')"
                             @click.stop="handleDeleteClick( element )"
-                        ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                        ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('delete')" /></button>
                     </li>
                 </template>
             </draggable>
@@ -89,11 +89,11 @@
                     class="footer__ui-select-box"
                 />
                 <button
-                    :title="$t('addPattern')"
+                    :title="t('addPattern')"
                     type="button"
                     class="button"
                     @click.stop="handleAddClick()"
-                >{{ $t( "addPattern" ) }}</button>
+                >{{ t( "addPattern" ) }}</button>
             </div>
         </div>
     </div>

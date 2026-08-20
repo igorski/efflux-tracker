@@ -26,7 +26,7 @@
         :class="{ 'settings-mode': mobileMode === 'settings' }"
         @mouseover="setHelpTopic('pattern')"
     >
-        <h2 class="pattern-editor__title">{{ $t( "title" ) }}</h2>
+        <h2 class="pattern-editor__title">{{ t( "title" ) }}</h2>
         <span class="pattern-editor__pattern-name">
             {{ activePattern.name }}
         </span>
@@ -43,38 +43,38 @@
                     type="button"
                     class="pattern-manager-button"
                     @click="handlePatternManagerClick()"
-                >{{ $t( "patternManager" ) }}</button>
+                >{{ t( "patternManager" ) }}</button>
             </li>
             <li class="list-item">
                 <button
                     type="button"
                     @click="handlePatternClear()"
-                >{{ $t( "clear" ) }}</button>
+                >{{ t( "clear" ) }}</button>
             </li>
             <li class="list-item">
                 <button
                     type="button"
                     @click="handlePatternCopy()"
-                >{{ $t( "copy" ) }}</button>
+                >{{ t( "copy" ) }}</button>
             </li>
             <li class="list-item">
                 <button
                     type="button"
                     @click="handlePatternPaste()"
-                >{{ $t( "paste" ) }}</button>
+                >{{ t( "paste" ) }}</button>
             </li>
             <li class="list-item">
                 <button
                     type="button"
                     @click="handlePatternAdd()"
-                >{{ $t( "add" ) }}</button>
+                >{{ t( "add" ) }}</button>
             </li>
             <li class="list-item">
                 <button
                     :disabled="!canDelete"
                     type="button"
                     @click="handlePatternDelete()"
-                >{{ $t( "delete" ) }}</button>
+                >{{ t( "delete" ) }}</button>
             </li>
             <li
                 v-if="!useOrders"
@@ -83,7 +83,7 @@
                 <button
                     type="button"
                     @click="handlePatternAdvanced()"
-                >{{ $t( "advanced" ) }}</button>
+                >{{ t( "advanced" ) }}</button>
             </li>
         </ul>
     </section>
@@ -136,7 +136,7 @@ export default {
         },
         patternStepOptions(): { label: string, value: string }[] {
             return [ 16, 32, 64, 128 ].map( amount => ({
-                label: this.$t( "steps", { amount }), value: amount.toString()
+                label: this.t( "steps", { amount }), value: amount.toString()
             }));
         },
         canDelete(): boolean {
@@ -169,7 +169,7 @@ export default {
         handlePatternAdd(): void {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-                this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
+                this.showError( this.t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
             this.saveState( addPattern( this.$store ));

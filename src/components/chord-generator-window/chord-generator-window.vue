@@ -23,7 +23,7 @@
 <template>
     <div class="chord-generator-window">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -31,8 +31,8 @@
             >x</button>
         </div>
         <hr class="divider" />
-        <p>{{ $t( "expl" ) }}</p>
-        <p class="cursive">{{ $t( "shortcutsExpl" ) }}</p>
+        <p>{{ t( "expl" ) }}</p>
+        <p class="cursive">{{ t( "shortcutsExpl" ) }}</p>
         <div class="chord-select">
             <select-box
                 v-model="note"
@@ -55,7 +55,7 @@
             type="button"
             class="confirm-button"
             @click="handleConfirm()"
-        >{{ $t( "insert" ) }}</button>
+        >{{ t( "insert" ) }}</button>
     </div>
 </template>
 

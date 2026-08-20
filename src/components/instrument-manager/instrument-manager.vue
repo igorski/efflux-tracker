@@ -23,7 +23,7 @@
 <template>
     <div class="instrument-manager">
         <div class="header">
-            <h2>{{ $t( "instrumentManager" ) }}</h2>
+            <h2>{{ t( "instrumentManager" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -41,15 +41,15 @@
                 <button
                     type="button"
                     class="action-button"
-                    :title="$t('exportInstrument')"
+                    :title="t('exportInstrument')"
                     @click.stop="handleExportClick( instrument )"
-                ><img src="@/assets/icons/icon-download.svg" :alt="$t('exportInstrument')" /></button>
+                ><img src="@/assets/icons/icon-download.svg" :alt="t('exportInstrument')" /></button>
                 <button
                     type="button"
                     class="action-button"
-                    :title="$t('deleteInstrument')"
+                    :title="t('deleteInstrument')"
                     @click.stop="requestDelete( instrument )"
-                ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
+                ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('deleteInstrument')" /></button>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
@@ -58,12 +58,12 @@
                 type="button"
                 class="button"
                 @click="handleInstrumentImport()"
-            >{{ $t( "importInstruments" ) }}</button>
+            >{{ t( "importInstruments" ) }}</button>
             <button
                 type="button"
                 class="button"
                 @click="handleInstrumentExport()"
-            >{{ $t( "exportInstruments" ) }}</button>
+            >{{ t( "exportInstruments" ) }}</button>
         </div>
     </div>
 </template>
@@ -113,16 +113,16 @@ export default {
             this.setLoading( "exp" );
             try {
                 await this.exportInstrument( instrument );
-                this.showNotification({ message: this.$t( "instrumentExported", { instrument: instrument.presetName }) });
+                this.showNotification({ message: this.t( "instrumentExported", { instrument: instrument.presetName }) });
             } catch {
-                this.showError( this.$t( "errorInstrumentExport" ));
+                this.showError( this.t( "errorInstrumentExport" ));
             }
             this.unsetLoading( "exp" );
         },
         requestDelete( instrument: Instrument ): Promise<void> {
             this.openDialog({
                 type: "confirm",
-                message: this.$t( "confirmInstrumentDelete", { instrument: instrument.presetName }),
+                message: this.t( "confirmInstrumentDelete", { instrument: instrument.presetName }),
                 confirm: () => {
                     this.deleteInstrument({ instrument });
                 }
@@ -131,7 +131,7 @@ export default {
         async handleInstrumentImport(): Promise<void> {
             try {
                 const amountImported = await this.importInstruments();
-                this.showNotification({ message: this.$t( "instrumentsImported", { amount: amountImported.toString() }) });
+                this.showNotification({ message: this.t( "instrumentsImported", { amount: amountImported.toString() }) });
             } catch ( error ) {
                 this.showError( error );
             }
@@ -140,7 +140,7 @@ export default {
             try {
                 this.setLoading( "exp" );
                 await this.exportInstruments();
-                this.showNotification({ message: this.$t( "instrumentsExported" ) });
+                this.showNotification({ message: this.t( "instrumentsExported" ) });
             } catch ( error ) {
                 this.showError( error );
             }

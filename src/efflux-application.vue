@@ -26,11 +26,11 @@
         <div v-if="!canLaunch"
              class="container"
         >
-            <h1>{{ $t( "unsupported.title" ) }}</h1>
-            <p>{{ $t( "unsupported.message" ) }}</p>
+            <h1>{{ t( "unsupported.title" ) }}</h1>
+            <p>{{ t( "unsupported.message" ) }}</p>
             <i18n-t keypath="unsupported.download">
                 <a href="https://www.google.com/chrome" rel="noopener" target="_blank">
-                    {{ $t( "unsupported.googleChrome" ) }}
+                    {{ t( "unsupported.googleChrome" ) }}
                 </a>
             </i18n-t>
         </div>
@@ -318,8 +318,8 @@ export default {
                 return;
             }
             this.showNotification({
-                title   : this.$t( "songLoadedTitle" ),
-                message : this.$t( "songLoaded", { name: song.meta.title })
+                title   : this.t( "songLoadedTitle" ),
+                message : this.t( "songLoaded", { name: song.meta.title })
             });
         },
         /**
@@ -348,7 +348,7 @@ export default {
         const urlParams = new URLSearchParams( window.location.search );
         this.openSong( await this.createSong( urlParams.has( JAM_MODE ) ? EffluxSongType.JAM : EffluxSongType.TRACKER ));
         await this.prepareSequencer( this.$store );
-        await this.setupServices( this.$t );
+        await this.setupServices( this.t );
 
         this.prepared = true;
 
@@ -362,7 +362,7 @@ export default {
                 const loadedInstrument = await this.loadInstrumentFromFile( instrument );
                 if ( loadedInstrument ) {
                     this.saveState( replaceInstrument( this.$store, loadedInstrument ));
-                    this.showNotification({ message: this.$t( "messages.instrumentImported" )});
+                    this.showNotification({ message: this.t( "messages.instrumentImported" )});
                 }
             }
             for ( const file of patterns ) {
@@ -370,7 +370,7 @@ export default {
                 if ( deserializedPatterns ) {
                     this.pastePatternsIntoSong({ patterns: deserializedPatterns, insertIndex: this.activeSong.patterns.length });
                 } else {
-                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.patternImport" )});
+                    this.showNotification({ title: this.t( "title.error" ), message: this.t( "errors.patternImport" )});
                 }
             }
             for ( const file of projects ) {
@@ -381,7 +381,7 @@ export default {
                 if ( this.hasChanges ) {
                     this.openDialog({
                         type: "confirm",
-                        message: this.$t( "warnings.loadNewPendingChanges" ),
+                        message: this.t( "warnings.loadNewPendingChanges" ),
                         confirm
                     });
                 } else {
@@ -399,7 +399,7 @@ export default {
                     this.setCurrentSample( sample );
                     this.openModal( ModalWindows.SAMPLE_EDITOR );
                 } catch {
-                    this.showNotification({ title: this.$t( "title.error" ), message: this.$t( "errors.audioImport" ) });
+                    this.showNotification({ title: this.t( "title.error" ), message: this.t( "errors.audioImport" ) });
                 }
             }
         };
@@ -448,7 +448,7 @@ export default {
 
         // @ts-expect-error 'import.meta' property not allowed, not an issue Vite takes care of it
         if ( import.meta.env.MODE === "production" ) {
-            const handleUnload = () => this.$t( "warnings.unload" );
+            const handleUnload = () => this.t( "warnings.unload" );
             if ( Bowser.ios ) {
                 window.addEventListener( "popstate", handleUnload );
             }

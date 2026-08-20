@@ -31,7 +31,7 @@
             type="button"
             class="waveform-container__action-button"
             @click="openSampleEditor()"
-        >{{ $t( "editSample" ) }}</button>
+        >{{ t( "editSample" ) }}</button>
     </div>
 </template>
 

@@ -23,7 +23,7 @@
 <template>
     <div class="welcome">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -37,7 +37,7 @@
             </div>
             <div>
                 <h3 class="song-title">{{ activeSong.meta.title }}</h3>
-                <p class="text">{{ $t('songByAuthor', { author: activeSong.meta.author }) }}</p>
+                <p class="text">{{ t('songByAuthor', { author: activeSong.meta.author }) }}</p>
                 <button
                     type="button"
                     :title="'playSong'"

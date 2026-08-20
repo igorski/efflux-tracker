@@ -41,11 +41,11 @@
             :style="sequencerPositionStyle"
         ></div>
         <button
-            :title="$t('editPattern')"
+            :title="t('editPattern')"
             type="button"
             class="piano-roll-lite__edit-button"
             @click.stop="openPianoRoll()"
-        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editPattern')" /></button>
+        ><img src="@/assets/icons/icon-pencil.svg" :alt="t('editPattern')" /></button>
     </div>
 </template>
 

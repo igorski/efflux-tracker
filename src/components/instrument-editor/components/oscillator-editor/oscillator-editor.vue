@@ -53,33 +53,33 @@
         <section class="oscillator-props">
             <!-- oscillator tuning and volume -->
             <div class="tuning-editor instrument-parameters">
-                <h2>{{ $t( "oscillatorTuning" ) }}</h2>
+                <h2>{{ t( "oscillatorTuning" ) }}</h2>
                 <assignable-range-control
                     v-model.number="oscillatorDetune"
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_DETUNE"
                     :opt-data="oscillatorIndex"
-                    :label="$t('detuneLabel')"
+                    :label="t('detuneLabel')"
                     class="padded"
                 />
                 <assignable-range-control
                     v-model.number="oscillatorOctaveShift"
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_OCT_SHIFT"
                     :opt-data="oscillatorIndex"
-                    :label="$t('octaveShiftLabel')"
+                    :label="t('octaveShiftLabel')"
                     :disabled="!supportsExtendedPitch"
                 />
                 <assignable-range-control
                     v-model.number="oscillatorFineShift"
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_FINE_SHIFT"
                     :opt-data="oscillatorIndex"
-                    :label="$t('fineShiftLabel')"
+                    :label="t('fineShiftLabel')"
                     :disabled="!supportsExtendedPitch"
                 />
                 <assignable-range-control
                     v-model.number="oscillatorVolume"
                     :param-id="MIDI_ASSIGNABLE.OSCILLATOR_VOLUME"
                     :opt-data="oscillatorIndex"
-                    :label="$t('volumeLabel')"
+                    :label="t('volumeLabel')"
                 />
             </div>
             <!-- envelopes -->
@@ -88,12 +88,12 @@
                     <li
                         :class="{ active: activeEnvelopeTab === 0 }"
                         @click="activeEnvelopeTab = 0">
-                        {{ $t( "amplitudeEnvelope" ) }}
+                        {{ t( "amplitudeEnvelope" ) }}
                     </li>
                     <li
                         :class="{ active: activeEnvelopeTab === 1 }"
                         @click="activeEnvelopeTab = 1">
-                        {{ $t( "pitchEnvelope" ) }}
+                        {{ t( "pitchEnvelope" ) }}
                     </li>
                 </ul>
                 <!-- amplitude envelope -->
@@ -105,25 +105,25 @@
                         v-model.number="amplitudeAttack"
                         :param-id="MIDI_ASSIGNABLE.ADSR_ATTACK"
                         :opt-data="oscillatorIndex"
-                        :label="$t('attack')"
+                        :label="t('attack')"
                     />
                     <assignable-range-control
                         v-model.number="amplitudeDecay"
                         :param-id="MIDI_ASSIGNABLE.ADSR_DECAY"
                         :opt-data="oscillatorIndex"
-                        :label="$t('decay')"
+                        :label="t('decay')"
                     />
                     <assignable-range-control
                         v-model.number="amplitudeSustain"
                         :param-id="MIDI_ASSIGNABLE.ADSR_SUSTAIN"
                         :opt-data="oscillatorIndex"
-                        :label="$t('sustain')"
+                        :label="t('sustain')"
                     />
                     <assignable-range-control
                         v-model.number="amplitudeRelease"
                         :param-id="MIDI_ASSIGNABLE.ADSR_RELEASE"
                         :opt-data="oscillatorIndex"
-                        :label="$t('release')"
+                        :label="t('release')"
                     />
                 </div>
                 <!-- pitch envelope -->
@@ -135,31 +135,31 @@
                         v-model.number="pitchRange"
                         :param-id="MIDI_ASSIGNABLE.PITCH_RANGE"
                         :opt-data="oscillatorIndex"
-                        :label="$t('range')"
+                        :label="t('range')"
                     />
                     <assignable-range-control
                         v-model.number="pitchAttack"
                         :param-id="MIDI_ASSIGNABLE.PITCH_ATTACK"
                         :opt-data="oscillatorIndex"
-                        :label="$t('attack')"
+                        :label="t('attack')"
                     />
                     <assignable-range-control
                         v-model.number="pitchDecay"
                         :param-id="MIDI_ASSIGNABLE.PITCH_DECAY"
                         :opt-data="oscillatorIndex"
-                        :label="$t('decay')"
+                        :label="t('decay')"
                     />
                     <assignable-range-control
                         v-model.number="pitchSustain"
                         :param-id="MIDI_ASSIGNABLE.PITCH_SUSTAIN"
                         :opt-data="oscillatorIndex"
-                        :label="$t('sustain')"
+                        :label="t('sustain')"
                     />
                     <assignable-range-control
                         v-model.number="pitchRelease"
                         :param-id="MIDI_ASSIGNABLE.PITCH_RELEASE"
                         :opt-data="oscillatorIndex"
-                        :label="$t('release')"
+                        :label="t('release')"
                     />
                 </div>
             </div>
@@ -292,14 +292,14 @@ export default {
         },
         availableWaveforms(): { label: string, value: OscillatorTypes }[] {
             return [
-                { label: this.$t( "sawtooth" ), value: OscillatorTypes.SAW },
-                { label: this.$t( "sine" ),     value: OscillatorTypes.SINE },
-                { label: this.$t( "triangle" ), value: OscillatorTypes.TRIANGLE },
-                { label: this.$t( "square" ),   value: OscillatorTypes.SQUARE },
-                { label: this.$t( "pwm" ),      value: OscillatorTypes.PWM },
-                { label: this.$t( "noise" ),    value: OscillatorTypes.NOISE },
-                { label: this.$t( "custom" ),   value: OscillatorTypes.CUSTOM },
-                { label: this.$t( "sample" ),   value: OscillatorTypes.SAMPLE }
+                { label: this.t( "sawtooth" ), value: OscillatorTypes.SAW },
+                { label: this.t( "sine" ),     value: OscillatorTypes.SINE },
+                { label: this.t( "triangle" ), value: OscillatorTypes.TRIANGLE },
+                { label: this.t( "square" ),   value: OscillatorTypes.SQUARE },
+                { label: this.t( "pwm" ),      value: OscillatorTypes.PWM },
+                { label: this.t( "noise" ),    value: OscillatorTypes.NOISE },
+                { label: this.t( "custom" ),   value: OscillatorTypes.CUSTOM },
+                { label: this.t( "sample" ),   value: OscillatorTypes.SAMPLE }
             ];
         },
         availableSamples(): Sample[] {

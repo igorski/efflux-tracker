@@ -23,7 +23,7 @@
 <template>
     <div class="module-param-editor">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button type="button" class="help-button" @click="handleHelp">?</button>
             <button type="button" class="close-button" @click="handleClose">x</button>
         </div>
@@ -34,33 +34,33 @@
                     v-model="module"
                     :option-value="automationParam('volume')"
                 >
-                    {{ $t( "volume") }}
+                    {{ t( "volume") }}
                 </form-list-item>
                 <template v-if="supportsPanning">
                     <form-list-item
                         v-model="module"
                         :option-value="automationParam('panLeft')"
                     >
-                        {{ $t( "panLeft") }}
+                        {{ t( "panLeft") }}
                     </form-list-item>
                     <form-list-item
                         v-model="module"
                         :option-value="automationParam('panRight')"
                     >
-                        {{ $t( "panRight" ) }}
+                        {{ t( "panRight" ) }}
                     </form-list-item>
                 </template>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('pitchUp')"
                 >
-                    {{ $t( "pitchUp") }}
+                    {{ t( "pitchUp") }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('pitchDown')"
                 >
-                    {{ $t( "pitchDown") }}
+                    {{ t( "pitchDown") }}
                 </form-list-item>
             </ul>
             <ul>
@@ -68,25 +68,25 @@
                     v-model="module"
                     :option-value="automationParam('eqEnabled')"
                 >
-                    {{ $t( "eqEnabled" ) }}
+                    {{ t( "eqEnabled" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('eqLow')"
                 >
-                    {{ $t( "eqLow" ) }}
+                    {{ t( "eqLow" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('eqMid')"
                 >
-                    {{ $t( "eqMid" ) }}
+                    {{ t( "eqMid" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('eqHigh')"
                 >
-                    {{ $t( "eqHigh") }}
+                    {{ t( "eqHigh") }}
                 </form-list-item>
             </ul>
             <ul>
@@ -94,37 +94,37 @@
                     v-model="module"
                     :option-value="automationParam('filterEnabled')"
                 >
-                    {{ $t( "filterOnOff" ) }}
+                    {{ t( "filterOnOff" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('filterFreq')"
                 >
-                    {{ $t( "filterFreq" ) }}
+                    {{ t( "filterFreq" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('filterQ')"
                 >
-                    {{ $t( "filterQ" ) }}
+                    {{ t( "filterQ" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('filterLFOEnabled')"
                 >
-                    {{ $t( "filterLfoOnOff" ) }}
+                    {{ t( "filterLfoOnOff" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('filterLFOSpeed')"
                 >
-                    {{ $t( "filterLfoSpeed" ) }}
+                    {{ t( "filterLfoSpeed" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('filterLFODepth')"
                 >
-                    {{ $t( "filterLfoDepth" ) }}
+                    {{ t( "filterLfoDepth" ) }}
                 </form-list-item>
             </ul>
             <ul>
@@ -132,31 +132,31 @@
                     v-model="module"
                     :option-value="automationParam('odEnabled')"
                 >
-                    {{ $t( "odEnabled" ) }}
+                    {{ t( "odEnabled" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('odDrive')"
                 >
-                    {{ $t( "odDrive" ) }}
+                    {{ t( "odDrive" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('odPreBand')"
                 >
-                    {{ $t( "odPreBand" ) }}
+                    {{ t( "odPreBand" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('odColor')"
                 >
-                    {{ $t( "odColor" ) }}
+                    {{ t( "odColor" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('odPostCut')"
                 >
-                    {{ $t( "odPostCut" ) }}
+                    {{ t( "odPostCut" ) }}
                 </form-list-item>
             </ul>
             <ul>
@@ -164,50 +164,50 @@
                     v-model="module"
                     :option-value="automationParam('delayEnabled')"
                 >
-                    {{ $t( "delayOnOff" ) }}
+                    {{ t( "delayOnOff" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('delayTime')"
                 >
-                    {{ $t( "delayTime" ) }}
+                    {{ t( "delayTime" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('delayFeedback')"
                 >
-                    {{ $t( "delayFeedback" ) }}
+                    {{ t( "delayFeedback" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('delayDry')"
                 >
-                    {{ $t( "delayDry" ) }}
+                    {{ t( "delayDry" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('delayCutoff')"
                 >
-                    {{ $t( "delayCutoff" ) }}
+                    {{ t( "delayCutoff" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('delayOffset')"
                 >
-                    {{ $t( "delayOffset" ) }}
+                    {{ t( "delayOffset" ) }}
                 </form-list-item>
             </ul>
         </ul>
         <fieldset>
             <div class="wrapper input">
-                <h2>{{ $t( "useGlide" ) }}</h2>
+                <h2>{{ t( "useGlide" ) }}</h2>
                 <toggle-button
                     v-model="glide"
                     sync
                 />
             </div>
             <div class="wrapper input range">
-                <label for="moduleValue">{{ $t( "parameterValue" ) }}</label>
+                <label for="moduleValue">{{ t( "parameterValue" ) }}</label>
                 <input
                     v-model.number="value"
                     type="range"
@@ -215,12 +215,12 @@
                 />
                 <div id="moduleInputValue" v-html="valueText"></div>
             </div>
-            <p>{{ $t( "fastEditDescr" ) }}</p>
+            <p>{{ t( "fastEditDescr" ) }}</p>
             <button
                 type="button"
                 class="confirm-button"
                 @click="handleSubmit()"
-            >{{ $t( "ok" ) }}</button>
+            >{{ t( "ok" ) }}</button>
         </fieldset>
     </div>
 </template>

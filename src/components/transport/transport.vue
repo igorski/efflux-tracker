@@ -34,7 +34,7 @@
                     <button
                         id="playBTN"
                         type="button"
-                        :title="$t( isPlaying ? 'stop' : 'play' )"
+                        :title="t( isPlaying ? 'stop' : 'play' )"
                         :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
                         @click="setPlaying( !isPlaying )"
                     ></button>
@@ -43,7 +43,7 @@
                     <button
                          id="loopBTN"
                          type="button"
-                         :title="$t('loop')"
+                         :title="t('loop')"
                          class="icon-loop"
                          :class="{ active: isLooping }"
                          @click="setLooping( !isLooping )"
@@ -53,14 +53,14 @@
                     <button
                         id="recordBTN"
                         type="button"
-                        :title="$t('recordInput')"
+                        :title="t('recordInput')"
                         @click="setRecording( !isRecording )"
                     ><i class="record-icon" :class="{ active: isRecording }"></i></button>
                 </li>
                 <li>
                     <button
                         type="button"
-                        :title="$t('metronome')"
+                        :title="t('metronome')"
                         class="icon-metronome"
                         :class="{ active: isMetronomeEnabled }"
                         @click="setMetronomeEnabled( !isMetronomeEnabled )"
@@ -70,7 +70,7 @@
                     <button
                         type="button"
                         class="icon-settings"
-                        :title="$t('settings')"
+                        :title="t('settings')"
                         @click="handleSettingsToggle()"
                     ></button>
                 </li>
@@ -80,7 +80,7 @@
                         <button
                             type="button"
                             class="pattern-back"
-                            :title="$t('previousPattern')"
+                            :title="t('previousPattern')"
                             @click="gotoPreviousPattern( activeSong )"
                         >&lt;&lt;</button>
                     </li>
@@ -100,7 +100,7 @@
                         <button
                             type="button"
                             class="pattern-next"
-                            :title="$t('nextPattern')"
+                            :title="t('nextPattern')"
                             @click="gotoNextPattern( activeSong )"
                         >&gt;&gt;</button>
                     </li>
@@ -109,7 +109,7 @@
             </ul>
             <ul class="transport-controls__tempo wrapper input range">
                 <li>
-                    <label for="songTempo">{{ $t( "tempoLabel" ) }}</label>
+                    <label for="songTempo">{{ t( "tempoLabel" ) }}</label>
                     <input
                         type="range"
                         id="songTempo"
@@ -134,7 +134,7 @@
                         v-else
                         class="value"
                         @click="handleTempoInputShow()"
-                    >{{ $t('tempo', { tempo }) }}</span>
+                    >{{ t('tempo', { tempo }) }}</span>
                 </li>
                 <li class="transport-controls__tempo-divider section-divider"><!-- x --></li>
             </ul>

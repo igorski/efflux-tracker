@@ -23,7 +23,7 @@
 <template>
     <div class="dropbox-file-modal">
         <div class="header">
-            <h2 class="header__title">{{ $t( "files" ) }}</h2>
+            <h2 class="header__title">{{ t( "files" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -50,7 +50,7 @@
                 </div>
                 <div v-if="!loading" class="content__folders">
                     <!-- files and folders within current leaf -->
-                    <p v-if="!filesAndFolders.length">{{ $t( "noAudioFiles" ) }}</p>
+                    <p v-if="!filesAndFolders.length">{{ t( "noAudioFiles" ) }}</p>
                     <template v-else>
                         <div
                             v-for="node in filesAndFolders"
@@ -82,7 +82,7 @@
                             <button
                                 type="button"
                                 class="entry__delete-button"
-                                :title="$t('delete')"
+                                :title="t('delete')"
                                 @click="handleDeleteClick( node )"
                             >&times;</button>
                         </div>
@@ -96,7 +96,7 @@
                     <div class="wrapper input">
                         <input
                             v-model="newFolderName"
-                            :placeholder="$t('newFolderName')"
+                            :placeholder="t('newFolderName')"
                             type="text"
                             class="input-field full"
                             @focus="handleFocusIn"
@@ -109,7 +109,7 @@
                     class="button"
                     :disabled="!newFolderName"
                     @click="handleCreateFolderClick()"
-                >{{ $t( "createFolder" ) }}</button>
+                >{{ t( "createFolder" ) }}</button>
             </div>
         </div>
     </div>
@@ -307,7 +307,7 @@ export default {
                     });
                 this.leaf = leaf;
             } catch {
-                this.openDialog({ type: "error", message: this.$t( "couldNotRetrieveFilesForPath", { path } ) });
+                this.openDialog({ type: "error", message: this.t( "couldNotRetrieveFilesForPath", { path } ) });
                 sessionStorage.removeItem( LAST_DROPBOX_FOLDER );
             }
             this.unsetLoading( RETRIEVAL_LOAD_KEY );
@@ -327,7 +327,7 @@ export default {
                             const blob = await downloadFileAsBlob( node.path );
                             this.loadSong({ file: blob, origin: "dropbox" });
                         } catch {
-                            this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
+                            this.openDialog({ type: "error", message: this.t( "couldNotDownloadFile", { file: node.path }) });
                         }
                         this.unsetLoading( "dbi" );
                         this.closeModal();
@@ -335,7 +335,7 @@ export default {
                     if ( this.hasChanges ) {
                         this.openDialog({
                             type: "confirm",
-                            message: this.$t( "warnings.loadNewPendingChanges" ),
+                            message: this.t( "warnings.loadNewPendingChanges" ),
                             confirm: () => open(),
                         });
                     } else {
@@ -349,7 +349,7 @@ export default {
                         source = await downloadFileAsBlob( node.path );
                         buffer = await loadSample( source, getAudioContext() );
                     } catch {
-                        this.openDialog({ type: "error", message: this.$t( "couldNotDownloadFile", { file: node.path }) });
+                        this.openDialog({ type: "error", message: this.t( "couldNotDownloadFile", { file: node.path }) });
                     }
                     this.unsetLoading( "dbd" );
                     if ( buffer ) {
@@ -358,10 +358,10 @@ export default {
                         this.setCurrentSample( sample );
                         this.openModal( ModalWindows.SAMPLE_EDITOR );
                         this.showNotification({
-                            message: this.$t( "importedFileSuccessfully", { file: truncate( node.name, 35 ) })
+                            message: this.t( "importedFileSuccessfully", { file: truncate( node.name, 35 ) })
                         });
                     } else {
-                        this.showError( this.$t( "couldNotImportFile", { file: truncate( node.name, 35 ) } ));
+                        this.showError( this.t( "couldNotImportFile", { file: truncate( node.name, 35 ) } ));
                         this.closeModal();
                     }
                     break;
@@ -371,16 +371,16 @@ export default {
         handleDeleteClick({ path }: FileNode ): void {
             this.openDialog({
                 type: "confirm",
-                message: this.$t( "deleteEntryWarning", { entry: path }),
+                message: this.t( "deleteEntryWarning", { entry: path }),
                 confirm: async () => {
                     const success = await deleteEntry( path );
                     if ( success ) {
                         this.showNotification({
-                            message: this.$t( "entryDeletedSuccessfully", { entry: path })
+                            message: this.t( "entryDeletedSuccessfully", { entry: path })
                         });
                         this.retrieveFiles( this.leaf.path );
                     } else {
-                        this.showError( this.$t( "couldNotDeleteEntry", { entry: path } ));
+                        this.showError( this.t( "couldNotDeleteEntry", { entry: path } ));
                     }
                 },
             });
@@ -395,11 +395,11 @@ export default {
                 this.retrieveFiles( this.leaf.path );
                 this.newFolderName = "";
                 this.showNotification({
-                    message: this.$t( "folderCreatedSuccessfully", { folder })
+                    message: this.t( "folderCreatedSuccessfully", { folder })
                 });
             } catch {
                 this.showNotification({
-                    message: this.$t( "couldNotCreateFolder", { folder })
+                    message: this.t( "couldNotCreateFolder", { folder })
                 });
             }
         },

@@ -44,12 +44,12 @@
         <p
             v-if="linking"
             class="help-text"
-        >{{ $t( "moveControllerToAssign" ) }}</p>
+        >{{ t( "moveControllerToAssign" ) }}</p>
         <button
             v-if="midiAssignMode && paired"
             class="unlink-button"
             @click="unlink()"
-        >{{ $t( "unlink" ) }}</button>
+        >{{ t( "unlink" ) }}</button>
    </div>
 </template>
 

@@ -23,11 +23,11 @@
 <template>
     <div class="pattern-to-order-conversion-window">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
         </div>
         <hr class="divider" />
         <div class="content">
-            <p>{{ $t( "conversionExpl" ) }}</p>
+            <p>{{ t( "conversionExpl" ) }}</p>
         </div>
         <hr class="divider" />
         <div class="footer">
@@ -35,12 +35,12 @@
                 type="button"
                 class="button"
                 @click="convertPatterns()"
-            >{{ $t( "convert" ) }}</button>
+            >{{ t( "convert" ) }}</button>
             <button
                 type="button"
                 class="button"
                 @click="keep()"
-            >{{ $t( "continue" ) }}</button>
+            >{{ t( "continue" ) }}</button>
         </div>
     </div>
 </template>

@@ -32,18 +32,18 @@
         <div class="toggle" @click="setMenuOpened(!menuOpened)">
             <span>&#9776;</span>
         </div>
-        <h1 class="menu__title">{{ $t( "title" ) }}</h1>
+        <h1 class="menu__title">{{ t( "title" ) }}</h1>
         <section class="inline">
             <ul class="menu-list">
                 <li>
-                    <a class="menu-list__title" @click.prevent="">{{ $t( "file" ) }}</a>
+                    <a class="menu-list__title" @click.prevent="">{{ t( "file" ) }}</a>
                     <ul class="menu-list__submenu">
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="resetSong()"
-                            >{{ $t( "new" ) }}</button>
+                            >{{ t( "new" ) }}</button>
                         </li>
                         <!-- note the use of data-attributes to expose these links for external -->
                         <!-- applications to hook into their behaviour -->
@@ -53,7 +53,7 @@
                                 class="menu-list__button"
                                 @click="handleLoad()"
                                 data-api-song-load
-                            >{{ $t( "open" ) }}</button>
+                            >{{ t( "open" ) }}</button>
                         </li>
                         <li>
                             <button
@@ -61,10 +61,10 @@
                                 type="button"
                                 class="menu-list__button"
                                 @click="dropboxLoaded = true"
-                            >{{ $t( "openFromDropbox" ) }}</button>
+                            >{{ t( "openFromDropbox" ) }}</button>
                             <component
                                 :is="cloudImportType"
-                                :button-title="$t('openFromDropbox')"
+                                :button-title="t('openFromDropbox')"
                                 as-menu-button
                             />
                         </li>
@@ -73,7 +73,7 @@
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleSave( true )"
-                            >{{ $t( "save" ) }}</button>
+                            >{{ t( "save" ) }}</button>
                         </li>
                         <li>
                             <button
@@ -81,47 +81,47 @@
                                 class="menu-list__button"
                                 @click="handleSave( false )"
                                 data-api-song-save
-                            >{{ $t( "saveAs" ) }}</button>
+                            >{{ t( "saveAs" ) }}</button>
                         </li>
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleExport()"
-                            >{{ $t( "exportProject" ) }}</button>
+                            >{{ t( "exportProject" ) }}</button>
                         </li>
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleJSONExport()"
-                            >{{ $t( "exportJSON" ) }}</button>
+                            >{{ t( "exportJSON" ) }}</button>
                         </li>
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleMidiExport()"
-                            >{{ $t( "exportMidi" ) }}</button>
+                            >{{ t( "exportMidi" ) }}</button>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a class="menu-list__title" @click.prevent="">{{ $t( "edit" ) }}</a>
+                    <a class="menu-list__title" @click.prevent="">{{ t( "edit" ) }}</a>
                     <ul class="menu-list__submenu">
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleTransposeClick()"
-                            >{{ $t( "transposePitch" ) }}</button>
+                            >{{ t( "transposePitch" ) }}</button>
                         </li>
                         <li v-if="!jamMode">
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleChordClick()"
-                            >{{ $t( "insertChord" ) }}</button>
+                            >{{ t( "insertChord" ) }}</button>
                         </li>
                         <li>
                             <hr class="divider" />
@@ -131,40 +131,40 @@
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleOptimizeClick()"
-                            >{{ $t( "optimizeResources" ) }}</button>
+                            >{{ t( "optimizeResources" ) }}</button>
                         </li>
                     </ul>
                 </li>
                 <li>
-                    <a class="menu-list__title" @click.prevent="">{{ $t( "instruments" ) }}</a>
+                    <a class="menu-list__title" @click.prevent="">{{ t( "instruments" ) }}</a>
                     <ul class="menu-list__submenu">
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleInstrumentEditorClick()"
-                            >{{ $t( "instrumentEditor" ) }}</button>
+                            >{{ t( "instrumentEditor" ) }}</button>
                         </li>
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleInstrumentBrowserClick()"
-                            >{{ $t( "managePresets" ) }}</button>
+                            >{{ t( "managePresets" ) }}</button>
                         </li>
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleSampleEditorClick()"
-                            >{{ $t( "sampleEditor" ) }}</button>
+                            >{{ t( "sampleEditor" ) }}</button>
                         </li>
                         <li>
                             <button
                                 type="button"
                                 class="menu-list__button"
                                 @click="handleMixerClick()"
-                            >{{ $t( "mixer" ) }}</button>
+                            >{{ t( "mixer" ) }}</button>
                         </li>
                     </ul>
                 </li>
@@ -174,7 +174,7 @@
                         class="menu-list__button"
                         @click="handleSettings()"
                         data-api-settings
-                    >{{ $t( "settings" ) }}</button>
+                    >{{ t( "settings" ) }}</button>
                 </li>
                 <li>
                     <button
@@ -190,7 +190,7 @@
                         class="menu-list__button"
                         @click="handleHelp()"
                         data-api-help
-                    >{{ $t( "helpTutorials" ) }}</button>
+                    >{{ t( "helpTutorials" ) }}</button>
                 </li>
                 <!-- fullscreen button -->
                 <li v-if="hasFullscreen" class="fullscreen-button">
@@ -198,18 +198,18 @@
                         ref="fullscreenBtn"
                         type="button"
                         class="menu-list__button"
-                        :title="$t( isFullscreen ? 'minimize' : 'maximize' )"
+                        :title="t( isFullscreen ? 'minimize' : 'maximize' )"
                         data-api-fullscreen
                     >
                         <img
                             v-if="isFullscreen"
                             src="@/assets/icons/icon-minimize.svg"
-                            :alt="$t( 'minimize' )"
+                            :alt="t( 'minimize' )"
                         />
                         <img
                             v-else
                             src="@/assets/icons/icon-maximize.svg"
-                            :alt="$t( 'maximize' )"
+                            :alt="t( 'maximize' )"
                         />
                     </button>
                 </li>
@@ -253,7 +253,7 @@ export default {
             "totalSaved",
         ]),
         recordingButtonText(): string {
-            return this.isPlaying && AudioService.isRecording() ? this.$t( "stopRecording" ) : this.$t( "recordOutput" );
+            return this.isPlaying && AudioService.isRecording() ? this.t( "stopRecording" ) : this.t( "recordOutput" );
         },
         /**
          * Cloud import are loaded at runtime to omit packaging
@@ -321,7 +321,7 @@ export default {
                     this.openModal( ModalWindows.SONG_SAVE_WINDOW );
                 }
             } else {
-                this.showError( this.$t( "emptySong" ));
+                this.showError( this.t( "emptySong" ));
             }
         },
         async handleExport(): Promise<void> {
@@ -330,9 +330,9 @@ export default {
                 // we do not make setStatesOnSave part of the Vuex action as it can also be called
                 // from the song browser for currently unloaded songs
                 this.setStatesOnSave( this.totalSaved );
-                this.showNotification({ message: this.$t( "songExported", { song: this.activeSong.meta.title }) });
+                this.showNotification({ message: this.t( "songExported", { song: this.activeSong.meta.title }) });
             } catch {
-                this.showError( this.$t( "errorSongExport" ));
+                this.showError( this.t( "errorSongExport" ));
             }
         },
         async handleJSONExport(): Promise<void> {
@@ -340,9 +340,9 @@ export default {
                 const { title } = this.activeSong.meta;
                 const data = await this.exportSongForShare( this.activeSong );
                 saveAsFile( new Blob([ data ], { type: "text/plain" }), toFileName( title, ".json" ));
-                this.showNotification({ message: this.$t( "songExported", { song: title }) });
+                this.showNotification({ message: this.t( "songExported", { song: title }) });
             } catch {
-                this.showError( this.$t( "errorSongExport" ));
+                this.showError( this.t( "errorSongExport" ));
             }
         },
         handleMidiExport(): void {
@@ -369,8 +369,8 @@ export default {
             }
             this.openDialog({
                 type: "confirm",
-                title: this.$t( "recordOutputTitle" ),
-                message: this.$t( "recordOutputExpl" ),
+                title: this.t( "recordOutputTitle" ),
+                message: this.t( "recordOutputExpl" ),
                 confirm: () => {
                     AudioService.toggleRecordingState();
                     if ( !this.isPlaying ) {

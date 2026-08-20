@@ -23,7 +23,7 @@
 <template>
     <div class="song-creation-window">
         <div class="header">
-            <h2>{{ $t( "createNew" ) }}</h2>
+            <h2>{{ t( "createNew" ) }}</h2>
         </div>
         <hr class="divider" />
         <div class="song-creation-window__content">
@@ -36,8 +36,8 @@
                     class="song-creation-window__song-type__preview"
                     src="@/assets/images/snippet_tracker.png"
                 />
-                <h3 class="song-creation-window__song-type__title">{{ $t( "tracker" ) }}</h3>
-                <p class="song-creation-window__song-type__descr">{{ $t( "trackerExpl" ) }}</p>
+                <h3 class="song-creation-window__song-type__title">{{ t( "tracker" ) }}</h3>
+                <p class="song-creation-window__song-type__descr">{{ t( "trackerExpl" ) }}</p>
             </div>
             <div
                 class="song-creation-window__song-type"
@@ -48,8 +48,8 @@
                     class="song-creation-window__song-type__preview"
                     src="@/assets/images/snippet_jam_mode.png"
                 />
-                <h3 class="song-creation-window__song-type__title">{{ $t( "jamSession" ) }}</h3>
-                <p class="song-creation-window__song-type__descr">{{ $t( "jamSessionExpl" ) }}</p>
+                <h3 class="song-creation-window__song-type__title">{{ t( "jamSession" ) }}</h3>
+                <p class="song-creation-window__song-type__descr">{{ t( "jamSessionExpl" ) }}</p>
             </div>
         </div>
     </div>

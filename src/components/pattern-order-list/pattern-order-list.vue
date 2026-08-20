@@ -24,9 +24,9 @@
     <div class="pattern-order-list">
         <label
             class="pattern-order-list__label"
-        >{{ $t( "patternOrder" ) }}</label>
+        >{{ t( "patternOrder" ) }}</label>
         <button
-            :title="$t('previous')"
+            :title="t('previous')"
             :disabled="!canNavBack"
             type="button"
             class="pattern-order-list__navigate-button pattern-order-list__navigate-button_left"
@@ -47,28 +47,28 @@
                     type="button"
                     class="pattern-order-entry__context-menu-button"
                     @click="repeatPattern( entry )"
-                >{{ $t( "repeat" ) }}</button>
+                >{{ t( "repeat" ) }}</button>
                 <button
                     type="button"
                     :disabled="!canDelete"
                     class="pattern-order-entry__context-menu-button"
                     @click="deletePattern( entry )"
-                >{{ $t( "delete" ) }}</button>
+                >{{ t( "delete" ) }}</button>
             </template>
         </pattern-order-entry>
         <button
-            :title="$t('next')"
+            :title="t('next')"
             :disabled="!canNavNext"
             type="button"
             class="pattern-order-list__navigate-button pattern-order-list__navigate-button_right"
             @click="handleNextClick()"
         >></button>
         <button
-            :title="$t('edit')"
+            :title="t('edit')"
             type="button"
             class="pattern-order-list__edit-button"
             @click="handleEditClick()"
-        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('edit')" /></button>
+        ><img src="@/assets/icons/icon-pencil.svg" :alt="t('edit')" /></button>
     </div>
 </template>
 

@@ -25,13 +25,13 @@
         <button
             type="button"
             @click="loadFile()"
-        >{{ $t( "buttonText.local" ) }}</button>
+        >{{ t( "buttonText.local" ) }}</button>
         <button
             v-if="!dropbox"
             type="button"
             class="dropbox-button"
             @click="dropbox = true"
-        >{{ $t( "buttonText.dropbox" ) }}</button>
+        >{{ t( "buttonText.dropbox" ) }}</button>
         <component :is="cloudImportType" />
     </div>
 </template>
@@ -128,10 +128,10 @@ export default {
                         this.setCurrentSample( sample );
                         this.openModal( ModalWindows.SAMPLE_EDITOR );
                         this.showNotification({
-                            message: this.$t( "importedFileSuccessfully", { file: truncate( file.name, 35 ) })
+                            message: this.t( "importedFileSuccessfully", { file: truncate( file.name, 35 ) })
                         });
                     } else {
-                        this.showError( this.$t( "couldNotImportFile", { file: truncate( file.name, 35 ) } ));
+                        this.showError( this.t( "couldNotImportFile", { file: truncate( file.name, 35 ) } ));
                         this.closeModal();
                     }
                 }

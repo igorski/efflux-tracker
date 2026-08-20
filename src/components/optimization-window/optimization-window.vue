@@ -23,7 +23,7 @@
 <template>
     <div class="optimization-window">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -32,10 +32,10 @@
         </div>
         <hr class="divider" />
         <div class="content">
-            <p>{{ $t( "optimizeExpl" ) }}</p>
+            <p>{{ t( "optimizeExpl" ) }}</p>
             <fieldset>
                 <div class="toggle-control">
-                    <label>{{ $t( "compress" ) }}</label>
+                    <label>{{ t( "compress" ) }}</label>
                     <toggle-button
                         v-model="optimizeSamples"
                         sync
@@ -46,7 +46,7 @@
                 type="button"
                 class="button confirm-button"
                 @click="optimize()"
-            >{{ $t( "optimize" ) }}</button>
+            >{{ t( "optimize" ) }}</button>
         </div>
         <hr class="divider" />
         <div class="footer"></div>
@@ -193,8 +193,8 @@ export default {
             this.unsetLoading( "opt" );
 
             this.openDialog({
-                title: this.$t( "optimizationComplete" ),
-                message : this.$t( "completionDetails", {
+                title: this.t( "optimizationComplete" ),
+                message : this.t( "completionDetails", {
                     waveTables: cleanedTables,
                     samples: cleanedSamples,
                     instructions: cleanedInstructions,

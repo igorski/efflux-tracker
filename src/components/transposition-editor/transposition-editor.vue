@@ -27,7 +27,7 @@
         @keyup.esc="handleClose()"
     >
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -35,10 +35,10 @@
             >x</button>
         </div>
         <hr class="divider" />
-        <p>{{ $t( "semitonesExpl", { semitones: 24 }) }}</p>
+        <p>{{ t( "semitonesExpl", { semitones: 24 }) }}</p>
         <fieldset>
             <div class="wrapper input">
-                <label>{{ $t( "semitones" ) }}</label>
+                <label>{{ t( "semitones" ) }}</label>
                 <input
                     ref="semitoneInput"
                     v-model.number="semitones"
@@ -50,14 +50,14 @@
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label>{{ $t( "patternRange" ) }}</label>
+                <label>{{ t( "patternRange" ) }}</label>
                 <input type="number" v-model.number="firstPattern" min="1" :max="maxPattern" />
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern" />
             </div>
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label>{{ $t( "instrumentRange" ) }}</label>
+                <label>{{ t( "instrumentRange" ) }}</label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel" />
                 <input type="number" min="1" max="8" v-model.number="lastChannel" />
             </div>
@@ -67,7 +67,7 @@
             class="confirm-button"
             @keyup.enter="handleConfirm()"
             @click="handleConfirm()"
-        >{{ $t( "transpose" ) }}</button>
+        >{{ t( "transpose" ) }}</button>
     </div>
 </template>
 

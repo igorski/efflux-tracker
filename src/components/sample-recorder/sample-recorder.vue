@@ -23,7 +23,7 @@
 <template>
     <div class="sample-recorder">
         <div class="header">
-            <h2>{{ $t( "recordInput" ) }}</h2>
+            <h2>{{ t( "recordInput" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -53,7 +53,7 @@
                 <button
                     type="button"
                     @click="isRecording ? stopRecording() : startRecording()"
-                >{{ $t( isRecording ? "stop" : "start" ) }}</button>
+                >{{ t( isRecording ? "stop" : "start" ) }}</button>
             </div>
             <select-box
                 v-model="selectedInput"
@@ -104,7 +104,7 @@ export default {
         ]),
         availableInputs(): { label: string, value: string }[] {
             return this.inputs
-                .map(( input, index ) => ({ label: input.label || this.$t( "input" ), value : index.toString() }));
+                .map(( input, index ) => ({ label: input.label || this.t( "input" ), value : index.toString() }));
         },
     },
     async created(): Promise<void> {
@@ -242,7 +242,7 @@ export default {
             }
         },
         handleError(): void {
-            this.openDialog({ type: "error", message: this.$t( "errorNoDeviceAccess" ) });
+            this.openDialog({ type: "error", message: this.t( "errorNoDeviceAccess" ) });
             this.close();
         },
         close(): void {

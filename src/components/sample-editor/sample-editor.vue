@@ -27,7 +27,7 @@
             @close="recordInput = false"
         />
         <div class="header">
-            <h2>{{ $t( "sampleEditor" ) }}</h2>
+            <h2>{{ t( "sampleEditor" ) }}</h2>
             <button
                 class="help-button"
                 @click="openHelp()"
@@ -55,19 +55,19 @@
                     @blur="handleNameInputBlur()"
                     @keyup.enter="handleNameInputBlur()"
                 />
-                <span v-else>{{ $t( "sampleName", { name: sample.name }) }}</span>
+                <span v-else>{{ t( "sampleName", { name: sample.name }) }}</span>
                 <button
                     type="button"
-                    :title="$t('editName')"
+                    :title="t('editName')"
                     class="sample-meta__edit-button"
                     @click="handleNameInputShow()"
                 >
                     <img src="@/assets/icons/icon-pencil.svg" />
                 </button>
-                <span>{{ $t( "totalDuration", { duration: meta.totalDuration }) }}</span>
-                <span>{{ $t( "sampleRate", { sampleRate: meta.sampleRate }) }}</span>
-                <span>{{ $t( "channelAmount", { amount: meta.amountOfChannels }) }}</span>
-                <span v-if="!isInUse">{{ $t( "notInUse" ) }}</span>
+                <span>{{ t( "totalDuration", { duration: meta.totalDuration }) }}</span>
+                <span>{{ t( "sampleRate", { sampleRate: meta.sampleRate }) }}</span>
+                <span>{{ t( "channelAmount", { amount: meta.amountOfChannels }) }}</span>
+                <span v-if="!isInUse">{{ t( "notInUse" ) }}</span>
             </div>
             <hr class="divider section-divider" />
             <div class="sample-display">
@@ -94,21 +94,21 @@
                 <button
                     type="button"
                     class="sample-display__zoom-out"
-                    :title="$t('zoomOut')"
+                    :title="t('zoomOut')"
                     :disabled="isBusy || displayZoom === MIN_ZOOM"
                     @click="displayZoom /= ZOOM_INCREMENT"
-                ><img src="@/assets/icons/icon-zoom-out.svg" :alt="$t('zoomOut')" /></button>
+                ><img src="@/assets/icons/icon-zoom-out.svg" :alt="t('zoomOut')" /></button>
                 <button
                     type="button"
                     class="sample-display__zoom-in"
-                    :title="$t('zoomIn')"
+                    :title="t('zoomIn')"
                     :disabled="isBusy || displayZoom === MAX_ZOOM"
                     @click="displayZoom *= ZOOM_INCREMENT"
-                ><img src="@/assets/icons/icon-zoom-in.svg" :alt="$t('zoomIn')" /></button>
+                ><img src="@/assets/icons/icon-zoom-in.svg" :alt="t('zoomIn')" /></button>
                 <button
                     type="button"
                     class="sample-display__delete"
-                    :title="$t('delete')"
+                    :title="t('delete')"
                     :disabled="isBusy"
                     @click="deleteSample()"
                 >&times;</button>
@@ -128,14 +128,14 @@
                         type="button"
                         class="transport-controls__button"
                         :class="{ active: isPlaying && !isBusy }"
-                        :title="$t( isPlaying && !isBusy ? 'stop' : 'play')"
+                        :title="t( isPlaying && !isBusy ? 'stop' : 'play')"
                         :disabled="isBusy"
                         @click="isPlaying && !isBusy ? stopPlayback() : startPlayback()"
                     >
                         <i :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"></i>
                     </button>
                     <div class="toggle-control">
-                        <label>{{ $t( "loop" ) }}</label>
+                        <label>{{ t( "loop" ) }}</label>
                         <toggle-button
                             v-model="sample.loop"
                             :disabled="isBusy"
@@ -143,7 +143,7 @@
                         />
                     </div>
                     <div class="playback-type-control">
-                        <label>{{ $t( "playbackType" ) }}</label>
+                        <label>{{ t( "playbackType" ) }}</label>
                         <select-box
                             v-model="sample.type"
                             :options="availablePlaybackTypes"
@@ -156,7 +156,7 @@
                     class="range-controls"
                 >
                     <div class="range-control">
-                        <label>{{ $t( "sampleStart" ) }}</label>
+                        <label>{{ t( "sampleStart" ) }}</label>
                         <input
                             type="range"
                             name="sampleStart"
@@ -168,7 +168,7 @@
                         />
                     </div>
                     <div class="range-control">
-                        <label>{{ $t( "sampleEnd" ) }}</label>
+                        <label>{{ t( "sampleEnd" ) }}</label>
                         <input
                             type="range"
                             name="sampleEnd"
@@ -179,14 +179,14 @@
                             :disabled="isBusy"
                         />
                     </div>
-                    <!-- <span>{{ $t( "totalDuration", { duration: meta.duration }) }}</span> -->
+                    <!-- <span>{{ t( "totalDuration", { duration: meta.duration }) }}</span> -->
                 </div>
                 <div
                     v-if="canSlice"
                     class="slice-controls"
                 >
                     <div class="range-control">
-                        <label>{{ $t( "threshold" ) }}</label>
+                        <label>{{ t( "threshold" ) }}</label>
                         <input
                             type="range"
                             name="threshold"
@@ -197,7 +197,7 @@
                         />
                     </div>
                     <div class="range-control">
-                        <label>{{ $t( "lowpassFreq" ) }}</label>
+                        <label>{{ t( "lowpassFreq" ) }}</label>
                         <input
                             type="range"
                             name="lowpassFreq"
@@ -214,7 +214,7 @@
             v-else-if="availableSamples.length === 0"
             class="no-samples"
         >
-            <p>{{ $t( "noSamplesDescr" ) }}</p>
+            <p>{{ t( "noSamplesDescr" ) }}</p>
         </div>
         <hr class="divider section-divider" />
         <div class="footer">
@@ -223,18 +223,18 @@
                     type="button"
                     :disabled="!sample || isBusy"
                     @click="commitChanges()"
-                >{{ $t( "saveChanges" ) }}</button>
+                >{{ t( "saveChanges" ) }}</button>
                 <button
                     type="button"
                     :disabled="!sample || isBusy"
                     @click="commitAndCreateInstrument()"
-                >{{ $t( "createInstrument" ) }}</button>
+                >{{ t( "createInstrument" ) }}</button>
                 <button
                     v-if="canTrim"
                     type="button"
                     :disabled="!sample || !hasAltRange || isBusy"
                     @click="trimSample()"
-                >{{ $t( "trim" ) }}</button>
+                >{{ t( "trim" ) }}</button>
                 <span
                     v-if="isBusy && encodeProgress"
                     class="progress"
@@ -244,7 +244,7 @@
                 <button
                     type="button"
                     @click="recordInput = true"
-                >{{ $t( "record" ) }}</button>
+                >{{ t( "record" ) }}</button>
                 <file-loader file-types="audio" class="file-loader" />
             </div>
         </div>
@@ -340,9 +340,9 @@ export default {
         },
         availablePlaybackTypes(): { label: string, value: PlaybackType }[] {
             return [
-                { label: this.$t( "default" ), value: PlaybackType.DEFAULT },
-                { label: this.$t( "repitch" ), value: PlaybackType.REPITCHED },
-                { label: this.$t( "sliced" ),  value: PlaybackType.SLICED },
+                { label: this.t( "default" ), value: PlaybackType.DEFAULT },
+                { label: this.t( "repitch" ), value: PlaybackType.REPITCHED },
+                { label: this.t( "sliced" ),  value: PlaybackType.SLICED },
             ];
         },
         selectedSample: {
@@ -530,7 +530,7 @@ export default {
         deleteSample(): void {
             this.openDialog({
                 type    : "confirm",
-                message : this.$t( "deleteConfirmDescr" ),
+                message : this.t( "deleteConfirmDescr" ),
                 confirm : () => {
                     this.removeSampleFromCache( this.sample );
                     this.removeSample( this.sample );
@@ -579,7 +579,7 @@ export default {
             if ( sample.type !== PlaybackType.REPITCHED || this.hasPitch ) {
                 const updatedSample = await this.updateSampleProps( sample );
                 this.showNotification({
-                    message : this.$t( "savedChanges", { sample: updatedSample.name })
+                    message : this.t( "savedChanges", { sample: updatedSample.name })
                 });
                 return updatedSample;
             }
@@ -587,8 +587,8 @@ export default {
             this.stopPlayback();
 
             this.openDialog({
-                title       : this.$t( "pleaseWait" ),
-                message     : this.$t( "analysingPitch" ),
+                title       : this.t( "pleaseWait" ),
+                message     : this.t( "analysingPitch" ),
                 hideActions : true,
             });
             this.setBlindActive( true );
@@ -626,7 +626,7 @@ export default {
                     this.cacheSample( sample );
                     this.closeDialog();
                     this.showNotification({
-                        message : this.$t( "savedDominantPitch", { note, octave } )
+                        message : this.t( "savedDominantPitch", { note, octave } )
                     });
                     this.isBusy = false;
 
@@ -692,8 +692,8 @@ export default {
         async trimSample(): Promise<void> {
             this.isBusy = true;
             this.openDialog({
-                title       : this.$t( "pleaseWait" ),
-                message     : this.$t( "trimmingSample" ),
+                title       : this.t( "pleaseWait" ),
+                message     : this.t( "trimmingSample" ),
                 hideActions : true,
             });
             const hadPitch = this.hasPitch; // needs no recalculation after trim

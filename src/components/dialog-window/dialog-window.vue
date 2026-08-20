@@ -34,12 +34,12 @@
             <button
                 type="button"
                 @click="handleConfirm()"
-            >{{ $t( "ok" ) }}</button>
+            >{{ t( "ok" ) }}</button>
             <button
                 v-if="type === 'confirm'"    
                 type="button"
                 @click="handleCancel()"
-            >{{ $t( "cancel" ) }}</button>
+            >{{ t( "cancel" ) }}</button>
         </div>
     </div>
 </template>

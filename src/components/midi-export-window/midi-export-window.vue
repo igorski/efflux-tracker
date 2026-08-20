@@ -26,7 +26,7 @@
         @keyup.esc="handleClose()"
     >
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -36,7 +36,7 @@
         <hr class="divider" />
         <fieldset>
             <div class="wrapper input">
-                <label>{{ $t( "patternRange" ) }}</label>
+                <label>{{ t( "patternRange" ) }}</label>
                 <input
                     v-model.number="firstOrderIndex"
                     ref="firstPatternInput"
@@ -54,7 +54,7 @@
         </fieldset>
         <fieldset>
             <div class="wrapper input">
-                <label>{{ $t( "instrumentRange" ) }}</label>
+                <label>{{ t( "instrumentRange" ) }}</label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
@@ -64,7 +64,7 @@
             class="confirm-button"
             @keyup.enter="handleConfirm"
             @click="handleConfirm"
-        >{{ $t( "export" ) }}</button>
+        >{{ t( "export" ) }}</button>
     </div>
 </template>
 

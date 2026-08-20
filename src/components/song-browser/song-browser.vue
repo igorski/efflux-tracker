@@ -23,7 +23,7 @@
 <template>
     <div class="song-browser">
         <div class="header">
-            <h2>{{ $t( "songs" ) }}</h2>
+            <h2>{{ t( "songs" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -31,7 +31,7 @@
             >x</button>
             <section class="song-browser__explanation">
                 <hr class="divider" />
-                <div class="song-browser__explanation-text">{{ $t( "localSongsExpl" ) }}</div>
+                <div class="song-browser__explanation-text">{{ t( "localSongsExpl" ) }}</div>
             </section>
         </div>
         <hr class="divider" />
@@ -41,22 +41,22 @@
                 :key="`song_${index}`"
                 @click="openSongClick( song.id )"
             >
-                <span class="title">{{ $t( "titleByAuthor", { title: song.meta.title, author: song.meta.author }) }}</span>
+                <span class="title">{{ t( "titleByAuthor", { title: song.meta.title, author: song.meta.author }) }}</span>
                 <!-- <span class="date">{{ getSongDate(song) }}</span> -->
                 <span class="type">{{ song.type }}</span>
                 <span class="size">{{ song.size }}</span>
                 <button
                     type="button"
                     class="action-button"
-                    :title="$t('exportSong')"
+                    :title="t('exportSong')"
                     @click.stop="exportSongClick( song.id )"
-                ><img src="@/assets/icons/icon-download.svg" :alt="$t('exportSong')" /></button>
+                ><img src="@/assets/icons/icon-download.svg" :alt="t('exportSong')" /></button>
                 <button
                     type="button"
                     class="action-button"
-                    :title="$t('deleteSong')"
+                    :title="t('deleteSong')"
                     @click.stop="deleteSongClick( song.id )"
-                ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteSong')" /></button>
+                ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('deleteSong')" /></button>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
@@ -69,7 +69,7 @@
                 type="button"
                 class="import-button"
                 @click="handleSongImport()"
-            >{{ $t( "importFile" ) }}</button>
+            >{{ t( "importFile" ) }}</button>
         </div>
     </div>
 </template>
@@ -115,7 +115,7 @@ export default {
             return this.songs.map( song => ({
                 ...song,
                 size: sizes[ getStorageKeyForSong( song )],
-                type: song.type === EffluxSongType.JAM ? this.$t( "jam" ) : this.$t( "tracker" ),
+                type: song.type === EffluxSongType.JAM ? this.t( "jam" ) : this.t( "tracker" ),
             })).sort(( a, b ) => a.meta.title.toLowerCase().localeCompare( b.meta.title.toLowerCase()));
         }
     },
@@ -124,7 +124,7 @@ export default {
             immediate: true,
             handler( songs ): void {
                 if ( songs.length === 0 ) {
-                    this.openDialog({ title: this.$t( "error" ), message: this.$t( "errorNoSongs" ) });
+                    this.openDialog({ title: this.t( "error" ), message: this.t( "errorNoSongs" ) });
                 }
             }
         },
@@ -152,13 +152,13 @@ export default {
                     this.openSong( song );
                     this.$emit( "close" );
                 } catch {
-                    this.showError( this.$t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
+                    this.showError( this.t( "errorSongImport", { extension: PROJECT_FILE_EXTENSION }));
                 }
             };
             if ( this.hasChanges ) {
                 this.openDialog({
                     type: "confirm",
-                    message: this.$t( "warnings.loadNewPendingChanges" ),
+                    message: this.t( "warnings.loadNewPendingChanges" ),
                     confirm: () => open(),
                 });
             } else {
@@ -169,9 +169,9 @@ export default {
             try {
                 const song = await this.loadSongFromLS( this.getSongById( songId ));
                 await this.exportSong( song );
-                this.showNotification({ message: this.$t( "songExported", { song: song.meta.title }) });
+                this.showNotification({ message: this.t( "songExported", { song: song.meta.title }) });
             } catch {
-                this.showError( this.$t( "errorSongExport" ));
+                this.showError( this.t( "errorSongExport" ));
             }
         },
         deleteSongClick( songId: string ): void {
@@ -181,14 +181,14 @@ export default {
             }
             this.openDialog({
                 type: "confirm",
-                message: this.$t( "confirmSongDelete", { song: song.meta.title }),
+                message: this.t( "confirmSongDelete", { song: song.meta.title }),
                 confirm: () => {
                     this.deleteSongFromLS({ song });
                 }
             });
         },
         handleSongImport(): void {
-            const message = this.$t( "songImported" ); // component will unmount after import
+            const message = this.t( "songImported" ); // component will unmount after import
             openFileBrowser( async fileBrowserEvent => {
                 const file = fileBrowserEvent.target.files?.[ 0 ];
                 if ( !file ) {

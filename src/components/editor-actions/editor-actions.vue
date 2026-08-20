@@ -30,46 +30,46 @@
                 type="button"
                 class="action__controls-button undo"
                 :class="{ disabled: !canUndo }"
-                :title="$t('undo')"
+                :title="t('undo')"
                 @click="navigateHistory('undo')"
             ></button>
             <button
                 type="button"
                 class="action__controls-button redo"
                 :class="{ disabled: !canRedo }"
-                :title="$t('redo')"
+                :title="t('redo')"
                 @click="navigateHistory('redo')"
             ></button>
             <button
                 type="button"
                 class="action__controls-button add-on"
                 :class="{ active: showNoteEntry }"
-                :title="$t('openKeyboard')"
+                :title="t('openKeyboard')"
                 @click="openKeyboard()"
             ></button>
             <button
                 type="button"
                 class="action__controls-button add-off"
-                :title="$t('addNoteOff')"
+                :title="t('addNoteOff')"
                 @click="addNoteOnOff()"
             ></button>
             <button
                 type="button"
                 class="action__controls-button remove-note"
-                :title="$t('removeInstruction')"
+                :title="t('removeInstruction')"
                 @click="deleteNote()"
             ></button>
             <template v-if="!jamMode">
                 <button
                     type="button"
                     class="action__controls-button module-params"
-                    :title="$t('editModuleParams')"
+                    :title="t('editModuleParams')"
                     @click="editModuleParams()"
                 ></button>
                 <button
                     type="button"
                     class="action__controls-button module-glide"
-                    :title="$t('glideModuleParams')"
+                    :title="t('glideModuleParams')"
                     @click="glideParams()"
                 ></button>
             </template>

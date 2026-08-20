@@ -23,7 +23,7 @@
 <template>
     <div class="mixer">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button class="close-button"
                     @click="$emit('close')"
             >x</button>

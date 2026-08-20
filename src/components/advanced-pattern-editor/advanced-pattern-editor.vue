@@ -26,7 +26,7 @@
         @keyup.esc="handleClose()"
     >
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -35,22 +35,22 @@
         </div>
         <hr class="divider" />
         <fieldset>
-            <legend>{{ $t( "copyRange" ) }}</legend>
+            <legend>{{ t( "copyRange" ) }}</legend>
             <div class="wrapper input push">
-                <label>{{ $t( "copyPatternRangeLabel" ) }}</label>
+                <label>{{ t( "copyPatternRangeLabel" ) }}</label>
                 <input type="number" v-model.number="firstPattern" ref="firstPatternInput" min="1" :max="maxPattern">
                 <input type="number" v-model.number="lastPattern" min="1" :max="maxPattern">
             </div>
             <div class="wrapper input">
-                <label>{{ $t( "copyChannelRangeLabel" ) }}</label>
+                <label>{{ t( "copyChannelRangeLabel" ) }}</label>
                 <input type="number" min="1" max="8" v-model.number="firstChannel">
                 <input type="number" min="1" max="8" v-model.number="lastChannel">
             </div>
         </fieldset>
         <fieldset>
-            <legend>{{ $t( "insertClone" ) }}</legend>
+            <legend>{{ t( "insertClone" ) }}</legend>
             <div class="wrapper input">
-                <label>{{ $t( "insertAfterLabel" ) }}</label>
+                <label>{{ t( "insertAfterLabel" ) }}</label>
                 <input type="number" min="1" :max="maxPattern" v-model.number="pastePattern">
             </div>
             <button
@@ -58,15 +58,15 @@
                 class="confirm-button"
                 @keyup.enter="handleInsertClick()"
                 @click="handleInsertClick()"
-            >{{ $t( "insertClonedContent" ) }}</button>
+            >{{ t( "insertClonedContent" ) }}</button>
         </fieldset>
         <fieldset>
-            <legend>{{ $t( "or" ) }}</legend>
+            <legend>{{ t( "or" ) }}</legend>
             <button
                 type="button"
                 class="export-button"
                 @click="handleExportClick()"
-            >{{ $t( "exportContent" ) }}</button>
+            >{{ t( "exportContent" ) }}</button>
         </fieldset>
     </div>
 </template>
@@ -157,9 +157,9 @@ export default {
                 saveAsFile(
                     `data:application/json;charset=utf-8, ${encodeURIComponent(data)}`, `${name}${PATTERN_FILE_EXTENSION}`
                 );
-                this.showNotification({ message: this.$t( "patternRangeExported" ) });
+                this.showNotification({ message: this.t( "patternRangeExported" ) });
             } catch {
-                this.showError( this.$t( "errorPatternRangeExport" ));
+                this.showError( this.t( "errorPatternRangeExport" ));
             }
             this.unsetLoading( "pexp" );
         },

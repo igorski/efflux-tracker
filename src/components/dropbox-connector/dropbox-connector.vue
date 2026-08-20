@@ -35,7 +35,7 @@
                     type="button"
                     class="button dropbox-button"
                     @click="login()"
-                >{{ $t( "loginToDropbox" ) }}</button>
+                >{{ t( "loginToDropbox" ) }}</button>
             </template>
             <template v-if="authenticated || awaitingConnection">
                 <button
@@ -43,7 +43,7 @@
                     class="button dropbox-button"
                     :disabled="awaitingConnection"
                     @click="openFileBrowser()"
-                >{{ $t( authenticated ? "importFromDropbox" : "connectingToDropbox" ) }}</button>
+                >{{ t( authenticated ? "importFromDropbox" : "connectingToDropbox" ) }}</button>
             </template>
         </template>
     </div>
@@ -108,8 +108,8 @@ export default {
             );
             this.openDialog({
                 type: "confirm",
-                title: this.$t( "establishConnection" ),
-                message: this.$t( "connectionExpl" ),
+                title: this.t( "establishConnection" ),
+                message: this.t( "connectionExpl" ),
                 confirm: () => this.login(),
             });
         }
@@ -143,7 +143,7 @@ export default {
             this.openModal( ModalWindows.DROPBOX_FILE_SELECTOR );
         },
         showConnectionMessage(): void {
-            this.showNotification({ message: this.$t( "connectedToDropbox" ) });
+            this.showNotification({ message: this.t( "connectedToDropbox" ) });
         },
     },
 };

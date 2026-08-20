@@ -23,7 +23,7 @@
 <template>
     <div class="welcome">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -32,30 +32,30 @@
         </div>
         <hr class="divider" />
         <div class="pane text">
-            <p>{{ $t( "introductionFirstTime" ) }}</p>
+            <p>{{ t( "introductionFirstTime" ) }}</p>
             <button
                 type="button"
                 class="pulse-button"
                 @click="openSavedSong()"
             >
-                <span>{{ $t( "openSong" ) }}</span><span class="pulse-button__animation"></span>
+                <span>{{ t( "openSong" ) }}</span><span class="pulse-button__animation"></span>
             </button>
             <button
                 type="button"
                 @click="openInstrumentEditor()"
-            >{{ $t( "tweakInstrument" ) }}</button>
+            >{{ t( "tweakInstrument" ) }}</button>
             <i18n-t keypath="introductionHelp" tag="p">
-                <span class="emphasis">{{ $t('jamMode') }}</span>
+                <span class="emphasis">{{ t('jamMode') }}</span>
             </i18n-t>
             <button
                 type="button"
                 class="button--secondary"
                 @click="createJamSong()"
-            >{{ $t( "jamMode" ) }}</button>
+            >{{ t( "jamMode" ) }}</button>
             <button
                 type="button"
                 @click="openHelp()"
-            >{{ $t( "openHelp" ) }}</button>
+            >{{ t( "openHelp" ) }}</button>
         </div>
         <div class="pane logo">
             <img
@@ -70,7 +70,7 @@
         </div>
         <hr class="divider" />
         <div class="wrapper input footer">
-            <label>{{ $t( "showOnStartup" ) }}</label>
+            <label>{{ t( "showOnStartup" ) }}</label>
             <toggle-button
                 v-model="showOnStartup"
                 class="show-startup"

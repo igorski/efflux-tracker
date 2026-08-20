@@ -23,15 +23,15 @@
 <template>
     <div class="pattern-manager">
         <div class="header">
-            <h2>{{ $t( "patternManager" ) }}</h2>
+            <h2>{{ t( "patternManager" ) }}</h2>
             <button
-                :title="$t('help')"
+                :title="t('help')"
                 type="button"
                 class="help-button"
                 @click="openHelp()"
             >?</button>
             <button
-                :title="$t('close')"
+                :title="t('close')"
                 type="button"
                 class="close-button"
                 @click="$emit('close')"
@@ -67,27 +67,27 @@
                 >{{ entry.description }}</span>
                 <span
                     class="pattern-list__entry-steps"
-                >{{ $t( "stepAmount", { amount: entry.pattern.steps }) }}</span>
+                >{{ t( "stepAmount", { amount: entry.pattern.steps }) }}</span>
                 <div class="pattern-list__entry-action-buttons">
                     <button
                         type="button"
                         class="pattern-list__entry-action-button pattern-list__entry-action-button--dark"
-                        :title="$t('edit')"
+                        :title="t('edit')"
                         @click.stop="handleDescriptionInputShow( entry )"
-                    ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('edit')" /></button>
+                    ><img src="@/assets/icons/icon-pencil.svg" :alt="t('edit')" /></button>
                     <button
                         type="button"
                         class="pattern-list__entry-action-button"
-                        :title="$t('duplicate')"
+                        :title="t('duplicate')"
                         @click.stop="handleDuplicateClick( entry )"
-                    ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                    ><img src="@/assets/icons/icon-copy.svg" :alt="t('duplicate')" /></button>
                     <button
                         v-if="canDelete"
                         type="button"
                         class="pattern-list__entry-action-button"
-                        :title="$t('delete')"
+                        :title="t('delete')"
                         @click.stop="handleDeleteClick( entry )"
-                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('delete')" /></button>
                 </div>
             </li>
         </ul>
@@ -97,13 +97,13 @@
                 type="button"
                 class="button"
                 @click="handleCreateNew()"
-            >{{ $t( "createNew" ) }}</button>
+            >{{ t( "createNew" ) }}</button>
             <button
                 v-if="useOrders"
                 type="button"
                 class="button"
                 @click="handleOrderClick()"
-            >{{ $t( "orderPatterns" ) }}</button>
+            >{{ t( "orderPatterns" ) }}</button>
         </div>
     </div>
 </template>
@@ -146,7 +146,7 @@ export default {
             return this.activeSong.patterns
                 .map(( pattern: EffluxPattern, index: number ) => ({
                     pattern,
-                    description: pattern.description ?? this.$t( "untitled" ),
+                    description: pattern.description ?? this.t( "untitled" ),
                     index,
                     name: pattern.name!,
                 }));

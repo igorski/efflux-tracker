@@ -26,7 +26,7 @@
         :class="{ 'automation-lane--expanded': !collapsed }"
     >
         <div class="automation-lane__header">
-            <h2 class="automation-lane__title">{{ $t( "title" ) }}</h2>
+            <h2 class="automation-lane__title">{{ t( "title" ) }}</h2>
             <select-box
                 v-if="!collapsed"
                 v-model="selectedModule"
@@ -40,12 +40,12 @@
                     type="button"
                     class="automation-lane__header-button"
                     @click="$emit('clear')"
-                >{{ $t( "clear" ) }}</button>
+                >{{ t( "clear" ) }}</button>
                 <button
                     type="button"
                     class="automation-lane__header-button automation-lane__header-button-toggle"
                     @click="$emit('toggle')"
-                >{{ $t( collapsed ? "expand" : "collapse" ) }}</button>
+                >{{ t( collapsed ? "expand" : "collapse" ) }}</button>
             </div>
         </div>
         <section
@@ -139,32 +139,32 @@ export default {
         ]),
         availableModules(): { label: string, value: string }[] {
             return [
-                { label: this.$t( "delayOnOff" ),     value: DELAY_ENABLED },
-                { label: this.$t( "delayFeedback" ),  value: DELAY_FEEDBACK },
-                { label: this.$t( "delayDry" ),       value: DELAY_DRY },
-                { label: this.$t( "delayCutoff" ),    value: DELAY_CUTOFF },
-                { label: this.$t( "delayTime" ),      value: DELAY_TIME },
-                { label: this.$t( "delayOffset" ),    value: DELAY_OFFSET },
-                { label: this.$t( "eqOnOff" ),        value: EQ_ENABLED },
-                { label: this.$t( "eqLow" ),          value: EQ_LOW },
-                { label: this.$t( "eqMid" ),          value: EQ_MID },
-                { label: this.$t( "eqHigh" ),         value: EQ_HIGH },
-                { label: this.$t( "filterOnOff" ),    value: FILTER_ENABLED },
-                { label: this.$t( "filterFreq" ),     value: FILTER_FREQ },
-                { label: this.$t( "filterQ" ),        value: FILTER_Q },
-                { label: this.$t( "filterLfoOnOff" ), value: FILTER_LFO_ENABLED },
-                { label: this.$t( "filterLfoSpeed" ), value: FILTER_LFO_SPEED },
-                { label: this.$t( "filterLfoDepth" ), value: FILTER_LFO_DEPTH },
-                { label: this.$t( "odOnOff" ),        value: OD_ENABLED },
-                { label: this.$t( "odDrive" ),        value: OD_DRIVE },
-                { label: this.$t( "odPreBand" ),      value: OD_PRE_BAND },
-                { label: this.$t( "odColor" ),        value: OD_COLOR },
-                { label: this.$t( "odPostCut" ),      value: OD_POST_CUT },
-                { label: this.$t( "panLeft" ),        value: PAN_LEFT },
-                { label: this.$t( "panRight" ),       value: PAN_RIGHT },
-                { label: this.$t( "pitchUp" ),        value: PITCH_UP },
-                { label: this.$t( "pitchDown" ),      value: PITCH_DOWN },
-                { label: this.$t( "volume" ),         value: VOLUME },
+                { label: this.t( "delayOnOff" ),     value: DELAY_ENABLED },
+                { label: this.t( "delayFeedback" ),  value: DELAY_FEEDBACK },
+                { label: this.t( "delayDry" ),       value: DELAY_DRY },
+                { label: this.t( "delayCutoff" ),    value: DELAY_CUTOFF },
+                { label: this.t( "delayTime" ),      value: DELAY_TIME },
+                { label: this.t( "delayOffset" ),    value: DELAY_OFFSET },
+                { label: this.t( "eqOnOff" ),        value: EQ_ENABLED },
+                { label: this.t( "eqLow" ),          value: EQ_LOW },
+                { label: this.t( "eqMid" ),          value: EQ_MID },
+                { label: this.t( "eqHigh" ),         value: EQ_HIGH },
+                { label: this.t( "filterOnOff" ),    value: FILTER_ENABLED },
+                { label: this.t( "filterFreq" ),     value: FILTER_FREQ },
+                { label: this.t( "filterQ" ),        value: FILTER_Q },
+                { label: this.t( "filterLfoOnOff" ), value: FILTER_LFO_ENABLED },
+                { label: this.t( "filterLfoSpeed" ), value: FILTER_LFO_SPEED },
+                { label: this.t( "filterLfoDepth" ), value: FILTER_LFO_DEPTH },
+                { label: this.t( "odOnOff" ),        value: OD_ENABLED },
+                { label: this.t( "odDrive" ),        value: OD_DRIVE },
+                { label: this.t( "odPreBand" ),      value: OD_PRE_BAND },
+                { label: this.t( "odColor" ),        value: OD_COLOR },
+                { label: this.t( "odPostCut" ),      value: OD_POST_CUT },
+                { label: this.t( "panLeft" ),        value: PAN_LEFT },
+                { label: this.t( "panRight" ),       value: PAN_RIGHT },
+                { label: this.t( "pitchUp" ),        value: PITCH_UP },
+                { label: this.t( "pitchDown" ),      value: PITCH_DOWN },
+                { label: this.t( "volume" ),         value: VOLUME },
             ];
         },
         formattedAutomations(): { value: number, height: string, hasInstruction: boolean }[] {
@@ -283,7 +283,7 @@ export default {
                     const oldParam = this.availableModules.find(({ value }) => value === mp.module )?.label;
                     if ( oldParam && !this.notified ) {
                         const newParam = this.availableModules.find(({ value }) => value === this.selectedModule ).label;
-                        this.showNotification({ message: this.$t( "replacedAutomation", { oldParam, newParam }) });
+                        this.showNotification({ message: this.t( "replacedAutomation", { oldParam, newParam }) });
                         this.notified = true;
                     }
                     mp.module = this.selectedModule;

@@ -27,7 +27,7 @@
         @mouseover="setHelpTopic('note-entry')"
      >
         <div class="note-entry-editor__keyboard">
-            <h3 class="title">{{ $t( "noteInput" ) }}</h3>
+            <h3 class="title">{{ t( "noteInput" ) }}</h3>
             <ul
                 class="keyboard"
                 @mouseleave="killAllNotes()"
@@ -54,7 +54,7 @@
             </ul>
         </div>
         <div class="note-entry-editor__octaves">
-            <h3 class="title">{{ $t( "octave" ) }}</h3>
+            <h3 class="title">{{ t( "octave" ) }}</h3>
             <ul class="octaves">
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="1">1</form-list-item>
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="2">2</form-list-item>
@@ -66,7 +66,7 @@
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="8">8</form-list-item>
             </ul>
             <div class="large-view-control">
-                <label class="large-view-control__title">{{ $t( "expand" ) }}</label>
+                <label class="large-view-control__title">{{ t( "expand" ) }}</label>
                 <toggle-button
                     v-model="largeView"
                     sync
@@ -161,7 +161,7 @@ export default {
         instrumentOptions(): { label: string, value: string }[] {
             const out = [];
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-                out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
+                out.push({ label: this.t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
         },

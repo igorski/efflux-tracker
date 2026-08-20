@@ -23,7 +23,7 @@
 <template>
     <div class="song-save-window">
         <div class="header">
-            <h2>{{ $t( "title" ) }}</h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -36,7 +36,7 @@
                 type="text"
                 v-model="title"
                 ref="titleInput"
-                :placeholder="$t('songTitle')"
+                :placeholder="t('songTitle')"
                 @focus="handleFocusIn"
                 @blur="handleFocusOut"
                 @keyup.enter="save"
@@ -45,7 +45,7 @@
             <input
                 type="text"
                 v-model="author"
-                :placeholder="$t('songAuthor')"
+                :placeholder="t('songAuthor')"
                 @focus="handleFocusIn"
                 @blur="handleFocusOut"
                 @keyup.enter="save"
@@ -53,7 +53,7 @@
             />
             <div v-if="dropboxConnected" class="dropbox-form">
                 <div class="wrapper input footer">
-                    <label>{{ $t( "saveInDropbox" ) }}</label>
+                    <label>{{ t( "saveInDropbox" ) }}</label>
                     <toggle-button
                         v-model="saveInDropbox"
                         class="dropbox-toggle"
@@ -66,28 +66,28 @@
                             type="text"
                             v-model="folder"
                             class="input-field"
-                            :placeholder="$t('folder')"
+                            :placeholder="t('folder')"
                             @focus="handleFocusIn"
                             @blur="handleFocusOut"
                         />
                     </div>
-                    <p class="expl">{{ $t( "folderExpl" ) }}</p>
+                    <p class="expl">{{ t( "folderExpl" ) }}</p>
                 </template>
             </div>
             <div v-if="canConvert" class="project-type">
-                <label>{{ $t( "projectType" ) }}</label>
+                <label>{{ t( "projectType" ) }}</label>
                 <select-box
                     v-model="songType"
                     :options="songTypes"
                 />
-                <p class="expl">{{ $t( "projectTypeExpl" ) }}</p>
+                <p class="expl">{{ t( "projectTypeExpl" ) }}</p>
             </div>
             <button
                 type="button"
                 class="save-button"
                 :disabled="!title.length || !author.length || isSaving"
                 @click="save"
-            >{{ $t( "save" ) }}</button>
+            >{{ t( "save" ) }}</button>
         </div>
     </div>
 </template>
@@ -132,8 +132,8 @@ export default {
         },
         songTypes(): { label: string, value: string }[] {
             return [
-                { label: this.$t( "tracker" ), value: EffluxSongType.TRACKER },
-                { label: this.$t( "jamMode" ), value: EffluxSongType.JAM },
+                { label: this.t( "tracker" ), value: EffluxSongType.TRACKER },
+                { label: this.t( "jamMode" ), value: EffluxSongType.JAM },
             ];
         },
     },
