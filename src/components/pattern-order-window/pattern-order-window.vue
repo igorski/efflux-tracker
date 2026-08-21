@@ -89,7 +89,6 @@
                     class="footer__ui-select-box"
                 />
                 <button
-                    :title="t('addPattern')"
                     type="button"
                     class="button"
                     @click.stop="handleAddClick()"
