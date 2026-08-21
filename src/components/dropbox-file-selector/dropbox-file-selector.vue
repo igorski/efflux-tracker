@@ -138,7 +138,7 @@ const LAST_DROPBOX_FOLDER = "efx_dropboxDb";
 type FileNode = {
     id: string;
     name: string;
-    type: string; // use by cloud-file-selector, supported types : "folder" | "file" | "bpy";
+    type: "folder" | "file" | "xtk";
     path: string;
     key?: string; // unique identifier for the storage service
     children?: FileNode[];

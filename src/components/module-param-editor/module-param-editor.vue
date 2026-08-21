@@ -34,14 +34,14 @@
                     v-model="module"
                     :option-value="automationParam('volume')"
                 >
-                    {{ t( "volume") }}
+                    {{ t( "volume" ) }}
                 </form-list-item>
                 <template v-if="supportsPanning">
                     <form-list-item
                         v-model="module"
                         :option-value="automationParam('panLeft')"
                     >
-                        {{ t( "panLeft") }}
+                        {{ t( "panLeft" ) }}
                     </form-list-item>
                     <form-list-item
                         v-model="module"
@@ -54,13 +54,13 @@
                     v-model="module"
                     :option-value="automationParam('pitchUp')"
                 >
-                    {{ t( "pitchUp") }}
+                    {{ t( "pitchUp" ) }}
                 </form-list-item>
                 <form-list-item
                     v-model="module"
                     :option-value="automationParam('pitchDown')"
                 >
-                    {{ t( "pitchDown") }}
+                    {{ t( "pitchDown" ) }}
                 </form-list-item>
             </ul>
             <ul>
