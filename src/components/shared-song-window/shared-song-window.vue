@@ -23,7 +23,7 @@
 <template>
     <div class="welcome">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -37,7 +37,7 @@
             </div>
             <div>
                 <h3 class="song-title">{{ activeSong.meta.title }}</h3>
-                <p class="text">{{ $t('songByAuthor', { author: activeSong.meta.author }) }}</p>
+                <p class="text">{{ t('songByAuthor', { author: activeSong.meta.author }) }}</p>
                 <button
                     type="button"
                     :title="'playSong'"
@@ -52,13 +52,13 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { applyModules } from "@/services/audio-service";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     computed: {
         ...mapGetters([
             "activeSong",
@@ -67,6 +67,10 @@ export default {
     data: () => ({
         inited: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     mounted(): void {
         this.keydownHandler = async ( e ) => {
             if ( !this.inited ) {

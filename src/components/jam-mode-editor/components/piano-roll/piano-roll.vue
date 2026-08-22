@@ -27,14 +27,14 @@
                 <button
                     id="playBTN"
                     type="button"
-                    :title="$t( isPlaying ? 'stop' : 'play' )"
+                    :title="t( isPlaying ? 'stop' : 'play' )"
                     :class="[ isPlaying ? 'icon-stop' : 'icon-play' ]"
                     @click="setPlaying( !isPlaying )"
                 ></button>
                 <button
                     id="recordBTN"
                     type="button"
-                    :title="$t('recordInput')"
+                    :title="t('recordInput')"
                     @click="setRecording( !isRecording )"
                 ><i class="record-icon" :class="{ active: isRecording }"></i></button>
             </div>
@@ -42,7 +42,7 @@
             <div class="header__actions">
                 <button
                     type="button"
-                    :title="$t('previousPattern')"
+                    :title="t('previousPattern')"
                     :disabled="nextPatternIndex === 0"
                     :class="{
                         'pattern--queued': nextPatternIndex < activePatternIndex,
@@ -51,7 +51,7 @@
                 >&lt;</button>
                 <button
                     type="button"
-                    :title="$t('nextPattern')"
+                    :title="t('nextPattern')"
                     :disabled="nextPatternIndex === maxPatternIndex"
                     :class="{
                         'pattern--queued': nextPatternIndex > activePatternIndex,
@@ -59,27 +59,25 @@
                     @click="gotoNextPattern()"
                 >></button>
                 <button
-                    v-t="'copy'"
                     type="button"
                     @click="handlePatternCopy()"
-                ></button>
+                >{{ t( "copy" ) }}</button>
                 <button
-                    v-t="'paste'"
                     type="button"
                     :disabled="!patternCopy"
                     @click="handlePatternPaste()"
-                ></button>
+                >{{ t( "paste" ) }}</button>
             </div>
             <button
                 type="button"
                 class="help-button"
-                :title="$t('help')"
+                :title="t('help')"
                 @click="handleHelp()"
             >?</button>
             <button
                 type="button"
                 class="close-button"
-                :title="$t('close')"
+                :title="t('close')"
                 @click="$emit('close')"
             >x</button>
         </section>
@@ -137,6 +135,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import Config from "@/config";
 import ManualURLs from "@/definitions/manual-urls";
@@ -179,7 +178,6 @@ enum TouchMode {
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         AutomationLane,
         PianoRollRow,
@@ -190,6 +188,10 @@ export default {
         touchMode: TouchMode.DRAW,
         showAutomation: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,
@@ -214,7 +216,7 @@ export default {
             return this.activeSong.instruments[ this.selectedInstrument ];
         },
         title(): string {
-            return `${getInstrumentName( this.instrument )} - ${this.$t( "pattern" )} #${this.activePatternIndex + 1}`;
+            return `${getInstrumentName( this.instrument )} - ${this.t( "pattern" )} #${this.activePatternIndex + 1}`;
         },
         pattern(): Pattern {
             return this.activeSong.patterns[ this.activePatternIndex ];

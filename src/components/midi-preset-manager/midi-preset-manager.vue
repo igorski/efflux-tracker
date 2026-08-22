@@ -23,7 +23,7 @@
 <template>
     <div class="midi-preset-manager">
         <div class="header">
-            <h2 v-t="'midiPresetManager'"></h2>
+            <h2>{{ t( "midiPresetManager" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -43,20 +43,20 @@
                     <button
                         type="button"
                         class="action-button"
-                        :title="$t('deletePreset')"
+                        :title="t('deletePreset')"
                         @click.stop="requestDelete( preset )"
-                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deletePreset')" /></button>
+                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('deletePreset')" /></button>
                 </li>
             </template>
             <li v-else>
-                <p v-t="'noPresetsAvailable'"></p>
+                <p>{{ t( "noPresetsAvailable" ) }}</p>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
         <div class="footer">
             <input
                 v-model="newPresetName"
-                :placeholder="$t('newPresetName')"
+                :placeholder="t('newPresetName')"
                 :disabled="!hasPairings"
                 type="text"
                 class="input-field full"
@@ -65,28 +65,31 @@
                 @blur="handleFocusOut()"
             />
             <button
-                v-t="'savePreset'"
                 type="button"
                 class="button"
                 :disabled="!hasPairings || newPresetName.length === 0"
                 @click="savePreset()"
-            ></button>
+            >{{ t( "savePreset" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapGetters, mapMutations, mapActions } from "vuex";
 import { type MIDIPairingPreset } from "@/store/modules/midi-module";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     data: () => ({
         newPresetName: "",
         presets: [],
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapGetters([
             "connectedDevice",
@@ -120,26 +123,26 @@ export default {
         openPreset( preset: MIDIPairingPreset ): void {
             this.pairFromPreset( preset );
             if ( this.connectedDevice?.id !== preset.deviceId ) {
-                this.openDialog({ message: this.$t( "appliedPresetIncompatibleDevice", { device: preset.deviceName })});
+                this.openDialog({ message: this.t( "appliedPresetIncompatibleDevice", { device: preset.deviceName })});
             }
-            this.showNotification({ message: this.$t( "appliedPreset", { preset: preset.title }) });
+            this.showNotification({ message: this.t( "appliedPreset", { preset: preset.title }) });
             this.close();
         },
         async savePreset(): Promise<void> {
             const success = await this.savePairing( this.newPresetName );
             if ( success ) {
                 this.loadPresets();
-                this.showNotification({ message: this.$t( "savedPreset", { preset: this.newPresetName }) }); 
+                this.showNotification({ message: this.t( "savedPreset", { preset: this.newPresetName }) }); 
             }
         },
         requestDelete( preset: MIDIPairingPreset ): void {
             this.openDialog({
                 type: "confirm",
-                message: this.$t( "confirmPresetDelete", { preset: preset.title }),
+                message: this.t( "confirmPresetDelete", { preset: preset.title }),
                 confirm: async (): Promise<void> => {
                     await this.deletePairing( preset );
                     this.loadPresets();
-                    this.showNotification({ message: this.$t( "deletedStoredPreset", { preset: preset.title }) });
+                    this.showNotification({ message: this.t( "deletedStoredPreset", { preset: preset.title }) });
                 }
             });
         },

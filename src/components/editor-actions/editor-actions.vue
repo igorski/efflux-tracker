@@ -30,46 +30,46 @@
                 type="button"
                 class="action__controls-button undo"
                 :class="{ disabled: !canUndo }"
-                :title="$t('undo')"
+                :title="t('undo')"
                 @click="navigateHistory('undo')"
             ></button>
             <button
                 type="button"
                 class="action__controls-button redo"
                 :class="{ disabled: !canRedo }"
-                :title="$t('redo')"
+                :title="t('redo')"
                 @click="navigateHistory('redo')"
             ></button>
             <button
                 type="button"
                 class="action__controls-button add-on"
                 :class="{ active: showNoteEntry }"
-                :title="$t('openKeyboard')"
+                :title="t('openKeyboard')"
                 @click="openKeyboard()"
             ></button>
             <button
                 type="button"
                 class="action__controls-button add-off"
-                :title="$t('addNoteOff')"
+                :title="t('addNoteOff')"
                 @click="addNoteOnOff()"
             ></button>
             <button
                 type="button"
                 class="action__controls-button remove-note"
-                :title="$t('removeInstruction')"
+                :title="t('removeInstruction')"
                 @click="deleteNote()"
             ></button>
             <template v-if="!jamMode">
                 <button
                     type="button"
                     class="action__controls-button module-params"
-                    :title="$t('editModuleParams')"
+                    :title="t('editModuleParams')"
                     @click="editModuleParams()"
                 ></button>
                 <button
                     type="button"
                     class="action__controls-button module-glide"
-                    :title="$t('glideModuleParams')"
+                    :title="t('glideModuleParams')"
                     @click="glideParams()"
                 ></button>
             </template>
@@ -78,17 +78,20 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import glideParameterAutomations from "@/model/actions/event-param-glide";
 import deleteEvent from "@/model/actions/event-delete";
 import EventFactory from "@/model/factories/event-factory";
 import { ACTION_NOTE_OFF } from "@/model/types/audio-event";
-
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,

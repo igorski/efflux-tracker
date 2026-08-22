@@ -23,7 +23,7 @@
 <template>
     <div class="instrument-manager">
         <div class="header">
-            <h2 v-t="'instrumentManager'"></h2>
+            <h2>{{ t( "instrumentManager" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -41,48 +41,51 @@
                 <button
                     type="button"
                     class="action-button"
-                    :title="$t('exportInstrument')"
+                    :title="t('exportInstrument')"
                     @click.stop="handleExportClick( instrument )"
-                ><img src="@/assets/icons/icon-download.svg" :alt="$t('exportInstrument')" /></button>
+                ><img src="@/assets/icons/icon-download.svg" :alt="t('exportInstrument')" /></button>
                 <button
                     type="button"
                     class="action-button"
-                    :title="$t('deleteInstrument')"
+                    :title="t('deleteInstrument')"
                     @click.stop="requestDelete( instrument )"
-                ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('deleteInstrument')" /></button>
+                ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('deleteInstrument')" /></button>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
         <div v-if="hasImportExport" class="footer">
             <button
-                v-t="'importInstruments'"
                 type="button"
                 class="button"
                 @click="handleInstrumentImport()"
-            ></button>
+            >{{ t( "importInstruments" ) }}</button>
             <button
-                v-t="'exportInstruments'"
                 type="button"
                 class="button"
                 @click="handleInstrumentExport()"
-            ></button>
+            >{{ t( "exportInstruments" ) }}</button>
         </div>
     </div>
 </template>
 
-<script>
+<script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapMutations, mapActions } from "vuex";
+import { type Instrument } from "@/model/types/instrument";
 import { INSTRUMENT_STORAGE_KEY, getStorageKeyForInstrument } from "@/store/modules/instrument-module";
 import StorageUtil from "@/utils/storage-util";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             instruments : state => state.instrument.instruments,
         }),
-        mappedInstruments() {
+        mappedInstruments(): Instrument[] {
             const sizes = StorageUtil.getItemSizes( INSTRUMENT_STORAGE_KEY );
             return this.instruments.map( instrument => ({
                 ...instrument,
@@ -90,7 +93,7 @@ export default {
             })).sort(( a, b ) => a.presetName.toLowerCase().localeCompare( b.presetName.toLowerCase()));
         }
     },
-    created() {
+    created(): void {
         this.hasImportExport = typeof window.btoa !== "undefined" && typeof window.FileReader !== "undefined";
     },
     methods: {
@@ -106,38 +109,38 @@ export default {
             "exportInstruments",
             "importInstruments",
         ]),
-        async handleExportClick( instrument ) {
+        async handleExportClick( instrument: Instrument ): Promise<void> {
             this.setLoading( "exp" );
             try {
                 await this.exportInstrument( instrument );
-                this.showNotification({ message: this.$t( "instrumentExported", { instrument: instrument.presetName }) });
+                this.showNotification({ message: this.t( "instrumentExported", { instrument: instrument.presetName }) });
             } catch {
-                this.showError( this.$t( "errorInstrumentExport" ));
+                this.showError( this.t( "errorInstrumentExport" ));
             }
             this.unsetLoading( "exp" );
         },
-        requestDelete( instrument ) {
+        requestDelete( instrument: Instrument ): Promise<void> {
             this.openDialog({
                 type: "confirm",
-                message: this.$t( "confirmInstrumentDelete", { instrument: instrument.presetName }),
+                message: this.t( "confirmInstrumentDelete", { instrument: instrument.presetName }),
                 confirm: () => {
                     this.deleteInstrument({ instrument });
                 }
             });
         },
-        async handleInstrumentImport() {
+        async handleInstrumentImport(): Promise<void> {
             try {
                 const amountImported = await this.importInstruments();
-                this.showNotification({ message: this.$t( "instrumentsImported", { amount: amountImported.toString() }) });
+                this.showNotification({ message: this.t( "instrumentsImported", { amount: amountImported.toString() }) });
             } catch ( error ) {
                 this.showError( error );
             }
         },
-        async handleInstrumentExport() {
+        async handleInstrumentExport(): Promise<void> {
             try {
                 this.setLoading( "exp" );
                 await this.exportInstruments();
-                this.showNotification({ message: this.$t( "instrumentsExported" ) });
+                this.showNotification({ message: this.t( "instrumentsExported" ) });
             } catch ( error ) {
                 this.showError( error );
             }

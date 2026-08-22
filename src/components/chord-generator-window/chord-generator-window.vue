@@ -23,7 +23,7 @@
 <template>
     <div class="chord-generator-window">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -31,8 +31,8 @@
             >x</button>
         </div>
         <hr class="divider" />
-        <p v-t="'expl'"></p>
-        <p v-t="'shortcutsExpl'" class="cursive"></p>
+        <p>{{ t( "expl" ) }}</p>
+        <p class="cursive">{{ t( "shortcutsExpl" ) }}</p>
         <div class="chord-select">
             <select-box
                 v-model="note"
@@ -52,15 +52,15 @@
         </div>
         <hr class="divider" />
         <button
-            v-t="'insert'"
             type="button"
             class="confirm-button"
             @click="handleConfirm()"
-        ></button>
+        >{{ t( "insert" ) }}</button>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapMutations } from "vuex";
 import Config from "@/config";
 import Chords from "@/definitions/chords";
@@ -74,7 +74,6 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         SelectBox,
     },
@@ -83,6 +82,10 @@ export default {
         octave: "3",
         chord: "major",
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             selectedInstrument : state => state.editor.selectedInstrument,

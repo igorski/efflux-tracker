@@ -28,7 +28,7 @@
         <div class="instrument-header">
             <!-- instrument preset list -->
             <section class="instrument-presets">
-                <h2 v-t="'presets'" class="preset-title"></h2>
+                <h2 class="preset-title">{{ t( "presets" ) }}</h2>
                 <select-box
                     v-model="currentPreset"
                     :options="presetOptions"
@@ -40,10 +40,9 @@
                 <div class="actions">
                     <button
                         v-if="hasMidiSupport"
-                        v-t="midiConnected ? ( midiAssignMode ? 'doneAssigning' : 'assignMidiControl' ) : 'connectMidi'"
                         type="button"
                         @click="midiConnected ? setMidiAssignMode( !midiAssignMode ) : openSettingsPanel()"
-                    />
+                    >{{ t( midiConnected ? ( midiAssignMode ? "doneAssigning" : "assignMidiControl" ) : "connectMidi" ) }}</button>
                     <!-- selector that switches between available instruments -->
                     <select-box
                         v-model="instrument"
@@ -72,7 +71,7 @@
                     :class="{ active: selectedOscillatorIndex === idx }"
                     @click="setSelectedOscillatorIndex( idx )"
                 >
-                    {{ $t('oscillator', { index: idx + 1 }) }}
+                    {{ t('oscillator', { index: idx + 1 }) }}
                 </li>
             </ul>
             <div>
@@ -102,22 +101,22 @@
                 v-model="presetName"
                 class="instrument-name-input"
                 type="text"
-                :placeholder="$t('instrumentName')"
+                :placeholder="t('instrumentName')"
                 @focus="handleFocusIn()"
                 @blur="handleFocusOut()"
                 @keyup.enter="handleInputBlur( $event )"
             />
             <button
-                v-t="'savePreset'"
                 type="button"
                 @click="savePreset()"
                 class="instrument-preset-save"
-            ></button>
+            >{{ t( "savePreset" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import Config            from "@/config";
 import ManualURLs        from "@/definitions/manual-urls";
@@ -135,7 +134,6 @@ import messages          from "./messages.json";
 let EMPTY_PRESET_VALUE;
 
 export default {
-    i18n: { messages },
     components: {
         OscillatorEditor,
         ModuleEditor,
@@ -151,6 +149,10 @@ export default {
         oscillatorAmount: Config.OSCILLATOR_AMOUNT,
         currentPreset: null,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong              : state => state.song.activeSong,
@@ -193,7 +195,7 @@ export default {
         presets(): Instrument[] {
             const out = [
                 ...this.instruments,
-                { presetName: this.$t( "defaultPresetName" ) }
+                { presetName: this.t( "defaultPresetName" ) }
             ];
             return out.sort(( a, b ) => {
                 if( a.presetName < b.presetName ) return -1;
@@ -204,7 +206,7 @@ export default {
         instrumentOptions(): { label: string, value: string }[] {
             const out = [];
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-                out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
+                out.push({ label: this.t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
         },
@@ -232,7 +234,7 @@ export default {
         },
     },
     created(): void {
-        EMPTY_PRESET_VALUE = this.$t('defaultPresetName');
+        EMPTY_PRESET_VALUE = this.t('defaultPresetName');
         this.instrument = this.selectedInstrument; // last active instrument in editor will be opened
         this.publishMessage( PubSubMessages.INSTRUMENT_EDITOR_OPENED );
     },
@@ -270,13 +272,13 @@ export default {
         savePreset(): void {
             let newPresetName = this.presetName || "";
             if ( newPresetName.trim().length === 0 ) {
-                this.showError( this.$t( "errorNoName" ));
+                this.showError( this.t( "errorNoName" ));
             }
             else {
                 newPresetName = newPresetName.replace( "*", "" );
                 this.setPresetName({ instrument: this.instrumentRef, presetName: newPresetName });
                 if ( this.saveInstrumentIntoLS( clone( this.instrumentRef ) )) {
-                    this.showNotification({ message: this.$t( "instrumentSaved", { name: newPresetName }) });
+                    this.showNotification({ message: this.t( "instrumentSaved", { name: newPresetName }) });
                 }
             }
         },

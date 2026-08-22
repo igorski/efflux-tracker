@@ -23,7 +23,7 @@
 <template>
     <div class="song-save-window">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -36,7 +36,7 @@
                 type="text"
                 v-model="title"
                 ref="titleInput"
-                :placeholder="$t('songTitle')"
+                :placeholder="t('songTitle')"
                 @focus="handleFocusIn"
                 @blur="handleFocusOut"
                 @keyup.enter="save"
@@ -45,7 +45,7 @@
             <input
                 type="text"
                 v-model="author"
-                :placeholder="$t('songAuthor')"
+                :placeholder="t('songAuthor')"
                 @focus="handleFocusIn"
                 @blur="handleFocusOut"
                 @keyup.enter="save"
@@ -53,7 +53,7 @@
             />
             <div v-if="dropboxConnected" class="dropbox-form">
                 <div class="wrapper input footer">
-                    <label v-t="'saveInDropbox'"></label>
+                    <label>{{ t( "saveInDropbox" ) }}</label>
                     <toggle-button
                         v-model="saveInDropbox"
                         class="dropbox-toggle"
@@ -66,46 +66,44 @@
                             type="text"
                             v-model="folder"
                             class="input-field"
-                            :placeholder="$t('folder')"
+                            :placeholder="t('folder')"
                             @focus="handleFocusIn"
                             @blur="handleFocusOut"
                         />
                     </div>
-                    <p v-t="'folderExpl'" class="expl"></p>
+                    <p class="expl">{{ t( "folderExpl" ) }}</p>
                 </template>
             </div>
             <div v-if="canConvert" class="project-type">
-                <label v-t="'projectType'"></label>
+                <label>{{ t( "projectType" ) }}</label>
                 <select-box
                     v-model="songType"
                     :options="songTypes"
                 />
-                <p v-t="'projectTypeExpl'" class="expl"></p>
+                <p class="expl">{{ t( "projectTypeExpl" ) }}</p>
             </div>
             <button
-                v-t="'save'"
                 type="button"
                 class="save-button"
                 :disabled="!title.length || !author.length || isSaving"
                 @click="save"
-            ></button>
+            >{{ t( "save" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import { getCurrentFolder, setCurrentFolder } from "@/services/dropbox-service";
 import SelectBox from "@/components/forms/select-box.vue";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
-import PatternFactory from "@/model/factories/pattern-factory";
 import { EffluxSongType } from "@/model/types/song";
 import { convertSongType } from "@/utils/song-util";
 import messages from "./messages.json";
 
 export default {
     emits: [ "close" ],
-    i18n: { messages },
     components: {
         SelectBox,
         ToggleButton,
@@ -118,6 +116,10 @@ export default {
         saveInDropbox: false,
         isSaving: false,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "dropboxConnected",
@@ -130,8 +132,8 @@ export default {
         },
         songTypes(): { label: string, value: string }[] {
             return [
-                { label: this.$t( "tracker" ), value: EffluxSongType.TRACKER },
-                { label: this.$t( "jamMode" ), value: EffluxSongType.JAM },
+                { label: this.t( "tracker" ), value: EffluxSongType.TRACKER },
+                { label: this.t( "jamMode" ), value: EffluxSongType.JAM },
             ];
         },
     },

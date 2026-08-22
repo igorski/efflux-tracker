@@ -34,26 +34,24 @@
         />
         <p
             v-if="linking"
-            v-t="'moveControllerToAssign'"
             class="help-text"
-        ></p>
+        >{{ t( "moveControllerToAssign" ) }}</p>
         <button
             v-if="midiAssignMode && paired"
-            v-t="'unlink'"
             class="unlink-button"
             @click="unlink()"
-        ></button>
+        >{{ t( "unlink" ) }}</button>
    </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import AssignableInput from "./assignable-control-input";
 import messages from "./messages.json";
 
 export default {
     emits: [ "update:modelValue" ],
-    i18n: { messages },
     components: {
         ToggleButton
     },
@@ -76,6 +74,10 @@ export default {
             default: false,
         },
     },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         internalValue: {
             get(): Boolean {
@@ -85,7 +87,7 @@ export default {
                 this.$emit( "update:modelValue", value );
             },
         },
-    }
+    },
 };
 </script>
 

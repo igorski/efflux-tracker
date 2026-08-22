@@ -24,10 +24,9 @@
     <div class="pattern-order-list">
         <label
             class="pattern-order-list__label"
-            v-t="'patternOrder'"
-        ></label>
+        >{{ t( "patternOrder" ) }}</label>
         <button
-            :title="$t('previous')"
+            :title="t('previous')"
             :disabled="!canNavBack"
             type="button"
             class="pattern-order-list__navigate-button pattern-order-list__navigate-button_left"
@@ -46,37 +45,36 @@
             <template v-if="entry.editing">
                 <button
                     type="button"
-                    v-t="'repeat'"
                     class="pattern-order-entry__context-menu-button"
                     @click="repeatPattern( entry )"
-                ></button>
+                >{{ t( "repeat" ) }}</button>
                 <button
                     type="button"
-                    v-t="'delete'"
                     :disabled="!canDelete"
                     class="pattern-order-entry__context-menu-button"
                     @click="deletePattern( entry )"
-                ></button>
+                >{{ t( "delete" ) }}</button>
             </template>
         </pattern-order-entry>
         <button
-            :title="$t('next')"
+            :title="t('next')"
             :disabled="!canNavNext"
             type="button"
             class="pattern-order-list__navigate-button pattern-order-list__navigate-button_right"
             @click="handleNextClick()"
         >></button>
         <button
-            :title="$t('edit')"
+            :title="t('edit')"
             type="button"
             class="pattern-order-list__edit-button"
             @click="handleEditClick()"
-        ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('edit')" /></button>
+        ><img src="@/assets/icons/icon-pencil.svg" :alt="t('edit')" /></button>
     </div>
 </template>
 
 <script lang="ts">
-import { mapState, mapGetters, mapMutations, type Store } from "vuex";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
+import { mapState, mapGetters, mapMutations } from "vuex";
 import ModalWindows from "@/definitions/modal-windows";
 import updatePatternOrder from "@/model/actions/pattern-update-order";
 import { enqueueState } from "@/model/factories/history-state-factory";
@@ -96,7 +94,6 @@ type WrappedPatternOrderEntry = {
 const TOTAL_PER_PAGE = 5;
 
 export default {
-    i18n: { messages },
     components: {
         PatternOrderEntry,
     },
@@ -104,6 +101,10 @@ export default {
         editableEntry: -1,
         offset: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,

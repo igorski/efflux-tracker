@@ -23,15 +23,15 @@
 <template>
     <div class="pattern-manager">
         <div class="header">
-            <h2 v-t="'patternManager'"></h2>
+            <h2>{{ t( "patternManager" ) }}</h2>
             <button
-                :title="$t('help')"
+                :title="t('help')"
                 type="button"
                 class="help-button"
                 @click="openHelp()"
             >?</button>
             <button
-                :title="$t('close')"
+                :title="t('close')"
                 type="button"
                 class="close-button"
                 @click="$emit('close')"
@@ -67,51 +67,50 @@
                 >{{ entry.description }}</span>
                 <span
                     class="pattern-list__entry-steps"
-                >{{ $t( "stepAmount", { amount: entry.pattern.steps }) }}</span>
+                >{{ t( "stepAmount", { amount: entry.pattern.steps }) }}</span>
                 <div class="pattern-list__entry-action-buttons">
                     <button
                         type="button"
                         class="pattern-list__entry-action-button pattern-list__entry-action-button--dark"
-                        :title="$t('edit')"
+                        :title="t('edit')"
                         @click.stop="handleDescriptionInputShow( entry )"
-                    ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('edit')" /></button>
+                    ><img src="@/assets/icons/icon-pencil.svg" :alt="t('edit')" /></button>
                     <button
                         type="button"
                         class="pattern-list__entry-action-button"
-                        :title="$t('duplicate')"
+                        :title="t('duplicate')"
                         @click.stop="handleDuplicateClick( entry )"
-                    ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                    ><img src="@/assets/icons/icon-copy.svg" :alt="t('duplicate')" /></button>
                     <button
                         v-if="canDelete"
                         type="button"
                         class="pattern-list__entry-action-button"
-                        :title="$t('delete')"
+                        :title="t('delete')"
                         @click.stop="handleDeleteClick( entry )"
-                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                    ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('delete')" /></button>
                 </div>
             </li>
         </ul>
         <hr class="divider divider--bottom" />
         <div class="footer">
             <button
-                v-t="'createNew'"
                 type="button"
                 class="button"
                 @click="handleCreateNew()"
-            ></button>
+            >{{ t( "createNew" ) }}</button>
             <button
                 v-if="useOrders"
-                v-t="'orderPatterns'"
                 type="button"
                 class="button"
                 @click="handleOrderClick()"
-            ></button>
+            >{{ t( "orderPatterns" ) }}</button>
         </div>
     </div>
 </template>
 
 <script lang="ts">
-import { mapState, mapGetters, mapMutations, mapActions, type Store } from "vuex";
+import { type ComposerTranslation, useI18n } from "vue-i18n";
+import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 import ManualURLs from "@/definitions/manual-urls";
 import ModalWindows from "@/definitions/modal-windows";
 import addPattern from "@/model/actions/pattern-add";
@@ -127,10 +126,13 @@ type WrappedPatternEntry = {
 };
 
 export default {
-    i18n: { messages },
     data: () => ({
         showDescriptionInput: -1,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,
@@ -144,7 +146,7 @@ export default {
             return this.activeSong.patterns
                 .map(( pattern: EffluxPattern, index: number ) => ({
                     pattern,
-                    description: pattern.description ?? this.$t( "untitled" ),
+                    description: pattern.description ?? this.t( "untitled" ),
                     index,
                     name: pattern.name!,
                 }));

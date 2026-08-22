@@ -23,22 +23,21 @@
 <template>
     <div class="pattern-order-window">
         <div class="header">
-            <h2 v-t="'patternOrder'"></h2>
+            <h2>{{ t( "patternOrder" ) }}</h2>
             <button
-                :title="$t('help')"
+                :title="t('help')"
                 class="help-button"
                 @click="openHelp()"
             >?</button>
             <button
-                :title="$t('close')"
+                :title="t('close')"
                 type="button"
                 class="close-button"
                 @click="$emit('close')"
             >x</button>
             <span
-                v-t="'patternExpl'"
                 class="header__explanation"
-            ></span>
+            >{{ t( "patternExpl" ) }}</span>
         </div>
         <hr class="divider" />
         <ul class="order-list">
@@ -60,22 +59,22 @@
                         <button
                             type="button"
                             class="order-list__entry-action-button icon-play"
-                            :title="$t('play')"
+                            :title="t('play')"
                             @click.stop="handlePlayClick( element )"
                         ></button>
                         <button
                             type="button"
                             class="order-list__entry-action-button"
-                            :title="$t('duplicate')"
+                            :title="t('duplicate')"
                             @click.stop="handleDuplicateClick( element )"
-                        ><img src="@/assets/icons/icon-copy.svg" :alt="$t('duplicate')" /></button>
+                        ><img src="@/assets/icons/icon-copy.svg" :alt="t('duplicate')" /></button>
                         <button
                             v-if="canDelete"
                             type="button"
                             class="order-list__entry-action-button"
-                            :title="$t('delete')"
+                            :title="t('delete')"
                             @click.stop="handleDeleteClick( element )"
-                        ><img src="@/assets/icons/icon-trashcan.svg" :alt="$t('delete')" /></button>
+                        ><img src="@/assets/icons/icon-trashcan.svg" :alt="t('delete')" /></button>
                     </li>
                 </template>
             </draggable>
@@ -90,18 +89,17 @@
                     class="footer__ui-select-box"
                 />
                 <button
-                    v-t="'addPattern'"
-                    :title="$t('addPattern')"
                     type="button"
                     class="button"
                     @click.stop="handleAddClick()"
-                ></button>
+                >{{ t( "addPattern" ) }}</button>
             </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import Draggable from "vuedraggable";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import SelectBox from "@/components/forms/select-box.vue";
@@ -120,7 +118,6 @@ type WrappedPatternOrderEntry = {
 };
 
 export default {
-    i18n: { messages },
     components: {
         Draggable,
         SelectBox,
@@ -128,6 +125,10 @@ export default {
     data: () => ({
         newPatternIndex: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong : state => state.song.activeSong,

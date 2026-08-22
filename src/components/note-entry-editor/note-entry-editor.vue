@@ -27,7 +27,7 @@
         @mouseover="setHelpTopic('note-entry')"
      >
         <div class="note-entry-editor__keyboard">
-            <h3 v-t="'noteInput'" class="title"></h3>
+            <h3 class="title">{{ t( "noteInput" ) }}</h3>
             <ul
                 class="keyboard"
                 @mouseleave="killAllNotes()"
@@ -54,7 +54,7 @@
             </ul>
         </div>
         <div class="note-entry-editor__octaves">
-            <h3 v-t="'octave'" class="title"></h3>
+            <h3 class="title">{{ t( "octave" ) }}</h3>
             <ul class="octaves">
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="1">1</form-list-item>
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="2">2</form-list-item>
@@ -66,7 +66,7 @@
                 <form-list-item v-model.number="octave" @input="handleOctaveInput" :option-value="8">8</form-list-item>
             </ul>
             <div class="large-view-control">
-                <label v-t="'expand'" class="large-view-control__title"></label>
+                <label class="large-view-control__title">{{ t( "expand" ) }}</label>
                 <toggle-button
                     v-model="largeView"
                     sync
@@ -77,6 +77,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
 import Config from "@/config";
@@ -100,7 +101,6 @@ type MappedNoteData = {
 };
 
 export default {
-    i18n: { messages },
     components: {
         FormListItem,
         ToggleButton,
@@ -113,6 +113,10 @@ export default {
         playingNotes  : [], // notes where the playback was triggered by mouse/touch in this component
         keyboardNotes : [], // notes where the playback was triggered externally using the keyboard
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong           : state => state.song.activeSong,
@@ -157,7 +161,7 @@ export default {
         instrumentOptions(): { label: string, value: string }[] {
             const out = [];
             for ( let i = 0; i < Config.INSTRUMENT_AMOUNT; ++i ) {
-                out.push({ label: this.$t( "instrument", { index: i + 1 }), value: i.toString() });
+                out.push({ label: this.t( "instrument", { index: i + 1 }), value: i.toString() });
             }
             return out;
         },

@@ -26,10 +26,7 @@
         :class="{ 'settings-mode': mobileMode === 'settings' }"
         @mouseover="setHelpTopic('pattern')"
     >
-        <h2
-            v-t="'title'"
-            class="pattern-editor__title"
-        ></h2>
+        <h2 class="pattern-editor__title">{{ t( "title" ) }}</h2>
         <span class="pattern-editor__pattern-name">
             {{ activePattern.name }}
         </span>
@@ -43,63 +40,57 @@
             </li>
             <li class="list-item">
                 <button
-                    v-t="'patternManager'"
                     type="button"
                     class="pattern-manager-button"
                     @click="handlePatternManagerClick()"
-                ></button>
+                >{{ t( "patternManager" ) }}</button>
             </li>
             <li class="list-item">
                 <button
-                    v-t="'clear'"
                     type="button"
                     @click="handlePatternClear()"
-                ></button>
+                >{{ t( "clear" ) }}</button>
             </li>
             <li class="list-item">
                 <button
-                    v-t="'copy'"
                     type="button"
                     @click="handlePatternCopy()"
-                ></button>
+                >{{ t( "copy" ) }}</button>
             </li>
             <li class="list-item">
                 <button
-                    v-t="'paste'"
                     type="button"
                     @click="handlePatternPaste()"
-                ></button>
+                >{{ t( "paste" ) }}</button>
             </li>
             <li class="list-item">
                 <button
-                    v-t="'add'"
                     type="button"
                     @click="handlePatternAdd()"
-                ></button>
+                >{{ t( "add" ) }}</button>
             </li>
             <li class="list-item">
                 <button
-                    v-t="'delete'"
                     :disabled="!canDelete"
                     type="button"
                     @click="handlePatternDelete()"
-                ></button>
+                >{{ t( "delete" ) }}</button>
             </li>
             <li
                 v-if="!useOrders"
                 class="list-item"
             >
                 <button
-                    v-t="'advanced'"
                     type="button"
                     @click="handlePatternAdvanced()"
-                ></button>
+                >{{ t( "advanced" ) }}</button>
             </li>
         </ul>
     </section>
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import addPattern from "@/model/actions/pattern-add";
 import clearPattern from "@/model/actions/pattern-clear";
@@ -113,13 +104,16 @@ import SelectBox from "@/components/forms/select-box.vue";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     components: {
         SelectBox,
     },
     data: () => ({
         patternCopy: null
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState({
             activeSong: state => state.song.activeSong,
@@ -142,7 +136,7 @@ export default {
         },
         patternStepOptions(): { label: string, value: string }[] {
             return [ 16, 32, 64, 128 ].map( amount => ({
-                label: this.$t( "steps", { amount }), value: amount.toString()
+                label: this.t( "steps", { amount }), value: amount.toString()
             }));
         },
         canDelete(): boolean {
@@ -175,7 +169,7 @@ export default {
         handlePatternAdd(): void {
             const patterns = this.activeSong.patterns;
             if ( patterns.length === Config.MAX_PATTERN_AMOUNT ) {
-                this.showError( this.$t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
+                this.showError( this.t( "errorMaxExceeded", { amount: Config.MAX_PATTERN_AMOUNT }));
                 return;
             }
             this.saveState( addPattern( this.$store ));

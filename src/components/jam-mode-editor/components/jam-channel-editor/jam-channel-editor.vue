@@ -32,7 +32,7 @@
             <h3 class="jam-channel-editor__header-title">{{ instrumentName }}</h3>
             <div class="jam-channel-editor__header-actions">
                 <button
-                    :title="$t('mute')"
+                    :title="t('mute')"
                     type="button"
                     class="jam-channel-editor__header-ghost-button"
                     :class="{
@@ -41,7 +41,7 @@
                     @click.stop="toggleMute()"
                 >M</button>
                 <button
-                    :title="$t('solo')"
+                    :title="t('solo')"
                     type="button"
                     class="jam-channel-editor__header-ghost-button"
                     :class="{
@@ -50,18 +50,18 @@
                     @click.stop="toggleSolo()"
                 >S</button>
                 <button
-                    :title="$t( jamProps.locked ? 'unlockPattern' : 'lockPattern')"
+                    :title="t( jamProps.locked ? 'unlockPattern' : 'lockPattern')"
                     type="button"
                     class="jam-channel-editor__header-icon-button"
                     @click.stop="togglePatternLock()"
-                ><img v-if="jamProps.locked" src="@/assets/icons/icon-locked.svg" :alt="$t('unlockPattern')" />
-                <img v-else src="@/assets/icons/icon-unlocked.svg" :alt="$t('lockPattern')" /></button>
+                ><img v-if="jamProps.locked" src="@/assets/icons/icon-locked.svg" :alt="t('unlockPattern')" />
+                <img v-else src="@/assets/icons/icon-unlocked.svg" :alt="t('lockPattern')" /></button>
                 <button
-                    :title="$t('editInstrument')"
+                    :title="t('editInstrument')"
                     type="button"
                     class="jam-channel-editor__header-button"
                     @click.stop="openInstrumentEditor()"
-                ><img src="@/assets/icons/icon-pencil.svg" :alt="$t('editInstrument')" /></button>
+                ><img src="@/assets/icons/icon-pencil.svg" :alt="t('editInstrument')" /></button>
             </div>
         </div>
         <!-- as we don't render silent waveforms, we can hard code the oscillator-index -->
@@ -101,6 +101,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import WaveformDisplay from "@/components/waveform-display/waveform-display.vue";
 import ModalWindows from "@/definitions/modal-windows";
@@ -114,7 +115,6 @@ import { getInstrumentName } from "@/utils/string-util";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     components: {
         PianoRollLite,
         WaveformDisplay,
@@ -124,6 +124,10 @@ export default {
             type: Object, /* type JamChannel */
             required: true,
         },
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     computed: {
         ...mapState({

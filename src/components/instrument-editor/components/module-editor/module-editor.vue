@@ -30,13 +30,17 @@
                 v-if="showTabs"
                 class="modules-tabs tab-list"
             >
-                <li v-t="'filterTitle'"
+                <li
                     :class="{ active: activeModuleTab === 0 }"
-                    @click="activeModuleTab = 0">
+                    @click="activeModuleTab = 0"
+                >
+                    {{ t( "filterTitle" ) }}
                 </li>
-                <li v-t="'odDelayTitle'"
+                <li
                     :class="{ active: activeModuleTab === 1 }"
-                    @click="activeModuleTab = 1">
+                    @click="activeModuleTab = 1"
+                >
+                    {{ t( "odDelayTitle" ) }}
                 </li>
             </ul>
 
@@ -45,7 +49,7 @@
                 :class="{ active: !showTabs || activeModuleTab === 0 }"
             >
                 <fieldset id="eqEditor" class="instrument-parameters">
-                    <legend v-t="'eqLegend'"></legend>
+                    <legend>{{ t( "eqLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="eqEnabled"
                         :param-id="MIDI_ASSIGNABLE.EQ_ENABLED"
@@ -54,22 +58,22 @@
                     <assignable-range-control
                         v-model.number="eqLow"
                         :param-id="MIDI_ASSIGNABLE.EQ_LOW"
-                        :label="$t('low')"
+                        :label="t('low')"
                     />
                     <assignable-range-control
                         v-model.number="eqMid"
                         :param-id="MIDI_ASSIGNABLE.EQ_MID"
-                        :label="$t('mid')"
+                        :label="t('mid')"
                     />
                     <assignable-range-control
                         v-model.number="eqHigh"
                         :param-id="MIDI_ASSIGNABLE.EQ_HIGH"
-                        :label="$t('high')"
+                        :label="t('high')"
                     />
                 </fieldset>
 
                 <fieldset id="filterEditor" class="instrument-parameters">
-                    <legend v-t="'filterLegend'"></legend>
+                    <legend>{{ t( "filterLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="filterEnabled"
                         :param-id="MIDI_ASSIGNABLE.FILTER_ENABLED"
@@ -78,12 +82,12 @@
                     <assignable-range-control
                         v-model.number="filterFrequency"
                         :param-id="MIDI_ASSIGNABLE.FILTER_FREQ"
-                        :label="$t('frequency')"
+                        :label="t('frequency')"
                     />
                     <assignable-range-control
                         v-model.number="filterQ"
                         :param-id="MIDI_ASSIGNABLE.FILTER_Q"
-                        :label="$t('q')"
+                        :label="t('q')"
                     />
                     <select-box
                         v-model="filterLFO"
@@ -98,12 +102,12 @@
                     <assignable-range-control
                         v-model.number="filterSpeed"
                         :param-id="MIDI_ASSIGNABLE.FILTER_LFO_SPEED"
-                        :label="$t('lfoSpeed')"
+                        :label="t('lfoSpeed')"
                     />
                     <assignable-range-control
                         v-model.number="filterDepth"
                         :param-id="MIDI_ASSIGNABLE.FILTER_LFO_DEPTH"
-                        :label="$t('lfoDepth')"
+                        :label="t('lfoDepth')"
                     />
                 </fieldset>
             </div>
@@ -112,7 +116,7 @@
                 :class="{ active: !showTabs || activeModuleTab === 1 }"
             >
                 <fieldset id="odEditor" class="instrument-parameters">
-                    <legend v-t="'odLegend'"></legend>
+                    <legend>{{ t( "odLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="odEnabled"
                         :param-id="MIDI_ASSIGNABLE.OD_ENABLED"
@@ -121,27 +125,27 @@
                     <assignable-range-control
                         v-model.number="odDrive"
                         :param-id="MIDI_ASSIGNABLE.OD_DRIVE"
-                        :label="$t('drive')"
+                        :label="t('drive')"
                     />
                     <assignable-range-control
                         v-model.number="odPreBand"
                         :param-id="MIDI_ASSIGNABLE.OD_PRE_BAND"
-                        :label="$t('bandpassPre')"
+                        :label="t('bandpassPre')"
                     />
                     <assignable-range-control
                         v-model.number="odColor"
                         :param-id="MIDI_ASSIGNABLE.OD_COLOR"
-                        :label="$t('bandpassPost')"
+                        :label="t('bandpassPost')"
                     />
                     <assignable-range-control
                         v-model.number="odPostCut"
                         :param-id="MIDI_ASSIGNABLE.OD_POST_CUT"
-                        :label="$t('lpPost')"
+                        :label="t('lpPost')"
                     />
                 </fieldset>
 
                 <fieldset id="delayEditor" class="instrument-parameters">
-                    <legend v-t="'delayLegend'"></legend>
+                    <legend>{{ t( "delayLegend" ) }}</legend>
                     <assignable-toggle-control
                         v-model="delayEnabled"
                         :param-id="MIDI_ASSIGNABLE.DELAY_ENABLED"
@@ -149,19 +153,17 @@
                     />
                     <!-- not sure whether this offers any usable flexibility -->
                     <select v-if="false" v-model.number="delayType">
-                        <option v-t="'delay0'" value="0"></option>
-                        <option v-t="'delay1'" value="1"></option>
-                        <option v-t="'delay2'" value="2"></option>
+                        <option value="0">{{ t( "delay0" ) }}</option>
+                        <option value="1">{{ t( "delay1" ) }}</option>
+                        <option value="2">{{ t( "delay2" ) }}</option>
                     </select>
                     <assignable-range-control
                         v-model.number="delayTime"
                         :param-id="MIDI_ASSIGNABLE.DELAY_TIME"
-                        :label="$t('delayTime')"
+                        :label="t('delayTime')"
                     />
                     <div class="wrapper toggle delay-tempo-sync">
-                        <label
-                            v-t="'tempoSync'"
-                        ></label>
+                        <label>{{ t( "tempoSync" ) }}</label>
                         <toggle-button
                             v-model="delaySync"
                             sync
@@ -170,22 +172,22 @@
                     <assignable-range-control
                         v-model.number="delayFeedback"
                         :param-id="MIDI_ASSIGNABLE.DELAY_FEEDBACK"
-                        :label="$t('feedback')"
+                        :label="t('feedback')"
                     />
                     <assignable-range-control
                         v-model.number="delayDry"
                         :param-id="MIDI_ASSIGNABLE.DELAY_DRY"
-                        :label="$t('dryMix')"
+                        :label="t('dryMix')"
                     />
                     <assignable-range-control
                         v-model.number="delayCutoff"
                         :param-id="MIDI_ASSIGNABLE.DELAY_CUTOFF"
-                        :label="$t('cutoff')"
+                        :label="t('cutoff')"
                     />
                     <assignable-range-control
                         v-model.number="delayOffset"
                         :param-id="MIDI_ASSIGNABLE.DELAY_OFFSET"
-                        :label="$t('offset')"
+                        :label="t('offset')"
                     />
                 </fieldset>
             </div>
@@ -194,6 +196,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters } from "vuex";
 import ControllerEditor from "@/components/instrument-editor/mixins/controller-editor";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
@@ -208,14 +211,11 @@ import messages from "./messages.json";
 
 export default {
     emits: [ "invalidate" ],
-    i18n: { messages },
     components: {
         SelectBox,
         ToggleButton,
     },
-    mixins: [
-        ControllerEditor
-    ],
+    mixins: [ ControllerEditor ],
     props: {
         instrumentIndex: {
             type: Number,
@@ -233,6 +233,10 @@ export default {
     data: () => ({
         activeModuleTab: 0,
     }),
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
+    },
     computed: {
         ...mapState([
             "windowSize",
@@ -447,23 +451,23 @@ export default {
         },
         filterOptions(): { label: string, value: string }[] {
             return [
-                { label: this.$t( "lfoOff" ),   value : "off" },
-                { label: this.$t( "sine" ),     value : "sine" },
-                { label: this.$t( "square" ),   value : "square" },
-                { label: this.$t( "sawtooth" ), value : "sawtooth" },
-                { label: this.$t( "triangle" ), value : "triangle" }
+                { label: this.t( "lfoOff" ),   value : "off" },
+                { label: this.t( "sine" ),     value : "sine" },
+                { label: this.t( "square" ),   value : "square" },
+                { label: this.t( "sawtooth" ), value : "sawtooth" },
+                { label: this.t( "triangle" ), value : "triangle" }
             ];
         },
         filterTypeOptions(): { label: string, value: string }[] {
             return [
-                { label: this.$t( "lowpass" ),   value: "lowpass" },
-                { label: this.$t( "highpass" ),  value: "highpass" },
-                { label: this.$t( "bandpass" ),  value: "bandpass" },
-                { label: this.$t( "lowshelf" ),  value: "lowshelf" },
-                { label: this.$t( "highshelf" ), value: "highshelf" },
-                { label: this.$t( "peaking" ),   value: "peaking" },
-                { label: this.$t( "notch" ),     value: "notch" },
-                { label: this.$t( "allpass" ),   value: "allpass" },
+                { label: this.t( "lowpass" ),   value: "lowpass" },
+                { label: this.t( "highpass" ),  value: "highpass" },
+                { label: this.t( "bandpass" ),  value: "bandpass" },
+                { label: this.t( "lowshelf" ),  value: "lowshelf" },
+                { label: this.t( "highshelf" ), value: "highshelf" },
+                { label: this.t( "peaking" ),   value: "peaking" },
+                { label: this.t( "notch" ),     value: "notch" },
+                { label: this.t( "allpass" ),   value: "allpass" },
             ];
         },
         assignable(): boolean {

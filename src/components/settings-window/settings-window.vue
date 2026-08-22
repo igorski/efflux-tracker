@@ -23,7 +23,7 @@
 <template>
     <div class="settings">
         <div class="header">
-            <h2 v-t="'title'"></h2>
+            <h2>{{ t( "title" ) }}</h2>
             <button
                 type="button"
                 class="close-button"
@@ -33,16 +33,16 @@
         <hr class="divider" />
         <section>
             <fieldset>
-                <legend v-t="'generalSettings'"></legend>
+                <legend>{{ t( "generalSettings" ) }}</legend>
                 <div class="wrapper toggle">
-                    <label v-t="'showHelpPanel'" class="label"></label>
+                    <label class="label">{{ t( "showHelpPanel" ) }}</label>
                     <toggle-button
                         v-model="displayHelpPanel"
                         sync
                     />
                 </div>
                 <div class="wrapper toggle">
-                    <label v-t="'showWelcomeOnStartup'" class="label"></label>
+                    <label class="label">{{ t( "showWelcomeOnStartup" ) }}</label>
                     <toggle-button
                         v-model="showHelpOnStartup"
                         sync
@@ -50,9 +50,9 @@
                 </div>
             </fieldset>
             <fieldset>
-                <legend v-t="'sequencerSettings'"></legend>
+                <legend>{{ t( "sequencerSettings" ) }}</legend>
                 <div class="wrapper select">
-                    <label v-t="'parameterInputFormat'" class="label"></label>
+                    <label class="label">{{ t( "parameterInputFormat" ) }}</label>
                     <select-box
                         v-model="paramFormatType"
                         :options="paramFormatOptions"
@@ -60,14 +60,14 @@
                     />
                 </div>
                 <div class="wrapper toggle">
-                    <label v-t="'followPlayback'" class="label"></label>
+                    <label class="label">{{ t( "followPlayback" ) }}</label>
                     <toggle-button
                         v-model="trackFollow"
                         sync
                     />
                 </div>
                 <div class="wrapper toggle">
-                    <label v-t="'usePatternOrders'" class="label"></label>
+                    <label class="label">{{ t( "usePatternOrders" ) }}</label>
                     <toggle-button
                         v-model="usePatternOrders"
                         :disabled="!canUseOrders"
@@ -78,22 +78,20 @@
         </section>
         <section id="midiSetup" v-if="hasMidiSupport">
             <fieldset>
-                <legend v-t="'midiSetup'"></legend>
+                <legend>{{ t( "midiSetup" ) }}</legend>
                 <div class="pane">
                     <button
                         v-if="!midiConnected"
-                        v-t="'midiConnectToAPI'"
                         type="button"
                         @click="connectMidiDevices"
-                    ></button>
+                    >{{ t( "midiConnectToAPI" ) }}</button>
                     <button
                         v-else
-                        v-t="'manageMidiPresets'"
                         type="button"
                         @click="openMIDIPresetManager"
-                    ></button>
+                    >{{ t( "manageMidiPresets" ) }}</button>
                     <div class="wrapper select">
-                        <label v-t="'deviceSelectLabel'" class="midi-select-label"></label>
+                        <label class="midi-select-label">{{ t( "deviceSelectLabel" ) }}</label>
                         <select-box
                             v-model="portNumber"
                             :options="midiDeviceOptions"
@@ -103,10 +101,7 @@
                     </div>
                 </div>
                 <div class="pane">
-                    <p
-                        v-t="'midiDescription'"
-                        class="description"
-                    ></p>
+                    <p class="description">{{ t( "midiDescription" ) }}</p>
                 </div>
             </fieldset>
         </section>
@@ -114,6 +109,7 @@
 </template>
 
 <script lang="ts">
+import { type ComposerTranslation, useI18n } from "vue-i18n";
 import { mapState, mapGetters, mapMutations } from "vuex";
 import { zMIDI } from "zmidi";
 import ToggleButton from "@/components/third-party/vue-js-toggle-button/ToggleButton.vue";
@@ -126,10 +122,13 @@ import { PROPERTIES } from "@/store/modules/settings-module";
 import messages from "./messages.json";
 
 export default {
-    i18n: { messages },
     components: {
         SelectBox,
         ToggleButton,
+    },
+    setup(): { t: ComposerTranslation } {
+        const { t } = useI18n({ messages });
+        return { t };
     },
     computed: {
         ...mapState({
@@ -200,13 +199,13 @@ export default {
         },
         paramFormatOptions(): { label: string, value: string }[] {
             return [
-                { label: this.$t( "hex" ), value: "hex" },
-                { label: this.$t( "pct" ), value: "pct" }
+                { label: this.t( "hex" ), value: "hex" },
+                { label: this.t( "pct" ), value: "pct" }
             ];
         },
         midiDeviceOptions(): { label: string, value: string }[] {
             if ( !this.midiDeviceList.length ) {
-                return [{ label: this.$t( "connectDevice" ), value: "-1" }];
+                return [{ label: this.t( "connectDevice" ), value: "-1" }];
             }
             return this.midiDeviceList.map(({ title, port }) => ({
                 label: title,
@@ -227,7 +226,7 @@ export default {
 
             const device = zMIDI.getInChannels()[ value ];
             this.showNotification({ message:
-                this.$t( "midiEnabled", { device: `${device.manufacturer} ${device.name}` })
+                this.t( "midiEnabled", { device: `${device.manufacturer} ${device.name}` })
             });
         },
     },
@@ -258,7 +257,7 @@ export default {
             }
             this.createMidiDeviceList( inputs );
             if ( inputs.length === 0 ) {
-                this.showNotification({ message: this.$t( "noMidiDevices" )});
+                this.showNotification({ message: this.t( "noMidiDevices" )});
                 return;
             }
             this.publishMessage( PubSubMessages.MIDI_CONNECTED );
@@ -270,7 +269,7 @@ export default {
             }
         },
         handleMIDIconnectFailure(): void {
-            this.showNotification({ title: this.$t( "error" ), message: this.$t( "midiFailure" ) });
+            this.showNotification({ title: this.t( "error" ), message: this.t( "midiFailure" ) });
         },
         openMIDIPresetManager(): void {
             this.openModal( ModalWindows.MIDI_PRESET_MANAGER );
