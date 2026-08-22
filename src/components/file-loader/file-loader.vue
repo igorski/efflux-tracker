@@ -25,13 +25,13 @@
         <button
             type="button"
             @click="loadFile()"
-        >{{ t( "buttonText.local" ) }}</button>
+        >{{ t( "loadFile" ) }}</button>
         <button
             v-if="!dropbox"
             type="button"
             class="dropbox-button"
             @click="dropbox = true"
-        >{{ t( "buttonText.dropbox" ) }}</button>
+        >{{ t( "loadFromDropbox" ) }}</button>
         <component :is="cloudImportType" />
     </div>
 </template>
