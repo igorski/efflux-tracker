@@ -33,6 +33,7 @@
     "eslint-plugin-vue": "^8.7.1",
     "extendable-media-recorder": "^6.5.10",
     "extendable-media-recorder-wav-encoder": "^7.0.62",
+    "jsdom": "^30.0.1",
     "lodash.debounce": "^4.0.8",
     "lz-string": "^1.4.4",
     "midi-writer-js": "^2.0.1",
